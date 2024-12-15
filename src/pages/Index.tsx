@@ -1,8 +1,10 @@
 import { useState } from "react";
-import { Calendar, Users, Clock, FileText, Menu } from "lucide-react";
+import { Calendar, Users, Clock, FileText, Menu, CheckSquare } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 const Index = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation();
 
   return (
     <div className="min-h-screen flex">
@@ -29,22 +31,34 @@ const Index = () => {
         </div>
 
         <nav className="space-y-2">
-          <a href="#" className="sidebar-link active">
+          <Link
+            to="/"
+            className={`sidebar-link ${location.pathname === "/" ? "active" : ""}`}
+          >
             <Calendar className="w-5 h-5" />
             {isSidebarOpen && <span>Planning</span>}
-          </a>
-          <a href="#" className="sidebar-link">
+          </Link>
+          <Link
+            to="/tasks"
+            className={`sidebar-link ${
+              location.pathname === "/tasks" ? "active" : ""
+            }`}
+          >
+            <CheckSquare className="w-5 h-5" />
+            {isSidebarOpen && <span>Tâches</span>}
+          </Link>
+          <Link to="#" className="sidebar-link">
             <Users className="w-5 h-5" />
             {isSidebarOpen && <span>Collaborateurs</span>}
-          </a>
-          <a href="#" className="sidebar-link">
+          </Link>
+          <Link to="#" className="sidebar-link">
             <Clock className="w-5 h-5" />
             {isSidebarOpen && <span>Temps</span>}
-          </a>
-          <a href="#" className="sidebar-link">
+          </Link>
+          <Link to="#" className="sidebar-link">
             <FileText className="w-5 h-5" />
             {isSidebarOpen && <span>Rapports</span>}
-          </a>
+          </Link>
         </nav>
       </aside>
 
