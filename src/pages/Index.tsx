@@ -19,13 +19,15 @@ import {
 } from "@/components/ui/sidebar";
 
 const Index = () => {
+  const [activeItem, setActiveItem] = useState("planning");
+
   const menuItems = [
-    { icon: Calendar, label: "Planning", href: "#planning" },
-    { icon: Users, label: "Collaborateurs", href: "#collaborateurs" },
-    { icon: BriefcaseIcon, label: "Clients", href: "#clients" },
-    { icon: Clock, label: "Temps", href: "#temps" },
-    { icon: CalendarDaysIcon, label: "Absences", href: "#absences" },
-    { icon: FileText, label: "Rapports", href: "#rapports" },
+    { icon: Calendar, label: "Planning", href: "#planning", id: "planning" },
+    { icon: Users, label: "Collaborateurs", href: "#collaborateurs", id: "collaborateurs" },
+    { icon: BriefcaseIcon, label: "Clients", href: "#clients", id: "clients" },
+    { icon: Clock, label: "Temps", href: "#temps", id: "temps" },
+    { icon: CalendarDaysIcon, label: "Absences", href: "#absences", id: "absences" },
+    { icon: FileText, label: "Rapports", href: "#rapports", id: "rapports" },
   ];
 
   return (
@@ -33,13 +35,17 @@ const Index = () => {
       <div className="min-h-screen flex w-full bg-neutral-100">
         <Sidebar>
           <SidebarHeader className="p-4">
-            <h1 className="text-lg font-semibold">Cabinet XYZ</h1>
+            <h1 className="text-lg font-semibold text-neutral-800">Cabinet XYZ</h1>
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.label}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={activeItem === item.id}
+                    onClick={() => setActiveItem(item.id)}
+                  >
                     <a
                       href={item.href}
                       className="flex items-center gap-3 px-4 py-2 text-neutral-600 hover:bg-neutral-200 rounded-md transition-all duration-200"
