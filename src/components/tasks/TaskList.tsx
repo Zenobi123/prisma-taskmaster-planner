@@ -67,17 +67,19 @@ const statuses = [
 
 export function TaskList() {
   const [filters, setFilters] = useState({
-    collaborator: "",
-    client: "",
-    status: "",
+    collaborator: "all",
+    client: "all",
+    status: "all",
     search: "",
   });
 
   const filteredTasks = tasks.filter((task) => {
     const matchesCollaborator =
-      !filters.collaborator || task.collaborator === filters.collaborator;
-    const matchesClient = !filters.client || task.client === filters.client;
-    const matchesStatus = !filters.status || task.status === filters.status;
+      filters.collaborator === "all" || task.collaborator === filters.collaborator;
+    const matchesClient = 
+      filters.client === "all" || task.client === filters.client;
+    const matchesStatus = 
+      filters.status === "all" || task.status === filters.status;
     const matchesSearch =
       !filters.search ||
       task.name.toLowerCase().includes(filters.search.toLowerCase());
@@ -123,7 +125,7 @@ export function TaskList() {
             <SelectValue placeholder="Filtrer par collaborateur" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tous les collaborateurs</SelectItem>
+            <SelectItem value="all">Tous les collaborateurs</SelectItem>
             {collaborators.map((collaborator) => (
               <SelectItem key={collaborator.id} value={collaborator.name}>
                 {collaborator.name}
@@ -140,7 +142,7 @@ export function TaskList() {
             <SelectValue placeholder="Filtrer par client" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tous les clients</SelectItem>
+            <SelectItem value="all">Tous les clients</SelectItem>
             {clients.map((client) => (
               <SelectItem key={client.id} value={client.name}>
                 {client.name}
@@ -157,7 +159,7 @@ export function TaskList() {
             <SelectValue placeholder="Filtrer par statut" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Tous les statuts</SelectItem>
+            <SelectItem value="all">Tous les statuts</SelectItem>
             {statuses.map((status) => (
               <SelectItem key={status.id} value={status.id}>
                 {status.name}
