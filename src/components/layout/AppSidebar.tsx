@@ -1,4 +1,4 @@
-import { Calendar, Users, BriefCase, Clock, FileText, Bell, LogOut, Settings } from "lucide-react";
+import { Calendar, Users, Briefcase, Clock, FileText, Bell, LogOut, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -18,7 +18,7 @@ const navigationItems = [
   { title: "Tableau de bord", icon: Settings, path: "/" },
   { title: "Collaborateurs", icon: Users, path: "/collaborateurs" },
   { title: "Clients", icon: Users, path: "/clients" },
-  { title: "Missions/tâches", icon: BriefCase, path: "/tasks" },
+  { title: "Missions/tâches", icon: Briefcase, path: "/tasks" },
   { title: "Planning", icon: Calendar, path: "/planning" },
   { title: "Suivi du temps", icon: Clock, path: "/temps" },
   { title: "Rapports", icon: FileText, path: "/rapports" },
