@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Users, Clock, FileText, Menu } from "lucide-react";
+import { Calendar, Users, Briefcase, Clock, FileText, Menu } from "lucide-react";
 
 const Index = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -36,6 +36,14 @@ const Index = () => {
           <a href="#" className="sidebar-link">
             <Users className="w-5 h-5" />
             {isSidebarOpen && <span>Collaborateurs</span>}
+          </a>
+          <a href="#" className="sidebar-link">
+            <Users className="w-5 h-5" />
+            {isSidebarOpen && <span>Clients</span>}
+          </a>
+          <a href="#" className="sidebar-link">
+            <Briefcase className="w-5 h-5" />
+            {isSidebarOpen && <span>Missions</span>}
           </a>
           <a href="#" className="sidebar-link">
             <Clock className="w-5 h-5" />
