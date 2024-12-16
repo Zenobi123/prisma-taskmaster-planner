@@ -26,7 +26,7 @@
   }
 
   .sidebar-link.active {
-    @apply bg-primary/10 text-primary font-medium;
+    @apply bg-primary text-white hover:bg-primary-hover;
   }
 
   .btn-primary {

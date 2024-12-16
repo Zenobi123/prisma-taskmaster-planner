@@ -45,7 +45,7 @@ const Index = () => {
             <Briefcase className="w-5 h-5" />
             {isSidebarOpen && <span>Missions</span>}
           </a>
-          <a href="#" className="sidebar-link active">
+          <a href="#" className="sidebar-link">
             <Calendar className="w-5 h-5" />
             {isSidebarOpen && <span>Planning</span>}
           </a>
