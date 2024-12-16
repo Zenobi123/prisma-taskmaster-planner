@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Calendar, Users, Briefcase, Clock, FileText, Menu } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, Calendar, Clock, FileText, Menu } from "lucide-react";
 
 const Index = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -29,9 +29,9 @@ const Index = () => {
         </div>
 
         <nav className="space-y-2">
-          <a href="#" className="sidebar-link active">
-            <Calendar className="w-5 h-5" />
-            {isSidebarOpen && <span>Planning</span>}
+          <a href="#" className="sidebar-link">
+            <LayoutDashboard className="w-5 h-5" />
+            {isSidebarOpen && <span>Dashboard</span>}
           </a>
           <a href="#" className="sidebar-link">
             <Users className="w-5 h-5" />
@@ -44,6 +44,10 @@ const Index = () => {
           <a href="#" className="sidebar-link">
             <Briefcase className="w-5 h-5" />
             {isSidebarOpen && <span>Missions</span>}
+          </a>
+          <a href="#" className="sidebar-link">
+            <Calendar className="w-5 h-5" />
+            {isSidebarOpen && <span>Planning</span>}
           </a>
           <a href="#" className="sidebar-link">
             <Clock className="w-5 h-5" />
