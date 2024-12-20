@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Plus, Search, Filter, MoreVertical, CheckCircle2, ListChecks } from "lucide-react";
+import { Plus, Search, Filter, MoreVertical, CheckCircle2, ListChecks, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -11,11 +12,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
 
 interface Collaborateur {
   id: string;
@@ -63,6 +72,15 @@ const collaborateursData: Collaborateur[] = [
 
 export default function Collaborateurs() {
   const [searchTerm, setSearchTerm] = useState("");
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newCollaborateur, setNewCollaborateur] = useState({
+    nom: "",
+    prenom: "",
+    email: "",
+    poste: "",
+  });
 
   const filteredCollaborateurs = collaborateursData.filter(
     (collab) =>
@@ -71,9 +89,30 @@ export default function Collaborateurs() {
       collab.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simuler l'ajout d'un collaborateur
+    toast({
+      title: "Collaborateur ajouté",
+      description: "Le nouveau collaborateur a été ajouté avec succès.",
+    });
+    setIsDialogOpen(false);
+    setNewCollaborateur({ nom: "", prenom: "", email: "", poste: "" });
+  };
+
   return (
     <div className="p-8">
       <header className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Retour
+          </Button>
+        </div>
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-semibold text-neutral-800">
@@ -83,10 +122,57 @@ export default function Collaborateurs() {
               Gérez votre équipe et leurs accès
             </p>
           </div>
-          <Button className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Nouveau collaborateur
-          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Nouveau collaborateur
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Ajouter un nouveau collaborateur</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Nom</label>
+                  <Input
+                    value={newCollaborateur.nom}
+                    onChange={(e) => setNewCollaborateur({ ...newCollaborateur, nom: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Prénom</label>
+                  <Input
+                    value={newCollaborateur.prenom}
+                    onChange={(e) => setNewCollaborateur({ ...newCollaborateur, prenom: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Email</label>
+                  <Input
+                    type="email"
+                    value={newCollaborateur.email}
+                    onChange={(e) => setNewCollaborateur({ ...newCollaborateur, email: e.target.value })}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-1 block">Poste</label>
+                  <Input
+                    value={newCollaborateur.poste}
+                    onChange={(e) => setNewCollaborateur({ ...newCollaborateur, poste: e.target.value })}
+                    required
+                  />
+                </div>
+                <Button type="submit" className="w-full">
+                  Ajouter le collaborateur
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </header>
 
