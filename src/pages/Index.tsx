@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { LayoutDashboard, Users, Briefcase, Calendar, Clock, FileText, Menu } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 const Index = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const location = useLocation();
+
+  const isActiveRoute = (path: string) => {
+    return location.pathname === path;
+  };
 
   return (
     <div className="min-h-screen flex">
@@ -29,34 +35,34 @@ const Index = () => {
         </div>
 
         <nav className="space-y-2">
-          <a href="#" className="sidebar-link">
+          <Link to="/" className={`sidebar-link ${isActiveRoute("/") && "active"}`}>
             <LayoutDashboard className="w-5 h-5" />
             {isSidebarOpen && <span>Dashboard</span>}
-          </a>
-          <a href="#" className="sidebar-link">
+          </Link>
+          <Link to="/collaborateurs" className={`sidebar-link ${isActiveRoute("/collaborateurs") && "active"}`}>
             <Users className="w-5 h-5" />
             {isSidebarOpen && <span>Collaborateurs</span>}
-          </a>
-          <a href="#" className="sidebar-link">
+          </Link>
+          <Link to="/clients" className={`sidebar-link ${isActiveRoute("/clients") && "active"}`}>
             <Users className="w-5 h-5" />
             {isSidebarOpen && <span>Clients</span>}
-          </a>
-          <a href="#" className="sidebar-link">
+          </Link>
+          <Link to="/missions" className={`sidebar-link ${isActiveRoute("/missions") && "active"}`}>
             <Briefcase className="w-5 h-5" />
             {isSidebarOpen && <span>Missions</span>}
-          </a>
-          <a href="#" className="sidebar-link">
+          </Link>
+          <Link to="/planning" className={`sidebar-link ${isActiveRoute("/planning") && "active"}`}>
             <Calendar className="w-5 h-5" />
             {isSidebarOpen && <span>Planning</span>}
-          </a>
-          <a href="#" className="sidebar-link">
+          </Link>
+          <Link to="/temps" className={`sidebar-link ${isActiveRoute("/temps") && "active"}`}>
             <Clock className="w-5 h-5" />
             {isSidebarOpen && <span>Temps</span>}
-          </a>
-          <a href="#" className="sidebar-link">
+          </Link>
+          <Link to="/rapports" className={`sidebar-link ${isActiveRoute("/rapports") && "active"}`}>
             <FileText className="w-5 h-5" />
             {isSidebarOpen && <span>Rapports</span>}
-          </a>
+          </Link>
         </nav>
       </aside>
 
