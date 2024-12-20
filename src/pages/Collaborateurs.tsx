@@ -1,16 +1,8 @@
 import { useState } from "react";
-import { Plus, Search, Filter, MoreVertical, CheckCircle2, ListChecks, ArrowLeft } from "lucide-react";
+import { Plus, Search, Filter, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -18,13 +10,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
+import { CollaborateurList } from "@/components/collaborateurs/CollaborateurList";
+import { CollaborateurForm } from "@/components/collaborateurs/CollaborateurForm";
 
 interface Collaborateur {
   id: string;
@@ -80,6 +68,8 @@ export default function Collaborateurs() {
     prenom: "",
     email: "",
     poste: "",
+    telephone: "",
+    niveauEtude: "",
   });
 
   const filteredCollaborateurs = collaborateursData.filter(
@@ -91,21 +81,34 @@ export default function Collaborateurs() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simuler l'ajout d'un collaborateur
     toast({
       title: "Collaborateur ajouté",
       description: "Le nouveau collaborateur a été ajouté avec succès.",
     });
     setIsDialogOpen(false);
-    setNewCollaborateur({ nom: "", prenom: "", email: "", poste: "" });
+    setNewCollaborateur({
+      nom: "",
+      prenom: "",
+      email: "",
+      poste: "",
+      telephone: "",
+      niveauEtude: "",
+    });
+  };
+
+  const handleChange = (field: string, value: string) => {
+    setNewCollaborateur((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   return (
     <div className="p-8">
       <header className="mb-8">
         <div className="flex items-center gap-4 mb-4">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => navigate("/")}
             className="flex items-center gap-2"
           >
@@ -133,44 +136,11 @@ export default function Collaborateurs() {
               <DialogHeader>
                 <DialogTitle>Ajouter un nouveau collaborateur</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Nom</label>
-                  <Input
-                    value={newCollaborateur.nom}
-                    onChange={(e) => setNewCollaborateur({ ...newCollaborateur, nom: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Prénom</label>
-                  <Input
-                    value={newCollaborateur.prenom}
-                    onChange={(e) => setNewCollaborateur({ ...newCollaborateur, prenom: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Email</label>
-                  <Input
-                    type="email"
-                    value={newCollaborateur.email}
-                    onChange={(e) => setNewCollaborateur({ ...newCollaborateur, email: e.target.value })}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1 block">Poste</label>
-                  <Input
-                    value={newCollaborateur.poste}
-                    onChange={(e) => setNewCollaborateur({ ...newCollaborateur, poste: e.target.value })}
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full">
-                  Ajouter le collaborateur
-                </Button>
-              </form>
+              <CollaborateurForm
+                collaborateur={newCollaborateur}
+                onChange={handleChange}
+                onSubmit={handleSubmit}
+              />
             </DialogContent>
           </Dialog>
         </div>
@@ -194,80 +164,7 @@ export default function Collaborateurs() {
           </Button>
         </div>
 
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nom</TableHead>
-                <TableHead>Poste</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Date d'entrée</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>Tâches en cours</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCollaborateurs.map((collaborateur) => (
-                <TableRow key={collaborateur.id}>
-                  <TableCell className="font-medium">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-primary font-medium">
-                          {collaborateur.prenom[0]}
-                          {collaborateur.nom[0]}
-                        </span>
-                      </div>
-                      {collaborateur.prenom} {collaborateur.nom}
-                    </div>
-                  </TableCell>
-                  <TableCell>{collaborateur.poste}</TableCell>
-                  <TableCell>{collaborateur.email}</TableCell>
-                  <TableCell>
-                    {new Date(collaborateur.dateEntree).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
-                        collaborateur.statut === "actif"
-                          ? "bg-primary/10 text-primary"
-                          : "bg-neutral-100 text-neutral-700"
-                      }`}
-                    >
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      {collaborateur.statut === "actif" ? "Actif" : "Inactif"}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center gap-1.5">
-                      <ListChecks className="w-4 h-4 text-neutral-500" />
-                      {collaborateur.tachesEnCours}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          className="h-8 w-8 p-0"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>Voir le profil</DropdownMenuItem>
-                        <DropdownMenuItem>Modifier</DropdownMenuItem>
-                        <DropdownMenuItem className="text-red-600">
-                          Supprimer
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <CollaborateurList collaborateurs={filteredCollaborateurs} />
       </div>
     </div>
   );
