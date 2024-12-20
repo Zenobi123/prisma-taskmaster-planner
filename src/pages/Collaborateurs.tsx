@@ -1,8 +1,78 @@
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Filter, MoreVertical } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useState } from "react";
 
-const Collaborateurs = () => {
+interface Collaborateur {
+  id: string;
+  nom: string;
+  prenom: string;
+  email: string;
+  poste: string;
+  dateEntree: string;
+  statut: "actif" | "inactif";
+  tachesEnCours: number;
+}
+
+const collaborateursData: Collaborateur[] = [
+  {
+    id: "1",
+    nom: "Dubois",
+    prenom: "Marie",
+    email: "marie.dubois@cabinet.fr",
+    poste: "Expert Comptable",
+    dateEntree: "2023-01-01",
+    statut: "actif",
+    tachesEnCours: 5,
+  },
+  {
+    id: "2",
+    nom: "Martin",
+    prenom: "Pierre",
+    email: "pierre.martin@cabinet.fr",
+    poste: "Comptable",
+    dateEntree: "2023-03-15",
+    statut: "actif",
+    tachesEnCours: 3,
+  },
+  {
+    id: "3",
+    nom: "Bernard",
+    prenom: "Sophie",
+    email: "sophie.bernard@cabinet.fr",
+    poste: "Assistante comptable",
+    dateEntree: "2023-06-01",
+    statut: "actif",
+    tachesEnCours: 4,
+  },
+];
+
+export default function Collaborateurs() {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredCollaborateurs = collaborateursData.filter(
+    (collab) =>
+      collab.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      collab.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      collab.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
-    <main className="flex-1 p-8">
+    <div className="p-8">
       <header className="mb-8">
         <div className="flex items-center justify-between">
           <div>
@@ -13,90 +83,100 @@ const Collaborateurs = () => {
               Gérez votre équipe et leurs accès
             </p>
           </div>
-          <button className="btn-primary flex items-center gap-2">
+          <Button className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
             Nouveau collaborateur
-          </button>
+          </Button>
         </div>
       </header>
 
-      {/* Search and filters */}
-      <div className="card mb-6">
-        <div className="flex gap-4">
+      <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
+        <div className="flex gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500" />
-            <input
+            <Input
               type="text"
               placeholder="Rechercher un collaborateur..."
-              className="input-field pl-10"
+              className="pl-10"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <button className="btn-secondary">Filtres</button>
+          <Button variant="outline" className="flex items-center gap-2">
+            <Filter className="w-4 h-4" />
+            Filtres
+          </Button>
         </div>
-      </div>
 
-      {/* Team members list */}
-      <div className="card">
-        <div className="table-container">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Fonction</th>
-                <th>Email</th>
-                <th>Statut</th>
-                <th>Date d'entrée</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-medium">MD</span>
-                  </div>
-                  <span>Marie Dubois</span>
-                </td>
-                <td>Expert Comptable</td>
-                <td>marie.d@cabinet.fr</td>
-                <td>
-                  <span className="badge badge-green">Actif</span>
-                </td>
-                <td>01/01/2023</td>
-              </tr>
-              <tr>
-                <td className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-medium">PL</span>
-                  </div>
-                  <span>Pierre Lambert</span>
-                </td>
-                <td>Comptable</td>
-                <td>pierre.l@cabinet.fr</td>
-                <td>
-                  <span className="badge badge-green">Actif</span>
-                </td>
-                <td>15/03/2023</td>
-              </tr>
-              <tr>
-                <td className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary font-medium">SB</span>
-                  </div>
-                  <span>Sophie Bernard</span>
-                </td>
-                <td>Assistante comptable</td>
-                <td>sophie.b@cabinet.fr</td>
-                <td>
-                  <span className="badge badge-gray">En congé</span>
-                </td>
-                <td>01/06/2023</td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="rounded-lg border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Nom</TableHead>
+                <TableHead>Poste</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Date d'entrée</TableHead>
+                <TableHead>Statut</TableHead>
+                <TableHead>Tâches en cours</TableHead>
+                <TableHead className="w-[50px]"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredCollaborateurs.map((collaborateur) => (
+                <TableRow key={collaborateur.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                        <span className="text-primary font-medium">
+                          {collaborateur.prenom[0]}
+                          {collaborateur.nom[0]}
+                        </span>
+                      </div>
+                      {collaborateur.prenom} {collaborateur.nom}
+                    </div>
+                  </TableCell>
+                  <TableCell>{collaborateur.poste}</TableCell>
+                  <TableCell>{collaborateur.email}</TableCell>
+                  <TableCell>
+                    {new Date(collaborateur.dateEntree).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        collaborateur.statut === "actif"
+                          ? "bg-primary/10 text-primary"
+                          : "bg-neutral-100 text-neutral-700"
+                      }`}
+                    >
+                      {collaborateur.statut === "actif" ? "Actif" : "Inactif"}
+                    </span>
+                  </TableCell>
+                  <TableCell>{collaborateur.tachesEnCours}</TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>Voir le profil</DropdownMenuItem>
+                        <DropdownMenuItem>Modifier</DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          Supprimer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
-    </main>
+    </div>
   );
-};
-
-export default Collaborateurs;
+}
