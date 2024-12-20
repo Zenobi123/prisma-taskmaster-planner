@@ -1,4 +1,5 @@
-import { Plus, Search, Filter, MoreVertical } from "lucide-react";
+import { useState } from "react";
+import { Plus, Search, Filter, MoreVertical, CheckCircle2, ListChecks } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,7 +16,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
 
 interface Collaborateur {
   id: string;
@@ -142,16 +142,22 @@ export default function Collaborateurs() {
                   </TableCell>
                   <TableCell>
                     <span
-                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
                         collaborateur.statut === "actif"
                           ? "bg-primary/10 text-primary"
                           : "bg-neutral-100 text-neutral-700"
                       }`}
                     >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                       {collaborateur.statut === "actif" ? "Actif" : "Inactif"}
                     </span>
                   </TableCell>
-                  <TableCell>{collaborateur.tachesEnCours}</TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center gap-1.5">
+                      <ListChecks className="w-4 h-4 text-neutral-500" />
+                      {collaborateur.tachesEnCours}
+                    </span>
+                  </TableCell>
                   <TableCell>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
