@@ -11,6 +11,7 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { CollaborateurList } from "@/components/collaborateurs/CollaborateurList";
 import { CollaborateurForm } from "@/components/collaborateurs/CollaborateurForm";
@@ -143,18 +144,20 @@ export default function Collaborateurs() {
                 Nouveau collaborateur
               </Button>
             </DialogTrigger>
-            <DialogContent className="bg-white">
+            <DialogContent className="bg-white max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>Ajouter un nouveau collaborateur</DialogTitle>
                 <DialogDescription>
                   Remplissez les informations du nouveau collaborateur ci-dessous.
                 </DialogDescription>
               </DialogHeader>
-              <CollaborateurForm
-                collaborateur={newCollaborateur}
-                onChange={handleChange}
-                onSubmit={handleSubmit}
-              />
+              <ScrollArea className="h-[70vh] pr-4">
+                <CollaborateurForm
+                  collaborateur={newCollaborateur}
+                  onChange={handleChange}
+                  onSubmit={handleSubmit}
+                />
+              </ScrollArea>
             </DialogContent>
           </Dialog>
         </div>
