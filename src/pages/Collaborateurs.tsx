@@ -71,6 +71,11 @@ export default function Collaborateurs() {
     poste: "",
     telephone: "",
     niveauEtude: "",
+    dateEntree: "",
+    dateNaissance: "",
+    statut: "",
+    ville: "",
+    quartier: "",
   });
 
   const filteredCollaborateurs = collaborateursData.filter(
@@ -94,6 +99,11 @@ export default function Collaborateurs() {
       poste: "",
       telephone: "",
       niveauEtude: "",
+      dateEntree: "",
+      dateNaissance: "",
+      statut: "",
+      ville: "",
+      quartier: "",
     });
   };
 

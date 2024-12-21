@@ -10,6 +10,11 @@ interface CollaborateurFormProps {
     poste: string;
     telephone: string;
     niveauEtude: string;
+    dateEntree: string;
+    dateNaissance: string;
+    statut: string;
+    ville: string;
+    quartier: string;
   };
   onChange: (field: string, value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -24,6 +29,8 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
     "Bac+5",
     "Doctorat"
   ];
+
+  const statuts = ["actif", "inactif"];
 
   return (
     <form onSubmit={onSubmit} className="space-y-4 mt-4">
@@ -71,6 +78,40 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
         />
       </div>
       <div>
+        <label className="text-sm font-medium mb-1 block">Date d'entrée dans le Cabinet</label>
+        <Input
+          type="date"
+          value={collaborateur.dateEntree}
+          onChange={(e) => onChange("dateEntree", e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium mb-1 block">Date de naissance</label>
+        <Input
+          type="date"
+          value={collaborateur.dateNaissance}
+          onChange={(e) => onChange("dateNaissance", e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium mb-1 block">Ville</label>
+        <Input
+          value={collaborateur.ville}
+          onChange={(e) => onChange("ville", e.target.value)}
+          required
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium mb-1 block">Quartier</label>
+        <Input
+          value={collaborateur.quartier}
+          onChange={(e) => onChange("quartier", e.target.value)}
+          required
+        />
+      </div>
+      <div>
         <label className="text-sm font-medium mb-1 block">Niveau d'étude</label>
         <Select
           value={collaborateur.niveauEtude}
@@ -83,6 +124,24 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
             {niveauxEtude.map((niveau) => (
               <SelectItem key={niveau} value={niveau}>
                 {niveau}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <label className="text-sm font-medium mb-1 block">Statut</label>
+        <Select
+          value={collaborateur.statut}
+          onValueChange={(value) => onChange("statut", value)}
+        >
+          <SelectTrigger className="w-full bg-white">
+            <SelectValue placeholder="Sélectionnez un statut" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            {statuts.map((statut) => (
+              <SelectItem key={statut} value={statut}>
+                {statut}
               </SelectItem>
             ))}
           </SelectContent>
