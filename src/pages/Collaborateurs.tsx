@@ -74,8 +74,8 @@ const collaborateursData: Collaborateur[] = [
 
 export default function Collaborateurs() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStatut, setSelectedStatut] = useState<string>("");
-  const [selectedPoste, setSelectedPoste] = useState<string>("");
+  const [selectedStatut, setSelectedStatut] = useState<string>("all");
+  const [selectedPoste, setSelectedPoste] = useState<string>("all");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -105,10 +105,10 @@ export default function Collaborateurs() {
       collab.email.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatut =
-      selectedStatut === "" || collab.statut === selectedStatut;
+      selectedStatut === "all" || collab.statut === selectedStatut;
 
     const matchesPoste =
-      selectedPoste === "" || collab.poste === selectedPoste;
+      selectedPoste === "all" || collab.poste === selectedPoste;
 
     return matchesSearch && matchesStatut && matchesPoste;
   });
@@ -211,9 +211,9 @@ export default function Collaborateurs() {
               >
                 <Filter className="w-4 h-4" />
                 Filtres
-                {(selectedStatut || selectedPoste) && (
+                {(selectedStatut !== "all" || selectedPoste !== "all") && (
                   <span className="ml-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {Number(!!selectedStatut) + Number(!!selectedPoste)}
+                    {Number(selectedStatut !== "all") + Number(selectedPoste !== "all")}
                   </span>
                 )}
               </Button>
@@ -230,7 +230,7 @@ export default function Collaborateurs() {
                       <SelectValue placeholder="Sélectionner un statut" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tous</SelectItem>
+                      <SelectItem value="all">Tous</SelectItem>
                       <SelectItem value="actif">Actif</SelectItem>
                       <SelectItem value="inactif">Inactif</SelectItem>
                     </SelectContent>
@@ -246,7 +246,7 @@ export default function Collaborateurs() {
                       <SelectValue placeholder="Sélectionner un poste" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Tous</SelectItem>
+                      <SelectItem value="all">Tous</SelectItem>
                       {postes.map((poste) => (
                         <SelectItem key={poste} value={poste}>
                           {poste}
