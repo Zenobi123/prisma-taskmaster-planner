@@ -8,6 +8,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
@@ -127,14 +128,17 @@ export default function Collaborateurs() {
           </div>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
+              <Button className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white">
                 <Plus className="w-4 h-4" />
                 Nouveau collaborateur
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="bg-white">
               <DialogHeader>
                 <DialogTitle>Ajouter un nouveau collaborateur</DialogTitle>
+                <DialogDescription>
+                  Remplissez les informations du nouveau collaborateur ci-dessous.
+                </DialogDescription>
               </DialogHeader>
               <CollaborateurForm
                 collaborateur={newCollaborateur}

@@ -76,10 +76,10 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
           value={collaborateur.niveauEtude}
           onValueChange={(value) => onChange("niveauEtude", value)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full bg-white">
             <SelectValue placeholder="Sélectionnez un niveau d'étude" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             {niveauxEtude.map((niveau) => (
               <SelectItem key={niveau} value={niveau}>
                 {niveau}
@@ -88,7 +88,10 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
           </SelectContent>
         </Select>
       </div>
-      <Button type="submit" className="w-full">
+      <Button 
+        type="submit" 
+        className="w-full bg-primary hover:bg-primary-hover text-white"
+      >
         Ajouter le collaborateur
       </Button>
     </form>
