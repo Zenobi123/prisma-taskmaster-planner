@@ -11,6 +11,18 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { CollaborateurList } from "@/components/collaborateurs/CollaborateurList";
@@ -62,6 +74,9 @@ const collaborateursData: Collaborateur[] = [
 
 export default function Collaborateurs() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatut, setSelectedStatut] = useState<string>("");
+  const [selectedPoste, setSelectedPoste] = useState<string>("");
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -79,12 +94,24 @@ export default function Collaborateurs() {
     quartier: "",
   });
 
-  const filteredCollaborateurs = collaborateursData.filter(
-    (collab) =>
+  const postes = Array.from(
+    new Set(collaborateursData.map((collab) => collab.poste))
+  );
+
+  const filteredCollaborateurs = collaborateursData.filter((collab) => {
+    const matchesSearch =
       collab.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       collab.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      collab.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      collab.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatut =
+      selectedStatut === "" || collab.statut === selectedStatut;
+
+    const matchesPoste =
+      selectedPoste === "" || collab.poste === selectedPoste;
+
+    return matchesSearch && matchesStatut && matchesPoste;
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,10 +202,62 @@ export default function Collaborateurs() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button variant="outline" className="flex items-center gap-2">
-            <Filter className="w-4 h-4" />
-            Filtres
-          </Button>
+          <Popover open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+                onClick={() => setIsFiltersOpen(!isFiltersOpen)}
+              >
+                <Filter className="w-4 h-4" />
+                Filtres
+                {(selectedStatut || selectedPoste) && (
+                  <span className="ml-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {Number(!!selectedStatut) + Number(!!selectedPoste)}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Statut</label>
+                  <Select
+                    value={selectedStatut}
+                    onValueChange={setSelectedStatut}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner un statut" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Tous</SelectItem>
+                      <SelectItem value="actif">Actif</SelectItem>
+                      <SelectItem value="inactif">Inactif</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Poste</label>
+                  <Select
+                    value={selectedPoste}
+                    onValueChange={setSelectedPoste}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner un poste" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Tous</SelectItem>
+                      {postes.map((poste) => (
+                        <SelectItem key={poste} value={poste}>
+                          {poste}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
         <CollaborateurList collaborateurs={filteredCollaborateurs} />
