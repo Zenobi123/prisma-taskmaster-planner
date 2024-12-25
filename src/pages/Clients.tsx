@@ -3,7 +3,30 @@ import { Plus, Search, Filter, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
+import { ClientList } from "@/components/clients/ClientList";
+import { ClientForm } from "@/components/clients/ClientForm";
 
 interface Client {
   id: string;
@@ -13,37 +36,62 @@ interface Client {
   telephone: string;
   adresse: string;
   ville: string;
-  codePostal: string;
-  dateCreation: string;
+  secteur: string;
   statut: "actif" | "inactif";
 }
 
 const clientsData: Client[] = [
   {
     id: "1",
-    raisonSociale: "Entreprise A",
+    raisonSociale: "SARL Example",
     siren: "123456789",
-    email: "contact@entreprisea.fr",
-    telephone: "0123456789",
+    email: "contact@example.fr",
+    telephone: "01 23 45 67 89",
     adresse: "123 rue des Entreprises",
     ville: "Paris",
-    codePostal: "75001",
-    dateCreation: "2023-01-01",
+    secteur: "Services",
+    statut: "actif",
+  },
+  {
+    id: "2",
+    raisonSociale: "SAS Tech",
+    siren: "987654321",
+    email: "contact@sastech.fr",
+    telephone: "01 98 76 54 32",
+    adresse: "456 avenue de l'Innovation",
+    ville: "Lyon",
+    secteur: "Technologie",
     statut: "actif",
   },
 ];
 
 export default function Clients() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatut, setSelectedStatut] = useState<string>("all");
+  const [selectedSecteur, setSelectedSecteur] = useState<string>("all");
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const filteredClients = clientsData.filter(
-    (client) =>
+  const secteurs = Array.from(
+    new Set(clientsData.map((client) => client.secteur))
+  );
+
+  const filteredClients = clientsData.filter((client) => {
+    const matchesSearch =
       client.raisonSociale.toLowerCase().includes(searchTerm.toLowerCase()) ||
       client.siren.includes(searchTerm) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      client.email.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatut =
+      selectedStatut === "all" || client.statut === selectedStatut;
+
+    const matchesSecteur =
+      selectedSecteur === "all" || client.secteur === selectedSecteur;
+
+    return matchesSearch && matchesStatut && matchesSecteur;
+  });
 
   return (
     <div className="p-8">
@@ -67,10 +115,33 @@ export default function Clients() {
               Gérez vos clients et leurs informations
             </p>
           </div>
-          <Button className="flex items-center gap-2 bg-primary hover:bg-primary-hover text-white">
-            <Plus className="w-4 h-4" />
-            Nouveau client
-          </Button>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="flex items-center gap-2">
+                <Plus className="w-4 h-4" />
+                Nouveau client
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="bg-white max-h-[90vh]">
+              <DialogHeader>
+                <DialogTitle>Ajouter un nouveau client</DialogTitle>
+                <DialogDescription>
+                  Remplissez les informations du nouveau client ci-dessous.
+                </DialogDescription>
+              </DialogHeader>
+              <ScrollArea className="h-[70vh] pr-4">
+                <ClientForm
+                  onSubmit={() => {
+                    toast({
+                      title: "Client ajouté",
+                      description: "Le nouveau client a été ajouté avec succès.",
+                    });
+                    setIsDialogOpen(false);
+                  }}
+                />
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
         </div>
       </header>
 
@@ -86,46 +157,64 @@ export default function Clients() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button variant="outline" className="flex items-center gap-2">
-            <Filter className="w-4 h-4" />
-            Filtres
-          </Button>
+          <Popover open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <Filter className="w-4 h-4" />
+                Filtres
+                {(selectedStatut !== "all" || selectedSecteur !== "all") && (
+                  <span className="ml-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {Number(selectedStatut !== "all") + Number(selectedSecteur !== "all")}
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Statut</label>
+                  <Select
+                    value={selectedStatut}
+                    onValueChange={setSelectedStatut}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner un statut" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous</SelectItem>
+                      <SelectItem value="actif">Actif</SelectItem>
+                      <SelectItem value="inactif">Inactif</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Secteur</label>
+                  <Select
+                    value={selectedSecteur}
+                    onValueChange={setSelectedSecteur}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Sélectionner un secteur" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous</SelectItem>
+                      {secteurs.map((secteur) => (
+                        <SelectItem key={secteur} value={secteur}>
+                          {secteur}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
         </div>
 
-        <div className="mt-4">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-neutral-200">
-                <th className="text-left py-3 px-4 text-neutral-600 font-medium">Raison sociale</th>
-                <th className="text-left py-3 px-4 text-neutral-600 font-medium">SIREN</th>
-                <th className="text-left py-3 px-4 text-neutral-600 font-medium">Email</th>
-                <th className="text-left py-3 px-4 text-neutral-600 font-medium">Téléphone</th>
-                <th className="text-left py-3 px-4 text-neutral-600 font-medium">Ville</th>
-                <th className="text-left py-3 px-4 text-neutral-600 font-medium">Statut</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredClients.map((client) => (
-                <tr key={client.id} className="border-b border-neutral-200 hover:bg-neutral-50">
-                  <td className="py-3 px-4">{client.raisonSociale}</td>
-                  <td className="py-3 px-4">{client.siren}</td>
-                  <td className="py-3 px-4">{client.email}</td>
-                  <td className="py-3 px-4">{client.telephone}</td>
-                  <td className="py-3 px-4">{client.ville}</td>
-                  <td className="py-3 px-4">
-                    <span className={`px-2 py-1 rounded-full text-sm ${
-                      client.statut === 'actif' 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-red-100 text-red-800'
-                    }`}>
-                      {client.statut}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ClientList clients={filteredClients} />
       </div>
     </div>
   );
