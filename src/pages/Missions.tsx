@@ -1,10 +1,8 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Calendar } from "@/components/ui/calendar";
-import { Briefcase, Search, Plus } from "lucide-react";
+import { Briefcase, Search, Plus, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +14,7 @@ import {
 const Missions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
+  const navigate = useNavigate();
 
   // Données mockées pour l'exemple
   const missions = [
@@ -74,12 +72,28 @@ const Missions = () => {
 
   return (
     <div className="container mx-auto p-6">
+      <div className="flex items-center gap-4 mb-8">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour
+        </Button>
+      </div>
+
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Missions</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Missions</h1>
+          <p className="text-neutral-600 mt-1">
+            Gérez les missions et leur suivi
+          </p>
+        </div>
         <Dialog>
           <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2" />
+            <Button className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
               Nouvelle mission
             </Button>
           </DialogTrigger>
@@ -87,7 +101,6 @@ const Missions = () => {
             <DialogHeader>
               <DialogTitle>Créer une nouvelle mission</DialogTitle>
             </DialogHeader>
-            {/* Formulaire à implémenter */}
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Input placeholder="Titre de la mission" />

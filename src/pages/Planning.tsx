@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -13,6 +16,7 @@ import {
 const Planning = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [collaborateurFilter, setCollaborateurFilter] = useState("all");
+  const navigate = useNavigate();
 
   // Données mockées pour l'exemple
   const events = [
@@ -59,8 +63,24 @@ const Planning = () => {
 
   return (
     <div className="container mx-auto p-6">
+      <div className="flex items-center gap-4 mb-8">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour
+        </Button>
+      </div>
+
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Planning</h1>
+        <div>
+          <h1 className="text-2xl font-bold">Planning</h1>
+          <p className="text-neutral-600 mt-1">
+            Consultez et gérez le planning des missions
+          </p>
+        </div>
         <Select value={collaborateurFilter} onValueChange={setCollaborateurFilter}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="Filtrer par collaborateur" />
