@@ -6,6 +6,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Collaborateurs from "./pages/Collaborateurs";
 import Clients from "./pages/Clients";
+import Missions from "./pages/Missions";
+import Planning from "./pages/Planning";
 
 const queryClient = new QueryClient();
 
@@ -19,6 +21,8 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/collaborateurs" element={<Collaborateurs />} />
           <Route path="/clients" element={<Clients />} />
+          <Route path="/missions" element={<Missions />} />
+          <Route path="/planning" element={<Planning />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
