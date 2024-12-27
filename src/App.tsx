@@ -9,9 +9,9 @@ import Clients from "./pages/Clients";
 import Missions from "./pages/Missions";
 import Planning from "./pages/Planning";
 import Temps from "./pages/Temps";
-import Rapports from "./pages/Rapports";
 import Facturation from "./pages/Facturation";
 import Depenses from "./pages/Depenses";
+import Rapports from "./pages/Rapports";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +28,9 @@ const App = () => (
           <Route path="/missions" element={<Missions />} />
           <Route path="/planning" element={<Planning />} />
           <Route path="/temps" element={<Temps />} />
-          <Route path="/rapports" element={<Rapports />} />
           <Route path="/facturation" element={<Facturation />} />
           <Route path="/depenses" element={<Depenses />} />
+          <Route path="/rapports" element={<Rapports />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

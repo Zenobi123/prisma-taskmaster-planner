@@ -59,10 +59,6 @@ const Index = () => {
             <Clock className="w-5 h-5" />
             {isSidebarOpen && <span>Temps</span>}
           </Link>
-          <Link to="/rapports" className={`sidebar-link ${isActiveRoute("/rapports") && "active"}`}>
-            <FileText className="w-5 h-5" />
-            {isSidebarOpen && <span>Rapports</span>}
-          </Link>
           <Link to="/facturation" className={`sidebar-link ${isActiveRoute("/facturation") && "active"}`}>
             <Receipt className="w-5 h-5" />
             {isSidebarOpen && <span>Facturation</span>}
@@ -70,6 +66,10 @@ const Index = () => {
           <Link to="/depenses" className={`sidebar-link ${isActiveRoute("/depenses") && "active"}`}>
             <Wallet className="w-5 h-5" />
             {isSidebarOpen && <span>Dépenses</span>}
+          </Link>
+          <Link to="/rapports" className={`sidebar-link ${isActiveRoute("/rapports") && "active"}`}>
+            <FileText className="w-5 h-5" />
+            {isSidebarOpen && <span>Rapports</span>}
           </Link>
         </nav>
       </aside>
