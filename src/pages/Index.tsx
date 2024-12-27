@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LayoutDashboard, Users, Briefcase, Calendar, Clock, FileText, Menu } from "lucide-react";
+import { LayoutDashboard, Users, Briefcase, Calendar, Clock, FileText, Menu, Receipt, Wallet } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Index = () => {
@@ -62,6 +62,14 @@ const Index = () => {
           <Link to="/rapports" className={`sidebar-link ${isActiveRoute("/rapports") && "active"}`}>
             <FileText className="w-5 h-5" />
             {isSidebarOpen && <span>Rapports</span>}
+          </Link>
+          <Link to="/facturation" className={`sidebar-link ${isActiveRoute("/facturation") && "active"}`}>
+            <Receipt className="w-5 h-5" />
+            {isSidebarOpen && <span>Facturation</span>}
+          </Link>
+          <Link to="/depenses" className={`sidebar-link ${isActiveRoute("/depenses") && "active"}`}>
+            <Wallet className="w-5 h-5" />
+            {isSidebarOpen && <span>Dépenses</span>}
           </Link>
         </nav>
       </aside>

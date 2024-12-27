@@ -8,6 +8,10 @@ import Collaborateurs from "./pages/Collaborateurs";
 import Clients from "./pages/Clients";
 import Missions from "./pages/Missions";
 import Planning from "./pages/Planning";
+import Temps from "./pages/Temps";
+import Rapports from "./pages/Rapports";
+import Facturation from "./pages/Facturation";
+import Depenses from "./pages/Depenses";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +27,10 @@ const App = () => (
           <Route path="/clients" element={<Clients />} />
           <Route path="/missions" element={<Missions />} />
           <Route path="/planning" element={<Planning />} />
+          <Route path="/temps" element={<Temps />} />
+          <Route path="/rapports" element={<Rapports />} />
+          <Route path="/facturation" element={<Facturation />} />
+          <Route path="/depenses" element={<Depenses />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
