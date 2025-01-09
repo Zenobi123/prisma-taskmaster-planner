@@ -14,8 +14,7 @@ const Login = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // Ici, vous pourrez ajouter la logique d'authentification
-    if (email === "admin@example.com" && password === "password") {
+    if (email === "admin@gmail.com" && password === "Admin") {
       localStorage.setItem("isAuthenticated", "true");
       toast({
         title: "Connexion réussie",
