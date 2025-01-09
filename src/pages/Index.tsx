@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { LayoutDashboard, Users, Briefcase, Calendar, Clock, FileText, Menu, Receipt, Wallet } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import LogoutButton from "@/components/LogoutButton";
 
 const Index = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -72,6 +73,12 @@ const Index = () => {
             {isSidebarOpen && <span>Rapports</span>}
           </Link>
         </nav>
+
+        {isSidebarOpen && (
+          <div className="absolute bottom-4 left-4">
+            <LogoutButton />
+          </div>
+        )}
       </aside>
 
       {/* Main Content */}
