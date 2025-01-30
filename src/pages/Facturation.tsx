@@ -52,6 +52,10 @@ const Facturation = () => {
     return matchesSearch && matchesStatus;
   });
 
+  const formatMontant = (montant: number) => {
+    return `${montant.toLocaleString()} F CFA`;
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "payée":
@@ -128,7 +132,7 @@ const Facturation = () => {
                   <p className="text-gray-600">{facture.client}</p>
                   <p className="text-sm text-gray-500">{facture.date}</p>
                   <p className="text-sm font-medium mt-2">
-                    {facture.montant.toLocaleString()} €
+                    {formatMontant(facture.montant)}
                   </p>
                 </div>
               </div>
