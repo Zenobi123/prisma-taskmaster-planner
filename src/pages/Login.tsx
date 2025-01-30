@@ -14,7 +14,10 @@ const Login = () => {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Tentative de connexion avec:", { email, password });
+    
     if (email === "admin@gmail.com" && password === "Admin") {
+      console.log("Identifiants corrects, connexion réussie");
       localStorage.setItem("isAuthenticated", "true");
       toast({
         title: "Connexion réussie",
@@ -22,6 +25,9 @@ const Login = () => {
       });
       navigate("/");
     } else {
+      console.log("Échec de la connexion - identifiants incorrects");
+      console.log("Email attendu: admin@gmail.com");
+      console.log("Mot de passe attendu: Admin");
       toast({
         variant: "destructive",
         title: "Erreur de connexion",
@@ -67,6 +73,10 @@ const Login = () => {
             Se connecter
           </Button>
         </form>
+
+        <div className="mt-4 text-sm text-center text-neutral-600">
+          Identifiants de test : admin@gmail.com / Admin
+        </div>
       </div>
     </div>
   );
