@@ -31,7 +31,7 @@ const Login = () => {
       toast({
         variant: "destructive",
         title: "Erreur de connexion",
-        description: "Email ou mot de passe incorrect",
+        description: "Email ou mot de passe incorrect. Attention à la casse !",
       });
     }
   };
@@ -50,7 +50,7 @@ const Login = () => {
             <Input
               id="email"
               type="email"
-              placeholder="exemple@email.com"
+              placeholder="admin@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -74,8 +74,10 @@ const Login = () => {
           </Button>
         </form>
 
-        <div className="mt-4 text-sm text-center text-neutral-600">
-          Identifiants de test : admin@gmail.com / Admin
+        <div className="mt-6 text-sm text-center space-y-2">
+          <p className="text-neutral-600 font-medium">Identifiants de test :</p>
+          <p className="text-neutral-600">Email : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">admin@gmail.com</span></p>
+          <p className="text-neutral-600">Mot de passe : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">Admin</span></p>
         </div>
       </div>
     </div>
