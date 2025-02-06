@@ -7,12 +7,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { ClientType } from "@/types/client";
 
 interface ClientFormProps {
   onSubmit: () => void;
+  type: ClientType;
+  onTypeChange: (value: ClientType) => void;
 }
 
-export function ClientForm({ onSubmit }: ClientFormProps) {
+export function ClientForm({ onSubmit, type, onTypeChange }: ClientFormProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSubmit();
@@ -22,62 +26,83 @@ export function ClientForm({ onSubmit }: ClientFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <div>
-          <label className="text-sm font-medium">Raison sociale</label>
+          <Label>Type de client</Label>
+          <Select value={type} onValueChange={onTypeChange} required>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="physique">Personne Physique</SelectItem>
+              <SelectItem value="morale">Personne Morale</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {type === "physique" ? (
+          <div>
+            <Label>Nom complet</Label>
+            <Input required />
+          </div>
+        ) : (
+          <div>
+            <Label>Raison sociale</Label>
+            <Input required />
+          </div>
+        )}
+
+        <div>
+          <Label>NIU</Label>
           <Input required />
         </div>
-        
+
         <div>
-          <label className="text-sm font-medium">SIREN</label>
-          <Input required pattern="[0-9]{9}" title="Le SIREN doit contenir 9 chiffres" />
+          <Label>Centre de Rattachement</Label>
+          <Input required />
         </div>
 
         <div>
-          <label className="text-sm font-medium">Email</label>
-          <Input type="email" required />
+          <Label>Ville</Label>
+          <Input required />
         </div>
 
         <div>
-          <label className="text-sm font-medium">Téléphone</label>
+          <Label>Quartier</Label>
+          <Input required />
+        </div>
+
+        <div>
+          <Label>Lieu-dit</Label>
+          <Input />
+        </div>
+
+        <div>
+          <Label>Téléphone</Label>
           <Input type="tel" required />
         </div>
 
         <div>
-          <label className="text-sm font-medium">Adresse</label>
-          <Input required />
+          <Label>Email</Label>
+          <Input type="email" required />
         </div>
 
         <div>
-          <label className="text-sm font-medium">Ville</label>
-          <Input required />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium">Secteur d'activité</label>
+          <Label>Secteur d'activité</Label>
           <Select required>
             <SelectTrigger>
               <SelectValue placeholder="Sélectionner un secteur" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="services">Services</SelectItem>
-              <SelectItem value="technologie">Technologie</SelectItem>
-              <SelectItem value="industrie">Industrie</SelectItem>
               <SelectItem value="commerce">Commerce</SelectItem>
-              <SelectItem value="autre">Autre</SelectItem>
+              <SelectItem value="services">Services</SelectItem>
+              <SelectItem value="industrie">Industrie</SelectItem>
+              <SelectItem value="agriculture">Agriculture</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div>
-          <label className="text-sm font-medium">Statut</label>
-          <Select defaultValue="actif" required>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="actif">Actif</SelectItem>
-              <SelectItem value="inactif">Inactif</SelectItem>
-            </SelectContent>
-          </Select>
+          <Label>Numéro CNPS (optionnel)</Label>
+          <Input />
         </div>
       </div>
 

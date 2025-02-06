@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Plus, Search, Filter, ArrowLeft } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import {
   Dialog,
@@ -11,87 +10,82 @@ import {
   DialogDescription,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { ClientList } from "@/components/clients/ClientList";
 import { ClientForm } from "@/components/clients/ClientForm";
+import { ClientFilters } from "@/components/clients/ClientFilters";
+import { Client, ClientType } from "@/types/client";
 
-interface Client {
-  id: string;
-  raisonSociale: string;
-  siren: string;
-  email: string;
-  telephone: string;
-  adresse: string;
-  ville: string;
-  secteur: string;
-  statut: "actif" | "inactif";
-}
-
+// Exemple de données (à remplacer par les vraies données de l'API)
 const clientsData: Client[] = [
   {
     id: "1",
+    type: "morale",
     raisonSociale: "SARL Example",
-    siren: "123456789",
-    email: "contact@example.fr",
-    telephone: "01 23 45 67 89",
-    adresse: "123 rue des Entreprises",
-    ville: "Paris",
-    secteur: "Services",
+    niu: "123456789",
+    centreRattachement: "Centre A",
+    adresse: {
+      ville: "Yaoundé",
+      quartier: "Centre",
+      lieuDit: "Près du marché",
+    },
+    contact: {
+      telephone: "237 123 456 789",
+      email: "contact@example.cm",
+    },
+    secteurActivite: "commerce",
+    numeroCnps: "CNPS123",
+    interactions: [],
     statut: "actif",
   },
-  {
-    id: "2",
-    raisonSociale: "SAS Tech",
-    siren: "987654321",
-    email: "contact@sastech.fr",
-    telephone: "01 98 76 54 32",
-    adresse: "456 avenue de l'Innovation",
-    ville: "Lyon",
-    secteur: "Technologie",
-    statut: "actif",
-  },
+  // ... autres clients
 ];
 
 export default function Clients() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedStatut, setSelectedStatut] = useState<string>("all");
-  const [selectedSecteur, setSelectedSecteur] = useState<string>("all");
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [selectedType, setSelectedType] = useState<ClientType | "all">("all");
+  const [selectedSecteur, setSelectedSecteur] = useState("all");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newClientType, setNewClientType] = useState<ClientType>("physique");
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const secteurs = Array.from(
-    new Set(clientsData.map((client) => client.secteur))
-  );
 
   const filteredClients = clientsData.filter((client) => {
     const matchesSearch =
-      client.raisonSociale.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.siren.includes(searchTerm) ||
-      client.email.toLowerCase().includes(searchTerm.toLowerCase());
+      (client.type === "physique"
+        ? client.nom?.toLowerCase()
+        : client.raisonSociale?.toLowerCase()
+      )?.includes(searchTerm.toLowerCase()) ||
+      client.niu.includes(searchTerm) ||
+      client.contact.email.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatut =
-      selectedStatut === "all" || client.statut === selectedStatut;
+    const matchesType = selectedType === "all" || client.type === selectedType;
 
     const matchesSecteur =
-      selectedSecteur === "all" || client.secteur === selectedSecteur;
+      selectedSecteur === "all" || client.secteurActivite === selectedSecteur;
 
-    return matchesSearch && matchesStatut && matchesSecteur;
+    return matchesSearch && matchesType && matchesSecteur;
   });
+
+  const handleView = (client: Client) => {
+    // Implémenter la vue détaillée
+    console.log("Voir client:", client);
+  };
+
+  const handleEdit = (client: Client) => {
+    // Implémenter l'édition
+    console.log("Modifier client:", client);
+  };
+
+  const handleDelete = (client: Client) => {
+    // Implémenter la suppression
+    console.log("Supprimer client:", client);
+    toast({
+      title: "Client supprimé",
+      description: "Le client a été supprimé avec succès.",
+    });
+  };
 
   return (
     <div className="p-8">
@@ -108,9 +102,7 @@ export default function Clients() {
         </div>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-neutral-800">
-              Clients
-            </h1>
+            <h1 className="text-2xl font-semibold text-neutral-800">Clients</h1>
             <p className="text-neutral-600 mt-1">
               Gérez vos clients et leurs informations
             </p>
@@ -131,6 +123,8 @@ export default function Clients() {
               </DialogHeader>
               <ScrollArea className="h-[70vh] pr-4">
                 <ClientForm
+                  type={newClientType}
+                  onTypeChange={setNewClientType}
                   onSubmit={() => {
                     toast({
                       title: "Client ajouté",
@@ -146,75 +140,21 @@ export default function Clients() {
       </header>
 
       <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
-        <div className="flex gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500" />
-            <Input
-              type="text"
-              placeholder="Rechercher un client..."
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <Popover open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <Filter className="w-4 h-4" />
-                Filtres
-                {(selectedStatut !== "all" || selectedSecteur !== "all") && (
-                  <span className="ml-2 bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    {Number(selectedStatut !== "all") + Number(selectedSecteur !== "all")}
-                  </span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-80">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Statut</label>
-                  <Select
-                    value={selectedStatut}
-                    onValueChange={setSelectedStatut}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un statut" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tous</SelectItem>
-                      <SelectItem value="actif">Actif</SelectItem>
-                      <SelectItem value="inactif">Inactif</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Secteur</label>
-                  <Select
-                    value={selectedSecteur}
-                    onValueChange={setSelectedSecteur}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un secteur" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Tous</SelectItem>
-                      {secteurs.map((secteur) => (
-                        <SelectItem key={secteur} value={secteur}>
-                          {secteur}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </div>
+        <ClientFilters
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedType={selectedType}
+          onTypeChange={setSelectedType}
+          selectedSecteur={selectedSecteur}
+          onSecteurChange={setSelectedSecteur}
+        />
 
-        <ClientList clients={filteredClients} />
+        <ClientList
+          clients={filteredClients}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       </div>
     </div>
   );
