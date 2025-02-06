@@ -14,6 +14,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useNavigate } from "react-router-dom";
 
 interface Collaborateur {
   id: string;
@@ -31,6 +44,24 @@ interface CollaborateurListProps {
 }
 
 export function CollaborateurList({ collaborateurs }: CollaborateurListProps) {
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const handleViewProfile = (id: string) => {
+    navigate(`/collaborateurs/${id}`);
+  };
+
+  const handleEdit = (id: string) => {
+    navigate(`/collaborateurs/${id}/edit`);
+  };
+
+  const handleDelete = (collaborateur: Collaborateur) => {
+    toast({
+      title: "Collaborateur supprimé",
+      description: `${collaborateur.prenom} ${collaborateur.nom} a été supprimé avec succès.`,
+    });
+  };
+
   return (
     <div className="rounded-lg border">
       <Table>
@@ -90,18 +121,48 @@ export function CollaborateurList({ collaborateurs }: CollaborateurListProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem className="flex items-center gap-2">
+                    <DropdownMenuItem 
+                      className="flex items-center gap-2"
+                      onClick={() => handleViewProfile(collaborateur.id)}
+                    >
                       <Eye className="h-4 w-4" />
                       Voir le profil
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-2">
+                    <DropdownMenuItem 
+                      className="flex items-center gap-2"
+                      onClick={() => handleEdit(collaborateur.id)}
+                    >
                       <Edit className="h-4 w-4" />
                       Modifier
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="flex items-center gap-2 text-red-600">
-                      <Trash className="h-4 w-4" />
-                      Supprimer
-                    </DropdownMenuItem>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem 
+                          className="flex items-center gap-2 text-red-600"
+                          onSelect={(e) => e.preventDefault()}
+                        >
+                          <Trash className="h-4 w-4" />
+                          Supprimer
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Cette action est irréversible. Cela supprimera définitivement le collaborateur {collaborateur.prenom} {collaborateur.nom} et toutes ses données associées.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => handleDelete(collaborateur)}
+                            className="bg-red-600 hover:bg-red-700 text-white"
+                          >
+                            Supprimer
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
