@@ -16,12 +16,16 @@ const Login = () => {
     e.preventDefault();
     console.log("Tentative de connexion avec:", { email, password });
     
-    if (email === "admin@gmail.com" && password === "Admin") {
+    // Convertir l'email en minuscules pour la comparaison
+    const normalizedEmail = email.toLowerCase();
+    
+    if (normalizedEmail === "admin@gmail.com" && password === "Admin") {
       console.log("Identifiants corrects, connexion réussie");
       localStorage.setItem("isAuthenticated", "true");
       toast({
         title: "Connexion réussie",
         description: "Bienvenue sur votre espace de gestion",
+        className: "bg-white border-green-500 text-black",
       });
       navigate("/");
     } else {
@@ -32,6 +36,7 @@ const Login = () => {
         variant: "destructive",
         title: "Erreur de connexion",
         description: "Email ou mot de passe incorrect. Attention à la casse !",
+        className: "bg-white border-red-500 text-black",
       });
     }
   };
@@ -40,7 +45,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-neutral-100">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
         <div className="flex flex-col items-center mb-8">
-          <h1 className="text-2xl font-semibold text-neutral-800">Cabinet XYZ</h1>
+          <h1 className="text-2xl font-semibold text-neutral-800">PRISMA GESTION</h1>
           <p className="text-neutral-600 mt-2">Connectez-vous à votre espace</p>
         </div>
         
