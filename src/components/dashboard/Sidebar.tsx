@@ -47,7 +47,7 @@ const Sidebar = () => {
               !isSidebarOpen && "opacity-0 hidden"
             }`}
           >
-            PRISMA
+            PRISMA GESTION
           </h1>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
