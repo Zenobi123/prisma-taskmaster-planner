@@ -5,7 +5,6 @@ import {
   Users, 
   Briefcase, 
   Calendar, 
-  Clock, 
   FileText, 
   Menu, 
   Receipt, 
@@ -20,7 +19,6 @@ const menuItems = [
   { path: "/clients", icon: Users, label: "Clients" },
   { path: "/missions", icon: Briefcase, label: "Missions" },
   { path: "/planning", icon: Calendar, label: "Planning" },
-  { path: "/temps", icon: Clock, label: "Temps" },
   { path: "/facturation", icon: Receipt, label: "Facturation" },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
   { path: "/rapports", icon: FileText, label: "Rapports" }
