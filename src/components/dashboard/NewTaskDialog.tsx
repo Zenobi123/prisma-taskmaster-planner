@@ -9,6 +9,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const NewTaskDialog = () => {
   const { toast } = useToast();
@@ -23,6 +30,17 @@ const NewTaskDialog = () => {
     form.reset();
   };
 
+  const taskTypes = [
+    "Bilan annuel",
+    "Déclaration TVA",
+    "Révision comptable",
+    "Déclaration sociale",
+    "Clôture exercice",
+    "Situation intermédiaire",
+    "Prévisionnel",
+    "Audit",
+  ];
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -34,8 +52,19 @@ const NewTaskDialog = () => {
         </DialogHeader>
         <form onSubmit={handleNewTask} className="space-y-4">
           <div>
-            <Label htmlFor="taskName">Nom de la tâche</Label>
-            <Input id="taskName" required />
+            <Label htmlFor="taskName">Type de tâche</Label>
+            <Select name="taskName" required>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionnez un type de tâche" />
+              </SelectTrigger>
+              <SelectContent>
+                {taskTypes.map((task) => (
+                  <SelectItem key={task} value={task}>
+                    {task}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div>
             <Label htmlFor="client">Client</Label>
