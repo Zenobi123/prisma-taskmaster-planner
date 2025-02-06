@@ -47,7 +47,7 @@ const Sidebar = () => {
               !isSidebarOpen && "opacity-0 hidden"
             }`}
           >
-            Cabinet XYZ
+            PRISMA
           </h1>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
