@@ -1,4 +1,4 @@
-import { CheckCircle2, ListChecks, MoreVertical } from "lucide-react";
+import { CheckCircle2, ListChecks, MoreVertical, Eye, Edit, Trash } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -90,9 +90,16 @@ export function CollaborateurList({ collaborateurs }: CollaborateurListProps) {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>Voir le profil</DropdownMenuItem>
-                    <DropdownMenuItem>Modifier</DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
+                    <DropdownMenuItem className="flex items-center gap-2">
+                      <Eye className="h-4 w-4" />
+                      Voir le profil
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-2">
+                      <Edit className="h-4 w-4" />
+                      Modifier
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="flex items-center gap-2 text-red-600">
+                      <Trash className="h-4 w-4" />
                       Supprimer
                     </DropdownMenuItem>
                   </DropdownMenuContent>
