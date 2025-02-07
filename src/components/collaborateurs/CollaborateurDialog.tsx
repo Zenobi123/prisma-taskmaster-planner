@@ -38,14 +38,14 @@ export function CollaborateurDialog({
 }: CollaborateurDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white max-h-[90vh]">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[90vh] p-0">
+        <DialogHeader className="p-6 pb-0">
           <DialogTitle>Ajouter un nouveau collaborateur</DialogTitle>
           <DialogDescription>
             Remplissez les informations du nouveau collaborateur ci-dessous.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="h-[70vh] pr-4">
+        <ScrollArea className="max-h-[calc(90vh-8rem)] px-6 pb-6">
           <CollaborateurForm
             collaborateur={collaborateur}
             onChange={onChange}
