@@ -27,17 +27,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/components/ui/use-toast";
 import { CollaborateurList } from "@/components/collaborateurs/CollaborateurList";
 import { CollaborateurForm } from "@/components/collaborateurs/CollaborateurForm";
-
-interface Collaborateur {
-  id: string;
-  nom: string;
-  prenom: string;
-  email: string;
-  poste: string;
-  dateEntree: string;
-  statut: "actif" | "inactif";
-  tachesEnCours: number;
-}
+import { CollaborateurRole, CollaborateurPermissions, Collaborateur } from "@/types/collaborateur";
 
 const collaborateursData: Collaborateur[] = [
   {
@@ -45,30 +35,39 @@ const collaborateursData: Collaborateur[] = [
     nom: "Dubois",
     prenom: "Marie",
     email: "marie.dubois@cabinet.fr",
-    poste: "Expert Comptable",
+    poste: "expert-comptable",
     dateEntree: "2023-01-01",
     statut: "actif",
     tachesEnCours: 5,
+    permissions: [
+      { module: "clients", niveau: "administration" },
+      { module: "taches", niveau: "administration" },
+      { module: "facturation", niveau: "administration" },
+    ],
+    telephone: "0123456789",
+    niveauEtude: "Bac+5",
+    dateNaissance: "1990-01-01",
+    ville: "Paris",
+    quartier: "Bastille",
   },
   {
     id: "2",
     nom: "Martin",
     prenom: "Pierre",
     email: "pierre.martin@cabinet.fr",
-    poste: "Comptable",
+    poste: "assistant",
     dateEntree: "2023-03-15",
     statut: "actif",
     tachesEnCours: 3,
-  },
-  {
-    id: "3",
-    nom: "Bernard",
-    prenom: "Sophie",
-    email: "sophie.bernard@cabinet.fr",
-    poste: "Assistante comptable",
-    dateEntree: "2023-06-01",
-    statut: "actif",
-    tachesEnCours: 4,
+    permissions: [
+      { module: "clients", niveau: "lecture" },
+      { module: "taches", niveau: "ecriture" },
+    ],
+    telephone: "0123456789",
+    niveauEtude: "Bac+3",
+    dateNaissance: "1995-05-15",
+    ville: "Paris",
+    quartier: "République",
   },
 ];
 
@@ -115,6 +114,14 @@ export default function Collaborateurs() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    const newCollaborateurData = {
+      ...newCollaborateur,
+      id: String(Date.now()),
+      statut: "actif",
+      tachesEnCours: 0,
+      permissions: [], // Les permissions seront ajoutées selon les cases cochées
+    };
+    
     toast({
       title: "Collaborateur ajouté",
       description: "Le nouveau collaborateur a été ajouté avec succès.",

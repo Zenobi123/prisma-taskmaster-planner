@@ -1,6 +1,16 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CollaborateurRole, ModuleAcces, Permission } from "@/types/collaborateur";
 
 interface CollaborateurFormProps {
   collaborateur: {
@@ -20,22 +30,32 @@ interface CollaborateurFormProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-export function CollaborateurForm({ collaborateur, onChange, onSubmit }: CollaborateurFormProps) {
-  const niveauxEtude = [
-    "Bac",
-    "Bac+2",
-    "Bac+3",
-    "Bac+4",
-    "Bac+5",
-    "Doctorat"
-  ];
+const roles: CollaborateurRole[] = [
+  "expert-comptable",
+  "assistant",
+  "fiscaliste",
+  "gestionnaire",
+];
 
-  const statuts = ["actif", "inactif"];
+const modules: ModuleAcces[] = [
+  "clients",
+  "taches",
+  "facturation",
+  "rapports",
+  "planning",
+];
 
+const permissions: Permission[] = ["lecture", "ecriture", "administration"];
+
+export function CollaborateurForm({
+  collaborateur,
+  onChange,
+  onSubmit,
+}: CollaborateurFormProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-4 mt-4">
+    <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <label className="text-sm font-medium mb-1 block">Nom</label>
+        <Label>Nom</Label>
         <Input
           value={collaborateur.nom}
           onChange={(e) => onChange("nom", e.target.value)}
@@ -43,7 +63,7 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
         />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Prénom</label>
+        <Label>Prénom</Label>
         <Input
           value={collaborateur.prenom}
           onChange={(e) => onChange("prenom", e.target.value)}
@@ -51,7 +71,7 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
         />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Email</label>
+        <Label>Email</Label>
         <Input
           type="email"
           value={collaborateur.email}
@@ -60,25 +80,42 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
         />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Téléphone</label>
+        <Label>Téléphone</Label>
         <Input
           type="tel"
           value={collaborateur.telephone}
           onChange={(e) => onChange("telephone", e.target.value)}
           required
-          placeholder="06 12 34 56 78"
         />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Poste</label>
-        <Input
+        <Label>Rôle</Label>
+        <Select
           value={collaborateur.poste}
-          onChange={(e) => onChange("poste", e.target.value)}
+          onValueChange={(value) => onChange("poste", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Sélectionner un rôle" />
+          </SelectTrigger>
+          <SelectContent>
+            {roles.map((role) => (
+              <SelectItem key={role} value={role}>
+                {role.charAt(0).toUpperCase() + role.slice(1).replace("-", " ")}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div>
+        <Label>Niveau d'étude</Label>
+        <Input
+          value={collaborateur.niveauEtude}
+          onChange={(e) => onChange("niveauEtude", e.target.value)}
           required
         />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Date d'entrée dans le Cabinet</label>
+        <Label>Date d'entrée</Label>
         <Input
           type="date"
           value={collaborateur.dateEntree}
@@ -87,7 +124,7 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
         />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Date de naissance</label>
+        <Label>Date de naissance</Label>
         <Input
           type="date"
           value={collaborateur.dateNaissance}
@@ -96,7 +133,7 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
         />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Ville</label>
+        <Label>Ville</Label>
         <Input
           value={collaborateur.ville}
           onChange={(e) => onChange("ville", e.target.value)}
@@ -104,53 +141,34 @@ export function CollaborateurForm({ collaborateur, onChange, onSubmit }: Collabo
         />
       </div>
       <div>
-        <label className="text-sm font-medium mb-1 block">Quartier</label>
+        <Label>Quartier</Label>
         <Input
           value={collaborateur.quartier}
           onChange={(e) => onChange("quartier", e.target.value)}
           required
         />
       </div>
-      <div>
-        <label className="text-sm font-medium mb-1 block">Niveau d'étude</label>
-        <Select
-          value={collaborateur.niveauEtude}
-          onValueChange={(value) => onChange("niveauEtude", value)}
-        >
-          <SelectTrigger className="w-full bg-white">
-            <SelectValue placeholder="Sélectionnez un niveau d'étude" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            {niveauxEtude.map((niveau) => (
-              <SelectItem key={niveau} value={niveau}>
-                {niveau}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+
+      <div className="space-y-4">
+        <Label>Permissions d'accès</Label>
+        {modules.map((module) => (
+          <div key={module} className="flex items-center space-x-4 p-4 border rounded-lg">
+            <div className="flex-1">
+              <h4 className="font-medium capitalize">{module}</h4>
+            </div>
+            <div className="space-x-4 flex items-center">
+              {permissions.map((permission) => (
+                <label key={permission} className="flex items-center space-x-2">
+                  <Checkbox />
+                  <span className="text-sm capitalize">{permission}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
-      <div>
-        <label className="text-sm font-medium mb-1 block">Statut</label>
-        <Select
-          value={collaborateur.statut}
-          onValueChange={(value) => onChange("statut", value)}
-        >
-          <SelectTrigger className="w-full bg-white">
-            <SelectValue placeholder="Sélectionnez un statut" />
-          </SelectTrigger>
-          <SelectContent className="bg-white">
-            {statuts.map((statut) => (
-              <SelectItem key={statut} value={statut}>
-                {statut}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <Button 
-        type="submit" 
-        className="w-full bg-primary hover:bg-primary-hover text-white"
-      >
+
+      <Button type="submit" className="w-full">
         Ajouter le collaborateur
       </Button>
     </form>

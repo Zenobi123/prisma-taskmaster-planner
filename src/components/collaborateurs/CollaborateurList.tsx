@@ -37,6 +37,10 @@ interface Collaborateur {
   dateEntree: string;
   statut: "actif" | "inactif";
   tachesEnCours: number;
+  permissions: {
+    module: string;
+    niveau: string;
+  }[];
 }
 
 interface CollaborateurListProps {
