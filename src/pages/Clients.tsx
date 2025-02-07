@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
@@ -16,31 +18,7 @@ import { ClientList } from "@/components/clients/ClientList";
 import { ClientForm } from "@/components/clients/ClientForm";
 import { ClientFilters } from "@/components/clients/ClientFilters";
 import { Client, ClientType } from "@/types/client";
-
-// Exemple de données (à remplacer par les vraies données de l'API)
-const clientsData: Client[] = [
-  {
-    id: "1",
-    type: "morale",
-    raisonSociale: "SARL Example",
-    niu: "123456789",
-    centreRattachement: "Centre A",
-    adresse: {
-      ville: "Yaoundé",
-      quartier: "Centre",
-      lieuDit: "Près du marché",
-    },
-    contact: {
-      telephone: "237 123 456 789",
-      email: "contact@example.cm",
-    },
-    secteurActivite: "commerce",
-    numeroCnps: "CNPS123",
-    interactions: [],
-    statut: "actif",
-  },
-  // ... autres clients
-];
+import { getClients, addClient, deleteClient, updateClient } from "@/services/clientService";
 
 export default function Clients() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -50,8 +28,49 @@ export default function Clients() {
   const [newClientType, setNewClientType] = useState<ClientType>("physique");
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const filteredClients = clientsData.filter((client) => {
+  const { data: clients = [], isLoading } = useQuery({
+    queryKey: ["clients"],
+    queryFn: getClients,
+  });
+
+  const addMutation = useMutation({
+    mutationFn: addClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      toast({
+        title: "Client ajouté",
+        description: "Le nouveau client a été ajouté avec succès.",
+      });
+      setIsDialogOpen(false);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      toast({
+        title: "Client supprimé",
+        description: "Le client a été supprimé avec succès.",
+      });
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<Client> }) => 
+      updateClient(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      toast({
+        title: "Client mis à jour",
+        description: "Le client a été mis à jour avec succès.",
+      });
+    },
+  });
+
+  const filteredClients = clients.filter((client) => {
     const matchesSearch =
       (client.type === "physique"
         ? client.nom?.toLowerCase()
@@ -68,24 +87,15 @@ export default function Clients() {
     return matchesSearch && matchesType && matchesSecteur;
   });
 
-  const handleView = (client: Client) => {
-    // Implémenter la vue détaillée
-    console.log("Voir client:", client);
-  };
-
-  const handleEdit = (client: Client) => {
-    // Implémenter l'édition
-    console.log("Modifier client:", client);
-  };
-
-  const handleDelete = (client: Client) => {
-    // Implémenter la suppression
-    console.log("Supprimer client:", client);
-    toast({
-      title: "Client supprimé",
-      description: "Le client a été supprimé avec succès.",
-    });
-  };
+  if (isLoading) {
+    return (
+      <div className="p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -125,12 +135,8 @@ export default function Clients() {
                 <ClientForm
                   type={newClientType}
                   onTypeChange={setNewClientType}
-                  onSubmit={() => {
-                    toast({
-                      title: "Client ajouté",
-                      description: "Le nouveau client a été ajouté avec succès.",
-                    });
-                    setIsDialogOpen(false);
+                  onSubmit={(clientData) => {
+                    addMutation.mutate(clientData);
                   }}
                 />
               </ScrollArea>
@@ -151,9 +157,15 @@ export default function Clients() {
 
         <ClientList
           clients={filteredClients}
-          onView={handleView}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onView={(client) => {
+            // Implement view functionality
+            console.log("View client:", client);
+          }}
+          onEdit={(client) => {
+            // Implement edit functionality
+            console.log("Edit client:", client);
+          }}
+          onDelete={(client) => deleteMutation.mutate(client.id)}
         />
       </div>
     </div>
