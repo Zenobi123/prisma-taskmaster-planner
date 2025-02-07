@@ -65,7 +65,7 @@ export function CollaborateurForm({
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
-        <Label>Nom</Label>
+        <Label>Nom *</Label>
         <Input
           value={collaborateur.nom}
           onChange={(e) => onChange("nom", e.target.value)}
@@ -73,7 +73,7 @@ export function CollaborateurForm({
         />
       </div>
       <div>
-        <Label>Prénom</Label>
+        <Label>Prénom *</Label>
         <Input
           value={collaborateur.prenom}
           onChange={(e) => onChange("prenom", e.target.value)}
@@ -86,7 +86,6 @@ export function CollaborateurForm({
           type="email"
           value={collaborateur.email}
           onChange={(e) => onChange("email", e.target.value)}
-          required
         />
       </div>
       <div>
@@ -95,7 +94,6 @@ export function CollaborateurForm({
           type="tel"
           value={collaborateur.telephone}
           onChange={(e) => onChange("telephone", e.target.value)}
-          required
         />
       </div>
       <div>
@@ -140,7 +138,6 @@ export function CollaborateurForm({
           type="date"
           value={collaborateur.dateEntree}
           onChange={(e) => onChange("dateEntree", e.target.value)}
-          required
         />
       </div>
       <div>
@@ -149,7 +146,6 @@ export function CollaborateurForm({
           type="date"
           value={collaborateur.dateNaissance}
           onChange={(e) => onChange("dateNaissance", e.target.value)}
-          required
         />
       </div>
       <div>
@@ -157,7 +153,6 @@ export function CollaborateurForm({
         <Input
           value={collaborateur.ville}
           onChange={(e) => onChange("ville", e.target.value)}
-          required
         />
       </div>
       <div>
@@ -165,7 +160,6 @@ export function CollaborateurForm({
         <Input
           value={collaborateur.quartier}
           onChange={(e) => onChange("quartier", e.target.value)}
-          required
         />
       </div>
 
