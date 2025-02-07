@@ -1,3 +1,4 @@
+
 import { CheckCircle2, ListChecks, MoreVertical, Eye, Edit, Trash } from "lucide-react";
 import {
   Table,
@@ -14,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,28 +27,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useNavigate } from "react-router-dom";
-
-interface Collaborateur {
-  id: string;
-  nom: string;
-  prenom: string;
-  email: string;
-  poste: string;
-  dateEntree: string;
-  statut: "actif" | "inactif";
-  tachesEnCours: number;
-  permissions: {
-    module: string;
-    niveau: string;
-  }[];
-}
+import { Collaborateur } from "@/types/collaborateur";
 
 interface CollaborateurListProps {
   collaborateurs: Collaborateur[];
+  onDelete: (id: string) => void;
 }
 
-export function CollaborateurList({ collaborateurs }: CollaborateurListProps) {
-  const { toast } = useToast();
+export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurListProps) {
   const navigate = useNavigate();
 
   const handleViewProfile = (id: string) => {
@@ -57,13 +43,6 @@ export function CollaborateurList({ collaborateurs }: CollaborateurListProps) {
 
   const handleEdit = (id: string) => {
     navigate(`/collaborateurs/${id}/edit`);
-  };
-
-  const handleDelete = (collaborateur: Collaborateur) => {
-    toast({
-      title: "Collaborateur supprimé",
-      description: `${collaborateur.prenom} ${collaborateur.nom} a été supprimé avec succès.`,
-    });
   };
 
   return (
@@ -159,7 +138,7 @@ export function CollaborateurList({ collaborateurs }: CollaborateurListProps) {
                         <AlertDialogFooter>
                           <AlertDialogCancel>Annuler</AlertDialogCancel>
                           <AlertDialogAction 
-                            onClick={() => handleDelete(collaborateur)}
+                            onClick={() => onDelete(collaborateur.id)}
                             className="bg-red-600 hover:bg-red-700 text-white"
                           >
                             Supprimer

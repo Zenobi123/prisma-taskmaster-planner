@@ -1,52 +1,13 @@
+
 import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { CollaborateurList } from "@/components/collaborateurs/CollaborateurList";
 import { CollaborateurHeader } from "@/components/collaborateurs/CollaborateurHeader";
 import { CollaborateurSearch } from "@/components/collaborateurs/CollaborateurSearch";
 import { CollaborateurDialog } from "@/components/collaborateurs/CollaborateurDialog";
 import { Collaborateur } from "@/types/collaborateur";
-
-const collaborateursData: Collaborateur[] = [
-  {
-    id: "1",
-    nom: "Dubois",
-    prenom: "Marie",
-    email: "marie.dubois@cabinet.fr",
-    poste: "expert-comptable",
-    dateEntree: "2023-01-01",
-    statut: "actif",
-    tachesEnCours: 5,
-    permissions: [
-      { module: "clients", niveau: "administration" },
-      { module: "taches", niveau: "administration" },
-      { module: "facturation", niveau: "administration" },
-    ],
-    telephone: "0123456789",
-    niveauEtude: "Bac+5",
-    dateNaissance: "1990-01-01",
-    ville: "Paris",
-    quartier: "Bastille",
-  },
-  {
-    id: "2",
-    nom: "Martin",
-    prenom: "Pierre",
-    email: "pierre.martin@cabinet.fr",
-    poste: "assistant",
-    dateEntree: "2023-03-15",
-    statut: "actif",
-    tachesEnCours: 3,
-    permissions: [
-      { module: "clients", niveau: "lecture" },
-      { module: "taches", niveau: "ecriture" },
-    ],
-    telephone: "0123456789",
-    niveauEtude: "Bac+3",
-    dateNaissance: "1995-05-15",
-    ville: "Paris",
-    quartier: "République",
-  },
-];
+import { getCollaborateurs, addCollaborateur, deleteCollaborateur } from "@/services/collaborateurService";
 
 export default function Collaborateurs() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,6 +16,8 @@ export default function Collaborateurs() {
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const [newCollaborateur, setNewCollaborateur] = useState({
     nom: "",
     prenom: "",
@@ -69,11 +32,59 @@ export default function Collaborateurs() {
     quartier: "",
   });
 
+  const { data: collaborateurs = [], isLoading } = useQuery({
+    queryKey: ["collaborateurs"],
+    queryFn: getCollaborateurs,
+  });
+
+  const addMutation = useMutation({
+    mutationFn: addCollaborateur,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collaborateurs"] });
+      toast({
+        title: "Collaborateur ajouté",
+        description: "Le nouveau collaborateur a été ajouté avec succès.",
+      });
+      setIsDialogOpen(false);
+      setNewCollaborateur({
+        nom: "",
+        prenom: "",
+        email: "",
+        poste: "",
+        telephone: "",
+        niveauEtude: "",
+        dateEntree: "",
+        dateNaissance: "",
+        statut: "",
+        ville: "",
+        quartier: "",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout du collaborateur.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteCollaborateur,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["collaborateurs"] });
+      toast({
+        title: "Collaborateur supprimé",
+        description: "Le collaborateur a été supprimé avec succès.",
+      });
+    },
+  });
+
   const postes = Array.from(
-    new Set(collaborateursData.map((collab) => collab.poste))
+    new Set(collaborateurs.map((collab) => collab.poste))
   );
 
-  const filteredCollaborateurs = collaborateursData.filter((collab) => {
+  const filteredCollaborateurs = collaborateurs.filter((collab) => {
     const matchesSearch =
       collab.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
       collab.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -90,32 +101,7 @@ export default function Collaborateurs() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newCollaborateurData = {
-      ...newCollaborateur,
-      id: String(Date.now()),
-      statut: "actif",
-      tachesEnCours: 0,
-      permissions: [],
-    };
-    
-    toast({
-      title: "Collaborateur ajouté",
-      description: "Le nouveau collaborateur a été ajouté avec succès.",
-    });
-    setIsDialogOpen(false);
-    setNewCollaborateur({
-      nom: "",
-      prenom: "",
-      email: "",
-      poste: "",
-      telephone: "",
-      niveauEtude: "",
-      dateEntree: "",
-      dateNaissance: "",
-      statut: "",
-      ville: "",
-      quartier: "",
-    });
+    addMutation.mutate(newCollaborateur);
   };
 
   const handleChange = (field: string, value: string) => {
@@ -124,6 +110,17 @@ export default function Collaborateurs() {
       [field]: value,
     }));
   };
+
+  if (isLoading) {
+    return (
+      <div className="p-8">
+        <CollaborateurHeader onOpenDialog={() => setIsDialogOpen(true)} />
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8">
@@ -142,7 +139,10 @@ export default function Collaborateurs() {
           onFiltersOpenChange={setIsFiltersOpen}
         />
 
-        <CollaborateurList collaborateurs={filteredCollaborateurs} />
+        <CollaborateurList 
+          collaborateurs={filteredCollaborateurs}
+          onDelete={(id) => deleteMutation.mutate(id)} 
+        />
       </div>
 
       <CollaborateurDialog
