@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,15 +40,35 @@ export function ClientForm({ onSubmit, type, onTypeChange }: ClientFormProps) {
         </div>
 
         {type === "physique" ? (
-          <div>
-            <Label>Nom complet</Label>
-            <Input required />
-          </div>
+          <>
+            <div>
+              <Label>Nom et prénoms</Label>
+              <Input required />
+            </div>
+            <div>
+              <Label>Nom commercial</Label>
+              <Input />
+            </div>
+          </>
         ) : (
-          <div>
-            <Label>Raison sociale</Label>
-            <Input required />
-          </div>
+          <>
+            <div>
+              <Label>Raison sociale</Label>
+              <Input required />
+            </div>
+            <div>
+              <Label>Sigle</Label>
+              <Input />
+            </div>
+            <div>
+              <Label>Nom du gérant</Label>
+              <Input required />
+            </div>
+            <div>
+              <Label>Téléphone du gérant</Label>
+              <Input type="tel" required />
+            </div>
+          </>
         )}
 
         <div>
