@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Collaborateur } from "@/types/collaborateur";
+import { Collaborateur, CollaborateurRole } from "@/types/collaborateur";
 
 export const getCollaborateurs = async () => {
   const { data, error } = await supabase
@@ -15,10 +15,26 @@ export const getCollaborateurs = async () => {
   return data as Collaborateur[];
 };
 
-export const addCollaborateur = async (collaborateur: Omit<Collaborateur, "id" | "tachesEnCours" | "permissions">) => {
+export const addCollaborateur = async (collaborateur: {
+  nom: string;
+  prenom: string;
+  email: string;
+  poste: CollaborateurRole;
+  telephone: string;
+  niveauEtude: string;
+  dateEntree: string;
+  dateNaissance: string;
+  ville: string;
+  quartier: string;
+}) => {
   const { data, error } = await supabase
     .from("collaborateurs")
-    .insert([{ ...collaborateur, statut: "actif" }])
+    .insert([{ 
+      ...collaborateur,
+      statut: "actif",
+      tachesEnCours: 0,
+      permissions: []
+    }])
     .select()
     .single();
 

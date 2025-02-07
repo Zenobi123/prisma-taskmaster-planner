@@ -6,7 +6,7 @@ import { CollaborateurList } from "@/components/collaborateurs/CollaborateurList
 import { CollaborateurHeader } from "@/components/collaborateurs/CollaborateurHeader";
 import { CollaborateurSearch } from "@/components/collaborateurs/CollaborateurSearch";
 import { CollaborateurDialog } from "@/components/collaborateurs/CollaborateurDialog";
-import { Collaborateur } from "@/types/collaborateur";
+import { Collaborateur, CollaborateurRole } from "@/types/collaborateur";
 import { getCollaborateurs, addCollaborateur, deleteCollaborateur } from "@/services/collaborateurService";
 
 export default function Collaborateurs() {
@@ -22,7 +22,7 @@ export default function Collaborateurs() {
     nom: "",
     prenom: "",
     email: "",
-    poste: "",
+    poste: "" as CollaborateurRole,
     telephone: "",
     niveauEtude: "",
     dateEntree: "",
@@ -50,7 +50,7 @@ export default function Collaborateurs() {
         nom: "",
         prenom: "",
         email: "",
-        poste: "",
+        poste: "" as CollaborateurRole,
         telephone: "",
         niveauEtude: "",
         dateEntree: "",
@@ -61,6 +61,7 @@ export default function Collaborateurs() {
       });
     },
     onError: (error) => {
+      console.error("Erreur lors de l'ajout du collaborateur:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'ajout du collaborateur.",
@@ -101,6 +102,14 @@ export default function Collaborateurs() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newCollaborateur.poste) {
+      toast({
+        title: "Erreur",
+        description: "Le poste est obligatoire",
+        variant: "destructive",
+      });
+      return;
+    }
     addMutation.mutate(newCollaborateur);
   };
 
