@@ -9,7 +9,108 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      clients: {
+        Row: {
+          adresse: Json
+          centrerattachement: string
+          contact: Json
+          created_at: string
+          id: string
+          interactions: Json | null
+          niu: string
+          nom: string | null
+          numerocnps: string | null
+          raisonsociale: string | null
+          secteuractivite: string
+          statut: string
+          type: string
+        }
+        Insert: {
+          adresse: Json
+          centrerattachement: string
+          contact: Json
+          created_at?: string
+          id?: string
+          interactions?: Json | null
+          niu: string
+          nom?: string | null
+          numerocnps?: string | null
+          raisonsociale?: string | null
+          secteuractivite: string
+          statut?: string
+          type: string
+        }
+        Update: {
+          adresse?: Json
+          centrerattachement?: string
+          contact?: Json
+          created_at?: string
+          id?: string
+          interactions?: Json | null
+          niu?: string
+          nom?: string | null
+          numerocnps?: string | null
+          raisonsociale?: string | null
+          secteuractivite?: string
+          statut?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      collaborateurs: {
+        Row: {
+          created_at: string
+          dateentree: string
+          datenaissance: string
+          email: string
+          id: string
+          niveauetude: string
+          nom: string
+          permissions: Json | null
+          poste: string
+          prenom: string
+          quartier: string
+          statut: string
+          tachesencours: number | null
+          telephone: string
+          ville: string
+        }
+        Insert: {
+          created_at?: string
+          dateentree: string
+          datenaissance: string
+          email: string
+          id?: string
+          niveauetude: string
+          nom: string
+          permissions?: Json | null
+          poste: string
+          prenom: string
+          quartier: string
+          statut?: string
+          tachesencours?: number | null
+          telephone: string
+          ville: string
+        }
+        Update: {
+          created_at?: string
+          dateentree?: string
+          datenaissance?: string
+          email?: string
+          id?: string
+          niveauetude?: string
+          nom?: string
+          permissions?: Json | null
+          poste?: string
+          prenom?: string
+          quartier?: string
+          statut?: string
+          tachesencours?: number | null
+          telephone?: string
+          ville?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
