@@ -1,5 +1,5 @@
 
-export type CollaborateurRole = "expert-comptable" | "assistant" | "fiscaliste" | "gestionnaire";
+export type CollaborateurRole = "expert-comptable" | "assistant" | "fiscaliste" | "gestionnaire" | "comptable";
 
 export type Permission = "lecture" | "ecriture" | "administration";
 

@@ -35,6 +35,16 @@ const roles: CollaborateurRole[] = [
   "assistant",
   "fiscaliste",
   "gestionnaire",
+  "comptable",
+];
+
+const niveauxEtude = [
+  "BAC",
+  "BAC+2",
+  "BAC+3",
+  "BAC+4",
+  "BAC+5",
+  "BAC+6 et plus"
 ];
 
 const modules: ModuleAcces[] = [
@@ -108,11 +118,21 @@ export function CollaborateurForm({
       </div>
       <div>
         <Label>Niveau d'étude</Label>
-        <Input
+        <Select
           value={collaborateur.niveauEtude}
-          onChange={(e) => onChange("niveauEtude", e.target.value)}
-          required
-        />
+          onValueChange={(value) => onChange("niveauEtude", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Sélectionner un niveau d'étude" />
+          </SelectTrigger>
+          <SelectContent>
+            {niveauxEtude.map((niveau) => (
+              <SelectItem key={niveau} value={niveau}>
+                {niveau}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <Label>Date d'entrée</Label>
