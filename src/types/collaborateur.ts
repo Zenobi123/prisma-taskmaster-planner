@@ -16,13 +16,14 @@ export interface Collaborateur {
   prenom: string;
   email: string;
   poste: CollaborateurRole;
-  dateEntree: string;
+  dateentree: string;
   statut: "actif" | "inactif";
-  tachesEnCours: number;
+  tachesencours: number;
   permissions: CollaborateurPermissions[];
   telephone: string;
-  niveauEtude: string;
-  dateNaissance: string;
+  niveauetude: string;
+  datenaissance: string;
   ville: string;
   quartier: string;
+  created_at?: string;
 }

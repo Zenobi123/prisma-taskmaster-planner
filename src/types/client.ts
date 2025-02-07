@@ -1,3 +1,4 @@
+
 export type ClientType = "physique" | "morale";
 
 export interface Interaction {
@@ -10,9 +11,9 @@ export interface Client {
   id: string;
   type: ClientType;
   nom?: string;
-  raisonSociale?: string;
+  raisonsociale?: string;
   niu: string;
-  centreRattachement: string;
+  centrerattachement: string;
   adresse: {
     ville: string;
     quartier: string;
@@ -22,8 +23,9 @@ export interface Client {
     telephone: string;
     email: string;
   };
-  secteurActivite: string;
-  numeroCnps?: string;
+  secteuractivite: string;
+  numerocnps?: string;
   interactions: Interaction[];
   statut: "actif" | "inactif";
+  created_at?: string;
 }

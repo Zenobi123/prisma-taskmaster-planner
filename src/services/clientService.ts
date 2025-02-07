@@ -20,7 +20,7 @@ export const getClients = async () => {
   }
 };
 
-export const addClient = async (client: Omit<Client, "id" | "interactions">) => {
+export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
   try {
     const { data, error } = await supabase
       .from("clients")
@@ -57,7 +57,7 @@ export const deleteClient = async (id: string) => {
   }
 };
 
-export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions">>) => {
+export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
   try {
     const { data, error } = await supabase
       .from("clients")

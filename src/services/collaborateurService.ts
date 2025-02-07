@@ -26,9 +26,9 @@ export const addCollaborateur = async (collaborateur: {
   email: string;
   poste: CollaborateurRole;
   telephone: string;
-  niveauEtude: string;
-  dateEntree: string;
-  dateNaissance: string;
+  niveauetude: string;
+  dateentree: string;
+  datenaissance: string;
   ville: string;
   quartier: string;
 }) => {
@@ -38,7 +38,7 @@ export const addCollaborateur = async (collaborateur: {
       .insert([{ 
         ...collaborateur,
         statut: "actif",
-        tachesEnCours: 0,
+        tachesencours: 0,
         permissions: []
       }])
       .select()

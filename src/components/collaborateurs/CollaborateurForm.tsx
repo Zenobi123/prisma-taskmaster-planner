@@ -19,9 +19,9 @@ interface CollaborateurFormProps {
     email: string;
     poste: string;
     telephone: string;
-    niveauEtude: string;
-    dateEntree: string;
-    dateNaissance: string;
+    niveauetude: string;
+    dateentree: string;
+    datenaissance: string;
     statut: string;
     ville: string;
     quartier: string;
@@ -86,6 +86,7 @@ export function CollaborateurForm({
           type="email"
           value={collaborateur.email}
           onChange={(e) => onChange("email", e.target.value)}
+          required
         />
       </div>
       <div>
@@ -94,6 +95,7 @@ export function CollaborateurForm({
           type="tel"
           value={collaborateur.telephone}
           onChange={(e) => onChange("telephone", e.target.value)}
+          required
         />
       </div>
       <div>
@@ -117,8 +119,8 @@ export function CollaborateurForm({
       <div>
         <Label>Niveau d'étude</Label>
         <Select
-          value={collaborateur.niveauEtude}
-          onValueChange={(value) => onChange("niveauEtude", value)}
+          value={collaborateur.niveauetude}
+          onValueChange={(value) => onChange("niveauetude", value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Sélectionner un niveau d'étude" />
@@ -136,16 +138,18 @@ export function CollaborateurForm({
         <Label>Date d'entrée</Label>
         <Input
           type="date"
-          value={collaborateur.dateEntree}
-          onChange={(e) => onChange("dateEntree", e.target.value)}
+          value={collaborateur.dateentree}
+          onChange={(e) => onChange("dateentree", e.target.value)}
+          required
         />
       </div>
       <div>
         <Label>Date de naissance</Label>
         <Input
           type="date"
-          value={collaborateur.dateNaissance}
-          onChange={(e) => onChange("dateNaissance", e.target.value)}
+          value={collaborateur.datenaissance}
+          onChange={(e) => onChange("datenaissance", e.target.value)}
+          required
         />
       </div>
       <div>
@@ -153,6 +157,7 @@ export function CollaborateurForm({
         <Input
           value={collaborateur.ville}
           onChange={(e) => onChange("ville", e.target.value)}
+          required
         />
       </div>
       <div>
@@ -160,6 +165,7 @@ export function CollaborateurForm({
         <Input
           value={collaborateur.quartier}
           onChange={(e) => onChange("quartier", e.target.value)}
+          required
         />
       </div>
 
