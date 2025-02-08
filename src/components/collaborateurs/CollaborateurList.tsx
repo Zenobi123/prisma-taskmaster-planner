@@ -45,6 +45,14 @@ export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurLis
     navigate(`/collaborateurs/${id}/edit`);
   };
 
+  const handleDelete = async (id: string) => {
+    try {
+      await onDelete(id);
+    } catch (error) {
+      console.error("Erreur lors de la suppression:", error);
+    }
+  };
+
   return (
     <div className="rounded-lg border">
       <Table>
@@ -105,14 +113,14 @@ export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurLis
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem 
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 cursor-pointer"
                       onClick={() => handleViewProfile(collaborateur.id)}
                     >
                       <Eye className="h-4 w-4" />
                       Voir le profil
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      className="flex items-center gap-2"
+                      className="flex items-center gap-2 cursor-pointer"
                       onClick={() => handleEdit(collaborateur.id)}
                     >
                       <Edit className="h-4 w-4" />
@@ -121,7 +129,7 @@ export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurLis
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <DropdownMenuItem 
-                          className="flex items-center gap-2 text-red-600"
+                          className="flex items-center gap-2 text-red-600 cursor-pointer"
                           onSelect={(e) => e.preventDefault()}
                         >
                           <Trash className="h-4 w-4" />
@@ -138,7 +146,7 @@ export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurLis
                         <AlertDialogFooter>
                           <AlertDialogCancel>Annuler</AlertDialogCancel>
                           <AlertDialogAction 
-                            onClick={() => onDelete(collaborateur.id)}
+                            onClick={() => handleDelete(collaborateur.id)}
                             className="bg-red-600 hover:bg-red-700 text-white"
                           >
                             Supprimer

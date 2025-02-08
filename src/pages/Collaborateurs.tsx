@@ -6,7 +6,7 @@ import { CollaborateurList } from "@/components/collaborateurs/CollaborateurList
 import { CollaborateurHeader } from "@/components/collaborateurs/CollaborateurHeader";
 import { CollaborateurSearch } from "@/components/collaborateurs/CollaborateurSearch";
 import { CollaborateurDialog } from "@/components/collaborateurs/CollaborateurDialog";
-import { Collaborateur, CollaborateurRole } from "@/types/collaborateur";
+import { Collaborateur } from "@/types/collaborateur";
 import { getCollaborateurs, addCollaborateur, deleteCollaborateur } from "@/services/collaborateurService";
 
 export default function Collaborateurs() {
@@ -18,16 +18,16 @@ export default function Collaborateurs() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [newCollaborateur, setNewCollaborateur] = useState({
+  const [newCollaborateur, setNewCollaborateur] = useState<Omit<Collaborateur, 'id' | 'created_at' | 'tachesencours' | 'permissions'>>({
     nom: "",
     prenom: "",
     email: "",
-    poste: "" as CollaborateurRole,
+    poste: "comptable",
     telephone: "",
     niveauetude: "",
     dateentree: "",
     datenaissance: "",
-    statut: "",
+    statut: "actif",
     ville: "",
     quartier: "",
   });
@@ -50,12 +50,12 @@ export default function Collaborateurs() {
         nom: "",
         prenom: "",
         email: "",
-        poste: "" as CollaborateurRole,
+        poste: "comptable",
         telephone: "",
         niveauetude: "",
         dateentree: "",
         datenaissance: "",
-        statut: "",
+        statut: "actif",
         ville: "",
         quartier: "",
       });
@@ -77,6 +77,14 @@ export default function Collaborateurs() {
       toast({
         title: "Collaborateur supprimé",
         description: "Le collaborateur a été supprimé avec succès.",
+      });
+    },
+    onError: (error) => {
+      console.error("Erreur lors de la suppression du collaborateur:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression du collaborateur.",
+        variant: "destructive",
       });
     },
   });
@@ -102,14 +110,6 @@ export default function Collaborateurs() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newCollaborateur.poste) {
-      toast({
-        title: "Erreur",
-        description: "Le poste est obligatoire",
-        variant: "destructive",
-      });
-      return;
-    }
     addMutation.mutate(newCollaborateur);
   };
 

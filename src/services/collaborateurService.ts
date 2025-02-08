@@ -23,6 +23,33 @@ export const getCollaborateurs = async () => {
   }
 };
 
+export const getCollaborateur = async (id: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("collaborateurs")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (error) {
+      console.error("Erreur lors de la récupération du collaborateur:", error);
+      throw error;
+    }
+
+    if (!data) {
+      throw new Error("Collaborateur non trouvé");
+    }
+
+    return {
+      ...data,
+      permissions: data.permissions || []
+    } as Collaborateur;
+  } catch (error) {
+    console.error("Erreur lors de la récupération du collaborateur:", error);
+    throw error;
+  }
+};
+
 export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' | 'created_at' | 'tachesencours' | 'permissions'>) => {
   try {
     const { data, error } = await supabase
@@ -44,6 +71,27 @@ export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' |
     return data;
   } catch (error) {
     console.error("Erreur lors de l'ajout du collaborateur:", error);
+    throw error;
+  }
+};
+
+export const updateCollaborateur = async (id: string, collaborateur: Partial<Omit<Collaborateur, 'id' | 'created_at'>>) => {
+  try {
+    const { data, error } = await supabase
+      .from("collaborateurs")
+      .update(collaborateur)
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Erreur lors de la mise à jour du collaborateur:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du collaborateur:", error);
     throw error;
   }
 };
