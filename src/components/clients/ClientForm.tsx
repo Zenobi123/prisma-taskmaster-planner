@@ -9,16 +9,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { ClientType } from "@/types/client";
-import { useState } from "react";
+import { ClientType, Client } from "@/types/client";
+import { useState, useEffect } from "react";
 
 interface ClientFormProps {
   onSubmit: (data: any) => void;
   type: ClientType;
-  onTypeChange: (value: ClientType) => void;
+  onTypeChange?: (value: ClientType) => void;
+  initialData?: Client;
 }
 
-export function ClientForm({ onSubmit, type, onTypeChange }: ClientFormProps) {
+export function ClientForm({ onSubmit, type, onTypeChange, initialData }: ClientFormProps) {
   const [formData, setFormData] = useState({
     nom: "",
     raisonsociale: "",
@@ -32,6 +33,24 @@ export function ClientForm({ onSubmit, type, onTypeChange }: ClientFormProps) {
     secteuractivite: "commerce",
     numerocnps: "",
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        nom: initialData.nom || "",
+        raisonsociale: initialData.raisonsociale || "",
+        niu: initialData.niu,
+        centrerattachement: initialData.centrerattachement,
+        ville: initialData.adresse.ville,
+        quartier: initialData.adresse.quartier,
+        lieuDit: initialData.adresse.lieuDit,
+        telephone: initialData.contact.telephone,
+        email: initialData.contact.email,
+        secteuractivite: initialData.secteuractivite,
+        numerocnps: initialData.numerocnps || "",
+      });
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,18 +84,20 @@ export function ClientForm({ onSubmit, type, onTypeChange }: ClientFormProps) {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
-        <div>
-          <Label>Type de client</Label>
-          <Select value={type} onValueChange={onTypeChange} required>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="physique">Personne Physique</SelectItem>
-              <SelectItem value="morale">Personne Morale</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {onTypeChange ? (
+          <div>
+            <Label>Type de client</Label>
+            <Select value={type} onValueChange={onTypeChange} required>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="physique">Personne Physique</SelectItem>
+                <SelectItem value="morale">Personne Morale</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : null}
 
         {type === "physique" ? (
           <>
@@ -195,7 +216,7 @@ export function ClientForm({ onSubmit, type, onTypeChange }: ClientFormProps) {
       </div>
 
       <Button type="submit" className="w-full">
-        Ajouter le client
+        {initialData ? "Modifier le client" : "Ajouter le client"}
       </Button>
     </form>
   );
