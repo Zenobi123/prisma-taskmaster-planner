@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Collaborateur, CollaborateurRole } from "@/types/collaborateur";
+import { Collaborateur } from "@/types/collaborateur";
 
 export const getCollaborateurs = async () => {
   try {
@@ -13,25 +13,17 @@ export const getCollaborateurs = async () => {
       throw error;
     }
 
-    return data as Collaborateur[];
+    return data.map(collaborateur => ({
+      ...collaborateur,
+      permissions: collaborateur.permissions || []
+    })) as Collaborateur[];
   } catch (error) {
     console.error("Erreur lors de la récupération des collaborateurs:", error);
     throw error;
   }
 };
 
-export const addCollaborateur = async (collaborateur: {
-  nom: string;
-  prenom: string;
-  email: string;
-  poste: CollaborateurRole;
-  telephone: string;
-  niveauetude: string;
-  dateentree: string;
-  datenaissance: string;
-  ville: string;
-  quartier: string;
-}) => {
+export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' | 'created_at' | 'tachesencours' | 'permissions'>) => {
   try {
     const { data, error } = await supabase
       .from("collaborateurs")

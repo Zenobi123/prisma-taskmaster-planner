@@ -76,7 +76,7 @@ export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurLis
               <TableCell>{collaborateur.poste}</TableCell>
               <TableCell>{collaborateur.email}</TableCell>
               <TableCell>
-                {new Date(collaborateur.dateEntree).toLocaleDateString()}
+                {new Date(collaborateur.dateentree).toLocaleDateString()}
               </TableCell>
               <TableCell>
                 <span
@@ -93,7 +93,7 @@ export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurLis
               <TableCell>
                 <span className="inline-flex items-center gap-1.5">
                   <ListChecks className="w-4 h-4 text-neutral-500" />
-                  {collaborateur.tachesEnCours}
+                  {collaborateur.tachesencours}
                 </span>
               </TableCell>
               <TableCell>
