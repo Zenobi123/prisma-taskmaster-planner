@@ -1,21 +1,61 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { getTasks } from "@/services/taskService";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getTasks, updateTaskStatus } from "@/services/taskService";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 const RecentTasks = () => {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
   });
 
-  const getStatusBadge = (status: string) => {
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ taskId, status }: { taskId: string; status: string }) =>
+      updateTaskStatus(taskId, status as "en_attente" | "en_cours" | "termine"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      toast({
+        title: "Statut mis à jour",
+        description: "Le statut de la tâche a été mis à jour avec succès",
+      });
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour du statut",
+      });
+    },
+  });
+
+  const getStatusLabel = (status: string) => {
     switch (status) {
       case "en_cours":
-        return <span className="badge badge-green">En cours</span>;
+        return "En cours";
       case "termine":
-        return <span className="badge badge-blue">Terminé</span>;
+        return "Terminé";
       default:
-        return <span className="badge badge-gray">En attente</span>;
+        return "En attente";
+    }
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case "en_cours":
+        return "badge badge-green";
+      case "termine":
+        return "badge badge-blue";
+      default:
+        return "badge badge-gray";
     }
   };
 
@@ -61,7 +101,26 @@ const RecentTasks = () => {
                 <td>
                   {task.collaborateurs.prenom} {task.collaborateurs.nom}
                 </td>
-                <td>{getStatusBadge(task.status)}</td>
+                <td>
+                  <Select
+                    defaultValue={task.status}
+                    onValueChange={(value) =>
+                      updateStatusMutation.mutate({
+                        taskId: task.id,
+                        status: value,
+                      })
+                    }
+                  >
+                    <SelectTrigger className={getStatusBadgeClass(task.status)}>
+                      <SelectValue>{getStatusLabel(task.status)}</SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="en_attente">En attente</SelectItem>
+                      <SelectItem value="en_cours">En cours</SelectItem>
+                      <SelectItem value="termine">Terminé</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </td>
               </tr>
             ))}
           </tbody>
