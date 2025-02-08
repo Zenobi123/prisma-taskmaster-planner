@@ -1,3 +1,4 @@
+
 import {
   Table,
   TableBody,
@@ -49,13 +50,13 @@ export function ClientList({ clients, onView, onEdit, onDelete }: ClientListProp
               </Badge>
             </TableCell>
             <TableCell className="font-medium">
-              {client.type === "physique" ? client.nom : client.raisonSociale}
+              {client.type === "physique" ? client.nom : client.raisonsociale}
             </TableCell>
             <TableCell>{client.niu}</TableCell>
-            <TableCell>{client.centreRattachement}</TableCell>
+            <TableCell>{client.centrerattachement}</TableCell>
             <TableCell>{client.adresse.ville}</TableCell>
             <TableCell>{client.contact.telephone}</TableCell>
-            <TableCell>{client.secteurActivite}</TableCell>
+            <TableCell>{client.secteuractivite}</TableCell>
             <TableCell>
               <Badge variant={client.statut === "actif" ? "success" : "secondary"}>
                 {client.statut}

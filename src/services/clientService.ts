@@ -13,7 +13,12 @@ export const getClients = async () => {
       throw error;
     }
 
-    return data as Client[];
+    return data.map(client => ({
+      ...client,
+      interactions: client.interactions || [],
+      adresse: client.adresse || { ville: "", quartier: "", lieuDit: "" },
+      contact: client.contact || { telephone: "", email: "" }
+    })) as Client[];
   } catch (error) {
     console.error("Erreur lors de la récupération des clients:", error);
     throw error;

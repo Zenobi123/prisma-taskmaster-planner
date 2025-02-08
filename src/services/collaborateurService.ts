@@ -94,9 +94,14 @@ export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' |
 
 export const updateCollaborateur = async (id: string, collaborateur: Partial<Omit<Collaborateur, 'id' | 'created_at'>>) => {
   try {
+    const dataToUpdate = {
+      ...collaborateur,
+      permissions: collaborateur.permissions ? JSON.stringify(collaborateur.permissions) : undefined
+    };
+    
     const { data, error } = await supabase
       .from("collaborateurs")
-      .update(collaborateur)
+      .update(dataToUpdate)
       .eq("id", id)
       .select()
       .single();
