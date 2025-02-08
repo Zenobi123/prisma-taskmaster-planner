@@ -13,6 +13,7 @@ export const getClients = async () => {
       throw error;
     }
 
+    // Ensure the data matches the Client type
     return data.map(client => ({
       ...client,
       interactions: client.interactions || [],

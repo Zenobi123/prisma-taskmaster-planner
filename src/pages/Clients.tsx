@@ -45,6 +45,14 @@ export default function Clients() {
       });
       setIsDialogOpen(false);
     },
+    onError: (error) => {
+      console.error("Erreur lors de l'ajout du client:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'ajout du client.",
+        variant: "destructive",
+      });
+    },
   });
 
   const deleteMutation = useMutation({
@@ -74,7 +82,7 @@ export default function Clients() {
     const matchesSearch =
       (client.type === "physique"
         ? client.nom?.toLowerCase()
-        : client.raisonSociale?.toLowerCase()
+        : client.raisonsociale?.toLowerCase()
       )?.includes(searchTerm.toLowerCase()) ||
       client.niu.includes(searchTerm) ||
       client.contact.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -82,7 +90,7 @@ export default function Clients() {
     const matchesType = selectedType === "all" || client.type === selectedType;
 
     const matchesSecteur =
-      selectedSecteur === "all" || client.secteurActivite === selectedSecteur;
+      selectedSecteur === "all" || client.secteuractivite === selectedSecteur;
 
     return matchesSearch && matchesType && matchesSecteur;
   });
@@ -136,6 +144,7 @@ export default function Clients() {
                   type={newClientType}
                   onTypeChange={setNewClientType}
                   onSubmit={(clientData) => {
+                    console.log("Données du client à ajouter:", clientData);
                     addMutation.mutate(clientData);
                   }}
                 />
