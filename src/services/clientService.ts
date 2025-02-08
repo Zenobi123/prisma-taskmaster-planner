@@ -26,10 +26,15 @@ export const getClients = async () => {
 };
 
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
+  console.log("Adding client with data:", client);
   try {
     const { data, error } = await supabase
       .from("clients")
-      .insert([{ ...client, interactions: [] }])
+      .insert([{ 
+        ...client,
+        interactions: [],
+        statut: "actif"
+      }])
       .select()
       .single();
 
