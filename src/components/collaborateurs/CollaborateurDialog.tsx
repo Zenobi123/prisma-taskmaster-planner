@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CollaborateurForm } from "./CollaborateurForm";
+import { CollaborateurRole } from "@/types/collaborateur";
 
 interface CollaborateurDialogProps {
   isOpen: boolean;
@@ -18,9 +19,9 @@ interface CollaborateurDialogProps {
     email: string;
     poste: string;
     telephone: string;
-    niveauEtude: string;
-    dateEntree: string;
-    dateNaissance: string;
+    niveauetude: string;
+    dateentree: string;
+    datenaissance: string;
     statut: string;
     ville: string;
     quartier: string;
