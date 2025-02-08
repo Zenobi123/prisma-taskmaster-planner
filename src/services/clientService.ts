@@ -13,12 +13,30 @@ export const getClients = async () => {
       throw error;
     }
 
-    // Ensure the data matches the Client type
+    if (!data) return [];
+
+    // Ensure the data matches the Client type by explicitly mapping the fields
     return data.map(client => ({
-      ...client,
-      interactions: client.interactions || [],
-      adresse: client.adresse || { ville: "", quartier: "", lieuDit: "" },
-      contact: client.contact || { telephone: "", email: "" }
+      id: client.id,
+      type: client.type as "physique" | "morale",
+      nom: client.nom || null,
+      raisonsociale: client.raisonsociale || null,
+      niu: client.niu,
+      centrerattachement: client.centrerattachement,
+      adresse: {
+        ville: (client.adresse as any)?.ville || "",
+        quartier: (client.adresse as any)?.quartier || "",
+        lieuDit: (client.adresse as any)?.lieuDit || ""
+      },
+      contact: {
+        telephone: (client.contact as any)?.telephone || "",
+        email: (client.contact as any)?.email || ""
+      },
+      secteuractivite: client.secteuractivite,
+      numerocnps: client.numerocnps || null,
+      interactions: Array.isArray(client.interactions) ? client.interactions : [],
+      statut: client.statut as "actif" | "inactif",
+      created_at: client.created_at
     })) as Client[];
   } catch (error) {
     console.error("Erreur lors de la récupération des clients:", error);
@@ -27,7 +45,7 @@ export const getClients = async () => {
 };
 
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
-  console.log("Adding client with data:", client);
+  console.log("Données du client à ajouter:", client);
   try {
     const { data, error } = await supabase
       .from("clients")
