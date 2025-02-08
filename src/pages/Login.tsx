@@ -20,13 +20,15 @@ const Login = () => {
     setIsLoading(true);
 
     try {
+      console.log("Tentative de connexion avec:", { email, password });
+      
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-        email: email.toLowerCase(),
-        password: password
+        email: email.toLowerCase().trim(),
+        password: password.trim()
       });
 
       if (authError) {
-        console.error("Erreur de connexion:", authError.message);
+        console.error("Erreur d'authentification:", authError);
         toast({
           variant: "destructive",
           title: "Erreur de connexion",
