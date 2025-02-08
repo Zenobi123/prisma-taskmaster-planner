@@ -20,13 +20,13 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase(),
         password: password
       });
 
-      if (error) {
-        console.error("Erreur de connexion:", error.message);
+      if (authError) {
+        console.error("Erreur de connexion:", authError.message);
         toast({
           variant: "destructive",
           title: "Erreur de connexion",
@@ -36,9 +36,30 @@ const Login = () => {
         return;
       }
 
-      if (data.user) {
-        console.log("Connexion réussie:", data.user);
+      if (authData.user) {
+        // Récupérer le rôle de l'utilisateur depuis la table users
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', authData.user.id)
+          .single();
+
+        if (userError) {
+          console.error("Erreur lors de la récupération du rôle:", userError);
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Impossible de récupérer les informations de l'utilisateur.",
+            className: "bg-white border-red-500 text-black",
+          });
+          return;
+        }
+
+        // Stocker les informations de l'utilisateur
         localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("userRole", userData.role);
+
+        console.log("Connexion réussie:", authData.user);
         toast({
           title: "Connexion réussie",
           description: "Bienvenue sur votre espace de gestion",
@@ -118,8 +139,18 @@ const Login = () => {
 
         <div className="mt-6 text-sm text-center space-y-2">
           <p className="text-neutral-600 font-medium">Identifiants de test :</p>
-          <p className="text-neutral-600">Email : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">comptable@gmail.com</span></p>
-          <p className="text-neutral-600">Mot de passe : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">Comptable123</span></p>
+          <div className="space-y-4">
+            <div>
+              <p className="text-neutral-600 font-medium">Comptable :</p>
+              <p className="text-neutral-600">Email : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">comptable@gmail.com</span></p>
+              <p className="text-neutral-600">Mot de passe : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">Comptable123</span></p>
+            </div>
+            <div>
+              <p className="text-neutral-600 font-medium">Administrateur :</p>
+              <p className="text-neutral-600">Email : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">admin@prisma.com</span></p>
+              <p className="text-neutral-600">Mot de passe : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">Admin123</span></p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
