@@ -6,7 +6,7 @@ import { CollaborateurList } from "@/components/collaborateurs/CollaborateurList
 import { CollaborateurHeader } from "@/components/collaborateurs/CollaborateurHeader";
 import { CollaborateurSearch } from "@/components/collaborateurs/CollaborateurSearch";
 import { CollaborateurDialog } from "@/components/collaborateurs/CollaborateurDialog";
-import { Collaborateur } from "@/types/collaborateur";
+import { Collaborateur, CollaborateurPermissions } from "@/types/collaborateur";
 import { getCollaborateurs, addCollaborateur, deleteCollaborateur } from "@/services/collaborateurService";
 
 export default function Collaborateurs() {
@@ -18,7 +18,7 @@ export default function Collaborateurs() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const [newCollaborateur, setNewCollaborateur] = useState<Omit<Collaborateur, 'id' | 'created_at' | 'tachesencours' | 'permissions'>>({
+  const [newCollaborateur, setNewCollaborateur] = useState<Omit<Collaborateur, 'id' | 'created_at' | 'tachesencours'>>({
     nom: "",
     prenom: "",
     email: "",
@@ -30,6 +30,7 @@ export default function Collaborateurs() {
     statut: "actif",
     ville: "",
     quartier: "",
+    permissions: []
   });
 
   const { data: collaborateurs = [], isLoading } = useQuery({
@@ -58,6 +59,7 @@ export default function Collaborateurs() {
         statut: "actif",
         ville: "",
         quartier: "",
+        permissions: []
       });
     },
     onError: (error) => {
@@ -113,7 +115,7 @@ export default function Collaborateurs() {
     addMutation.mutate(newCollaborateur);
   };
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: any) => {
     setNewCollaborateur((prev) => ({
       ...prev,
       [field]: value,

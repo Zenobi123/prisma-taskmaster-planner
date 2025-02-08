@@ -10,14 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CollaborateurRole, ModuleAcces, Permission } from "@/types/collaborateur";
+import { CollaborateurRole, ModuleAcces, Permission, CollaborateurPermissions } from "@/types/collaborateur";
 
 interface CollaborateurFormProps {
   collaborateur: {
     nom: string;
     prenom: string;
     email: string;
-    poste: string;
+    poste: CollaborateurRole;
     telephone: string;
     niveauetude: string;
     dateentree: string;
@@ -25,8 +25,9 @@ interface CollaborateurFormProps {
     statut: string;
     ville: string;
     quartier: string;
+    permissions: CollaborateurPermissions[];
   };
-  onChange: (field: string, value: string) => void;
+  onChange: (field: string, value: any) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 
@@ -62,6 +63,21 @@ export function CollaborateurForm({
   onChange,
   onSubmit,
 }: CollaborateurFormProps) {
+  const handlePermissionChange = (module: ModuleAcces, niveau: Permission) => {
+    const currentPermissions = [...collaborateur.permissions];
+    const existingPermissionIndex = currentPermissions.findIndex(p => p.module === module);
+    
+    if (existingPermissionIndex >= 0) {
+      // Mettre à jour la permission existante
+      currentPermissions[existingPermissionIndex] = { module, niveau };
+    } else {
+      // Ajouter une nouvelle permission
+      currentPermissions.push({ module, niveau });
+    }
+    
+    onChange("permissions", currentPermissions);
+  };
+
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div>
@@ -102,7 +118,7 @@ export function CollaborateurForm({
         <Label>Rôle</Label>
         <Select
           value={collaborateur.poste}
-          onValueChange={(value) => onChange("poste", value)}
+          onValueChange={(value: CollaborateurRole) => onChange("poste", value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Sélectionner un rôle" />
@@ -177,12 +193,24 @@ export function CollaborateurForm({
               <h4 className="font-medium capitalize">{module}</h4>
             </div>
             <div className="space-x-4 flex items-center">
-              {permissions.map((permission) => (
-                <label key={permission} className="flex items-center space-x-2">
-                  <Checkbox />
-                  <span className="text-sm capitalize">{permission}</span>
-                </label>
-              ))}
+              {permissions.map((permission) => {
+                const isChecked = collaborateur.permissions.some(
+                  p => p.module === module && p.niveau === permission
+                );
+                return (
+                  <label key={permission} className="flex items-center space-x-2">
+                    <Checkbox
+                      checked={isChecked}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          handlePermissionChange(module, permission);
+                        }
+                      }}
+                    />
+                    <span className="text-sm capitalize">{permission}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
         ))}

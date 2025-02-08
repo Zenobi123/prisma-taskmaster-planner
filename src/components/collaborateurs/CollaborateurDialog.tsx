@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { CollaborateurForm } from "./CollaborateurForm";
-import { CollaborateurRole } from "@/types/collaborateur";
+import { CollaborateurRole, CollaborateurPermissions } from "@/types/collaborateur";
 
 interface CollaborateurDialogProps {
   isOpen: boolean;
@@ -17,7 +17,7 @@ interface CollaborateurDialogProps {
     nom: string;
     prenom: string;
     email: string;
-    poste: string;
+    poste: CollaborateurRole;
     telephone: string;
     niveauetude: string;
     dateentree: string;
@@ -25,8 +25,9 @@ interface CollaborateurDialogProps {
     statut: string;
     ville: string;
     quartier: string;
+    permissions: CollaborateurPermissions[];
   };
-  onChange: (field: string, value: string) => void;
+  onChange: (field: string, value: any) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 

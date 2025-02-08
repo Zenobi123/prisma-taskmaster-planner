@@ -63,16 +63,17 @@ export const getCollaborateur = async (id: string) => {
   }
 };
 
-export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' | 'created_at' | 'tachesencours' | 'permissions'>) => {
+export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' | 'created_at' | 'tachesencours'>) => {
   try {
+    const dataToInsert = {
+      ...collaborateur,
+      permissions: JSON.stringify(collaborateur.permissions),
+      tachesencours: 0
+    };
+
     const { data, error } = await supabase
       .from("collaborateurs")
-      .insert([{ 
-        ...collaborateur,
-        statut: "actif",
-        tachesencours: 0,
-        permissions: []
-      }])
+      .insert([dataToInsert])
       .select()
       .single();
 
@@ -83,7 +84,7 @@ export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' |
 
     return {
       ...data,
-      permissions: [],
+      permissions: parsePermissions(data.permissions),
       tachesencours: 0
     } as Collaborateur;
   } catch (error) {
