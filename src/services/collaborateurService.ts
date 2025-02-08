@@ -1,6 +1,17 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Collaborateur } from "@/types/collaborateur";
+import { Collaborateur, CollaborateurPermissions } from "@/types/collaborateur";
+
+const parsePermissions = (permissions: any): CollaborateurPermissions[] => {
+  if (!permissions) return [];
+  if (Array.isArray(permissions)) {
+    return permissions.map(p => ({
+      module: p.module || "clients",
+      niveau: p.niveau || "lecture"
+    }));
+  }
+  return [];
+};
 
 export const getCollaborateurs = async () => {
   try {
@@ -15,7 +26,8 @@ export const getCollaborateurs = async () => {
 
     return data.map(collaborateur => ({
       ...collaborateur,
-      permissions: collaborateur.permissions || []
+      permissions: parsePermissions(collaborateur.permissions),
+      tachesencours: collaborateur.tachesencours || 0
     })) as Collaborateur[];
   } catch (error) {
     console.error("Erreur lors de la récupération des collaborateurs:", error);
@@ -42,7 +54,8 @@ export const getCollaborateur = async (id: string) => {
 
     return {
       ...data,
-      permissions: data.permissions || []
+      permissions: parsePermissions(data.permissions),
+      tachesencours: data.tachesencours || 0
     } as Collaborateur;
   } catch (error) {
     console.error("Erreur lors de la récupération du collaborateur:", error);
@@ -68,7 +81,10 @@ export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' |
       throw error;
     }
 
-    return data;
+    return {
+      ...data,
+      permissions: []
+    } as Collaborateur;
   } catch (error) {
     console.error("Erreur lors de l'ajout du collaborateur:", error);
     throw error;
@@ -77,9 +93,14 @@ export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' |
 
 export const updateCollaborateur = async (id: string, collaborateur: Partial<Omit<Collaborateur, 'id' | 'created_at'>>) => {
   try {
+    const dataToUpdate = {
+      ...collaborateur,
+      permissions: collaborateur.permissions ? JSON.stringify(collaborateur.permissions) : undefined
+    };
+
     const { data, error } = await supabase
       .from("collaborateurs")
-      .update(collaborateur)
+      .update(dataToUpdate)
       .eq("id", id)
       .select()
       .single();
@@ -89,7 +110,10 @@ export const updateCollaborateur = async (id: string, collaborateur: Partial<Omi
       throw error;
     }
 
-    return data;
+    return {
+      ...data,
+      permissions: parsePermissions(data.permissions)
+    } as Collaborateur;
   } catch (error) {
     console.error("Erreur lors de la mise à jour du collaborateur:", error);
     throw error;
