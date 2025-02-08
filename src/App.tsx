@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +7,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Collaborateurs from "./pages/Collaborateurs";
+import CollaborateurDetails from "./pages/CollaborateurDetails";
+import CollaborateurEdit from "./pages/CollaborateurEdit";
 import Clients from "./pages/Clients";
 import Missions from "./pages/Missions";
 import Planning from "./pages/Planning";
@@ -41,6 +44,22 @@ const App = () => (
             element={
               <PrivateRoute>
                 <Collaborateurs />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/collaborateurs/:id"
+            element={
+              <PrivateRoute>
+                <CollaborateurDetails />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/collaborateurs/:id/edit"
+            element={
+              <PrivateRoute>
+                <CollaborateurEdit />
               </PrivateRoute>
             }
           />

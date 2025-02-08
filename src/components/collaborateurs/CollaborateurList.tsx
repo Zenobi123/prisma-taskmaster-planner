@@ -37,14 +37,6 @@ interface CollaborateurListProps {
 export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurListProps) {
   const navigate = useNavigate();
 
-  const handleViewProfile = (id: string) => {
-    navigate(`/collaborateurs/${id}`);
-  };
-
-  const handleEdit = (id: string) => {
-    navigate(`/collaborateurs/${id}/edit`);
-  };
-
   return (
     <div className="rounded-lg border">
       <Table>
@@ -105,14 +97,14 @@ export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurLis
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem 
-                      onClick={() => handleViewProfile(collaborateur.id)}
+                      onClick={() => navigate(`/collaborateurs/${collaborateur.id}`)}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <Eye className="h-4 w-4" />
                       Voir le profil
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => handleEdit(collaborateur.id)}
+                      onClick={() => navigate(`/collaborateurs/${collaborateur.id}/edit`)}
                       className="flex items-center gap-2 cursor-pointer"
                     >
                       <Edit className="h-4 w-4" />

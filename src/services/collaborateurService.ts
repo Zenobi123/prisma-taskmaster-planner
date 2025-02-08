@@ -41,11 +41,15 @@ export const getCollaborateur = async (id: string) => {
       .from("collaborateurs")
       .select("*")
       .eq("id", id)
-      .single();
+      .maybeSingle();
 
     if (error) {
       console.error("Erreur lors de la récupération du collaborateur:", error);
       throw error;
+    }
+
+    if (!data) {
+      throw new Error("Collaborateur non trouvé");
     }
 
     return {
@@ -92,10 +96,7 @@ export const updateCollaborateur = async (id: string, collaborateur: Partial<Omi
   try {
     const { data, error } = await supabase
       .from("collaborateurs")
-      .update({
-        ...collaborateur,
-        permissions: collaborateur.permissions ? collaborateur.permissions : undefined
-      })
+      .update(collaborateur)
       .eq("id", id)
       .select()
       .single();
