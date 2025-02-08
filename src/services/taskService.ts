@@ -62,24 +62,3 @@ export const createTask = async (task: Omit<Task, "id" | "created_at" | "updated
     throw error;
   }
 };
-
-export const updateTaskStatus = async (taskId: string, status: Task["status"]) => {
-  try {
-    const { data, error } = await supabase
-      .from("tasks")
-      .update({ status })
-      .eq("id", taskId)
-      .select()
-      .single();
-
-    if (error) {
-      console.error("Erreur lors de la mise à jour du statut:", error);
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
-    console.error("Erreur lors de la mise à jour du statut:", error);
-    throw error;
-  }
-};
