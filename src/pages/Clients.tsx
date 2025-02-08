@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ClientList } from "@/components/clients/ClientList";
 import { ClientForm } from "@/components/clients/ClientForm";
 import { ClientFilters } from "@/components/clients/ClientFilters";
+import { ClientView } from "@/components/clients/ClientView";
 import { Client, ClientType } from "@/types/client";
 import { getClients, addClient, deleteClient, updateClient } from "@/services/clientService";
 
@@ -26,6 +26,7 @@ export default function Clients() {
   const [selectedSecteur, setSelectedSecteur] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [newClientType, setNewClientType] = useState<ClientType>("physique");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const navigate = useNavigate();
@@ -99,13 +100,8 @@ export default function Clients() {
   });
 
   const handleView = (client: Client) => {
-    console.log("Viewing client:", client);
-    // Implement view logic - you might want to navigate to a details page
-    // navigate(`/clients/${client.id}`);
-    toast({
-      title: "Fonctionnalité à venir",
-      description: "La vue détaillée du client sera bientôt disponible.",
-    });
+    setSelectedClient(client);
+    setIsViewDialogOpen(true);
   };
 
   const handleEdit = (client: Client) => {
@@ -212,6 +208,20 @@ export default function Clients() {
           onDelete={handleDelete}
         />
       </div>
+
+      {selectedClient && (
+        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+          <DialogContent className="bg-white max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>Détails du client</DialogTitle>
+              <DialogDescription>
+                Informations détaillées sur le client
+              </DialogDescription>
+            </DialogHeader>
+            <ClientView client={selectedClient} />
+          </DialogContent>
+        </Dialog>
+      )}
 
       {selectedClient && (
         <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
