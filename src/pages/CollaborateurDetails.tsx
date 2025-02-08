@@ -3,7 +3,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { getCollaborateur } from "@/services/collaborateurService";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit } from "lucide-react";
+import { ArrowLeft, Edit, Mail, Phone, MapPin, GraduationCap, Calendar, Briefcase } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 export default function CollaborateurDetails() {
   const { id } = useParams<{ id: string }>();
@@ -32,8 +33,16 @@ export default function CollaborateurDetails() {
     );
   }
 
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString("fr-FR", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   return (
-    <div className="p-8">
+    <div className="p-8 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <Button
           variant="outline"
@@ -52,62 +61,95 @@ export default function CollaborateurDetails() {
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
-        <div className="grid grid-cols-2 gap-6">
-          <div>
-            <h2 className="text-2xl font-semibold mb-6">
+      <Card className="bg-white p-8">
+        <div className="space-y-8">
+          {/* En-tête */}
+          <div className="text-center pb-6 border-b">
+            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl text-primary font-semibold">
+                {collaborateur.prenom[0]}{collaborateur.nom[0]}
+              </span>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">
               {collaborateur.prenom} {collaborateur.nom}
-            </h2>
-            <dl className="space-y-4">
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Email</dt>
-                <dd>{collaborateur.email}</dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Téléphone</dt>
-                <dd>{collaborateur.telephone}</dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Poste</dt>
-                <dd className="capitalize">{collaborateur.poste}</dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">
-                  Date d'entrée
-                </dt>
-                <dd>{new Date(collaborateur.dateentree).toLocaleDateString()}</dd>
-              </div>
-            </dl>
+            </h1>
+            <p className="text-lg text-neutral-600">{collaborateur.poste}</p>
           </div>
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Informations personnelles</h3>
-            <dl className="space-y-4">
-              <div>
-                <dt className="text-sm font-medium text-gray-500">
-                  Date de naissance
-                </dt>
-                <dd>
-                  {new Date(collaborateur.datenaissance).toLocaleDateString()}
-                </dd>
+
+          {/* Informations principales */}
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold mb-4">Informations professionnelles</h2>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Mail className="h-5 w-5 text-neutral-500" />
+                  <div>
+                    <p className="text-sm text-neutral-500">Email</p>
+                    <p>{collaborateur.email}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Phone className="h-5 w-5 text-neutral-500" />
+                  <div>
+                    <p className="text-sm text-neutral-500">Téléphone</p>
+                    <p>{collaborateur.telephone}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <Briefcase className="h-5 w-5 text-neutral-500" />
+                  <div>
+                    <p className="text-sm text-neutral-500">Date d'entrée</p>
+                    <p>{formatDate(collaborateur.dateentree)}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-primary"></div>
+                  </div>
+                  <div>
+                    <p className="text-sm text-neutral-500">Statut</p>
+                    <p className="capitalize">{collaborateur.statut}</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">
-                  Niveau d'études
-                </dt>
-                <dd>{collaborateur.niveauetude}</dd>
+            </div>
+
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold mb-4">Informations personnelles</h2>
+              
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-neutral-500" />
+                  <div>
+                    <p className="text-sm text-neutral-500">Date de naissance</p>
+                    <p>{formatDate(collaborateur.datenaissance)}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <GraduationCap className="h-5 w-5 text-neutral-500" />
+                  <div>
+                    <p className="text-sm text-neutral-500">Niveau d'études</p>
+                    <p>{collaborateur.niveauetude}</p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-5 w-5 text-neutral-500" />
+                  <div>
+                    <p className="text-sm text-neutral-500">Adresse</p>
+                    <p>{collaborateur.quartier}, {collaborateur.ville}</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Ville</dt>
-                <dd>{collaborateur.ville}</dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-gray-500">Quartier</dt>
-                <dd>{collaborateur.quartier}</dd>
-              </div>
-            </dl>
+            </div>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
