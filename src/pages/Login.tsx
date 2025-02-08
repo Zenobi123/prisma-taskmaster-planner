@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -5,39 +6,56 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { LogIn } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Tentative de connexion avec:", { email, password });
-    
-    // Convertir l'email en minuscules pour la comparaison
-    const normalizedEmail = email.toLowerCase();
-    
-    if (normalizedEmail === "admin@gmail.com" && password === "Admin") {
-      console.log("Identifiants corrects, connexion réussie");
-      localStorage.setItem("isAuthenticated", "true");
-      toast({
-        title: "Connexion réussie",
-        description: "Bienvenue sur votre espace de gestion",
-        className: "bg-white border-green-500 text-black",
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase(),
+        password: password
       });
-      navigate("/");
-    } else {
-      console.log("Échec de la connexion - identifiants incorrects");
-      console.log("Email attendu: admin@gmail.com");
-      console.log("Mot de passe attendu: Admin");
+
+      if (error) {
+        console.error("Erreur de connexion:", error.message);
+        toast({
+          variant: "destructive",
+          title: "Erreur de connexion",
+          description: "Email ou mot de passe incorrect.",
+          className: "bg-white border-red-500 text-black",
+        });
+        return;
+      }
+
+      if (data.user) {
+        console.log("Connexion réussie:", data.user);
+        localStorage.setItem("isAuthenticated", "true");
+        toast({
+          title: "Connexion réussie",
+          description: "Bienvenue sur votre espace de gestion",
+          className: "bg-white border-green-500 text-black",
+        });
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Erreur inattendue:", error);
       toast({
         variant: "destructive",
-        title: "Erreur de connexion",
-        description: "Email ou mot de passe incorrect. Attention à la casse !",
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite.",
         className: "bg-white border-red-500 text-black",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -55,10 +73,11 @@ const Login = () => {
             <Input
               id="email"
               type="email"
-              placeholder="admin@gmail.com"
+              placeholder="comptable@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
           
@@ -70,19 +89,37 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={isLoading}
             />
           </div>
 
-          <Button type="submit" className="w-full" size="lg">
-            <LogIn className="mr-2 h-4 w-4" />
-            Se connecter
+          <Button 
+            type="submit" 
+            className="w-full" 
+            size="lg"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <span className="flex items-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Connexion en cours...
+              </span>
+            ) : (
+              <>
+                <LogIn className="mr-2 h-4 w-4" />
+                Se connecter
+              </>
+            )}
           </Button>
         </form>
 
         <div className="mt-6 text-sm text-center space-y-2">
           <p className="text-neutral-600 font-medium">Identifiants de test :</p>
-          <p className="text-neutral-600">Email : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">admin@gmail.com</span></p>
-          <p className="text-neutral-600">Mot de passe : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">Admin</span></p>
+          <p className="text-neutral-600">Email : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">comptable@gmail.com</span></p>
+          <p className="text-neutral-600">Mot de passe : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">Comptable123</span></p>
         </div>
       </div>
     </div>

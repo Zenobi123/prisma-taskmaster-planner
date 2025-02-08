@@ -111,6 +111,41 @@ export type Database = {
         }
         Relationships: []
       }
+      users: {
+        Row: {
+          collaborateur_id: string | null
+          created_at: string
+          email: string
+          id: string
+          password: string
+          role: string
+        }
+        Insert: {
+          collaborateur_id?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          password: string
+          role?: string
+        }
+        Update: {
+          collaborateur_id?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          password?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_collaborateur_id_fkey"
+            columns: ["collaborateur_id"]
+            isOneToOne: false
+            referencedRelation: "collaborateurs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
