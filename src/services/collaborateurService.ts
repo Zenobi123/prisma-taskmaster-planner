@@ -67,9 +67,11 @@ export const addCollaborateur = async (collaborateur: Omit<Collaborateur, 'id' |
   try {
     const dataToInsert = {
       ...collaborateur,
-      permissions: JSON.stringify(collaborateur.permissions),
+      permissions: JSON.stringify(collaborateur.permissions || []),
       tachesencours: 0
     };
+
+    console.log("Données à insérer:", dataToInsert);
 
     const { data, error } = await supabase
       .from("collaborateurs")
