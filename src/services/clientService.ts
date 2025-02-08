@@ -15,7 +15,6 @@ export const getClients = async () => {
 
     if (!data) return [];
 
-    // Ensure the data matches the Client type by explicitly mapping the fields
     return data.map(client => ({
       id: client.id,
       type: client.type as "physique" | "morale",
@@ -34,10 +33,14 @@ export const getClients = async () => {
       },
       secteuractivite: client.secteuractivite,
       numerocnps: client.numerocnps || null,
-      interactions: Array.isArray(client.interactions) ? client.interactions : [],
+      interactions: (client.interactions || []).map((interaction: any) => ({
+        id: interaction.id || crypto.randomUUID(),
+        date: interaction.date || new Date().toISOString(),
+        description: interaction.description || ""
+      })),
       statut: client.statut as "actif" | "inactif",
       created_at: client.created_at
-    })) as Client[];
+    })) as unknown as Client[];
   } catch (error) {
     console.error("Erreur lors de la récupération des clients:", error);
     throw error;

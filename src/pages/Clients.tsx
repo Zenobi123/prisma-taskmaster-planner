@@ -25,7 +25,9 @@ export default function Clients() {
   const [selectedType, setSelectedType] = useState<ClientType | "all">("all");
   const [selectedSecteur, setSelectedSecteur] = useState("all");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [newClientType, setNewClientType] = useState<ClientType>("physique");
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -64,6 +66,14 @@ export default function Clients() {
         description: "Le client a été supprimé avec succès.",
       });
     },
+    onError: (error) => {
+      console.error("Erreur lors de la suppression du client:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression du client.",
+        variant: "destructive",
+      });
+    },
   });
 
   const updateMutation = useMutation({
@@ -75,8 +85,39 @@ export default function Clients() {
         title: "Client mis à jour",
         description: "Le client a été mis à jour avec succès.",
       });
+      setIsEditDialogOpen(false);
+      setSelectedClient(null);
+    },
+    onError: (error) => {
+      console.error("Erreur lors de la mise à jour du client:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour du client.",
+        variant: "destructive",
+      });
     },
   });
+
+  const handleView = (client: Client) => {
+    console.log("Viewing client:", client);
+    // Implement view logic - you might want to navigate to a details page
+    // navigate(`/clients/${client.id}`);
+    toast({
+      title: "Fonctionnalité à venir",
+      description: "La vue détaillée du client sera bientôt disponible.",
+    });
+  };
+
+  const handleEdit = (client: Client) => {
+    setSelectedClient(client);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = async (client: Client) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
+      deleteMutation.mutate(client.id);
+    }
+  };
 
   const filteredClients = clients.filter((client) => {
     const matchesSearch =
@@ -166,17 +207,36 @@ export default function Clients() {
 
         <ClientList
           clients={filteredClients}
-          onView={(client) => {
-            // Implement view functionality
-            console.log("View client:", client);
-          }}
-          onEdit={(client) => {
-            // Implement edit functionality
-            console.log("Edit client:", client);
-          }}
-          onDelete={(client) => deleteMutation.mutate(client.id)}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
         />
       </div>
+
+      {selectedClient && (
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="bg-white max-h-[90vh]">
+            <DialogHeader>
+              <DialogTitle>Modifier le client</DialogTitle>
+              <DialogDescription>
+                Modifiez les informations du client ci-dessous.
+              </DialogDescription>
+            </DialogHeader>
+            <ScrollArea className="h-[70vh] pr-4">
+              <ClientForm
+                type={selectedClient.type}
+                initialData={selectedClient}
+                onSubmit={(clientData) => {
+                  updateMutation.mutate({
+                    id: selectedClient.id,
+                    updates: clientData,
+                  });
+                }}
+              />
+            </ScrollArea>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
