@@ -1,16 +1,10 @@
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { CollaborateurRole, ModuleAcces, Permission, CollaborateurPermissions } from "@/types/collaborateur";
+import { CollaborateurRole, CollaborateurPermissions } from "@/types/collaborateur";
+import { PersonalInfoFields } from "./form/PersonalInfoFields";
+import { ProfessionalInfoFields } from "./form/ProfessionalInfoFields";
+import { AddressFields } from "./form/AddressFields";
+import { PermissionsFields } from "./form/PermissionsFields";
 
 interface CollaborateurFormProps {
   collaborateur: {
@@ -31,190 +25,39 @@ interface CollaborateurFormProps {
   onSubmit: (e: React.FormEvent) => void;
 }
 
-const roles: CollaborateurRole[] = [
-  "expert-comptable",
-  "assistant",
-  "fiscaliste",
-  "gestionnaire",
-  "comptable",
-];
-
-const niveauxEtude = [
-  "BAC",
-  "BAC+2",
-  "BAC+3",
-  "BAC+4",
-  "BAC+5",
-  "BAC+6 et plus"
-];
-
-const modules: ModuleAcces[] = [
-  "clients",
-  "taches",
-  "facturation",
-  "rapports",
-  "planning",
-];
-
-const permissions: Permission[] = ["lecture", "ecriture", "administration"];
-
 export function CollaborateurForm({
   collaborateur,
   onChange,
   onSubmit,
 }: CollaborateurFormProps) {
-  const handlePermissionChange = (module: ModuleAcces, niveau: Permission) => {
-    const currentPermissions = [...collaborateur.permissions];
-    const existingPermissionIndex = currentPermissions.findIndex(p => p.module === module);
-    
-    if (existingPermissionIndex >= 0) {
-      // Mettre à jour la permission existante
-      currentPermissions[existingPermissionIndex] = { module, niveau };
-    } else {
-      // Ajouter une nouvelle permission
-      currentPermissions.push({ module, niveau });
-    }
-    
-    onChange("permissions", currentPermissions);
-  };
-
   return (
     <form onSubmit={onSubmit} className="space-y-4">
-      <div>
-        <Label>Nom *</Label>
-        <Input
-          value={collaborateur.nom}
-          onChange={(e) => onChange("nom", e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label>Prénom *</Label>
-        <Input
-          value={collaborateur.prenom}
-          onChange={(e) => onChange("prenom", e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label>Email</Label>
-        <Input
-          type="email"
-          value={collaborateur.email}
-          onChange={(e) => onChange("email", e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label>Téléphone</Label>
-        <Input
-          type="tel"
-          value={collaborateur.telephone}
-          onChange={(e) => onChange("telephone", e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label>Rôle</Label>
-        <Select
-          value={collaborateur.poste}
-          onValueChange={(value: CollaborateurRole) => onChange("poste", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Sélectionner un rôle" />
-          </SelectTrigger>
-          <SelectContent>
-            {roles.map((role) => (
-              <SelectItem key={role} value={role}>
-                {role.charAt(0).toUpperCase() + role.slice(1).replace("-", " ")}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <Label>Niveau d'étude</Label>
-        <Select
-          value={collaborateur.niveauetude}
-          onValueChange={(value) => onChange("niveauetude", value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Sélectionner un niveau d'étude" />
-          </SelectTrigger>
-          <SelectContent>
-            {niveauxEtude.map((niveau) => (
-              <SelectItem key={niveau} value={niveau}>
-                {niveau}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-      <div>
-        <Label>Date d'entrée</Label>
-        <Input
-          type="date"
-          value={collaborateur.dateentree}
-          onChange={(e) => onChange("dateentree", e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label>Date de naissance</Label>
-        <Input
-          type="date"
-          value={collaborateur.datenaissance}
-          onChange={(e) => onChange("datenaissance", e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label>Ville</Label>
-        <Input
-          value={collaborateur.ville}
-          onChange={(e) => onChange("ville", e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <Label>Quartier</Label>
-        <Input
-          value={collaborateur.quartier}
-          onChange={(e) => onChange("quartier", e.target.value)}
-          required
-        />
-      </div>
-
-      <div className="space-y-4">
-        <Label>Permissions d'accès</Label>
-        {modules.map((module) => (
-          <div key={module} className="flex items-center space-x-4 p-4 border rounded-lg">
-            <div className="flex-1">
-              <h4 className="font-medium capitalize">{module}</h4>
-            </div>
-            <div className="space-x-4 flex items-center">
-              {permissions.map((permission) => {
-                const isChecked = collaborateur.permissions.some(
-                  p => p.module === module && p.niveau === permission
-                );
-                return (
-                  <label key={permission} className="flex items-center space-x-2">
-                    <Checkbox
-                      checked={isChecked}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          handlePermissionChange(module, permission);
-                        }
-                      }}
-                    />
-                    <span className="text-sm capitalize">{permission}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
+      <PersonalInfoFields
+        nom={collaborateur.nom}
+        prenom={collaborateur.prenom}
+        email={collaborateur.email}
+        telephone={collaborateur.telephone}
+        datenaissance={collaborateur.datenaissance}
+        onChange={onChange}
+      />
+      
+      <ProfessionalInfoFields
+        poste={collaborateur.poste}
+        niveauetude={collaborateur.niveauetude}
+        dateentree={collaborateur.dateentree}
+        onChange={onChange}
+      />
+      
+      <AddressFields
+        ville={collaborateur.ville}
+        quartier={collaborateur.quartier}
+        onChange={onChange}
+      />
+      
+      <PermissionsFields
+        permissions={collaborateur.permissions}
+        onChange={onChange}
+      />
 
       <Button type="submit" className="w-full">
         Ajouter le collaborateur
