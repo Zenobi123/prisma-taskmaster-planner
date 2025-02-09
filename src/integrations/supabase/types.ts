@@ -141,6 +141,20 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "fk_tasks_client"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_tasks_collaborateur"
+            columns: ["collaborateur_id"]
+            isOneToOne: false
+            referencedRelation: "collaborateurs"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tasks_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
@@ -182,6 +196,13 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
         }
         Relationships: [
+          {
+            foreignKeyName: "fk_users_collaborateur"
+            columns: ["collaborateur_id"]
+            isOneToOne: false
+            referencedRelation: "collaborateurs"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "users_collaborateur_id_fkey"
             columns: ["collaborateur_id"]
