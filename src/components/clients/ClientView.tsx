@@ -26,14 +26,17 @@ export function ClientView({ client }: ClientViewProps) {
                 {client.statut}
               </Badge>
             </div>
-            <div>
-              <p className="text-sm text-muted-foreground">
-                {client.type === "physique" ? "Nom" : "Raison sociale"}
-              </p>
-              <p className="font-medium">
-                {client.type === "physique" ? client.nom : client.raisonsociale}
-              </p>
-            </div>
+            {client.type === "physique" ? (
+              <div>
+                <p className="text-sm text-muted-foreground">Nom</p>
+                <p className="font-medium">{client.nom}</p>
+              </div>
+            ) : (
+              <div>
+                <p className="text-sm text-muted-foreground">Raison sociale</p>
+                <p className="font-medium">{client.raisonsociale}</p>
+              </div>
+            )}
             <div>
               <p className="text-sm text-muted-foreground">NIU</p>
               <p className="font-medium">{client.niu}</p>
@@ -60,15 +63,15 @@ export function ClientView({ client }: ClientViewProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Ville</p>
-              <p className="font-medium">{client.adresse.ville}</p>
+              <p className="font-medium">{client.adresse?.ville}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Quartier</p>
-              <p className="font-medium">{client.adresse.quartier}</p>
+              <p className="font-medium">{client.adresse?.quartier}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Lieu-dit</p>
-              <p className="font-medium">{client.adresse.lieuDit}</p>
+              <p className="font-medium">{client.adresse?.lieuDit}</p>
             </div>
           </div>
         </div>
@@ -78,11 +81,11 @@ export function ClientView({ client }: ClientViewProps) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-muted-foreground">Téléphone</p>
-              <p className="font-medium">{client.contact.telephone}</p>
+              <p className="font-medium">{client.contact?.telephone}</p>
             </div>
             <div>
               <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium">{client.contact.email}</p>
+              <p className="font-medium">{client.contact?.email}</p>
             </div>
           </div>
         </div>
@@ -92,7 +95,7 @@ export function ClientView({ client }: ClientViewProps) {
           {client.interactions && client.interactions.length > 0 ? (
             <div className="space-y-4">
               {client.interactions.map((interaction, index) => (
-                <div key={interaction.id} className="border rounded-lg p-4">
+                <div key={index} className="border rounded-lg p-4">
                   <p className="text-sm text-muted-foreground">
                     {new Date(interaction.date).toLocaleDateString()}
                   </p>
