@@ -28,14 +28,16 @@ const Facturation = () => {
   const { data: collaborateur } = useQuery({
     queryKey: ["collaborateur", collaborateurId],
     queryFn: () => collaborateurId ? getCollaborateur(collaborateurId) : null,
-    onSuccess: (data) => {
-      if (!data?.permissions?.some(p => p.module === "facturation" && ["ecriture", "administration"].includes(p.niveau))) {
-        toast({
-          variant: "destructive",
-          title: "Accès refusé",
-          description: "Vous n'avez pas les permissions nécessaires pour accéder à la facturation."
-        });
-        navigate("/");
+    meta: {
+      onSuccess: (data: any) => {
+        if (!data?.permissions?.some(p => p.module === "facturation" && ["ecriture", "administration"].includes(p.niveau))) {
+          toast({
+            variant: "destructive",
+            title: "Accès refusé",
+            description: "Vous n'avez pas les permissions nécessaires pour accéder à la facturation."
+          });
+          navigate("/");
+        }
       }
     }
   });
