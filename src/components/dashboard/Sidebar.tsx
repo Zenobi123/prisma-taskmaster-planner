@@ -54,11 +54,16 @@ const Sidebar = () => {
   const filteredMenuItems = menuItems.filter(item => {
     if (item.adminOnly) {
       const permissions = collaborateur?.permissions || [];
+      console.log('Checking permissions for:', item.path.substring(1));
+      console.log('User permissions:', permissions);
+      
       // Vérifie si l'utilisateur a une permission admin pour le module spécifique
       const hasAdminPermission = permissions.some(p => 
         p.module === item.path.substring(1) && 
         p.niveau === "administration"
       );
+      
+      console.log('Has admin permission:', hasAdminPermission);
       return hasAdminPermission;
     }
     return true;
