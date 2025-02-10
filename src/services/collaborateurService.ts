@@ -4,13 +4,27 @@ import { Collaborateur, CollaborateurPermissions } from "@/types/collaborateur";
 
 const parsePermissions = (permissions: any): CollaborateurPermissions[] => {
   if (!permissions) return [];
-  if (Array.isArray(permissions)) {
-    return permissions.map(p => ({
-      module: p.module || "clients",
-      niveau: p.niveau || "lecture"
-    }));
+  try {
+    // Si permissions est déjà un tableau, le retourner directement
+    if (Array.isArray(permissions)) {
+      return permissions.map(p => ({
+        module: p.module,
+        niveau: p.niveau
+      }));
+    }
+    // Si c'est une chaîne JSON, la parser
+    if (typeof permissions === 'string') {
+      const parsed = JSON.parse(permissions);
+      return Array.isArray(parsed) ? parsed.map(p => ({
+        module: p.module,
+        niveau: p.niveau
+      })) : [];
+    }
+    return [];
+  } catch (error) {
+    console.error("Erreur lors du parsing des permissions:", error);
+    return [];
   }
-  return [];
 };
 
 export const getCollaborateurs = async () => {
@@ -141,3 +155,4 @@ export const deleteCollaborateur = async (id: string) => {
     throw error;
   }
 };
+
