@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ArrowLeft, Plus, Search, FileText } from "lucide-react";
@@ -28,19 +28,25 @@ const Facturation = () => {
   const { data: collaborateur } = useQuery({
     queryKey: ["collaborateur", collaborateurId],
     queryFn: () => collaborateurId ? getCollaborateur(collaborateurId) : null,
-    meta: {
-      onSuccess: (data: any) => {
-        if (!data?.permissions?.some(p => p.module === "facturation" && ["ecriture", "administration"].includes(p.niveau))) {
-          toast({
-            variant: "destructive",
-            title: "Accès refusé",
-            description: "Vous n'avez pas les permissions nécessaires pour accéder à la facturation."
-          });
-          navigate("/");
-        }
+  });
+
+  // Vérification des permissions et redirection si nécessaire
+  useEffect(() => {
+    if (collaborateur) {
+      const hasPermission = collaborateur.permissions?.some(
+        p => p.module === "facturation" && ["ecriture", "administration"].includes(p.niveau)
+      );
+      
+      if (!hasPermission) {
+        toast({
+          variant: "destructive",
+          title: "Accès refusé",
+          description: "Vous n'avez pas les permissions nécessaires pour accéder à la facturation."
+        });
+        navigate("/");
       }
     }
-  });
+  }, [collaborateur, toast, navigate]);
 
   // Si pas de collaborateurId ou pas de permissions, rediriger
   if (!collaborateurId || !collaborateur) {
