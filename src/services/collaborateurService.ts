@@ -38,6 +38,11 @@ export const getCollaborateurs = async () => {
       throw error;
     }
 
+    if (!data) {
+      console.log("Aucun collaborateur trouvé");
+      return [];
+    }
+
     console.log("Collaborateurs data received:", data);
     return data.map(collaborateur => ({
       ...collaborateur,
@@ -53,19 +58,11 @@ export const getCollaborateurs = async () => {
 export const getCollaborateur = async (id: string) => {
   try {
     console.log("Fetching collaborateur with ID:", id);
-    let query = supabase
+    const { data, error } = await supabase
       .from("collaborateurs")
-      .select("*");
-
-    if (id.includes('@')) {
-      // Si l'ID est un email
-      query = query.eq('email', id.toLowerCase());
-    } else {
-      // Si l'ID est un UUID
-      query = query.eq('user_id', id);
-    }
-
-    const { data, error } = await query.single();
+      .select("*")
+      .eq(id.includes('@') ? 'email' : 'user_id', id.includes('@') ? id.toLowerCase() : id)
+      .maybeSingle();
 
     if (error) {
       console.error("Erreur lors de la récupération du collaborateur:", error);
@@ -74,7 +71,7 @@ export const getCollaborateur = async (id: string) => {
 
     if (!data) {
       console.log("Collaborateur non trouvé pour l'ID:", id);
-      throw new Error("Collaborateur non trouvé");
+      return null;
     }
 
     console.log("Collaborateur data received:", data);
@@ -167,4 +164,3 @@ export const deleteCollaborateur = async (id: string) => {
     throw error;
   }
 };
-

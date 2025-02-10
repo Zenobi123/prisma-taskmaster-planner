@@ -52,16 +52,19 @@ const Sidebar = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const { data: collaborateur } = useQuery({
+  const { data: collaborateur, isError } = useQuery({
     queryKey: ['collaborateur', userId],
-    queryFn: () => {
+    queryFn: async () => {
       if (!userId) return null;
       console.log("Fetching collaborateur data for userId:", userId);
-      return getCollaborateur(userId);
+      const data = await getCollaborateur(userId);
+      console.log("Fetched collaborateur data:", data);
+      return data;
     },
     enabled: !!userId,
     retry: 3,
     retryDelay: 1000,
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
   const filteredMenuItems = menuItems.filter(item => {
@@ -80,6 +83,11 @@ const Sidebar = () => {
     }
     return true;
   });
+
+  if (isError) {
+    console.error("Error fetching collaborateur data");
+    return null;
+  }
 
   const isActiveRoute = (path: string) => {
     return location.pathname === path;
