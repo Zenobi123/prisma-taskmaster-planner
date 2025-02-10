@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import { useQuery } from "@tanstack/react-query";
-import { getCollaborateurById } from "@/services/collaborateurService";
+import { getCollaborateur } from "@/services/collaborateurService";
 import { supabase } from "@/integrations/supabase/client";
 
 const getBaseMenuItems = () => [
@@ -31,15 +31,22 @@ const getBaseMenuItems = () => [
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
-  const [menuItems, setMenuItems] = useState(getBaseMenuItems());
+  const [menuItems] = useState(getBaseMenuItems());
+  const [userId, setUserId] = useState<string | null>(null);
 
-  // Vérifier si l'utilisateur est un admin
-  const { data: session } = await supabase.auth.getSession();
-  const userId = session?.session?.user?.id;
+  // Récupérer l'ID de l'utilisateur au chargement
+  useEffect(() => {
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUserId(session?.user?.id || null);
+    };
+    getSession();
+  }, []);
 
+  // Récupérer les informations du collaborateur
   const { data: collaborateur } = useQuery({
     queryKey: ['collaborateur', userId],
-    queryFn: () => getCollaborateurById(userId || ''),
+    queryFn: () => getCollaborateur(userId || ''),
     enabled: !!userId,
   });
 
