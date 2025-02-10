@@ -38,17 +38,34 @@ const Sidebar = () => {
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
+      console.log("Session user ID:", session?.user?.id);
       setUserId(session?.user?.id || null);
     };
     getSession();
+
+    // Écouter les changements de session
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("Auth state changed - User ID:", session?.user?.id);
+      setUserId(session?.user?.id || null);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   // Récupérer les informations du collaborateur
-  const { data: collaborateur } = useQuery({
+  const { data: collaborateur, isError, error } = useQuery({
     queryKey: ['collaborateur', userId],
-    queryFn: () => getCollaborateur(userId || ''),
+    queryFn: () => {
+      console.log("Fetching collaborateur data for userId:", userId);
+      return getCollaborateur(userId || '');
+    },
     enabled: !!userId,
   });
+
+  console.log("Collaborateur data:", collaborateur);
+  console.log("Query error:", error);
 
   // Filtrer les éléments du menu en fonction des permissions
   const filteredMenuItems = menuItems.filter(item => {
