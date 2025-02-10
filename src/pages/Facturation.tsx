@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +12,38 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
+import { getCollaborateur } from "@/services/collaborateurService";
 
 const Facturation = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Vérifier les permissions du collaborateur connecté
+  const collaborateurId = localStorage.getItem("collaborateurId");
+  
+  const { data: collaborateur } = useQuery({
+    queryKey: ["collaborateur", collaborateurId],
+    queryFn: () => collaborateurId ? getCollaborateur(collaborateurId) : null,
+    onSuccess: (data) => {
+      if (!data?.permissions?.some(p => p.module === "facturation" && ["ecriture", "administration"].includes(p.niveau))) {
+        toast({
+          variant: "destructive",
+          title: "Accès refusé",
+          description: "Vous n'avez pas les permissions nécessaires pour accéder à la facturation."
+        });
+        navigate("/");
+      }
+    }
+  });
+
+  // Si pas de collaborateurId ou pas de permissions, rediriger
+  if (!collaborateurId || !collaborateur) {
+    return null;
+  }
 
   // Données mockées pour l'exemple
   const factures = [
