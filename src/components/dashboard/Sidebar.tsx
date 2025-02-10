@@ -57,7 +57,7 @@ const Sidebar = () => {
       // Vérifie si l'utilisateur a une permission admin pour le module spécifique
       const hasAdminPermission = permissions.some(p => 
         p.module === item.path.substring(1) && 
-        p.niveau === "admin"
+        p.niveau === "administration"
       );
       return hasAdminPermission;
     }
