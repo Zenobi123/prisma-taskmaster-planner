@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -12,14 +13,17 @@ import {
   ChevronRight
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
+import { useQuery } from "@tanstack/react-query";
+import { getCollaborateurById } from "@/services/collaborateurService";
+import { supabase } from "@/integrations/supabase/client";
 
-const menuItems = [
+const getBaseMenuItems = () => [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { path: "/collaborateurs", icon: Users, label: "Collaborateurs" },
+  { path: "/collaborateurs", icon: Users, label: "Collaborateurs", adminOnly: true },
   { path: "/clients", icon: Users, label: "Clients" },
   { path: "/missions", icon: Briefcase, label: "Missions" },
   { path: "/planning", icon: Calendar, label: "Planning" },
-  { path: "/facturation", icon: Receipt, label: "Facturation" },
+  { path: "/facturation", icon: Receipt, label: "Facturation", adminOnly: true },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
   { path: "/rapports", icon: FileText, label: "Rapports" }
 ];
@@ -27,6 +31,30 @@ const menuItems = [
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
+  const [menuItems, setMenuItems] = useState(getBaseMenuItems());
+
+  // Vérifier si l'utilisateur est un admin
+  const { data: session } = await supabase.auth.getSession();
+  const userId = session?.session?.user?.id;
+
+  const { data: collaborateur } = useQuery({
+    queryKey: ['collaborateur', userId],
+    queryFn: () => getCollaborateurById(userId || ''),
+    enabled: !!userId,
+  });
+
+  // Filtrer les éléments du menu en fonction des permissions
+  const filteredMenuItems = menuItems.filter(item => {
+    if (item.adminOnly) {
+      const permissions = collaborateur?.permissions || [];
+      const hasAdminPermission = permissions.some(p => 
+        (p.module === "collaborateurs" || p.module === "facturation") && 
+        p.niveau === "admin"
+      );
+      return hasAdminPermission;
+    }
+    return true;
+  });
 
   const isActiveRoute = (path: string) => {
     return location.pathname === path;
@@ -58,7 +86,7 @@ const Sidebar = () => {
       </div>
 
       <nav className="flex-1 py-4 px-2 space-y-1">
-        {menuItems.map((item) => (
+        {filteredMenuItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
