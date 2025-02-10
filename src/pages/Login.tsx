@@ -96,7 +96,7 @@ const Login = () => {
             <Input
               id="email"
               type="email"
-              placeholder="comptable@gmail.com"
+              placeholder="email@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -138,25 +138,10 @@ const Login = () => {
             )}
           </Button>
         </form>
-
-        <div className="mt-6 text-sm text-center space-y-2">
-          <p className="text-neutral-600 font-medium">Identifiants de test :</p>
-          <div className="space-y-4">
-            <div>
-              <p className="text-neutral-600 font-medium">Comptable :</p>
-              <p className="text-neutral-600">Email : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">comptable@gmail.com</span></p>
-              <p className="text-neutral-600">Mot de passe : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">Comptable123</span></p>
-            </div>
-            <div>
-              <p className="text-neutral-600 font-medium">Administrateur :</p>
-              <p className="text-neutral-600">Email : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">admin@prisma.com</span></p>
-              <p className="text-neutral-600">Mot de passe : <span className="font-mono bg-neutral-100 px-1 py-0.5 rounded">Admin123</span></p>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );
 };
 
 export default Login;
+
