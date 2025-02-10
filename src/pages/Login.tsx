@@ -39,12 +39,12 @@ const Login = () => {
       }
 
       if (authData.user) {
-        // Récupérer les informations du collaborateur
+        // Get collaborator information directly with user_id
         const { data: collaborateurData, error: collaborateurError } = await supabase
           .from('collaborateurs')
           .select('*')
           .eq('user_id', authData.user.id)
-          .maybeSingle();
+          .single();
 
         if (collaborateurError) {
           console.error("Erreur lors de la récupération du collaborateur:", collaborateurError);
@@ -68,10 +68,11 @@ const Login = () => {
           return;
         }
 
-        // Stocker les informations du collaborateur
+        // Store collaborator information
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("collaborateurId", collaborateurData.id);
         localStorage.setItem("userPermissions", JSON.stringify(collaborateurData.permissions || []));
+        localStorage.setItem("userId", authData.user.id);
 
         console.log("Connexion réussie:", collaborateurData);
         toast({

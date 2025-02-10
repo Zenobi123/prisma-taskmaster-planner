@@ -5,14 +5,12 @@ import { Collaborateur, CollaborateurPermissions } from "@/types/collaborateur";
 const parsePermissions = (permissions: any): CollaborateurPermissions[] => {
   if (!permissions) return [];
   try {
-    // Si permissions est déjà un tableau, le retourner directement
     if (Array.isArray(permissions)) {
       return permissions.map(p => ({
         module: p.module,
         niveau: p.niveau
       }));
     }
-    // Si c'est une chaîne JSON, la parser
     if (typeof permissions === 'string') {
       const parsed = JSON.parse(permissions);
       return Array.isArray(parsed) ? parsed.map(p => ({
@@ -31,7 +29,8 @@ export const getCollaborateurs = async () => {
   try {
     const { data, error } = await supabase
       .from("collaborateurs")
-      .select("*");
+      .select("*")
+      .order('nom');
 
     if (error) {
       console.error("Erreur lors de la récupération des collaborateurs:", error);
@@ -51,11 +50,19 @@ export const getCollaborateurs = async () => {
 
 export const getCollaborateur = async (id: string) => {
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from("collaborateurs")
-      .select("*")
-      .eq("id", id)
-      .maybeSingle();
+      .select("*");
+
+    if (id.includes('@')) {
+      // Si l'ID est un email
+      query = query.eq('email', id.toLowerCase());
+    } else {
+      // Si l'ID est un UUID
+      query = query.eq('user_id', id);
+    }
+
+    const { data, error } = await query.single();
 
     if (error) {
       console.error("Erreur lors de la récupération du collaborateur:", error);
