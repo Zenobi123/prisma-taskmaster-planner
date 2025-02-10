@@ -27,6 +27,7 @@ const parsePermissions = (permissions: any): CollaborateurPermissions[] => {
 
 export const getCollaborateurs = async () => {
   try {
+    console.log("Fetching all collaborateurs...");
     const { data, error } = await supabase
       .from("collaborateurs")
       .select("*")
@@ -37,6 +38,7 @@ export const getCollaborateurs = async () => {
       throw error;
     }
 
+    console.log("Collaborateurs data received:", data);
     return data.map(collaborateur => ({
       ...collaborateur,
       permissions: parsePermissions(collaborateur.permissions),
@@ -50,6 +52,7 @@ export const getCollaborateurs = async () => {
 
 export const getCollaborateur = async (id: string) => {
   try {
+    console.log("Fetching collaborateur with ID:", id);
     let query = supabase
       .from("collaborateurs")
       .select("*");
@@ -70,9 +73,11 @@ export const getCollaborateur = async (id: string) => {
     }
 
     if (!data) {
+      console.log("Collaborateur non trouvé pour l'ID:", id);
       throw new Error("Collaborateur non trouvé");
     }
 
+    console.log("Collaborateur data received:", data);
     return {
       ...data,
       permissions: parsePermissions(data.permissions),

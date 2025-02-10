@@ -34,7 +34,6 @@ const Sidebar = () => {
   const [menuItems] = useState(getBaseMenuItems());
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Récupérer l'ID de l'utilisateur au chargement
   useEffect(() => {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -43,7 +42,6 @@ const Sidebar = () => {
     };
     getSession();
 
-    // Écouter les changements de session
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -54,30 +52,27 @@ const Sidebar = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Récupérer les informations du collaborateur
-  const { data: collaborateur, isError, error } = useQuery({
+  const { data: collaborateur } = useQuery({
     queryKey: ['collaborateur', userId],
     queryFn: () => {
+      if (!userId) return null;
       console.log("Fetching collaborateur data for userId:", userId);
-      return getCollaborateur(userId || '');
+      return getCollaborateur(userId);
     },
     enabled: !!userId,
+    retry: 3,
+    retryDelay: 1000,
   });
 
-  console.log("Collaborateur data:", collaborateur);
-  console.log("Query error:", error);
-
-  // Filtrer les éléments du menu en fonction des permissions
   const filteredMenuItems = menuItems.filter(item => {
     if (item.adminOnly) {
       const permissions = collaborateur?.permissions || [];
       console.log('Checking permissions for:', item.path.substring(1));
       console.log('User permissions:', permissions);
       
-      // Vérifie si l'utilisateur a une permission admin pour le module spécifique
       const hasAdminPermission = permissions.some(p => 
         p.module === item.path.substring(1) && 
-        p.niveau === "administration"
+        (p.niveau === "administration" || p.niveau === "ecriture")
       );
       
       console.log('Has admin permission:', hasAdminPermission);
