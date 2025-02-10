@@ -20,7 +20,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      console.log("Tentative de connexion avec:", { email, password });
+      console.log("Tentative de connexion avec:", { email });
       
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
@@ -39,29 +39,41 @@ const Login = () => {
       }
 
       if (authData.user) {
-        // Récupérer le rôle de l'utilisateur depuis la table users
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', authData.user.id)
-          .single();
+        // Récupérer les informations du collaborateur
+        const { data: collaborateurData, error: collaborateurError } = await supabase
+          .from('collaborateurs')
+          .select('*')
+          .eq('user_id', authData.user.id)
+          .maybeSingle();
 
-        if (userError) {
-          console.error("Erreur lors de la récupération du rôle:", userError);
+        if (collaborateurError) {
+          console.error("Erreur lors de la récupération du collaborateur:", collaborateurError);
           toast({
             variant: "destructive",
             title: "Erreur",
-            description: "Impossible de récupérer les informations de l'utilisateur.",
+            description: "Impossible de récupérer les informations du collaborateur.",
             className: "bg-white border-red-500 text-black",
           });
           return;
         }
 
-        // Stocker les informations de l'utilisateur
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("userRole", userData.role);
+        if (!collaborateurData) {
+          console.error("Aucun collaborateur trouvé pour cet utilisateur");
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Aucun collaborateur trouvé pour cet utilisateur.",
+            className: "bg-white border-red-500 text-black",
+          });
+          return;
+        }
 
-        console.log("Connexion réussie:", authData.user);
+        // Stocker les informations du collaborateur
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("collaborateurId", collaborateurData.id);
+        localStorage.setItem("userPermissions", JSON.stringify(collaborateurData.permissions || []));
+
+        console.log("Connexion réussie:", collaborateurData);
         toast({
           title: "Connexion réussie",
           description: "Bienvenue sur votre espace de gestion",
@@ -144,4 +156,3 @@ const Login = () => {
 };
 
 export default Login;
-
