@@ -35,44 +35,51 @@ const Login = () => {
           description: "Email ou mot de passe incorrect.",
           className: "bg-white border-red-500 text-black",
         });
+        setIsLoading(false);
         return;
       }
 
       if (authData.user) {
-        console.log("Authentification réussie, recherche du collaborateur pour:", authData.user.id);
+        console.log("Authentification réussie pour l'utilisateur:", authData.user.id);
         
-        // Get collaborator information directly with user_id
+        // Basic query without any joins or complex conditions
         const { data: collaborateurData, error: collaborateurError } = await supabase
           .from('collaborateurs')
-          .select('*')
+          .select('id, user_id')
           .eq('user_id', authData.user.id)
-          .maybeSingle();
+          .limit(1)
+          .single();
 
         if (collaborateurError) {
-          console.error("Erreur lors de la récupération du collaborateur:", collaborateurError);
+          console.error("Erreur détaillée lors de la récupération du collaborateur:", {
+            error: collaborateurError,
+            user_id: authData.user.id
+          });
           toast({
             variant: "destructive",
             title: "Erreur",
             description: "Impossible de récupérer les informations du collaborateur.",
             className: "bg-white border-red-500 text-black",
           });
+          setIsLoading(false);
           return;
         }
 
         if (!collaborateurData) {
-          console.error("Aucun collaborateur trouvé pour cet utilisateur");
+          console.error("Aucun collaborateur trouvé pour l'utilisateur:", authData.user.id);
           toast({
             variant: "destructive",
             title: "Erreur",
             description: "Aucun collaborateur trouvé pour cet utilisateur.",
             className: "bg-white border-red-500 text-black",
           });
+          setIsLoading(false);
           return;
         }
 
         console.log("Données du collaborateur récupérées:", collaborateurData);
 
-        // Store collaborator information
+        // Store minimal required information
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("collaborateurId", collaborateurData.id);
         localStorage.setItem("userId", authData.user.id);
