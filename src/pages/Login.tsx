@@ -39,12 +39,14 @@ const Login = () => {
       }
 
       if (authData.user) {
+        console.log("Authentification réussie, recherche du collaborateur pour:", authData.user.id);
+        
         // Get collaborator information directly with user_id
         const { data: collaborateurData, error: collaborateurError } = await supabase
           .from('collaborateurs')
           .select('*')
           .eq('user_id', authData.user.id)
-          .single();
+          .maybeSingle();
 
         if (collaborateurError) {
           console.error("Erreur lors de la récupération du collaborateur:", collaborateurError);
@@ -68,13 +70,14 @@ const Login = () => {
           return;
         }
 
+        console.log("Données du collaborateur récupérées:", collaborateurData);
+
         // Store collaborator information
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("collaborateurId", collaborateurData.id);
-        localStorage.setItem("userPermissions", JSON.stringify(collaborateurData.permissions || []));
         localStorage.setItem("userId", authData.user.id);
 
-        console.log("Connexion réussie:", collaborateurData);
+        console.log("Connexion réussie, redirection vers la page d'accueil");
         toast({
           title: "Connexion réussie",
           description: "Bienvenue sur votre espace de gestion",
