@@ -42,13 +42,12 @@ const Login = () => {
       if (authData.user) {
         console.log("Authentification réussie pour l'utilisateur:", authData.user.id);
         
-        // Basic query without any joins or complex conditions
+        // Requête modifiée pour utiliser maybeSingle() et une sélection plus large
         const { data: collaborateurData, error: collaborateurError } = await supabase
           .from('collaborateurs')
-          .select('id, user_id')
+          .select('*')
           .eq('user_id', authData.user.id)
-          .limit(1)
-          .single();
+          .maybeSingle();
 
         if (collaborateurError) {
           console.error("Erreur détaillée lors de la récupération du collaborateur:", {
@@ -79,10 +78,11 @@ const Login = () => {
 
         console.log("Données du collaborateur récupérées:", collaborateurData);
 
-        // Store minimal required information
+        // Stockage des informations
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("collaborateurId", collaborateurData.id);
         localStorage.setItem("userId", authData.user.id);
+        localStorage.setItem("userRole", collaborateurData.poste); // Ajout du rôle
 
         console.log("Connexion réussie, redirection vers la page d'accueil");
         toast({
@@ -90,6 +90,7 @@ const Login = () => {
           description: "Bienvenue sur votre espace de gestion",
           className: "bg-white border-green-500 text-black",
         });
+        
         navigate("/");
       }
     } catch (error) {
