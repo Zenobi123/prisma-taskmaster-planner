@@ -21,12 +21,12 @@ const Missions = () => {
         .from('tasks')
         .select(`
           *,
-          clients!tasks_client_id_fkey (
+          clients (
             id,
             raisonsociale,
             nom
           ),
-          collaborateurs!tasks_collaborateur_id_fkey (
+          collaborateurs (
             id,
             nom,
             prenom
@@ -37,6 +37,8 @@ const Missions = () => {
         console.error("Erreur lors de la récupération des missions:", error);
         throw error;
       }
+
+      console.log("Tasks data:", tasksData);
 
       return tasksData.map(task => ({
         id: task.id,
