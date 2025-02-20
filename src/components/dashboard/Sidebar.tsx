@@ -19,11 +19,11 @@ import { supabase } from "@/integrations/supabase/client";
 
 const getBaseMenuItems = () => [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { path: "/collaborateurs", icon: Users, label: "Collaborateurs", adminOnly: true },
+  { path: "/collaborateurs", icon: Users, label: "Collaborateurs", requiresAdmin: true },
   { path: "/clients", icon: Users, label: "Clients" },
   { path: "/missions", icon: Briefcase, label: "Missions" },
   { path: "/planning", icon: Calendar, label: "Planning" },
-  { path: "/facturation", icon: Receipt, label: "Facturation", adminOnly: true },
+  { path: "/facturation", icon: Receipt, label: "Facturation", requiresAdmin: true },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
   { path: "/rapports", icon: FileText, label: "Rapports" }
 ];
@@ -65,18 +65,11 @@ const Sidebar = () => {
   });
 
   const filteredMenuItems = menuItems.filter(item => {
-    if (item.adminOnly) {
-      const permissions = collaborateur?.permissions || [];
-      console.log('Checking permissions for:', item.path.substring(1));
-      console.log('User permissions:', permissions);
-      
-      const hasAdminPermission = permissions.some(p => 
-        p.module === item.path.substring(1) && 
-        (p.niveau === "administration" || p.niveau === "ecriture")
-      );
-      
-      console.log('Has admin permission:', hasAdminPermission);
-      return hasAdminPermission;
+    if (item.requiresAdmin) {
+      // Vérifier si le collaborateur a le poste d'administrateur
+      const isAdmin = collaborateur?.poste === "expert-comptable";
+      console.log(`Checking admin access for ${item.label}:`, isAdmin);
+      return isAdmin;
     }
     return true;
   });
