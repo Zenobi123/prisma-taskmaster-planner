@@ -1,5 +1,4 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -13,17 +12,14 @@ import {
   ChevronRight
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
-import { useQuery } from "@tanstack/react-query";
-import { getCollaborateur } from "@/services/collaborateurService";
-import { supabase } from "@/integrations/supabase/client";
 
-const getBaseMenuItems = () => [
+const menuItems = [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { path: "/collaborateurs", icon: Users, label: "Collaborateurs", requiresAdmin: true },
+  { path: "/collaborateurs", icon: Users, label: "Collaborateurs" },
   { path: "/clients", icon: Users, label: "Clients" },
   { path: "/missions", icon: Briefcase, label: "Missions" },
   { path: "/planning", icon: Calendar, label: "Planning" },
-  { path: "/facturation", icon: Receipt, label: "Facturation", requiresAdmin: true },
+  { path: "/facturation", icon: Receipt, label: "Facturation" },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
   { path: "/rapports", icon: FileText, label: "Rapports" }
 ];
@@ -31,48 +27,6 @@ const getBaseMenuItems = () => [
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
-  const [menuItems] = useState(getBaseMenuItems());
-  const [userId, setUserId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log("Session user ID:", session?.user?.id);
-      setUserId(session?.user?.id || null);
-    };
-    getSession();
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log("Auth state changed - User ID:", session?.user?.id);
-      setUserId(session?.user?.id || null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const { data: collaborateur } = useQuery({
-    queryKey: ['collaborateur', userId],
-    queryFn: () => {
-      if (!userId) return null;
-      console.log("Fetching collaborateur data for userId:", userId);
-      return getCollaborateur(userId);
-    },
-    enabled: !!userId,
-    retry: 3,
-    retryDelay: 1000,
-  });
-
-  const filteredMenuItems = menuItems.filter(item => {
-    if (item.requiresAdmin) {
-      // Vérifier si le collaborateur a le poste d'administrateur
-      const isAdmin = collaborateur?.poste === "expert-comptable";
-      console.log(`Checking admin access for ${item.label}:`, isAdmin);
-      return isAdmin;
-    }
-    return true;
-  });
 
   const isActiveRoute = (path: string) => {
     return location.pathname === path;
@@ -104,7 +58,7 @@ const Sidebar = () => {
       </div>
 
       <nav className="flex-1 py-4 px-2 space-y-1">
-        {filteredMenuItems.map((item) => (
+        {menuItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}

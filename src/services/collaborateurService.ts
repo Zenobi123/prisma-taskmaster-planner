@@ -5,12 +5,14 @@ import { Collaborateur, CollaborateurPermissions } from "@/types/collaborateur";
 const parsePermissions = (permissions: any): CollaborateurPermissions[] => {
   if (!permissions) return [];
   try {
+    // Si permissions est déjà un tableau, le retourner directement
     if (Array.isArray(permissions)) {
       return permissions.map(p => ({
         module: p.module,
         niveau: p.niveau
       }));
     }
+    // Si c'est une chaîne JSON, la parser
     if (typeof permissions === 'string') {
       const parsed = JSON.parse(permissions);
       return Array.isArray(parsed) ? parsed.map(p => ({
@@ -27,23 +29,15 @@ const parsePermissions = (permissions: any): CollaborateurPermissions[] => {
 
 export const getCollaborateurs = async () => {
   try {
-    console.log("Fetching all collaborateurs...");
     const { data, error } = await supabase
       .from("collaborateurs")
-      .select("*")
-      .order('nom');
+      .select("*");
 
     if (error) {
       console.error("Erreur lors de la récupération des collaborateurs:", error);
       throw error;
     }
 
-    if (!data) {
-      console.log("Aucun collaborateur trouvé");
-      return [];
-    }
-
-    console.log("Collaborateurs data received:", data);
     return data.map(collaborateur => ({
       ...collaborateur,
       permissions: parsePermissions(collaborateur.permissions),
@@ -57,11 +51,10 @@ export const getCollaborateurs = async () => {
 
 export const getCollaborateur = async (id: string) => {
   try {
-    console.log("Fetching collaborateur with ID:", id);
     const { data, error } = await supabase
       .from("collaborateurs")
       .select("*")
-      .eq(id.includes('@') ? 'email' : 'user_id', id.includes('@') ? id.toLowerCase() : id)
+      .eq("id", id)
       .maybeSingle();
 
     if (error) {
@@ -70,11 +63,9 @@ export const getCollaborateur = async (id: string) => {
     }
 
     if (!data) {
-      console.log("Collaborateur non trouvé pour l'ID:", id);
-      return null;
+      throw new Error("Collaborateur non trouvé");
     }
 
-    console.log("Collaborateur data received:", data);
     return {
       ...data,
       permissions: parsePermissions(data.permissions),
@@ -164,3 +155,4 @@ export const deleteCollaborateur = async (id: string) => {
     throw error;
   }
 };
+
