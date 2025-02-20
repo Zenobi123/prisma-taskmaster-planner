@@ -21,12 +21,12 @@ const Missions = () => {
         .from('tasks')
         .select(`
           *,
-          clients!fk_tasks_client (
+          clients!tasks_client_id_fkey (
             id,
             raisonsociale,
             nom
           ),
-          collaborateurs!fk_tasks_collaborateur (
+          collaborateurs!tasks_collaborateur_id_fkey (
             id,
             nom,
             prenom
