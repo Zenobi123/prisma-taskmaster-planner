@@ -6,44 +6,53 @@ import { useNavigate } from "react-router-dom";
 import MissionCard from "@/components/missions/MissionCard";
 import MissionFilters from "@/components/missions/MissionFilters";
 import NewMissionDialog from "@/components/missions/NewMissionDialog";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const Missions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const navigate = useNavigate();
 
-  // Données mockées pour l'exemple
-  const missions = [
-    {
-      id: 1,
-      title: "Audit comptable annuel",
-      client: "SARL TechPro",
-      assignedTo: "Sophie Martin",
-      status: "en_cours",
-      startDate: "2024-02-01",
-      endDate: "2024-02-15",
-    },
-    {
-      id: 2,
-      title: "Déclaration TVA",
-      client: "SAS WebDev",
-      assignedTo: "Pierre Dubois",
-      status: "planifiee",
-      startDate: "2024-02-20",
-      endDate: "2024-02-22",
-    },
-    {
-      id: 3,
-      title: "Bilan semestriel",
-      client: "EURL ConseilPlus",
-      assignedTo: "Marie Lambert",
-      status: "terminee",
-      startDate: "2024-01-15",
-      endDate: "2024-01-30",
-    },
-  ];
+  const { data: missions, isLoading } = useQuery({
+    queryKey: ['missions'],
+    queryFn: async () => {
+      const { data: tasksData, error } = await supabase
+        .from('tasks')
+        .select(`
+          *,
+          clients (
+            id,
+            raisonsociale,
+            nom
+          ),
+          collaborateurs (
+            id,
+            nom,
+            prenom
+          )
+        `);
 
-  const filteredMissions = missions.filter((mission) => {
+      if (error) {
+        console.error("Erreur lors de la récupération des missions:", error);
+        throw error;
+      }
+
+      return tasksData.map(task => ({
+        id: task.id,
+        title: task.title,
+        client: task.clients?.raisonsociale || task.clients?.nom || 'Client inconnu',
+        assignedTo: task.collaborateurs ? `${task.collaborateurs.prenom} ${task.collaborateurs.nom}` : 'Non assigné',
+        status: task.status,
+        startDate: new Date(task.created_at).toLocaleDateString(),
+        endDate: new Date(task.updated_at).toLocaleDateString(),
+        clientId: task.client_id,
+        collaborateurId: task.collaborateur_id
+      }));
+    }
+  });
+
+  const filteredMissions = missions?.filter((mission) => {
     const matchesSearch = mission.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mission.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mission.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
@@ -51,7 +60,7 @@ const Missions = () => {
     const matchesStatus = statusFilter === "all" || mission.status === statusFilter;
     
     return matchesSearch && matchesStatus;
-  });
+  }) || [];
 
   return (
     <div className="container mx-auto p-6">
@@ -83,14 +92,24 @@ const Missions = () => {
         onStatusFilterChange={setStatusFilter}
       />
 
-      <div className="grid gap-4">
-        {filteredMissions.map((mission) => (
-          <MissionCard key={mission.id} mission={mission} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+      ) : (
+        <div className="grid gap-4">
+          {filteredMissions.map((mission) => (
+            <MissionCard key={mission.id} mission={mission} />
+          ))}
+          {filteredMissions.length === 0 && !isLoading && (
+            <div className="text-center py-8 text-gray-500">
+              Aucune mission ne correspond à vos critères de recherche.
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
 
 export default Missions;
-

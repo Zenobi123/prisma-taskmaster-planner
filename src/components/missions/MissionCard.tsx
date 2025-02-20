@@ -5,13 +5,15 @@ import { Badge } from "@/components/ui/badge";
 
 interface MissionCardProps {
   mission: {
-    id: number;
+    id: string;
     title: string;
     client: string;
     assignedTo: string;
     status: string;
     startDate: string;
     endDate: string;
+    clientId: string;
+    collaborateurId: string;
   };
 }
 
@@ -20,9 +22,9 @@ const MissionCard = ({ mission }: MissionCardProps) => {
     switch (status) {
       case "en_cours":
         return <Badge variant="secondary">En cours</Badge>;
-      case "planifiee":
-        return <Badge variant="outline">Planifiée</Badge>;
-      case "terminee":
+      case "en_attente":
+        return <Badge variant="outline">En attente</Badge>;
+      case "termine":
         return <Badge variant="success">Terminée</Badge>;
       default:
         return null;
@@ -38,7 +40,7 @@ const MissionCard = ({ mission }: MissionCardProps) => {
           <p className="text-sm text-gray-500">Assigné à: {mission.assignedTo}</p>
           <div className="flex gap-2 mt-2">
             <span className="text-sm text-gray-500">
-              {mission.startDate} - {mission.endDate}
+              Du {mission.startDate} au {mission.endDate}
             </span>
           </div>
         </div>
@@ -55,4 +57,3 @@ const MissionCard = ({ mission }: MissionCardProps) => {
 };
 
 export default MissionCard;
-

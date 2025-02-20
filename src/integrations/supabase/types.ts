@@ -73,6 +73,7 @@ export type Database = {
           statut: string
           tachesencours: number | null
           telephone: string
+          user_id: string | null
           ville: string
         }
         Insert: {
@@ -90,6 +91,7 @@ export type Database = {
           statut?: string
           tachesencours?: number | null
           telephone: string
+          user_id?: string | null
           ville: string
         }
         Update: {
@@ -107,6 +109,7 @@ export type Database = {
           statut?: string
           tachesencours?: number | null
           telephone?: string
+          user_id?: string | null
           ville?: string
         }
         Relationships: []
