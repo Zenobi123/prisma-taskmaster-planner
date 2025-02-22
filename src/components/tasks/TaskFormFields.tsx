@@ -33,34 +33,45 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
 
   return (
     <>
-      <div>
+      <div className="space-y-1.5">
         <Label htmlFor="title">Titre de la tâche</Label>
-        <Input id="title" name="title" required />
+        <Input id="title" name="title" required placeholder="Entrez le titre de la tâche" />
       </div>
-      <div>
+      <div className="space-y-1.5">
         <Label htmlFor="client_id">Client</Label>
         <Select name="client_id" required>
-          <SelectTrigger>
+          <SelectTrigger className="w-full bg-background border-input">
             <SelectValue placeholder="Sélectionnez un client" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
             {clients.map((client) => (
-              <SelectItem key={client.id} value={client.id}>
-                {client.type === "physique" ? client.nom : client.raisonsociale}
+              <SelectItem 
+                key={client.id} 
+                value={client.id}
+                className="cursor-pointer hover:bg-neutral-100"
+              >
+                {client.type === "physique" 
+                  ? `${client.nom} (Particulier)` 
+                  : `${client.raisonsociale} (Entreprise)`
+                }
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
-      <div>
+      <div className="space-y-1.5">
         <Label htmlFor="collaborateur_id">Assigné à</Label>
         <Select name="collaborateur_id" required>
-          <SelectTrigger>
+          <SelectTrigger className="w-full bg-background border-input">
             <SelectValue placeholder="Sélectionnez un collaborateur" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
             {activeCollaborateurs.map((collab) => (
-              <SelectItem key={collab.id} value={collab.id}>
+              <SelectItem 
+                key={collab.id} 
+                value={collab.id}
+                className="cursor-pointer hover:bg-neutral-100"
+              >
                 {collab.prenom} {collab.nom}
               </SelectItem>
             ))}
@@ -68,14 +79,14 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
         </Select>
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <div>
+        <div className="space-y-1.5">
           <Label htmlFor="start_date">Date de début</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
                 className={cn(
-                  "w-full justify-start text-left font-normal",
+                  "w-full justify-start text-left font-normal bg-background border-input",
                   !Input && "text-muted-foreground"
                 )}
               >
@@ -83,7 +94,7 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
                 <span>Sélectionner une date</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto p-0 bg-white shadow-lg border">
               <Calendar
                 mode="single"
                 required
@@ -100,14 +111,14 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
             className="mt-2"
           />
         </div>
-        <div>
+        <div className="space-y-1.5">
           <Label htmlFor="end_date">Date de fin</Label>
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant={"outline"}
                 className={cn(
-                  "w-full justify-start text-left font-normal",
+                  "w-full justify-start text-left font-normal bg-background border-input",
                   !Input && "text-muted-foreground"
                 )}
               >
@@ -115,7 +126,7 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
                 <span>Sélectionner une date</span>
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto p-0 bg-white shadow-lg border">
               <Calendar
                 mode="single"
                 required
