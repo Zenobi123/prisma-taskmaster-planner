@@ -119,7 +119,9 @@ export type Database = {
           client_id: string
           collaborateur_id: string
           created_at: string
+          end_date: string | null
           id: string
+          start_date: string | null
           status: string
           title: string
           updated_at: string
@@ -128,7 +130,9 @@ export type Database = {
           client_id: string
           collaborateur_id: string
           created_at?: string
+          end_date?: string | null
           id?: string
+          start_date?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -137,7 +141,9 @@ export type Database = {
           client_id?: string
           collaborateur_id?: string
           created_at?: string
+          end_date?: string | null
           id?: string
+          start_date?: string | null
           status?: string
           title?: string
           updated_at?: string
