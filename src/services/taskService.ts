@@ -9,6 +9,8 @@ export interface Task {
   status: "en_attente" | "en_cours" | "termine";
   created_at: string;
   updated_at: string;
+  start_date?: string;
+  end_date?: string;
 }
 
 export const getTasks = async () => {

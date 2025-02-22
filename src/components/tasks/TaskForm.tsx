@@ -44,6 +44,8 @@ export const TaskForm = ({ clients, collaborateurs, onSuccess }: TaskFormProps) 
       client_id: formData.get("client_id") as string,
       collaborateur_id: formData.get("collaborateur_id") as string,
       status: "en_attente",
+      start_date: formData.get("start_date") as string,
+      end_date: formData.get("end_date") as string,
     });
   };
 

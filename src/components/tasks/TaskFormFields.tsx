@@ -8,6 +8,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { fr } from 'date-fns/locale';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface TaskFormFieldsProps {
   clients: any[];
@@ -55,6 +66,72 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
             ))}
           </SelectContent>
         </Select>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="start_date">Date de début</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !Input && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                <span>Sélectionner une date</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                required
+                locale={fr}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          <Input 
+            type="date" 
+            id="start_date" 
+            name="start_date" 
+            required 
+            className="mt-2"
+          />
+        </div>
+        <div>
+          <Label htmlFor="end_date">Date de fin</Label>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant={"outline"}
+                className={cn(
+                  "w-full justify-start text-left font-normal",
+                  !Input && "text-muted-foreground"
+                )}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                <span>Sélectionner une date</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0">
+              <Calendar
+                mode="single"
+                required
+                locale={fr}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          <Input 
+            type="date" 
+            id="end_date" 
+            name="end_date" 
+            required 
+            className="mt-2"
+          />
+        </div>
       </div>
     </>
   );
