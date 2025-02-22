@@ -19,6 +19,7 @@ import {
 import { CalendarIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface TaskFormFieldsProps {
   clients: any[];
@@ -44,18 +45,20 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
             <SelectValue placeholder="Sélectionnez un client" />
           </SelectTrigger>
           <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
-            {clients.map((client) => (
-              <SelectItem 
-                key={client.id} 
-                value={client.id}
-                className="cursor-pointer hover:bg-neutral-100"
-              >
-                {client.type === "physique" 
-                  ? `${client.nom} (Particulier)` 
-                  : `${client.raisonsociale} (Entreprise)`
-                }
-              </SelectItem>
-            ))}
+            <ScrollArea className="h-[200px] w-full">
+              {clients.map((client) => (
+                <SelectItem 
+                  key={client.id} 
+                  value={client.id}
+                  className="cursor-pointer hover:bg-neutral-100"
+                >
+                  {client.type === "physique" 
+                    ? `${client.nom} (Particulier)` 
+                    : `${client.raisonsociale} (Entreprise)`
+                  }
+                </SelectItem>
+              ))}
+            </ScrollArea>
           </SelectContent>
         </Select>
       </div>
@@ -66,15 +69,17 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
             <SelectValue placeholder="Sélectionnez un collaborateur" />
           </SelectTrigger>
           <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
-            {activeCollaborateurs.map((collab) => (
-              <SelectItem 
-                key={collab.id} 
-                value={collab.id}
-                className="cursor-pointer hover:bg-neutral-100"
-              >
-                {collab.prenom} {collab.nom}
-              </SelectItem>
-            ))}
+            <ScrollArea className="h-[200px] w-full">
+              {activeCollaborateurs.map((collab) => (
+                <SelectItem 
+                  key={collab.id} 
+                  value={collab.id}
+                  className="cursor-pointer hover:bg-neutral-100"
+                >
+                  {collab.prenom} {collab.nom}
+                </SelectItem>
+              ))}
+            </ScrollArea>
           </SelectContent>
         </Select>
       </div>
@@ -147,3 +152,4 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
     </>
   );
 };
+
