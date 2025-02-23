@@ -10,6 +10,7 @@ import Collaborateurs from "./pages/Collaborateurs";
 import CollaborateurDetails from "./pages/CollaborateurDetails";
 import CollaborateurEdit from "./pages/CollaborateurEdit";
 import Clients from "./pages/Clients";
+import Gestion from "./pages/Gestion";
 import Missions from "./pages/Missions";
 import Planning from "./pages/Planning";
 import Facturation from "./pages/Facturation";
@@ -68,6 +69,14 @@ const App = () => (
             element={
               <PrivateRoute>
                 <Clients />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/gestion"
+            element={
+              <PrivateRoute>
+                <Gestion />
               </PrivateRoute>
             }
           />

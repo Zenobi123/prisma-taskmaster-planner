@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -9,7 +10,8 @@ import {
   Menu, 
   Receipt, 
   Wallet,
-  ChevronRight
+  ChevronRight,
+  FolderOpen
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -17,6 +19,7 @@ const menuItems = [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
   { path: "/collaborateurs", icon: Users, label: "Collaborateurs" },
   { path: "/clients", icon: Users, label: "Clients" },
+  { path: "/gestion", icon: FolderOpen, label: "Gestion" },
   { path: "/missions", icon: Briefcase, label: "Missions" },
   { path: "/planning", icon: Calendar, label: "Planning" },
   { path: "/facturation", icon: Receipt, label: "Facturation" },
