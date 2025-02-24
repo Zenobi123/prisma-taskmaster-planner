@@ -42,7 +42,7 @@ export const getClients = async () => {
         description: interaction.description || ""
       })),
       statut: client.statut as "actif" | "inactif",
-      gestionexternalisee: false, // Par défaut à false si non défini
+      gestionexternalisee: client.gestionexternalisee || false, // Utilisez la valeur de la base de données
       created_at: client.created_at
     })) as Client[];
   } catch (error) {
@@ -59,7 +59,8 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
       .insert([{ 
         ...client,
         interactions: [],
-        statut: "actif"
+        statut: "actif",
+        gestionexternalisee: client.gestionexternalisee // Assurez-vous que la valeur est transmise
       }])
       .select()
       .single();
