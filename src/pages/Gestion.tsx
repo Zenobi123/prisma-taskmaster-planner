@@ -3,9 +3,27 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { getClients } from "@/services/clientService";
 
 export default function Gestion() {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("entreprise");
+
+  const { data: clients = [], isLoading } = useQuery({
+    queryKey: ["clients"],
+    queryFn: getClients,
+  });
+
+  // Filtrer uniquement les clients qui ont gestionexternalisee = true
+  const clientsEnGestion = clients.filter(client => client.gestionexternalisee);
 
   return (
     <div className="p-8">
@@ -20,24 +38,215 @@ export default function Gestion() {
             Retour
           </Button>
         </div>
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-neutral-800">
-              Gestion des dossiers
-            </h1>
-            <p className="text-neutral-600 mt-1">
-              Gestion complète des dossiers clients en externalisation
-            </p>
-          </div>
+        <div>
+          <h1 className="text-2xl font-semibold text-neutral-800">
+            Gestion des dossiers clients
+          </h1>
+          <p className="text-neutral-600 mt-1">
+            Gestion complète des dossiers clients en externalisation
+          </p>
         </div>
       </header>
 
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
-        {/* Contenu à venir */}
-        <p className="text-neutral-600">
-          Cette section permettra la gestion complète des dossiers des clients ayant externalisé leurs opérations auprès de notre cabinet.
-        </p>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-2xl font-bold">
+              {clientsEnGestion.length}
+            </CardTitle>
+            <CardDescription>Clients en gestion</CardDescription>
+          </CardHeader>
+        </Card>
       </div>
+
+      <Tabs defaultValue="entreprise" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+        <TabsList className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <TabsTrigger value="entreprise">Gestion d'entreprise</TabsTrigger>
+          <TabsTrigger value="fiscal">Gestion fiscale</TabsTrigger>
+          <TabsTrigger value="comptable">Gestion comptable</TabsTrigger>
+          <TabsTrigger value="dossier">Gestion documentaire</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="entreprise">
+          <Card>
+            <CardHeader>
+              <CardTitle>Gestion d'entreprise</CardTitle>
+              <CardDescription>
+                Gestion administrative, RH, contrats, paie et indicateurs de performance
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Administration</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Gestion des documents administratifs et processus
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Ressources Humaines</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Gestion des contrats et du personnel
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Paie</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Gestion des salaires et cotisations
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="fiscal">
+          <Card>
+            <CardHeader>
+              <CardTitle>Gestion fiscale</CardTitle>
+              <CardDescription>
+                Suivi des obligations fiscales, optimisation fiscale, interface avec l'administration fiscale
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Obligations fiscales</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Suivi et respect des échéances fiscales
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Optimisation</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Stratégies d'optimisation fiscale
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Administration fiscale</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Relations avec l'administration fiscale
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="comptable">
+          <Card>
+            <CardHeader>
+              <CardTitle>Gestion comptable</CardTitle>
+              <CardDescription>
+                Saisie et validation des écritures, automatisation des opérations comptables, génération de rapports financiers
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Écritures comptables</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Saisie et validation des écritures
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Automatisation</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Automatisation des opérations comptables
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Rapports</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Génération des rapports financiers
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="dossier">
+          <Card>
+            <CardHeader>
+              <CardTitle>Gestion documentaire</CardTitle>
+              <CardDescription>
+                Mise à jour, gestion documentaire et suivi des interactions
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Documents</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Gestion et archivage des documents
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Interactions</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Suivi des interactions avec le client
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Mises à jour</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground">
+                      Historique des mises à jour du dossier
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
