@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -30,7 +29,6 @@ export default function Gestion() {
     queryFn: getClients,
   });
 
-  // Filtrer uniquement les clients qui ont gestionexternalisee = true
   const clientsEnGestion = clients.filter(client => client.gestionexternalisee);
   const selectedClient = clientsEnGestion.find(client => client.id === selectedClientId);
 
@@ -118,7 +116,7 @@ export default function Gestion() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <Card>
                       <CardHeader>
                         <CardTitle className="text-lg">Administration</CardTitle>
@@ -146,6 +144,16 @@ export default function Gestion() {
                       <CardContent>
                         <p className="text-sm text-muted-foreground">
                           Gestion des salaires et cotisations
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-lg">Notre contrat de prestations</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground">
+                          Suivi et gestion de notre contrat
                         </p>
                       </CardContent>
                     </Card>
