@@ -1,6 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import { Database } from "@/integrations/supabase/types";
+
+type ClientRow = Database['public']['Tables']['clients']['Row'];
 
 export const getClients = async () => {
   try {
@@ -15,7 +18,7 @@ export const getClients = async () => {
 
     if (!data) return [];
 
-    return data.map(client => ({
+    return data.map((client: ClientRow) => ({
       id: client.id,
       type: client.type as "physique" | "morale",
       nom: client.nom || null,
@@ -39,7 +42,7 @@ export const getClients = async () => {
         description: interaction.description || ""
       })),
       statut: client.statut as "actif" | "inactif",
-      gestionexternalisee: client.gestionexternalisee || false,
+      gestionexternalisee: false, // Par défaut à false si non défini
       created_at: client.created_at
     })) as Client[];
   } catch (error) {

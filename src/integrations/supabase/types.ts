@@ -15,6 +15,7 @@ export type Database = {
           centrerattachement: string
           contact: Json
           created_at: string
+          gestionexternalisee: boolean | null
           id: string
           interactions: Json | null
           niu: string
@@ -30,6 +31,7 @@ export type Database = {
           centrerattachement: string
           contact: Json
           created_at?: string
+          gestionexternalisee?: boolean | null
           id?: string
           interactions?: Json | null
           niu: string
@@ -45,6 +47,7 @@ export type Database = {
           centrerattachement?: string
           contact?: Json
           created_at?: string
+          gestionexternalisee?: boolean | null
           id?: string
           interactions?: Json | null
           niu?: string
