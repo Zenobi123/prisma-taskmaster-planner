@@ -27,5 +27,6 @@ export interface Client {
   numerocnps?: string;
   interactions: Interaction[];
   statut: "actif" | "inactif";
+  gestionexternalisee: boolean;
   created_at?: string;
 }

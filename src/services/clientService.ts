@@ -39,6 +39,7 @@ export const getClients = async () => {
         description: interaction.description || ""
       })),
       statut: client.statut as "actif" | "inactif",
+      gestionexternalisee: client.gestionexternalisee || false,
       created_at: client.created_at
     })) as Client[];
   } catch (error) {

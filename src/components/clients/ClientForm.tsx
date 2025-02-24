@@ -28,6 +28,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     email: "",
     secteuractivite: "commerce",
     numerocnps: "",
+    gestionexternalisee: false,
   });
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         email: initialData.contact.email,
         secteuractivite: initialData.secteuractivite,
         numerocnps: initialData.numerocnps || "",
+        gestionexternalisee: initialData.gestionexternalisee || false,
       });
     }
   }, [initialData]);
@@ -68,12 +70,13 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       },
       secteuractivite: formData.secteuractivite,
       numerocnps: formData.numerocnps || null,
+      gestionexternalisee: formData.gestionexternalisee,
     };
 
     onSubmit(clientData);
   };
 
-  const handleChange = (name: string, value: string) => {
+  const handleChange = (name: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -96,6 +99,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
           centrerattachement={formData.centrerattachement}
           secteuractivite={formData.secteuractivite}
           numerocnps={formData.numerocnps}
+          gestionexternalisee={formData.gestionexternalisee}
           onChange={handleChange}
         />
 
