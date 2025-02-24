@@ -89,7 +89,7 @@ export function ClientProfessionalFields({
           }
         />
         <Label htmlFor="gestionexternalisee" className="font-medium cursor-pointer">
-          Gestion du dossier externalisée
+          Gestion du dossier
         </Label>
       </div>
     </div>
