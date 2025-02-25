@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { Database } from "@/integrations/supabase/types";
@@ -6,19 +5,14 @@ import { Database } from "@/integrations/supabase/types";
 type ClientRow = Database['public']['Tables']['clients']['Row'];
 
 export const getClients = async () => {
-  try {
-    const { data, error } = await supabase
-      .from("clients")
-      .select("*");
+  const { data: cachedData } = await supabase
+    .from("clients")
+    .select("*")
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error("Erreur lors de la récupération des clients:", error);
-      throw error;
-    }
-
-    if (!data) return [];
-
-    return data.map((client: ClientRow) => ({
+  if (cachedData) {
+    return cachedData.map((client: ClientRow) => ({
       id: client.id,
       type: client.type as "physique" | "morale",
       nom: client.nom || null,
@@ -42,13 +36,12 @@ export const getClients = async () => {
         description: interaction.description || ""
       })),
       statut: client.statut as "actif" | "inactif",
-      gestionexternalisee: client.gestionexternalisee || false, // Utilisez la valeur de la base de données
+      gestionexternalisee: client.gestionexternalisee || false,
       created_at: client.created_at
     })) as Client[];
-  } catch (error) {
-    console.error("Erreur lors de la récupération des clients:", error);
-    throw error;
   }
+
+  return [];
 };
 
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
@@ -60,7 +53,7 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
         ...client,
         interactions: [],
         statut: "actif",
-        gestionexternalisee: client.gestionexternalisee // Assurez-vous que la valeur est transmise
+        gestionexternalisee: client.gestionexternalisee
       }])
       .select()
       .single();

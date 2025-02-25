@@ -17,13 +17,45 @@ export default function Gestion() {
   const [activeTab, setActiveTab] = useState("entreprise");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
-  const { data: clients = [] } = useQuery({
+  // Optimisation avec react-query pour le caching et la mise en cache automatique
+  const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: getClients,
+    staleTime: 5 * 60 * 1000, // Cache valide pendant 5 minutes
+    cacheTime: 30 * 60 * 1000, // Garde en cache pendant 30 minutes
   });
 
-  const clientsEnGestion = clients.filter(client => client.gestionexternalisee);
-  const selectedClient = clientsEnGestion.find(client => client.id === selectedClientId);
+  // Filtrage optimisé avec useMemo
+  const clientsEnGestion = React.useMemo(() => 
+    clients.filter(client => client.gestionexternalisee),
+    [clients]
+  );
+
+  // Recherche optimisée du client sélectionné
+  const selectedClient = React.useMemo(() => 
+    clientsEnGestion.find(client => client.id === selectedClientId),
+    [clientsEnGestion, selectedClientId]
+  );
+
+  // Gestion du changement d'onglet optimisée
+  const handleTabChange = React.useCallback((value: string) => {
+    setActiveTab(value);
+  }, []);
+
+  // Gestion de la sélection du client optimisée
+  const handleClientSelect = React.useCallback((clientId: string) => {
+    setSelectedClientId(clientId);
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="p-8 bg-[#F6F6F7]">
+        <div className="flex items-center justify-center min-h-[200px]">
+          <p className="text-muted-foreground">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 bg-[#F6F6F7]">
@@ -32,7 +64,7 @@ export default function Gestion() {
       <ClientSelector 
         clients={clientsEnGestion}
         selectedClientId={selectedClientId}
-        onClientSelect={setSelectedClientId}
+        onClientSelect={handleClientSelect}
       />
 
       {selectedClient ? (
@@ -42,7 +74,7 @@ export default function Gestion() {
           <Tabs 
             defaultValue="entreprise" 
             value={activeTab} 
-            onValueChange={setActiveTab} 
+            onValueChange={handleTabChange} 
             className="space-y-4"
           >
             <TabsList className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-transparent">
@@ -73,7 +105,7 @@ export default function Gestion() {
             </TabsList>
             
             <TabsContent value="entreprise">
-              <GestionEntreprise onTabChange={setActiveTab} />
+              <GestionEntreprise onTabChange={handleTabChange} />
             </TabsContent>
 
             <TabsContent value="contrat-prestations">
@@ -106,3 +138,4 @@ export default function Gestion() {
     </div>
   );
 }
+
