@@ -77,7 +77,7 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
 export const deleteClient = async (id: string) => {
   const { error } = await supabase
     .from("clients")
-    .update({ deleted_at: new Date().toISOString() })
+    .delete()
     .eq("id", id);
 
   if (error) {
@@ -85,7 +85,7 @@ export const deleteClient = async (id: string) => {
     throw error;
   }
 
-  console.log("Client supprimé avec succès (suppression logique)");
+  console.log("Client supprimé avec succès");
 };
 
 export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
