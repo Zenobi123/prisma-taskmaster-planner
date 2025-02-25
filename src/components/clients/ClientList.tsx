@@ -45,7 +45,14 @@ export function ClientList({ clients, onView, onEdit, onDelete }: ClientListProp
         {clients.map((client) => (
           <TableRow key={client.id}>
             <TableCell>
-              <Badge variant="outline">
+              <Badge 
+                variant="outline"
+                className={
+                  client.type === "physique"
+                    ? "bg-[#D3E4FD] border-[#D3E4FD] text-blue-700"
+                    : "bg-[#FEC6A1] border-[#FEC6A1] text-orange-700"
+                }
+              >
                 {client.type === "physique" ? "Physique" : "Morale"}
               </Badge>
             </TableCell>
