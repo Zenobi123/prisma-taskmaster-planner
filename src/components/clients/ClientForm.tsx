@@ -29,9 +29,9 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     secteuractivite: "commerce",
     numerocnps: "",
     gestionexternalisee: false,
-    sexe: "homme",
-    etatcivil: "celibataire",
-    regimefiscal: "reel",
+    sexe: "homme" as const,
+    etatcivil: "celibataire" as const,
+    regimefiscal: "reel" as const,
   });
 
   useEffect(() => {
@@ -49,9 +49,9 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         secteuractivite: initialData.secteuractivite,
         numerocnps: initialData.numerocnps || "",
         gestionexternalisee: initialData.gestionexternalisee || false,
-        sexe: initialData.sexe || "homme",
-        etatcivil: initialData.etatcivil || "celibataire",
-        regimefiscal: initialData.regimefiscal || "reel",
+        sexe: initialData.sexe || "homme" as const,
+        etatcivil: initialData.etatcivil || "celibataire" as const,
+        regimefiscal: initialData.regimefiscal || "reel" as const,
       });
     }
   }, [initialData]);

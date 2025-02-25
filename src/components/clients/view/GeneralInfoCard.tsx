@@ -1,13 +1,25 @@
-
 import { Client } from "@/types/client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { RegimeFiscal } from "@/types/client";
 
 interface GeneralInfoCardProps {
   client: Client;
 }
 
 export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
+  const getRegimeFiscalLabel = (regime: RegimeFiscal) => {
+    switch (regime) {
+      case "reel": return "Réel";
+      case "simplifie": return "Simplifié";
+      case "liberatoire": return "Libératoire";
+      case "non_professionnel_public": return "Non professionnel (Secteur public)";
+      case "non_professionnel_prive": return "Non professionnel (Secteur privé)";
+      case "non_professionnel_autre": return "Non professionnel (Autres)";
+      default: return regime;
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -40,7 +52,7 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
               </div>
               <div className="space-y-1">
                 <p className="text-sm text-muted-foreground">Régime fiscal</p>
-                <p className="font-medium capitalize">{client.regimefiscal}</p>
+                <p className="font-medium">{client.regimefiscal && getRegimeFiscalLabel(client.regimefiscal)}</p>
               </div>
             </>
           ) : (

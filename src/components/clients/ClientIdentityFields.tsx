@@ -84,7 +84,7 @@ export function ClientIdentityFields({
           <RadioGroup
             value={regimefiscal}
             onValueChange={(value) => onChange("regimefiscal", value)}
-            className="flex gap-4"
+            className="grid grid-cols-2 gap-4"
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="reel" id="reel" />
@@ -93,6 +93,22 @@ export function ClientIdentityFields({
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="simplifie" id="simplifie" />
               <Label htmlFor="simplifie">Simplifié</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="liberatoire" id="liberatoire" />
+              <Label htmlFor="liberatoire">Libératoire</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="non_professionnel_public" id="non_professionnel_public" />
+              <Label htmlFor="non_professionnel_public" className="text-sm">Non professionnel (Secteur public)</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="non_professionnel_prive" id="non_professionnel_prive" />
+              <Label htmlFor="non_professionnel_prive" className="text-sm">Non professionnel (Secteur privé)</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="non_professionnel_autre" id="non_professionnel_autre" />
+              <Label htmlFor="non_professionnel_autre" className="text-sm">Non professionnel (Autres)</Label>
             </div>
           </RadioGroup>
         </div>
