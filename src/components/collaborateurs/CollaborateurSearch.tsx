@@ -1,4 +1,3 @@
-
 import { Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -14,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CollaborateurSearchProps {
   searchTerm: string;
@@ -70,36 +70,34 @@ export function CollaborateurSearch({
           <div className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Statut</label>
-              <Select
-                value={selectedStatut}
-                onValueChange={onStatutChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un statut" />
+              <Select value={selectedStatut} onValueChange={onStatutChange}>
+                <SelectTrigger className="w-[200px] bg-background border-input">
+                  <SelectValue placeholder="Statut" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
-                  <SelectItem value="actif">Actif</SelectItem>
-                  <SelectItem value="inactif">Inactif</SelectItem>
+                <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+                  <ScrollArea className="max-h-[200px]">
+                    <SelectItem value="all">Tous</SelectItem>
+                    <SelectItem value="actif">Actif</SelectItem>
+                    <SelectItem value="inactif">Inactif</SelectItem>
+                  </ScrollArea>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-medium">Poste</label>
-              <Select
-                value={selectedPoste}
-                onValueChange={onPosteChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un poste" />
+              <Select value={selectedPoste} onValueChange={onPosteChange}>
+                <SelectTrigger className="w-[200px] bg-background border-input">
+                  <SelectValue placeholder="Poste" />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
-                  {postes.map((poste) => (
-                    <SelectItem key={poste} value={poste}>
-                      {poste}
-                    </SelectItem>
-                  ))}
+                <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+                  <ScrollArea className="max-h-[200px]">
+                    <SelectItem value="all">Tous</SelectItem>
+                    {postes.map((poste) => (
+                      <SelectItem key={poste} value={poste}>
+                        {poste}
+                      </SelectItem>
+                    ))}
+                  </ScrollArea>
                 </SelectContent>
               </Select>
             </div>

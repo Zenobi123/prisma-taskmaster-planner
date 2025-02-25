@@ -1,4 +1,3 @@
-
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -34,10 +33,10 @@ const MissionFilters = ({
         />
       </div>
       <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-[180px] bg-background border-input">
           <SelectValue placeholder="Filtrer par statut" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
           <SelectItem value="all">Tous</SelectItem>
           <SelectItem value="en_cours">En cours</SelectItem>
           <SelectItem value="planifiee">Planifiée</SelectItem>
@@ -49,4 +48,3 @@ const MissionFilters = ({
 };
 
 export default MissionFilters;
-

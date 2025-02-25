@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { ClientType } from "@/types/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ClientFiltersProps {
   searchTerm: string;
@@ -41,26 +41,31 @@ export function ClientFilters({
         />
       </div>
       <Select value={selectedType} onValueChange={onTypeChange}>
-        <SelectTrigger className="w-[200px] bg-white">
+        <SelectTrigger className="w-[200px] bg-background border-input">
           <SelectValue placeholder="Type de client" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tous les types</SelectItem>
-          <SelectItem value="physique">Personne Physique</SelectItem>
-          <SelectItem value="morale">Personne Morale</SelectItem>
+        <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+          <ScrollArea className="max-h-[200px]">
+            <SelectItem value="all">Tous les types</SelectItem>
+            <SelectItem value="physique">Personne Physique</SelectItem>
+            <SelectItem value="morale">Personne Morale</SelectItem>
+          </ScrollArea>
         </SelectContent>
       </Select>
+
       <Select value={selectedSecteur} onValueChange={onSecteurChange}>
-        <SelectTrigger className="w-[200px] bg-white">
+        <SelectTrigger className="w-[200px] bg-background border-input">
           <SelectValue placeholder="Secteur d'activité" />
         </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">Tous les secteurs</SelectItem>
-          <SelectItem value="commerce">Commerce</SelectItem>
-          <SelectItem value="services">Services</SelectItem>
-          <SelectItem value="industrie">Industrie</SelectItem>
-          <SelectItem value="agriculture">Agriculture</SelectItem>
-          <SelectItem value="autre">Autre</SelectItem>
+        <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+          <ScrollArea className="max-h-[200px]">
+            <SelectItem value="all">Tous les secteurs</SelectItem>
+            <SelectItem value="commerce">Commerce</SelectItem>
+            <SelectItem value="services">Services</SelectItem>
+            <SelectItem value="industrie">Industrie</SelectItem>
+            <SelectItem value="agriculture">Agriculture</SelectItem>
+            <SelectItem value="autre">Autre</SelectItem>
+          </ScrollArea>
         </SelectContent>
       </Select>
     </div>

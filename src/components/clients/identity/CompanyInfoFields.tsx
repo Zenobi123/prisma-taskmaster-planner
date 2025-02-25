@@ -1,8 +1,8 @@
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormeJuridique } from "@/types/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CompanyInfoFieldsProps {
   raisonsociale: string;
@@ -77,17 +77,19 @@ export function CompanyInfoFields({
           value={formejuridique}
           onValueChange={(value: FormeJuridique) => onChange("formejuridique", value)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full bg-background border-input">
             <SelectValue placeholder="Sélectionnez la forme juridique" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="sa">Société Anonyme (SA)</SelectItem>
-            <SelectItem value="sarl">Société à Responsabilité Limitée (SARL)</SelectItem>
-            <SelectItem value="sas">Société par Actions Simplifiée (SAS)</SelectItem>
-            <SelectItem value="snc">Société en Nom Collectif (SNC)</SelectItem>
-            <SelectItem value="association">Association</SelectItem>
-            <SelectItem value="gie">Groupement d'Intérêt Économique (GIE)</SelectItem>
-            <SelectItem value="autre">Autre</SelectItem>
+          <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+            <ScrollArea className="max-h-[200px]">
+              <SelectItem value="sa">Société Anonyme (SA)</SelectItem>
+              <SelectItem value="sarl">Société à Responsabilité Limitée (SARL)</SelectItem>
+              <SelectItem value="sas">Société par Actions Simplifiée (SAS)</SelectItem>
+              <SelectItem value="snc">Société en Nom Collectif (SNC)</SelectItem>
+              <SelectItem value="association">Association</SelectItem>
+              <SelectItem value="gie">Groupement d'Intérêt Économique (GIE)</SelectItem>
+              <SelectItem value="autre">Autre</SelectItem>
+            </ScrollArea>
           </SelectContent>
         </Select>
       </div>

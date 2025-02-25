@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -9,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface MissionFormFieldsProps {
   selectedDate: Date | undefined;
@@ -27,29 +27,33 @@ export const MissionFormFields = ({
       </div>
 
       <div>
-        <Label htmlFor="client">Client</Label>
+        <Label>Client</Label>
         <Select name="client_id" required>
-          <SelectTrigger>
-            <SelectValue placeholder="Client" />
+          <SelectTrigger className="w-full bg-background border-input">
+            <SelectValue placeholder="Sélectionnez un client" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="client1">SARL TechPro</SelectItem>
-            <SelectItem value="client2">SAS WebDev</SelectItem>
-            <SelectItem value="client3">EURL ConseilPlus</SelectItem>
+          <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+            <ScrollArea className="h-[200px] w-full">
+              <SelectItem value="client1">SARL TechPro</SelectItem>
+              <SelectItem value="client2">SAS WebDev</SelectItem>
+              <SelectItem value="client3">EURL ConseilPlus</SelectItem>
+            </ScrollArea>
           </SelectContent>
         </Select>
       </div>
 
       <div>
-        <Label htmlFor="assignedTo">Assigné à</Label>
+        <Label>Assigné à</Label>
         <Select name="collaborateur_id" required>
-          <SelectTrigger>
-            <SelectValue placeholder="Assigné à" />
+          <SelectTrigger className="w-full bg-background border-input">
+            <SelectValue placeholder="Sélectionnez un collaborateur" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="collab1">Sophie Martin</SelectItem>
-            <SelectItem value="collab2">Pierre Dubois</SelectItem>
-            <SelectItem value="collab3">Marie Lambert</SelectItem>
+          <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+            <ScrollArea className="h-[200px] w-full">
+              <SelectItem value="collab1">Sophie Martin</SelectItem>
+              <SelectItem value="collab2">Pierre Dubois</SelectItem>
+              <SelectItem value="collab3">Marie Lambert</SelectItem>
+            </ScrollArea>
           </SelectContent>
         </Select>
       </div>
