@@ -15,14 +15,23 @@ export type Database = {
           centrerattachement: string
           contact: Json
           created_at: string
+          datecreation: string | null
+          etatcivil: string | null
+          formejuridique: string | null
           gestionexternalisee: boolean | null
           id: string
           interactions: Json | null
+          lieucreation: string | null
           niu: string
           nom: string | null
+          nomdirigeant: string | null
           numerocnps: string | null
           raisonsociale: string | null
+          regimefiscal: string | null
           secteuractivite: string
+          sexe: string | null
+          sigle: string | null
+          situationimmobiliere: Json | null
           statut: string
           type: string
         }
@@ -31,14 +40,23 @@ export type Database = {
           centrerattachement: string
           contact: Json
           created_at?: string
+          datecreation?: string | null
+          etatcivil?: string | null
+          formejuridique?: string | null
           gestionexternalisee?: boolean | null
           id?: string
           interactions?: Json | null
+          lieucreation?: string | null
           niu: string
           nom?: string | null
+          nomdirigeant?: string | null
           numerocnps?: string | null
           raisonsociale?: string | null
+          regimefiscal?: string | null
           secteuractivite: string
+          sexe?: string | null
+          sigle?: string | null
+          situationimmobiliere?: Json | null
           statut?: string
           type: string
         }
@@ -47,14 +65,23 @@ export type Database = {
           centrerattachement?: string
           contact?: Json
           created_at?: string
+          datecreation?: string | null
+          etatcivil?: string | null
+          formejuridique?: string | null
           gestionexternalisee?: boolean | null
           id?: string
           interactions?: Json | null
+          lieucreation?: string | null
           niu?: string
           nom?: string | null
+          nomdirigeant?: string | null
           numerocnps?: string | null
           raisonsociale?: string | null
+          regimefiscal?: string | null
           secteuractivite?: string
+          sexe?: string | null
+          sigle?: string | null
+          situationimmobiliere?: Json | null
           statut?: string
           type?: string
         }

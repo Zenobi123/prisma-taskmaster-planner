@@ -25,8 +25,17 @@ export const getClients = async () => {
       type: client.type as "physique" | "morale",
       nom: client.nom || null,
       raisonsociale: client.raisonsociale || null,
+      sigle: client.sigle || null,
+      datecreation: client.datecreation || null,
+      lieucreation: client.lieucreation || null,
+      nomdirigeant: client.nomdirigeant || null,
+      formejuridique: client.formejuridique || null,
       niu: client.niu,
       centrerattachement: client.centrerattachement,
+      sexe: client.sexe || undefined,
+      etatcivil: client.etatcivil || undefined,
+      regimefiscal: client.regimefiscal || undefined,
+      situationimmobiliere: client.situationimmobiliere || { type: "locataire" },
       adresse: {
         ville: (client.adresse as any)?.ville || "",
         quartier: (client.adresse as any)?.quartier || "",
@@ -56,8 +65,25 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
   console.log("Données du client à ajouter:", client);
   const { data, error } = await supabase
     .from("clients")
-    .insert([{ 
-      ...client,
+    .insert([{
+      type: client.type,
+      nom: client.nom,
+      raisonsociale: client.raisonsociale,
+      sigle: client.sigle,
+      datecreation: client.datecreation,
+      lieucreation: client.lieucreation,
+      nomdirigeant: client.nomdirigeant,
+      formejuridique: client.formejuridique,
+      niu: client.niu,
+      centrerattachement: client.centrerattachement,
+      adresse: client.adresse,
+      contact: client.contact,
+      secteuractivite: client.secteuractivite,
+      numerocnps: client.numerocnps,
+      sexe: client.sexe,
+      etatcivil: client.etatcivil,
+      regimefiscal: client.regimefiscal,
+      situationimmobiliere: client.situationimmobiliere,
       interactions: [],
       statut: "actif",
       gestionexternalisee: client.gestionexternalisee || false
@@ -89,10 +115,25 @@ export const deleteClient = async (id: string) => {
 };
 
 export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
-  console.log("Mise à jour du client:", id, updates);
+  console.log("Mise à jour du client:", { id, updates });
+  
+  const updateData = {
+    ...updates,
+    // Assurez-vous que les champs sont correctement formatés pour la base de données
+    situationimmobiliere: updates.situationimmobiliere || undefined,
+    adresse: updates.adresse || undefined,
+    contact: updates.contact || undefined,
+    // Retirez les champs qui ne doivent pas être mis à jour
+    id: undefined,
+    created_at: undefined,
+    interactions: undefined
+  };
+
+  console.log("Données formatées pour la mise à jour:", updateData);
+
   const { data, error } = await supabase
     .from("clients")
-    .update(updates)
+    .update(updateData)
     .eq("id", id)
     .select()
     .single();
