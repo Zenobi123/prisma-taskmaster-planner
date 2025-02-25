@@ -17,7 +17,17 @@ import Facturation from "./pages/Facturation";
 import Depenses from "./pages/Depenses";
 import Rapports from "./pages/Rapports";
 
-const queryClient = new QueryClient();
+// Configuration optimisée de React Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
   const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";

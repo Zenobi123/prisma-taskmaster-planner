@@ -14,53 +14,43 @@ export interface Task {
 }
 
 export const getTasks = async () => {
-  try {
-    const { data, error } = await supabase
-      .from("tasks")
-      .select(`
-        *,
-        clients (
-          id,
-          nom,
-          raisonsociale,
-          type
-        ),
-        collaborateurs (
-          id,
-          nom,
-          prenom
-        )
-      `)
-      .order("created_at", { ascending: false });
+  const { data, error } = await supabase
+    .from("tasks")
+    .select(`
+      *,
+      clients (
+        id,
+        nom,
+        raisonsociale,
+        type
+      ),
+      collaborateurs (
+        id,
+        nom,
+        prenom
+      )
+    `)
+    .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("Erreur lors de la récupération des tâches:", error);
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
+  if (error) {
     console.error("Erreur lors de la récupération des tâches:", error);
     throw error;
   }
+
+  return data;
 };
 
 export const createTask = async (task: Omit<Task, "id" | "created_at" | "updated_at">) => {
-  try {
-    const { data, error } = await supabase
-      .from("tasks")
-      .insert([task])
-      .select()
-      .single();
+  const { data, error } = await supabase
+    .from("tasks")
+    .insert([task])
+    .select()
+    .single();
 
-    if (error) {
-      console.error("Erreur lors de la création de la tâche:", error);
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
+  if (error) {
     console.error("Erreur lors de la création de la tâche:", error);
     throw error;
   }
+
+  return data;
 };

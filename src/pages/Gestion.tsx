@@ -1,4 +1,5 @@
 
+import React from "react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
@@ -22,7 +23,7 @@ export default function Gestion() {
     queryKey: ["clients"],
     queryFn: getClients,
     staleTime: 5 * 60 * 1000, // Cache valide pendant 5 minutes
-    cacheTime: 30 * 60 * 1000, // Garde en cache pendant 30 minutes
+    gcTime: 30 * 60 * 1000, // Garde en cache pendant 30 minutes
   });
 
   // Filtrage optimisé avec useMemo
@@ -138,4 +139,3 @@ export default function Gestion() {
     </div>
   );
 }
-
