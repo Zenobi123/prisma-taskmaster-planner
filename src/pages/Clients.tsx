@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,18 +39,13 @@ export default function Clients() {
     staleTime: 1000 * 60 * 5,
     refetchInterval: 1000 * 60 * 5,
     retry: 2,
-    meta: {
-      errorMessage: "Impossible de récupérer la liste des clients"
-    },
-    onSettled: (data, error) => {
-      if (error) {
-        console.error("Erreur lors de la récupération des clients:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de récupérer la liste des clients",
-          variant: "destructive",
-        });
-      }
+    onError: (error) => {
+      console.error("Erreur lors de la récupération des clients:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de récupérer la liste des clients",
+        variant: "destructive",
+      });
     }
   });
 
