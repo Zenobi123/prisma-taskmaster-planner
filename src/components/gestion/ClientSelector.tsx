@@ -3,7 +3,9 @@ import { Client } from "@/types/client";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -23,15 +25,21 @@ export function ClientSelector({ clients, selectedClientId, onClientSelect }: Cl
           <SelectValue placeholder="Choisir un client à gérer..." />
         </SelectTrigger>
         <SelectContent>
-          {clients.map((client) => (
-            <SelectItem 
-              key={client.id} 
-              value={client.id}
-              className="hover:bg-[#F2FCE2] focus:bg-[#F2FCE2]"
-            >
-              {client.type === "physique" ? client.nom : client.raisonsociale}
-            </SelectItem>
-          ))}
+          <SelectGroup>
+            <SelectLabel>Clients en gestion</SelectLabel>
+            {clients.map((client) => (
+              <SelectItem 
+                key={client.id} 
+                value={client.id}
+                className="hover:bg-[#F2FCE2] focus:bg-[#F2FCE2]"
+              >
+                {client.type === "physique" 
+                  ? `${client.nom} (Personne physique)`
+                  : `${client.raisonsociale} (Personne morale)`
+                }
+              </SelectItem>
+            ))}
+          </SelectGroup>
         </SelectContent>
       </Select>
     </div>
