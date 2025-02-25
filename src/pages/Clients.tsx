@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -33,14 +34,21 @@ export default function Clients() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: clients = [], isLoading } = useQuery({
+  const { data: clients = [], isLoading, error } = useQuery({
     queryKey: ["clients"],
     queryFn: getClients,
     staleTime: 1000 * 60 * 5,
-    gcTime: 1000 * 60 * 10,
-    retry: 2,
-    throwOnError: true
+    retry: 2
   });
+
+  if (error) {
+    console.error("Erreur lors de la récupération des clients:", error);
+    toast({
+      title: "Erreur",
+      description: "Impossible de récupérer la liste des clients",
+      variant: "destructive",
+    });
+  }
 
   const addMutation = useMutation({
     mutationFn: addClient,
