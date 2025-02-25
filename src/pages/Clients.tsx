@@ -41,15 +41,6 @@ export default function Clients() {
     retry: 2
   });
 
-  if (error) {
-    console.error("Erreur lors de la récupération des clients:", error);
-    toast({
-      title: "Erreur",
-      description: "Impossible de récupérer la liste des clients",
-      variant: "destructive",
-    });
-  }
-
   const addMutation = useMutation({
     mutationFn: addClient,
     onSuccess: () => {
@@ -154,6 +145,15 @@ export default function Clients() {
     );
   }
 
+  if (error) {
+    console.error("Erreur lors de la récupération des clients:", error);
+    toast({
+      title: "Erreur",
+      description: "Impossible de récupérer la liste des clients",
+      variant: "destructive",
+    });
+  }
+
   return (
     <div className="p-8">
       <header className="mb-8">
@@ -222,43 +222,43 @@ export default function Clients() {
       </div>
 
       {selectedClient && (
-        <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="bg-white max-h-[90vh]">
-            <DialogHeader>
-              <DialogTitle>Détails du client</DialogTitle>
-              <DialogDescription>
-                Informations détaillées sur le client
-              </DialogDescription>
-            </DialogHeader>
-            <ClientView client={selectedClient} />
-          </DialogContent>
-        </Dialog>
-      )}
+        <>
+          <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
+            <DialogContent className="bg-white max-h-[90vh]">
+              <DialogHeader>
+                <DialogTitle>Détails du client</DialogTitle>
+                <DialogDescription>
+                  Informations détaillées sur le client
+                </DialogDescription>
+              </DialogHeader>
+              <ClientView client={selectedClient} />
+            </DialogContent>
+          </Dialog>
 
-      {selectedClient && (
-        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-          <DialogContent className="bg-white max-h-[90vh]">
-            <DialogHeader>
-              <DialogTitle>Modifier le client</DialogTitle>
-              <DialogDescription>
-                Modifiez les informations du client ci-dessous.
-              </DialogDescription>
-            </DialogHeader>
-            <ScrollArea className="h-[70vh] pr-4">
-              <ClientForm
-                type={selectedClient.type}
-                initialData={selectedClient}
-                onSubmit={(clientData) => {
-                  console.log("Données du client à mettre à jour:", clientData);
-                  updateMutation.mutate({
-                    id: selectedClient.id,
-                    updates: clientData,
-                  });
-                }}
-              />
-            </ScrollArea>
-          </DialogContent>
-        </Dialog>
+          <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+            <DialogContent className="bg-white max-h-[90vh]">
+              <DialogHeader>
+                <DialogTitle>Modifier le client</DialogTitle>
+                <DialogDescription>
+                  Modifiez les informations du client ci-dessous.
+                </DialogDescription>
+              </DialogHeader>
+              <ScrollArea className="h-[70vh] pr-4">
+                <ClientForm
+                  type={selectedClient.type}
+                  initialData={selectedClient}
+                  onSubmit={(clientData) => {
+                    console.log("Données du client à mettre à jour:", clientData);
+                    updateMutation.mutate({
+                      id: selectedClient.id,
+                      updates: clientData,
+                    });
+                  }}
+                />
+              </ScrollArea>
+            </DialogContent>
+          </Dialog>
+        </>
       )}
     </div>
   );
