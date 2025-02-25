@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ClientType, Client } from "@/types/client";
+import { ClientType, Client, Sexe, EtatCivil, RegimeFiscal, SituationImmobiliere } from "@/types/client";
 import { useState, useEffect } from "react";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientIdentityFields } from "./ClientIdentityFields";
@@ -29,9 +29,14 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     secteuractivite: "commerce",
     numerocnps: "",
     gestionexternalisee: false,
-    sexe: "homme" as const,
-    etatcivil: "celibataire" as const,
-    regimefiscal: "reel" as const,
+    sexe: "homme" as Sexe,
+    etatcivil: "celibataire" as EtatCivil,
+    regimefiscal: "reel" as RegimeFiscal,
+    situationimmobiliere: {
+      type: "locataire" as SituationImmobiliere,
+      valeur: undefined as number | undefined,
+      loyer: undefined as number | undefined
+    }
   });
 
   useEffect(() => {
@@ -49,9 +54,14 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         secteuractivite: initialData.secteuractivite,
         numerocnps: initialData.numerocnps || "",
         gestionexternalisee: initialData.gestionexternalisee || false,
-        sexe: initialData.sexe || "homme" as const,
-        etatcivil: initialData.etatcivil || "celibataire" as const,
-        regimefiscal: initialData.regimefiscal || "reel" as const,
+        sexe: initialData.sexe || "homme" as Sexe,
+        etatcivil: initialData.etatcivil || "celibataire" as EtatCivil,
+        regimefiscal: initialData.regimefiscal || "reel" as RegimeFiscal,
+        situationimmobiliere: initialData.situationimmobiliere || {
+          type: "locataire" as SituationImmobiliere,
+          valeur: undefined,
+          loyer: undefined
+        }
       });
     }
   }, [initialData]);
@@ -80,13 +90,37 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       sexe: type === "physique" ? formData.sexe : undefined,
       etatcivil: type === "physique" ? formData.etatcivil : undefined,
       regimefiscal: type === "physique" ? formData.regimefiscal : undefined,
+      situationimmobiliere: type === "physique" ? {
+        type: formData.situationimmobiliere.type,
+        valeur: formData.situationimmobiliere.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
+        loyer: formData.situationimmobiliere.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
+      } : undefined
     };
 
     onSubmit(clientData);
   };
 
-  const handleChange = (name: string, value: string | boolean) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleChange = (name: string, value: any) => {
+    if (name === "situationimmobiliere.type") {
+      setFormData(prev => ({
+        ...prev,
+        situationimmobiliere: {
+          type: value as SituationImmobiliere,
+          valeur: undefined,
+          loyer: undefined
+        }
+      }));
+    } else if (name === "situationimmobiliere.valeur" || name === "situationimmobiliere.loyer") {
+      setFormData(prev => ({
+        ...prev,
+        situationimmobiliere: {
+          ...prev.situationimmobiliere,
+          [name.split('.')[1]]: value !== "" ? Number(value) : undefined
+        }
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
+    }
   };
 
   return (
@@ -103,6 +137,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
           sexe={formData.sexe}
           etatcivil={formData.etatcivil}
           regimefiscal={formData.regimefiscal}
+          situationimmobiliere={formData.situationimmobiliere}
           onChange={handleChange}
         />
 

@@ -9,6 +9,7 @@ export type RegimeFiscal =
   | "non_professionnel_public" 
   | "non_professionnel_prive" 
   | "non_professionnel_autre";
+export type SituationImmobiliere = "proprietaire" | "locataire";
 
 export interface Interaction {
   id: string;
@@ -41,4 +42,9 @@ export interface Client {
   sexe?: Sexe;
   etatcivil?: EtatCivil;
   regimefiscal?: RegimeFiscal;
+  situationimmobiliere?: {
+    type: SituationImmobiliere;
+    valeur?: number; // Pour les propriétaires
+    loyer?: number; // Pour les locataires
+  };
 }

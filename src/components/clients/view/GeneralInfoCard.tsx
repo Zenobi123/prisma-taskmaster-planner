@@ -1,3 +1,4 @@
+
 import { Client } from "@/types/client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +19,10 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
       case "non_professionnel_autre": return "Non professionnel (Autres)";
       default: return regime;
     }
+  };
+
+  const formatMontant = (montant: number) => {
+    return new Intl.NumberFormat('fr-FR', { style: 'decimal' }).format(montant) + ' FCFA';
   };
 
   return (
@@ -54,6 +59,28 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
                 <p className="text-sm text-muted-foreground">Régime fiscal</p>
                 <p className="font-medium">{client.regimefiscal && getRegimeFiscalLabel(client.regimefiscal)}</p>
               </div>
+              {client.situationimmobiliere && (
+                <div className="col-span-2 space-y-1">
+                  <p className="text-sm text-muted-foreground">Situation immobilière</p>
+                  <p className="font-medium">
+                    {client.situationimmobiliere.type === "proprietaire" ? (
+                      <>
+                        Propriétaire 
+                        {client.situationimmobiliere.valeur && 
+                          ` - Valeur : ${formatMontant(client.situationimmobiliere.valeur)}`
+                        }
+                      </>
+                    ) : (
+                      <>
+                        Locataire
+                        {client.situationimmobiliere.loyer && 
+                          ` - Loyer mensuel : ${formatMontant(client.situationimmobiliere.loyer)}`
+                        }
+                      </>
+                    )}
+                  </p>
+                </div>
+              )}
             </>
           ) : (
             <div className="space-y-1">
