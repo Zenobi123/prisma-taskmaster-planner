@@ -20,6 +20,9 @@ export type FormeJuridique =
   | "gie" 
   | "autre";
 
+// Ajout de l'export du type RegimeFiscal
+export type RegimeFiscal = RegimeFiscalPhysique | RegimeFiscalMorale;
+
 export interface Interaction {
   id: string;
   date: string;
