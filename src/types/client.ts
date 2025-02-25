@@ -1,5 +1,8 @@
 
 export type ClientType = "physique" | "morale";
+export type Sexe = "homme" | "femme";
+export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
+export type RegimeFiscal = "reel" | "simplifie";
 
 export interface Interaction {
   id: string;
@@ -29,4 +32,8 @@ export interface Client {
   statut: "actif" | "inactif";
   gestionexternalisee: boolean;
   created_at?: string;
+  // Nouveaux champs pour les personnes physiques
+  sexe?: Sexe;
+  etatcivil?: EtatCivil;
+  regimefiscal?: RegimeFiscal;
 }

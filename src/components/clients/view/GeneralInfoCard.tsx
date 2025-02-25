@@ -25,10 +25,24 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
 
         <div className="grid grid-cols-2 gap-6">
           {client.type === "physique" ? (
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Nom</p>
-              <p className="font-medium text-lg">{client.nom}</p>
-            </div>
+            <>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Nom</p>
+                <p className="font-medium text-lg">{client.nom}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Sexe</p>
+                <p className="font-medium capitalize">{client.sexe}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">État civil</p>
+                <p className="font-medium capitalize">{client.etatcivil}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Régime fiscal</p>
+                <p className="font-medium capitalize">{client.regimefiscal}</p>
+              </div>
+            </>
           ) : (
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Raison sociale</p>

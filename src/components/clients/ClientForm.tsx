@@ -29,6 +29,9 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     secteuractivite: "commerce",
     numerocnps: "",
     gestionexternalisee: false,
+    sexe: "homme",
+    etatcivil: "celibataire",
+    regimefiscal: "reel",
   });
 
   useEffect(() => {
@@ -46,6 +49,9 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         secteuractivite: initialData.secteuractivite,
         numerocnps: initialData.numerocnps || "",
         gestionexternalisee: initialData.gestionexternalisee || false,
+        sexe: initialData.sexe || "homme",
+        etatcivil: initialData.etatcivil || "celibataire",
+        regimefiscal: initialData.regimefiscal || "reel",
       });
     }
   }, [initialData]);
@@ -71,6 +77,9 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       secteuractivite: formData.secteuractivite,
       numerocnps: formData.numerocnps || null,
       gestionexternalisee: formData.gestionexternalisee,
+      sexe: type === "physique" ? formData.sexe : undefined,
+      etatcivil: type === "physique" ? formData.etatcivil : undefined,
+      regimefiscal: type === "physique" ? formData.regimefiscal : undefined,
     };
 
     onSubmit(clientData);
@@ -91,6 +100,9 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
           type={type}
           nom={formData.nom}
           raisonsociale={formData.raisonsociale}
+          sexe={formData.sexe}
+          etatcivil={formData.etatcivil}
+          regimefiscal={formData.regimefiscal}
           onChange={handleChange}
         />
 
