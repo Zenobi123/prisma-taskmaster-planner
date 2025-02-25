@@ -37,16 +37,9 @@ export default function Clients() {
     queryKey: ["clients"],
     queryFn: getClients,
     staleTime: 1000 * 60 * 5,
-    refetchInterval: 1000 * 60 * 5,
+    gcTime: 1000 * 60 * 10,
     retry: 2,
-    onError: (error) => {
-      console.error("Erreur lors de la récupération des clients:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de récupérer la liste des clients",
-        variant: "destructive",
-      });
-    }
+    throwOnError: true
   });
 
   const addMutation = useMutation({
@@ -248,6 +241,7 @@ export default function Clients() {
                 type={selectedClient.type}
                 initialData={selectedClient}
                 onSubmit={(clientData) => {
+                  console.log("Données du client à mettre à jour:", clientData);
                   updateMutation.mutate({
                     id: selectedClient.id,
                     updates: clientData,
