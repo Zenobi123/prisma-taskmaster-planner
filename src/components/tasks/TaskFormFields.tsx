@@ -7,8 +7,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectScrollUpButton,
-  SelectScrollDownButton,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -47,7 +45,6 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
             <SelectValue placeholder="Sélectionnez un client" />
           </SelectTrigger>
           <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
-            <SelectScrollUpButton />
             <ScrollArea className="h-[200px] w-full">
               {clients.map((client) => (
                 <SelectItem 
@@ -62,7 +59,6 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
                 </SelectItem>
               ))}
             </ScrollArea>
-            <SelectScrollDownButton />
           </SelectContent>
         </Select>
       </div>
@@ -73,7 +69,6 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
             <SelectValue placeholder="Sélectionnez un collaborateur" />
           </SelectTrigger>
           <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
-            <SelectScrollUpButton />
             <ScrollArea className="h-[200px] w-full">
               {activeCollaborateurs.map((collab) => (
                 <SelectItem 
@@ -85,7 +80,6 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
                 </SelectItem>
               ))}
             </ScrollArea>
-            <SelectScrollDownButton />
           </SelectContent>
         </Select>
       </div>
@@ -158,4 +152,3 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
     </>
   );
 };
-
