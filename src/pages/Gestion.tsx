@@ -48,25 +48,25 @@ export default function Gestion() {
             <TabsList className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-transparent">
               <TabsTrigger 
                 value="entreprise"
-                className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white hover:bg-[#F1F0FB] transition-all"
+                className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
               >
                 Gestion d'entreprise
               </TabsTrigger>
               <TabsTrigger 
                 value="fiscal"
-                className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white hover:bg-[#F1F0FB] transition-all"
+                className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
               >
                 Gestion fiscale
               </TabsTrigger>
               <TabsTrigger 
                 value="comptable"
-                className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white hover:bg-[#F1F0FB] transition-all"
+                className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
               >
                 Gestion comptable
               </TabsTrigger>
               <TabsTrigger 
                 value="dossier"
-                className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white hover:bg-[#F1F0FB] transition-all"
+                className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
               >
                 Gestion documentaire
               </TabsTrigger>
@@ -94,7 +94,7 @@ export default function Gestion() {
           </Tabs>
         </>
       ) : (
-        <Card className="border-[#E5DEFF] bg-gradient-to-r from-[#F1F0FB] to-white">
+        <Card className="border-[#A8C1AE] bg-gradient-to-r from-[#F2FCE2] to-white">
           <CardHeader>
             <CardTitle className="text-[#1A1F2C]">Sélectionnez un client</CardTitle>
             <CardDescription className="text-[#8E9196]">

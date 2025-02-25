@@ -18,7 +18,7 @@ export function GestionHeader({ nombreClientsEnGestion }: GestionHeaderProps) {
           <Button
             variant="outline"
             onClick={() => navigate("/")}
-            className="flex items-center gap-2 hover:bg-purple-50"
+            className="flex items-center gap-2 hover:bg-[#F2FCE2]"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour
@@ -35,7 +35,7 @@ export function GestionHeader({ nombreClientsEnGestion }: GestionHeaderProps) {
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-gradient-to-br from-[#9b87f5] to-[#7E69AB] text-white">
+        <Card className="bg-gradient-to-br from-[#84A98C] to-[#6B8E74] text-white">
           <CardHeader className="pb-2">
             <CardTitle className="text-3xl font-bold">
               {nombreClientsEnGestion}
