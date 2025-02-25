@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Plus, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -61,28 +60,12 @@ export default function Clients() {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteClient,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-      toast({
-        title: "Client supprimé",
-        description: "Le client a été supprimé avec succès.",
-      });
-    },
-    onError: (error) => {
-      console.error("Erreur lors de la suppression du client:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la suppression du client.",
-        variant: "destructive",
-      });
-    },
-  });
-
   const updateMutation = useMutation({
-    mutationFn: ({ id, updates }: { id: string; updates: Partial<Client> }) => 
-      updateClient(id, updates),
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Client> }) => {
+      console.log("Mise à jour du client:", { id, updates });
+      const updatedClient = await updateClient(id, updates);
+      return updatedClient;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       toast({
@@ -97,6 +80,25 @@ export default function Clients() {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la mise à jour du client.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: deleteClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      toast({
+        title: "Client supprimé",
+        description: "Le client a été supprimé avec succès.",
+      });
+    },
+    onError: (error) => {
+      console.error("Erreur lors de la suppression du client:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la suppression du client.",
         variant: "destructive",
       });
     },
