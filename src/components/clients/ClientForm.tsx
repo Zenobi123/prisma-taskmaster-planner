@@ -35,6 +35,11 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
           type={type}
           nom={formData.nom}
           raisonsociale={formData.raisonsociale}
+          sigle={formData.sigle}
+          datecreation={formData.datecreation}
+          lieucreation={formData.lieucreation}
+          nomdirigeant={formData.nomdirigeant}
+          formejuridique={formData.formejuridique}
           sexe={formData.sexe}
           etatcivil={formData.etatcivil}
           regimefiscal={formData.regimefiscal}
