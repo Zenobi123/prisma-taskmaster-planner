@@ -14,33 +14,35 @@ export function GestionHeader({ nombreClientsEnGestion }: GestionHeaderProps) {
   return (
     <>
       <header className="mb-8">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-4 mb-6">
           <Button
             variant="outline"
             onClick={() => navigate("/")}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hover:bg-purple-50"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour
           </Button>
         </div>
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-800">
+          <h1 className="text-3xl font-semibold text-[#1A1F2C] mb-2">
             Gestion des dossiers clients
           </h1>
-          <p className="text-neutral-600 mt-1">
+          <p className="text-[#8E9196] text-lg">
             Gestion complète des dossiers clients en externalisation
           </p>
         </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card>
+        <Card className="bg-gradient-to-br from-[#9b87f5] to-[#7E69AB] text-white">
           <CardHeader className="pb-2">
-            <CardTitle className="text-2xl font-bold">
+            <CardTitle className="text-3xl font-bold">
               {nombreClientsEnGestion}
             </CardTitle>
-            <CardDescription>Clients en gestion</CardDescription>
+            <CardDescription className="text-white/90">
+              Clients en gestion
+            </CardDescription>
           </CardHeader>
         </Card>
       </div>

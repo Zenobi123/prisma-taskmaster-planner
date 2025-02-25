@@ -26,7 +26,7 @@ export default function Gestion() {
   const selectedClient = clientsEnGestion.find(client => client.id === selectedClientId);
 
   return (
-    <div className="p-8">
+    <div className="p-8 bg-[#F6F6F7]">
       <GestionHeader nombreClientsEnGestion={clientsEnGestion.length} />
       
       <ClientSelector 
@@ -39,12 +39,37 @@ export default function Gestion() {
         <>
           <SelectedClientCard client={selectedClient} />
 
-          <Tabs defaultValue="entreprise" value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-            <TabsList className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <TabsTrigger value="entreprise">Gestion d'entreprise</TabsTrigger>
-              <TabsTrigger value="fiscal">Gestion fiscale</TabsTrigger>
-              <TabsTrigger value="comptable">Gestion comptable</TabsTrigger>
-              <TabsTrigger value="dossier">Gestion documentaire</TabsTrigger>
+          <Tabs 
+            defaultValue="entreprise" 
+            value={activeTab} 
+            onValueChange={setActiveTab} 
+            className="space-y-4"
+          >
+            <TabsList className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-transparent">
+              <TabsTrigger 
+                value="entreprise"
+                className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white hover:bg-[#F1F0FB] transition-all"
+              >
+                Gestion d'entreprise
+              </TabsTrigger>
+              <TabsTrigger 
+                value="fiscal"
+                className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white hover:bg-[#F1F0FB] transition-all"
+              >
+                Gestion fiscale
+              </TabsTrigger>
+              <TabsTrigger 
+                value="comptable"
+                className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white hover:bg-[#F1F0FB] transition-all"
+              >
+                Gestion comptable
+              </TabsTrigger>
+              <TabsTrigger 
+                value="dossier"
+                className="data-[state=active]:bg-[#9b87f5] data-[state=active]:text-white hover:bg-[#F1F0FB] transition-all"
+              >
+                Gestion documentaire
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="entreprise">
@@ -69,10 +94,10 @@ export default function Gestion() {
           </Tabs>
         </>
       ) : (
-        <Card>
+        <Card className="border-[#E5DEFF] bg-gradient-to-r from-[#F1F0FB] to-white">
           <CardHeader>
-            <CardTitle>Sélectionnez un client</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-[#1A1F2C]">Sélectionnez un client</CardTitle>
+            <CardDescription className="text-[#8E9196]">
               Veuillez sélectionner un client pour gérer son dossier
             </CardDescription>
           </CardHeader>
