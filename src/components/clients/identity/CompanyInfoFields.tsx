@@ -16,28 +16,29 @@ interface CompanyInfoFieldsProps {
 
 export function CompanyInfoFields({
   raisonsociale,
-  sigle,
-  datecreation,
-  lieucreation,
-  nomdirigeant,
+  sigle = "",
+  datecreation = "",
+  lieucreation = "",
+  nomdirigeant = "",
   formejuridique,
   onChange
 }: CompanyInfoFieldsProps) {
   return (
     <div className="space-y-6">
       <div>
-        <Label>Raison sociale</Label>
+        <Label>Raison sociale *</Label>
         <Input 
           required 
           value={raisonsociale}
           onChange={(e) => onChange("raisonsociale", e.target.value)}
+          placeholder="Nom de l'entreprise"
         />
       </div>
 
       <div>
         <Label>Sigle</Label>
         <Input
-          value={sigle || ""}
+          value={sigle}
           onChange={(e) => onChange("sigle", e.target.value)}
           placeholder="Sigle de l'entreprise"
         />
@@ -47,7 +48,7 @@ export function CompanyInfoFields({
         <Label>Date de création</Label>
         <Input
           type="date"
-          value={datecreation || ""}
+          value={datecreation}
           onChange={(e) => onChange("datecreation", e.target.value)}
         />
       </div>
@@ -55,7 +56,7 @@ export function CompanyInfoFields({
       <div>
         <Label>Lieu de création</Label>
         <Input
-          value={lieucreation || ""}
+          value={lieucreation}
           onChange={(e) => onChange("lieucreation", e.target.value)}
           placeholder="Ville de création"
         />
@@ -64,7 +65,7 @@ export function CompanyInfoFields({
       <div>
         <Label>Nom du dirigeant</Label>
         <Input
-          value={nomdirigeant || ""}
+          value={nomdirigeant}
           onChange={(e) => onChange("nomdirigeant", e.target.value)}
           placeholder="Nom complet du dirigeant"
         />
@@ -74,7 +75,7 @@ export function CompanyInfoFields({
         <Label>Forme juridique</Label>
         <Select
           value={formejuridique}
-          onValueChange={(value) => onChange("formejuridique", value)}
+          onValueChange={(value: FormeJuridique) => onChange("formejuridique", value)}
         >
           <SelectTrigger>
             <SelectValue placeholder="Sélectionnez la forme juridique" />
