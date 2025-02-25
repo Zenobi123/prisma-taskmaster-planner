@@ -1,4 +1,3 @@
-
 import { Client } from "@/types/client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -83,10 +82,12 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
               )}
             </>
           ) : (
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Raison sociale</p>
-              <p className="font-medium text-lg">{client.raisonsociale}</p>
-            </div>
+            <>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Raison sociale</p>
+                <p className="font-medium text-lg">{client.raisonsociale}</p>
+              </div>
+            </>
           )}
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">NIU</p>

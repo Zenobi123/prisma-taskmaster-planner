@@ -57,10 +57,10 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         sexe: initialData.sexe || "homme" as Sexe,
         etatcivil: initialData.etatcivil || "celibataire" as EtatCivil,
         regimefiscal: initialData.regimefiscal || "reel" as RegimeFiscal,
-        situationimmobiliere: initialData.situationimmobiliere || {
-          type: "locataire" as SituationImmobiliere,
-          valeur: undefined,
-          loyer: undefined
+        situationimmobiliere: {
+          type: initialData.situationimmobiliere?.type || "locataire" as SituationImmobiliere,
+          valeur: initialData.situationimmobiliere?.valeur,
+          loyer: initialData.situationimmobiliere?.loyer
         }
       });
     }
@@ -90,11 +90,11 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       sexe: type === "physique" ? formData.sexe : undefined,
       etatcivil: type === "physique" ? formData.etatcivil : undefined,
       regimefiscal: type === "physique" ? formData.regimefiscal : undefined,
-      situationimmobiliere: type === "physique" ? {
+      situationimmobiliere: {
         type: formData.situationimmobiliere.type,
         valeur: formData.situationimmobiliere.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
         loyer: formData.situationimmobiliere.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
-      } : undefined
+      }
     };
 
     onSubmit(clientData);
