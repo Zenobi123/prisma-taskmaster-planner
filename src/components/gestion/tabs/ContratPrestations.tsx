@@ -1,140 +1,154 @@
 
 import { Client } from "@/types/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface ContratPrestationsProps {
   client: Client;
 }
 
 export function ContratPrestations({ client }: ContratPrestationsProps) {
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  const getFormeJuridiqueLabel = (forme?: string) => {
+    switch (forme) {
+      case "sa": return "Société Anonyme (SA)";
+      case "sarl": return "Société à Responsabilité Limitée (SARL)";
+      case "sas": return "Société par Actions Simplifiée (SAS)";
+      case "snc": return "Société en Nom Collectif (SNC)";
+      case "association": return "Association";
+      case "gie": return "Groupement d'Intérêt Économique (GIE)";
+      case "autre": return "Autre";
+      default: return forme;
+    }
+  };
+
+  const getRegimeFiscalLabel = (regime?: string) => {
+    switch (regime) {
+      case "reel": return "Réel";
+      case "simplifie": return "Simplifié";
+      case "liberatoire": return "Libératoire";
+      case "non_professionnel_public": return "Non professionnel (Secteur public)";
+      case "non_professionnel_prive": return "Non professionnel (Secteur privé)";
+      case "non_professionnel_autre": return "Non professionnel (Autres)";
+      case "non_lucratif": return "Organisme à but non lucratif";
+      default: return regime;
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Fiche d'identification</CardTitle>
-          <CardDescription>
-            Informations détaillées du client
-          </CardDescription>
+          <CardTitle>Identification du client</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-medium mb-2">Identité</h3>
-                <div className="grid gap-2">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Type</p>
-                    <p className="font-medium">
-                      {client.type === "physique" ? "Personne Physique" : "Personne Morale"}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">
-                      {client.type === "physique" ? "Nom" : "Raison sociale"}
-                    </p>
-                    <p className="font-medium">
-                      {client.type === "physique" ? client.nom : client.raisonsociale}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">NIU</p>
-                    <p className="font-medium">{client.niu}</p>
-                  </div>
+          <div className="grid grid-cols-2 gap-6">
+            {client.type === "physique" ? (
+              <>
+                <div>
+                  <p className="text-sm text-muted-foreground">Nom</p>
+                  <p className="font-medium">{client.nom}</p>
                 </div>
-              </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">Sexe</p>
+                  <p className="font-medium capitalize">{client.sexe}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">État civil</p>
+                  <p className="font-medium capitalize">{client.etatcivil}</p>
+                </div>
+                {client.regimefiscal && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Régime fiscal</p>
+                    <p className="font-medium">{getRegimeFiscalLabel(client.regimefiscal)}</p>
+                  </div>
+                )}
+              </>
+            ) : (
+              <>
+                <div>
+                  <p className="text-sm text-muted-foreground">Raison sociale</p>
+                  <p className="font-medium">{client.raisonsociale}</p>
+                </div>
+                {client.sigle && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Sigle</p>
+                    <p className="font-medium">{client.sigle}</p>
+                  </div>
+                )}
+                {client.datecreation && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Date de création</p>
+                    <p className="font-medium">{formatDate(client.datecreation)}</p>
+                  </div>
+                )}
+                {client.lieucreation && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Lieu de création</p>
+                    <p className="font-medium">{client.lieucreation}</p>
+                  </div>
+                )}
+                {client.nomdirigeant && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Dirigeant</p>
+                    <p className="font-medium">{client.nomdirigeant}</p>
+                  </div>
+                )}
+                {client.formejuridique && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Forme juridique</p>
+                    <p className="font-medium">{getFormeJuridiqueLabel(client.formejuridique)}</p>
+                  </div>
+                )}
+                {client.regimefiscal && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Régime fiscal</p>
+                    <p className="font-medium">{getRegimeFiscalLabel(client.regimefiscal)}</p>
+                  </div>
+                )}
+              </>
+            )}
 
-              <div>
-                <h3 className="font-medium mb-2">Localisation</h3>
-                <div className="grid gap-2">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Centre de rattachement</p>
-                    <p className="font-medium">{client.centrerattachement}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Adresse</p>
-                    <p className="font-medium">
-                      {client.adresse.quartier}, {client.adresse.ville}
-                      {client.adresse.lieuDit && ` (${client.adresse.lieuDit})`}
-                    </p>
-                  </div>
-                </div>
+            {client.situationimmobiliere && (
+              <div className="col-span-2">
+                <p className="text-sm text-muted-foreground">Situation immobilière</p>
+                <p className="font-medium">
+                  {client.situationimmobiliere.type === "proprietaire" 
+                    ? `Propriétaire ${client.situationimmobiliere.valeur 
+                      ? `- Valeur : ${client.situationimmobiliere.valeur.toLocaleString('fr-FR')} FCFA` 
+                      : ''}`
+                    : `Locataire ${client.situationimmobiliere.loyer 
+                      ? `- Loyer mensuel : ${client.situationimmobiliere.loyer.toLocaleString('fr-FR')} FCFA` 
+                      : ''}`
+                  }
+                </p>
               </div>
+            )}
+
+            <div>
+              <p className="text-sm text-muted-foreground">NIU</p>
+              <p className="font-medium">{client.niu}</p>
             </div>
-
-            <div className="space-y-4">
-              <div>
-                <h3 className="font-medium mb-2">Contact</h3>
-                <div className="grid gap-2">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Téléphone</p>
-                    <p className="font-medium">{client.contact.telephone}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium">{client.contact.email}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">Informations professionnelles</h3>
-                <div className="grid gap-2">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Secteur d'activité</p>
-                    <p className="font-medium capitalize">{client.secteuractivite}</p>
-                  </div>
-                  {client.numerocnps && (
-                    <div>
-                      <p className="text-sm text-muted-foreground">Numéro CNPS</p>
-                      <p className="font-medium">{client.numerocnps}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
+            <div>
+              <p className="text-sm text-muted-foreground">Centre de rattachement</p>
+              <p className="font-medium">{client.centrerattachement}</p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Prestations de services</CardTitle>
-          <CardDescription>
-            Détails des prestations convenues avec le client
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Prestations en cours</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Liste des prestations actuellement en cours
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Conditions financières</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Tarification et modalités de paiement
-                </p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Documents contractuels</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">
-                  Contrats et avenants
-                </p>
-              </CardContent>
-            </Card>
+            {client.numerocnps && (
+              <div>
+                <p className="text-sm text-muted-foreground">Numéro CNPS</p>
+                <p className="font-medium">{client.numerocnps}</p>
+              </div>
+            )}
+            <div>
+              <p className="text-sm text-muted-foreground">Secteur d'activité</p>
+              <p className="font-medium capitalize">{client.secteuractivite}</p>
+            </div>
           </div>
         </CardContent>
       </Card>

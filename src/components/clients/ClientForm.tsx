@@ -1,6 +1,5 @@
-
 import { Button } from "@/components/ui/button";
-import { ClientType, Client, Sexe, EtatCivil, RegimeFiscal, SituationImmobiliere } from "@/types/client";
+import { ClientType, Client, Sexe, EtatCivil, RegimeFiscalPhysique, RegimeFiscalMorale, SituationImmobiliere } from "@/types/client";
 import { useState, useEffect } from "react";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientIdentityFields } from "./ClientIdentityFields";
@@ -19,6 +18,10 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
   const [formData, setFormData] = useState({
     nom: "",
     raisonsociale: "",
+    sigle: "",
+    datecreation: "",
+    lieucreation: "",
+    nomdirigeant: "",
     niu: "",
     centrerattachement: "",
     ville: "",
@@ -31,7 +34,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     gestionexternalisee: false,
     sexe: "homme" as Sexe,
     etatcivil: "celibataire" as EtatCivil,
-    regimefiscal: "reel" as RegimeFiscal,
+    regimefiscal: type === "physique" ? "reel" as RegimeFiscalPhysique : "reel" as RegimeFiscalMorale,
     situationimmobiliere: {
       type: "locataire" as SituationImmobiliere,
       valeur: undefined as number | undefined,
@@ -44,6 +47,10 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       setFormData({
         nom: initialData.nom || "",
         raisonsociale: initialData.raisonsociale || "",
+        sigle: initialData.sigle || "",
+        datecreation: initialData.datecreation || "",
+        lieucreation: initialData.lieucreation || "",
+        nomdirigeant: initialData.nomdirigeant || "",
         niu: initialData.niu,
         centrerattachement: initialData.centrerattachement,
         ville: initialData.adresse.ville,
@@ -56,7 +63,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         gestionexternalisee: initialData.gestionexternalisee || false,
         sexe: initialData.sexe || "homme" as Sexe,
         etatcivil: initialData.etatcivil || "celibataire" as EtatCivil,
-        regimefiscal: initialData.regimefiscal || "reel" as RegimeFiscal,
+        regimefiscal: initialData.regimefiscal || "reel" as RegimeFiscalMorale,
         situationimmobiliere: {
           type: initialData.situationimmobiliere?.type || "locataire" as SituationImmobiliere,
           valeur: initialData.situationimmobiliere?.valeur,
@@ -73,6 +80,10 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       type,
       nom: type === "physique" ? formData.nom : null,
       raisonsociale: type === "morale" ? formData.raisonsociale : null,
+      sigle: type === "morale" ? formData.sigle : null,
+      datecreation: type === "morale" ? formData.datecreation : null,
+      lieucreation: type === "morale" ? formData.lieucreation : null,
+      nomdirigeant: type === "morale" ? formData.nomdirigeant : null,
       niu: formData.niu,
       centrerattachement: formData.centrerattachement,
       adresse: {
@@ -134,6 +145,10 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
           type={type}
           nom={formData.nom}
           raisonsociale={formData.raisonsociale}
+          sigle={formData.sigle}
+          datecreation={formData.datecreation}
+          lieucreation={formData.lieucreation}
+          nomdirigeant={formData.nomdirigeant}
           sexe={formData.sexe}
           etatcivil={formData.etatcivil}
           regimefiscal={formData.regimefiscal}
