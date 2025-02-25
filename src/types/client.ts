@@ -2,14 +2,23 @@
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
-export type RegimeFiscal = 
+export type RegimeFiscalPhysique = 
   | "reel" 
   | "simplifie" 
   | "liberatoire" 
   | "non_professionnel_public" 
   | "non_professionnel_prive" 
   | "non_professionnel_autre";
+export type RegimeFiscalMorale = "reel" | "simplifie" | "non_lucratif";
 export type SituationImmobiliere = "proprietaire" | "locataire";
+export type FormeJuridique = 
+  | "sa" 
+  | "sarl" 
+  | "sas" 
+  | "snc" 
+  | "association" 
+  | "gie" 
+  | "autre";
 
 export interface Interaction {
   id: string;
@@ -22,6 +31,11 @@ export interface Client {
   type: ClientType;
   nom?: string;
   raisonsociale?: string;
+  sigle?: string;
+  datecreation?: string;
+  lieucreation?: string;
+  nomdirigeant?: string;
+  formejuridique?: FormeJuridique;
   niu: string;
   centrerattachement: string;
   adresse: {
@@ -41,10 +55,10 @@ export interface Client {
   created_at?: string;
   sexe?: Sexe;
   etatcivil?: EtatCivil;
-  regimefiscal?: RegimeFiscal;
+  regimefiscal?: RegimeFiscalPhysique | RegimeFiscalMorale;
   situationimmobiliere?: {
     type: SituationImmobiliere;
-    valeur?: number; // Pour les propriétaires
-    loyer?: number; // Pour les locataires
+    valeur?: number;
+    loyer?: number;
   };
 }

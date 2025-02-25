@@ -1,15 +1,22 @@
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ClientType, Sexe, EtatCivil, RegimeFiscal, SituationImmobiliere } from "@/types/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ClientType, Sexe, EtatCivil, RegimeFiscalPhysique, RegimeFiscalMorale, SituationImmobiliere, FormeJuridique } from "@/types/client";
 
 interface ClientIdentityFieldsProps {
   type: ClientType;
   nom: string;
   raisonsociale: string;
+  sigle?: string;
+  datecreation?: string;
+  lieucreation?: string;
+  nomdirigeant?: string;
+  formejuridique?: FormeJuridique;
   sexe?: Sexe;
   etatcivil?: EtatCivil;
-  regimefiscal?: RegimeFiscal;
+  regimefiscal?: RegimeFiscalPhysique | RegimeFiscalMorale;
   situationimmobiliere?: {
     type: SituationImmobiliere;
     valeur?: number;
@@ -22,6 +29,11 @@ export function ClientIdentityFields({
   type, 
   nom, 
   raisonsociale,
+  sigle,
+  datecreation,
+  lieucreation,
+  nomdirigeant,
+  formejuridique,
   sexe,
   etatcivil,
   regimefiscal,
@@ -175,6 +187,86 @@ export function ClientIdentityFields({
           onChange={(e) => onChange("raisonsociale", e.target.value)}
         />
       </div>
+
+      <div>
+        <Label>Sigle</Label>
+        <Input
+          value={sigle || ""}
+          onChange={(e) => onChange("sigle", e.target.value)}
+          placeholder="Sigle de l'entreprise"
+        />
+      </div>
+
+      <div>
+        <Label>Date de création</Label>
+        <Input
+          type="date"
+          value={datecreation || ""}
+          onChange={(e) => onChange("datecreation", e.target.value)}
+        />
+      </div>
+
+      <div>
+        <Label>Lieu de création</Label>
+        <Input
+          value={lieucreation || ""}
+          onChange={(e) => onChange("lieucreation", e.target.value)}
+          placeholder="Ville de création"
+        />
+      </div>
+
+      <div>
+        <Label>Nom du dirigeant</Label>
+        <Input
+          value={nomdirigeant || ""}
+          onChange={(e) => onChange("nomdirigeant", e.target.value)}
+          placeholder="Nom complet du dirigeant"
+        />
+      </div>
+
+      <div>
+        <Label>Forme juridique</Label>
+        <Select
+          value={formejuridique}
+          onValueChange={(value) => onChange("formejuridique", value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Sélectionnez la forme juridique" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="sa">Société Anonyme (SA)</SelectItem>
+            <SelectItem value="sarl">Société à Responsabilité Limitée (SARL)</SelectItem>
+            <SelectItem value="sas">Société par Actions Simplifiée (SAS)</SelectItem>
+            <SelectItem value="snc">Société en Nom Collectif (SNC)</SelectItem>
+            <SelectItem value="association">Association</SelectItem>
+            <SelectItem value="gie">Groupement d'Intérêt Économique (GIE)</SelectItem>
+            <SelectItem value="autre">Autre</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <Label className="mb-2 block">Régime fiscal</Label>
+        <RadioGroup
+          value={regimefiscal}
+          onValueChange={(value) => onChange("regimefiscal", value)}
+          className="grid grid-cols-1 gap-4"
+        >
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="reel" id="reel_morale" />
+            <Label htmlFor="reel_morale">Réel</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="simplifie" id="simplifie_morale" />
+            <Label htmlFor="simplifie_morale">Simplifié</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="non_lucratif" id="non_lucratif" />
+            <Label htmlFor="non_lucratif">Organisme à but non lucratif</Label>
+          </div>
+        </RadioGroup>
+      </div>
+
       <SituationImmobiliereFields />
     </div>
   );

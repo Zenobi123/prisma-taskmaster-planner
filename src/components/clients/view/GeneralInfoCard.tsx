@@ -1,27 +1,52 @@
+
 import { Client } from "@/types/client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RegimeFiscal } from "@/types/client";
+import { RegimeFiscalPhysique, RegimeFiscalMorale, FormeJuridique } from "@/types/client";
 
 interface GeneralInfoCardProps {
   client: Client;
 }
 
 export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
-  const getRegimeFiscalLabel = (regime: RegimeFiscal) => {
+  const getRegimeFiscalLabel = (regime: RegimeFiscalPhysique | RegimeFiscalMorale) => {
     switch (regime) {
+      // Régimes personnes physiques
       case "reel": return "Réel";
       case "simplifie": return "Simplifié";
       case "liberatoire": return "Libératoire";
       case "non_professionnel_public": return "Non professionnel (Secteur public)";
       case "non_professionnel_prive": return "Non professionnel (Secteur privé)";
       case "non_professionnel_autre": return "Non professionnel (Autres)";
+      // Régimes personnes morales
+      case "non_lucratif": return "Organisme à but non lucratif";
       default: return regime;
+    }
+  };
+
+  const getFormeJuridiqueLabel = (forme: FormeJuridique) => {
+    switch (forme) {
+      case "sa": return "Société Anonyme (SA)";
+      case "sarl": return "Société à Responsabilité Limitée (SARL)";
+      case "sas": return "Société par Actions Simplifiée (SAS)";
+      case "snc": return "Société en Nom Collectif (SNC)";
+      case "association": return "Association";
+      case "gie": return "Groupement d'Intérêt Économique (GIE)";
+      case "autre": return "Autre";
+      default: return forme;
     }
   };
 
   const formatMontant = (montant: number) => {
     return new Intl.NumberFormat('fr-FR', { style: 'decimal' }).format(montant) + ' FCFA';
+  };
+
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -58,28 +83,6 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
                 <p className="text-sm text-muted-foreground">Régime fiscal</p>
                 <p className="font-medium">{client.regimefiscal && getRegimeFiscalLabel(client.regimefiscal)}</p>
               </div>
-              {client.situationimmobiliere && (
-                <div className="col-span-2 space-y-1">
-                  <p className="text-sm text-muted-foreground">Situation immobilière</p>
-                  <p className="font-medium">
-                    {client.situationimmobiliere.type === "proprietaire" ? (
-                      <>
-                        Propriétaire 
-                        {client.situationimmobiliere.valeur && 
-                          ` - Valeur : ${formatMontant(client.situationimmobiliere.valeur)}`
-                        }
-                      </>
-                    ) : (
-                      <>
-                        Locataire
-                        {client.situationimmobiliere.loyer && 
-                          ` - Loyer mensuel : ${formatMontant(client.situationimmobiliere.loyer)}`
-                        }
-                      </>
-                    )}
-                  </p>
-                </div>
-              )}
             </>
           ) : (
             <>
@@ -87,8 +90,68 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
                 <p className="text-sm text-muted-foreground">Raison sociale</p>
                 <p className="font-medium text-lg">{client.raisonsociale}</p>
               </div>
+              {client.sigle && (
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Sigle</p>
+                  <p className="font-medium">{client.sigle}</p>
+                </div>
+              )}
+              {client.datecreation && (
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Date de création</p>
+                  <p className="font-medium">{formatDate(client.datecreation)}</p>
+                </div>
+              )}
+              {client.lieucreation && (
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Lieu de création</p>
+                  <p className="font-medium">{client.lieucreation}</p>
+                </div>
+              )}
+              {client.nomdirigeant && (
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Dirigeant</p>
+                  <p className="font-medium">{client.nomdirigeant}</p>
+                </div>
+              )}
+              {client.formejuridique && (
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Forme juridique</p>
+                  <p className="font-medium">{getFormeJuridiqueLabel(client.formejuridique)}</p>
+                </div>
+              )}
+              {client.regimefiscal && (
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Régime fiscal</p>
+                  <p className="font-medium">{getRegimeFiscalLabel(client.regimefiscal)}</p>
+                </div>
+              )}
             </>
           )}
+          
+          {client.situationimmobiliere && (
+            <div className="col-span-2 space-y-1">
+              <p className="text-sm text-muted-foreground">Situation immobilière</p>
+              <p className="font-medium">
+                {client.situationimmobiliere.type === "proprietaire" ? (
+                  <>
+                    Propriétaire 
+                    {client.situationimmobiliere.valeur && 
+                      ` - Valeur : ${formatMontant(client.situationimmobiliere.valeur)}`
+                    }
+                  </>
+                ) : (
+                  <>
+                    Locataire
+                    {client.situationimmobiliere.loyer && 
+                      ` - Loyer mensuel : ${formatMontant(client.situationimmobiliere.loyer)}`
+                    }
+                  </>
+                )}
+              </p>
+            </div>
+          )}
+
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">NIU</p>
             <p className="font-medium">{client.niu}</p>
