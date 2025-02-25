@@ -6,14 +6,21 @@ import { Database } from "@/integrations/supabase/types";
 type ClientRow = Database['public']['Tables']['clients']['Row'];
 
 export const getClients = async () => {
-  const { data: cachedData } = await supabase
+  console.log("Récupération des clients...");
+  const { data: clients, error } = await supabase
     .from("clients")
     .select("*")
-    .is('deleted_at', null)
     .order('created_at', { ascending: false });
 
-  if (cachedData) {
-    return cachedData.map((client: ClientRow) => ({
+  if (error) {
+    console.error("Erreur lors de la récupération des clients:", error);
+    throw error;
+  }
+
+  console.log("Clients récupérés:", clients);
+
+  if (clients) {
+    return clients.map((client: ClientRow) => ({
       id: client.id,
       type: client.type as "physique" | "morale",
       nom: client.nom || null,
@@ -47,64 +54,54 @@ export const getClients = async () => {
 
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
   console.log("Données du client à ajouter:", client);
-  try {
-    const { data, error } = await supabase
-      .from("clients")
-      .insert([{ 
-        ...client,
-        interactions: [],
-        statut: "actif",
-        gestionexternalisee: client.gestionexternalisee
-      }])
-      .select()
-      .single();
+  const { data, error } = await supabase
+    .from("clients")
+    .insert([{ 
+      ...client,
+      interactions: [],
+      statut: "actif",
+      gestionexternalisee: client.gestionexternalisee || false
+    }])
+    .select()
+    .single();
 
-    if (error) {
-      console.error("Erreur lors de l'ajout du client:", error);
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
+  if (error) {
     console.error("Erreur lors de l'ajout du client:", error);
     throw error;
   }
+
+  console.log("Client ajouté avec succès:", data);
+  return data;
 };
 
 export const deleteClient = async (id: string) => {
-  try {
-    const { error } = await supabase
-      .from("clients")
-      .update({ deleted_at: new Date().toISOString() })
-      .eq("id", id);
+  const { error } = await supabase
+    .from("clients")
+    .update({ deleted_at: new Date().toISOString() })
+    .eq("id", id);
 
-    if (error) {
-      console.error("Erreur lors de la suppression du client:", error);
-      throw error;
-    }
-  } catch (error) {
+  if (error) {
     console.error("Erreur lors de la suppression du client:", error);
     throw error;
   }
+
+  console.log("Client supprimé avec succès (suppression logique)");
 };
 
 export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
-  try {
-    const { data, error } = await supabase
-      .from("clients")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
+  console.log("Mise à jour du client:", id, updates);
+  const { data, error } = await supabase
+    .from("clients")
+    .update(updates)
+    .eq("id", id)
+    .select()
+    .single();
 
-    if (error) {
-      console.error("Erreur lors de la mise à jour du client:", error);
-      throw error;
-    }
-
-    return data;
-  } catch (error) {
+  if (error) {
     console.error("Erreur lors de la mise à jour du client:", error);
     throw error;
   }
+
+  console.log("Client mis à jour avec succès:", data);
+  return data;
 };

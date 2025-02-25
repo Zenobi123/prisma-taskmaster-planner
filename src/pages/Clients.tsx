@@ -36,6 +36,17 @@ export default function Clients() {
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: getClients,
+    staleTime: 1000 * 60 * 5,
+    refetchInterval: 1000 * 60 * 5,
+    retry: 2,
+    onError: (error) => {
+      console.error("Erreur lors de la récupération des clients:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de récupérer la liste des clients",
+        variant: "destructive",
+      });
+    }
   });
 
   const addMutation = useMutation({
