@@ -1,6 +1,14 @@
 
 import { Button } from "@/components/ui/button";
-import { ClientType, Client, Sexe, EtatCivil, RegimeFiscal, SituationImmobiliere } from "@/types/client";
+import { 
+  ClientType, 
+  Client, 
+  Sexe, 
+  EtatCivil, 
+  RegimeFiscalPhysique,
+  RegimeFiscalMorale,
+  SituationImmobiliere 
+} from "@/types/client";
 import { useState, useEffect } from "react";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientIdentityFields } from "./ClientIdentityFields";
@@ -31,7 +39,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     gestionexternalisee: false,
     sexe: "homme" as Sexe,
     etatcivil: "celibataire" as EtatCivil,
-    regimefiscal: "reel" as RegimeFiscal,
+    regimefiscal: "reel" as RegimeFiscalPhysique | RegimeFiscalMorale,
     situationimmobiliere: {
       type: "locataire" as SituationImmobiliere,
       valeur: undefined as number | undefined,
@@ -56,7 +64,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         gestionexternalisee: initialData.gestionexternalisee || false,
         sexe: initialData.sexe || "homme" as Sexe,
         etatcivil: initialData.etatcivil || "celibataire" as EtatCivil,
-        regimefiscal: initialData.regimefiscal || "reel" as RegimeFiscal,
+        regimefiscal: initialData.regimefiscal || "reel" as RegimeFiscalPhysique | RegimeFiscalMorale,
         situationimmobiliere: {
           type: initialData.situationimmobiliere?.type || "locataire" as SituationImmobiliere,
           valeur: initialData.situationimmobiliere?.valeur,
