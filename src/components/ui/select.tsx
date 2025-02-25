@@ -3,7 +3,7 @@
 
 import * as React from "react";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -47,6 +47,13 @@ const SelectContent = React.forwardRef<
       position={position}
       {...props}
     >
+      <div className="w-full py-1 bg-gray-50 border-b border-gray-100 flex items-center justify-center">
+        <SelectPrimitive.ScrollUpButton className="flex h-7 cursor-pointer items-center justify-center text-neutral-700 transition-colors hover:text-neutral-900">
+          <ChevronUp className="h-4 w-4" />
+          <span className="ml-1 text-xs">Haut</span>
+        </SelectPrimitive.ScrollUpButton>
+      </div>
+      
       <SelectPrimitive.Viewport
         className={cn(
           "p-1",
@@ -54,10 +61,17 @@ const SelectContent = React.forwardRef<
             "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
       >
-        <ScrollArea className="h-full max-h-[300px] overflow-y-auto pr-2">
+        <ScrollArea className="h-full max-h-[300px] overflow-y-auto px-1">
           {children}
         </ScrollArea>
       </SelectPrimitive.Viewport>
+
+      <div className="w-full py-1 bg-gray-50 border-t border-gray-100 flex items-center justify-center">
+        <SelectPrimitive.ScrollDownButton className="flex h-7 cursor-pointer items-center justify-center text-neutral-700 transition-colors hover:text-neutral-900">
+          <ChevronDown className="h-4 w-4" />
+          <span className="ml-1 text-xs">Bas</span>
+        </SelectPrimitive.ScrollDownButton>
+      </div>
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ));
@@ -82,7 +96,10 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 hover:bg-accent hover:text-accent-foreground",
+      "relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm outline-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+      "hover:bg-accent hover:text-accent-foreground",
+      "focus:bg-accent focus:text-accent-foreground",
+      "data-[state=checked]:bg-accent/10 data-[state=checked]:text-accent-foreground data-[state=checked]:font-medium",
       className
     )}
     {...props}
