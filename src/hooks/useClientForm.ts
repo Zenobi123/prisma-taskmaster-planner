@@ -7,12 +7,18 @@ import {
   EtatCivil, 
   RegimeFiscalPhysique,
   RegimeFiscalMorale,
-  SituationImmobiliere 
+  SituationImmobiliere,
+  FormeJuridique
 } from "@/types/client";
 
 interface ClientFormState {
   nom: string;
   raisonsociale: string;
+  sigle: string;
+  datecreation: string;
+  lieucreation: string;
+  nomdirigeant: string;
+  formejuridique?: FormeJuridique;
   niu: string;
   centrerattachement: string;
   ville: string;
@@ -37,6 +43,11 @@ export function useClientForm(initialData?: Client) {
   const [formData, setFormData] = useState<ClientFormState>({
     nom: "",
     raisonsociale: "",
+    sigle: "",
+    datecreation: "",
+    lieucreation: "",
+    nomdirigeant: "",
+    formejuridique: undefined,
     niu: "",
     centrerattachement: "",
     ville: "",
@@ -62,6 +73,11 @@ export function useClientForm(initialData?: Client) {
       setFormData({
         nom: initialData.nom || "",
         raisonsociale: initialData.raisonsociale || "",
+        sigle: initialData.sigle || "",
+        datecreation: initialData.datecreation || "",
+        lieucreation: initialData.lieucreation || "",
+        nomdirigeant: initialData.nomdirigeant || "",
+        formejuridique: initialData.formejuridique,
         niu: initialData.niu,
         centrerattachement: initialData.centrerattachement,
         ville: initialData.adresse.ville,
@@ -108,10 +124,8 @@ export function useClientForm(initialData?: Client) {
   };
 
   const prepareSubmitData = (type: ClientType) => {
-    return {
+    const baseData = {
       type,
-      nom: type === "physique" ? formData.nom : null,
-      raisonsociale: type === "morale" ? formData.raisonsociale : null,
       niu: formData.niu,
       centrerattachement: formData.centrerattachement,
       adresse: {
@@ -126,15 +140,42 @@ export function useClientForm(initialData?: Client) {
       secteuractivite: formData.secteuractivite,
       numerocnps: formData.numerocnps || null,
       gestionexternalisee: formData.gestionexternalisee,
-      sexe: type === "physique" ? formData.sexe : undefined,
-      etatcivil: type === "physique" ? formData.etatcivil : undefined,
-      regimefiscal: type === "physique" ? formData.regimefiscal : undefined,
       situationimmobiliere: {
         type: formData.situationimmobiliere.type,
         valeur: formData.situationimmobiliere.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
         loyer: formData.situationimmobiliere.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
       }
     };
+
+    if (type === "physique") {
+      return {
+        ...baseData,
+        nom: formData.nom,
+        raisonsociale: null,
+        sexe: formData.sexe,
+        etatcivil: formData.etatcivil,
+        regimefiscal: formData.regimefiscal as RegimeFiscalPhysique,
+        sigle: null,
+        datecreation: null,
+        lieucreation: null,
+        nomdirigeant: null,
+        formejuridique: null
+      };
+    } else {
+      return {
+        ...baseData,
+        nom: null,
+        raisonsociale: formData.raisonsociale,
+        sexe: undefined,
+        etatcivil: undefined,
+        regimefiscal: formData.regimefiscal as RegimeFiscalMorale,
+        sigle: formData.sigle || null,
+        datecreation: formData.datecreation || null,
+        lieucreation: formData.lieucreation || null,
+        nomdirigeant: formData.nomdirigeant || null,
+        formejuridique: formData.formejuridique || null
+      };
+    }
   };
 
   return {
