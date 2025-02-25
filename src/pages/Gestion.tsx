@@ -115,9 +115,9 @@ export default function Gestion() {
                     Gestion administrative, RH, contrats, paie et indicateurs de performance
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <Card>
+                    <Card onClick={() => setActiveTab("gestion-admin")} className="cursor-pointer hover:border-primary transition-colors">
                       <CardHeader>
                         <CardTitle className="text-lg">Administration</CardTitle>
                       </CardHeader>
@@ -127,7 +127,7 @@ export default function Gestion() {
                         </p>
                       </CardContent>
                     </Card>
-                    <Card>
+                    <Card onClick={() => setActiveTab("gestion-rh")} className="cursor-pointer hover:border-primary transition-colors">
                       <CardHeader>
                         <CardTitle className="text-lg">Ressources Humaines</CardTitle>
                       </CardHeader>
@@ -137,7 +137,7 @@ export default function Gestion() {
                         </p>
                       </CardContent>
                     </Card>
-                    <Card>
+                    <Card onClick={() => setActiveTab("gestion-paie")} className="cursor-pointer hover:border-primary transition-colors">
                       <CardHeader>
                         <CardTitle className="text-lg">Paie</CardTitle>
                       </CardHeader>
@@ -147,7 +147,7 @@ export default function Gestion() {
                         </p>
                       </CardContent>
                     </Card>
-                    <Card>
+                    <Card onClick={() => setActiveTab("contrat-prestations")} className="cursor-pointer hover:border-primary transition-colors">
                       <CardHeader>
                         <CardTitle className="text-lg">Notre contrat de prestations</CardTitle>
                       </CardHeader>
@@ -160,6 +160,140 @@ export default function Gestion() {
                   </div>
                 </CardContent>
               </Card>
+            </TabsContent>
+
+            <TabsContent value="contrat-prestations">
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Fiche d'identification</CardTitle>
+                    <CardDescription>
+                      Informations détaillées du client
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-medium mb-2">Identité</h3>
+                          <div className="grid gap-2">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Type</p>
+                              <p className="font-medium">
+                                {selectedClient?.type === "physique" ? "Personne Physique" : "Personne Morale"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">
+                                {selectedClient?.type === "physique" ? "Nom" : "Raison sociale"}
+                              </p>
+                              <p className="font-medium">
+                                {selectedClient?.type === "physique" ? selectedClient?.nom : selectedClient?.raisonsociale}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">NIU</p>
+                              <p className="font-medium">{selectedClient?.niu}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="font-medium mb-2">Localisation</h3>
+                          <div className="grid gap-2">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Centre de rattachement</p>
+                              <p className="font-medium">{selectedClient?.centrerattachement}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Adresse</p>
+                              <p className="font-medium">
+                                {selectedClient?.adresse.quartier}, {selectedClient?.adresse.ville}
+                                {selectedClient?.adresse.lieuDit && ` (${selectedClient.adresse.lieuDit})`}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-medium mb-2">Contact</h3>
+                          <div className="grid gap-2">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Téléphone</p>
+                              <p className="font-medium">{selectedClient?.contact.telephone}</p>
+                            </div>
+                            <div>
+                              <p className="text-sm text-muted-foreground">Email</p>
+                              <p className="font-medium">{selectedClient?.contact.email}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="font-medium mb-2">Informations professionnelles</h3>
+                          <div className="grid gap-2">
+                            <div>
+                              <p className="text-sm text-muted-foreground">Secteur d'activité</p>
+                              <p className="font-medium capitalize">{selectedClient?.secteuractivite}</p>
+                            </div>
+                            {selectedClient?.numerocnps && (
+                              <div>
+                                <p className="text-sm text-muted-foreground">Numéro CNPS</p>
+                                <p className="font-medium">{selectedClient.numerocnps}</p>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Prestations de services</CardTitle>
+                    <CardDescription>
+                      Détails des prestations convenues avec le client
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Prestations en cours</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-muted-foreground">
+                            Liste des prestations actuellement en cours
+                          </p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Conditions financières</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-muted-foreground">
+                            Tarification et modalités de paiement
+                          </p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-lg">Documents contractuels</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-muted-foreground">
+                            Contrats et avenants
+                          </p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </TabsContent>
 
             <TabsContent value="fiscal">
