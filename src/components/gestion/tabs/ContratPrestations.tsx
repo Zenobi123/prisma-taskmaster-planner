@@ -4,12 +4,13 @@ import { Client } from "@/types/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Upload, Archive, Clock, Eye, Plus, PenLine, Calendar, Trash2, AlertCircle } from "lucide-react";
+import { FileText, Download, Upload, Archive, Clock, Eye, Plus, PenLine, Calendar, Trash2, AlertCircle, CheckCircle2, AlertTriangle, Circle } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ContratPrestationsProps {
   client: Client;
@@ -29,6 +30,16 @@ interface Contract {
   signedAt?: Date;
   author: string;
   fileName?: string;
+}
+
+interface Prestation {
+  id: string;
+  name: string;
+  description: string;
+  isActive: boolean;
+  frequency: "mensuelle" | "trimestrielle" | "annuelle" | "ponctuelle";
+  nextDueDate?: Date;
+  lastCompletedDate?: Date;
 }
 
 export function ContratPrestations({ client }: ContratPrestationsProps) {
@@ -81,12 +92,58 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
     }
   ]);
 
+  const [prestations, setPrestations] = useState<Prestation[]>([
+    {
+      id: "1",
+      name: "Renouvellement du dossier fiscal",
+      description: "Mise à jour annuelle des informations fiscales et renouvellement des documents administratifs",
+      isActive: true,
+      frequency: "annuelle",
+      nextDueDate: new Date(2023, 11, 15), // December 15, 2023
+      lastCompletedDate: new Date(2022, 11, 10) // December 10, 2022
+    },
+    {
+      id: "2",
+      name: "Forfait suivi-gestion annuelle",
+      description: "Suivi comptable et administratif global pour l'exercice en cours",
+      isActive: true,
+      frequency: "mensuelle",
+      nextDueDate: new Date(2023, 9, 30), // October 30, 2023
+      lastCompletedDate: new Date(2023, 8, 30) // September 30, 2023
+    },
+    {
+      id: "3",
+      name: "Élaboration et mise en ligne DSF N-1",
+      description: "Préparation et soumission de la Déclaration Statistique et Fiscale pour l'exercice précédent",
+      isActive: false,
+      frequency: "annuelle",
+      nextDueDate: new Date(2024, 3, 30), // April 30, 2024
+    },
+    {
+      id: "4",
+      name: "Production de bulletin de paie",
+      description: "Création et gestion des bulletins de salaire pour les employés",
+      isActive: false,
+      frequency: "mensuelle"
+    }
+  ]);
+
   const [isAddingContract, setIsAddingContract] = useState(false);
   const [contractForm, setContractForm] = useState({
     title: "",
     description: "",
     type: "initial" as ContractType,
   });
+
+  const togglePrestation = (id: string) => {
+    setPrestations(
+      prestations.map(prestation => 
+        prestation.id === id 
+          ? { ...prestation, isActive: !prestation.isActive }
+          : prestation
+      )
+    );
+  };
 
   const contractStatusColor = (status: ContractStatus) => {
     switch (status) {
@@ -105,6 +162,52 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       case "annex": return <FileText className="h-5 w-5" />;
       case "termination": return <AlertCircle className="h-5 w-5" />;
     }
+  };
+
+  const getFrequencyLabel = (frequency: Prestation["frequency"]) => {
+    switch (frequency) {
+      case "mensuelle": return "Mensuelle";
+      case "trimestrielle": return "Trimestrielle";
+      case "annuelle": return "Annuelle";
+      case "ponctuelle": return "Ponctuelle";
+    }
+  };
+
+  const getFrequencyColor = (frequency: Prestation["frequency"]) => {
+    switch (frequency) {
+      case "mensuelle": return "bg-blue-50 text-blue-700";
+      case "trimestrielle": return "bg-purple-50 text-purple-700";
+      case "annuelle": return "bg-amber-50 text-amber-700";
+      case "ponctuelle": return "bg-gray-50 text-gray-700";
+    }
+  };
+
+  const getPrestationStatusIcon = (prestation: Prestation) => {
+    if (!prestation.isActive) {
+      return <Circle className="h-5 w-5 text-gray-400" />;
+    }
+
+    if (!prestation.nextDueDate) {
+      return <CheckCircle2 className="h-5 w-5 text-green-500" />;
+    }
+
+    const today = new Date();
+    const dueDate = new Date(prestation.nextDueDate);
+    
+    // Si la date d'échéance est dépassée
+    if (dueDate < today) {
+      return <AlertTriangle className="h-5 w-5 text-amber-500" />;
+    }
+    
+    // Si la date d'échéance est dans moins de 15 jours
+    const twoWeeksFromNow = new Date();
+    twoWeeksFromNow.setDate(today.getDate() + 15);
+    
+    if (dueDate <= twoWeeksFromNow) {
+      return <Clock className="h-5 w-5 text-blue-500" />;
+    }
+    
+    return <CheckCircle2 className="h-5 w-5 text-green-500" />;
   };
 
   const handleAddContract = () => {
@@ -253,7 +356,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="documents" className="w-full">
+          <Tabs defaultValue="prestations" className="w-full">
             <TabsList className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-transparent">
               <TabsTrigger 
                 value="prestations"
@@ -276,16 +379,79 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
             </TabsList>
             
             <TabsContent value="prestations" className="mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Prestations en cours</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Liste des prestations actuellement en cours
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="mb-4 flex justify-between items-center">
+                <h3 className="text-lg font-medium">Prestations proposées</h3>
+                <Button className="bg-[#84A98C] hover:bg-[#52796F] text-white">
+                  <Plus className="h-4 w-4 mr-2" /> Ajouter une prestation
+                </Button>
+              </div>
+              
+              <div className="space-y-4">
+                {prestations.map((prestation) => (
+                  <Card 
+                    key={prestation.id} 
+                    className={`border-l-4 ${prestation.isActive ? 'border-l-green-500' : 'border-l-gray-200'} transition-all hover:shadow-md`}
+                  >
+                    <CardContent className="p-0">
+                      <div className="flex items-center p-4">
+                        <div className="flex gap-3 items-center flex-1">
+                          <div className="flex items-center h-5">
+                            <Checkbox 
+                              id={`prestation-${prestation.id}`}
+                              checked={prestation.isActive}
+                              onCheckedChange={() => togglePrestation(prestation.id)}
+                              className="h-5 w-5 rounded-full data-[state=checked]:bg-green-500 data-[state=checked]:text-white border-gray-300"
+                            />
+                          </div>
+                          <div className="flex flex-col">
+                            <Label 
+                              htmlFor={`prestation-${prestation.id}`}
+                              className={`font-medium ${prestation.isActive ? '' : 'text-gray-500'}`}
+                            >
+                              {prestation.name}
+                            </Label>
+                            <p className="text-sm text-muted-foreground">
+                              {prestation.description}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-4">
+                          <span className={`px-2 py-1 rounded-full text-xs ${getFrequencyColor(prestation.frequency)}`}>
+                            {getFrequencyLabel(prestation.frequency)}
+                          </span>
+                          
+                          {prestation.nextDueDate && (
+                            <div className="hidden md:block text-right">
+                              <p className="text-xs text-muted-foreground">Prochaine échéance</p>
+                              <p className="text-sm font-medium">{formatDate(prestation.nextDueDate)}</p>
+                            </div>
+                          )}
+                          
+                          <div className="hidden sm:flex items-center justify-center w-8 h-8">
+                            {getPrestationStatusIcon(prestation)}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+              
+              <div className="mt-6 flex gap-3 items-center text-sm text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" /> 
+                  <span>À jour</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="h-4 w-4 text-blue-500" /> 
+                  <span>À venir dans les 15 jours</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <AlertTriangle className="h-4 w-4 text-amber-500" /> 
+                  <span>En retard</span>
+                </div>
+              </div>
             </TabsContent>
             
             <TabsContent value="conditions" className="mt-6">
