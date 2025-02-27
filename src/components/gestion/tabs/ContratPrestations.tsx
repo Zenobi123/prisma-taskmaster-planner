@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 interface ContratPrestationsProps {
   client: Client;
@@ -41,9 +42,19 @@ interface Prestation {
   isRecurrent?: boolean; // Indique si c'est une prestation récurrente sur toute l'année
   nextDueDate?: Date;
   lastCompletedDate?: Date;
+  valorisation?: number; // Montant en euros de la prestation
 }
 
+type FinancialCondition = {
+  prestationId: string;
+  prestationName: string;
+  montant: number;
+  frequency: Prestation["frequency"];
+  isRecurrent: boolean;
+};
+
 export function ContratPrestations({ client }: ContratPrestationsProps) {
+  const [activeTab, setActiveTab] = useState("prestations");
   const [contracts, setContracts] = useState<Contract[]>([
     {
       id: "1",
@@ -101,7 +112,8 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       isActive: true,
       frequency: "annuelle",
       nextDueDate: new Date(2023, 11, 15), // December 15, 2023
-      lastCompletedDate: new Date(2022, 11, 10) // December 10, 2022
+      lastCompletedDate: new Date(2022, 11, 10), // December 10, 2022
+      valorisation: 750
     },
     {
       id: "2",
@@ -111,7 +123,8 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       frequency: "mensuelle",
       isRecurrent: true,
       nextDueDate: new Date(2023, 9, 30), // October 30, 2023
-      lastCompletedDate: new Date(2023, 8, 30) // September 30, 2023
+      lastCompletedDate: new Date(2023, 8, 30), // September 30, 2023
+      valorisation: 350
     },
     {
       id: "3",
@@ -120,6 +133,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       isActive: false,
       frequency: "annuelle",
       nextDueDate: new Date(2024, 3, 30), // April 30, 2024
+      valorisation: 1200
     },
     {
       id: "4",
@@ -127,15 +141,35 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       description: "Création et gestion des bulletins de salaire pour les employés",
       isActive: false,
       frequency: "mensuelle",
-      isRecurrent: true
+      isRecurrent: true,
+      valorisation: 45
     }
   ]);
+
+  // État pour les conditions financières
+  const [financialConditions, setFinancialConditions] = useState<FinancialCondition[]>([]);
 
   // États pour la gestion des dialogues
   const [isAddingContract, setIsAddingContract] = useState(false);
   const [isAddingPrestation, setIsAddingPrestation] = useState(false);
   const [isEditingPrestation, setIsEditingPrestation] = useState(false);
   const [selectedPrestationId, setSelectedPrestationId] = useState<string | null>(null);
+  const [pendingValorisationId, setPendingValorisationId] = useState<string | null>(null);
+
+  // Chargement initial des conditions financières basées sur les prestations existantes
+  useEffect(() => {
+    const activeFinancialConditions = prestations
+      .filter(p => p.isActive)
+      .map(p => ({
+        prestationId: p.id,
+        prestationName: p.name,
+        montant: p.valorisation || 0,
+        frequency: p.frequency,
+        isRecurrent: p.isRecurrent || false
+      }));
+    
+    setFinancialConditions(activeFinancialConditions);
+  }, []);
 
   // État pour les formulaires
   const [contractForm, setContractForm] = useState({
@@ -150,26 +184,68 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
     frequency: Prestation["frequency"];
     isRecurrent: boolean;
     nextDueDate: string;
+    valorisation: string;
   }>({
     name: "",
     description: "",
     frequency: "mensuelle",
     isRecurrent: false,
     nextDueDate: "",
+    valorisation: "",
   });
 
   // Fonctions pour gérer les prestations
   const togglePrestation = (id: string) => {
-    setPrestations(
-      prestations.map(prestation => 
-        prestation.id === id 
-          ? { ...prestation, isActive: !prestation.isActive }
-          : prestation
-      )
+    const updatedPrestations = prestations.map(prestation => 
+      prestation.id === id 
+        ? { ...prestation, isActive: !prestation.isActive }
+        : prestation
     );
+    
+    setPrestations(updatedPrestations);
+    
+    // Si la prestation est activée
+    const toggledPrestation = updatedPrestations.find(p => p.id === id);
+    if (toggledPrestation && toggledPrestation.isActive) {
+      // Ajouter aux conditions financières si elle est activée
+      const existingIndex = financialConditions.findIndex(fc => fc.prestationId === id);
+      
+      if (existingIndex === -1) {
+        // Si la prestation n'a pas encore de valorisation, on demande à l'utilisateur d'en définir une
+        if (!toggledPrestation.valorisation) {
+          setPendingValorisationId(id);
+          setActiveTab("conditions");
+          toast.info("Veuillez définir le montant pour cette prestation", {
+            description: "La prestation a été activée mais requiert une valorisation financière."
+          });
+        } else {
+          // Sinon on l'ajoute directement aux conditions financières
+          setFinancialConditions([
+            ...financialConditions,
+            {
+              prestationId: id,
+              prestationName: toggledPrestation.name,
+              montant: toggledPrestation.valorisation || 0,
+              frequency: toggledPrestation.frequency,
+              isRecurrent: toggledPrestation.isRecurrent || false
+            }
+          ]);
+          setActiveTab("conditions");
+          toast.success("Prestation activée et ajoutée aux conditions financières");
+        }
+      }
+    } else if (toggledPrestation && !toggledPrestation.isActive) {
+      // Retirer des conditions financières si elle est désactivée
+      setFinancialConditions(financialConditions.filter(fc => fc.prestationId !== id));
+      toast.info("Prestation désactivée et retirée des conditions financières");
+    }
   };
 
   const handleAddPrestation = () => {
+    const valorisationValue = prestationForm.valorisation 
+      ? parseFloat(prestationForm.valorisation) 
+      : undefined;
+
     const newPrestation: Prestation = {
       id: crypto.randomUUID(),
       name: prestationForm.name,
@@ -178,30 +254,95 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       frequency: prestationForm.frequency,
       isRecurrent: prestationForm.isRecurrent,
       nextDueDate: prestationForm.nextDueDate ? new Date(prestationForm.nextDueDate) : undefined,
+      valorisation: valorisationValue
     };
 
     setPrestations([...prestations, newPrestation]);
     setIsAddingPrestation(false);
+    
+    // Ajouter aux conditions financières
+    if (valorisationValue) {
+      setFinancialConditions([
+        ...financialConditions,
+        {
+          prestationId: newPrestation.id,
+          prestationName: newPrestation.name,
+          montant: valorisationValue,
+          frequency: newPrestation.frequency,
+          isRecurrent: newPrestation.isRecurrent
+        }
+      ]);
+      setActiveTab("conditions");
+      toast.success("Prestation ajoutée et valorisée dans les conditions financières");
+    } else {
+      setPendingValorisationId(newPrestation.id);
+      setActiveTab("conditions");
+      toast.info("Veuillez définir le montant pour cette prestation", {
+        description: "La prestation a été créée mais requiert une valorisation financière."
+      });
+    }
+    
     resetPrestationForm();
   };
 
   const handleEditPrestation = () => {
     if (!selectedPrestationId) return;
 
-    setPrestations(
-      prestations.map(prestation => 
-        prestation.id === selectedPrestationId
-          ? { 
-              ...prestation, 
-              name: prestationForm.name,
-              description: prestationForm.description,
-              frequency: prestationForm.frequency,
-              isRecurrent: prestationForm.isRecurrent,
-              nextDueDate: prestationForm.nextDueDate ? new Date(prestationForm.nextDueDate) : undefined,
-            }
-          : prestation
-      )
+    const valorisationValue = prestationForm.valorisation 
+      ? parseFloat(prestationForm.valorisation) 
+      : undefined;
+
+    const updatedPrestations = prestations.map(prestation => 
+      prestation.id === selectedPrestationId
+        ? { 
+            ...prestation, 
+            name: prestationForm.name,
+            description: prestationForm.description,
+            frequency: prestationForm.frequency,
+            isRecurrent: prestationForm.isRecurrent,
+            nextDueDate: prestationForm.nextDueDate ? new Date(prestationForm.nextDueDate) : undefined,
+            valorisation: valorisationValue
+          }
+        : prestation
     );
+    
+    setPrestations(updatedPrestations);
+    
+    // Mettre à jour la condition financière associée si elle existe
+    const updatedPrestation = updatedPrestations.find(p => p.id === selectedPrestationId);
+    
+    if (updatedPrestation && updatedPrestation.isActive) {
+      const existingConditionIndex = financialConditions.findIndex(fc => fc.prestationId === selectedPrestationId);
+      
+      if (existingConditionIndex !== -1) {
+        const newFinancialConditions = [...financialConditions];
+        newFinancialConditions[existingConditionIndex] = {
+          prestationId: selectedPrestationId,
+          prestationName: updatedPrestation.name,
+          montant: valorisationValue || financialConditions[existingConditionIndex].montant,
+          frequency: updatedPrestation.frequency,
+          isRecurrent: updatedPrestation.isRecurrent || false
+        };
+        
+        setFinancialConditions(newFinancialConditions);
+      } else if (valorisationValue) {
+        setFinancialConditions([
+          ...financialConditions,
+          {
+            prestationId: selectedPrestationId,
+            prestationName: updatedPrestation.name,
+            montant: valorisationValue,
+            frequency: updatedPrestation.frequency,
+            isRecurrent: updatedPrestation.isRecurrent || false
+          }
+        ]);
+      }
+      
+      if (valorisationValue) {
+        setActiveTab("conditions");
+        toast.success("Prestation modifiée et valorisée dans les conditions financières");
+      }
+    }
 
     setIsEditingPrestation(false);
     setSelectedPrestationId(null);
@@ -210,6 +351,10 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
 
   const handleDeletePrestation = (id: string) => {
     setPrestations(prestations.filter(prestation => prestation.id !== id));
+    
+    // Retirer des conditions financières
+    setFinancialConditions(financialConditions.filter(fc => fc.prestationId !== id));
+    toast.info("Prestation supprimée et retirée des conditions financières");
   };
 
   const startEditPrestation = (id: string) => {
@@ -222,6 +367,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       frequency: prestation.frequency,
       isRecurrent: prestation.isRecurrent || false,
       nextDueDate: prestation.nextDueDate ? formatDateForInput(prestation.nextDueDate) : "",
+      valorisation: prestation.valorisation ? prestation.valorisation.toString() : "",
     });
 
     setSelectedPrestationId(id);
@@ -235,7 +381,50 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       frequency: "mensuelle",
       isRecurrent: false,
       nextDueDate: "",
+      valorisation: "",
     });
+  };
+
+  // Fonctions pour gérer les conditions financières
+  const updatePrestationValorisation = (prestationId: string, montant: number) => {
+    // Mettre à jour la prestation
+    setPrestations(prestations.map(prestation => 
+      prestation.id === prestationId
+        ? { ...prestation, valorisation: montant }
+        : prestation
+    ));
+    
+    // Mettre à jour ou ajouter la condition financière
+    const existingIndex = financialConditions.findIndex(fc => fc.prestationId === prestationId);
+    const prestation = prestations.find(p => p.id === prestationId);
+    
+    if (!prestation) return;
+    
+    if (existingIndex !== -1) {
+      const newFinancialConditions = [...financialConditions];
+      newFinancialConditions[existingIndex] = {
+        ...newFinancialConditions[existingIndex],
+        montant
+      };
+      setFinancialConditions(newFinancialConditions);
+    } else {
+      setFinancialConditions([
+        ...financialConditions,
+        {
+          prestationId,
+          prestationName: prestation.name,
+          montant,
+          frequency: prestation.frequency,
+          isRecurrent: prestation.isRecurrent || false
+        }
+      ]);
+    }
+    
+    // Réinitialiser l'état de valorisation en attente
+    if (pendingValorisationId === prestationId) {
+      setPendingValorisationId(null);
+      toast.success("Valorisation de la prestation enregistrée avec succès");
+    }
   };
 
   // Fonctions pour gérer les contrats
@@ -362,6 +551,21 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
     }
   };
 
+  const getMontantAnnuel = (fc: FinancialCondition) => {
+    if (fc.frequency === "annuelle" || fc.frequency === "ponctuelle") {
+      return fc.montant;
+    } else if (fc.frequency === "trimestrielle") {
+      return fc.montant * 4;
+    } else if (fc.frequency === "mensuelle") {
+      return fc.montant * 12;
+    }
+    return fc.montant;
+  };
+
+  const getTotalAnnuel = () => {
+    return financialConditions.reduce((total, fc) => total + getMontantAnnuel(fc), 0);
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -459,7 +663,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="prestations" className="w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-transparent">
               <TabsTrigger 
                 value="prestations"
@@ -572,6 +776,19 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                           className="col-span-3"
                         />
                       </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="prestation-valorisation" className="text-right">
+                          Montant (€)
+                        </Label>
+                        <Input
+                          id="prestation-valorisation"
+                          type="number"
+                          value={prestationForm.valorisation}
+                          onChange={(e) => setPrestationForm({...prestationForm, valorisation: e.target.value})}
+                          className="col-span-3"
+                          placeholder="Montant facturé"
+                        />
+                      </div>
                     </div>
                     <DialogFooter>
                       <Button variant="outline" onClick={() => {
@@ -640,6 +857,13 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                               getFrequencyLabel(prestation.frequency)
                             )}
                           </span>
+                          
+                          {prestation.valorisation && (
+                            <div className="hidden md:block text-right">
+                              <p className="text-xs text-muted-foreground">Montant</p>
+                              <p className="text-sm font-medium">{prestation.valorisation} €</p>
+                            </div>
+                          )}
                           
                           {prestation.nextDueDate && (
                             <div className="hidden md:block text-right">
@@ -759,6 +983,19 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                         className="col-span-3"
                       />
                     </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="edit-prestation-valorisation" className="text-right">
+                        Montant (€)
+                      </Label>
+                      <Input
+                        id="edit-prestation-valorisation"
+                        type="number"
+                        value={prestationForm.valorisation}
+                        onChange={(e) => setPrestationForm({...prestationForm, valorisation: e.target.value})}
+                        className="col-span-3"
+                        placeholder="Montant facturé"
+                      />
+                    </div>
                   </div>
                   <DialogFooter>
                     <Button variant="outline" onClick={() => {
@@ -807,11 +1044,168 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg">Conditions financières</CardTitle>
+                  <CardDescription>
+                    Tarification et modalités de paiement des prestations fournies
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    Tarification et modalités de paiement
-                  </p>
+                  <div className="space-y-6">
+                    <h3 className="text-base font-medium">Valorisation des prestations</h3>
+                    
+                    {financialConditions.length > 0 ? (
+                      <div className="rounded-md border">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b bg-gray-50">
+                              <th className="px-4 py-3 text-left text-sm font-medium text-gray-500">Prestation</th>
+                              <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">Fréquence</th>
+                              <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">Montant</th>
+                              <th className="px-4 py-3 text-center text-sm font-medium text-gray-500">Total annuel</th>
+                              <th className="px-4 py-3 text-right text-sm font-medium text-gray-500">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {financialConditions.map((fc) => (
+                              <tr key={fc.prestationId} className="border-b hover:bg-gray-50">
+                                <td className="px-4 py-3 text-sm">
+                                  <div className="font-medium">{fc.prestationName}</div>
+                                  {fc.isRecurrent && fc.frequency === "mensuelle" && (
+                                    <div className="text-xs text-indigo-600 flex items-center gap-1">
+                                      <Star className="h-3 w-3" /> Mensuelle (annualisée)
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 text-center text-sm">
+                                  <span className={`px-2 py-1 rounded-full text-xs ${getFrequencyColor(fc.frequency, fc.isRecurrent)}`}>
+                                    {getFrequencyLabel(fc.frequency)}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-center text-sm">
+                                  {pendingValorisationId === fc.prestationId ? (
+                                    <div className="flex gap-2 items-center justify-center">
+                                      <Input
+                                        type="number"
+                                        className="w-24 h-8 text-sm"
+                                        placeholder="€"
+                                        defaultValue={fc.montant.toString()}
+                                        onBlur={(e) => {
+                                          const value = parseFloat(e.target.value);
+                                          if (!isNaN(value)) {
+                                            updatePrestationValorisation(fc.prestationId, value);
+                                          }
+                                        }}
+                                      />
+                                      <Button 
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 px-2"
+                                        onClick={() => setPendingValorisationId(null)}
+                                      >
+                                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <div 
+                                      className="font-medium cursor-pointer hover:text-blue-600"
+                                      onClick={() => setPendingValorisationId(fc.prestationId)}
+                                    >
+                                      {fc.montant} €
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="px-4 py-3 text-center text-sm font-medium">
+                                  {getMontantAnnuel(fc)} €
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="h-8 px-2 hover:text-blue-600"
+                                    onClick={() => {
+                                      // Trouver la prestation correspondante et l'ouvrir en édition
+                                      const prestation = prestations.find(p => p.id === fc.prestationId);
+                                      if (prestation) {
+                                        startEditPrestation(fc.prestationId);
+                                      }
+                                    }}
+                                  >
+                                    <PenLine className="h-4 w-4" />
+                                  </Button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                          <tfoot>
+                            <tr className="bg-gray-50 font-medium">
+                              <td colSpan={3} className="px-4 py-3 text-right text-sm">
+                                Total annuel des prestations
+                              </td>
+                              <td className="px-4 py-3 text-center text-sm font-bold">
+                                {getTotalAnnuel()} €
+                              </td>
+                              <td></td>
+                            </tr>
+                          </tfoot>
+                        </table>
+                      </div>
+                    ) : (
+                      <div className="text-center py-10 border rounded-lg bg-gray-50">
+                        <p className="text-muted-foreground">
+                          Aucune prestation n'a été valorisée. Activez des prestations pour les ajouter ici.
+                        </p>
+                        <Button 
+                          className="mt-4 bg-[#84A98C] hover:bg-[#52796F]"
+                          onClick={() => setActiveTab("prestations")}
+                        >
+                          Gérer les prestations
+                        </Button>
+                      </div>
+                    )}
+                    
+                    <div className="mt-6">
+                      <h3 className="text-base font-medium mb-4">Modalités de paiement</h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Card>
+                          <CardHeader className="py-3">
+                            <CardTitle className="text-base">Périodicité de facturation</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <Select defaultValue="mensuelle">
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Sélectionner la périodicité" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="mensuelle">Mensuelle</SelectItem>
+                                <SelectItem value="trimestrielle">Trimestrielle</SelectItem>
+                                <SelectItem value="semestrielle">Semestrielle</SelectItem>
+                                <SelectItem value="annuelle">Annuelle</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </CardContent>
+                        </Card>
+                        
+                        <Card>
+                          <CardHeader className="py-3">
+                            <CardTitle className="text-base">Délai de paiement</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <Select defaultValue="30">
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Sélectionner le délai" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="0">Paiement à réception</SelectItem>
+                                <SelectItem value="15">15 jours</SelectItem>
+                                <SelectItem value="30">30 jours</SelectItem>
+                                <SelectItem value="45">45 jours</SelectItem>
+                                <SelectItem value="60">60 jours</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </CardContent>
+                        </Card>
+                      </div>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
