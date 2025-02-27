@@ -4,7 +4,7 @@ import { Client } from "@/types/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Upload, Archive, Clock, Eye, Plus, PenLine, Calendar, Trash2, AlertCircle, CheckCircle2, AlertTriangle, Circle } from "lucide-react";
+import { FileText, Download, Upload, Archive, Clock, Eye, Plus, PenLine, Calendar, Trash2, AlertCircle, CheckCircle2, AlertTriangle, Circle, RefreshCw, Star } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -38,6 +38,7 @@ interface Prestation {
   description: string;
   isActive: boolean;
   frequency: "mensuelle" | "trimestrielle" | "annuelle" | "ponctuelle";
+  isRecurrent?: boolean; // Indique si c'est une prestation récurrente sur toute l'année
   nextDueDate?: Date;
   lastCompletedDate?: Date;
 }
@@ -108,6 +109,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       description: "Suivi comptable et administratif global pour l'exercice en cours",
       isActive: true,
       frequency: "mensuelle",
+      isRecurrent: true,
       nextDueDate: new Date(2023, 9, 30), // October 30, 2023
       lastCompletedDate: new Date(2023, 8, 30) // September 30, 2023
     },
@@ -124,7 +126,8 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       name: "Production de bulletin de paie",
       description: "Création et gestion des bulletins de salaire pour les employés",
       isActive: false,
-      frequency: "mensuelle"
+      frequency: "mensuelle",
+      isRecurrent: true
     }
   ]);
 
@@ -145,11 +148,13 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
     name: string;
     description: string;
     frequency: Prestation["frequency"];
+    isRecurrent: boolean;
     nextDueDate: string;
   }>({
     name: "",
     description: "",
     frequency: "mensuelle",
+    isRecurrent: false,
     nextDueDate: "",
   });
 
@@ -171,6 +176,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       description: prestationForm.description,
       isActive: true,
       frequency: prestationForm.frequency,
+      isRecurrent: prestationForm.isRecurrent,
       nextDueDate: prestationForm.nextDueDate ? new Date(prestationForm.nextDueDate) : undefined,
     };
 
@@ -190,6 +196,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
               name: prestationForm.name,
               description: prestationForm.description,
               frequency: prestationForm.frequency,
+              isRecurrent: prestationForm.isRecurrent,
               nextDueDate: prestationForm.nextDueDate ? new Date(prestationForm.nextDueDate) : undefined,
             }
           : prestation
@@ -213,6 +220,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       name: prestation.name,
       description: prestation.description,
       frequency: prestation.frequency,
+      isRecurrent: prestation.isRecurrent || false,
       nextDueDate: prestation.nextDueDate ? formatDateForInput(prestation.nextDueDate) : "",
     });
 
@@ -225,6 +233,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       name: "",
       description: "",
       frequency: "mensuelle",
+      isRecurrent: false,
       nextDueDate: "",
     });
   };
@@ -293,7 +302,11 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
     }
   };
 
-  const getFrequencyColor = (frequency: Prestation["frequency"]) => {
+  const getFrequencyColor = (frequency: Prestation["frequency"], isRecurrent?: boolean) => {
+    if (frequency === "mensuelle" && isRecurrent) {
+      return "bg-indigo-100 text-indigo-700 border border-indigo-300";
+    }
+    
     switch (frequency) {
       case "mensuelle": return "bg-blue-50 text-blue-700";
       case "trimestrielle": return "bg-purple-50 text-purple-700";
@@ -531,6 +544,23 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                         </Select>
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="prestation-recurrent" className="text-right">
+                          Récurrence
+                        </Label>
+                        <div className="col-span-3 flex items-center gap-2">
+                          <Checkbox 
+                            id="prestation-recurrent"
+                            checked={prestationForm.isRecurrent}
+                            onCheckedChange={(checked) => 
+                              setPrestationForm({...prestationForm, isRecurrent: checked === true})
+                            }
+                          />
+                          <Label htmlFor="prestation-recurrent" className="text-sm font-normal cursor-pointer">
+                            Prestation récurrente (réalisée sur toute l'année)
+                          </Label>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="prestation-due-date" className="text-right">
                           Échéance
                         </Label>
@@ -580,12 +610,19 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                             />
                           </div>
                           <div className="flex flex-col">
-                            <Label 
-                              htmlFor={`prestation-${prestation.id}`}
-                              className={`font-medium ${prestation.isActive ? '' : 'text-gray-500'}`}
-                            >
-                              {prestation.name}
-                            </Label>
+                            <div className="flex items-center gap-2">
+                              <Label 
+                                htmlFor={`prestation-${prestation.id}`}
+                                className={`font-medium ${prestation.isActive ? '' : 'text-gray-500'}`}
+                              >
+                                {prestation.name}
+                              </Label>
+                              {prestation.isRecurrent && (
+                                <span title="Prestation récurrente sur toute l'année">
+                                  <RefreshCw className="h-4 w-4 text-indigo-500" />
+                                </span>
+                              )}
+                            </div>
                             <p className="text-sm text-muted-foreground">
                               {prestation.description}
                             </p>
@@ -593,8 +630,15 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                         </div>
                         
                         <div className="flex items-center gap-4">
-                          <span className={`px-2 py-1 rounded-full text-xs ${getFrequencyColor(prestation.frequency)}`}>
-                            {getFrequencyLabel(prestation.frequency)}
+                          <span className={`px-2 py-1 rounded-full text-xs ${getFrequencyColor(prestation.frequency, prestation.isRecurrent)}`}>
+                            {prestation.isRecurrent && prestation.frequency === "mensuelle" ? (
+                              <div className="flex items-center gap-1">
+                                <Star className="h-3 w-3" />
+                                <span>Mensuelle (annualisée)</span>
+                              </div>
+                            ) : (
+                              getFrequencyLabel(prestation.frequency)
+                            )}
                           </span>
                           
                           {prestation.nextDueDate && (
@@ -687,6 +731,23 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                       </Select>
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="edit-prestation-recurrent" className="text-right">
+                        Récurrence
+                      </Label>
+                      <div className="col-span-3 flex items-center gap-2">
+                        <Checkbox 
+                          id="edit-prestation-recurrent"
+                          checked={prestationForm.isRecurrent}
+                          onCheckedChange={(checked) => 
+                            setPrestationForm({...prestationForm, isRecurrent: checked === true})
+                          }
+                        />
+                        <Label htmlFor="edit-prestation-recurrent" className="text-sm font-normal cursor-pointer">
+                          Prestation récurrente (réalisée sur toute l'année)
+                        </Label>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="edit-prestation-due-date" className="text-right">
                         Échéance
                       </Label>
@@ -718,7 +779,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                 </DialogContent>
               </Dialog>
               
-              <div className="mt-6 flex gap-3 items-center text-sm text-muted-foreground">
+              <div className="mt-6 flex flex-wrap gap-3 items-center text-sm text-muted-foreground">
                 <div className="flex items-center gap-1.5">
                   <CheckCircle2 className="h-4 w-4 text-green-500" /> 
                   <span>À jour</span>
@@ -730,6 +791,14 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                 <div className="flex items-center gap-1.5">
                   <AlertTriangle className="h-4 w-4 text-amber-500" /> 
                   <span>En retard</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <RefreshCw className="h-4 w-4 text-indigo-500" /> 
+                  <span>Récurrente</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Star className="h-4 w-4 text-indigo-500" /> 
+                  <span>Mensuelle sur toute l'année</span>
                 </div>
               </div>
             </TabsContent>
