@@ -1,15 +1,161 @@
 
+import { useState } from "react";
 import { Client } from "@/types/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { FileText, Download, Upload, Archive, Clock, Eye } from "lucide-react";
+import { FileText, Download, Upload, Archive, Clock, Eye, Plus, PenLine, Calendar, Trash2, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ContratPrestationsProps {
   client: Client;
 }
 
+type ContractStatus = "draft" | "pending" | "active" | "terminated" | "archived";
+type ContractType = "initial" | "amendment" | "annex" | "termination";
+
+interface Contract {
+  id: string;
+  title: string;
+  description: string;
+  type: ContractType;
+  status: ContractStatus;
+  createdAt: Date;
+  updatedAt: Date;
+  signedAt?: Date;
+  author: string;
+  fileName?: string;
+}
+
 export function ContratPrestations({ client }: ContratPrestationsProps) {
+  const [contracts, setContracts] = useState<Contract[]>([
+    {
+      id: "1",
+      title: "Contrat initial",
+      description: "Contrat de prestation comptable mensuelle",
+      type: "initial",
+      status: "active",
+      createdAt: new Date(2023, 3, 1), // April 1, 2023
+      updatedAt: new Date(2023, 3, 15), // April 15, 2023
+      signedAt: new Date(2023, 3, 15), // April 15, 2023
+      author: "Émilie Morel",
+      fileName: "contrat_initial_client123.pdf"
+    },
+    {
+      id: "2",
+      title: "Avenant n°1",
+      description: "Extension des prestations - Gestion fiscale",
+      type: "amendment",
+      status: "pending",
+      createdAt: new Date(2023, 8, 10), // September 10, 2023
+      updatedAt: new Date(2023, 8, 10), // September 10, 2023
+      author: "Alexis Durand",
+      fileName: "avenant1_client123.pdf"
+    },
+    {
+      id: "3",
+      title: "Annexe technique",
+      description: "Détails des prestations et livrables",
+      type: "annex",
+      status: "active",
+      createdAt: new Date(2023, 3, 15), // April 15, 2023
+      updatedAt: new Date(2023, 3, 15), // April 15, 2023
+      author: "Émilie Morel",
+      fileName: "annexe_technique_client123.pdf"
+    },
+    {
+      id: "4",
+      title: "Contrat précédent",
+      description: "Contrat initial avant renouvellement",
+      type: "initial",
+      status: "archived",
+      createdAt: new Date(2022, 3, 1), // April 1, 2022
+      updatedAt: new Date(2022, 3, 14), // April 14, 2022
+      signedAt: new Date(2022, 3, 5), // April 5, 2022
+      author: "Émilie Morel",
+      fileName: "ancien_contrat_client123.pdf"
+    }
+  ]);
+
+  const [isAddingContract, setIsAddingContract] = useState(false);
+  const [contractForm, setContractForm] = useState({
+    title: "",
+    description: "",
+    type: "initial" as ContractType,
+  });
+
+  const contractStatusColor = (status: ContractStatus) => {
+    switch (status) {
+      case "draft": return "gray";
+      case "pending": return "blue";
+      case "active": return "green";
+      case "terminated": return "red";
+      case "archived": return "gray";
+    }
+  };
+
+  const contractTypeIcon = (type: ContractType) => {
+    switch (type) {
+      case "initial": return <FileText className="h-5 w-5" />;
+      case "amendment": return <PenLine className="h-5 w-5" />;
+      case "annex": return <FileText className="h-5 w-5" />;
+      case "termination": return <AlertCircle className="h-5 w-5" />;
+    }
+  };
+
+  const handleAddContract = () => {
+    const newContract: Contract = {
+      id: crypto.randomUUID(),
+      title: contractForm.title,
+      description: contractForm.description,
+      type: contractForm.type,
+      status: "draft",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      author: "Utilisateur Actuel", // Idéalement, récupérer l'utilisateur connecté
+      fileName: `${contractForm.title.toLowerCase().replace(/\s+/g, '_')}_${client.id}.pdf`
+    };
+
+    setContracts([newContract, ...contracts]);
+    setIsAddingContract(false);
+    setContractForm({
+      title: "",
+      description: "",
+      type: "initial"
+    });
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const getContractTypeLabel = (type: ContractType) => {
+    switch (type) {
+      case "initial": return "Contrat initial";
+      case "amendment": return "Avenant";
+      case "annex": return "Annexe";
+      case "termination": return "Résiliation";
+    }
+  };
+
+  const getContractStatusLabel = (status: ContractStatus) => {
+    switch (status) {
+      case "draft": return "Brouillon";
+      case "pending": return "En attente";
+      case "active": return "Actif";
+      case "terminated": return "Résilié";
+      case "archived": return "Archivé";
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -157,8 +303,91 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
             
             <TabsContent value="documents" className="mt-6">
               <div className="mb-4 flex justify-between items-center">
-                <h3 className="text-lg font-medium">Documents liés au contrat</h3>
+                <h3 className="text-lg font-medium">Gestion des contrats</h3>
                 <div className="flex gap-2">
+                  <Dialog open={isAddingContract} onOpenChange={setIsAddingContract}>
+                    <DialogTrigger asChild>
+                      <Button className="bg-[#84A98C] hover:bg-[#52796F] text-white">
+                        <Plus className="h-4 w-4 mr-2" /> Nouveau document
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[500px]">
+                      <DialogHeader>
+                        <DialogTitle>Ajouter un nouveau document contractuel</DialogTitle>
+                        <DialogDescription>
+                          Créez un nouveau document lié au contrat avec ce client.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="contract-type" className="text-right">
+                            Type
+                          </Label>
+                          <Select 
+                            value={contractForm.type} 
+                            onValueChange={(value: ContractType) => setContractForm({...contractForm, type: value})}
+                          >
+                            <SelectTrigger className="col-span-3 bg-background border-input">
+                              <SelectValue placeholder="Sélectionner le type de document" />
+                            </SelectTrigger>
+                            <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+                              <ScrollArea className="max-h-[200px]">
+                                <SelectItem value="initial">Contrat initial</SelectItem>
+                                <SelectItem value="amendment">Avenant</SelectItem>
+                                <SelectItem value="annex">Annexe</SelectItem>
+                                <SelectItem value="termination">Résiliation</SelectItem>
+                              </ScrollArea>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="title" className="text-right">
+                            Titre
+                          </Label>
+                          <Input
+                            id="title"
+                            value={contractForm.title}
+                            onChange={(e) => setContractForm({...contractForm, title: e.target.value})}
+                            className="col-span-3"
+                            placeholder="Ex: Contrat de prestation comptable"
+                          />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="description" className="text-right">
+                            Description
+                          </Label>
+                          <Input
+                            id="description"
+                            value={contractForm.description}
+                            onChange={(e) => setContractForm({...contractForm, description: e.target.value})}
+                            className="col-span-3"
+                            placeholder="Décrivez brièvement ce document"
+                          />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                          <Label htmlFor="file" className="text-right">
+                            Fichier
+                          </Label>
+                          <Input
+                            id="file"
+                            type="file"
+                            className="col-span-3"
+                            accept=".pdf,.docx,.doc"
+                          />
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsAddingContract(false)}>Annuler</Button>
+                        <Button 
+                          className="bg-[#84A98C] hover:bg-[#52796F]" 
+                          onClick={handleAddContract}
+                          disabled={!contractForm.title || !contractForm.description}
+                        >
+                          Créer le document
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                   <Button variant="outline" size="sm" className="flex gap-2">
                     <Upload className="h-4 w-4" />
                     Importer
@@ -167,149 +396,104 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Card className="border-green-100 hover:border-green-300 transition-all cursor-pointer">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-green-600" />
-                        <CardTitle className="text-base">Contrat initial</CardTitle>
+                {contracts.map((contract) => (
+                  <Card 
+                    key={contract.id}
+                    className={`border-${contractStatusColor(contract.status)}-100 hover:border-${contractStatusColor(contract.status)}-300 transition-all cursor-pointer`}
+                  >
+                    <CardHeader className="pb-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2">
+                          <div className={`text-${contractStatusColor(contract.status)}-600`}>
+                            {contractTypeIcon(contract.type)}
+                          </div>
+                          <CardTitle className="text-base">{contract.title}</CardTitle>
+                        </div>
+                        <p className={`text-xs text-muted-foreground bg-${contractStatusColor(contract.status)}-50 px-2 py-1 rounded-full`}>
+                          {getContractStatusLabel(contract.status)}
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground bg-green-50 px-2 py-1 rounded-full">Actif</p>
-                    </div>
-                    <CardDescription className="text-xs flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> Signé le 15/04/2023
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col gap-1">
-                      <p className="text-sm">Contrat de prestation comptable mensuelle</p>
-                      <div className="flex gap-2 mt-2">
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                          <Eye className="h-3 w-3 mr-1" /> Visualiser
-                        </Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                          <Download className="h-3 w-3 mr-1" /> Télécharger
-                        </Button>
+                      <CardDescription className="text-xs flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> 
+                        {contract.signedAt 
+                          ? `Signé le ${formatDate(contract.signedAt)}` 
+                          : `Créé le ${formatDate(contract.createdAt)}`}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-sm">{contract.description}</p>
+                        <div className="flex gap-2 mt-2">
+                          <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
+                            <Eye className="h-3 w-3 mr-1" /> Visualiser
+                          </Button>
+                          <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
+                            <Download className="h-3 w-3 mr-1" /> Télécharger
+                          </Button>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-blue-100 hover:border-blue-300 transition-all cursor-pointer">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-blue-600" />
-                        <CardTitle className="text-base">Avenant n°1</CardTitle>
-                      </div>
-                      <p className="text-xs text-muted-foreground bg-blue-50 px-2 py-1 rounded-full">En cours</p>
-                    </div>
-                    <CardDescription className="text-xs flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> Proposé le 10/09/2023
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col gap-1">
-                      <p className="text-sm">Extension des prestations - Gestion fiscale</p>
-                      <div className="flex gap-2 mt-2">
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                          <Eye className="h-3 w-3 mr-1" /> Visualiser
-                        </Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                          <Download className="h-3 w-3 mr-1" /> Télécharger
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-amber-100 hover:border-amber-300 transition-all cursor-pointer">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-amber-600" />
-                        <CardTitle className="text-base">Annexe technique</CardTitle>
-                      </div>
-                      <p className="text-xs text-muted-foreground bg-amber-50 px-2 py-1 rounded-full">Document</p>
-                    </div>
-                    <CardDescription className="text-xs flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> Ajouté le 15/04/2023
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col gap-1">
-                      <p className="text-sm">Détails des prestations et livrables</p>
-                      <div className="flex gap-2 mt-2">
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                          <Eye className="h-3 w-3 mr-1" /> Visualiser
-                        </Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                          <Download className="h-3 w-3 mr-1" /> Télécharger
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="border-gray-100 hover:border-gray-300 transition-all cursor-pointer">
-                  <CardHeader className="pb-2">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        <Archive className="h-5 w-5 text-gray-600" />
-                        <CardTitle className="text-base">Contrat précédent</CardTitle>
-                      </div>
-                      <p className="text-xs text-muted-foreground bg-gray-50 px-2 py-1 rounded-full">Archivé</p>
-                    </div>
-                    <CardDescription className="text-xs flex items-center gap-1">
-                      <Clock className="h-3 w-3" /> Archivé le 14/04/2023
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-col gap-1">
-                      <p className="text-sm">Contrat initial avant renouvellement</p>
-                      <div className="flex gap-2 mt-2">
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                          <Eye className="h-3 w-3 mr-1" /> Visualiser
-                        </Button>
-                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs">
-                          <Download className="h-3 w-3 mr-1" /> Télécharger
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
               
               <div className="mt-6 border-t pt-4">
-                <h4 className="text-sm font-medium mb-3">Historique des modifications contractuelles</h4>
+                <div className="flex justify-between items-center mb-3">
+                  <h4 className="text-sm font-medium">Historique des modifications contractuelles</h4>
+                  <Select defaultValue="all">
+                    <SelectTrigger className="w-[180px] bg-background border-input h-8 text-xs">
+                      <SelectValue placeholder="Tous les types" />
+                    </SelectTrigger>
+                    <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+                      <ScrollArea className="max-h-[200px]">
+                        <SelectItem value="all">Tous les types</SelectItem>
+                        <SelectItem value="initial">Contrats initiaux</SelectItem>
+                        <SelectItem value="amendment">Avenants</SelectItem>
+                        <SelectItem value="annex">Annexes</SelectItem>
+                        <SelectItem value="termination">Résiliations</SelectItem>
+                      </ScrollArea>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-md">
-                    <div className="h-8 w-8 bg-green-50 flex items-center justify-center rounded-full">
-                      <FileText className="h-4 w-4 text-green-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Avenant n°1 - Extension des prestations</p>
-                      <p className="text-xs text-muted-foreground">Proposé le 10/09/2023 par Alexis Durand</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-md">
-                    <div className="h-8 w-8 bg-blue-50 flex items-center justify-center rounded-full">
-                      <FileText className="h-4 w-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Contrat initial - Signature</p>
-                      <p className="text-xs text-muted-foreground">Signé le 15/04/2023 par les deux parties</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-md">
-                    <div className="h-8 w-8 bg-amber-50 flex items-center justify-center rounded-full">
-                      <FileText className="h-4 w-4 text-amber-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium">Contrat initial - Proposition</p>
-                      <p className="text-xs text-muted-foreground">Proposé le 01/04/2023 par Émilie Morel</p>
-                    </div>
-                  </div>
+                  {contracts
+                    .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+                    .map((contract) => (
+                      <div key={contract.id} className="flex items-start gap-3 p-2 hover:bg-gray-50 rounded-md group">
+                        <div className={`h-8 w-8 bg-${contractStatusColor(contract.status)}-50 flex items-center justify-center rounded-full`}>
+                          <div className={`text-${contractStatusColor(contract.status)}-600`}>
+                            {contractTypeIcon(contract.type)}
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-medium">{contract.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {contract.status === "active" ? "Actif depuis " : contract.status === "pending" ? "Proposé le " : "Modifié le "}
+                            {formatDate(contract.updatedAt)} par {contract.author}
+                          </p>
+                        </div>
+                        <div className="hidden group-hover:flex gap-1">
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                            <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                          </Button>
+                          <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                            <PenLine className="h-3.5 w-3.5 text-muted-foreground" />
+                          </Button>
+                          {contract.status !== "active" && (
+                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-red-500">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+                
+                <div className="mt-4 flex justify-center">
+                  <Button variant="outline" size="sm" className="text-xs flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5" /> Voir l'historique complet
+                  </Button>
                 </div>
               </div>
             </TabsContent>
