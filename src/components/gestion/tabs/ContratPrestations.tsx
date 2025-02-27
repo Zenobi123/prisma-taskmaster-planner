@@ -128,13 +128,32 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
     }
   ]);
 
+  // États pour la gestion des dialogues
   const [isAddingContract, setIsAddingContract] = useState(false);
+  const [isAddingPrestation, setIsAddingPrestation] = useState(false);
+  const [isEditingPrestation, setIsEditingPrestation] = useState(false);
+  const [selectedPrestationId, setSelectedPrestationId] = useState<string | null>(null);
+
+  // État pour les formulaires
   const [contractForm, setContractForm] = useState({
     title: "",
     description: "",
     type: "initial" as ContractType,
   });
 
+  const [prestationForm, setPrestationForm] = useState<{
+    name: string;
+    description: string;
+    frequency: Prestation["frequency"];
+    nextDueDate: string;
+  }>({
+    name: "",
+    description: "",
+    frequency: "mensuelle",
+    nextDueDate: "",
+  });
+
+  // Fonctions pour gérer les prestations
   const togglePrestation = (id: string) => {
     setPrestations(
       prestations.map(prestation => 
@@ -143,6 +162,107 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
           : prestation
       )
     );
+  };
+
+  const handleAddPrestation = () => {
+    const newPrestation: Prestation = {
+      id: crypto.randomUUID(),
+      name: prestationForm.name,
+      description: prestationForm.description,
+      isActive: true,
+      frequency: prestationForm.frequency,
+      nextDueDate: prestationForm.nextDueDate ? new Date(prestationForm.nextDueDate) : undefined,
+    };
+
+    setPrestations([...prestations, newPrestation]);
+    setIsAddingPrestation(false);
+    resetPrestationForm();
+  };
+
+  const handleEditPrestation = () => {
+    if (!selectedPrestationId) return;
+
+    setPrestations(
+      prestations.map(prestation => 
+        prestation.id === selectedPrestationId
+          ? { 
+              ...prestation, 
+              name: prestationForm.name,
+              description: prestationForm.description,
+              frequency: prestationForm.frequency,
+              nextDueDate: prestationForm.nextDueDate ? new Date(prestationForm.nextDueDate) : undefined,
+            }
+          : prestation
+      )
+    );
+
+    setIsEditingPrestation(false);
+    setSelectedPrestationId(null);
+    resetPrestationForm();
+  };
+
+  const handleDeletePrestation = (id: string) => {
+    setPrestations(prestations.filter(prestation => prestation.id !== id));
+  };
+
+  const startEditPrestation = (id: string) => {
+    const prestation = prestations.find(p => p.id === id);
+    if (!prestation) return;
+
+    setPrestationForm({
+      name: prestation.name,
+      description: prestation.description,
+      frequency: prestation.frequency,
+      nextDueDate: prestation.nextDueDate ? formatDateForInput(prestation.nextDueDate) : "",
+    });
+
+    setSelectedPrestationId(id);
+    setIsEditingPrestation(true);
+  };
+
+  const resetPrestationForm = () => {
+    setPrestationForm({
+      name: "",
+      description: "",
+      frequency: "mensuelle",
+      nextDueDate: "",
+    });
+  };
+
+  // Fonctions pour gérer les contrats
+  const handleAddContract = () => {
+    const newContract: Contract = {
+      id: crypto.randomUUID(),
+      title: contractForm.title,
+      description: contractForm.description,
+      type: contractForm.type,
+      status: "draft",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      author: "Utilisateur Actuel", // Idéalement, récupérer l'utilisateur connecté
+      fileName: `${contractForm.title.toLowerCase().replace(/\s+/g, '_')}_${client.id}.pdf`
+    };
+
+    setContracts([newContract, ...contracts]);
+    setIsAddingContract(false);
+    setContractForm({
+      title: "",
+      description: "",
+      type: "initial"
+    });
+  };
+
+  // Fonctions utilitaires
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
+  const formatDateForInput = (date: Date) => {
+    return date.toISOString().split('T')[0];
   };
 
   const contractStatusColor = (status: ContractStatus) => {
@@ -208,36 +328,6 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
     }
     
     return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-  };
-
-  const handleAddContract = () => {
-    const newContract: Contract = {
-      id: crypto.randomUUID(),
-      title: contractForm.title,
-      description: contractForm.description,
-      type: contractForm.type,
-      status: "draft",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      author: "Utilisateur Actuel", // Idéalement, récupérer l'utilisateur connecté
-      fileName: `${contractForm.title.toLowerCase().replace(/\s+/g, '_')}_${client.id}.pdf`
-    };
-
-    setContracts([newContract, ...contracts]);
-    setIsAddingContract(false);
-    setContractForm({
-      title: "",
-      description: "",
-      type: "initial"
-    });
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
-    });
   };
 
   const getContractTypeLabel = (type: ContractType) => {
@@ -381,9 +471,95 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
             <TabsContent value="prestations" className="mt-6">
               <div className="mb-4 flex justify-between items-center">
                 <h3 className="text-lg font-medium">Prestations proposées</h3>
-                <Button className="bg-[#84A98C] hover:bg-[#52796F] text-white">
-                  <Plus className="h-4 w-4 mr-2" /> Ajouter une prestation
-                </Button>
+                <Dialog open={isAddingPrestation} onOpenChange={setIsAddingPrestation}>
+                  <DialogTrigger asChild>
+                    <Button className="bg-[#84A98C] hover:bg-[#52796F] text-white">
+                      <Plus className="h-4 w-4 mr-2" /> Ajouter une prestation
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[500px]">
+                    <DialogHeader>
+                      <DialogTitle>Ajouter une nouvelle prestation</DialogTitle>
+                      <DialogDescription>
+                        Créez une nouvelle prestation à proposer au client.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="prestation-name" className="text-right">
+                          Nom
+                        </Label>
+                        <Input
+                          id="prestation-name"
+                          value={prestationForm.name}
+                          onChange={(e) => setPrestationForm({...prestationForm, name: e.target.value})}
+                          className="col-span-3"
+                          placeholder="Ex: Renouvellement du dossier fiscal"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="prestation-description" className="text-right">
+                          Description
+                        </Label>
+                        <Input
+                          id="prestation-description"
+                          value={prestationForm.description}
+                          onChange={(e) => setPrestationForm({...prestationForm, description: e.target.value})}
+                          className="col-span-3"
+                          placeholder="Décrivez brièvement cette prestation"
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="prestation-frequency" className="text-right">
+                          Fréquence
+                        </Label>
+                        <Select 
+                          value={prestationForm.frequency} 
+                          onValueChange={(value: Prestation["frequency"]) => setPrestationForm({...prestationForm, frequency: value})}
+                        >
+                          <SelectTrigger className="col-span-3 bg-background border-input">
+                            <SelectValue placeholder="Sélectionner la fréquence" />
+                          </SelectTrigger>
+                          <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+                            <ScrollArea className="max-h-[200px]">
+                              <SelectItem value="mensuelle">Mensuelle</SelectItem>
+                              <SelectItem value="trimestrielle">Trimestrielle</SelectItem>
+                              <SelectItem value="annuelle">Annuelle</SelectItem>
+                              <SelectItem value="ponctuelle">Ponctuelle</SelectItem>
+                            </ScrollArea>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="prestation-due-date" className="text-right">
+                          Échéance
+                        </Label>
+                        <Input
+                          id="prestation-due-date"
+                          type="date"
+                          value={prestationForm.nextDueDate}
+                          onChange={(e) => setPrestationForm({...prestationForm, nextDueDate: e.target.value})}
+                          className="col-span-3"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => {
+                        setIsAddingPrestation(false);
+                        resetPrestationForm();
+                      }}>
+                        Annuler
+                      </Button>
+                      <Button 
+                        className="bg-[#84A98C] hover:bg-[#52796F]" 
+                        onClick={handleAddPrestation}
+                        disabled={!prestationForm.name || !prestationForm.description}
+                      >
+                        Ajouter la prestation
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
               
               <div className="space-y-4">
@@ -428,6 +604,25 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                             </div>
                           )}
                           
+                          <div className="flex items-center gap-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0"
+                              onClick={() => startEditPrestation(prestation.id)}
+                            >
+                              <PenLine className="h-4 w-4 text-gray-500" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 hover:text-red-500"
+                              onClick={() => handleDeletePrestation(prestation.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                          
                           <div className="hidden sm:flex items-center justify-center w-8 h-8">
                             {getPrestationStatusIcon(prestation)}
                           </div>
@@ -437,6 +632,91 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                   </Card>
                 ))}
               </div>
+
+              {/* Dialogue pour modifier une prestation */}
+              <Dialog open={isEditingPrestation} onOpenChange={setIsEditingPrestation}>
+                <DialogContent className="sm:max-w-[500px]">
+                  <DialogHeader>
+                    <DialogTitle>Modifier la prestation</DialogTitle>
+                    <DialogDescription>
+                      Modifiez les détails de cette prestation.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="edit-prestation-name" className="text-right">
+                        Nom
+                      </Label>
+                      <Input
+                        id="edit-prestation-name"
+                        value={prestationForm.name}
+                        onChange={(e) => setPrestationForm({...prestationForm, name: e.target.value})}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="edit-prestation-description" className="text-right">
+                        Description
+                      </Label>
+                      <Input
+                        id="edit-prestation-description"
+                        value={prestationForm.description}
+                        onChange={(e) => setPrestationForm({...prestationForm, description: e.target.value})}
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="edit-prestation-frequency" className="text-right">
+                        Fréquence
+                      </Label>
+                      <Select 
+                        value={prestationForm.frequency} 
+                        onValueChange={(value: Prestation["frequency"]) => setPrestationForm({...prestationForm, frequency: value})}
+                      >
+                        <SelectTrigger className="col-span-3 bg-background border-input">
+                          <SelectValue placeholder="Sélectionner la fréquence" />
+                        </SelectTrigger>
+                        <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
+                          <ScrollArea className="max-h-[200px]">
+                            <SelectItem value="mensuelle">Mensuelle</SelectItem>
+                            <SelectItem value="trimestrielle">Trimestrielle</SelectItem>
+                            <SelectItem value="annuelle">Annuelle</SelectItem>
+                            <SelectItem value="ponctuelle">Ponctuelle</SelectItem>
+                          </ScrollArea>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="edit-prestation-due-date" className="text-right">
+                        Échéance
+                      </Label>
+                      <Input
+                        id="edit-prestation-due-date"
+                        type="date"
+                        value={prestationForm.nextDueDate}
+                        onChange={(e) => setPrestationForm({...prestationForm, nextDueDate: e.target.value})}
+                        className="col-span-3"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => {
+                      setIsEditingPrestation(false);
+                      setSelectedPrestationId(null);
+                      resetPrestationForm();
+                    }}>
+                      Annuler
+                    </Button>
+                    <Button 
+                      className="bg-[#84A98C] hover:bg-[#52796F]" 
+                      onClick={handleEditPrestation}
+                      disabled={!prestationForm.name || !prestationForm.description}
+                    >
+                      Enregistrer les modifications
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
               
               <div className="mt-6 flex gap-3 items-center text-sm text-muted-foreground">
                 <div className="flex items-center gap-1.5">
