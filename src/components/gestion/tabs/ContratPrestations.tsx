@@ -465,7 +465,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                 value="prestations"
                 className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
               >
-                Prestations en cours
+                Prestations fournies
               </TabsTrigger>
               <TabsTrigger 
                 value="conditions"
