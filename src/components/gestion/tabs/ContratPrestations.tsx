@@ -42,7 +42,7 @@ interface Prestation {
   isRecurrent?: boolean; // Indique si c'est une prestation récurrente sur toute l'année
   nextDueDate?: Date;
   lastCompletedDate?: Date;
-  valorisation?: number; // Montant en euros de la prestation
+  valorisation?: number; // Montant en Franc CFA de la prestation
 }
 
 type FinancialCondition = {
@@ -113,7 +113,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       frequency: "annuelle",
       nextDueDate: new Date(2023, 11, 15), // December 15, 2023
       lastCompletedDate: new Date(2022, 11, 10), // December 10, 2022
-      valorisation: 750
+      valorisation: 750000
     },
     {
       id: "2",
@@ -124,7 +124,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       isRecurrent: true,
       nextDueDate: new Date(2023, 9, 30), // October 30, 2023
       lastCompletedDate: new Date(2023, 8, 30), // September 30, 2023
-      valorisation: 350
+      valorisation: 350000
     },
     {
       id: "3",
@@ -133,7 +133,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       isActive: false,
       frequency: "annuelle",
       nextDueDate: new Date(2024, 3, 30), // April 30, 2024
-      valorisation: 1200
+      valorisation: 1200000
     },
     {
       id: "4",
@@ -142,7 +142,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
       isActive: false,
       frequency: "mensuelle",
       isRecurrent: true,
-      valorisation: 45
+      valorisation: 45000
     }
   ]);
 
@@ -463,6 +463,10 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
     return date.toISOString().split('T')[0];
   };
 
+  const formatMontant = (montant: number) => {
+    return `${montant.toLocaleString()} F CFA`;
+  };
+
   const contractStatusColor = (status: ContractStatus) => {
     switch (status) {
       case "draft": return "gray";
@@ -778,7 +782,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="prestation-valorisation" className="text-right">
-                          Montant (€)
+                          Montant (F CFA)
                         </Label>
                         <Input
                           id="prestation-valorisation"
@@ -861,7 +865,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                           {prestation.valorisation && (
                             <div className="hidden md:block text-right">
                               <p className="text-xs text-muted-foreground">Montant</p>
-                              <p className="text-sm font-medium">{prestation.valorisation} €</p>
+                              <p className="text-sm font-medium">{formatMontant(prestation.valorisation)}</p>
                             </div>
                           )}
                           
@@ -985,7 +989,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="edit-prestation-valorisation" className="text-right">
-                        Montant (€)
+                        Montant (F CFA)
                       </Label>
                       <Input
                         id="edit-prestation-valorisation"
@@ -1086,7 +1090,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                                       <Input
                                         type="number"
                                         className="w-24 h-8 text-sm"
-                                        placeholder="€"
+                                        placeholder="F CFA"
                                         defaultValue={fc.montant.toString()}
                                         onBlur={(e) => {
                                           const value = parseFloat(e.target.value);
@@ -1109,12 +1113,12 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                                       className="font-medium cursor-pointer hover:text-blue-600"
                                       onClick={() => setPendingValorisationId(fc.prestationId)}
                                     >
-                                      {fc.montant} €
+                                      {formatMontant(fc.montant)}
                                     </div>
                                   )}
                                 </td>
                                 <td className="px-4 py-3 text-center text-sm font-medium">
-                                  {getMontantAnnuel(fc)} €
+                                  {formatMontant(getMontantAnnuel(fc))}
                                 </td>
                                 <td className="px-4 py-3 text-right">
                                   <Button
@@ -1141,7 +1145,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                                 Total annuel des prestations
                               </td>
                               <td className="px-4 py-3 text-center text-sm font-bold">
-                                {getTotalAnnuel()} €
+                                {formatMontant(getTotalAnnuel())}
                               </td>
                               <td></td>
                             </tr>
