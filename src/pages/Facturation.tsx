@@ -31,11 +31,6 @@ const Facturation = () => {
     );
   }
 
-  // Si pas de permissions, ne pas afficher la page
-  if (!hasPermission) {
-    return null;
-  }
-
   // Filtrer les factures selon les critères
   const filteredFactures = filterFactures(
     facturesMockData,
