@@ -1,26 +1,17 @@
 
-import { useState } from "react";
 import { Facture } from "@/types/facture";
-import { Check, Download, Printer, Receipt, Send } from "lucide-react";
+import { Download, Printer, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { getStatusBadge } from "./FactureTable";
-import { useToast } from "@/components/ui/use-toast";
 
 interface FactureDetailsDialogProps {
   showDetails: boolean;
@@ -39,144 +30,119 @@ export const FactureDetailsDialog = ({
   onPrintInvoice,
   onDownloadInvoice,
 }: FactureDetailsDialogProps) => {
-  const { toast } = useToast();
-  const [isSending, setIsSending] = useState(false);
-
   if (!selectedFacture) return null;
-
-  const handleSendInvoice = () => {
-    setIsSending(true);
-    setTimeout(() => {
-      setIsSending(false);
-      toast({
-        title: "Facture envoyée",
-        description: `La facture ${selectedFacture.id} a été envoyée à ${selectedFacture.client.email}`,
-      });
-    }, 1500);
-  };
-
-  const handleMarkAsPaid = () => {
-    toast({
-      title: "Statut mis à jour",
-      description: `La facture ${selectedFacture.id} a été marquée comme payée`,
-    });
-  };
 
   return (
     <Dialog open={showDetails} onOpenChange={setShowDetails}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Receipt className="h-5 w-5" />
-            Facture {selectedFacture.id}
+          <DialogTitle className="flex items-center justify-between">
+            <span className="flex items-center gap-3">
+              Facture {selectedFacture.id}
+              {getStatusBadge(selectedFacture.status)}
+            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => onPrintInvoice(selectedFacture.id)}
+                className="h-8 w-8 transition-transform hover:scale-105"
+              >
+                <Printer className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => onDownloadInvoice(selectedFacture.id)}
+                className="h-8 w-8 transition-transform hover:scale-105"
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+            </div>
           </DialogTitle>
+          <DialogDescription>
+            Détails de la facture du {selectedFacture.date}
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Informations facture</h3>
-              <div className="rounded-lg border p-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">N° Facture:</span>
-                  <span>{selectedFacture.id}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Date d'émission:</span>
-                  <span>{selectedFacture.date}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Date d'échéance:</span>
-                  <span>{selectedFacture.echeance}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm font-medium">Statut:</span>
-                  <span>{getStatusBadge(selectedFacture.status)}</span>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Client</h3>
-              <div className="rounded-lg border p-4 space-y-2">
-                <div className="font-medium">{selectedFacture.client.nom}</div>
-                <div className="text-sm">{selectedFacture.client.adresse}</div>
-                <div className="text-sm">Tél: {selectedFacture.client.telephone}</div>
-                <div className="text-sm">Email: {selectedFacture.client.email}</div>
-                {selectedFacture.client.niu && (
-                  <div className="text-sm">NIU: {selectedFacture.client.niu}</div>
+        <ScrollArea className="max-h-[60vh] pr-4">
+          <div className="space-y-6 animate-fade-in">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <h3 className="text-sm font-medium text-neutral-500">Client</h3>
+                <p className="font-medium">{selectedFacture.client.nom}</p>
+                {selectedFacture.client.adresse && (
+                  <p className="text-sm text-neutral-600">{selectedFacture.client.adresse}</p>
                 )}
               </div>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-2">Prestations</h3>
-            <div className="rounded-lg border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[70%]">Description</TableHead>
-                    <TableHead className="text-right">Montant</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {selectedFacture.prestations.map((prestation, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell>{prestation.description}</TableCell>
-                      <TableCell className="text-right">{formatMontant(prestation.montant)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-                <TableFooter>
-                  <TableRow>
-                    <TableCell>Total</TableCell>
-                    <TableCell className="text-right font-bold">{formatMontant(selectedFacture.montant)}</TableCell>
-                  </TableRow>
-                </TableFooter>
-              </Table>
-            </div>
-          </div>
-
-          {selectedFacture.notes && (
-            <div>
-              <h3 className="text-sm font-medium text-muted-foreground mb-2">Notes</h3>
-              <div className="rounded-lg border p-4 text-sm">
-                {selectedFacture.notes}
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-medium text-neutral-500">Date d'émission</h3>
+                  <p>{selectedFacture.date}</p>
+                </div>
+                <div className="space-y-1">
+                  <h3 className="text-sm font-medium text-neutral-500">Échéance</h3>
+                  <p>{selectedFacture.echeance}</p>
+                </div>
               </div>
             </div>
-          )}
 
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <div className="flex flex-wrap gap-2 justify-end">
-              {selectedFacture.status !== "payée" && (
-                <Button variant="outline" onClick={handleMarkAsPaid}>
-                  <Check className="mr-2 h-4 w-4" />
-                  Marquer comme payée
-                </Button>
-              )}
-              {selectedFacture.status !== "envoyée" && !isSending && (
-                <Button variant="outline" onClick={handleSendInvoice}>
-                  <Send className="mr-2 h-4 w-4" />
-                  Envoyer
-                </Button>
-              )}
-              {isSending && (
-                <Button variant="outline" disabled>
-                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
-                  Envoi en cours...
-                </Button>
-              )}
-              <Button variant="outline" onClick={() => onPrintInvoice(selectedFacture.id)}>
-                <Printer className="mr-2 h-4 w-4" />
-                Imprimer
-              </Button>
-              <Button onClick={() => onDownloadInvoice(selectedFacture.id)}>
-                <Download className="mr-2 h-4 w-4" />
-                Télécharger
-              </Button>
+            <div>
+              <h3 className="text-sm font-medium text-neutral-500 mb-2">Prestations</h3>
+              <div className="border rounded-md overflow-hidden">
+                <table className="min-w-full divide-y divide-neutral-200">
+                  <thead className="bg-neutral-50">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                        Description
+                      </th>
+                      <th className="px-4 py-2 text-right text-xs font-medium text-neutral-500 uppercase tracking-wider">
+                        Montant
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-neutral-200">
+                    {selectedFacture.prestations.map((prestation, index) => (
+                      <tr 
+                        key={index}
+                        className="transition-colors hover:bg-neutral-50"
+                      >
+                        <td className="px-4 py-3 text-sm">{prestation.description}</td>
+                        <td className="px-4 py-3 text-sm text-right">
+                          {formatMontant(prestation.montant)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot className="bg-neutral-50">
+                    <tr>
+                      <td className="px-4 py-2 text-sm font-medium">Total</td>
+                      <td className="px-4 py-2 text-sm font-medium text-right">
+                        {formatMontant(selectedFacture.montant)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
             </div>
-          </DialogFooter>
+
+            {selectedFacture.notes && (
+              <div className="space-y-1">
+                <h3 className="text-sm font-medium text-neutral-500">Notes</h3>
+                <p className="text-sm p-3 bg-neutral-50 rounded-md">{selectedFacture.notes}</p>
+              </div>
+            )}
+          </div>
+        </ScrollArea>
+
+        <div className="flex justify-end gap-2 mt-4">
+          <Button
+            variant="outline"
+            onClick={() => setShowDetails(false)}
+            className="transition-all hover:bg-neutral-100"
+          >
+            Fermer
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

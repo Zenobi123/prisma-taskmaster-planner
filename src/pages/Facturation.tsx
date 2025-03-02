@@ -71,7 +71,7 @@ const Facturation = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
+    <div className="container mx-auto p-6 animate-fade-in">
       <FacturationHeader onNewFactureClick={() => setIsNewFactureDialogOpen(true)} />
       
       <FacturationFilters
