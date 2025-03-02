@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Receipt } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface FacturationHeaderProps {
@@ -25,9 +25,12 @@ export const FacturationHeader = ({ onNewFactureClick }: FacturationHeaderProps)
 
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Facturation</h1>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Receipt className="w-6 h-6" />
+            Facturation
+          </h1>
           <p className="text-neutral-600 mt-1">
-            Gérez vos factures clients
+            Gérez vos factures clients et suivez les paiements
           </p>
         </div>
         <Button className="flex items-center gap-2" onClick={onNewFactureClick}>

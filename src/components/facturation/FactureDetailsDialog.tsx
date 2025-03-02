@@ -1,6 +1,7 @@
 
+import { useState } from "react";
 import { Facture } from "@/types/facture";
-import { Download, Printer, Receipt } from "lucide-react";
+import { Check, Download, Printer, Receipt, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getStatusBadge } from "./FactureTable";
+import { useToast } from "@/components/ui/use-toast";
 
 interface FactureDetailsDialogProps {
   showDetails: boolean;
@@ -37,15 +39,36 @@ export const FactureDetailsDialog = ({
   onPrintInvoice,
   onDownloadInvoice,
 }: FactureDetailsDialogProps) => {
+  const { toast } = useToast();
+  const [isSending, setIsSending] = useState(false);
+
   if (!selectedFacture) return null;
+
+  const handleSendInvoice = () => {
+    setIsSending(true);
+    setTimeout(() => {
+      setIsSending(false);
+      toast({
+        title: "Facture envoyée",
+        description: `La facture ${selectedFacture.id} a été envoyée à ${selectedFacture.client.email}`,
+      });
+    }, 1500);
+  };
+
+  const handleMarkAsPaid = () => {
+    toast({
+      title: "Statut mis à jour",
+      description: `La facture ${selectedFacture.id} a été marquée comme payée`,
+    });
+  };
 
   return (
     <Dialog open={showDetails} onOpenChange={setShowDetails}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Receipt className="h-5 w-5" />
-            Détails de la Facture {selectedFacture.id}
+            Facture {selectedFacture.id}
           </DialogTitle>
         </DialogHeader>
 
@@ -80,6 +103,9 @@ export const FactureDetailsDialog = ({
                 <div className="text-sm">{selectedFacture.client.adresse}</div>
                 <div className="text-sm">Tél: {selectedFacture.client.telephone}</div>
                 <div className="text-sm">Email: {selectedFacture.client.email}</div>
+                {selectedFacture.client.niu && (
+                  <div className="text-sm">NIU: {selectedFacture.client.niu}</div>
+                )}
               </div>
             </div>
           </div>
@@ -90,7 +116,7 @@ export const FactureDetailsDialog = ({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[80%]">Description</TableHead>
+                    <TableHead className="w-[70%]">Description</TableHead>
                     <TableHead className="text-right">Montant</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -112,8 +138,35 @@ export const FactureDetailsDialog = ({
             </div>
           </div>
 
-          <DialogFooter>
-            <div className="flex gap-2">
+          {selectedFacture.notes && (
+            <div>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">Notes</h3>
+              <div className="rounded-lg border p-4 text-sm">
+                {selectedFacture.notes}
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <div className="flex flex-wrap gap-2 justify-end">
+              {selectedFacture.status !== "payée" && (
+                <Button variant="outline" onClick={handleMarkAsPaid}>
+                  <Check className="mr-2 h-4 w-4" />
+                  Marquer comme payée
+                </Button>
+              )}
+              {selectedFacture.status !== "envoyée" && !isSending && (
+                <Button variant="outline" onClick={handleSendInvoice}>
+                  <Send className="mr-2 h-4 w-4" />
+                  Envoyer
+                </Button>
+              )}
+              {isSending && (
+                <Button variant="outline" disabled>
+                  <div className="animate-spin mr-2 h-4 w-4 border-2 border-current border-t-transparent rounded-full" />
+                  Envoi en cours...
+                </Button>
+              )}
               <Button variant="outline" onClick={() => onPrintInvoice(selectedFacture.id)}>
                 <Printer className="mr-2 h-4 w-4" />
                 Imprimer

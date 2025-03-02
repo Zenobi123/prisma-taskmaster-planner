@@ -20,7 +20,16 @@ const Facturation = () => {
   const { toast } = useToast();
   
   // Vérification des permissions
-  const { hasPermission } = useFacturationPermissions();
+  const { hasPermission, isLoading } = useFacturationPermissions();
+
+  // Si en chargement, afficher un indicateur
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-6 flex justify-center items-center h-[50vh]">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
 
   // Si pas de permissions, ne pas afficher la page
   if (!hasPermission) {

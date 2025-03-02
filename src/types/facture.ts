@@ -1,7 +1,10 @@
 
 export interface Prestation {
+  id?: string;
   description: string;
   montant: number;
+  quantite?: number;
+  taux?: number;
 }
 
 export interface Client {
@@ -10,6 +13,7 @@ export interface Client {
   adresse: string;
   telephone: string;
   email: string;
+  niu?: string;
 }
 
 export interface Facture {
@@ -20,4 +24,6 @@ export interface Facture {
   montant: number;
   status: 'payée' | 'en_attente' | 'envoyée';
   prestations: Prestation[];
+  reference?: string;
+  notes?: string;
 }
