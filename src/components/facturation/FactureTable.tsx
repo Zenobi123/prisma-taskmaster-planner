@@ -31,11 +31,11 @@ interface FactureTableProps {
 export const getStatusBadge = (status: string) => {
   switch (status) {
     case "payée":
-      return <Badge className="bg-green-500 hover:bg-green-600 transition-colors">Payée</Badge>;
+      return <Badge className="bg-green-500 hover:bg-green-600 transition-all duration-300">Payée</Badge>;
     case "en_attente":
-      return <Badge variant="secondary" className="transition-colors">En attente</Badge>;
+      return <Badge variant="secondary" className="transition-all duration-300">En attente</Badge>;
     case "envoyée":
-      return <Badge variant="outline" className="transition-colors">Envoyée</Badge>;
+      return <Badge variant="outline" className="transition-all duration-300">Envoyée</Badge>;
     default:
       return null;
   }
@@ -52,7 +52,7 @@ export const FactureTable = ({
   const totalMontant = factures.reduce((sum, facture) => sum + facture.montant, 0);
   
   return (
-    <Card className="mb-6 animate-fade-in shadow-sm hover:shadow transition-all duration-200">
+    <Card className="mb-6 animate-fade-in shadow-sm hover:shadow transition-all duration-300">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Liste des factures</CardTitle>
         <CardDescription>
@@ -66,8 +66,8 @@ export const FactureTable = ({
               <TableRow>
                 <TableHead className="whitespace-nowrap">N° Facture</TableHead>
                 <TableHead className="whitespace-nowrap">Client</TableHead>
-                <TableHead className="whitespace-nowrap">Date</TableHead>
-                <TableHead className="whitespace-nowrap">Échéance</TableHead>
+                <TableHead className="whitespace-nowrap hidden md:table-cell">Date</TableHead>
+                <TableHead className="whitespace-nowrap hidden md:table-cell">Échéance</TableHead>
                 <TableHead className="whitespace-nowrap">Montant</TableHead>
                 <TableHead className="whitespace-nowrap">Statut</TableHead>
                 <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
@@ -84,12 +84,12 @@ export const FactureTable = ({
                 factures.map((facture) => (
                   <TableRow 
                     key={facture.id} 
-                    className="group hover:bg-neutral-50 transition-colors duration-200"
+                    className="group hover:bg-neutral-50 transition-all duration-300 animate-fade-in"
                   >
                     <TableCell className="font-medium">{facture.id}</TableCell>
                     <TableCell>{facture.client.nom}</TableCell>
-                    <TableCell className="whitespace-nowrap">{facture.date}</TableCell>
-                    <TableCell className="whitespace-nowrap">{facture.echeance}</TableCell>
+                    <TableCell className="whitespace-nowrap hidden md:table-cell">{facture.date}</TableCell>
+                    <TableCell className="whitespace-nowrap hidden md:table-cell">{facture.echeance}</TableCell>
                     <TableCell>{formatMontant(facture.montant)}</TableCell>
                     <TableCell>{getStatusBadge(facture.status)}</TableCell>
                     <TableCell className="text-right">
@@ -98,7 +98,7 @@ export const FactureTable = ({
                           variant="ghost"
                           size="icon"
                           onClick={() => onViewDetails(facture)}
-                          className="opacity-70 group-hover:opacity-100 transition-opacity"
+                          className="opacity-70 group-hover:opacity-100 transition-all duration-300"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
@@ -106,7 +106,7 @@ export const FactureTable = ({
                           variant="ghost"
                           size="icon"
                           onClick={() => onPrintInvoice(facture.id)}
-                          className="opacity-70 group-hover:opacity-100 transition-opacity"
+                          className="opacity-70 group-hover:opacity-100 transition-all duration-300 hidden sm:flex"
                         >
                           <Printer className="w-4 h-4" />
                         </Button>
@@ -114,7 +114,7 @@ export const FactureTable = ({
                           variant="ghost"
                           size="icon"
                           onClick={() => onDownloadInvoice(facture.id)}
-                          className="opacity-70 group-hover:opacity-100 transition-opacity"
+                          className="opacity-70 group-hover:opacity-100 transition-all duration-300 hidden sm:flex"
                         >
                           <Download className="w-4 h-4" />
                         </Button>
@@ -127,7 +127,8 @@ export const FactureTable = ({
             {factures.length > 0 && (
               <TableFooter>
                 <TableRow>
-                  <TableCell colSpan={4} className="font-semibold">Total</TableCell>
+                  <TableCell colSpan={3} className="font-semibold">Total</TableCell>
+                  <TableCell colSpan={1} className="hidden md:table-cell"></TableCell>
                   <TableCell className="font-semibold">{formatMontant(totalMontant)}</TableCell>
                   <TableCell colSpan={2}></TableCell>
                 </TableRow>

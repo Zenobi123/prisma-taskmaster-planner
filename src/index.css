@@ -1,3 +1,4 @@
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
@@ -18,11 +19,16 @@
   body {
     @apply bg-neutral-100 text-neutral-900 font-['Inter'];
   }
+  
+  /* Smooth scrolling for entire page */
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 @layer components {
   .sidebar-link {
-    @apply flex items-center gap-3 px-4 py-2 text-neutral-600 hover:bg-neutral-200 rounded-md transition-all duration-200;
+    @apply flex items-center gap-3 px-4 py-2 text-neutral-600 hover:bg-neutral-200 rounded-md transition-all duration-300;
   }
 
   .sidebar-link.active {
@@ -30,19 +36,19 @@
   }
 
   .btn-primary {
-    @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-all duration-200 disabled:opacity-50;
+    @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-all duration-300 disabled:opacity-50;
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-neutral-200 text-neutral-700 rounded-md hover:bg-neutral-300 transition-all duration-200;
+    @apply px-4 py-2 bg-neutral-200 text-neutral-700 rounded-md hover:bg-neutral-300 transition-all duration-300;
   }
 
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-neutral-200 p-6 animate-fade-in;
+    @apply bg-white rounded-lg shadow-sm border border-neutral-200 p-4 sm:p-6 animate-fade-in hover:shadow transition-all duration-300;
   }
 
   .input-field {
-    @apply w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-200;
+    @apply w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300;
   }
 
   .table-container {
@@ -54,15 +60,15 @@
   }
 
   .table th {
-    @apply px-6 py-3 bg-neutral-100 text-neutral-600 font-semibold;
+    @apply px-4 sm:px-6 py-3 bg-neutral-100 text-neutral-600 font-semibold;
   }
 
   .table td {
-    @apply px-6 py-4 border-t border-neutral-200;
+    @apply px-4 sm:px-6 py-4 border-t border-neutral-200;
   }
 
   .badge {
-    @apply px-2 py-1 text-xs font-medium rounded-full;
+    @apply px-2 py-1 text-xs font-medium rounded-full transition-all duration-300;
   }
 
   .badge-green {
@@ -71,5 +77,69 @@
 
   .badge-gray {
     @apply bg-neutral-200 text-neutral-700;
+  }
+  
+  /* New enhanced animations */
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+  
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-md;
+  }
+  
+  .fade-in {
+    @apply animate-fade-in;
+  }
+  
+  .slide-in {
+    @apply animate-slide-in;
+  }
+  
+  /* Responsive improvements */
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+  
+  .responsive-flex {
+    @apply flex flex-col sm:flex-row gap-4;
+  }
+  
+  .responsive-p {
+    @apply p-4 sm:p-6;
+  }
+  
+  .responsive-text {
+    @apply text-sm sm:text-base;
+  }
+}
+
+/* Enhanced animation keyframes */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+  
+  .animate-slide-in {
+    animation: slide-in 0.5s ease-out;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 3s infinite;
   }
 }

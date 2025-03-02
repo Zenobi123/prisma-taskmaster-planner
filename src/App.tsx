@@ -37,101 +37,103 @@ const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/"
-            element={
-              <PrivateRoute>
-                <Index />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/collaborateurs"
-            element={
-              <PrivateRoute>
-                <Collaborateurs />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/collaborateurs/:id"
-            element={
-              <PrivateRoute>
-                <CollaborateurDetails />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/collaborateurs/:id/edit"
-            element={
-              <PrivateRoute>
-                <CollaborateurEdit />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/clients"
-            element={
-              <PrivateRoute>
-                <Clients />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/gestion"
-            element={
-              <PrivateRoute>
-                <Gestion />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/missions"
-            element={
-              <PrivateRoute>
-                <Missions />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/planning"
-            element={
-              <PrivateRoute>
-                <Planning />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/facturation"
-            element={
-              <PrivateRoute>
-                <Facturation />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/depenses"
-            element={
-              <PrivateRoute>
-                <Depenses />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/rapports"
-            element={
-              <PrivateRoute>
-                <Rapports />
-              </PrivateRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
+      <div className="transition-all duration-300">
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <Index />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/collaborateurs"
+              element={
+                <PrivateRoute>
+                  <Collaborateurs />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/collaborateurs/:id"
+              element={
+                <PrivateRoute>
+                  <CollaborateurDetails />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/collaborateurs/:id/edit"
+              element={
+                <PrivateRoute>
+                  <CollaborateurEdit />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/clients"
+              element={
+                <PrivateRoute>
+                  <Clients />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/gestion"
+              element={
+                <PrivateRoute>
+                  <Gestion />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/missions"
+              element={
+                <PrivateRoute>
+                  <Missions />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/planning"
+              element={
+                <PrivateRoute>
+                  <Planning />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/facturation"
+              element={
+                <PrivateRoute>
+                  <Facturation />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/depenses"
+              element={
+                <PrivateRoute>
+                  <Depenses />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/rapports"
+              element={
+                <PrivateRoute>
+                  <Rapports />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </div>
     </TooltipProvider>
   </QueryClientProvider>
 );
