@@ -105,8 +105,6 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
                       </p>
                       <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
                         <li>Prestations facturées</li>
-                        <li>Taux horaires moyens</li>
-                        <li>Taux d'occupation</li>
                         <li>Répartition par type de prestation</li>
                       </ul>
                     </div>
