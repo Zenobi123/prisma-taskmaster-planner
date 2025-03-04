@@ -1,7 +1,11 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
-export function GestionFiscale() {
+interface GestionFiscaleProps {
+  onTabChange: (tab: string) => void;
+}
+
+export function GestionFiscale({ onTabChange }: GestionFiscaleProps) {
   return (
     <Card>
       <CardHeader>
@@ -12,7 +16,7 @@ export function GestionFiscale() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="hover-lift">
+          <Card onClick={() => onTabChange("obligations-fiscales")} className="cursor-pointer hover-lift hover:border-primary transition-colors">
             <CardHeader>
               <CardTitle className="text-lg">Obligations fiscales</CardTitle>
             </CardHeader>
@@ -22,7 +26,7 @@ export function GestionFiscale() {
               </p>
             </CardContent>
           </Card>
-          <Card className="hover-lift">
+          <Card onClick={() => onTabChange("optimisation-fiscale")} className="cursor-pointer hover-lift hover:border-primary transition-colors">
             <CardHeader>
               <CardTitle className="text-lg">Optimisation</CardTitle>
             </CardHeader>
@@ -32,7 +36,7 @@ export function GestionFiscale() {
               </p>
             </CardContent>
           </Card>
-          <Card className="hover-lift">
+          <Card onClick={() => onTabChange("administration-fiscale")} className="cursor-pointer hover-lift hover:border-primary transition-colors">
             <CardHeader>
               <CardTitle className="text-lg">Administration fiscale</CardTitle>
             </CardHeader>
@@ -42,7 +46,7 @@ export function GestionFiscale() {
               </p>
             </CardContent>
           </Card>
-          <Card className="hover-lift animate-fade-in">
+          <Card onClick={() => onTabChange("cloture-exercice")} className="cursor-pointer hover-lift animate-fade-in hover:border-primary transition-colors">
             <CardHeader>
               <CardTitle className="text-lg">Clôture d'exercice</CardTitle>
             </CardHeader>

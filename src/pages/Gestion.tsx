@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -18,32 +17,27 @@ export default function Gestion() {
   const [activeTab, setActiveTab] = useState("entreprise");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
-  // Optimisation avec react-query pour le caching et la mise en cache automatique
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients"],
     queryFn: getClients,
-    staleTime: 5 * 60 * 1000, // Cache valide pendant 5 minutes
-    gcTime: 30 * 60 * 1000, // Garde en cache pendant 30 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
-  // Filtrage optimisé avec useMemo
   const clientsEnGestion = React.useMemo(() => 
     clients.filter(client => client.gestionexternalisee),
     [clients]
   );
 
-  // Recherche optimisée du client sélectionné
   const selectedClient = React.useMemo(() => 
     clientsEnGestion.find(client => client.id === selectedClientId),
     [clientsEnGestion, selectedClientId]
   );
 
-  // Gestion du changement d'onglet optimisée
   const handleTabChange = React.useCallback((value: string) => {
     setActiveTab(value);
   }, []);
 
-  // Gestion de la sélection du client optimisée
   const handleClientSelect = React.useCallback((clientId: string) => {
     setSelectedClientId(clientId);
   }, []);
@@ -114,7 +108,63 @@ export default function Gestion() {
             </TabsContent>
 
             <TabsContent value="fiscal">
-              <GestionFiscale />
+              <GestionFiscale onTabChange={handleTabChange} />
+            </TabsContent>
+
+            <TabsContent value="obligations-fiscales">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Obligations fiscales</CardTitle>
+                  <CardDescription>Suivi et respect des échéances fiscales</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Contenu détaillé pour les obligations fiscales à venir...
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="optimisation-fiscale">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Optimisation fiscale</CardTitle>
+                  <CardDescription>Stratégies d'optimisation fiscale</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Contenu détaillé pour l'optimisation fiscale à venir...
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="administration-fiscale">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Administration fiscale</CardTitle>
+                  <CardDescription>Relations avec l'administration fiscale</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Contenu détaillé pour les relations avec l'administration fiscale à venir...
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="cloture-exercice">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Clôture d'exercice</CardTitle>
+                  <CardDescription>Préparation et traitement de la clôture fiscale annuelle</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground">
+                    Contenu détaillé pour la clôture d'exercice à venir...
+                  </p>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="comptable">
