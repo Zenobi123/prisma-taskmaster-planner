@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -93,9 +92,6 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
                       </p>
                       <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
                         <li>Ventes de marchandises</li>
-                        <li>Marges brutes</li>
-                        <li>Rotation des stocks</li>
-                        <li>Analyse par gamme de produits</li>
                       </ul>
                     </div>
                   ) : (
