@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GestionHeader } from "@/components/gestion/GestionHeader";
 import { ClientSelector } from "@/components/gestion/ClientSelector";
 import { SelectedClientCard } from "@/components/gestion/SelectedClientCard";
