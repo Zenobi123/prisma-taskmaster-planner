@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -159,10 +160,32 @@ export default function Gestion() {
                   <CardTitle>Clôture d'exercice</CardTitle>
                   <CardDescription>Préparation et traitement de la clôture fiscale annuelle</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Contenu détaillé pour la clôture d'exercice à venir...
-                  </p>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className="border-[#A8C1AE] hover:shadow-md transition-all duration-300 hover-lift">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Eléments caractéristiques</CardTitle>
+                        <CardDescription>Éléments essentiels pour la clôture annuelle</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground">
+                          Analyse des éléments caractéristiques et préparation des documents pour la clôture fiscale.
+                        </p>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card className="border-[#A8C1AE] hover:shadow-md transition-all duration-300 hover-lift">
+                      <CardHeader>
+                        <CardTitle className="text-lg">Montage DSF</CardTitle>
+                        <CardDescription>Déclaration statistique et fiscale</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-sm text-muted-foreground">
+                          Préparation et montage des documents pour la déclaration statistique et fiscale (DSF).
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
