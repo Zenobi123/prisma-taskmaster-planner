@@ -3,16 +3,11 @@ import React from "react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GestionHeader } from "@/components/gestion/GestionHeader";
 import { ClientSelector } from "@/components/gestion/ClientSelector";
 import { SelectedClientCard } from "@/components/gestion/SelectedClientCard";
-import { GestionEntreprise } from "@/components/gestion/tabs/GestionEntreprise";
-import { GestionFiscale } from "@/components/gestion/tabs/GestionFiscale";
-import { GestionComptable } from "@/components/gestion/tabs/GestionComptable";
-import { GestionDossier } from "@/components/gestion/tabs/GestionDossier";
-import { ContratPrestations } from "@/components/gestion/tabs/ContratPrestations";
+import { GestionTabs } from "@/components/gestion/GestionTabs";
+import { NoClientSelected } from "@/components/gestion/NoClientSelected";
 
 export default function Gestion() {
   const [activeTab, setActiveTab] = useState("entreprise");
@@ -72,205 +67,16 @@ export default function Gestion() {
       {selectedClient ? (
         <>
           <SelectedClientCard client={selectedClient} />
-
-          <Tabs 
-            defaultValue="entreprise" 
-            value={activeTab} 
-            onValueChange={handleTabChange} 
-            className="space-y-4"
-          >
-            <TabsList className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-transparent">
-              <TabsTrigger 
-                value="entreprise"
-                className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-              >
-                Gestion d'entreprise
-              </TabsTrigger>
-              <TabsTrigger 
-                value="fiscal"
-                className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-              >
-                Gestion fiscale
-              </TabsTrigger>
-              <TabsTrigger 
-                value="comptable"
-                className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-              >
-                Gestion comptable
-              </TabsTrigger>
-              <TabsTrigger 
-                value="dossier"
-                className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-              >
-                Gestion documentaire
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="entreprise">
-              <GestionEntreprise onTabChange={handleTabChange} />
-            </TabsContent>
-
-            <TabsContent value="contrat-prestations">
-              <ContratPrestations client={selectedClient} />
-            </TabsContent>
-
-            <TabsContent value="fiscal">
-              <GestionFiscale onTabChange={handleTabChange} />
-            </TabsContent>
-
-            <TabsContent value="obligations-fiscales">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Obligations fiscales</CardTitle>
-                  <CardDescription>Suivi et respect des échéances fiscales</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Contenu détaillé pour les obligations fiscales à venir...
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="optimisation-fiscale">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Optimisation fiscale</CardTitle>
-                  <CardDescription>Stratégies d'optimisation fiscale</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Contenu détaillé pour l'optimisation fiscale à venir...
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="administration-fiscale">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Administration fiscale</CardTitle>
-                  <CardDescription>Relations avec l'administration fiscale</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-muted-foreground">
-                    Contenu détaillé pour les relations avec l'administration fiscale à venir...
-                  </p>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="cloture-exercice">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Clôture d'exercice</CardTitle>
-                  <CardDescription>Préparation et traitement de la clôture fiscale annuelle</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card 
-                      className="border-[#A8C1AE] hover:shadow-md transition-all duration-300 hover-lift cursor-pointer"
-                      onClick={() => handleSubTabSelect("elements-caracteristiques")}
-                    >
-                      <CardHeader>
-                        <CardTitle className="text-lg">Eléments caractéristiques</CardTitle>
-                        <CardDescription>Éléments essentiels pour la clôture annuelle</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">
-                          Analyse des éléments caractéristiques et préparation des documents pour la clôture fiscale.
-                        </p>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card 
-                      className="border-[#A8C1AE] hover:shadow-md transition-all duration-300 hover-lift cursor-pointer" 
-                      onClick={() => handleSubTabSelect("montage-dsf")}
-                    >
-                      <CardHeader>
-                        <CardTitle className="text-lg">Montage DSF</CardTitle>
-                        <CardDescription>Déclaration statistique et fiscale</CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-sm text-muted-foreground">
-                          Préparation et montage des documents pour la déclaration statistique et fiscale (DSF).
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {selectedSubTab === "elements-caracteristiques" && (
-                    <Card className="border-[#A8C1AE] bg-[#F2FCE2] animate-fade-in mt-4">
-                      <CardHeader>
-                        <CardTitle className="text-[#1A1F2C]">Eléments caractéristiques</CardTitle>
-                        <CardDescription className="text-[#8E9196]">
-                          Éléments essentiels pour la clôture annuelle
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-6">
-                          <div className="bg-white p-4 rounded-md shadow-sm">
-                            <h3 className="font-medium text-lg mb-2">Chiffre d'affaires (produits)</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Analyse du chiffre d'affaires et des produits pour l'exercice fiscal.
-                            </p>
-                          </div>
-                          
-                          <div className="bg-white p-4 rounded-md shadow-sm">
-                            <h3 className="font-medium text-lg mb-2">Impôts</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Détail des impôts et taxes payés durant l'exercice.
-                            </p>
-                          </div>
-                          
-                          <div className="bg-white p-4 rounded-md shadow-sm">
-                            <h3 className="font-medium text-lg mb-2">Charges</h3>
-                            <p className="text-sm text-muted-foreground">
-                              Récapitulatif des charges d'exploitation de l'exercice.
-                            </p>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-
-                  {selectedSubTab === "montage-dsf" && (
-                    <Card className="border-[#A8C1AE] bg-[#F2FCE2] animate-fade-in mt-4">
-                      <CardHeader>
-                        <CardTitle className="text-[#1A1F2C]">Montage DSF</CardTitle>
-                        <CardDescription className="text-[#8E9196]">
-                          Déclaration statistique et fiscale
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-muted-foreground">
-                          Détails sur la préparation et le montage des documents pour la déclaration statistique et fiscale (DSF).
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="comptable">
-              <GestionComptable />
-            </TabsContent>
-
-            <TabsContent value="dossier">
-              <GestionDossier />
-            </TabsContent>
-          </Tabs>
+          <GestionTabs
+            activeTab={activeTab}
+            selectedClient={selectedClient}
+            selectedSubTab={selectedSubTab}
+            onTabChange={handleTabChange}
+            onSubTabSelect={handleSubTabSelect}
+          />
         </>
       ) : (
-        <Card className="border-[#A8C1AE] bg-gradient-to-r from-[#F2FCE2] to-white">
-          <CardHeader>
-            <CardTitle className="text-[#1A1F2C]">Sélectionnez un client</CardTitle>
-            <CardDescription className="text-[#8E9196]">
-              Veuillez sélectionner un client pour gérer son dossier
-            </CardDescription>
-          </CardHeader>
-        </Card>
+        <NoClientSelected />
       )}
     </div>
   );
