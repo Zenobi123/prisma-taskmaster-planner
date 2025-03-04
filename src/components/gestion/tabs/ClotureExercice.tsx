@@ -1,6 +1,8 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface ClotureExerciceProps {
   selectedSubTab: string | null;
@@ -11,6 +13,9 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
   // Calculate previous year for the exercise to be closed
   const currentYear = new Date().getFullYear();
   const previousYear = currentYear - 1;
+
+  // State for tracking activity type in the Chiffre d'affaires section
+  const [activityType, setActivityType] = useState<"commercial" | "service">("commercial");
 
   return (
     <Card>
@@ -63,9 +68,49 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
               <div className="space-y-6">
                 <div className="bg-white p-4 rounded-md shadow-sm">
                   <h3 className="font-medium text-lg mb-2">Chiffre d'affaires (produits)</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Analyse du chiffre d'affaires et des produits pour l'exercice fiscal {previousYear}.
-                  </p>
+                  
+                  <RadioGroup 
+                    value={activityType} 
+                    onValueChange={(value) => setActivityType(value as "commercial" | "service")} 
+                    className="mt-2 mb-4"
+                  >
+                    <div className="flex items-center space-x-6">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="commercial" id="commercial" />
+                        <Label htmlFor="commercial">Activité commerciale</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="service" id="service" />
+                        <Label htmlFor="service">Prestataire de services</Label>
+                      </div>
+                    </div>
+                  </RadioGroup>
+
+                  {activityType === "commercial" ? (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        Analyse du chiffre d'affaires pour l'activité commerciale de l'exercice {previousYear}.
+                      </p>
+                      <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                        <li>Ventes de marchandises</li>
+                        <li>Marges brutes</li>
+                        <li>Rotation des stocks</li>
+                        <li>Analyse par gamme de produits</li>
+                      </ul>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <p className="text-sm text-muted-foreground">
+                        Analyse du chiffre d'affaires pour l'activité de prestation de services de l'exercice {previousYear}.
+                      </p>
+                      <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+                        <li>Prestations facturées</li>
+                        <li>Taux horaires moyens</li>
+                        <li>Taux d'occupation</li>
+                        <li>Répartition par type de prestation</li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="bg-white p-4 rounded-md shadow-sm">
