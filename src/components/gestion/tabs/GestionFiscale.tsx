@@ -11,8 +11,8 @@ export function GestionFiscale() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="hover-lift">
             <CardHeader>
               <CardTitle className="text-lg">Obligations fiscales</CardTitle>
             </CardHeader>
@@ -22,7 +22,7 @@ export function GestionFiscale() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="hover-lift">
             <CardHeader>
               <CardTitle className="text-lg">Optimisation</CardTitle>
             </CardHeader>
@@ -32,13 +32,23 @@ export function GestionFiscale() {
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="hover-lift">
             <CardHeader>
               <CardTitle className="text-lg">Administration fiscale</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
                 Relations avec l'administration fiscale
+              </p>
+            </CardContent>
+          </Card>
+          <Card className="hover-lift animate-fade-in">
+            <CardHeader>
+              <CardTitle className="text-lg">Clôture d'exercice</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Préparation et traitement de la clôture fiscale annuelle
               </p>
             </CardContent>
           </Card>
