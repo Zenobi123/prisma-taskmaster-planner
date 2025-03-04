@@ -8,11 +8,15 @@ interface ClotureExerciceProps {
 }
 
 export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureExerciceProps) {
+  // Calculate previous year for the exercise to be closed
+  const currentYear = new Date().getFullYear();
+  const previousYear = currentYear - 1;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Clôture d'exercice</CardTitle>
-        <CardDescription>Préparation et traitement de la clôture fiscale annuelle</CardDescription>
+        <CardTitle>Clôture d'exercice {previousYear}</CardTitle>
+        <CardDescription>Préparation et traitement de la clôture fiscale annuelle de l'exercice {previousYear}</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -22,7 +26,7 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
           >
             <CardHeader>
               <CardTitle className="text-lg">Eléments caractéristiques</CardTitle>
-              <CardDescription>Éléments essentiels pour la clôture annuelle</CardDescription>
+              <CardDescription>Éléments essentiels pour la clôture annuelle {previousYear}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
@@ -37,11 +41,11 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
           >
             <CardHeader>
               <CardTitle className="text-lg">Montage DSF</CardTitle>
-              <CardDescription>Déclaration statistique et fiscale</CardDescription>
+              <CardDescription>Déclaration statistique et fiscale {previousYear}</CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
-                Préparation et montage des documents pour la déclaration statistique et fiscale (DSF).
+                Préparation et montage des documents pour la déclaration statistique et fiscale (DSF) de l'exercice {previousYear}.
               </p>
             </CardContent>
           </Card>
@@ -50,9 +54,9 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
         {selectedSubTab === "elements-caracteristiques" && (
           <Card className="border-[#A8C1AE] bg-[#F2FCE2] animate-fade-in mt-4">
             <CardHeader>
-              <CardTitle className="text-[#1A1F2C]">Eléments caractéristiques</CardTitle>
+              <CardTitle className="text-[#1A1F2C]">Eléments caractéristiques {previousYear}</CardTitle>
               <CardDescription className="text-[#8E9196]">
-                Éléments essentiels pour la clôture annuelle
+                Éléments essentiels pour la clôture annuelle de l'exercice {previousYear}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -60,21 +64,21 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
                 <div className="bg-white p-4 rounded-md shadow-sm">
                   <h3 className="font-medium text-lg mb-2">Chiffre d'affaires (produits)</h3>
                   <p className="text-sm text-muted-foreground">
-                    Analyse du chiffre d'affaires et des produits pour l'exercice fiscal.
+                    Analyse du chiffre d'affaires et des produits pour l'exercice fiscal {previousYear}.
                   </p>
                 </div>
                 
                 <div className="bg-white p-4 rounded-md shadow-sm">
                   <h3 className="font-medium text-lg mb-2">Impôts</h3>
                   <p className="text-sm text-muted-foreground">
-                    Détail des impôts et taxes payés durant l'exercice.
+                    Détail des impôts et taxes payés durant l'exercice {previousYear}.
                   </p>
                 </div>
                 
                 <div className="bg-white p-4 rounded-md shadow-sm">
                   <h3 className="font-medium text-lg mb-2">Charges</h3>
                   <p className="text-sm text-muted-foreground">
-                    Récapitulatif des charges d'exploitation de l'exercice.
+                    Récapitulatif des charges d'exploitation de l'exercice {previousYear}.
                   </p>
                 </div>
               </div>
@@ -85,14 +89,14 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
         {selectedSubTab === "montage-dsf" && (
           <Card className="border-[#A8C1AE] bg-[#F2FCE2] animate-fade-in mt-4">
             <CardHeader>
-              <CardTitle className="text-[#1A1F2C]">Montage DSF</CardTitle>
+              <CardTitle className="text-[#1A1F2C]">Montage DSF {previousYear}</CardTitle>
               <CardDescription className="text-[#8E9196]">
-                Déclaration statistique et fiscale
+                Déclaration statistique et fiscale de l'exercice {previousYear}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                Détails sur la préparation et le montage des documents pour la déclaration statistique et fiscale (DSF).
+                Détails sur la préparation et le montage des documents pour la déclaration statistique et fiscale (DSF) de l'exercice {previousYear}.
               </p>
             </CardContent>
           </Card>
