@@ -79,9 +79,9 @@ const Missions = () => {
 
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Tache</h1>
+          <h1 className="text-2xl font-bold">Mission</h1>
           <p className="text-neutral-600 mt-1">
-            Gérez les tâches et leur suivi
+            Gérez les missions et leur suivi
           </p>
         </div>
         <NewTaskDialog />
@@ -105,7 +105,7 @@ const Missions = () => {
           ))}
           {filteredMissions.length === 0 && !isLoading && (
             <div className="text-center py-8 text-gray-500">
-              Aucune tâche ne correspond à vos critères de recherche.
+              Aucune mission ne correspond à vos critères de recherche.
             </div>
           )}
         </div>
