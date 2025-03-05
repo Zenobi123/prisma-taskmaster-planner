@@ -62,3 +62,49 @@ export const createTask = async (task: Omit<Task, "id" | "created_at" | "updated
     throw err;
   }
 };
+
+export const updateTaskStatus = async (taskId: string, status: Task["status"]) => {
+  console.log(`Updating task ${taskId} status to ${status}`);
+  
+  try {
+    const { data, error } = await supabase
+      .from("tasks")
+      .update({ status })
+      .eq("id", taskId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Erreur lors de la mise à jour du statut de la tâche:", error);
+      throw error;
+    }
+
+    console.log("Task status updated successfully:", data);
+    return data;
+  } catch (err) {
+    console.error("Exception lors de la mise à jour du statut de la tâche:", err);
+    throw err;
+  }
+};
+
+export const deleteTask = async (taskId: string) => {
+  console.log(`Deleting task ${taskId}`);
+  
+  try {
+    const { error } = await supabase
+      .from("tasks")
+      .delete()
+      .eq("id", taskId);
+
+    if (error) {
+      console.error("Erreur lors de la suppression de la tâche:", error);
+      throw error;
+    }
+
+    console.log("Task deleted successfully");
+    return true;
+  } catch (err) {
+    console.error("Exception lors de la suppression de la tâche:", err);
+    throw err;
+  }
+};

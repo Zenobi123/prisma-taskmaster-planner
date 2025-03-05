@@ -1,7 +1,27 @@
 
 import { Button } from "@/components/ui/button";
-import { Briefcase } from "lucide-react";
+import { Briefcase, Check, Clock, PlayCircle, Trash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { updateTaskStatus, deleteTask } from "@/services/taskService";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface MissionCardProps {
   mission: {
@@ -18,6 +38,33 @@ interface MissionCardProps {
 }
 
 const MissionCard = ({ mission }: MissionCardProps) => {
+  const queryClient = useQueryClient();
+  
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, status }: { id: string; status: "en_attente" | "en_cours" | "termine" }) => 
+      updateTaskStatus(id, status),
+    onSuccess: () => {
+      toast.success("Statut mis à jour avec succès");
+      queryClient.invalidateQueries({ queryKey: ["missions"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+    onError: (error) => {
+      toast.error("Erreur lors de la mise à jour du statut: " + error.message);
+    }
+  });
+
+  const deleteTaskMutation = useMutation({
+    mutationFn: (id: string) => deleteTask(id),
+    onSuccess: () => {
+      toast.success("Tâche supprimée avec succès");
+      queryClient.invalidateQueries({ queryKey: ["missions"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+    },
+    onError: (error) => {
+      toast.error("Erreur lors de la suppression: " + error.message);
+    }
+  });
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "en_cours":
@@ -29,6 +76,14 @@ const MissionCard = ({ mission }: MissionCardProps) => {
       default:
         return null;
     }
+  };
+
+  const handleStatusChange = (newStatus: "en_attente" | "en_cours" | "termine") => {
+    updateStatusMutation.mutate({ id: mission.id, status: newStatus });
+  };
+
+  const handleDelete = () => {
+    deleteTaskMutation.mutate(mission.id);
   };
 
   return (
@@ -46,10 +101,63 @@ const MissionCard = ({ mission }: MissionCardProps) => {
         </div>
         <div className="flex flex-col items-end gap-2">
           {getStatusBadge(mission.status)}
-          <Button variant="outline" size="sm">
-            <Briefcase className="mr-2 h-4 w-4" />
-            Voir détails
-          </Button>
+          <div className="flex gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm">
+                  Changer le statut
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem 
+                  onClick={() => handleStatusChange("en_attente")}
+                  className="flex items-center gap-2"
+                  disabled={mission.status === "en_attente"}
+                >
+                  <Clock className="h-4 w-4" /> En attente
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleStatusChange("en_cours")}
+                  className="flex items-center gap-2"
+                  disabled={mission.status === "en_cours"}
+                >
+                  <PlayCircle className="h-4 w-4" /> En cours
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleStatusChange("termine")}
+                  className="flex items-center gap-2"
+                  disabled={mission.status === "termine"}
+                >
+                  <Check className="h-4 w-4" /> Terminée
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" size="sm" className="text-red-500 hover:bg-red-50 hover:text-red-600">
+                  <Trash className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Cette action ne peut pas être annulée. Cela supprimera définitivement cette tâche.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleDelete}
+                    className="bg-red-500 hover:bg-red-600"
+                  >
+                    Supprimer
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
       </div>
     </div>
