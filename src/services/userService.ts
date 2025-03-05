@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface User {
   id: string;
   email: string;
-  role: "admin" | "comptable";
+  role: "admin" | "comptable" | "assistant";
   collaborateur_id: string | null;
   created_at: string;
 }
@@ -30,7 +30,7 @@ export const getUsers = async (): Promise<User[]> => {
 };
 
 // Créer un nouvel utilisateur (version administrateur)
-export const createUser = async (email: string, password: string, role: "admin" | "comptable", collaborateur_id?: string): Promise<User> => {
+export const createUser = async (email: string, password: string, role: "admin" | "comptable" | "assistant", collaborateur_id?: string): Promise<User> => {
   try {
     // Vérifier si l'utilisateur existe déjà
     const { data: existingUsers, error: checkError } = await supabase

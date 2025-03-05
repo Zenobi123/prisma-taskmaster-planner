@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -97,7 +96,7 @@ const Login = () => {
               await createUser(
                 "assistant@prismagestion.com",
                 "Assistant123",
-                "comptable"
+                "assistant"
               );
               console.log("Utilisateur assistant créé avec succès");
             }

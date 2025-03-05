@@ -28,7 +28,7 @@ const UserAdmin = () => {
   const [credentials, setCredentials] = useState<{email: string, role: string}[]>([]);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<"admin" | "comptable">("comptable");
+  const [role, setRole] = useState<"admin" | "comptable" | "assistant">("comptable");
   const [collaborateur, setCollaborateur] = useState("");
   const [collaborateurs, setCollaborateurs] = useState<Collaborateur[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -195,7 +195,7 @@ const UserAdmin = () => {
                 <Label htmlFor="role">Rôle</Label>
                 <Select 
                   value={role} 
-                  onValueChange={(value: "admin" | "comptable") => setRole(value)}
+                  onValueChange={(value: "admin" | "comptable" | "assistant") => setRole(value)}
                   disabled={isLoading}
                 >
                   <SelectTrigger id="role">
@@ -204,6 +204,7 @@ const UserAdmin = () => {
                   <SelectContent>
                     <SelectItem value="admin">Administrateur</SelectItem>
                     <SelectItem value="comptable">Comptable</SelectItem>
+                    <SelectItem value="assistant">Assistant</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

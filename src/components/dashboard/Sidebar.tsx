@@ -4,8 +4,6 @@ import { cn } from "@/lib/utils";
 import LogoutButton from "../LogoutButton";
 import { useState, useEffect } from "react";
 
-// Garde les imports et le reste du code existant...
-
 const Sidebar = () => {
   const location = useLocation();
   const [userRole, setUserRole] = useState<string>("");
