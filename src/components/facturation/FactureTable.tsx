@@ -68,7 +68,7 @@ export const FactureTable = ({
                 <TableHead className="whitespace-nowrap">Client</TableHead>
                 <TableHead className="whitespace-nowrap hidden md:table-cell">Date</TableHead>
                 <TableHead className="whitespace-nowrap hidden md:table-cell">Échéance</TableHead>
-                <TableHead className="whitespace-nowrap">Montant</TableHead>
+                <TableHead className="whitespace-nowrap min-w-32">Montant</TableHead>
                 <TableHead className="whitespace-nowrap">Statut</TableHead>
                 <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
               </TableRow>
@@ -90,7 +90,7 @@ export const FactureTable = ({
                     <TableCell>{facture.client.nom}</TableCell>
                     <TableCell className="whitespace-nowrap hidden md:table-cell">{facture.date}</TableCell>
                     <TableCell className="whitespace-nowrap hidden md:table-cell">{facture.echeance}</TableCell>
-                    <TableCell>{formatMontant(facture.montant)}</TableCell>
+                    <TableCell className="min-w-32">{formatMontant(facture.montant)}</TableCell>
                     <TableCell>{getStatusBadge(facture.status)}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center gap-2">
@@ -129,7 +129,7 @@ export const FactureTable = ({
                 <TableRow>
                   <TableCell colSpan={3} className="font-semibold">Total</TableCell>
                   <TableCell colSpan={1} className="hidden md:table-cell"></TableCell>
-                  <TableCell className="font-semibold">{formatMontant(totalMontant)}</TableCell>
+                  <TableCell className="font-semibold min-w-32">{formatMontant(totalMontant)}</TableCell>
                   <TableCell colSpan={2}></TableCell>
                 </TableRow>
               </TableFooter>

@@ -137,11 +137,11 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
               <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Date</TableHead>
               <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Structure</TableHead>
               <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Numéro Marché</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Montant HT</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black w-36">Montant HT</TableHead>
               <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Arrondi</TableHead>
               <TableHead colSpan={3} className="text-center text-white font-medium border-r-2 border-black">Acompte IR</TableHead>
               <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Droit d'enregistrement</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Montant TTC</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black w-36">Montant TTC</TableHead>
               <TableHead rowSpan={2} className="text-center text-white font-medium">Actions</TableHead>
             </TableRow>
             <TableRow className="border-b-2 border-black">
@@ -177,7 +177,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     className="w-full p-1 border-2 rounded border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
-                <TableCell className="border-r-2 border-black/40">
+                <TableCell className="border-r-2 border-black/40 min-w-36">
                   <input
                     type="text"
                     value={row.montantHT ? formatNumberWithSeparator(row.montantHT) : ''}
@@ -210,7 +210,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     className="w-full p-1 border-2 rounded text-right border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
-                <TableCell className="text-right border-r-2 border-black/40">
+                <TableCell className="text-right border-r-2 border-black/40 min-w-36">
                   {formatNumberWithSeparator(row.montantTTC)}
                 </TableCell>
                 <TableCell>
@@ -236,13 +236,13 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
           <TableFooter className="bg-[#F2FCE2] text-primary font-medium">
             <TableRow>
               <TableCell colSpan={3} className="font-medium text-right border-r-2 border-black/40">TOTAUX</TableCell>
-              <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.montantHT)}</TableCell>
+              <TableCell className="text-right font-medium border-r-2 border-black/40 min-w-36">{formatNumberWithSeparator(totals.montantHT)}</TableCell>
               <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.arrondi)}</TableCell>
               <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRPrincipal)}</TableCell>
               <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRCAC)}</TableCell>
               <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRPrincipal + totals.acompteIRCAC)}</TableCell>
               <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.droitEnregistrement)}</TableCell>
-              <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.montantTTC)}</TableCell>
+              <TableCell className="text-right font-medium border-r-2 border-black/40 min-w-36">{formatNumberWithSeparator(totals.montantTTC)}</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableFooter>
@@ -251,3 +251,4 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
     </div>
   );
 };
+

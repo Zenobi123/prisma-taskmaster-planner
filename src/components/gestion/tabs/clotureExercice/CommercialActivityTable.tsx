@@ -43,7 +43,7 @@ export const CommercialActivityTable = ({
             <TableHead>Accompte sur IR (Principal)</TableHead>
             <TableHead>Accompte sur IR (CAC)</TableHead>
             <TableHead>Accompte sur IR (Total)</TableHead>
-            <TableHead>CA HT</TableHead>
+            <TableHead className="w-36 min-w-36">CA HT</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -55,12 +55,12 @@ export const CommercialActivityTable = ({
                   type="text"
                   value={row.irPrincipal ? formatNumberWithSeparator(row.irPrincipal) : ''}
                   onChange={(e) => handleIRPrincipalChange(index, e.target.value)}
-                  className="w-32"
+                  className="w-full"
                 />
               </TableCell>
               <TableCell>{formatNumberWithSeparator(row.irCAC)}</TableCell>
               <TableCell>{formatNumberWithSeparator(row.irTotal)}</TableCell>
-              <TableCell>{formatNumberWithSeparator(row.caHT)}</TableCell>
+              <TableCell className="min-w-36">{formatNumberWithSeparator(row.caHT)}</TableCell>
             </TableRow>
           ))}
           <TableRow className="font-medium bg-slate-50">
@@ -68,7 +68,7 @@ export const CommercialActivityTable = ({
             <TableCell>{formatNumberWithSeparator(totals.irPrincipal)}</TableCell>
             <TableCell>{formatNumberWithSeparator(totals.irCAC)}</TableCell>
             <TableCell>{formatNumberWithSeparator(totals.irTotal)}</TableCell>
-            <TableCell>{formatNumberWithSeparator(totals.caHT)}</TableCell>
+            <TableCell className="min-w-36">{formatNumberWithSeparator(totals.caHT)}</TableCell>
           </TableRow>
         </TableBody>
       </Table>
