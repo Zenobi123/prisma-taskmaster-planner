@@ -6,7 +6,7 @@ export interface Task {
   title: string;
   client_id: string;
   collaborateur_id: string;
-  status: "en_attente" | "en_cours" | "termine";
+  status: "planifiee" | "en_attente" | "en_cours" | "termine";
   created_at: string;
   updated_at: string;
   start_date?: string;
@@ -37,16 +37,77 @@ export const getTasks = async () => {
     throw error;
   }
 
-  return data;
+  // Check for tasks that should change status based on dates
+  const updatedTasks = await updateTaskStatusesBasedOnDates(data);
+  return updatedTasks;
+};
+
+// Function to determine if a task should have "planifiee" status
+export const determineInitialStatus = (startDate: string | null | undefined): Task["status"] => {
+  if (!startDate) return "en_attente";
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to beginning of day
+  
+  const taskStartDate = new Date(startDate);
+  taskStartDate.setHours(0, 0, 0, 0); // Set to beginning of day
+  
+  return taskStartDate > today ? "planifiee" : "en_cours";
+};
+
+// Function to check and update task statuses based on their dates
+const updateTaskStatusesBasedOnDates = async (tasks: any[]): Promise<any[]> => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Set to beginning of day
+  
+  const tasksToUpdate: { id: string, status: Task["status"] }[] = [];
+  
+  // Identify tasks that need status update
+  tasks.forEach(task => {
+    if (task.status === "planifiee" && task.start_date) {
+      const startDate = new Date(task.start_date);
+      startDate.setHours(0, 0, 0, 0);
+      
+      if (startDate <= today) {
+        tasksToUpdate.push({
+          id: task.id,
+          status: "en_cours"
+        });
+      }
+    }
+  });
+  
+  // Update tasks if needed
+  for (const task of tasksToUpdate) {
+    try {
+      await updateTaskStatus(task.id, task.status);
+      // Update the status in the original array to return the updated data
+      const index = tasks.findIndex(t => t.id === task.id);
+      if (index !== -1) {
+        tasks[index].status = task.status;
+      }
+    } catch (error) {
+      console.error(`Failed to auto-update task ${task.id} status:`, error);
+    }
+  }
+  
+  return tasks;
 };
 
 export const createTask = async (task: Omit<Task, "id" | "created_at" | "updated_at">) => {
   console.log("Creating task with data:", task);
   
   try {
+    // Determine initial status based on start date
+    const initialStatus = determineInitialStatus(task.start_date);
+    const taskWithStatus = {
+      ...task,
+      status: initialStatus
+    };
+    
     const { data, error } = await supabase
       .from("tasks")
-      .insert([task])
+      .insert([taskWithStatus])
       .select()
       .single();
 

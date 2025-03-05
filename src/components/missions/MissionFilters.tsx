@@ -1,5 +1,6 @@
-import { Search } from "lucide-react";
+
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -22,27 +23,31 @@ const MissionFilters = ({
   onStatusFilterChange,
 }: MissionFiltersProps) => {
   return (
-    <div className="flex gap-4 mb-6">
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+    <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex-1">
+        <Label htmlFor="search">Rechercher</Label>
         <Input
-          placeholder="Rechercher une mission..."
+          id="search"
+          placeholder="Rechercher par titre, client ou collaborateur..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10"
         />
       </div>
-      <Select value={statusFilter} onValueChange={onStatusFilterChange}>
-        <SelectTrigger className="w-[180px] bg-background border-input">
-          <SelectValue placeholder="Filtrer par statut" />
-        </SelectTrigger>
-        <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
-          <SelectItem value="all">Tous</SelectItem>
-          <SelectItem value="en_cours">En cours</SelectItem>
-          <SelectItem value="planifiee">Planifiée</SelectItem>
-          <SelectItem value="terminee">Terminée</SelectItem>
-        </SelectContent>
-      </Select>
+      <div className="w-full md:w-64">
+        <Label htmlFor="status">Statut</Label>
+        <Select value={statusFilter} onValueChange={onStatusFilterChange}>
+          <SelectTrigger id="status">
+            <SelectValue placeholder="Tous les statuts" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous les statuts</SelectItem>
+            <SelectItem value="planifiee">Planifiée</SelectItem>
+            <SelectItem value="en_attente">En attente</SelectItem>
+            <SelectItem value="en_cours">En cours</SelectItem>
+            <SelectItem value="termine">Terminée</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
     </div>
   );
 };

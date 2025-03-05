@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Calendar } from "lucide-react";
 
 interface MissionCardProps {
   mission: {
@@ -41,7 +42,7 @@ const MissionCard = ({ mission }: MissionCardProps) => {
   const queryClient = useQueryClient();
   
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: "en_attente" | "en_cours" | "termine" }) => 
+    mutationFn: ({ id, status }: { id: string; status: "planifiee" | "en_attente" | "en_cours" | "termine" }) => 
       updateTaskStatus(id, status),
     onSuccess: () => {
       toast.success("Statut mis à jour avec succès");
@@ -71,6 +72,8 @@ const MissionCard = ({ mission }: MissionCardProps) => {
         return <Badge variant="secondary">En cours</Badge>;
       case "en_attente":
         return <Badge variant="outline">En attente</Badge>;
+      case "planifiee":
+        return <Badge variant="default" className="bg-blue-500">Planifiée</Badge>;
       case "termine":
         return <Badge variant="success">Terminée</Badge>;
       default:
@@ -78,7 +81,7 @@ const MissionCard = ({ mission }: MissionCardProps) => {
     }
   };
 
-  const handleStatusChange = (newStatus: "en_attente" | "en_cours" | "termine") => {
+  const handleStatusChange = (newStatus: "planifiee" | "en_attente" | "en_cours" | "termine") => {
     updateStatusMutation.mutate({ id: mission.id, status: newStatus });
   };
 
@@ -109,6 +112,13 @@ const MissionCard = ({ mission }: MissionCardProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                <DropdownMenuItem 
+                  onClick={() => handleStatusChange("planifiee")}
+                  className="flex items-center gap-2"
+                  disabled={mission.status === "planifiee"}
+                >
+                  <Calendar className="h-4 w-4" /> Planifiée
+                </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => handleStatusChange("en_attente")}
                   className="flex items-center gap-2"

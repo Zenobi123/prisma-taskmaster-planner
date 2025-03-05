@@ -14,6 +14,8 @@ const RecentTasks = () => {
         return <span className="badge badge-green">En cours</span>;
       case "termine":
         return <span className="badge badge-blue">Terminé</span>;
+      case "planifiee":
+        return <span className="badge badge-purple">Planifiée</span>;
       default:
         return <span className="badge badge-gray">En attente</span>;
     }
