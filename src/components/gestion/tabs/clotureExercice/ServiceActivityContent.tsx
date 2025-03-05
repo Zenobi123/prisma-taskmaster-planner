@@ -120,23 +120,23 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
         </Button>
       </div>
 
-      <div className="border rounded-md border-[#A8C1AE]">
+      <div className="overflow-x-auto border rounded-md border-[#A8C1AE] shadow-sm">
         <Table>
           <TableHeader className="bg-primary text-white">
             <TableRow>
-              <TableHead rowSpan={2} className="text-center text-white">Date</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white">Structure</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white">Numéro Marché</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white">Montant HT</TableHead>
-              <TableHead colSpan={3} className="text-center text-white">Acompte IR</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white">Droit d'enregistrement</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white">Montant TTC</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white">Actions</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium">Date</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium">Structure</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium">Numéro Marché</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium">Montant HT</TableHead>
+              <TableHead colSpan={3} className="text-center text-white font-medium">Acompte IR</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium">Droit d'enregistrement</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium">Montant TTC</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium">Actions</TableHead>
             </TableRow>
             <TableRow>
-              <TableHead className="text-center text-white">Principal (5%)</TableHead>
-              <TableHead className="text-center text-white">TTC (5,5%)</TableHead>
-              <TableHead className="text-center text-white">Total</TableHead>
+              <TableHead className="text-center text-white font-medium">Principal (5%)</TableHead>
+              <TableHead className="text-center text-white font-medium">TTC (5,5%)</TableHead>
+              <TableHead className="text-center text-white font-medium">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -219,7 +219,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
               </TableRow>
             )}
           </TableBody>
-          <TableFooter className="bg-[#F2FCE2] text-primary">
+          <TableFooter className="bg-[#F2FCE2] text-primary font-medium">
             <TableRow>
               <TableCell colSpan={3} className="font-medium text-right">TOTAUX</TableCell>
               <TableCell className="text-right font-medium">{formatNumberWithSeparator(totals.montantHT)}</TableCell>
