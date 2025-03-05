@@ -34,6 +34,8 @@ const RecentTasks = () => {
     );
   }
 
+  console.log("Recent tasks data:", tasks);
+
   return (
     <div className="card mt-8">
       <h2 className="text-xl font-semibold text-neutral-800 mb-6">

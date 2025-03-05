@@ -17,6 +17,7 @@ const Missions = () => {
   const { data: missions, isLoading } = useQuery({
     queryKey: ['missions'],
     queryFn: async () => {
+      console.log("Fetching missions data...");
       const { data: tasksData, error } = await supabase
         .from('tasks')
         .select(`
@@ -24,7 +25,8 @@ const Missions = () => {
           clients!tasks_client_id_fkey (
             id,
             raisonsociale,
-            nom
+            nom,
+            type
           ),
           collaborateurs!tasks_collaborateur_id_fkey (
             id,
@@ -100,12 +102,23 @@ const Missions = () => {
         </div>
       ) : (
         <div className="grid gap-4">
-          {filteredMissions.map((mission) => (
-            <MissionCard key={mission.id} mission={mission} />
-          ))}
-          {filteredMissions.length === 0 && !isLoading && (
+          {missions && missions.length > 0 ? (
+            missions
+              .filter((mission) => {
+                const matchesSearch = mission.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  mission.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  mission.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
+                
+                const matchesStatus = statusFilter === "all" || mission.status === statusFilter;
+                
+                return matchesSearch && matchesStatus;
+              })
+              .map((mission) => (
+                <MissionCard key={mission.id} mission={mission} />
+              ))
+          ) : (
             <div className="text-center py-8 text-gray-500">
-              Aucune mission ne correspond à vos critères de recherche.
+              Aucune mission n'a été créée. Utilisez le bouton "Nouvelle tâche" pour en créer une.
             </div>
           )}
         </div>
