@@ -5,9 +5,9 @@ import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import MissionCard from "@/components/missions/MissionCard";
 import MissionFilters from "@/components/missions/MissionFilters";
-import NewMissionDialog from "@/components/missions/NewMissionDialog";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
 
 const Missions = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -79,12 +79,12 @@ const Missions = () => {
 
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Missions</h1>
+          <h1 className="text-2xl font-bold">Tache</h1>
           <p className="text-neutral-600 mt-1">
-            Gérez les missions et leur suivi
+            Gérez les tâches et leur suivi
           </p>
         </div>
-        <NewMissionDialog />
+        <NewTaskDialog />
       </div>
 
       <MissionFilters
@@ -105,7 +105,7 @@ const Missions = () => {
           ))}
           {filteredMissions.length === 0 && !isLoading && (
             <div className="text-center py-8 text-gray-500">
-              Aucune mission ne correspond à vos critères de recherche.
+              Aucune tâche ne correspond à vos critères de recherche.
             </div>
           )}
         </div>

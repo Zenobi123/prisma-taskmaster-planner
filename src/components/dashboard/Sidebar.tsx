@@ -20,7 +20,7 @@ const menuItems = [
   { path: "/collaborateurs", icon: Users, label: "Collaborateurs" },
   { path: "/clients", icon: Users, label: "Clients" },
   { path: "/gestion", icon: FolderOpen, label: "Gestion" },
-  { path: "/missions", icon: Briefcase, label: "Missions" },
+  { path: "/missions", icon: Briefcase, label: "Tache" },
   { path: "/planning", icon: Calendar, label: "Planning" },
   { path: "/facturation", icon: Receipt, label: "Facturation" },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
