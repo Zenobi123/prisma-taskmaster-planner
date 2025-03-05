@@ -120,29 +120,29 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
         </Button>
       </div>
 
-      <div className="overflow-x-auto border-2 rounded-md border-[#84A98C] shadow-md">
+      <div className="overflow-x-auto border-2 rounded-md border-black shadow-md">
         <Table className="border-collapse">
           <TableHeader className="bg-primary text-white">
-            <TableRow className="border-b-2 border-[#84A98C]">
-              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-[#84A98C]">Date</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-[#84A98C]">Structure</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-[#84A98C]">Numéro Marché</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-[#84A98C]">Montant HT</TableHead>
-              <TableHead colSpan={3} className="text-center text-white font-medium border-r-2 border-[#84A98C]">Acompte IR</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-[#84A98C]">Droit d'enregistrement</TableHead>
-              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-[#84A98C]">Montant TTC</TableHead>
+            <TableRow className="border-b-2 border-black">
+              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Date</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Structure</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Numéro Marché</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Montant HT</TableHead>
+              <TableHead colSpan={3} className="text-center text-white font-medium border-r-2 border-black">Acompte IR</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Droit d'enregistrement</TableHead>
+              <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Montant TTC</TableHead>
               <TableHead rowSpan={2} className="text-center text-white font-medium">Actions</TableHead>
             </TableRow>
-            <TableRow className="border-b-2 border-[#84A98C]">
-              <TableHead className="text-center text-white font-medium border-r-2 border-[#84A98C]">Principal (5%)</TableHead>
-              <TableHead className="text-center text-white font-medium border-r-2 border-[#84A98C]">TTC (5,5%)</TableHead>
-              <TableHead className="text-center text-white font-medium border-r-2 border-[#84A98C]">Total</TableHead>
+            <TableRow className="border-b-2 border-black">
+              <TableHead className="text-center text-white font-medium border-r-2 border-black">Principal (5%)</TableHead>
+              <TableHead className="text-center text-white font-medium border-r-2 border-black">TTC (5,5%)</TableHead>
+              <TableHead className="text-center text-white font-medium border-r-2 border-black">Total</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.map((row) => (
-              <TableRow key={row.id} className="hover:bg-[#F2FCE2]/50 border-b-2 border-[#84A98C]/40">
-                <TableCell className="border-r-2 border-[#84A98C]/40">
+              <TableRow key={row.id} className="hover:bg-[#F2FCE2]/50 border-b-2 border-black/40">
+                <TableCell className="border-r-2 border-black/40">
                   <input
                     type="text"
                     value={row.date}
@@ -150,7 +150,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     className="w-full p-1 border-2 rounded border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
-                <TableCell className="border-r-2 border-[#84A98C]/40">
+                <TableCell className="border-r-2 border-black/40">
                   <input
                     type="text"
                     value={row.structure}
@@ -158,7 +158,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     className="w-full p-1 border-2 rounded border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
-                <TableCell className="border-r-2 border-[#84A98C]/40">
+                <TableCell className="border-r-2 border-black/40">
                   <input
                     type="text"
                     value={row.numeroMarche}
@@ -166,7 +166,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     className="w-full p-1 border-2 rounded border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
-                <TableCell className="border-r-2 border-[#84A98C]/40">
+                <TableCell className="border-r-2 border-black/40">
                   <input
                     type="text"
                     value={row.montantHT ? formatNumberWithSeparator(row.montantHT) : ''}
@@ -174,7 +174,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     className="w-full p-1 border-2 rounded text-right border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
-                <TableCell className="border-r-2 border-[#84A98C]/40">
+                <TableCell className="border-r-2 border-black/40">
                   <input
                     type="text"
                     value={row.acompteIRPrincipal ? formatNumberWithSeparator(row.acompteIRPrincipal) : ''}
@@ -182,13 +182,13 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     className="w-full p-1 border-2 rounded text-right border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
-                <TableCell className="text-right border-r-2 border-[#84A98C]/40">
+                <TableCell className="text-right border-r-2 border-black/40">
                   {formatNumberWithSeparator(row.acompteIRTTC)}
                 </TableCell>
-                <TableCell className="text-right border-r-2 border-[#84A98C]/40">
+                <TableCell className="text-right border-r-2 border-black/40">
                   {formatNumberWithSeparator(row.acompteIRPrincipal + row.acompteIRTTC)}
                 </TableCell>
-                <TableCell className="border-r-2 border-[#84A98C]/40">
+                <TableCell className="border-r-2 border-black/40">
                   <input
                     type="text"
                     value={row.droitEnregistrement ? formatNumberWithSeparator(row.droitEnregistrement) : ''}
@@ -196,7 +196,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     className="w-full p-1 border-2 rounded text-right border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
-                <TableCell className="text-right border-r-2 border-[#84A98C]/40">
+                <TableCell className="text-right border-r-2 border-black/40">
                   {formatNumberWithSeparator(row.montantTTC)}
                 </TableCell>
                 <TableCell>
@@ -213,7 +213,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
             ))}
             {rows.length === 0 && (
               <TableRow>
-                <TableCell colSpan={10} className="text-center py-4 text-muted-foreground border-b-2 border-[#84A98C]/40">
+                <TableCell colSpan={10} className="text-center py-4 text-muted-foreground border-b-2 border-black/40">
                   Aucune donnée. Cliquez sur "Ajouter" pour commencer.
                 </TableCell>
               </TableRow>
@@ -221,13 +221,13 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
           </TableBody>
           <TableFooter className="bg-[#F2FCE2] text-primary font-medium">
             <TableRow>
-              <TableCell colSpan={3} className="font-medium text-right border-r-2 border-[#84A98C]/40">TOTAUX</TableCell>
-              <TableCell className="text-right font-medium border-r-2 border-[#84A98C]/40">{formatNumberWithSeparator(totals.montantHT)}</TableCell>
-              <TableCell className="text-right font-medium border-r-2 border-[#84A98C]/40">{formatNumberWithSeparator(totals.acompteIRPrincipal)}</TableCell>
-              <TableCell className="text-right font-medium border-r-2 border-[#84A98C]/40">{formatNumberWithSeparator(totals.acompteIRTTC)}</TableCell>
-              <TableCell className="text-right font-medium border-r-2 border-[#84A98C]/40">{formatNumberWithSeparator(totals.acompteIRPrincipal + totals.acompteIRTTC)}</TableCell>
-              <TableCell className="text-right font-medium border-r-2 border-[#84A98C]/40">{formatNumberWithSeparator(totals.droitEnregistrement)}</TableCell>
-              <TableCell className="text-right font-medium border-r-2 border-[#84A98C]/40">{formatNumberWithSeparator(totals.montantTTC)}</TableCell>
+              <TableCell colSpan={3} className="font-medium text-right border-r-2 border-black/40">TOTAUX</TableCell>
+              <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.montantHT)}</TableCell>
+              <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRPrincipal)}</TableCell>
+              <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRTTC)}</TableCell>
+              <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRPrincipal + totals.acompteIRTTC)}</TableCell>
+              <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.droitEnregistrement)}</TableCell>
+              <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.montantTTC)}</TableCell>
               <TableCell></TableCell>
             </TableRow>
           </TableFooter>
