@@ -114,15 +114,15 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
           variant="outline" 
           size="sm" 
           onClick={addRow}
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 border-primary text-primary hover:bg-primary hover:text-white"
         >
           <Plus className="h-4 w-4" /> Ajouter
         </Button>
       </div>
 
-      <div className="border rounded-md">
+      <div className="border rounded-md border-[#A8C1AE]">
         <Table>
-          <TableHeader className="bg-gray-800 text-white">
+          <TableHeader className="bg-primary text-white">
             <TableRow>
               <TableHead rowSpan={2} className="text-center text-white">Date</TableHead>
               <TableHead rowSpan={2} className="text-center text-white">Structure</TableHead>
@@ -141,13 +141,13 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
           </TableHeader>
           <TableBody>
             {rows.map((row) => (
-              <TableRow key={row.id}>
+              <TableRow key={row.id} className="hover:bg-[#F2FCE2]/50">
                 <TableCell>
                   <input
                     type="text"
                     value={row.date}
                     onChange={(e) => handleCellChange(row.id, 'date', e.target.value)}
-                    className="w-full p-1 border rounded"
+                    className="w-full p-1 border rounded border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
                 <TableCell>
@@ -155,7 +155,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     type="text"
                     value={row.structure}
                     onChange={(e) => handleCellChange(row.id, 'structure', e.target.value)}
-                    className="w-full p-1 border rounded"
+                    className="w-full p-1 border rounded border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
                 <TableCell>
@@ -163,7 +163,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     type="text"
                     value={row.numeroMarche}
                     onChange={(e) => handleCellChange(row.id, 'numeroMarche', e.target.value)}
-                    className="w-full p-1 border rounded"
+                    className="w-full p-1 border rounded border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
                 <TableCell>
@@ -171,7 +171,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     type="text"
                     value={row.montantHT ? formatNumberWithSeparator(row.montantHT) : ''}
                     onChange={(e) => handleCellChange(row.id, 'montantHT', e.target.value)}
-                    className="w-full p-1 border rounded text-right"
+                    className="w-full p-1 border rounded text-right border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
                 <TableCell>
@@ -179,7 +179,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     type="text"
                     value={row.acompteIRPrincipal ? formatNumberWithSeparator(row.acompteIRPrincipal) : ''}
                     onChange={(e) => handleCellChange(row.id, 'acompteIRPrincipal', e.target.value)}
-                    className="w-full p-1 border rounded text-right"
+                    className="w-full p-1 border rounded text-right border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
                 <TableCell className="text-right">
@@ -193,7 +193,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     type="text"
                     value={row.droitEnregistrement ? formatNumberWithSeparator(row.droitEnregistrement) : ''}
                     onChange={(e) => handleCellChange(row.id, 'droitEnregistrement', e.target.value)}
-                    className="w-full p-1 border rounded text-right"
+                    className="w-full p-1 border rounded text-right border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
                   />
                 </TableCell>
                 <TableCell className="text-right">
@@ -204,7 +204,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
                     variant="ghost"
                     size="icon"
                     onClick={() => removeRow(row.id)}
-                    className="h-8 w-8 text-red-500"
+                    className="h-8 w-8 text-red-500 hover:bg-red-50"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
@@ -219,7 +219,7 @@ export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentP
               </TableRow>
             )}
           </TableBody>
-          <TableFooter className="bg-gray-100">
+          <TableFooter className="bg-[#F2FCE2] text-primary">
             <TableRow>
               <TableCell colSpan={3} className="font-medium text-right">TOTAUX</TableCell>
               <TableCell className="text-right font-medium">{formatNumberWithSeparator(totals.montantHT)}</TableCell>
