@@ -1,7 +1,9 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface ClotureExerciceProps {
   selectedSubTab: string | null;
@@ -15,6 +17,31 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
 
   // State for tracking activity type in the Chiffre d'affaires section
   const [activityType, setActivityType] = useState<"commercial" | "service">("commercial");
+
+  // Sample data for the commercial activity analysis table
+  const commercialActivityData = [
+    {
+      month: "Janvier",
+      irPrincipal: 1200,
+      irCAC: 120,
+      irTotal: 1320,
+      caHT: 12000,
+    },
+    {
+      month: "Février",
+      irPrincipal: 1350,
+      irCAC: 135,
+      irTotal: 1485,
+      caHT: 13500,
+    },
+    {
+      month: "Mars",
+      irPrincipal: 1500,
+      irCAC: 150,
+      irTotal: 1650,
+      caHT: 15000,
+    },
+  ];
 
   return (
     <Card>
@@ -93,6 +120,34 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
                       <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
                         <li>Ventes de marchandises</li>
                       </ul>
+                      
+                      <div className="mt-4">
+                        <h4 className="font-medium text-sm mb-2">Tableau d'analyse</h4>
+                        <div className="rounded-md border">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Mois</TableHead>
+                                <TableHead>Accompte sur IR (Principal)</TableHead>
+                                <TableHead>Accompte sur IR (CAC)</TableHead>
+                                <TableHead>Accompte sur IR (Total)</TableHead>
+                                <TableHead>CA HT</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {commercialActivityData.map((row, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>{row.month}</TableCell>
+                                  <TableCell>{row.irPrincipal.toLocaleString()} €</TableCell>
+                                  <TableCell>{row.irCAC.toLocaleString()} €</TableCell>
+                                  <TableCell>{row.irTotal.toLocaleString()} €</TableCell>
+                                  <TableCell>{row.caHT.toLocaleString()} €</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-3">
