@@ -1,13 +1,22 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 
 interface ClotureExerciceProps {
   selectedSubTab: string | null;
   handleSubTabSelect: (subTab: string) => void;
+}
+
+interface CommercialActivityRow {
+  month: string;
+  caHT: number;
+  irPrincipal: number;
+  irCAC: number;
+  irTotal: number;
 }
 
 export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureExerciceProps) {
@@ -17,31 +26,58 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
 
   // State for tracking activity type in the Chiffre d'affaires section
   const [activityType, setActivityType] = useState<"commercial" | "service">("commercial");
+  
+  // State for commercial activity data
+  const [commercialActivityData, setCommercialActivityData] = useState<CommercialActivityRow[]>([]);
 
-  // Sample data for the commercial activity analysis table
-  const commercialActivityData = [
-    {
-      month: "Janvier",
-      irPrincipal: 1200,
-      irCAC: 120,
-      irTotal: 1320,
-      caHT: 12000,
-    },
-    {
-      month: "Février",
-      irPrincipal: 1350,
-      irCAC: 135,
-      irTotal: 1485,
-      caHT: 13500,
-    },
-    {
-      month: "Mars",
-      irPrincipal: 1500,
-      irCAC: 150,
-      irTotal: 1650,
-      caHT: 15000,
-    },
-  ];
+  // Initialize data with all months
+  useEffect(() => {
+    const months = [
+      "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", 
+      "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+    ];
+    
+    const initialData = months.map(month => ({
+      month,
+      caHT: 0,
+      irPrincipal: 0,
+      irCAC: 0,
+      irTotal: 0
+    }));
+    
+    setCommercialActivityData(initialData);
+  }, []);
+
+  // Calculate IR amounts based on CA HT
+  const handleCAChange = (index: number, value: string) => {
+    const caHT = parseFloat(value) || 0;
+    const irPrincipal = caHT * 0.05; // 5% of CA HT
+    const irCAC = irPrincipal * 0.1; // 10% of IR Principal
+    const irTotal = irPrincipal + irCAC;
+
+    const updatedData = [...commercialActivityData];
+    updatedData[index] = {
+      ...updatedData[index],
+      caHT,
+      irPrincipal,
+      irCAC,
+      irTotal
+    };
+
+    setCommercialActivityData(updatedData);
+  };
+
+  // Calculate totals
+  const totals = commercialActivityData.reduce(
+    (acc, curr) => ({
+      month: "Total",
+      caHT: acc.caHT + curr.caHT,
+      irPrincipal: acc.irPrincipal + curr.irPrincipal,
+      irCAC: acc.irCAC + curr.irCAC,
+      irTotal: acc.irTotal + curr.irTotal
+    }),
+    { month: "Total", caHT: 0, irPrincipal: 0, irCAC: 0, irTotal: 0 }
+  );
 
   return (
     <Card>
@@ -123,27 +159,41 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
                       
                       <div className="mt-4">
                         <h4 className="font-medium text-sm mb-2">Tableau d'analyse</h4>
-                        <div className="rounded-md border">
+                        <div className="rounded-md border overflow-x-auto">
                           <Table>
                             <TableHeader>
                               <TableRow>
                                 <TableHead>Mois</TableHead>
+                                <TableHead>CA HT (XAF)</TableHead>
                                 <TableHead>Accompte sur IR (Principal)</TableHead>
                                 <TableHead>Accompte sur IR (CAC)</TableHead>
                                 <TableHead>Accompte sur IR (Total)</TableHead>
-                                <TableHead>CA HT</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {commercialActivityData.map((row, index) => (
                                 <TableRow key={index}>
                                   <TableCell>{row.month}</TableCell>
-                                  <TableCell>{row.irPrincipal.toLocaleString()} €</TableCell>
-                                  <TableCell>{row.irCAC.toLocaleString()} €</TableCell>
-                                  <TableCell>{row.irTotal.toLocaleString()} €</TableCell>
-                                  <TableCell>{row.caHT.toLocaleString()} €</TableCell>
+                                  <TableCell>
+                                    <Input
+                                      type="number"
+                                      value={row.caHT || ''}
+                                      onChange={(e) => handleCAChange(index, e.target.value)}
+                                      className="w-32"
+                                    />
+                                  </TableCell>
+                                  <TableCell>{row.irPrincipal.toLocaleString()} XAF</TableCell>
+                                  <TableCell>{row.irCAC.toLocaleString()} XAF</TableCell>
+                                  <TableCell>{row.irTotal.toLocaleString()} XAF</TableCell>
                                 </TableRow>
                               ))}
+                              <TableRow className="font-medium bg-slate-50">
+                                <TableCell>{totals.month}</TableCell>
+                                <TableCell>{totals.caHT.toLocaleString()} XAF</TableCell>
+                                <TableCell>{totals.irPrincipal.toLocaleString()} XAF</TableCell>
+                                <TableCell>{totals.irCAC.toLocaleString()} XAF</TableCell>
+                                <TableCell>{totals.irTotal.toLocaleString()} XAF</TableCell>
+                              </TableRow>
                             </TableBody>
                           </Table>
                         </div>
