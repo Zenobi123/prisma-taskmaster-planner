@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { createUser, getExistingCredentials } from "@/services/userService";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -82,6 +83,28 @@ const Login = () => {
         // Stocker les informations de l'utilisateur
         localStorage.setItem("isAuthenticated", "true");
         localStorage.setItem("userRole", userData.role);
+
+        // Si c'est un admin, vérifier si l'utilisateur assistant existe déjà
+        if (userData.role === "admin") {
+          try {
+            const credentials = await getExistingCredentials();
+            const assistantExists = credentials.some(cred => 
+              cred.email === "assistant@prismagestion.com"
+            );
+
+            if (!assistantExists) {
+              // Créer l'utilisateur assistant
+              await createUser(
+                "assistant@prismagestion.com",
+                "Assistant123",
+                "comptable"
+              );
+              console.log("Utilisateur assistant créé avec succès");
+            }
+          } catch (error) {
+            console.error("Erreur lors de la vérification/création de l'assistant:", error);
+          }
+        }
 
         toast({
           title: "Connexion réussie",
