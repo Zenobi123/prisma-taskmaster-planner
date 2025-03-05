@@ -1,10 +1,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
+import { ElementsCharacteristiques } from "./clotureExercice/ElementsCharacteristiques";
+import { MontageDSF } from "./clotureExercice/MontageDSF";
 
 interface ClotureExerciceProps {
   selectedSubTab: string | null;
@@ -79,18 +77,6 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
     setCommercialActivityData(updatedData);
   };
 
-  // Calculate totals
-  const totals = commercialActivityData.reduce(
-    (acc, curr) => ({
-      month: "Total",
-      irPrincipal: acc.irPrincipal + curr.irPrincipal,
-      irCAC: acc.irCAC + curr.irCAC,
-      irTotal: acc.irTotal + curr.irTotal,
-      caHT: acc.caHT + curr.caHT
-    }),
-    { month: "Total", irPrincipal: 0, irCAC: 0, irTotal: 0, caHT: 0 }
-  );
-
   return (
     <Card>
       <CardHeader>
@@ -131,131 +117,18 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
         </div>
 
         {selectedSubTab === "elements-caracteristiques" && (
-          <Card className="border-[#A8C1AE] bg-[#F2FCE2] animate-fade-in mt-4">
-            <CardHeader>
-              <CardTitle className="text-[#1A1F2C]">Eléments caractéristiques {previousYear}</CardTitle>
-              <CardDescription className="text-[#8E9196]">
-                Éléments essentiels pour la clôture annuelle de l'exercice {previousYear}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-6">
-                <div className="bg-white p-4 rounded-md shadow-sm">
-                  <h3 className="font-medium text-lg mb-2">Chiffre d'affaires (produits)</h3>
-                  
-                  <RadioGroup 
-                    value={activityType} 
-                    onValueChange={(value) => setActivityType(value as "commercial" | "service")} 
-                    className="mt-2 mb-4"
-                  >
-                    <div className="flex items-center space-x-6">
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="commercial" id="commercial" />
-                        <Label htmlFor="commercial">Activité commerciale</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="service" id="service" />
-                        <Label htmlFor="service">Prestataire de services</Label>
-                      </div>
-                    </div>
-                  </RadioGroup>
-
-                  {activityType === "commercial" ? (
-                    <div className="space-y-3">
-                      <p className="text-sm text-muted-foreground">
-                        Analyse du chiffre d'affaires pour l'activité commerciale de l'exercice {previousYear}.
-                      </p>
-                      <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                        <li>Ventes de marchandises</li>
-                      </ul>
-                      
-                      <div className="mt-4">
-                        <h4 className="font-medium text-sm mb-2">Tableau d'analyse</h4>
-                        <div className="rounded-md border overflow-x-auto">
-                          <Table>
-                            <TableHeader>
-                              <TableRow>
-                                <TableHead>Mois</TableHead>
-                                <TableHead>Accompte sur IR (Principal)</TableHead>
-                                <TableHead>Accompte sur IR (CAC)</TableHead>
-                                <TableHead>Accompte sur IR (Total)</TableHead>
-                                <TableHead>CA HT</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {commercialActivityData.map((row, index) => (
-                                <TableRow key={index}>
-                                  <TableCell>{row.month}</TableCell>
-                                  <TableCell>
-                                    <Input
-                                      type="text"
-                                      value={row.irPrincipal ? formatNumberWithSeparator(row.irPrincipal) : ''}
-                                      onChange={(e) => handleIRPrincipalChange(index, e.target.value)}
-                                      className="w-32"
-                                    />
-                                  </TableCell>
-                                  <TableCell>{formatNumberWithSeparator(row.irCAC)}</TableCell>
-                                  <TableCell>{formatNumberWithSeparator(row.irTotal)}</TableCell>
-                                  <TableCell>{formatNumberWithSeparator(row.caHT)}</TableCell>
-                                </TableRow>
-                              ))}
-                              <TableRow className="font-medium bg-slate-50">
-                                <TableCell>{totals.month}</TableCell>
-                                <TableCell>{formatNumberWithSeparator(totals.irPrincipal)}</TableCell>
-                                <TableCell>{formatNumberWithSeparator(totals.irCAC)}</TableCell>
-                                <TableCell>{formatNumberWithSeparator(totals.irTotal)}</TableCell>
-                                <TableCell>{formatNumberWithSeparator(totals.caHT)}</TableCell>
-                              </TableRow>
-                            </TableBody>
-                          </Table>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="space-y-3">
-                      <p className="text-sm text-muted-foreground">
-                        Analyse du chiffre d'affaires pour l'activité de prestation de services de l'exercice {previousYear}.
-                      </p>
-                      <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
-                        <li>Prestations facturées</li>
-                        <li>Répartition par type de prestation</li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-                
-                <div className="bg-white p-4 rounded-md shadow-sm">
-                  <h3 className="font-medium text-lg mb-2">Impôts</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Détail des impôts et taxes payés durant l'exercice {previousYear}.
-                  </p>
-                </div>
-                
-                <div className="bg-white p-4 rounded-md shadow-sm">
-                  <h3 className="font-medium text-lg mb-2">Charges</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Récapitulatif des charges d'exploitation de l'exercice {previousYear}.
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          <ElementsCharacteristiques 
+            previousYear={previousYear}
+            activityType={activityType}
+            setActivityType={setActivityType}
+            commercialActivityData={commercialActivityData}
+            handleIRPrincipalChange={handleIRPrincipalChange}
+            formatNumberWithSeparator={formatNumberWithSeparator}
+          />
         )}
 
         {selectedSubTab === "montage-dsf" && (
-          <Card className="border-[#A8C1AE] bg-[#F2FCE2] animate-fade-in mt-4">
-            <CardHeader>
-              <CardTitle className="text-[#1A1F2C]">Montage DSF {previousYear}</CardTitle>
-              <CardDescription className="text-[#8E9196]">
-                Déclaration statistique et fiscale de l'exercice {previousYear}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Détails sur la préparation et le montage des documents pour la déclaration statistique et fiscale (DSF) de l'exercice {previousYear}.
-              </p>
-            </CardContent>
-          </Card>
+          <MontageDSF previousYear={previousYear} />
         )}
       </CardContent>
     </Card>
