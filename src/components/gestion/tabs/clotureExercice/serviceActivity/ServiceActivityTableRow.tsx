@@ -67,7 +67,7 @@ export const ServiceActivityTableRowComponent = ({
       <TableCell className="text-right border-r-2 border-black/40">
         {formatNumberWithSeparator(row.acompteIRPrincipal + row.acompteIRCAC)}
       </TableCell>
-      <TableCell className="border-r-2 border-black/40">
+      <TableCell className="border-r-2 border-black/40 w-32">
         <input
           type="text"
           value={row.droitEnregistrement ? formatNumberWithSeparator(row.droitEnregistrement) : ''}
@@ -75,7 +75,7 @@ export const ServiceActivityTableRowComponent = ({
           className="w-full p-1 border-2 rounded text-right border-neutral-300 focus:outline-none focus:ring-1 focus:ring-primary/30 focus:border-primary"
         />
       </TableCell>
-      <TableCell className="text-right border-r-2 border-black/40 min-w-36">
+      <TableCell className="text-right border-r-2 border-black/40 w-32">
         {formatNumberWithSeparator(row.montantTTC)}
       </TableCell>
       <TableCell>

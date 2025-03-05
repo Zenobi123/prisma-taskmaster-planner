@@ -24,8 +24,8 @@ export const ServiceActivityTableFooter = ({ totals }: ServiceActivityTableFoote
         <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRPrincipal)}</TableCell>
         <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRCAC)}</TableCell>
         <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRPrincipal + totals.acompteIRCAC)}</TableCell>
-        <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.droitEnregistrement)}</TableCell>
-        <TableCell className="text-right font-medium border-r-2 border-black/40 min-w-36">{formatNumberWithSeparator(totals.montantTTC)}</TableCell>
+        <TableCell className="text-right font-medium border-r-2 border-black/40 w-32">{formatNumberWithSeparator(totals.droitEnregistrement)}</TableCell>
+        <TableCell className="text-right font-medium border-r-2 border-black/40 w-32">{formatNumberWithSeparator(totals.montantTTC)}</TableCell>
         <TableCell></TableCell>
       </TableRow>
     </TableFooter>
