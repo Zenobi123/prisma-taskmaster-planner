@@ -48,9 +48,21 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
     setCommercialActivityData(initialData);
   }, []);
 
-  // Calculate other values based on IR Principal
+  // Format input value with thousands separator
+  const formatNumberWithSeparator = (value: number): string => {
+    return value.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+  };
+
+  // Parse input value from formatted string
+  const parseFormattedNumber = (value: string): number => {
+    // Remove all non-digit characters except decimal point
+    const cleanValue = value.replace(/[^\d]/g, '');
+    return cleanValue ? parseInt(cleanValue, 10) : 0;
+  };
+
+  // Handle IR Principal input change with formatting
   const handleIRPrincipalChange = (index: number, value: string) => {
-    const irPrincipal = parseFloat(value) || 0;
+    const irPrincipal = parseFormattedNumber(value);
     const irCAC = irPrincipal * 0.1; // 10% of IR Principal
     const irTotal = irPrincipal + irCAC;
     const caHT = irTotal / 0.055; // CA HT = IR Total / 5.5%
@@ -176,23 +188,23 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
                                   <TableCell>{row.month}</TableCell>
                                   <TableCell>
                                     <Input
-                                      type="number"
-                                      value={row.irPrincipal || ''}
+                                      type="text"
+                                      value={row.irPrincipal ? formatNumberWithSeparator(row.irPrincipal) : ''}
                                       onChange={(e) => handleIRPrincipalChange(index, e.target.value)}
                                       className="w-32"
                                     />
                                   </TableCell>
-                                  <TableCell>{row.irCAC.toLocaleString()}</TableCell>
-                                  <TableCell>{row.irTotal.toLocaleString()}</TableCell>
-                                  <TableCell>{row.caHT.toLocaleString()}</TableCell>
+                                  <TableCell>{formatNumberWithSeparator(row.irCAC)}</TableCell>
+                                  <TableCell>{formatNumberWithSeparator(row.irTotal)}</TableCell>
+                                  <TableCell>{formatNumberWithSeparator(row.caHT)}</TableCell>
                                 </TableRow>
                               ))}
                               <TableRow className="font-medium bg-slate-50">
                                 <TableCell>{totals.month}</TableCell>
-                                <TableCell>{totals.irPrincipal.toLocaleString()}</TableCell>
-                                <TableCell>{totals.irCAC.toLocaleString()}</TableCell>
-                                <TableCell>{totals.irTotal.toLocaleString()}</TableCell>
-                                <TableCell>{totals.caHT.toLocaleString()}</TableCell>
+                                <TableCell>{formatNumberWithSeparator(totals.irPrincipal)}</TableCell>
+                                <TableCell>{formatNumberWithSeparator(totals.irCAC)}</TableCell>
+                                <TableCell>{formatNumberWithSeparator(totals.irTotal)}</TableCell>
+                                <TableCell>{formatNumberWithSeparator(totals.caHT)}</TableCell>
                               </TableRow>
                             </TableBody>
                           </Table>
