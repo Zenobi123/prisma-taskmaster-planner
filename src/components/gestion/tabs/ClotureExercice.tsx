@@ -13,10 +13,10 @@ interface ClotureExerciceProps {
 
 interface CommercialActivityRow {
   month: string;
-  caHT: number;
   irPrincipal: number;
   irCAC: number;
   irTotal: number;
+  caHT: number;
 }
 
 export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureExerciceProps) {
@@ -39,29 +39,29 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
     
     const initialData = months.map(month => ({
       month,
-      caHT: 0,
       irPrincipal: 0,
       irCAC: 0,
-      irTotal: 0
+      irTotal: 0,
+      caHT: 0
     }));
     
     setCommercialActivityData(initialData);
   }, []);
 
-  // Calculate IR amounts based on CA HT
-  const handleCAChange = (index: number, value: string) => {
-    const caHT = parseFloat(value) || 0;
-    const irPrincipal = caHT * 0.05; // 5% of CA HT
+  // Calculate other values based on IR Principal
+  const handleIRPrincipalChange = (index: number, value: string) => {
+    const irPrincipal = parseFloat(value) || 0;
     const irCAC = irPrincipal * 0.1; // 10% of IR Principal
     const irTotal = irPrincipal + irCAC;
+    const caHT = irTotal / 0.055; // CA HT = IR Total / 5.5%
 
     const updatedData = [...commercialActivityData];
     updatedData[index] = {
       ...updatedData[index],
-      caHT,
       irPrincipal,
       irCAC,
-      irTotal
+      irTotal,
+      caHT
     };
 
     setCommercialActivityData(updatedData);
@@ -71,12 +71,12 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
   const totals = commercialActivityData.reduce(
     (acc, curr) => ({
       month: "Total",
-      caHT: acc.caHT + curr.caHT,
       irPrincipal: acc.irPrincipal + curr.irPrincipal,
       irCAC: acc.irCAC + curr.irCAC,
-      irTotal: acc.irTotal + curr.irTotal
+      irTotal: acc.irTotal + curr.irTotal,
+      caHT: acc.caHT + curr.caHT
     }),
-    { month: "Total", caHT: 0, irPrincipal: 0, irCAC: 0, irTotal: 0 }
+    { month: "Total", irPrincipal: 0, irCAC: 0, irTotal: 0, caHT: 0 }
   );
 
   return (
@@ -164,10 +164,10 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
                             <TableHeader>
                               <TableRow>
                                 <TableHead>Mois</TableHead>
-                                <TableHead>CA HT (XAF)</TableHead>
                                 <TableHead>Accompte sur IR (Principal)</TableHead>
                                 <TableHead>Accompte sur IR (CAC)</TableHead>
                                 <TableHead>Accompte sur IR (Total)</TableHead>
+                                <TableHead>CA HT</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -177,22 +177,22 @@ export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureE
                                   <TableCell>
                                     <Input
                                       type="number"
-                                      value={row.caHT || ''}
-                                      onChange={(e) => handleCAChange(index, e.target.value)}
+                                      value={row.irPrincipal || ''}
+                                      onChange={(e) => handleIRPrincipalChange(index, e.target.value)}
                                       className="w-32"
                                     />
                                   </TableCell>
-                                  <TableCell>{row.irPrincipal.toLocaleString()} XAF</TableCell>
-                                  <TableCell>{row.irCAC.toLocaleString()} XAF</TableCell>
-                                  <TableCell>{row.irTotal.toLocaleString()} XAF</TableCell>
+                                  <TableCell>{row.irCAC.toLocaleString()}</TableCell>
+                                  <TableCell>{row.irTotal.toLocaleString()}</TableCell>
+                                  <TableCell>{row.caHT.toLocaleString()}</TableCell>
                                 </TableRow>
                               ))}
                               <TableRow className="font-medium bg-slate-50">
                                 <TableCell>{totals.month}</TableCell>
-                                <TableCell>{totals.caHT.toLocaleString()} XAF</TableCell>
-                                <TableCell>{totals.irPrincipal.toLocaleString()} XAF</TableCell>
-                                <TableCell>{totals.irCAC.toLocaleString()} XAF</TableCell>
-                                <TableCell>{totals.irTotal.toLocaleString()} XAF</TableCell>
+                                <TableCell>{totals.irPrincipal.toLocaleString()}</TableCell>
+                                <TableCell>{totals.irCAC.toLocaleString()}</TableCell>
+                                <TableCell>{totals.irTotal.toLocaleString()}</TableCell>
+                                <TableCell>{totals.caHT.toLocaleString()}</TableCell>
                               </TableRow>
                             </TableBody>
                           </Table>
