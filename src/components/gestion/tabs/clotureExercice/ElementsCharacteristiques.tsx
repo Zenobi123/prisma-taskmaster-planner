@@ -50,7 +50,7 @@ export const ElementsCharacteristiques = ({
                 formatNumberWithSeparator={formatNumberWithSeparator}
               />
             ) : (
-              <ServiceActivityContent />
+              <ServiceActivityContent previousYear={previousYear} />
             )}
           </div>
           
