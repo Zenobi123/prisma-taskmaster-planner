@@ -46,8 +46,8 @@ const Missions = () => {
         client: task.clients?.raisonsociale || task.clients?.nom || 'Client inconnu',
         assignedTo: task.collaborateurs ? `${task.collaborateurs.prenom} ${task.collaborateurs.nom}` : 'Non assigné',
         status: task.status,
-        startDate: new Date(task.created_at).toLocaleDateString(),
-        endDate: new Date(task.updated_at).toLocaleDateString(),
+        startDate: task.start_date ? new Date(task.start_date).toLocaleDateString() : 'Non définie',
+        endDate: task.end_date ? new Date(task.end_date).toLocaleDateString() : 'Non définie',
         clientId: task.client_id,
         collaborateurId: task.collaborateur_id
       }));

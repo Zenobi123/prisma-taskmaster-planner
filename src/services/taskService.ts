@@ -18,13 +18,13 @@ export const getTasks = async () => {
     .from("tasks")
     .select(`
       *,
-      clients (
+      clients!tasks_client_id_fkey (
         id,
         nom,
         raisonsociale,
         type
       ),
-      collaborateurs (
+      collaborateurs!tasks_collaborateur_id_fkey (
         id,
         nom,
         prenom

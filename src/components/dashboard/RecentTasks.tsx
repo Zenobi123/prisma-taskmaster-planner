@@ -50,20 +50,28 @@ const RecentTasks = () => {
             </tr>
           </thead>
           <tbody>
-            {tasks.map((task: any) => (
-              <tr key={task.id}>
-                <td>{task.title}</td>
-                <td>
-                  {task.clients.type === "physique"
-                    ? task.clients.nom
-                    : task.clients.raisonsociale}
+            {tasks.length > 0 ? (
+              tasks.map((task: any) => (
+                <tr key={task.id}>
+                  <td>{task.title}</td>
+                  <td>
+                    {task.clients && task.clients.type === "physique"
+                      ? task.clients.nom
+                      : task.clients?.raisonsociale || "Client inconnu"}
+                  </td>
+                  <td>
+                    {task.collaborateurs ? `${task.collaborateurs.prenom} ${task.collaborateurs.nom}` : "Non assigné"}
+                  </td>
+                  <td>{getStatusBadge(task.status)}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className="text-center py-4 text-gray-500">
+                  Aucune tâche n'a été créée.
                 </td>
-                <td>
-                  {task.collaborateurs.prenom} {task.collaborateurs.nom}
-                </td>
-                <td>{getStatusBadge(task.status)}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
