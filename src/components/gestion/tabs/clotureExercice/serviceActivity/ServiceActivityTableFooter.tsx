@@ -21,12 +21,12 @@ export const ServiceActivityTableFooter = ({ totals }: ServiceActivityTableFoote
         <TableCell colSpan={3} className="font-medium text-right border-r-2 border-black/40">TOTAUX</TableCell>
         <TableCell className="text-right font-medium border-r-2 border-black/40 min-w-36">{formatNumberWithSeparator(totals.montantHT)}</TableCell>
         <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.arrondi)}</TableCell>
-        <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRPrincipal)}</TableCell>
+        <TableCell className="text-right font-medium border-r-2 border-black/40 w-32">{formatNumberWithSeparator(totals.acompteIRPrincipal)}</TableCell>
         <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRCAC)}</TableCell>
         <TableCell className="text-right font-medium border-r-2 border-black/40">{formatNumberWithSeparator(totals.acompteIRPrincipal + totals.acompteIRCAC)}</TableCell>
-        <TableCell className="text-right font-medium border-r-2 border-black/40 w-32">{formatNumberWithSeparator(totals.droitEnregistrement)}</TableCell>
-        <TableCell className="text-right font-medium border-r-2 border-black/40 w-32">{formatNumberWithSeparator(totals.montantTTC)}</TableCell>
-        <TableCell></TableCell>
+        <TableCell className="text-right font-medium border-r-2 border-black/40 w-24">{formatNumberWithSeparator(totals.droitEnregistrement)}</TableCell>
+        <TableCell className="text-right font-medium border-r-2 border-black/40 w-28">{formatNumberWithSeparator(totals.montantTTC)}</TableCell>
+        <TableCell className="w-20"></TableCell>
       </TableRow>
     </TableFooter>
   );
