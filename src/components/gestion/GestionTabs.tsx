@@ -1,15 +1,8 @@
 
 import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GestionEntreprise } from "./tabs/GestionEntreprise";
-import { GestionFiscale } from "./tabs/GestionFiscale";
-import { GestionComptable } from "./tabs/GestionComptable";
-import { GestionDossier } from "./tabs/GestionDossier";
-import { ContratPrestations } from "./tabs/ContratPrestations";
-import { ClotureExercice } from "./tabs/ClotureExercice";
-import { ObligationsFiscales } from "./tabs/ObligationsFiscales";
-import { OptimisationFiscale } from "./tabs/OptimisationFiscale";
-import { AdministrationFiscale } from "./tabs/AdministrationFiscale";
+import { Tabs } from "@/components/ui/tabs";
+import { GestionTabsList } from "./tabs/TabsList";
+import { GestionTabsContent } from "./tabs/TabsContent";
 import { Client } from "@/types/client";
 
 interface GestionTabsProps {
@@ -34,71 +27,15 @@ export function GestionTabs({
       onValueChange={onTabChange} 
       className="space-y-4"
     >
-      <TabsList className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-transparent">
-        <TabsTrigger 
-          value="entreprise"
-          className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-        >
-          Gestion d'entreprise
-        </TabsTrigger>
-        <TabsTrigger 
-          value="fiscal"
-          className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-        >
-          Gestion fiscale
-        </TabsTrigger>
-        <TabsTrigger 
-          value="comptable"
-          className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-        >
-          Gestion comptable
-        </TabsTrigger>
-        <TabsTrigger 
-          value="dossier"
-          className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-        >
-          Gestion documentaire
-        </TabsTrigger>
-      </TabsList>
+      <GestionTabsList activeTab={activeTab} />
       
-      <TabsContent value="entreprise">
-        <GestionEntreprise onTabChange={onTabChange} />
-      </TabsContent>
-
-      <TabsContent value="contrat-prestations">
-        <ContratPrestations client={selectedClient} />
-      </TabsContent>
-
-      <TabsContent value="fiscal">
-        <GestionFiscale onTabChange={onTabChange} />
-      </TabsContent>
-
-      <TabsContent value="obligations-fiscales">
-        <ObligationsFiscales />
-      </TabsContent>
-
-      <TabsContent value="optimisation-fiscale">
-        <OptimisationFiscale />
-      </TabsContent>
-
-      <TabsContent value="administration-fiscale">
-        <AdministrationFiscale />
-      </TabsContent>
-
-      <TabsContent value="cloture-exercice">
-        <ClotureExercice 
-          selectedSubTab={selectedSubTab} 
-          handleSubTabSelect={onSubTabSelect} 
-        />
-      </TabsContent>
-
-      <TabsContent value="comptable">
-        <GestionComptable />
-      </TabsContent>
-
-      <TabsContent value="dossier">
-        <GestionDossier />
-      </TabsContent>
+      <GestionTabsContent
+        activeTab={activeTab}
+        selectedClient={selectedClient}
+        selectedSubTab={selectedSubTab}
+        onTabChange={onTabChange}
+        onSubTabSelect={onSubTabSelect}
+      />
     </Tabs>
   );
 }
