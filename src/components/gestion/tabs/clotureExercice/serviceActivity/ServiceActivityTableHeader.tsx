@@ -12,7 +12,7 @@ export const ServiceActivityTableHeader = () => {
         <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black w-36">Montant HT</TableHead>
         <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black">Arrondi</TableHead>
         <TableHead colSpan={3} className="text-center text-white font-medium border-r-2 border-black">Acompte IR</TableHead>
-        <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black w-32">Droit d'enregistrement</TableHead>
+        <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black w-32">DE</TableHead>
         <TableHead rowSpan={2} className="text-center text-white font-medium border-r-2 border-black w-32">Montant TTC</TableHead>
         <TableHead rowSpan={2} className="text-center text-white font-medium">Actions</TableHead>
       </TableRow>
