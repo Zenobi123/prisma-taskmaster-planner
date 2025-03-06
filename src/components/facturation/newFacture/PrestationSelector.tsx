@@ -28,39 +28,49 @@ export const PrestationSelector = ({
   setOpenPrestationSelector,
   onSelectPrestation,
 }: PrestationSelectorProps) => {
+  console.log("PrestationSelector rendered, open state:", openPrestationSelector);
+  
   return (
     <Popover open={openPrestationSelector} onOpenChange={setOpenPrestationSelector} modal={true}>
       <PopoverTrigger asChild>
-        <Button variant="outline" size="sm" className="h-8 px-2 gap-1">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-8 px-2 gap-1"
+          onClick={() => {
+            console.log("PopoverTrigger clicked, current state:", openPrestationSelector);
+            setOpenPrestationSelector(true);
+          }}
+        >
           <Plus className="h-3.5 w-3.5" />
           <span className="sr-md:inline-block">Ajouter un élément prédéfini</span>
           <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-[400px] p-0" 
+        className="w-[400px] p-0 z-[1000]" 
         align="start"
         sideOffset={5}
+        forceMount
       >
-        <div className="bg-white rounded-lg border shadow-md">
-          <Command className="rounded-lg">
-            <CommandGroup heading="Prestations prédéfinies">
-              {PREDEFINED_PRESTATIONS.map((item) => (
-                <CommandItem 
-                  key={item.id}
-                  onSelect={() => {
-                    onSelectPrestation(item);
-                    setOpenPrestationSelector(false);
-                  }}
-                  className="flex justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground"
-                >
-                  <span>{item.description}</span>
-                  <span className="text-muted-foreground">{item.montant.toLocaleString()} FCFA</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </div>
+        <Command className="rounded-lg border border-gray-200 shadow-lg bg-white">
+          <CommandGroup heading="Prestations prédéfinies">
+            {PREDEFINED_PRESTATIONS.map((item) => (
+              <CommandItem 
+                key={item.id}
+                onSelect={() => {
+                  console.log("Item selected:", item);
+                  onSelectPrestation(item);
+                  setOpenPrestationSelector(false);
+                }}
+                className="flex justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground py-3"
+              >
+                <span>{item.description}</span>
+                <span className="text-muted-foreground">{item.montant.toLocaleString()} FCFA</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
       </PopoverContent>
     </Popover>
   );

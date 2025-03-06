@@ -30,7 +30,7 @@ export const PrestationsForm = ({ prestations, setPrestations }: PrestationsForm
     const updatedPrestations = [...prestations];
     updatedPrestations[index] = {
       ...updatedPrestations[index],
-      [field]: field === 'montant' ? Number(value) : value
+      [field]: field === 'montant' ? Number(value) || 0 : value
     };
     setPrestations(updatedPrestations);
   };
@@ -54,23 +54,26 @@ export const PrestationsForm = ({ prestations, setPrestations }: PrestationsForm
     }
     
     setPrestations(updatedPrestations);
-    setOpenPrestationSelector(false);
   };
 
   const calculateTotal = () => {
     return prestations.reduce((sum, p) => sum + (Number(p.montant) || 0), 0);
   };
 
+  console.log("PrestationsForm rendered, selector open:", openPrestationSelector);
+
   return (
     <TooltipProvider>
       <div className="grid gap-2">
         <div className="flex justify-between items-center">
           <Label>Prestations</Label>
-          <PrestationSelector 
-            openPrestationSelector={openPrestationSelector} 
-            setOpenPrestationSelector={setOpenPrestationSelector}
-            onSelectPrestation={addPredefinedPrestation}
-          />
+          <div className="relative z-10">
+            <PrestationSelector 
+              openPrestationSelector={openPrestationSelector} 
+              setOpenPrestationSelector={setOpenPrestationSelector}
+              onSelectPrestation={addPredefinedPrestation}
+            />
+          </div>
         </div>
         <div className="border rounded-md p-3">
           {prestations.map((prestation, index) => (
