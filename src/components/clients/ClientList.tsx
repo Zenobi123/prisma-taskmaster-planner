@@ -12,20 +12,22 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Eye, Edit, Trash } from "lucide-react";
+import { MoreHorizontal, Eye, Edit, Archive, RotateCcw } from "lucide-react";
 import { Client } from "@/types/client";
 
 interface ClientListProps {
   clients: Client[];
   onView: (client: Client) => void;
   onEdit: (client: Client) => void;
-  onDelete: (client: Client) => void;
+  onArchive: (client: Client) => void;
+  onRestore?: (client: Client) => void;
 }
 
-export function ClientList({ clients, onView, onEdit, onDelete }: ClientListProps) {
+export function ClientList({ clients, onView, onEdit, onArchive, onRestore }: ClientListProps) {
   return (
     <Table>
       <TableHeader>
@@ -43,7 +45,7 @@ export function ClientList({ clients, onView, onEdit, onDelete }: ClientListProp
       </TableHeader>
       <TableBody>
         {clients.map((client) => (
-          <TableRow key={client.id}>
+          <TableRow key={client.id} className={client.statut === 'archive' ? 'opacity-60' : ''}>
             <TableCell>
               <Badge 
                 variant="outline"
@@ -65,8 +67,16 @@ export function ClientList({ clients, onView, onEdit, onDelete }: ClientListProp
             <TableCell>{client.contact.telephone}</TableCell>
             <TableCell>{client.secteuractivite}</TableCell>
             <TableCell>
-              <Badge variant={client.statut === "actif" ? "success" : "secondary"}>
-                {client.statut}
+              <Badge 
+                variant={
+                  client.statut === "actif" 
+                    ? "success" 
+                    : client.statut === "archive" 
+                      ? "destructive" 
+                      : "secondary"
+                }
+              >
+                {client.statut === "archive" ? "Archivé" : client.statut}
               </Badge>
             </TableCell>
             <TableCell className="text-right">
@@ -82,14 +92,27 @@ export function ClientList({ clients, onView, onEdit, onDelete }: ClientListProp
                     <Eye className="mr-2 h-4 w-4" />
                     Voir le profil
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onEdit(client)}>
-                    <Edit className="mr-2 h-4 w-4" />
-                    Modifier
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => onDelete(client)}>
-                    <Trash className="mr-2 h-4 w-4" />
-                    Supprimer
-                  </DropdownMenuItem>
+                  
+                  {client.statut !== "archive" && (
+                    <>
+                      <DropdownMenuItem onClick={() => onEdit(client)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Modifier
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => onArchive(client)}>
+                        <Archive className="mr-2 h-4 w-4" />
+                        Archiver
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
+                  {client.statut === "archive" && onRestore && (
+                    <DropdownMenuItem onClick={() => onRestore(client)}>
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Restaurer
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </TableCell>

@@ -19,6 +19,7 @@ export type FormeJuridique =
   | "association" 
   | "gie" 
   | "autre";
+export type ClientStatus = "actif" | "inactif" | "archive";
 
 // Ajout de l'export du type RegimeFiscal
 export type RegimeFiscal = RegimeFiscalPhysique | RegimeFiscalMorale;
@@ -53,7 +54,7 @@ export interface Client {
   secteuractivite: string;
   numerocnps?: string;
   interactions: Interaction[];
-  statut: "actif" | "inactif";
+  statut: ClientStatus;
   gestionexternalisee: boolean;
   created_at?: string;
   sexe?: Sexe;

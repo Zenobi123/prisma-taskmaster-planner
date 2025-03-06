@@ -2,13 +2,14 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Client, ClientType } from "@/types/client";
-import { getClients, addClient, deleteClient, updateClient } from "@/services/clientService";
+import { getClients, addClient, archiveClient, updateClient } from "@/services/clientService";
 import { useToast } from "@/components/ui/use-toast";
 
 export function useClientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<ClientType | "all">("all");
   const [selectedSecteur, setSelectedSecteur] = useState("all");
+  const [showArchived, setShowArchived] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
@@ -69,17 +70,45 @@ export function useClientsPage() {
     },
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: deleteClient,
+  const archiveMutation = useMutation({
+    mutationFn: archiveClient,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       toast({
-        title: "Client supprimé",
-        description: "Le client a été supprimé avec succès.",
+        title: "Client archivé",
+        description: "Le client a été archivé avec succès.",
       });
     },
     onError: (error: any) => {
-      console.error("Erreur lors de la suppression du client:", error);
+      console.error("Erreur lors de l'archivage du client:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'archivage du client.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: async (id: string) => {
+      console.log("Restauration du client:", id);
+      const restoredClient = await updateClient(id, { statut: "actif" });
+      return restoredClient;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      toast({
+        title: "Client restauré",
+        description: "Le client a été restauré avec succès.",
+      });
+    },
+    onError: (error: any) => {
+      console.error("Erreur lors de la restauration du client:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la restauration du client.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -93,12 +122,22 @@ export function useClientsPage() {
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = async (client: Client) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
+  const handleArchive = async (client: Client) => {
+    if (window.confirm("Êtes-vous sûr de vouloir archiver ce client ?")) {
       try {
-        await deleteMutation.mutateAsync(client.id);
+        await archiveMutation.mutateAsync(client.id);
       } catch (error) {
-        console.error("Erreur lors de la suppression:", error);
+        console.error("Erreur lors de l'archivage:", error);
+      }
+    }
+  };
+
+  const handleRestore = async (client: Client) => {
+    if (window.confirm("Êtes-vous sûr de vouloir restaurer ce client ?")) {
+      try {
+        await restoreMutation.mutateAsync(client.id);
+      } catch (error) {
+        console.error("Erreur lors de la restauration:", error);
       }
     }
   };
@@ -117,7 +156,9 @@ export function useClientsPage() {
     const matchesSecteur =
       selectedSecteur === "all" || client.secteuractivite === selectedSecteur;
 
-    return matchesSearch && matchesType && matchesSecteur;
+    const matchesArchiveStatus = showArchived || client.statut !== "archive";
+
+    return matchesSearch && matchesType && matchesSecteur && matchesArchiveStatus;
   });
 
   return {
@@ -130,6 +171,8 @@ export function useClientsPage() {
     setSelectedType,
     selectedSecteur,
     setSelectedSecteur,
+    showArchived,
+    setShowArchived,
     isDialogOpen,
     setIsDialogOpen,
     isEditDialogOpen,
@@ -144,7 +187,8 @@ export function useClientsPage() {
     updateMutation,
     handleView,
     handleEdit,
-    handleDelete,
+    handleArchive,
+    handleRestore,
     toast
   };
 }

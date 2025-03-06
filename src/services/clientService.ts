@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { Database } from "@/integrations/supabase/types";
@@ -53,7 +52,7 @@ export const getClients = async () => {
         date: interaction.date || new Date().toISOString(),
         description: interaction.description || ""
       })),
-      statut: client.statut as "actif" | "inactif",
+      statut: client.statut as "actif" | "inactif" | "archive",
       gestionexternalisee: client.gestionexternalisee || false,
       created_at: client.created_at
     })) as Client[];
@@ -98,6 +97,35 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
   }
 
   console.log("Client ajouté avec succès:", data);
+  return data;
+};
+
+export const archiveClient = async (id: string) => {
+  // First, check if there are any tasks associated with this client
+  const { data: clientTasks, error: taskCheckError } = await supabase
+    .from("tasks")
+    .select("id")
+    .eq("client_id", id);
+
+  if (taskCheckError) {
+    console.error("Erreur lors de la vérification des tâches associées:", taskCheckError);
+    throw taskCheckError;
+  }
+
+  // We can archive the client even if it has tasks
+  const { data, error } = await supabase
+    .from("clients")
+    .update({ statut: "archive" })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Erreur lors de l'archivage du client:", error);
+    throw error;
+  }
+
+  console.log("Client archivé avec succès:", data);
   return data;
 };
 

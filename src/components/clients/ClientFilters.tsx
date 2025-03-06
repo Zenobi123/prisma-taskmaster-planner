@@ -1,5 +1,6 @@
-import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
+import { ClientType } from "@/types/client";
 import {
   Select,
   SelectContent,
@@ -8,8 +9,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
-import { ClientType } from "@/types/client";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface ClientFiltersProps {
   searchTerm: string;
@@ -18,6 +19,8 @@ interface ClientFiltersProps {
   onTypeChange: (value: ClientType | "all") => void;
   selectedSecteur: string;
   onSecteurChange: (value: string) => void;
+  showArchived: boolean;
+  onShowArchivedChange: (value: boolean) => void;
 }
 
 export function ClientFilters({
@@ -27,47 +30,56 @@ export function ClientFilters({
   onTypeChange,
   selectedSecteur,
   onSecteurChange,
+  showArchived,
+  onShowArchivedChange,
 }: ClientFiltersProps) {
   return (
-    <div className="flex gap-4 mb-6">
-      <div className="relative flex-1">
-        <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
-        <Input
-          type="text"
-          placeholder="Rechercher un client..."
-          className="pl-10"
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-        />
-      </div>
-      <Select value={selectedType} onValueChange={onTypeChange}>
-        <SelectTrigger className="w-[200px] bg-background border-input">
-          <SelectValue placeholder="Type de client" />
-        </SelectTrigger>
-        <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
-          <ScrollArea className="max-h-[200px]">
-            <SelectItem value="all">Tous les types</SelectItem>
-            <SelectItem value="physique">Personne Physique</SelectItem>
-            <SelectItem value="morale">Personne Morale</SelectItem>
-          </ScrollArea>
-        </SelectContent>
-      </Select>
+    <div className="space-y-4 mb-6">
+      <div className="flex flex-wrap gap-4">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Rechercher..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+          />
+        </div>
 
-      <Select value={selectedSecteur} onValueChange={onSecteurChange}>
-        <SelectTrigger className="w-[200px] bg-background border-input">
-          <SelectValue placeholder="Secteur d'activité" />
-        </SelectTrigger>
-        <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
-          <ScrollArea className="max-h-[200px]">
+        <Select value={selectedType} onValueChange={onTypeChange}>
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue placeholder="Type de client" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous les types</SelectItem>
+            <SelectItem value="physique">Personne physique</SelectItem>
+            <SelectItem value="morale">Personne morale</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedSecteur} onValueChange={onSecteurChange}>
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue placeholder="Secteur" />
+          </SelectTrigger>
+          <SelectContent>
             <SelectItem value="all">Tous les secteurs</SelectItem>
             <SelectItem value="commerce">Commerce</SelectItem>
-            <SelectItem value="services">Services</SelectItem>
+            <SelectItem value="service">Service</SelectItem>
             <SelectItem value="industrie">Industrie</SelectItem>
             <SelectItem value="agriculture">Agriculture</SelectItem>
             <SelectItem value="autre">Autre</SelectItem>
-          </ScrollArea>
-        </SelectContent>
-      </Select>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <div className="flex items-center space-x-2">
+        <Checkbox 
+          id="show-archived" 
+          checked={showArchived} 
+          onCheckedChange={(checked) => onShowArchivedChange(checked as boolean)}
+        />
+        <Label htmlFor="show-archived">Afficher les clients archivés</Label>
+      </div>
     </div>
   );
 }

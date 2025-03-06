@@ -17,6 +17,8 @@ export default function ClientsPage() {
     setSelectedType,
     selectedSecteur,
     setSelectedSecteur,
+    showArchived,
+    setShowArchived,
     isDialogOpen,
     setIsDialogOpen,
     isEditDialogOpen,
@@ -30,7 +32,8 @@ export default function ClientsPage() {
     updateMutation,
     handleView,
     handleEdit,
-    handleDelete,
+    handleArchive,
+    handleRestore,
     toast
   } = useClientsPage();
 
@@ -60,9 +63,12 @@ export default function ClientsPage() {
           onTypeChange={setSelectedType}
           selectedSecteur={selectedSecteur}
           onSecteurChange={setSelectedSecteur}
+          showArchived={showArchived}
+          onShowArchivedChange={setShowArchived}
           onView={handleView}
           onEdit={handleEdit}
-          onDelete={handleDelete}
+          onArchive={handleArchive}
+          onRestore={handleRestore}
         />
 
         <ClientDialogs

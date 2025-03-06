@@ -11,9 +11,12 @@ interface ClientsContentProps {
   onTypeChange: (value: ClientType | "all") => void;
   selectedSecteur: string;
   onSecteurChange: (value: string) => void;
+  showArchived: boolean;
+  onShowArchivedChange: (value: boolean) => void;
   onView: (client: Client) => void;
   onEdit: (client: Client) => void;
-  onDelete: (client: Client) => void;
+  onArchive: (client: Client) => void;
+  onRestore: (client: Client) => void;
 }
 
 export function ClientsContent({
@@ -24,9 +27,12 @@ export function ClientsContent({
   onTypeChange,
   selectedSecteur,
   onSecteurChange,
+  showArchived,
+  onShowArchivedChange,
   onView,
   onEdit,
-  onDelete,
+  onArchive,
+  onRestore,
 }: ClientsContentProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
@@ -37,13 +43,16 @@ export function ClientsContent({
         onTypeChange={onTypeChange}
         selectedSecteur={selectedSecteur}
         onSecteurChange={onSecteurChange}
+        showArchived={showArchived}
+        onShowArchivedChange={onShowArchivedChange}
       />
 
       <ClientList
         clients={clients}
         onView={onView}
         onEdit={onEdit}
-        onDelete={onDelete}
+        onArchive={onArchive}
+        onRestore={onRestore}
       />
     </div>
   );

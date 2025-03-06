@@ -49,6 +49,23 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
     });
   };
 
+  const getStatusBadgeVariant = (statut: string) => {
+    switch(statut) {
+      case "actif": return "success";
+      case "archive": return "destructive";
+      default: return "secondary";
+    }
+  };
+
+  const getStatusLabel = (statut: string) => {
+    switch(statut) {
+      case "actif": return "Client Actif";
+      case "inactif": return "Client Inactif";
+      case "archive": return "Client Archivé";
+      default: return statut;
+    }
+  };
+
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -59,8 +76,8 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
           <Badge variant="outline" className="text-sm">
             {client.type === "physique" ? "Personne Physique" : "Personne Morale"}
           </Badge>
-          <Badge variant={client.statut === "actif" ? "success" : "secondary"} className="text-sm">
-            {client.statut === "actif" ? "Client Actif" : "Client Inactif"}
+          <Badge variant={getStatusBadgeVariant(client.statut)} className="text-sm">
+            {getStatusLabel(client.statut)}
           </Badge>
         </div>
 
