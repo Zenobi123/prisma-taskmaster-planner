@@ -94,13 +94,8 @@ export default function Clients() {
         description: "Le client a été supprimé avec succès.",
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Erreur lors de la suppression du client:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la suppression du client.",
-        variant: "destructive",
-      });
     },
   });
 
@@ -116,7 +111,11 @@ export default function Clients() {
 
   const handleDelete = async (client: Client) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer ce client ?")) {
-      deleteMutation.mutate(client.id);
+      try {
+        await deleteMutation.mutateAsync(client.id);
+      } catch (error) {
+        console.error("Erreur lors de la suppression:", error);
+      }
     }
   };
 
