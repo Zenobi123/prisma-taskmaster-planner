@@ -2,10 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ClientType, Client } from "@/types/client";
 import { ClientTypeSelect } from "./ClientTypeSelect";
-import { ClientIdentityFields } from "./ClientIdentityFields";
-import { ClientAddressFields } from "./ClientAddressFields";
-import { ClientContactFields } from "./ClientContactFields";
-import { ClientProfessionalFields } from "./ClientProfessionalFields";
+import { ClientFormFields } from "./form/ClientFormFields";
 import { useClientForm } from "@/hooks/useClientForm";
 
 interface ClientFormProps {
@@ -26,49 +23,15 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-4">
-        {onTypeChange && (
-          <ClientTypeSelect type={type} onTypeChange={onTypeChange} />
-        )}
+      {onTypeChange && (
+        <ClientTypeSelect type={type} onTypeChange={onTypeChange} />
+      )}
 
-        <ClientIdentityFields
-          type={type}
-          nom={formData.nom}
-          raisonsociale={formData.raisonsociale}
-          sigle={formData.sigle}
-          datecreation={formData.datecreation}
-          lieucreation={formData.lieucreation}
-          nomdirigeant={formData.nomdirigeant}
-          formejuridique={formData.formejuridique}
-          sexe={formData.sexe}
-          etatcivil={formData.etatcivil}
-          regimefiscal={formData.regimefiscal}
-          situationimmobiliere={formData.situationimmobiliere}
-          onChange={handleChange}
-        />
-
-        <ClientProfessionalFields
-          niu={formData.niu}
-          centrerattachement={formData.centrerattachement}
-          secteuractivite={formData.secteuractivite}
-          numerocnps={formData.numerocnps}
-          gestionexternalisee={formData.gestionexternalisee}
-          onChange={handleChange}
-        />
-
-        <ClientAddressFields
-          ville={formData.ville}
-          quartier={formData.quartier}
-          lieuDit={formData.lieuDit}
-          onChange={handleChange}
-        />
-
-        <ClientContactFields
-          telephone={formData.telephone}
-          email={formData.email}
-          onChange={handleChange}
-        />
-      </div>
+      <ClientFormFields 
+        type={type}
+        formData={formData}
+        onChange={handleChange}
+      />
 
       <Button type="submit" className="w-full">
         {initialData ? "Modifier le client" : "Ajouter le client"}
