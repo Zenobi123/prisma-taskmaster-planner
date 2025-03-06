@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,6 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Prestation } from "@/types/facture";
 
 interface NewFactureDialogProps {
@@ -27,6 +33,18 @@ interface NewFactureDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreateInvoice: (formData: any) => void;
 }
+
+// Prestations prédéfinies basées sur l'image fournie
+const PREDEFINED_PRESTATIONS = [
+  { id: "irpp2024", description: "AVANCE POUR PAIEMENT SOLDE IRPP 2024", montant: 11000 },
+  { id: "bail2025", description: "AVANCE POUR PAIEMENT BAIL 2025", montant: 60000 },
+  { id: "loyer2025", description: "AVANCE POUR PAIEMENT PRÉCOMPTE LOYER 2025", montant: 90000 },
+  { id: "patente2025", description: "AVANCE POUR PAIEMENT PATENTE 2025", montant: 141500 },
+  { id: "revenus2024", description: "DÉCLARATION ANNUELLE DES REVENUS - 2024", montant: 10000 },
+  { id: "fiscal2025", description: "RENOUVELLEMENT DU DOSSIER FISCAL 2025", montant: 15000 },
+  { id: "dsf2024", description: "MONTAGE ET MISE EN LIGNE DE LA DSF 2024", montant: 75000 },
+  { id: "cime2025", description: "FORFAIT SUIVI-GESTION FISCAL CIME EXERCICE 2025", montant: 60000 },
+];
 
 export const NewFactureDialog = ({
   isOpen,
@@ -40,6 +58,7 @@ export const NewFactureDialog = ({
     { description: "", montant: 0 }
   ]);
   const [notes, setNotes] = useState("");
+  const [openPrestationSelector, setOpenPrestationSelector] = useState(false);
 
   const handleSubmit = () => {
     const formData = {
@@ -78,6 +97,27 @@ export const NewFactureDialog = ({
       [field]: field === 'montant' ? Number(value) : value
     };
     setPrestations(updatedPrestations);
+  };
+
+  const addPredefinedPrestation = (prestation: { description: string, montant: number }) => {
+    const updatedPrestations = [...prestations];
+    // Remplacer la première prestation vide s'il y en a une
+    const emptyIndex = updatedPrestations.findIndex(p => p.description === "" && p.montant === 0);
+    
+    if (emptyIndex !== -1) {
+      updatedPrestations[emptyIndex] = {
+        description: prestation.description,
+        montant: prestation.montant
+      };
+    } else {
+      updatedPrestations.push({
+        description: prestation.description,
+        montant: prestation.montant
+      });
+    }
+    
+    setPrestations(updatedPrestations);
+    setOpenPrestationSelector(false);
   };
 
   const calculateTotal = () => {
@@ -131,7 +171,34 @@ export const NewFactureDialog = ({
             </div>
           </div>
           <div className="grid gap-2">
-            <Label>Prestations</Label>
+            <div className="flex justify-between items-center">
+              <Label>Prestations</Label>
+              <Popover open={openPrestationSelector} onOpenChange={setOpenPrestationSelector}>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 px-2 gap-1">
+                    <Plus className="h-3.5 w-3.5" />
+                    <span className="sr-md:inline-block">Ajouter un élément prédéfini</span>
+                    <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[400px] p-0" align="end">
+                  <Command>
+                    <CommandGroup heading="Prestations préefinies">
+                      {PREDEFINED_PRESTATIONS.map((item) => (
+                        <CommandItem 
+                          key={item.id}
+                          onSelect={() => addPredefinedPrestation(item)}
+                          className="flex justify-between cursor-pointer"
+                        >
+                          <span>{item.description}</span>
+                          <span className="text-muted-foreground">{item.montant.toLocaleString()} FCFA</span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </Command>
+                </PopoverContent>
+              </Popover>
+            </div>
             <div className="border rounded-md p-3">
               {prestations.map((prestation, index) => (
                 <div key={index} className="grid grid-cols-12 gap-2 mb-2">
