@@ -29,7 +29,7 @@ export const PrestationSelector = ({
   onSelectPrestation,
 }: PrestationSelectorProps) => {
   return (
-    <Popover open={openPrestationSelector} onOpenChange={setOpenPrestationSelector}>
+    <Popover open={openPrestationSelector} onOpenChange={setOpenPrestationSelector} modal={true}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="h-8 px-2 gap-1">
           <Plus className="h-3.5 w-3.5" />
@@ -37,8 +37,13 @@ export const PrestationSelector = ({
           <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[400px] p-0 z-50 bg-white" align="end">
-        <Command>
+      <PopoverContent 
+        className="w-[400px] p-0" 
+        align="end" 
+        sideOffset={5}
+        style={{ zIndex: 100, backgroundColor: 'white' }}
+      >
+        <Command className="rounded-lg border shadow-md">
           <CommandGroup heading="Prestations prédéfinies">
             {PREDEFINED_PRESTATIONS.map((item) => (
               <CommandItem 

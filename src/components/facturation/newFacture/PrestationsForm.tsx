@@ -35,6 +35,7 @@ export const PrestationsForm = ({ prestations, setPrestations }: PrestationsForm
   };
 
   const addPredefinedPrestation = (prestation: { description: string, montant: number }) => {
+    console.log("Selected prestation:", prestation);
     const updatedPrestations = [...prestations];
     // Remplacer la première prestation vide s'il y en a une
     const emptyIndex = updatedPrestations.findIndex(p => p.description === "" && p.montant === 0);
@@ -56,18 +57,20 @@ export const PrestationsForm = ({ prestations, setPrestations }: PrestationsForm
   };
 
   const calculateTotal = () => {
-    return prestations.reduce((sum, p) => sum + p.montant, 0);
+    return prestations.reduce((sum, p) => sum + (Number(p.montant) || 0), 0);
   };
 
   return (
     <div className="grid gap-2">
       <div className="flex justify-between items-center">
         <Label>Prestations</Label>
-        <PrestationSelector 
-          openPrestationSelector={openPrestationSelector} 
-          setOpenPrestationSelector={setOpenPrestationSelector}
-          onSelectPrestation={addPredefinedPrestation}
-        />
+        <div className="relative">
+          <PrestationSelector 
+            openPrestationSelector={openPrestationSelector} 
+            setOpenPrestationSelector={setOpenPrestationSelector}
+            onSelectPrestation={addPredefinedPrestation}
+          />
+        </div>
       </div>
       <div className="border rounded-md p-3">
         {prestations.map((prestation, index) => (
