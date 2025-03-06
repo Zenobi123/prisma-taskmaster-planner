@@ -12,26 +12,22 @@ const QuickStats = () => {
   // Calculate statistics based on actual data
   const activeTasks = tasks.filter((task: any) => task.status === "en_cours").length;
   
-  // Sum of task durations (in days) for current month
-  const calculateWorkHours = () => {
-    let totalHours = 0;
+  // Count completed missions for current month
+  const countCompletedMissions = () => {
+    let completedCount = 0;
     const currentMonth = new Date().getMonth();
     
     tasks.forEach((task: any) => {
-      if (task.start_date && task.end_date) {
-        const startDate = new Date(task.start_date);
-        // Only count tasks that started in the current month
-        if (startDate.getMonth() === currentMonth) {
-          const endDate = new Date(task.end_date);
-          const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          // Estimate 8 working hours per day
-          totalHours += diffDays * 8;
+      if (task.status === "termine" && task.end_date) {
+        const endDate = new Date(task.end_date);
+        // Only count tasks that were completed in the current month
+        if (endDate.getMonth() === currentMonth) {
+          completedCount++;
         }
       }
     });
     
-    return totalHours;
+    return completedCount;
   };
   
   // Count unique collaborators assigned to tasks
@@ -45,7 +41,7 @@ const QuickStats = () => {
     return collaborateurIds.size;
   };
 
-  const workHours = calculateWorkHours();
+  const completedMissions = countCompletedMissions();
   const activeCollaborators = countActiveCollaborators();
 
   return (
@@ -66,13 +62,13 @@ const QuickStats = () => {
 
       <div className="card">
         <h3 className="font-semibold text-neutral-800 mb-4">
-          Heures travaillées
+          Missions réalisées
         </h3>
         <div className="text-3xl font-bold text-primary">
           {isLoading ? (
             <span className="animate-pulse">--</span>
           ) : (
-            workHours
+            completedMissions
           )}
         </div>
         <p className="text-neutral-600 text-sm mt-1">Ce mois</p>
