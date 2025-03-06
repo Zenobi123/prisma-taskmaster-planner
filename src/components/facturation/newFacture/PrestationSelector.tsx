@@ -37,14 +37,14 @@ export const PrestationSelector = ({
           <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[400px] p-0" align="end">
+      <PopoverContent className="w-[400px] p-0 z-50 bg-white" align="end">
         <Command>
           <CommandGroup heading="Prestations prédéfinies">
             {PREDEFINED_PRESTATIONS.map((item) => (
               <CommandItem 
                 key={item.id}
                 onSelect={() => onSelectPrestation(item)}
-                className="flex justify-between cursor-pointer"
+                className="flex justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground"
               >
                 <span>{item.description}</span>
                 <span className="text-muted-foreground">{item.montant.toLocaleString()} FCFA</span>
