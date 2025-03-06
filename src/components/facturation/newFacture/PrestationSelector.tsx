@@ -39,24 +39,28 @@ export const PrestationSelector = ({
       </PopoverTrigger>
       <PopoverContent 
         className="w-[400px] p-0" 
-        align="end" 
+        align="start"
         sideOffset={5}
-        style={{ zIndex: 100, backgroundColor: 'white' }}
       >
-        <Command className="rounded-lg border shadow-md">
-          <CommandGroup heading="Prestations prédéfinies">
-            {PREDEFINED_PRESTATIONS.map((item) => (
-              <CommandItem 
-                key={item.id}
-                onSelect={() => onSelectPrestation(item)}
-                className="flex justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground"
-              >
-                <span>{item.description}</span>
-                <span className="text-muted-foreground">{item.montant.toLocaleString()} FCFA</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
+        <div className="bg-white rounded-lg border shadow-md">
+          <Command className="rounded-lg">
+            <CommandGroup heading="Prestations prédéfinies">
+              {PREDEFINED_PRESTATIONS.map((item) => (
+                <CommandItem 
+                  key={item.id}
+                  onSelect={() => {
+                    onSelectPrestation(item);
+                    setOpenPrestationSelector(false);
+                  }}
+                  className="flex justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground"
+                >
+                  <span>{item.description}</span>
+                  <span className="text-muted-foreground">{item.montant.toLocaleString()} FCFA</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </div>
       </PopoverContent>
     </Popover>
   );

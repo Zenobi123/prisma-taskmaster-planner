@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Prestation } from "@/types/facture";
 import { PrestationSelector } from "./PrestationSelector";
 import { useState } from "react";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface PrestationsFormProps {
   prestations: Prestation[];
@@ -61,61 +62,61 @@ export const PrestationsForm = ({ prestations, setPrestations }: PrestationsForm
   };
 
   return (
-    <div className="grid gap-2">
-      <div className="flex justify-between items-center">
-        <Label>Prestations</Label>
-        <div className="relative">
+    <TooltipProvider>
+      <div className="grid gap-2">
+        <div className="flex justify-between items-center">
+          <Label>Prestations</Label>
           <PrestationSelector 
             openPrestationSelector={openPrestationSelector} 
             setOpenPrestationSelector={setOpenPrestationSelector}
             onSelectPrestation={addPredefinedPrestation}
           />
         </div>
-      </div>
-      <div className="border rounded-md p-3">
-        {prestations.map((prestation, index) => (
-          <div key={index} className="grid grid-cols-12 gap-2 mb-2">
-            <div className="col-span-8">
-              <Input 
-                placeholder="Description" 
-                value={prestation.description}
-                onChange={(e) => updatePrestation(index, 'description', e.target.value)}
-              />
+        <div className="border rounded-md p-3">
+          {prestations.map((prestation, index) => (
+            <div key={index} className="grid grid-cols-12 gap-2 mb-2">
+              <div className="col-span-8">
+                <Input 
+                  placeholder="Description" 
+                  value={prestation.description}
+                  onChange={(e) => updatePrestation(index, 'description', e.target.value)}
+                />
+              </div>
+              <div className="col-span-3">
+                <Input 
+                  placeholder="Montant (FCFA)" 
+                  type="number" 
+                  value={prestation.montant || ''}
+                  onChange={(e) => updatePrestation(index, 'montant', e.target.value)}
+                />
+              </div>
+              <div className="col-span-1 flex items-center justify-center">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => handleRemovePrestation(index)}
+                  disabled={prestations.length === 1}
+                >
+                  <Trash2 className="h-4 w-4 text-red-500" />
+                </Button>
+              </div>
             </div>
-            <div className="col-span-3">
-              <Input 
-                placeholder="Montant (FCFA)" 
-                type="number" 
-                value={prestation.montant || ''}
-                onChange={(e) => updatePrestation(index, 'montant', e.target.value)}
-              />
-            </div>
-            <div className="col-span-1 flex items-center justify-center">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => handleRemovePrestation(index)}
-                disabled={prestations.length === 1}
-              >
-                <Trash2 className="h-4 w-4 text-red-500" />
-              </Button>
-            </div>
+          ))}
+          <div className="flex justify-between items-center mt-4">
+            <Button 
+              variant="outline" 
+              className="w-full" 
+              size="sm"
+              onClick={handleAddPrestation}
+            >
+              <Plus className="w-3 h-3 mr-1" /> Ajouter une prestation
+            </Button>
           </div>
-        ))}
-        <div className="flex justify-between items-center mt-4">
-          <Button 
-            variant="outline" 
-            className="w-full" 
-            size="sm"
-            onClick={handleAddPrestation}
-          >
-            <Plus className="w-3 h-3 mr-1" /> Ajouter une prestation
-          </Button>
-        </div>
-        <div className="flex justify-end mt-4 text-sm font-medium">
-          Total: {calculateTotal().toLocaleString()} FCFA
+          <div className="flex justify-end mt-4 text-sm font-medium">
+            Total: {calculateTotal().toLocaleString()} FCFA
+          </div>
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 };
