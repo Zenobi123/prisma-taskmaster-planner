@@ -1,125 +1,127 @@
 
-import { Plus, Trash2 } from "lucide-react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Plus, X } from "lucide-react";
 import { Prestation } from "@/types/facture";
 import { PrestationSelector } from "./PrestationSelector";
-import { useState } from "react";
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 interface PrestationsFormProps {
   prestations: Prestation[];
-  setPrestations: React.Dispatch<React.SetStateAction<Prestation[]>>;
+  setPrestations: (prestations: Prestation[]) => void;
+  isPrestationSelectorOpen?: boolean;
+  setIsPrestationSelectorOpen?: (open: boolean) => void;
 }
 
-export const PrestationsForm = ({ prestations, setPrestations }: PrestationsFormProps) => {
-  const [openPrestationSelector, setOpenPrestationSelector] = useState(false);
+export const PrestationsForm = ({
+  prestations,
+  setPrestations,
+  isPrestationSelectorOpen = false,
+  setIsPrestationSelectorOpen = () => {},
+}: PrestationsFormProps) => {
+  console.log("PrestationsForm rendered, selector open:", isPrestationSelectorOpen);
 
   const handleAddPrestation = () => {
     setPrestations([...prestations, { description: "", montant: 0 }]);
   };
 
   const handleRemovePrestation = (index: number) => {
-    if (prestations.length > 1) {
-      setPrestations(prestations.filter((_, i) => i !== index));
-    }
+    setPrestations(prestations.filter((_, i) => i !== index));
   };
 
-  const updatePrestation = (index: number, field: keyof Prestation, value: string | number) => {
-    const updatedPrestations = [...prestations];
-    updatedPrestations[index] = {
-      ...updatedPrestations[index],
-      [field]: field === 'montant' ? Number(value) || 0 : value
-    };
-    setPrestations(updatedPrestations);
-  };
-
-  const addPredefinedPrestation = (prestation: { description: string, montant: number }) => {
-    console.log("Selected prestation:", prestation);
-    const updatedPrestations = [...prestations];
-    // Remplacer la première prestation vide s'il y en a une
-    const emptyIndex = updatedPrestations.findIndex(p => p.description === "" && p.montant === 0);
-    
-    if (emptyIndex !== -1) {
-      updatedPrestations[emptyIndex] = {
-        description: prestation.description,
-        montant: prestation.montant
-      };
+  const handlePrestationChange = (index: number, field: keyof Prestation, value: string) => {
+    const newPrestations = [...prestations];
+    if (field === "montant") {
+      // Convert string to number, remove non-numeric characters
+      const numericValue = value.replace(/[^0-9]/g, "");
+      newPrestations[index][field] = numericValue ? parseInt(numericValue, 10) : 0;
     } else {
-      updatedPrestations.push({
-        description: prestation.description,
-        montant: prestation.montant
-      });
+      newPrestations[index][field] = value as never;
     }
-    
-    setPrestations(updatedPrestations);
+    setPrestations(newPrestations);
   };
 
-  const calculateTotal = () => {
-    return prestations.reduce((sum, p) => sum + (Number(p.montant) || 0), 0);
+  const handleSelectPrestation = (prestation: { description: string; montant: number }) => {
+    console.log("Prestation selected:", prestation);
+    // Find the first empty prestation or add a new one
+    const emptyIndex = prestations.findIndex(p => p.description === "" && p.montant === 0);
+    if (emptyIndex !== -1) {
+      const newPrestations = [...prestations];
+      newPrestations[emptyIndex] = prestation;
+      setPrestations(newPrestations);
+    } else {
+      setPrestations([...prestations, prestation]);
+    }
   };
 
-  console.log("PrestationsForm rendered, selector open:", openPrestationSelector);
+  // Calculate total
+  const total = prestations.reduce((acc, curr) => {
+    return acc + (typeof curr.montant === 'number' ? curr.montant : 0);
+  }, 0);
 
   return (
-    <TooltipProvider>
-      <div className="grid gap-2">
-        <div className="flex justify-between items-center">
-          <Label>Prestations</Label>
-          <div className="relative z-10">
-            <PrestationSelector 
-              openPrestationSelector={openPrestationSelector} 
-              setOpenPrestationSelector={setOpenPrestationSelector}
-              onSelectPrestation={addPredefinedPrestation}
-            />
-          </div>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium">Prestations</h3>
+        <div className="flex space-x-2">
+          <PrestationSelector
+            openPrestationSelector={isPrestationSelectorOpen}
+            setOpenPrestationSelector={setIsPrestationSelectorOpen}
+            onSelectPrestation={handleSelectPrestation}
+          />
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8 px-2 gap-1"
+            onClick={handleAddPrestation}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span className="sr-md:inline-block">Ajouter une ligne</span>
+          </Button>
         </div>
-        <div className="border rounded-md p-3">
-          {prestations.map((prestation, index) => (
-            <div key={index} className="grid grid-cols-12 gap-2 mb-2">
-              <div className="col-span-8">
-                <Input 
-                  placeholder="Description" 
-                  value={prestation.description}
-                  onChange={(e) => updatePrestation(index, 'description', e.target.value)}
-                />
-              </div>
-              <div className="col-span-3">
-                <Input 
-                  placeholder="Montant (FCFA)" 
-                  type="number" 
-                  value={prestation.montant || ''}
-                  onChange={(e) => updatePrestation(index, 'montant', e.target.value)}
-                />
-              </div>
-              <div className="col-span-1 flex items-center justify-center">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => handleRemovePrestation(index)}
-                  disabled={prestations.length === 1}
-                >
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
-              </div>
+      </div>
+
+      <div className="space-y-3">
+        {prestations.map((prestation, index) => (
+          <div key={index} className="flex gap-2 items-start">
+            <div className="flex-1">
+              <Input
+                placeholder="Description de la prestation"
+                value={prestation.description}
+                onChange={(e) => handlePrestationChange(index, "description", e.target.value)}
+                className="w-full"
+              />
             </div>
-          ))}
-          <div className="flex justify-between items-center mt-4">
-            <Button 
-              variant="outline" 
-              className="w-full" 
-              size="sm"
-              onClick={handleAddPrestation}
-            >
-              <Plus className="w-3 h-3 mr-1" /> Ajouter une prestation
-            </Button>
+            <div className="w-1/4">
+              <Input
+                placeholder="Montant (FCFA)"
+                value={prestation.montant ? prestation.montant.toLocaleString() : ""}
+                onChange={(e) => handlePrestationChange(index, "montant", e.target.value)}
+                className="w-full text-right"
+              />
+            </div>
+            {prestations.length > 1 && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9"
+                onClick={() => handleRemovePrestation(index)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
-          <div className="flex justify-end mt-4 text-sm font-medium">
-            Total: {calculateTotal().toLocaleString()} FCFA
+        ))}
+      </div>
+
+      <div className="flex justify-end mt-4">
+        <div className="w-1/4">
+          <div className="flex justify-between font-medium">
+            <span>Total:</span>
+            <span>{total.toLocaleString()} FCFA</span>
           </div>
         </div>
       </div>
-    </TooltipProvider>
+    </div>
   );
 };

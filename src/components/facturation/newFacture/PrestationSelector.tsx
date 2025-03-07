@@ -30,48 +30,64 @@ export const PrestationSelector = ({
 }: PrestationSelectorProps) => {
   console.log("PrestationSelector rendered, open state:", openPrestationSelector);
   
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    e.preventDefault(); // Prevent default behavior
+    e.stopPropagation(); // Stop event propagation
+    console.log("Trigger button clicked, setting open to:", !openPrestationSelector);
+    setOpenPrestationSelector(!openPrestationSelector);
+  };
+
+  const handleItemSelect = (item: typeof PREDEFINED_PRESTATIONS[0]) => {
+    console.log("Item selected:", item);
+    onSelectPrestation(item);
+    setOpenPrestationSelector(false);
+  };
+  
   return (
-    <Popover open={openPrestationSelector} onOpenChange={setOpenPrestationSelector} modal={true}>
-      <PopoverTrigger asChild>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="h-8 px-2 gap-1"
-          onClick={() => {
-            console.log("PopoverTrigger clicked, current state:", openPrestationSelector);
-            setOpenPrestationSelector(true);
-          }}
-        >
-          <Plus className="h-3.5 w-3.5" />
-          <span className="sr-md:inline-block">Ajouter un élément prédéfini</span>
-          <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent 
-        className="w-[400px] p-0 z-[1000]" 
-        align="start"
-        sideOffset={5}
-        forceMount
+    <div className="relative z-50">
+      <Popover 
+        open={openPrestationSelector} 
+        onOpenChange={(open) => {
+          console.log("Popover onOpenChange called with:", open);
+          setOpenPrestationSelector(open);
+        }}
       >
-        <Command className="rounded-lg border border-gray-200 shadow-lg bg-white">
-          <CommandGroup heading="Prestations prédéfinies">
-            {PREDEFINED_PRESTATIONS.map((item) => (
-              <CommandItem 
-                key={item.id}
-                onSelect={() => {
-                  console.log("Item selected:", item);
-                  onSelectPrestation(item);
-                  setOpenPrestationSelector(false);
-                }}
-                className="flex justify-between cursor-pointer hover:bg-accent hover:text-accent-foreground py-3"
-              >
-                <span>{item.description}</span>
-                <span className="text-muted-foreground">{item.montant.toLocaleString()} FCFA</span>
-              </CommandItem>
-            ))}
-          </CommandGroup>
-        </Command>
-      </PopoverContent>
-    </Popover>
+        <PopoverTrigger asChild>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="h-8 px-2 gap-1"
+            onClick={handleTriggerClick}
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span className="sr-md:inline-block">Ajouter un élément prédéfini</span>
+            <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent 
+          className="w-[400px] p-0" 
+          align="start"
+          alignOffset={0}
+          sideOffset={5}
+          forceMount
+          style={{ zIndex: 9999 }}
+        >
+          <Command className="rounded-lg border shadow-md">
+            <CommandGroup heading="Prestations prédéfinies">
+              {PREDEFINED_PRESTATIONS.map((item) => (
+                <CommandItem 
+                  key={item.id}
+                  onSelect={() => handleItemSelect(item)}
+                  className="flex justify-between cursor-pointer py-3 px-2 hover:bg-slate-100"
+                >
+                  <span className="font-medium">{item.description}</span>
+                  <span className="text-muted-foreground font-semibold">{item.montant.toLocaleString()} FCFA</span>
+                </CommandItem>
+              ))}
+            </CommandGroup>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
   );
 };

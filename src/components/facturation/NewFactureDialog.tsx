@@ -32,6 +32,7 @@ export const NewFactureDialog = ({
     { description: "", montant: 0 }
   ]);
   const [notes, setNotes] = useState("");
+  const [isPrestationSelectorOpen, setIsPrestationSelectorOpen] = useState(false);
 
   const handleSubmit = () => {
     const formData = {
@@ -51,13 +52,17 @@ export const NewFactureDialog = ({
     setDateEcheance("");
     setPrestations([{ description: "", montant: 0 }]);
     setNotes("");
+    setIsPrestationSelectorOpen(false);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => {
-      if (!open) resetForm();
-      onOpenChange(open);
-    }}>
+    <Dialog 
+      open={isOpen} 
+      onOpenChange={(open) => {
+        if (!open) resetForm();
+        onOpenChange(open);
+      }}
+    >
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Créer une nouvelle facture</DialogTitle>
@@ -78,6 +83,8 @@ export const NewFactureDialog = ({
           <PrestationsForm 
             prestations={prestations}
             setPrestations={setPrestations}
+            isPrestationSelectorOpen={isPrestationSelectorOpen}
+            setIsPrestationSelectorOpen={setIsPrestationSelectorOpen}
           />
           
           <NotesForm 
