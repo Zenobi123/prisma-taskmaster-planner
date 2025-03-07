@@ -23,12 +23,6 @@ export const PrestationsForm = ({
     setPrestations(prestations.filter((_, i) => i !== index));
   };
 
-  const handleDescriptionChange = (index: number, value: string) => {
-    const newPrestations = [...prestations];
-    newPrestations[index].description = value;
-    setPrestations(newPrestations);
-  };
-
   const handleMontantChange = (index: number, value: string) => {
     const newPrestations = [...prestations];
     // Convert string to number, remove non-numeric characters

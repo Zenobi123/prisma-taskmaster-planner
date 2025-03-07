@@ -1,9 +1,9 @@
 
-import { Check, ChevronsUpDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronsUpDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { Prestation } from "@/types/facture";
+import { useState } from "react";
 
 // Prestations prédéfinies
 export const PREDEFINED_PRESTATIONS = [
@@ -26,26 +26,30 @@ export const PrestationSelector = ({
   onSelectPrestation,
   descriptionValue
 }: PrestationSelectorProps) => {
+  const [open, setOpen] = useState(false);
+  
   const handleItemSelect = (item: typeof PREDEFINED_PRESTATIONS[0]) => {
     console.log("Item selected:", item);
     onSelectPrestation(item);
+    setOpen(false);
   };
   
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <div className="relative flex items-center w-full">
           <input
             placeholder="Description de la prestation"
             value={descriptionValue}
             readOnly
+            onClick={() => setOpen(true)}
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm cursor-pointer"
           />
           <ChevronsUpDown className="absolute right-3 h-4 w-4 opacity-50" />
         </div>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-[400px] p-0" 
+        className="w-[400px] p-0 z-50" 
         align="start"
         alignOffset={0}
         sideOffset={5}
