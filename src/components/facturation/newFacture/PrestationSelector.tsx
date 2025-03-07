@@ -15,23 +15,38 @@ export const PREDEFINED_PRESTATIONS = [
   { id: "fiscal2025", description: "RENOUVELLEMENT DU DOSSIER FISCAL 2025", montant: 15000 },
   { id: "dsf2024", description: "MONTAGE ET MISE EN LIGNE DE LA DSF 2024", montant: 75000 },
   { id: "cime2025", description: "FORFAIT SUIVI-GESTION FISCAL CIME EXERCICE 2025", montant: 60000 },
+  { id: "autre", description: "AUTRE PRESTATION", montant: 0 },
 ];
 
 interface PrestationSelectorProps {
   onSelectPrestation: (prestation: { description: string; montant: number }) => void;
   descriptionValue: string;
+  onDescriptionChange?: (value: string) => void;
 }
 
 export const PrestationSelector = ({
   onSelectPrestation,
-  descriptionValue
+  descriptionValue,
+  onDescriptionChange
 }: PrestationSelectorProps) => {
   const [open, setOpen] = useState(false);
+  const [isCustom, setIsCustom] = useState(false);
   
   const handleItemSelect = (item: typeof PREDEFINED_PRESTATIONS[0]) => {
-    console.log("Item selected:", item);
-    onSelectPrestation(item);
+    if (item.id === "autre") {
+      setIsCustom(true);
+      onSelectPrestation({ description: "", montant: 0 });
+    } else {
+      setIsCustom(false);
+      onSelectPrestation(item);
+    }
     setOpen(false);
+  };
+  
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (onDescriptionChange) {
+      onDescriptionChange(e.target.value);
+    }
   };
   
   return (
@@ -41,8 +56,9 @@ export const PrestationSelector = ({
           <input
             placeholder="Description de la prestation"
             value={descriptionValue}
-            readOnly
-            onClick={() => setOpen(true)}
+            onChange={isCustom ? handleInputChange : undefined}
+            readOnly={!isCustom}
+            onClick={() => !isCustom && setOpen(true)}
             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm cursor-pointer"
           />
           <ChevronsUpDown className="absolute right-3 h-4 w-4 opacity-50" />
@@ -64,7 +80,9 @@ export const PrestationSelector = ({
                 className="flex justify-between cursor-pointer py-3 px-2 hover:bg-slate-100"
               >
                 <span className="font-medium">{item.description}</span>
-                <span className="text-muted-foreground font-semibold">{item.montant.toLocaleString()} FCFA</span>
+                {item.id !== "autre" && (
+                  <span className="text-muted-foreground font-semibold">{item.montant.toLocaleString()} FCFA</span>
+                )}
               </CommandItem>
             ))}
           </CommandGroup>

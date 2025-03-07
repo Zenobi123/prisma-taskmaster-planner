@@ -1,4 +1,5 @@
 
+import { useEffect, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { 
@@ -8,6 +9,8 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select";
+import { getClients } from "@/services/clientService";
+import { Client } from "@/types/client";
 
 interface ClientDateFormProps {
   clientId: string;
@@ -26,18 +29,40 @@ export const ClientDateForm = ({
   dateEcheance,
   setDateEcheance
 }: ClientDateFormProps) => {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      try {
+        const clientsData = await getClients();
+        setClients(clientsData);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des clients:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchClients();
+  }, []);
+
   return (
     <>
       <div className="grid gap-2">
         <Label htmlFor="client">Client</Label>
         <Select value={clientId} onValueChange={setClientId}>
           <SelectTrigger>
-            <SelectValue placeholder="Sélectionner un client" />
+            <SelectValue placeholder={isLoading ? "Chargement des clients..." : "Sélectionner un client"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="client-001">SARL TechPro</SelectItem>
-            <SelectItem value="client-002">SAS WebDev</SelectItem>
-            <SelectItem value="client-003">EURL ConseilPlus</SelectItem>
+            {clients.map((client) => (
+              <SelectItem key={client.id} value={client.id}>
+                {client.type === "physique" 
+                  ? client.nom 
+                  : client.raisonsociale || "Client sans nom"}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

@@ -31,6 +31,12 @@ export const PrestationsForm = ({
     setPrestations(newPrestations);
   };
 
+  const handleDescriptionChange = (index: number, value: string) => {
+    const newPrestations = [...prestations];
+    newPrestations[index].description = value;
+    setPrestations(newPrestations);
+  };
+
   const handleSelectPrestation = (index: number, prestation: { description: string; montant: number }) => {
     const newPrestations = [...prestations];
     newPrestations[index] = prestation;
@@ -64,6 +70,7 @@ export const PrestationsForm = ({
               <PrestationSelector
                 onSelectPrestation={(selected) => handleSelectPrestation(index, selected)}
                 descriptionValue={prestation.description}
+                onDescriptionChange={(value) => handleDescriptionChange(index, value)}
               />
             </div>
             <div className="w-1/4">
