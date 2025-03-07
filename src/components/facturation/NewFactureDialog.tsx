@@ -32,7 +32,6 @@ export const NewFactureDialog = ({
     { description: "", montant: 0 }
   ]);
   const [notes, setNotes] = useState("");
-  const [isPrestationSelectorOpen, setIsPrestationSelectorOpen] = useState(false);
 
   const handleSubmit = () => {
     const formData = {
@@ -52,7 +51,6 @@ export const NewFactureDialog = ({
     setDateEcheance("");
     setPrestations([{ description: "", montant: 0 }]);
     setNotes("");
-    setIsPrestationSelectorOpen(false);
   };
 
   return (
@@ -83,8 +81,6 @@ export const NewFactureDialog = ({
           <PrestationsForm 
             prestations={prestations}
             setPrestations={setPrestations}
-            isPrestationSelectorOpen={isPrestationSelectorOpen}
-            setIsPrestationSelectorOpen={setIsPrestationSelectorOpen}
           />
           
           <NotesForm 

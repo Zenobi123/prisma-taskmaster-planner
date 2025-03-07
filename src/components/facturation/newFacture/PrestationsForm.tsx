@@ -9,18 +9,12 @@ import { PrestationSelector } from "./PrestationSelector";
 interface PrestationsFormProps {
   prestations: Prestation[];
   setPrestations: (prestations: Prestation[]) => void;
-  isPrestationSelectorOpen?: boolean;
-  setIsPrestationSelectorOpen?: (open: boolean) => void;
 }
 
 export const PrestationsForm = ({
   prestations,
   setPrestations,
-  isPrestationSelectorOpen = false,
-  setIsPrestationSelectorOpen = () => {},
 }: PrestationsFormProps) => {
-  console.log("PrestationsForm rendered, selector open:", isPrestationSelectorOpen);
-
   const handleAddPrestation = () => {
     setPrestations([...prestations, { description: "", montant: 0 }]);
   };
@@ -29,29 +23,24 @@ export const PrestationsForm = ({
     setPrestations(prestations.filter((_, i) => i !== index));
   };
 
-  const handlePrestationChange = (index: number, field: keyof Prestation, value: string) => {
+  const handleDescriptionChange = (index: number, value: string) => {
     const newPrestations = [...prestations];
-    if (field === "montant") {
-      // Convert string to number, remove non-numeric characters
-      const numericValue = value.replace(/[^0-9]/g, "");
-      newPrestations[index][field] = numericValue ? parseInt(numericValue, 10) : 0;
-    } else {
-      newPrestations[index][field] = value as never;
-    }
+    newPrestations[index].description = value;
     setPrestations(newPrestations);
   };
 
-  const handleSelectPrestation = (prestation: { description: string; montant: number }) => {
-    console.log("Prestation selected:", prestation);
-    // Find the first empty prestation or add a new one
-    const emptyIndex = prestations.findIndex(p => p.description === "" && p.montant === 0);
-    if (emptyIndex !== -1) {
-      const newPrestations = [...prestations];
-      newPrestations[emptyIndex] = prestation;
-      setPrestations(newPrestations);
-    } else {
-      setPrestations([...prestations, prestation]);
-    }
+  const handleMontantChange = (index: number, value: string) => {
+    const newPrestations = [...prestations];
+    // Convert string to number, remove non-numeric characters
+    const numericValue = value.replace(/[^0-9]/g, "");
+    newPrestations[index].montant = numericValue ? parseInt(numericValue, 10) : 0;
+    setPrestations(newPrestations);
+  };
+
+  const handleSelectPrestation = (index: number, prestation: { description: string; montant: number }) => {
+    const newPrestations = [...prestations];
+    newPrestations[index] = prestation;
+    setPrestations(newPrestations);
   };
 
   // Calculate total
@@ -63,40 +52,31 @@ export const PrestationsForm = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-medium">Prestations</h3>
-        <div className="flex space-x-2">
-          <PrestationSelector
-            openPrestationSelector={isPrestationSelectorOpen}
-            setOpenPrestationSelector={setIsPrestationSelectorOpen}
-            onSelectPrestation={handleSelectPrestation}
-          />
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-8 px-2 gap-1"
-            onClick={handleAddPrestation}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span className="sr-md:inline-block">Ajouter une ligne</span>
-          </Button>
-        </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="h-8 px-2 gap-1"
+          onClick={handleAddPrestation}
+        >
+          <Plus className="h-3.5 w-3.5" />
+          <span className="sr-md:inline-block">Ajouter une ligne</span>
+        </Button>
       </div>
 
       <div className="space-y-3">
         {prestations.map((prestation, index) => (
           <div key={index} className="flex gap-2 items-start">
             <div className="flex-1">
-              <Input
-                placeholder="Description de la prestation"
-                value={prestation.description}
-                onChange={(e) => handlePrestationChange(index, "description", e.target.value)}
-                className="w-full"
+              <PrestationSelector
+                onSelectPrestation={(selected) => handleSelectPrestation(index, selected)}
+                descriptionValue={prestation.description}
               />
             </div>
             <div className="w-1/4">
               <Input
                 placeholder="Montant (FCFA)"
                 value={prestation.montant ? prestation.montant.toLocaleString() : ""}
-                onChange={(e) => handlePrestationChange(index, "montant", e.target.value)}
+                onChange={(e) => handleMontantChange(index, e.target.value)}
                 className="w-full text-right"
               />
             </div>

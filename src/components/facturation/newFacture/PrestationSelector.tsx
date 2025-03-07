@@ -1,5 +1,5 @@
 
-import { ChevronsUpDown, Plus } from "lucide-react";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
@@ -18,76 +18,54 @@ export const PREDEFINED_PRESTATIONS = [
 ];
 
 interface PrestationSelectorProps {
-  openPrestationSelector: boolean;
-  setOpenPrestationSelector: (open: boolean) => void;
   onSelectPrestation: (prestation: { description: string; montant: number }) => void;
+  descriptionValue: string;
 }
 
 export const PrestationSelector = ({
-  openPrestationSelector,
-  setOpenPrestationSelector,
   onSelectPrestation,
+  descriptionValue
 }: PrestationSelectorProps) => {
-  console.log("PrestationSelector rendered, open state:", openPrestationSelector);
-  
-  const handleTriggerClick = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent default behavior
-    e.stopPropagation(); // Stop event propagation
-    console.log("Trigger button clicked, setting open to:", !openPrestationSelector);
-    setOpenPrestationSelector(!openPrestationSelector);
-  };
-
   const handleItemSelect = (item: typeof PREDEFINED_PRESTATIONS[0]) => {
     console.log("Item selected:", item);
     onSelectPrestation(item);
-    setOpenPrestationSelector(false);
   };
   
   return (
-    <div className="relative z-50">
-      <Popover 
-        open={openPrestationSelector} 
-        onOpenChange={(open) => {
-          console.log("Popover onOpenChange called with:", open);
-          setOpenPrestationSelector(open);
-        }}
+    <Popover>
+      <PopoverTrigger asChild>
+        <div className="relative flex items-center w-full">
+          <input
+            placeholder="Description de la prestation"
+            value={descriptionValue}
+            readOnly
+            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm cursor-pointer"
+          />
+          <ChevronsUpDown className="absolute right-3 h-4 w-4 opacity-50" />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent 
+        className="w-[400px] p-0" 
+        align="start"
+        alignOffset={0}
+        sideOffset={5}
+        forceMount
       >
-        <PopoverTrigger asChild>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="h-8 px-2 gap-1"
-            onClick={handleTriggerClick}
-          >
-            <Plus className="h-3.5 w-3.5" />
-            <span className="sr-md:inline-block">Ajouter un élément prédéfini</span>
-            <ChevronsUpDown className="h-3.5 w-3.5 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent 
-          className="w-[400px] p-0" 
-          align="start"
-          alignOffset={0}
-          sideOffset={5}
-          forceMount
-          style={{ zIndex: 9999 }}
-        >
-          <Command className="rounded-lg border shadow-md">
-            <CommandGroup heading="Prestations prédéfinies">
-              {PREDEFINED_PRESTATIONS.map((item) => (
-                <CommandItem 
-                  key={item.id}
-                  onSelect={() => handleItemSelect(item)}
-                  className="flex justify-between cursor-pointer py-3 px-2 hover:bg-slate-100"
-                >
-                  <span className="font-medium">{item.description}</span>
-                  <span className="text-muted-foreground font-semibold">{item.montant.toLocaleString()} FCFA</span>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
-    </div>
+        <Command className="rounded-lg border shadow-md">
+          <CommandGroup heading="Prestations prédéfinies">
+            {PREDEFINED_PRESTATIONS.map((item) => (
+              <CommandItem 
+                key={item.id}
+                onSelect={() => handleItemSelect(item)}
+                className="flex justify-between cursor-pointer py-3 px-2 hover:bg-slate-100"
+              >
+                <span className="font-medium">{item.description}</span>
+                <span className="text-muted-foreground font-semibold">{item.montant.toLocaleString()} FCFA</span>
+              </CommandItem>
+            ))}
+          </CommandGroup>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 };
