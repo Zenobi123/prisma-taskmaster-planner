@@ -34,6 +34,7 @@ export default function ClientsPage() {
     handleEdit,
     handleArchive,
     handleRestore,
+    handleDelete,
     toast
   } = useClientsPage();
 
@@ -69,6 +70,7 @@ export default function ClientsPage() {
           onEdit={handleEdit}
           onArchive={handleArchive}
           onRestore={handleRestore}
+          onDelete={handleDelete}
         />
 
         <ClientDialogs

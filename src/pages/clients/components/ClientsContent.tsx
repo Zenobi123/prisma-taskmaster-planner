@@ -17,6 +17,7 @@ interface ClientsContentProps {
   onEdit: (client: Client) => void;
   onArchive: (client: Client) => void;
   onRestore: (client: Client) => void;
+  onDelete: (client: Client) => void;
 }
 
 export function ClientsContent({
@@ -33,6 +34,7 @@ export function ClientsContent({
   onEdit,
   onArchive,
   onRestore,
+  onDelete,
 }: ClientsContentProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
@@ -53,6 +55,7 @@ export function ClientsContent({
         onEdit={onEdit}
         onArchive={onArchive}
         onRestore={onRestore}
+        onDelete={onDelete}
       />
     </div>
   );

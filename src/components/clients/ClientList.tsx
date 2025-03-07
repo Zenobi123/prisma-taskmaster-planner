@@ -16,7 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Eye, Edit, Archive, RotateCcw } from "lucide-react";
+import { MoreHorizontal, Eye, Edit, Archive, RotateCcw, Trash2 } from "lucide-react";
 import { Client } from "@/types/client";
 
 interface ClientListProps {
@@ -25,9 +25,10 @@ interface ClientListProps {
   onEdit: (client: Client) => void;
   onArchive: (client: Client) => void;
   onRestore?: (client: Client) => void;
+  onDelete?: (client: Client) => void;
 }
 
-export function ClientList({ clients, onView, onEdit, onArchive, onRestore }: ClientListProps) {
+export function ClientList({ clients, onView, onEdit, onArchive, onRestore, onDelete }: ClientListProps) {
   return (
     <Table>
       <TableHeader>
@@ -112,6 +113,19 @@ export function ClientList({ clients, onView, onEdit, onArchive, onRestore }: Cl
                       <RotateCcw className="mr-2 h-4 w-4" />
                       Restaurer
                     </DropdownMenuItem>
+                  )}
+                  
+                  {onDelete && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem 
+                        onClick={() => onDelete(client)}
+                        className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Supprimer
+                      </DropdownMenuItem>
+                    </>
                   )}
                 </DropdownMenuContent>
               </DropdownMenu>

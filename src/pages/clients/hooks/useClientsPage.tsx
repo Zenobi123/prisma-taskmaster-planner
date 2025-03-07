@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Client, ClientType } from "@/types/client";
-import { getClients, addClient, archiveClient, updateClient } from "@/services/clientService";
+import { getClients, addClient, archiveClient, updateClient, deleteClient } from "@/services/clientService";
 import { useToast } from "@/components/ui/use-toast";
 
 export function useClientsPage() {
@@ -112,6 +111,25 @@ export function useClientsPage() {
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: deleteClient,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      toast({
+        title: "Client supprimé",
+        description: "Le client a été définitivement supprimé.",
+      });
+    },
+    onError: (error: any) => {
+      console.error("Erreur lors de la suppression du client:", error);
+      toast({
+        title: "Erreur",
+        description: error.message || "Une erreur est survenue lors de la suppression du client.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleView = (client: Client) => {
     setSelectedClient(client);
     setIsViewDialogOpen(true);
@@ -138,6 +156,16 @@ export function useClientsPage() {
         await restoreMutation.mutateAsync(client.id);
       } catch (error) {
         console.error("Erreur lors de la restauration:", error);
+      }
+    }
+  };
+
+  const handleDelete = async (client: Client) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer définitivement ce client ? Cette action est irréversible.")) {
+      try {
+        await deleteMutation.mutateAsync(client.id);
+      } catch (error) {
+        console.error("Erreur lors de la suppression:", error);
       }
     }
   };
@@ -189,6 +217,7 @@ export function useClientsPage() {
     handleEdit,
     handleArchive,
     handleRestore,
+    handleDelete,
     toast
   };
 }
