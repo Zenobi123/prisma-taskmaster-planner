@@ -1,7 +1,9 @@
+
 import Sidebar from "@/components/dashboard/Sidebar";
 import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
 import QuickStats from "@/components/dashboard/QuickStats";
 import RecentTasks from "@/components/dashboard/RecentTasks";
+import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
   return (
@@ -28,6 +30,7 @@ const Index = () => {
           <RecentTasks />
         </div>
       </main>
+      <Toaster />
     </div>
   );
 };
