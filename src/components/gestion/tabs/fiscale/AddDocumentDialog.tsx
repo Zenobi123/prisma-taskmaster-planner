@@ -27,7 +27,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [createdAt, setCreatedAt] = React.useState<Date | undefined>(new Date());
+  const [createdAt, setCreatedAt] = React.useState<Date>(new Date());
   const [validUntil, setValidUntil] = React.useState<Date | undefined>(undefined);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -128,7 +128,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
                 <Calendar
                   mode="single"
                   selected={createdAt}
-                  onSelect={setCreatedAt}
+                  onSelect={(date) => setCreatedAt(date || new Date())}
                   initialFocus
                 />
               </PopoverContent>
