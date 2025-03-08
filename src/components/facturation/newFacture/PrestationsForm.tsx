@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X } from "lucide-react";
 import { Prestation } from "@/types/facture";
-import { PrestationSelector } from "./PrestationSelector";
 
 interface PrestationsFormProps {
   prestations: Prestation[];
@@ -37,12 +36,6 @@ export const PrestationsForm = ({
     setPrestations(newPrestations);
   };
 
-  const handleSelectPrestation = (index: number, prestation: { description: string; montant: number }) => {
-    const newPrestations = [...prestations];
-    newPrestations[index] = prestation;
-    setPrestations(newPrestations);
-  };
-
   // Calculate total
   const total = prestations.reduce((acc, curr) => {
     return acc + (typeof curr.montant === 'number' ? curr.montant : 0);
@@ -67,10 +60,11 @@ export const PrestationsForm = ({
         {prestations.map((prestation, index) => (
           <div key={index} className="flex gap-2 items-start">
             <div className="flex-1">
-              <PrestationSelector
-                onSelectPrestation={(selected) => handleSelectPrestation(index, selected)}
-                descriptionValue={prestation.description}
-                onDescriptionChange={(value) => handleDescriptionChange(index, value)}
+              <Input
+                placeholder="Description de la prestation"
+                value={prestation.description}
+                onChange={(e) => handleDescriptionChange(index, e.target.value)}
+                className="w-full"
               />
             </div>
             <div className="w-1/4">
