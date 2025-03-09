@@ -5,8 +5,13 @@ import { ProceduresSection } from "./ProceduresSection";
 import { ContactsSection } from "./ContactsSection";
 import { useFiscalDocuments } from "./hooks/useFiscalDocuments";
 import { fiscalProcedures, fiscalContacts } from "./data/mockData";
+import { Client } from "@/types/client";
 
-export function FiscalContent() {
+interface FiscalContentProps {
+  selectedClient?: Client;
+}
+
+export function FiscalContent({ selectedClient }: FiscalContentProps) {
   const { filteredDocuments, handleAddDocument, renderValidity } = useFiscalDocuments();
 
   return (
@@ -16,6 +21,7 @@ export function FiscalContent() {
         fiscalDocuments={filteredDocuments}
         onAddDocument={handleAddDocument}
         renderValidity={renderValidity}
+        selectedClient={selectedClient}
       />
       
       {/* Section 2: Procédures courantes */}

@@ -1,22 +1,28 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, FileText, Link } from "lucide-react";
+import { FileSpreadsheet, FileText, Link, FilePlus } from "lucide-react";
 import { AddDocumentDialog } from "./AddDocumentDialog";
+import { GenerateACFDialog } from "./GenerateACFDialog";
 import { FiscalDocument } from "./types";
 import { toast } from "@/hooks/use-toast";
+import { Client } from "@/types/client";
 
 interface FiscalDocumentSectionProps {
   fiscalDocuments: FiscalDocument[];
   onAddDocument: (newDoc: Omit<FiscalDocument, "id">) => void;
   renderValidity: (doc: FiscalDocument) => React.ReactNode;
+  selectedClient?: Client;
 }
 
 export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
   fiscalDocuments,
   onAddDocument,
-  renderValidity
+  renderValidity,
+  selectedClient
 }) => {
+  const [isACFDialogOpen, setIsACFDialogOpen] = useState(false);
+  
   const handleItemClick = (item: FiscalDocument) => {
     console.log("Document clicked:", item);
     toast({
@@ -32,7 +38,18 @@ export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
           <FileSpreadsheet size={20} className="text-primary" />
           Documents fiscaux
         </h3>
-        <AddDocumentDialog onAddDocument={onAddDocument} />
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1"
+            onClick={() => setIsACFDialogOpen(true)}
+          >
+            <FilePlus size={16} />
+            Générer ACF
+          </Button>
+          <AddDocumentDialog onAddDocument={onAddDocument} />
+        </div>
       </div>
       <div className="space-y-3">
         {fiscalDocuments.length > 0 ? (
@@ -63,6 +80,12 @@ export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
           </div>
         )}
       </div>
+      
+      <GenerateACFDialog 
+        open={isACFDialogOpen} 
+        onOpenChange={setIsACFDialogOpen}
+        selectedClient={selectedClient}
+      />
     </div>
   );
 };
