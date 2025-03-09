@@ -10,7 +10,14 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { FiscalDocument } from "./types";
+
+export type FiscalDocument = {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: Date;
+  validUntil: Date | null;
+};
 
 type AddDocumentDialogProps = {
   onAddDocument: (document: Omit<FiscalDocument, "id">) => void;
@@ -20,7 +27,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [createdAt, setCreatedAt] = React.useState<Date>(new Date());
+  const [createdAt, setCreatedAt] = React.useState<Date | undefined>(new Date());
   const [validUntil, setValidUntil] = React.useState<Date | undefined>(undefined);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -121,7 +128,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
                 <Calendar
                   mode="single"
                   selected={createdAt}
-                  onSelect={(date) => setCreatedAt(date || new Date())}
+                  onSelect={setCreatedAt}
                   initialFocus
                 />
               </PopoverContent>
