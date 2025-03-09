@@ -30,6 +30,9 @@ export interface Interaction {
   description: string;
 }
 
+// Import the FiscalDocument type
+import { FiscalDocument } from "@/components/gestion/tabs/fiscale/types";
+
 export interface Client {
   id: string;
   type: ClientType;
@@ -65,4 +68,5 @@ export interface Client {
     valeur?: number;
     loyer?: number;
   };
+  fiscalDocuments?: FiscalDocument[]; // Add this field to fix the error
 }

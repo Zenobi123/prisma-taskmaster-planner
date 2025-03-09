@@ -10,14 +10,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-
-export type FiscalDocument = {
-  id: string;
-  name: string;
-  description: string;
-  createdAt: Date;
-  validUntil: Date | null;
-};
+import { FiscalDocument } from "./types";
 
 type AddDocumentDialogProps = {
   onAddDocument: (document: Omit<FiscalDocument, "id">) => void;

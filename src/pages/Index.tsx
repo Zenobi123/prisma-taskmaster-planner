@@ -10,7 +10,7 @@ import { Bell, FileText } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
 import { useState, useEffect } from "react";
-import { FiscalDocument } from "@/components/gestion/tabs/fiscale/AddDocumentDialog";
+import { FiscalDocument } from "@/components/gestion/tabs/fiscale/types";
 
 const Index = () => {
   const [expiringDocuments, setExpiringDocuments] = useState<Array<{clientName: string, document: FiscalDocument}>>([]);
