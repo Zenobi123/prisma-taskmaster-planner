@@ -6,8 +6,6 @@ import { GestionEntreprise } from "./tabs/GestionEntreprise";
 import { GestionDossier } from "./tabs/GestionDossier";
 import { GestionComptable } from "./tabs/GestionComptable";
 import { ContratPrestations } from "./tabs/ContratPrestations";
-import { TabsContent as FiscalTabsContent } from "./tabs/TabsContent";
-import { TabsList as FiscalTabsList } from "./tabs/TabsList";
 import { Client } from "@/types/client";
 import { useSearchParams } from "react-router-dom";
 
@@ -64,17 +62,70 @@ export function GestionTabs({
         </TabsList>
 
         <TabsContent value="entreprise">
-          <GestionEntreprise />
+          <GestionEntreprise onTabChange={onTabChange} />
         </TabsContent>
 
         <TabsContent value="fiscale">
           {selectedSubTab ? (
             <div className="space-y-6">
-              <FiscalTabsList activeTab={selectedSubTab} onChange={onSubTabSelect} />
-              <FiscalTabsContent 
-                activeTab={selectedSubTab} 
-                selectedClient={selectedClient}
-              />
+              <div className="flex space-x-2 bg-muted/40 p-1 rounded-lg">
+                <button 
+                  className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md ${selectedSubTab === 'administration' ? 'bg-background shadow' : 'hover:bg-muted/60'}`}
+                  onClick={() => onSubTabSelect('administration')}
+                >
+                  Administration fiscale
+                </button>
+                <button 
+                  className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md ${selectedSubTab === 'obligations' ? 'bg-background shadow' : 'hover:bg-muted/60'}`}
+                  onClick={() => onSubTabSelect('obligations')}
+                >
+                  Obligations fiscales
+                </button>
+                <button 
+                  className={`flex-1 px-3 py-1.5 text-sm font-medium rounded-md ${selectedSubTab === 'optimisation' ? 'bg-background shadow' : 'hover:bg-muted/60'}`}
+                  onClick={() => onSubTabSelect('optimisation')}
+                >
+                  Optimisation fiscale
+                </button>
+              </div>
+              
+              {selectedSubTab === 'administration' && (
+                <div>
+                  {/* Administration fiscale content */}
+                  <div className="space-y-6">
+                    <div className="text-sm">
+                      Gestion des documents fiscaux, attestations et procédures administratives pour {selectedClient?.raisonsociale || selectedClient?.nom}.
+                    </div>
+                    <div className="space-y-6">
+                      <FiscalContent selectedClient={selectedClient} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {selectedSubTab === 'obligations' && (
+                <div>
+                  {/* Obligations fiscales content */}
+                  <div className="space-y-6">
+                    <div className="text-sm">
+                      Suivi des obligations fiscales pour {selectedClient?.raisonsociale || selectedClient?.nom}.
+                    </div>
+                    <ObligationsFiscales client={selectedClient} />
+                  </div>
+                </div>
+              )}
+              
+              {selectedSubTab === 'optimisation' && (
+                <div>
+                  {/* Optimisation fiscale content */}
+                  <div className="space-y-6">
+                    <div className="text-sm">
+                      Stratégies d'optimisation fiscale pour {selectedClient?.raisonsociale || selectedClient?.nom}.
+                    </div>
+                    <OptimisationFiscale client={selectedClient} />
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <GestionFiscale onTabChange={onSubTabSelect} />
@@ -90,9 +141,14 @@ export function GestionTabs({
         </TabsContent>
 
         <TabsContent value="prestations">
-          <ContratPrestations />
+          <ContratPrestations client={selectedClient} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
+
+// Import necessary missing components
+import { FiscalContent } from "./tabs/fiscale/FiscalContent";
+import { ObligationsFiscales } from "./tabs/ObligationsFiscales";
+import { OptimisationFiscale } from "./tabs/OptimisationFiscale";
