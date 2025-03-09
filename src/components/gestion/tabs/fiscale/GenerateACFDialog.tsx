@@ -8,39 +8,83 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, FileText } from "lucide-react";
+import { CalendarIcon, FileText, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Client } from "@/types/client";
 import { toast } from "@/hooks/use-toast";
+import { FiscalDocument } from "./types";
 
 interface GenerateACFDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedClient?: Client;
+  onGenerateSuccess: (newDoc: Omit<FiscalDocument, "id">) => void;
 }
 
 export const GenerateACFDialog: React.FC<GenerateACFDialogProps> = ({
   open,
   onOpenChange,
-  selectedClient
+  selectedClient,
+  onGenerateSuccess
 }) => {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)); // Défaut à 1 an
   const [acfType, setAcfType] = useState<"conformite" | "fiscale">("conformite");
   const [reference, setReference] = useState<string>("");
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
+    if (!date) {
+      toast({
+        title: "Date manquante",
+        description: "Veuillez sélectionner une date de validité.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Simuler la génération d'une attestation
     const acfTypeName = acfType === "conformite" ? "Conformité" : "Fiscale";
+    const documentName = `Attestation de ${acfTypeName} ${reference ? '- ' + reference : ''}`;
     
-    toast({
-      title: `Attestation de ${acfTypeName} générée`,
-      description: `L'attestation a été générée avec succès pour ${selectedClient?.nom || selectedClient?.raisonsociale}.`,
-    });
+    setIsGenerating(true);
     
-    // Réinitialiser le formulaire et fermer la boîte de dialogue
+    try {
+      // Créer un nouveau document fiscal
+      const newDocument: Omit<FiscalDocument, "id"> = {
+        name: documentName,
+        description: `Attestation générée pour ${selectedClient?.type === 'physique' ? selectedClient?.nom : selectedClient?.raisonsociale}`,
+        createdAt: new Date(),
+        validUntil: date
+      };
+      
+      // Appeler la fonction de callback pour enregistrer le document
+      await onGenerateSuccess(newDocument);
+      
+      toast({
+        title: `Attestation de ${acfTypeName} générée`,
+        description: `L'attestation a été générée avec succès.`,
+      });
+      
+      // Réinitialiser le formulaire et fermer la boîte de dialogue
+      resetForm();
+      onOpenChange(false);
+    } catch (error) {
+      console.error("Erreur lors de la génération de l'attestation:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de la génération de l'attestation.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const resetForm = () => {
     setReference("");
-    onOpenChange(false);
+    setDate(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000));
+    setAcfType("conformite");
   };
 
   return (
@@ -103,6 +147,7 @@ export const GenerateACFDialog: React.FC<GenerateACFDialogProps> = ({
                   selected={date}
                   onSelect={setDate}
                   initialFocus
+                  disabled={(date) => date < new Date()}
                 />
               </PopoverContent>
             </Popover>
@@ -110,11 +155,23 @@ export const GenerateACFDialog: React.FC<GenerateACFDialogProps> = ({
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isGenerating}>
             Annuler
           </Button>
-          <Button type="submit" onClick={handleGenerate}>
-            Générer l'attestation
+          <Button 
+            type="submit" 
+            onClick={handleGenerate} 
+            disabled={isGenerating}
+            className={isGenerating ? "opacity-70" : ""}
+          >
+            {isGenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Génération...
+              </>
+            ) : (
+              "Générer l'attestation"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

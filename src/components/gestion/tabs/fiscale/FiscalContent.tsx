@@ -12,7 +12,7 @@ interface FiscalContentProps {
 }
 
 export function FiscalContent({ selectedClient }: FiscalContentProps) {
-  const { filteredDocuments, handleAddDocument, renderValidity } = useFiscalDocuments();
+  const { filteredDocuments, handleAddDocument, renderValidity, isLoading } = useFiscalDocuments(selectedClient);
 
   return (
     <div className="space-y-6">
@@ -22,6 +22,7 @@ export function FiscalContent({ selectedClient }: FiscalContentProps) {
         onAddDocument={handleAddDocument}
         renderValidity={renderValidity}
         selectedClient={selectedClient}
+        isLoading={isLoading}
       />
       
       {/* Section 2: Procédures courantes */}

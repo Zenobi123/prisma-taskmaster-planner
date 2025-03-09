@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, FileText, Link, FilePlus } from "lucide-react";
+import { FileSpreadsheet, FileText, Link, FilePlus, Loader2 } from "lucide-react";
 import { AddDocumentDialog } from "./AddDocumentDialog";
 import { GenerateACFDialog } from "./GenerateACFDialog";
 import { FiscalDocument } from "./types";
@@ -13,13 +13,15 @@ interface FiscalDocumentSectionProps {
   onAddDocument: (newDoc: Omit<FiscalDocument, "id">) => void;
   renderValidity: (doc: FiscalDocument) => React.ReactNode;
   selectedClient?: Client;
+  isLoading?: boolean;
 }
 
 export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
   fiscalDocuments,
   onAddDocument,
   renderValidity,
-  selectedClient
+  selectedClient,
+  isLoading = false
 }) => {
   const [isACFDialogOpen, setIsACFDialogOpen] = useState(false);
   
@@ -44,6 +46,7 @@ export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
             size="sm" 
             className="flex items-center gap-1"
             onClick={() => setIsACFDialogOpen(true)}
+            disabled={!selectedClient}
           >
             <FilePlus size={16} />
             Générer ACF
@@ -52,7 +55,12 @@ export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
         </div>
       </div>
       <div className="space-y-3">
-        {fiscalDocuments.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center p-4">
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <span className="ml-2 text-sm text-muted-foreground">Chargement des documents...</span>
+          </div>
+        ) : fiscalDocuments.length > 0 ? (
           fiscalDocuments.map((doc) => (
             <Button 
               key={doc.id}
@@ -76,7 +84,9 @@ export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
           ))
         ) : (
           <div className="text-center p-4 text-muted-foreground">
-            Aucun document fiscal. Utilisez le bouton "Ajouter un document" pour en créer.
+            {selectedClient ? 
+              "Aucun document fiscal. Utilisez le bouton \"Ajouter un document\" pour en créer." :
+              "Sélectionnez un client pour voir ses documents fiscaux."}
           </div>
         )}
       </div>
@@ -85,6 +95,7 @@ export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
         open={isACFDialogOpen} 
         onOpenChange={setIsACFDialogOpen}
         selectedClient={selectedClient}
+        onGenerateSuccess={onAddDocument}
       />
     </div>
   );
