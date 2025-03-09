@@ -144,48 +144,6 @@ export type Database = {
         }
         Relationships: []
       }
-      fiscal_documents: {
-        Row: {
-          client_id: string
-          created_at: string
-          description: string | null
-          id: string
-          name: string
-          valid_until: string | null
-        }
-        Insert: {
-          client_id: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          name: string
-          valid_until?: string | null
-        }
-        Update: {
-          client_id?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          name?: string
-          valid_until?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "fiscal_documents_client_id_fkey"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "fk_client"
-            columns: ["client_id"]
-            isOneToOne: false
-            referencedRelation: "clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       tasks: {
         Row: {
           client_id: string

@@ -5,37 +5,9 @@ import { initialFiscalDocuments } from "../data/mockData";
 import { Bell } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import React from "react";
-import { getClientFiscalDocuments, saveFiscalDocument } from "@/services/fiscalDocumentService";
-import { Client } from "@/types/client";
 
-export const useFiscalDocuments = (selectedClient?: Client) => {
-  const [fiscalDocuments, setFiscalDocuments] = useState<FiscalDocument[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // Charger les documents depuis Supabase
-  useEffect(() => {
-    const loadDocuments = async () => {
-      if (selectedClient?.id) {
-        setIsLoading(true);
-        try {
-          const documents = await getClientFiscalDocuments(selectedClient.id);
-          setFiscalDocuments(documents);
-        } catch (error) {
-          console.error("Erreur lors du chargement des documents:", error);
-          // Utiliser les données de test si l'API échoue
-          setFiscalDocuments(initialFiscalDocuments);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        // Utiliser les données de test si aucun client n'est sélectionné
-        setFiscalDocuments(initialFiscalDocuments);
-        setIsLoading(false);
-      }
-    };
-
-    loadDocuments();
-  }, [selectedClient]);
+export const useFiscalDocuments = () => {
+  const [fiscalDocuments, setFiscalDocuments] = useState<FiscalDocument[]>(initialFiscalDocuments);
 
   // Filter out documents that expired more than 30 days ago
   const filteredDocuments = fiscalDocuments.filter(doc => {
@@ -64,34 +36,13 @@ export const useFiscalDocuments = (selectedClient?: Client) => {
   }, [filteredDocuments]);
 
   // Add new document
-  const handleAddDocument = async (newDoc: Omit<FiscalDocument, "id">) => {
-    try {
-      if (selectedClient?.id) {
-        // Sauvegarder dans Supabase si un client est sélectionné
-        const savedDoc = await saveFiscalDocument(newDoc, selectedClient.id);
-        setFiscalDocuments(prev => [...prev, savedDoc]);
-        
-        toast({
-          title: "Document enregistré",
-          description: `Le document ${newDoc.name} a été enregistré avec succès.`,
-        });
-      } else {
-        // Fonctionnement local si aucun client n'est sélectionné
-        const newDocument: FiscalDocument = {
-          ...newDoc,
-          id: Math.random().toString(36).substring(2, 9), // Generate simple ID
-        };
-        
-        setFiscalDocuments(prev => [...prev, newDocument]);
-      }
-    } catch (error) {
-      console.error("Erreur lors de l'ajout du document:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur s'est produite lors de l'enregistrement du document.",
-        variant: "destructive",
-      });
-    }
+  const handleAddDocument = (newDoc: Omit<FiscalDocument, "id">) => {
+    const newDocument: FiscalDocument = {
+      ...newDoc,
+      id: Math.random().toString(36).substring(2, 9), // Generate simple ID
+    };
+    
+    setFiscalDocuments(prev => [...prev, newDocument]);
   };
 
   // Helper to render document validity
@@ -131,7 +82,6 @@ export const useFiscalDocuments = (selectedClient?: Client) => {
   return {
     filteredDocuments,
     handleAddDocument,
-    renderValidity,
-    isLoading
+    renderValidity
   };
 };

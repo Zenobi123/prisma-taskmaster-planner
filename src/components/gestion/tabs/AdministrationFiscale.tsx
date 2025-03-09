@@ -2,13 +2,8 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FiscalContent } from "./fiscale/FiscalContent";
-import { Client } from "@/types/client";
 
-interface AdministrationFiscaleProps {
-  selectedClient?: Client;
-}
-
-export function AdministrationFiscale({ selectedClient }: AdministrationFiscaleProps) {
+export function AdministrationFiscale() {
   return (
     <Card>
       <CardHeader>
@@ -16,7 +11,7 @@ export function AdministrationFiscale({ selectedClient }: AdministrationFiscaleP
         <CardDescription>Relations avec l'administration fiscale</CardDescription>
       </CardHeader>
       <CardContent>
-        <FiscalContent selectedClient={selectedClient} />
+        <FiscalContent />
       </CardContent>
     </Card>
   );

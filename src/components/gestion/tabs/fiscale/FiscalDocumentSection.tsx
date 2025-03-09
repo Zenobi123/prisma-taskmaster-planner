@@ -1,30 +1,22 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, FileText, Link, FilePlus, Loader2 } from "lucide-react";
+import { FileSpreadsheet, FileText, Link } from "lucide-react";
 import { AddDocumentDialog } from "./AddDocumentDialog";
-import { GenerateACFDialog } from "./GenerateACFDialog";
 import { FiscalDocument } from "./types";
 import { toast } from "@/hooks/use-toast";
-import { Client } from "@/types/client";
 
 interface FiscalDocumentSectionProps {
   fiscalDocuments: FiscalDocument[];
   onAddDocument: (newDoc: Omit<FiscalDocument, "id">) => void;
   renderValidity: (doc: FiscalDocument) => React.ReactNode;
-  selectedClient?: Client;
-  isLoading?: boolean;
 }
 
 export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
   fiscalDocuments,
   onAddDocument,
-  renderValidity,
-  selectedClient,
-  isLoading = false
+  renderValidity
 }) => {
-  const [isACFDialogOpen, setIsACFDialogOpen] = useState(false);
-  
   const handleItemClick = (item: FiscalDocument) => {
     console.log("Document clicked:", item);
     toast({
@@ -40,27 +32,10 @@ export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
           <FileSpreadsheet size={20} className="text-primary" />
           Documents fiscaux
         </h3>
-        <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1"
-            onClick={() => setIsACFDialogOpen(true)}
-            disabled={!selectedClient}
-          >
-            <FilePlus size={16} />
-            Générer ACF
-          </Button>
-          <AddDocumentDialog onAddDocument={onAddDocument} />
-        </div>
+        <AddDocumentDialog onAddDocument={onAddDocument} />
       </div>
       <div className="space-y-3">
-        {isLoading ? (
-          <div className="flex items-center justify-center p-4">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-            <span className="ml-2 text-sm text-muted-foreground">Chargement des documents...</span>
-          </div>
-        ) : fiscalDocuments.length > 0 ? (
+        {fiscalDocuments.length > 0 ? (
           fiscalDocuments.map((doc) => (
             <Button 
               key={doc.id}
@@ -84,19 +59,10 @@ export const FiscalDocumentSection: React.FC<FiscalDocumentSectionProps> = ({
           ))
         ) : (
           <div className="text-center p-4 text-muted-foreground">
-            {selectedClient ? 
-              "Aucun document fiscal. Utilisez le bouton \"Ajouter un document\" pour en créer." :
-              "Sélectionnez un client pour voir ses documents fiscaux."}
+            Aucun document fiscal. Utilisez le bouton "Ajouter un document" pour en créer.
           </div>
         )}
       </div>
-      
-      <GenerateACFDialog 
-        open={isACFDialogOpen} 
-        onOpenChange={setIsACFDialogOpen}
-        selectedClient={selectedClient}
-        onGenerateSuccess={onAddDocument}
-      />
     </div>
   );
 };
