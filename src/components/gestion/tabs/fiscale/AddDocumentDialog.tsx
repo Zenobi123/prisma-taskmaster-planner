@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -28,7 +28,12 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [createdAt, setCreatedAt] = React.useState<Date>(new Date());
-  const [validUntil, setValidUntil] = React.useState<Date | undefined>(undefined);
+  const [validUntil, setValidUntil] = React.useState<Date | undefined>(addDays(new Date(), 90));
+
+  // Update validUntil when createdAt changes
+  React.useEffect(() => {
+    setValidUntil(addDays(createdAt, 90));
+  }, [createdAt]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +58,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
     setName("");
     setDescription("");
     setCreatedAt(new Date());
-    setValidUntil(undefined);
+    setValidUntil(addDays(new Date(), 90));
     setOpen(false);
 
     toast({
@@ -122,6 +127,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
                     selected={createdAt}
                     onSelect={(date) => date && setCreatedAt(date)}
                     initialFocus
+                    locale={fr}
                   />
                 </PopoverContent>
               </Popover>
@@ -148,9 +154,10 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
                   <Calendar
                     mode="single"
                     selected={validUntil}
-                    onSelect={(date) => setValidUntil(date)}
+                    onSelect={(date) => date && setValidUntil(date)}
                     initialFocus
-                    fromDate={new Date()}
+                    locale={fr}
+                    fromDate={createdAt}
                   />
                 </PopoverContent>
               </Popover>
