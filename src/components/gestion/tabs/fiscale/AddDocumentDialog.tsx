@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format, addDays } from "date-fns";
+import { format, addDays, parse, isValid } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon, Plus } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
@@ -29,11 +29,32 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
   const [description, setDescription] = React.useState("");
   const [createdAt, setCreatedAt] = React.useState<Date>(new Date());
   const [validUntil, setValidUntil] = React.useState<Date | undefined>(addDays(new Date(), 90));
+  const [dateInputValue, setDateInputValue] = React.useState(format(new Date(), "dd/MM/yyyy", { locale: fr }));
 
   // Update validUntil when createdAt changes
   React.useEffect(() => {
     setValidUntil(addDays(createdAt, 90));
   }, [createdAt]);
+
+  const handleDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDateInputValue(value);
+    
+    // Parse the input date
+    const parsedDate = parse(value, "dd/MM/yyyy", new Date());
+    
+    // Only update the date if it's valid
+    if (isValid(parsedDate)) {
+      setCreatedAt(parsedDate);
+    }
+  };
+
+  const handleCalendarSelect = (date: Date | undefined) => {
+    if (date) {
+      setCreatedAt(date);
+      setDateInputValue(format(date, "dd/MM/yyyy", { locale: fr }));
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,6 +79,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
     setName("");
     setDescription("");
     setCreatedAt(new Date());
+    setDateInputValue(format(new Date(), "dd/MM/yyyy", { locale: fr }));
     setValidUntil(addDays(new Date(), 90));
     setOpen(false);
 
@@ -106,28 +128,31 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Date de création</Label>
-            <div className="col-span-3">
+            <div className="col-span-3 flex gap-2 items-center">
+              <Input
+                value={dateInputValue}
+                onChange={handleDateInputChange}
+                className="w-full"
+                placeholder="JJ/MM/AAAA"
+              />
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
+                    type="button"
                     variant="outline"
-                    className="w-full justify-start text-left font-normal"
+                    className="h-10 w-10 p-0"
                   >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {createdAt ? (
-                      format(createdAt, "PPP", { locale: fr })
-                    ) : (
-                      <span>Sélectionner une date</span>
-                    )}
+                    <CalendarIcon className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent className="w-auto p-0" align="end">
                   <Calendar
                     mode="single"
                     selected={createdAt}
-                    onSelect={(date) => date && setCreatedAt(date)}
+                    onSelect={handleCalendarSelect}
                     initialFocus
                     locale={fr}
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
@@ -139,6 +164,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
+                    type="button"
                     variant="outline"
                     className="w-full justify-start text-left font-normal"
                   >
@@ -158,6 +184,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
                     initialFocus
                     locale={fr}
                     fromDate={createdAt}
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
