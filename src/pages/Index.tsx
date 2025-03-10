@@ -3,6 +3,7 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
 import QuickStats from "@/components/dashboard/QuickStats";
 import RecentTasks from "@/components/dashboard/RecentTasks";
+import FiscalDocumentsToRenew from "@/components/dashboard/FiscalDocumentsToRenew";
 import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
@@ -27,6 +28,7 @@ const Index = () => {
 
         <div className="p-8">
           <QuickStats />
+          <FiscalDocumentsToRenew />
           <RecentTasks />
         </div>
       </main>
