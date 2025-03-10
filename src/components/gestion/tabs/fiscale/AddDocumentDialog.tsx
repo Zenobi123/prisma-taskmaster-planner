@@ -27,7 +27,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
   const [open, setOpen] = React.useState(false);
   const [name, setName] = React.useState("");
   const [description, setDescription] = React.useState("");
-  const [createdAt, setCreatedAt] = React.useState<Date | undefined>(new Date());
+  const [createdAt, setCreatedAt] = React.useState<Date>(new Date());
   const [validUntil, setValidUntil] = React.useState<Date | undefined>(undefined);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -37,15 +37,6 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
       toast({
         title: "Nom requis",
         description: "Veuillez saisir un nom pour le document",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!createdAt) {
-      toast({
-        title: "Date de création requise",
-        description: "Veuillez sélectionner une date de création",
         variant: "destructive",
       });
       return;
@@ -110,56 +101,60 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Date de création</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className="w-full justify-start text-left font-normal col-span-3"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {createdAt ? (
-                    format(createdAt, "PPP", { locale: fr })
-                  ) : (
-                    <span>Sélectionner une date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={createdAt}
-                  onSelect={setCreatedAt}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <div className="col-span-3">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {createdAt ? (
+                      format(createdAt, "PPP", { locale: fr })
+                    ) : (
+                      <span>Sélectionner une date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={createdAt}
+                    onSelect={(date) => date && setCreatedAt(date)}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label className="text-right">Date de fin de validité</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className="w-full justify-start text-left font-normal col-span-3"
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {validUntil ? (
-                    format(validUntil, "PPP", { locale: fr })
-                  ) : (
-                    <span>Sélectionner une date</span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={validUntil}
-                  onSelect={setValidUntil}
-                  initialFocus
-                  fromDate={new Date()}
-                />
-              </PopoverContent>
-            </Popover>
+            <div className="col-span-3">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {validUntil ? (
+                      format(validUntil, "PPP", { locale: fr })
+                    ) : (
+                      <span>Sélectionner une date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={validUntil}
+                    onSelect={(date) => setValidUntil(date)}
+                    initialFocus
+                    fromDate={new Date()}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
           <DialogFooter>
             <DialogClose asChild>
