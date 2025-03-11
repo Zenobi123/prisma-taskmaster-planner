@@ -6,7 +6,7 @@ export interface Task {
   title: string;
   client_id: string;
   collaborateur_id: string;
-  status: "planifiee" | "en_attente" | "en_cours" | "termine";
+  status: "planifiee" | "en_attente" | "en_cours" | "termine" | "en_retard";
   created_at: string;
   updated_at: string;
   start_date?: string;
@@ -64,6 +64,21 @@ const updateTaskStatusesBasedOnDates = async (tasks: any[]): Promise<any[]> => {
   
   // Identify tasks that need status update
   tasks.forEach(task => {
+    // Check for overdue tasks
+    if (task.status !== "termine" && task.end_date) {
+      const endDate = new Date(task.end_date);
+      endDate.setHours(0, 0, 0, 0);
+      
+      if (endDate < today) {
+        tasksToUpdate.push({
+          id: task.id,
+          status: "en_retard"
+        });
+        return; // Skip other checks for this task
+      }
+    }
+    
+    // Check for planned tasks that should now be in progress
     if (task.status === "planifiee" && task.start_date) {
       const startDate = new Date(task.start_date);
       startDate.setHours(0, 0, 0, 0);

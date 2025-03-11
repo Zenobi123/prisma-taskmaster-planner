@@ -1,6 +1,8 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getTasks } from "@/services/taskService";
+import { AlertTriangle, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const RecentTasks = () => {
   const { data: tasks = [], isLoading } = useQuery({
@@ -11,16 +13,28 @@ const RecentTasks = () => {
   // Filter out completed tasks
   const activeTasks = tasks.filter((task: any) => task.status !== "termine");
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string, endDate: string | null) => {
+    // Check if task is overdue
+    if (endDate && new Date(endDate) < new Date() && status !== "termine") {
+      return (
+        <div className="flex items-center gap-1">
+          <Badge variant="destructive" className="flex items-center gap-1">
+            <AlertTriangle size={12} />
+            En retard
+          </Badge>
+        </div>
+      );
+    }
+
     switch (status) {
       case "en_cours":
-        return <span className="badge badge-green">En cours</span>;
+        return <Badge variant="success">En cours</Badge>;
       case "termine":
-        return <span className="badge badge-blue">Terminé</span>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600">Terminé</Badge>;
       case "planifiee":
-        return <span className="badge badge-purple">Planifiée</span>;
+        return <Badge className="bg-purple-500 hover:bg-purple-600">Planifiée</Badge>;
       default:
-        return <span className="badge badge-gray">En attente</span>;
+        return <Badge variant="outline">En attente</Badge>;
     }
   };
 
@@ -54,27 +68,42 @@ const RecentTasks = () => {
               <th>Client</th>
               <th>Assigné à</th>
               <th>Statut</th>
+              <th>Échéance</th>
             </tr>
           </thead>
           <tbody>
             {activeTasks.length > 0 ? (
-              activeTasks.map((task: any) => (
-                <tr key={task.id}>
-                  <td>{task.title}</td>
-                  <td>
-                    {task.clients && task.clients.type === "physique"
-                      ? task.clients.nom
-                      : task.clients?.raisonsociale || "Client inconnu"}
-                  </td>
-                  <td>
-                    {task.collaborateurs ? `${task.collaborateurs.prenom} ${task.collaborateurs.nom}` : "Non assigné"}
-                  </td>
-                  <td>{getStatusBadge(task.status)}</td>
-                </tr>
-              ))
+              activeTasks.map((task: any) => {
+                const isOverdue = task.end_date && new Date(task.end_date) < new Date() && task.status !== "termine";
+                
+                return (
+                  <tr key={task.id} className={isOverdue ? "text-red-600" : ""}>
+                    <td>{task.title}</td>
+                    <td>
+                      {task.clients && task.clients.type === "physique"
+                        ? task.clients.nom
+                        : task.clients?.raisonsociale || "Client inconnu"}
+                    </td>
+                    <td>
+                      {task.collaborateurs ? `${task.collaborateurs.prenom} ${task.collaborateurs.nom}` : "Non assigné"}
+                    </td>
+                    <td>{getStatusBadge(task.status, task.end_date)}</td>
+                    <td className="flex items-center gap-1">
+                      {task.end_date ? (
+                        <>
+                          <Clock size={14} className="mr-1" />
+                          {new Date(task.end_date).toLocaleDateString()}
+                        </>
+                      ) : (
+                        "Non définie"
+                      )}
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
-                <td colSpan={4} className="text-center py-4 text-gray-500">
+                <td colSpan={5} className="text-center py-4 text-gray-500">
                   Aucune tâche active n'a été trouvée.
                 </td>
               </tr>
