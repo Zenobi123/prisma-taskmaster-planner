@@ -2,7 +2,8 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { FileText, Link, Bell } from "lucide-react";
-import { AddDocumentDialog, FiscalDocument } from "./AddDocumentDialog";
+import { FiscalDocument } from "./types";
+import { AddDocumentDialog } from "./AddDocumentDialog";
 
 interface DocumentListProps {
   documents: FiscalDocument[];

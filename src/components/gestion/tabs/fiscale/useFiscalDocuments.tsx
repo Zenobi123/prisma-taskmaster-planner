@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
-import { FiscalDocument } from "./AddDocumentDialog";
+import { FiscalDocument } from "./types";
 
 // Initial fiscal documents
 const initialFiscalDocuments: FiscalDocument[] = [

@@ -8,6 +8,9 @@ const RecentTasks = () => {
     queryFn: getTasks,
   });
 
+  // Filter out completed tasks
+  const activeTasks = tasks.filter((task: any) => task.status !== "termine");
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "en_cours":
@@ -54,8 +57,8 @@ const RecentTasks = () => {
             </tr>
           </thead>
           <tbody>
-            {tasks.length > 0 ? (
-              tasks.map((task: any) => (
+            {activeTasks.length > 0 ? (
+              activeTasks.map((task: any) => (
                 <tr key={task.id}>
                   <td>{task.title}</td>
                   <td>
@@ -72,7 +75,7 @@ const RecentTasks = () => {
             ) : (
               <tr>
                 <td colSpan={4} className="text-center py-4 text-gray-500">
-                  Aucune tâche n'a été créée.
+                  Aucune tâche active n'a été trouvée.
                 </td>
               </tr>
             )}
