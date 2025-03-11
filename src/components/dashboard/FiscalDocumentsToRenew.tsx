@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -24,48 +24,42 @@ type FiscalDocument = {
 };
 
 const FiscalDocumentsToRenew = () => {
-  const [expiringDocuments, setExpiringDocuments] = useState<FiscalDocument[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data: expiringDocuments, isLoading, error } = useQuery({
+    queryKey: ["fiscal_documents_to_renew"],
+    queryFn: async () => {
+      try {
+        const today = new Date();
+        const tenDaysLater = new Date();
+        tenDaysLater.setDate(today.getDate() + 10);
 
-  const fetchDocumentsToRenew = async () => {
-    try {
-      const today = new Date();
-      const tenDaysLater = new Date();
-      tenDaysLater.setDate(today.getDate() + 10);
+        // Récupérer les documents qui expirent dans moins de 10 jours ou qui sont déjà expirés
+        const { data, error } = await supabase
+          .from("fiscal_documents")
+          .select(`
+            *,
+            clients:client_id (
+              id, 
+              niu, 
+              nom, 
+              raisonsociale, 
+              type
+            )
+          `)
+          .or(`valid_until.lt.${tenDaysLater.toISOString()},valid_until.lt.${today.toISOString()}`)
+          .not('valid_until', 'is', null);
 
-      const { data, error } = await supabase
-        .from("fiscal_documents")
-        .select(`
-          *,
-          clients:client_id (
-            id, 
-            niu, 
-            nom, 
-            raisonsociale, 
-            type
-          )
-        `)
-        .or(`valid_until.lte.${tenDaysLater.toISOString()},valid_until.lt.${today.toISOString()}`);
+        if (error) {
+          console.error("Error fetching fiscal documents:", error);
+          throw new Error("Erreur lors du chargement des documents fiscaux");
+        }
 
-      if (error) {
-        console.error("Error fetching fiscal documents:", error);
-        setError("Erreur lors du chargement des documents fiscaux");
-        return;
+        return data || [];
+      } catch (err) {
+        console.error("Error in fetchDocumentsToRenew:", err);
+        throw new Error("Une erreur est survenue");
       }
-
-      setExpiringDocuments(data || []);
-    } catch (err) {
-      console.error("Error in fetchDocumentsToRenew:", err);
-      setError("Une erreur est survenue");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchDocumentsToRenew();
-  }, []);
+    },
+  });
 
   if (isLoading) {
     return (
@@ -87,7 +81,9 @@ const FiscalDocumentsToRenew = () => {
         <h2 className="text-xl font-semibold text-neutral-800 mb-6">
           Documents fiscaux à renouveler
         </h2>
-        <div className="p-4 text-destructive">{error}</div>
+        <div className="p-4 text-destructive">
+          {error instanceof Error ? error.message : "Erreur lors du chargement des documents fiscaux"}
+        </div>
       </div>
     );
   }
@@ -121,7 +117,7 @@ const FiscalDocumentsToRenew = () => {
         Documents fiscaux à renouveler
       </h2>
       
-      {expiringDocuments.length > 0 ? (
+      {expiringDocuments && expiringDocuments.length > 0 ? (
         <div className="space-y-4">
           {expiringDocuments.map((doc) => {
             const status = getDocumentStatus(doc.valid_until);
