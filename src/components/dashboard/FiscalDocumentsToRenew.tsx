@@ -1,10 +1,9 @@
-
 import React from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { CalendarAlert, FileWarning } from "lucide-react";
+import { CalendarAlert, FileWarning, Clock } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Badge } from "@/components/ui/badge";
@@ -28,10 +27,8 @@ type FiscalDocumentWithClient = {
 };
 
 async function fetchDocumentsToRenew() {
-  // Get the current date
   const today = new Date();
   
-  // Fetch documents with clients that are close to expiration or expired
   const { data, error } = await supabase
     .from('fiscal_documents')
     .select(`
@@ -40,7 +37,7 @@ async function fetchDocumentsToRenew() {
       description,
       valid_until,
       client_id,
-      clients:client_id (
+      client:client_id (
         id,
         nom,
         raisonsociale,
@@ -54,9 +51,8 @@ async function fetchDocumentsToRenew() {
     throw error;
   }
 
-  // Filter and process the documents
-  const processedData = data
-    .filter(item => item.valid_until)
+  const processedData = (data || [])
+    .filter(item => item.valid_until && item.client)
     .map(item => {
       const validUntil = new Date(item.valid_until as string);
       const daysRemaining = differenceInDays(validUntil, today);
@@ -66,18 +62,14 @@ async function fetchDocumentsToRenew() {
         ...item,
         daysRemaining,
         isExpired,
-        client: item.clients as ClientInfo,
+        client: item.client as ClientInfo,
       };
     })
-    // Filter to show documents expiring in the next 10 days or already expired
     .filter(item => item.daysRemaining <= 10)
-    // Sort by: first the ones expiring soon (but not expired), then the expired ones
     .sort((a, b) => {
-      // If both are expired or both are not expired, sort by days remaining
       if ((a.isExpired && b.isExpired) || (!a.isExpired && !b.isExpired)) {
         return a.daysRemaining - b.daysRemaining;
       }
-      // Non-expired documents come first
       return a.isExpired ? 1 : -1;
     });
 
@@ -162,7 +154,7 @@ export default function FiscalDocumentsToRenew() {
                           Expiré
                         </Badge>
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <CalendarAlert className="h-3 w-3" />
+                          <Clock className="h-3 w-3" />
                           Depuis {Math.abs(doc.daysRemaining)} jour{Math.abs(doc.daysRemaining) > 1 ? 's' : ''}
                         </span>
                       </div>
@@ -172,7 +164,7 @@ export default function FiscalDocumentsToRenew() {
                           Expire bientôt
                         </Badge>
                         <span className="text-xs text-muted-foreground flex items-center gap-1">
-                          <CalendarAlert className="h-3 w-3" />
+                          <Clock className="h-3 w-3" />
                           Dans {doc.daysRemaining} jour{doc.daysRemaining > 1 ? 's' : ''}
                         </span>
                       </div>
