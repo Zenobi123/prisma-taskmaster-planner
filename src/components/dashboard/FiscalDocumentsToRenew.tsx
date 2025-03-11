@@ -1,27 +1,9 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
 import { Link } from "react-router-dom";
-
-type ClientInfo = {
-  id: string;
-  niu: string;
-  nom?: string;
-  raisonsociale?: string;
-  type: 'physique' | 'morale';
-};
-
-type FiscalDocument = {
-  id: string;
-  name: string;
-  description: string;
-  created_at: string;
-  valid_until: string | null;
-  client_id: string;
-  client?: ClientInfo;
-};
+import type { FiscalDocumentDisplay } from "@/components/gestion/tabs/fiscale/types";
 
 const FiscalDocumentsToRenew = () => {
   const { data: expiringDocuments, isLoading, error } = useQuery({
@@ -32,12 +14,11 @@ const FiscalDocumentsToRenew = () => {
         const tenDaysLater = new Date();
         tenDaysLater.setDate(today.getDate() + 10);
 
-        // Récupérer les documents qui expirent dans moins de 10 jours ou qui sont déjà expirés
         const { data, error } = await supabase
           .from("fiscal_documents")
           .select(`
             *,
-            clients:client_id (
+            clients!fiscal_documents_client_id_fkey (
               id, 
               niu, 
               nom, 
@@ -53,7 +34,7 @@ const FiscalDocumentsToRenew = () => {
           throw new Error("Erreur lors du chargement des documents fiscaux");
         }
 
-        return data || [];
+        return (data || []) as FiscalDocumentDisplay[];
       } catch (err) {
         console.error("Error in fetchDocumentsToRenew:", err);
         throw new Error("Une erreur est survenue");
@@ -123,8 +104,8 @@ const FiscalDocumentsToRenew = () => {
             const status = getDocumentStatus(doc.valid_until);
             if (!status) return null;
             
-            const client = doc.client;
-            const clientName = client?.type === 'physique' ? client.nom : client?.raisonsociale;
+            const clientInfo = doc.clients;
+            const clientName = clientInfo?.type === 'physique' ? clientInfo.nom : clientInfo?.raisonsociale;
             
             return (
               <div key={doc.id} className="flex items-start p-3 border rounded-md bg-muted/30 hover:bg-muted transition-colors">
@@ -132,7 +113,7 @@ const FiscalDocumentsToRenew = () => {
                   <h3 className="font-medium">{doc.name}</h3>
                   <div className="text-sm text-muted-foreground">
                     {clientName || 'Client inconnu'} 
-                    {client?.niu && <span className="ml-2">NIU: {client.niu}</span>}
+                    {clientInfo?.niu && <span className="ml-2">NIU: {clientInfo.niu}</span>}
                   </div>
                   <div className={`flex items-center text-sm mt-1 ${status.type === 'expired' ? 'text-destructive' : 'text-amber-600'}`}>
                     <Clock className="w-4 h-4 mr-1" />
