@@ -19,7 +19,7 @@ export type FiscalDocumentDisplay = {
   created_at: string;
   valid_until: string | null;
   client_id: string;
-  client?: {
+  clients?: {
     id: string;
     niu: string;
     nom?: string;

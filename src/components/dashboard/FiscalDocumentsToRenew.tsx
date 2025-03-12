@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
@@ -27,14 +26,32 @@ const FiscalDocumentsToRenew = () => {
             )
           `)
           .or(`valid_until.lt.${tenDaysLater.toISOString()},valid_until.lt.${today.toISOString()}`)
-          .not('valid_until', 'is', null);
+          .not('valid_until', 'is', null)
+          .in('name', ['Attestation de Conformité Fiscale', 'Patente']);
 
         if (error) {
           console.error("Error fetching fiscal documents:", error);
           throw new Error("Erreur lors du chargement des documents fiscaux");
         }
 
-        return (data || []) as FiscalDocumentDisplay[];
+        const processedData = (data || []).map(doc => {
+          if (doc.name === 'Patente') {
+            const currentYear = today.getFullYear();
+            const deadlineDate = new Date(currentYear, 1, 28);
+            
+            if (today > deadlineDate) {
+              deadlineDate.setFullYear(currentYear + 1);
+            }
+            
+            return {
+              ...doc,
+              valid_until: deadlineDate.toISOString()
+            };
+          }
+          return doc;
+        });
+
+        return processedData as FiscalDocumentDisplay[];
       } catch (err) {
         console.error("Error in fetchDocumentsToRenew:", err);
         throw new Error("Une erreur est survenue");
@@ -69,24 +86,30 @@ const FiscalDocumentsToRenew = () => {
     );
   }
 
-  const getDocumentStatus = (validUntil: string | null) => {
+  const getDocumentStatus = (validUntil: string | null, documentName: string) => {
     if (!validUntil) return null;
     
     const now = new Date();
     const expiryDate = new Date(validUntil);
     
+    const isPatente = documentName === 'Patente';
+    
     if (expiryDate < now) {
       const daysSinceExpiry = Math.floor((now.getTime() - expiryDate.getTime()) / (1000 * 60 * 60 * 24));
       return {
         type: 'expired',
-        message: `Périmé depuis ${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''}`,
+        message: isPatente 
+          ? `Patente annuelle non renouvelée depuis ${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''}`
+          : `Périmé depuis ${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''}`,
         date: expiryDate.toLocaleDateString()
       };
     } else {
       const daysUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
       return {
         type: 'expiring',
-        message: `Expire dans ${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''}`,
+        message: isPatente
+          ? `Renouvellement avant le 28 février (${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''})`
+          : `Expire dans ${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''}`,
         date: expiryDate.toLocaleDateString()
       };
     }
@@ -101,7 +124,7 @@ const FiscalDocumentsToRenew = () => {
       {expiringDocuments && expiringDocuments.length > 0 ? (
         <div className="space-y-4">
           {expiringDocuments.map((doc) => {
-            const status = getDocumentStatus(doc.valid_until);
+            const status = getDocumentStatus(doc.valid_until, doc.name);
             if (!status) return null;
             
             const clientInfo = doc.clients;
