@@ -6,7 +6,7 @@ export interface Task {
   title: string;
   client_id: string;
   collaborateur_id: string;
-  status: "planifiee" | "en_attente" | "en_cours" | "termine" | "en_retard";
+  status: "en_attente" | "en_cours" | "termine" | "en_retard";
   created_at: string;
   updated_at: string;
   start_date?: string;
@@ -42,7 +42,7 @@ export const getTasks = async () => {
   return updatedTasks;
 };
 
-// Function to determine if a task should have "planifiee" status
+// Function to determine initial status based on start date
 export const determineInitialStatus = (startDate: string | null | undefined): Task["status"] => {
   if (!startDate) return "en_attente";
   
@@ -52,7 +52,9 @@ export const determineInitialStatus = (startDate: string | null | undefined): Ta
   const taskStartDate = new Date(startDate);
   taskStartDate.setHours(0, 0, 0, 0); // Set to beginning of day
   
-  return taskStartDate > today ? "planifiee" : "en_cours";
+  // Si la date de début est dans le futur, on met en "en_attente" (au lieu de "planifiee")
+  // car la base de données n'accepte pas "planifiee" comme valeur
+  return taskStartDate > today ? "en_attente" : "en_cours";
 };
 
 // Function to check and update task statuses based on their dates
@@ -79,7 +81,7 @@ const updateTaskStatusesBasedOnDates = async (tasks: any[]): Promise<any[]> => {
     }
     
     // Check for planned tasks that should now be in progress
-    if (task.status === "planifiee" && task.start_date) {
+    if (task.status === "en_attente" && task.start_date) {
       const startDate = new Date(task.start_date);
       startDate.setHours(0, 0, 0, 0);
       
