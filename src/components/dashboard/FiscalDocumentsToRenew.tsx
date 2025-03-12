@@ -10,11 +10,12 @@ const FiscalDocumentsToRenew = () => {
     queryKey: ["fiscal_documents_to_renew"],
     queryFn: async () => {
       try {
+        // Specify exact foreign key relationship to avoid multiple relationship error
         const { data, error } = await supabase
           .from("fiscal_documents")
           .select(`
             *,
-            clients (
+            clients!fiscal_documents_client_id_fkey (
               id, 
               niu, 
               nom, 
