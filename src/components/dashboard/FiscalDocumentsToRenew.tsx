@@ -31,10 +31,7 @@ const FiscalDocumentsToRenew = () => {
               regimefiscal
             )
           `)
-          .or(
-            `and(name.eq.Patente, valid_until.lt.${patentDeadline2025.toISOString()}),
-            and(name.eq.Attestation de Conformité Fiscale, or(valid_until.lt.${tenDaysLater.toISOString()},valid_until.lt.${today.toISOString()}))`
-          )
+          .or(`name.eq.Patente,name.eq.Attestation de Conformité Fiscale`)
           .not('valid_until', 'is', null);
 
         if (error) {
@@ -46,11 +43,20 @@ const FiscalDocumentsToRenew = () => {
           .filter(doc => {
             if (doc.name === 'Patente') {
               const regimeFiscal = doc.clients?.regimefiscal as RegimeFiscal | undefined;
+              const validUntil = doc.valid_until ? new Date(doc.valid_until) : null;
               
-              // Only show patents for "Réel" and "Simplifié" tax regimes
-              return regimeFiscal === 'reel' || regimeFiscal === 'simplifie';
+              // Only show 2025 patents for "Réel" and "Simplifié" tax regimes
+              // that weren't paid by Feb 28, 2025
+              return (regimeFiscal === 'reel' || regimeFiscal === 'simplifie') && 
+                     (validUntil === null || validUntil < patentDeadline2025);
             }
-            return true;
+            
+            if (doc.name === 'Attestation de Conformité Fiscale') {
+              const validUntil = doc.valid_until ? new Date(doc.valid_until) : null;
+              return validUntil !== null && (validUntil < tenDaysLater || validUntil < today);
+            }
+            
+            return false;
           })
           .map(doc => {
             if (doc.name === 'Patente') {
