@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { TaskFormFields } from "./TaskFormFields";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createTask } from "@/services/taskService";
+import { createTask, determineInitialStatus } from "@/services/taskService";
 import { useToast } from "@/components/ui/use-toast";
 
 interface TaskFormProps {
@@ -38,13 +38,14 @@ export const TaskForm = ({ clients, collaborateurs, onSuccess }: TaskFormProps) 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
+    const startDate = formData.get("start_date") as string;
     
     createTaskMutation.mutate({
       title: formData.get("title") as string,
       client_id: formData.get("client_id") as string,
       collaborateur_id: formData.get("collaborateur_id") as string,
-      status: "en_attente",
-      start_date: formData.get("start_date") as string,
+      status: determineInitialStatus(startDate),
+      start_date: startDate,
       end_date: formData.get("end_date") as string,
     });
   };
