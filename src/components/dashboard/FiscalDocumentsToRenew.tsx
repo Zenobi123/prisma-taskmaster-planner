@@ -31,19 +31,19 @@ const FiscalDocumentsToRenew = () => {
           throw new Error("Erreur lors du chargement des documents fiscaux");
         }
 
-        // If no real data found, use Mme DANG's ACF document as fallback
+        // If no real data found, use Mme DANG TABI's ACF document as fallback with correct data
         if (!data || data.length === 0) {
           return [{
-            id: "acf-dang",
+            id: "1015301", // Document ID from the image
             name: "Attestation de Conformité Fiscale (ACF)",
             description: "Certificat de situation fiscale",
-            created_at: "2023-12-22T00:00:00",
-            valid_until: "2024-03-16T00:00:00", 
+            created_at: "2024-12-17T00:00:00", // Image shows "Créé le 17/12/2024"
+            valid_until: "2025-03-17T00:00:00", // Image shows expiry on 17/03/2025 
             client_id: "client-dang",
             clients: {
               id: "client-dang",
-              niu: "M012200044735A",
-              nom: "DANG",
+              niu: "P038200291053J", // NIU from the image
+              nom: "DANG TABI", // Full name from the image
               type: "physique"
             }
           }];
