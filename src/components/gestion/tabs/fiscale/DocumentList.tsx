@@ -1,9 +1,8 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, Link, Bell } from "lucide-react";
+import { FileText, Link as LinkIcon } from "lucide-react";
 import { FiscalDocument } from "./types";
-import { AddDocumentDialog } from "./AddDocumentDialog";
 
 interface DocumentListProps {
   documents: FiscalDocument[];
@@ -23,16 +22,14 @@ export function DocumentList({ documents, onItemClick }: DocumentListProps) {
     if (daysRemaining <= 0) {
       return (
         <div className="flex items-center mt-1 text-destructive text-xs">
-          <Bell size={14} className="mr-1" />
           Expiré depuis {Math.abs(daysRemaining)} jour{Math.abs(daysRemaining) > 1 ? 's' : ''} ({validityDate})
         </div>
       );
     }
     
-    if (daysRemaining <= 5) {
+    if (daysRemaining <= 30) {
       return (
-        <div className="flex items-center mt-1 text-destructive text-xs">
-          <Bell size={14} className="mr-1" />
+        <div className="flex items-center mt-1 text-amber-600 text-xs">
           Expire dans {daysRemaining} jour{daysRemaining > 1 ? 's' : ''} ({validityDate})
         </div>
       );
@@ -66,7 +63,7 @@ export function DocumentList({ documents, onItemClick }: DocumentListProps) {
           <div className="text-left">
             <div className="font-medium flex items-center gap-1">
               {doc.name}
-              <Link size={14} className="text-primary" />
+              <LinkIcon size={14} className="text-primary" />
             </div>
             <p className="text-sm text-muted-foreground">{doc.description}</p>
             {renderValidity(doc)}
