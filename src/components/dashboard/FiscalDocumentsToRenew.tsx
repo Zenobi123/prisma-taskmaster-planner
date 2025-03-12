@@ -83,6 +83,24 @@ const FiscalDocumentsToRenew = () => {
     );
   }
 
+  // Format date for display (DD/MM/YYYY)
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
+  };
+
+  // Calculate days remaining until expiration
+  const calculateDaysRemaining = (expirationDate: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset to start of day for accurate day calculation
+    
+    const expDate = new Date(expirationDate);
+    expDate.setHours(0, 0, 0, 0);
+    
+    const differenceInTime = expDate.getTime() - today.getTime();
+    return Math.ceil(differenceInTime / (1000 * 3600 * 24));
+  };
+
   return (
     <div className="card mt-8">
       <h2 className="text-xl font-semibold text-neutral-800 mb-6">
@@ -98,6 +116,10 @@ const FiscalDocumentsToRenew = () => {
               ? clientInfo.nom 
               : clientInfo?.raisonsociale || 'Client';
             
+            // Calculate days remaining and format expiration date
+            const daysRemaining = calculateDaysRemaining(doc.valid_until);
+            const formattedExpDate = formatDate(doc.valid_until);
+            
             return (
               <div key={doc.id} className="flex items-start p-3 border rounded-md bg-muted/30 hover:bg-muted transition-colors">
                 <div className="flex-1">
@@ -108,7 +130,7 @@ const FiscalDocumentsToRenew = () => {
                   </div>
                   <div className="flex items-center text-sm mt-1 text-amber-600">
                     <Clock className="w-4 h-4 mr-1" />
-                    <span>Expire dans 4 jours (16/03/2024)</span>
+                    <span>Expire dans {daysRemaining} jour{daysRemaining > 1 ? 's' : ''} ({formattedExpDate})</span>
                   </div>
                 </div>
                 <Link to="/gestion" className="text-primary hover:underline text-sm">
