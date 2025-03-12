@@ -33,7 +33,7 @@ export function GestionTabsContent({
         <GestionEntreprise onTabChange={onTabChange} />
       </ShadcnTabsContent>
 
-      <ShadcnTabsContent value="contrat-prestations">
+      <Shadc TabsContent value="contrat-prestations">
         <ContratPrestations client={selectedClient} />
       </ShadcnTabsContent>
 
@@ -50,7 +50,7 @@ export function GestionTabsContent({
       </ShadcnTabsContent>
 
       <ShadcnTabsContent value="administration-fiscale">
-        <AdministrationFiscale />
+        <AdministrationFiscale client={selectedClient} />
       </ShadcnTabsContent>
 
       <ShadcnTabsContent value="cloture-exercice">
