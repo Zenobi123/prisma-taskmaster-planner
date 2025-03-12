@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { MissionCard } from "@/components/missions/MissionCard";
+import MissionCard from "@/components/missions/MissionCard";
 import MissionFilters from "@/components/missions/MissionFilters";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";

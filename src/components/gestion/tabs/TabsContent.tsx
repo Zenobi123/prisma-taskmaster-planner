@@ -1,3 +1,4 @@
+
 import React from "react";
 import { TabsContent as ShadcnTabsContent } from "@/components/ui/tabs";
 import { GestionEntreprise } from "./GestionEntreprise";
@@ -49,7 +50,7 @@ export function GestionTabsContent({
       </ShadcnTabsContent>
 
       <ShadcnTabsContent value="administration-fiscale">
-        <AdministrationFiscale client={selectedClient} />
+        <AdministrationFiscale />
       </ShadcnTabsContent>
 
       <ShadcnTabsContent value="cloture-exercice">
