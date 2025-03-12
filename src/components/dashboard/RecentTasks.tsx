@@ -25,7 +25,9 @@ const RecentTasks = () => {
       if (taskEndDate < today && status !== "termine") {
         return (
           <div className="flex items-center gap-1">
-            <Badge variant="destructive" className="flex items-center gap-1 animate-pulse-slow">
+            <Badge 
+              className="flex items-center gap-1 animate-pulse-slow bg-[#ea384c] hover:bg-[#d32f40] text-white"
+            >
               <Flame size={14} className="mr-1" />
               En retard
             </Badge>
@@ -98,7 +100,7 @@ const RecentTasks = () => {
                   <tr 
                     key={task.id} 
                     className={isOverdue 
-                      ? "bg-red-50 border-l-4 border-destructive text-destructive hover:bg-red-100 transition-colors" 
+                      ? "bg-[#fff1f2] border-l-4 border-[#ea384c] text-[#ea384c] hover:bg-[#ffe6e8] transition-colors" 
                       : "hover:bg-neutral-50 transition-colors"
                     }
                   >
@@ -117,7 +119,7 @@ const RecentTasks = () => {
                         <>
                           <Clock 
                             size={14} 
-                            className={isOverdue ? "text-destructive animate-pulse-slow" : ""} 
+                            className={isOverdue ? "text-[#ea384c] animate-pulse-slow" : ""} 
                           />
                           {new Date(task.end_date).toLocaleDateString()}
                         </>
