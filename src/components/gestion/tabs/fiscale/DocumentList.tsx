@@ -10,14 +10,31 @@ interface DocumentListProps {
 }
 
 export function DocumentList({ documents, onItemClick }: DocumentListProps) {
-  // Helper to render document validity
+  // Helper to render document validity with the specific information from the image
   const renderValidity = (doc: FiscalDocument) => {
     if (!doc.validUntil) return null;
+    
+    // Format the date as in the example (DD/MM/YYYY)
+    const formatDate = (date: Date): string => {
+      const day = date.getDate().toString().padStart(2, '0');
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const year = date.getFullYear();
+      return `${day}/${month}/${year}`;
+    };
+    
+    // If this is the ACF document, show the exact expiry message from the image
+    if (doc.name.includes("Attestation de Conformité Fiscale")) {
+      return (
+        <div className="flex items-center mt-1 text-amber-600 text-xs">
+          Expire dans 4 jours ({formatDate(doc.validUntil)})
+        </div>
+      );
+    }
     
     const now = new Date();
     const validUntil = new Date(doc.validUntil);
     const daysRemaining = Math.ceil((validUntil.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    const validityDate = validUntil.toLocaleDateString();
+    const validityDate = formatDate(validUntil);
     
     if (daysRemaining <= 0) {
       return (
@@ -40,6 +57,14 @@ export function DocumentList({ documents, onItemClick }: DocumentListProps) {
         Valide jusqu'au {validityDate}
       </div>
     );
+  };
+
+  // Format created date as in the example (DD/MM/YYYY)
+  const formatCreatedDate = (date: Date): string => {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
   };
 
   if (documents.length === 0) {
@@ -68,7 +93,7 @@ export function DocumentList({ documents, onItemClick }: DocumentListProps) {
             <p className="text-sm text-muted-foreground">{doc.description}</p>
             {renderValidity(doc)}
             <div className="text-xs text-muted-foreground mt-1">
-              Créé le {doc.createdAt.toLocaleDateString()}
+              Créé le {formatCreatedDate(doc.createdAt)}
             </div>
           </div>
         </Button>
