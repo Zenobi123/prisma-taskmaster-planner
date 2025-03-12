@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { FiscalDocumentDisplay } from "@/components/gestion/tabs/fiscale/types";
+import type { RegimeFiscal } from "@/types/client";
 
 const FiscalDocumentsToRenew = () => {
   const { data: expiringDocuments, isLoading, error } = useQuery({
@@ -12,7 +13,10 @@ const FiscalDocumentsToRenew = () => {
         const today = new Date();
         const tenDaysLater = new Date();
         tenDaysLater.setDate(today.getDate() + 10);
-
+        
+        const currentYear = today.getFullYear();
+        const patentDeadline = new Date(currentYear, 1, 28);
+        
         const { data, error } = await supabase
           .from("fiscal_documents")
           .select(`
@@ -22,34 +26,40 @@ const FiscalDocumentsToRenew = () => {
               niu, 
               nom, 
               raisonsociale, 
-              type
+              type,
+              regimefiscal
             )
           `)
-          .or(`valid_until.lt.${tenDaysLater.toISOString()},valid_until.lt.${today.toISOString()}`)
-          .not('valid_until', 'is', null)
-          .in('name', ['Attestation de Conformité Fiscale', 'Patente']);
+          .or(
+            `and(name.eq.Patente, valid_until.lt.${patentDeadline.toISOString()}),
+            and(name.eq.Attestation de Conformité Fiscale, or(valid_until.lt.${tenDaysLater.toISOString()},valid_until.lt.${today.toISOString()}))`
+          )
+          .not('valid_until', 'is', null);
 
         if (error) {
           console.error("Error fetching fiscal documents:", error);
           throw new Error("Erreur lors du chargement des documents fiscaux");
         }
 
-        const processedData = (data || []).map(doc => {
-          if (doc.name === 'Patente') {
-            const currentYear = today.getFullYear();
-            const deadlineDate = new Date(currentYear, 1, 28);
-            
-            if (today > deadlineDate) {
-              deadlineDate.setFullYear(currentYear + 1);
+        const processedData = (data || [])
+          .filter(doc => {
+            if (doc.name === 'Patente') {
+              const regimeFiscal = doc.clients?.regimefiscal as RegimeFiscal | undefined;
+              const isNonProfessional = regimeFiscal?.startsWith('non_professionnel_');
+              
+              return !isNonProfessional;
             }
-            
-            return {
-              ...doc,
-              valid_until: deadlineDate.toISOString()
-            };
-          }
-          return doc;
-        });
+            return true;
+          })
+          .map(doc => {
+            if (doc.name === 'Patente') {
+              return {
+                ...doc,
+                valid_until: patentDeadline.toISOString()
+              };
+            }
+            return doc;
+          });
 
         return processedData as FiscalDocumentDisplay[];
       } catch (err) {
@@ -99,7 +109,7 @@ const FiscalDocumentsToRenew = () => {
       return {
         type: 'expired',
         message: isPatente 
-          ? `Patente annuelle non renouvelée depuis ${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''}`
+          ? `Patente annuelle non renouvelée depuis le 28 février 2025 (${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''})`
           : `Périmé depuis ${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''}`,
         date: expiryDate.toLocaleDateString()
       };
@@ -108,7 +118,7 @@ const FiscalDocumentsToRenew = () => {
       return {
         type: 'expiring',
         message: isPatente
-          ? `Renouvellement avant le 28 février (${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''})`
+          ? `Renouvellement avant le 28 février 2025 (${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''})`
           : `Expire dans ${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''}`,
         date: expiryDate.toLocaleDateString()
       };
