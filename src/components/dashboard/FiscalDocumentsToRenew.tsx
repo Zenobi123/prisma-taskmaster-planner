@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
@@ -10,7 +9,10 @@ const FiscalDocumentsToRenew = () => {
     queryKey: ["fiscal_documents_to_renew"],
     queryFn: async () => {
       try {
-        // Specify exact foreign key relationship to avoid multiple relationship error
+        const today = new Date();
+        const thirtyDaysFromNow = new Date();
+        thirtyDaysFromNow.setDate(today.getDate() + 30);
+        
         const { data, error } = await supabase
           .from("fiscal_documents")
           .select(`
@@ -24,26 +26,27 @@ const FiscalDocumentsToRenew = () => {
             )
           `)
           .eq('name', 'Attestation de Conformité Fiscale (ACF)')
-          .not('valid_until', 'is', null);
+          .lt('valid_until', thirtyDaysFromNow.toISOString())
+          .gt('valid_until', today.toISOString())
+          .order('valid_until', { ascending: true });
 
         if (error) {
           console.error("Error fetching fiscal documents:", error);
           throw new Error("Erreur lors du chargement des documents fiscaux");
         }
 
-        // If no real data found, use Mme DANG TABI's ACF document as fallback with correct data
         if (!data || data.length === 0) {
           return [{
-            id: "1015301", // Document ID from the image
+            id: "1015301",
             name: "Attestation de Conformité Fiscale (ACF)",
             description: "Certificat de situation fiscale",
-            created_at: "2024-12-17T00:00:00", // Image shows "Créé le 17/12/2024"
-            valid_until: "2025-03-17T00:00:00", // Image shows expiry on 17/03/2025 
+            created_at: "2024-12-17T00:00:00",
+            valid_until: "2025-03-17T00:00:00",
             client_id: "client-dang",
             clients: {
               id: "client-dang",
-              niu: "P038200291053J", // NIU from the image
-              nom: "DANG TABI", // Full name from the image
+              niu: "P038200291053J",
+              nom: "DANG TABI",
               type: "physique"
             }
           }];
@@ -84,16 +87,14 @@ const FiscalDocumentsToRenew = () => {
     );
   }
 
-  // Format date for display (DD/MM/YYYY)
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`;
   };
 
-  // Calculate days remaining until expiration
   const calculateDaysRemaining = (expirationDate: string) => {
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Reset to start of day for accurate day calculation
+    today.setHours(0, 0, 0, 0);
     
     const expDate = new Date(expirationDate);
     expDate.setHours(0, 0, 0, 0);
@@ -112,12 +113,10 @@ const FiscalDocumentsToRenew = () => {
         <div className="space-y-4">
           {expiringDocuments.map((doc) => {
             const clientInfo = doc.clients;
-            // Display correct client name based on client type
             const clientDisplayName = clientInfo?.type === 'physique' 
               ? clientInfo.nom 
               : clientInfo?.raisonsociale || 'Client';
             
-            // Calculate days remaining and format expiration date
             const daysRemaining = calculateDaysRemaining(doc.valid_until);
             const formattedExpDate = formatDate(doc.valid_until);
             

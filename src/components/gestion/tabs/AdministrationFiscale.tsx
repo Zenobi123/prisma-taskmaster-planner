@@ -6,9 +6,15 @@ import { AddDocumentDialog } from "./fiscale/AddDocumentDialog";
 import { DocumentList } from "./fiscale/DocumentList";
 import { SectionHeader } from "./fiscale/SectionHeader";
 import { useFiscalDocuments } from "./fiscale/useFiscalDocuments";
+import { Client } from "@/types/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export function AdministrationFiscale() {
-  const { fiscalDocuments, handleAddDocument } = useFiscalDocuments();
+interface AdministrationFiscaleProps {
+  client: Client;
+}
+
+export function AdministrationFiscale({ client }: AdministrationFiscaleProps) {
+  const { fiscalDocuments, isLoading, handleAddDocument } = useFiscalDocuments(client.id);
 
   return (
     <Card>
@@ -25,10 +31,18 @@ export function AdministrationFiscale() {
           >
             <AddDocumentDialog onAddDocument={handleAddDocument} />
           </SectionHeader>
-          <DocumentList 
-            documents={fiscalDocuments} 
-            onItemClick={() => {}} 
-          />
+          
+          {isLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-20 w-full" />
+              <Skeleton className="h-20 w-full" />
+            </div>
+          ) : (
+            <DocumentList 
+              documents={fiscalDocuments} 
+              onItemClick={() => {}} 
+            />
+          )}
         </div>
       </CardContent>
     </Card>
