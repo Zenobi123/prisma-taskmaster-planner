@@ -14,18 +14,27 @@ const RecentTasks = () => {
   const activeTasks = tasks.filter((task: any) => task.status !== "termine");
 
   const getStatusBadge = (status: string, endDate: string | null) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset hours to start of day for accurate comparison
+
     // Check if task is overdue
-    if (endDate && new Date(endDate) < new Date() && status !== "termine") {
-      return (
-        <div className="flex items-center gap-1">
-          <Badge variant="destructive" className="flex items-center gap-1">
-            <AlertTriangle size={12} />
-            En retard
-          </Badge>
-        </div>
-      );
+    if (endDate) {
+      const taskEndDate = new Date(endDate);
+      taskEndDate.setHours(0, 0, 0, 0);
+
+      if (taskEndDate < today && status !== "termine") {
+        return (
+          <div className="flex items-center gap-1">
+            <Badge variant="destructive" className="flex items-center gap-1">
+              <AlertTriangle size={12} />
+              En retard
+            </Badge>
+          </div>
+        );
+      }
     }
 
+    // If not overdue, show regular status badge
     switch (status) {
       case "en_cours":
         return <Badge variant="success">En cours</Badge>;
@@ -74,10 +83,13 @@ const RecentTasks = () => {
           <tbody>
             {activeTasks.length > 0 ? (
               activeTasks.map((task: any) => {
-                const isOverdue = task.end_date && new Date(task.end_date) < new Date() && task.status !== "termine";
-                
+                const isOverdue =
+                  task.end_date &&
+                  new Date(task.end_date) < new Date() &&
+                  task.status !== "termine";
+
                 return (
-                  <tr key={task.id} className={isOverdue ? "text-red-600" : ""}>
+                  <tr key={task.id} className={isOverdue ? "text-destructive" : ""}>
                     <td>{task.title}</td>
                     <td>
                       {task.clients && task.clients.type === "physique"
@@ -91,7 +103,7 @@ const RecentTasks = () => {
                     <td className="flex items-center gap-1">
                       {task.end_date ? (
                         <>
-                          <Clock size={14} className="mr-1" />
+                          <Clock size={14} className={isOverdue ? "text-destructive" : ""} />
                           {new Date(task.end_date).toLocaleDateString()}
                         </>
                       ) : (
