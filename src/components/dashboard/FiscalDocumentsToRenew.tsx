@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
@@ -14,8 +15,8 @@ const FiscalDocumentsToRenew = () => {
         const tenDaysLater = new Date();
         tenDaysLater.setDate(today.getDate() + 10);
         
-        const currentYear = today.getFullYear();
-        const patentDeadline = new Date(currentYear, 1, 28);
+        // For 2025 patents that weren't paid by Feb 28, 2025
+        const patentDeadline2025 = new Date(2025, 1, 28); // Feb 28, 2025
         
         const { data, error } = await supabase
           .from("fiscal_documents")
@@ -31,7 +32,7 @@ const FiscalDocumentsToRenew = () => {
             )
           `)
           .or(
-            `and(name.eq.Patente, valid_until.lt.${patentDeadline.toISOString()}),
+            `and(name.eq.Patente, valid_until.lt.${patentDeadline2025.toISOString()}),
             and(name.eq.Attestation de Conformité Fiscale, or(valid_until.lt.${tenDaysLater.toISOString()},valid_until.lt.${today.toISOString()}))`
           )
           .not('valid_until', 'is', null);
@@ -45,9 +46,9 @@ const FiscalDocumentsToRenew = () => {
           .filter(doc => {
             if (doc.name === 'Patente') {
               const regimeFiscal = doc.clients?.regimefiscal as RegimeFiscal | undefined;
-              const isNonProfessional = regimeFiscal?.startsWith('non_professionnel_');
               
-              return !isNonProfessional;
+              // Only show patents for "Réel" and "Simplifié" tax regimes
+              return regimeFiscal === 'reel' || regimeFiscal === 'simplifie';
             }
             return true;
           })
@@ -55,7 +56,7 @@ const FiscalDocumentsToRenew = () => {
             if (doc.name === 'Patente') {
               return {
                 ...doc,
-                valid_until: patentDeadline.toISOString()
+                valid_until: patentDeadline2025.toISOString()
               };
             }
             return doc;
@@ -109,7 +110,7 @@ const FiscalDocumentsToRenew = () => {
       return {
         type: 'expired',
         message: isPatente 
-          ? `Patente annuelle non renouvelée depuis le 28 février 2025 (${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''})`
+          ? `Patente 2025 non renouvelée depuis le 28 février 2025 (${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''})`
           : `Périmé depuis ${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''}`,
         date: expiryDate.toLocaleDateString()
       };
@@ -118,7 +119,7 @@ const FiscalDocumentsToRenew = () => {
       return {
         type: 'expiring',
         message: isPatente
-          ? `Renouvellement avant le 28 février 2025 (${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''})`
+          ? `Renouvellement de la patente 2025 avant le 28 février 2025 (${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''})`
           : `Expire dans ${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''}`,
         date: expiryDate.toLocaleDateString()
       };
