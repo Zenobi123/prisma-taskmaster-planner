@@ -1,36 +1,16 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { FiscalDocument } from "./types";
 
-// Initial fiscal documents
+// Initial fiscal document - just the ACF document
 const initialFiscalDocuments: FiscalDocument[] = [
-  {
-    id: "dsf",
-    name: "Déclaration Statistique et Fiscale (DSF)",
-    description: "Déclaration annuelle des résultats",
-    createdAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-    validUntil: null, // No expiration for this document
-  },
-  {
-    id: "dmt",
-    name: "Déclaration Mensuelle des Taxes (DMT)",
-    description: "Relevé mensuel des taxes collectées",
-    createdAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000), // 15 days ago
-    validUntil: null, // No expiration for this document
-  },
   {
     id: "acf",
     name: "Attestation de Conformité Fiscale (ACF)",
     description: "Certificat de situation fiscale",
     createdAt: new Date(Date.now() - 80 * 24 * 60 * 60 * 1000), // 80 days ago
     validUntil: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000), // 4 days from now (for testing notification)
-  },
-  {
-    id: "ai",
-    name: "Attestation d'Immatriculation (AI)",
-    description: "Certificat d'immatriculation fiscale",
-    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
-    validUntil: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), // 90 days from now (3 months)
   }
 ];
 

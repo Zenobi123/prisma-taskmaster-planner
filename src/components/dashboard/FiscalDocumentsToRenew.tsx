@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import type { FiscalDocumentDisplay } from "@/components/gestion/tabs/fiscale/types";
-import type { RegimeFiscal } from "@/types/client";
 
 const FiscalDocumentsToRenew = () => {
   const { data: expiringDocuments, isLoading, error } = useQuery({
@@ -14,9 +13,6 @@ const FiscalDocumentsToRenew = () => {
         const today = new Date();
         const tenDaysLater = new Date();
         tenDaysLater.setDate(today.getDate() + 10);
-        
-        // For 2025 patents that weren't paid by Feb 28, 2025
-        const patentDeadline2025 = new Date(2025, 1, 28); // Feb 28, 2025
         
         const { data, error } = await supabase
           .from("fiscal_documents")
@@ -31,7 +27,7 @@ const FiscalDocumentsToRenew = () => {
               regimefiscal
             )
           `)
-          .or(`name.eq.Patente,name.eq.Attestation de Conformité Fiscale`)
+          .eq('name', 'Attestation de Conformité Fiscale')
           .not('valid_until', 'is', null);
 
         if (error) {
@@ -41,31 +37,8 @@ const FiscalDocumentsToRenew = () => {
 
         const processedData = (data || [])
           .filter(doc => {
-            if (doc.name === 'Patente') {
-              const regimeFiscal = doc.clients?.regimefiscal as RegimeFiscal | undefined;
-              const validUntil = doc.valid_until ? new Date(doc.valid_until) : null;
-              
-              // Only show 2025 patents for "Réel" and "Simplifié" tax regimes
-              // that weren't paid by Feb 28, 2025
-              return (regimeFiscal === 'reel' || regimeFiscal === 'simplifie') && 
-                     (validUntil === null || validUntil < patentDeadline2025);
-            }
-            
-            if (doc.name === 'Attestation de Conformité Fiscale') {
-              const validUntil = doc.valid_until ? new Date(doc.valid_until) : null;
-              return validUntil !== null && (validUntil < tenDaysLater || validUntil < today);
-            }
-            
-            return false;
-          })
-          .map(doc => {
-            if (doc.name === 'Patente') {
-              return {
-                ...doc,
-                valid_until: patentDeadline2025.toISOString()
-              };
-            }
-            return doc;
+            const validUntil = doc.valid_until ? new Date(doc.valid_until) : null;
+            return validUntil !== null && (validUntil < tenDaysLater || validUntil < today);
           });
 
         return processedData as FiscalDocumentDisplay[];
@@ -103,30 +76,24 @@ const FiscalDocumentsToRenew = () => {
     );
   }
 
-  const getDocumentStatus = (validUntil: string | null, documentName: string) => {
+  const getDocumentStatus = (validUntil: string | null) => {
     if (!validUntil) return null;
     
     const now = new Date();
     const expiryDate = new Date(validUntil);
     
-    const isPatente = documentName === 'Patente';
-    
     if (expiryDate < now) {
       const daysSinceExpiry = Math.floor((now.getTime() - expiryDate.getTime()) / (1000 * 60 * 60 * 24));
       return {
         type: 'expired',
-        message: isPatente 
-          ? `Patente 2025 non renouvelée depuis le 28 février 2025 (${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''})`
-          : `Périmé depuis ${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''}`,
+        message: `Périmé depuis ${daysSinceExpiry} jour${daysSinceExpiry > 1 ? 's' : ''}`,
         date: expiryDate.toLocaleDateString()
       };
     } else {
       const daysUntilExpiry = Math.floor((expiryDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
       return {
         type: 'expiring',
-        message: isPatente
-          ? `Renouvellement de la patente 2025 avant le 28 février 2025 (${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''})`
-          : `Expire dans ${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''}`,
+        message: `Expire dans ${daysUntilExpiry} jour${daysUntilExpiry > 1 ? 's' : ''}`,
         date: expiryDate.toLocaleDateString()
       };
     }
@@ -141,7 +108,7 @@ const FiscalDocumentsToRenew = () => {
       {expiringDocuments && expiringDocuments.length > 0 ? (
         <div className="space-y-4">
           {expiringDocuments.map((doc) => {
-            const status = getDocumentStatus(doc.valid_until, doc.name);
+            const status = getDocumentStatus(doc.valid_until);
             if (!status) return null;
             
             const clientInfo = doc.clients;
