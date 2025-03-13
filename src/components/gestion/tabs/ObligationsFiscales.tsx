@@ -1,12 +1,48 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, Clock, FileText, CheckCircle } from "lucide-react";
+import { Calendar, FileText, CheckCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { format, addMonths } from "date-fns";
 
 export function ObligationsFiscales() {
+  const [creationDate, setCreationDate] = useState<string>("");
+  const [validityEndDate, setValidityEndDate] = useState<string>("");
+
+  // Calculate end validity date (3 months after creation date)
+  useEffect(() => {
+    if (creationDate) {
+      try {
+        const [day, month, year] = creationDate.split('/').map(part => parseInt(part));
+        if (!isNaN(day) && !isNaN(month) && !isNaN(year)) {
+          // Create date from DD/MM/YY format
+          const fullYear = year < 100 ? 2000 + year : year;
+          const date = new Date(fullYear, month - 1, day);
+          
+          // Add 3 months
+          const endDate = addMonths(date, 3);
+          
+          // Format end date as DD/MM/YY
+          setValidityEndDate(format(endDate, 'dd/MM/yy'));
+        }
+      } catch (error) {
+        console.error("Error calculating validity end date:", error);
+      }
+    }
+  }, [creationDate]);
+
+  // Handle date input change
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Allow only numbers and slashes
+    if (/^[0-9/]*$/.test(value)) {
+      setCreationDate(value);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -50,9 +86,33 @@ export function ObligationsFiscales() {
                         <CheckCircle size={16} />
                         <span>À jour</span>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Dernière vérification: 15/04/2024
-                      </p>
+                      
+                      <div className="mt-4 space-y-3">
+                        <div className="space-y-1">
+                          <Label htmlFor="creationDate" className="text-sm">Date de création (DD/MM/YY)</Label>
+                          <Input 
+                            id="creationDate" 
+                            value={creationDate} 
+                            onChange={handleDateChange} 
+                            placeholder="JJ/MM/AA"
+                            className="max-w-xs"
+                          />
+                        </div>
+                        
+                        <div className="space-y-1">
+                          <Label htmlFor="validityEndDate" className="text-sm">Date de fin de validité</Label>
+                          <Input 
+                            id="validityEndDate" 
+                            value={validityEndDate} 
+                            readOnly 
+                            disabled
+                            className="max-w-xs bg-gray-50"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Validité de 03 mois à partir de la date de création
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
