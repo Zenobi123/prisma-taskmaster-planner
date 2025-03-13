@@ -53,9 +53,12 @@ export function useServiceActivity() {
 
       const updatedRow = { ...row };
 
-      if (field === "structure" || field === "numeroMarche" || field === "client" || field === "date" || field === "statut") {
+      if (field === "structure" || field === "numeroMarche" || field === "client" || field === "date") {
         // For string fields, just update the value
         updatedRow[field] = value;
+      } else if (field === "statut") {
+        // For statut field, ensure it's a valid value
+        updatedRow.statut = (value as 'payé' | 'en_attente' | 'annulé') || "en_attente";
       } else if (field === "montantHT") {
         // For montantHT, update the value and recalculate dependent values
         const montantHT = parseFloat(value) || 0;
