@@ -15,6 +15,12 @@ interface DocumentSectionProps {
 }
 
 export function DocumentSection({ documents, onAddDocument, isLoading = false, clientId }: DocumentSectionProps) {
+  // Filter to only show Attestation de Conformité Fiscale documents
+  const acfDocuments = documents.filter(doc => 
+    doc.documentType === 'ACF' || 
+    (doc.name && doc.name.includes("Attestation de Conformité Fiscale"))
+  );
+  
   return (
     <div>
       <SectionHeader 
@@ -22,7 +28,14 @@ export function DocumentSection({ documents, onAddDocument, isLoading = false, c
         title="Documents fiscaux"
       >
         {clientId ? (
-          <AddDocumentDialog onAddDocument={onAddDocument} />
+          <AddDocumentDialog onAddDocument={(doc) => {
+            // Force document type to be ACF when adding a new document
+            onAddDocument({
+              ...doc,
+              documentType: 'ACF',
+              name: 'Attestation de Conformité Fiscale'
+            });
+          }} />
         ) : (
           <div className="text-sm text-muted-foreground">
             Sélectionnez un client pour ajouter des documents
@@ -36,10 +49,17 @@ export function DocumentSection({ documents, onAddDocument, isLoading = false, c
           <Skeleton className="h-20 w-full" />
         </div>
       ) : clientId ? (
-        <DocumentList 
-          documents={documents} 
-          onItemClick={() => {}} 
-        />
+        <>
+          <DocumentList 
+            documents={acfDocuments}
+            onItemClick={() => {}} 
+          />
+          {acfDocuments.length === 0 && (
+            <div className="text-center p-4 text-muted-foreground">
+              Aucune Attestation de Conformité Fiscale. Utilisez le bouton "Ajouter un document" pour en créer.
+            </div>
+          )}
+        </>
       ) : (
         <div className="text-center p-4 text-muted-foreground">
           Veuillez sélectionner un client pour voir ses documents fiscaux.

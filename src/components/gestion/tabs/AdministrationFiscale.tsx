@@ -16,7 +16,7 @@ export function AdministrationFiscale({ selectedClient }: AdministrationFiscaleP
     <Card>
       <CardHeader>
         <CardTitle>Administration fiscale</CardTitle>
-        <CardDescription>Relations avec l'administration fiscale</CardDescription>
+        <CardDescription>Gestion de l'Attestation de Conformité Fiscale</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Section: Documents fiscaux */}
