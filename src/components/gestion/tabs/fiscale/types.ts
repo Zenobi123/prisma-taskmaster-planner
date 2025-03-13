@@ -9,7 +9,8 @@ export type FiscalDocument = {
 };
 
 export type AddDocumentDialogProps = {
-  onAddDocument: (document: Omit<FiscalDocument, "id" | "createdAt">) => void;
+  onAddDocument: (document: Omit<FiscalDocument, "id">) => void;
+  clientId?: string;
 };
 
 // Type pour l'affichage dans le tableau de bord

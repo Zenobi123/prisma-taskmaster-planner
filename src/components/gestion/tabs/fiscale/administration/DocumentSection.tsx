@@ -9,16 +9,17 @@ import { FiscalDocument } from "../types";
 interface DocumentSectionProps {
   documents: FiscalDocument[];
   onAddDocument: (document: Omit<FiscalDocument, "id">) => void;
+  clientId?: string;
 }
 
-export function DocumentSection({ documents, onAddDocument }: DocumentSectionProps) {
+export function DocumentSection({ documents, onAddDocument, clientId }: DocumentSectionProps) {
   return (
     <div>
       <SectionHeader 
         icon={<FileSpreadsheet size={20} className="text-primary" />}
         title="Documents fiscaux"
       >
-        <AddDocumentDialog onAddDocument={onAddDocument} />
+        <AddDocumentDialog onAddDocument={onAddDocument} clientId={clientId} />
       </SectionHeader>
       <DocumentList 
         documents={documents} 

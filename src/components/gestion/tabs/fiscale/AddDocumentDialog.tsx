@@ -12,7 +12,7 @@ import { useDocumentForm } from "./hooks/useDocumentForm";
 import { DateInput } from "./components/DateInput";
 import type { AddDocumentDialogProps } from "./types";
 
-export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
+export function AddDocumentDialog({ onAddDocument, clientId }: AddDocumentDialogProps) {
   const [open, setOpen] = React.useState(false);
   const {
     name,
@@ -33,7 +33,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
       title: "Document ajouté",
       description: `${doc.name} a été ajouté avec succès`,
     });
-  });
+  }, clientId);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

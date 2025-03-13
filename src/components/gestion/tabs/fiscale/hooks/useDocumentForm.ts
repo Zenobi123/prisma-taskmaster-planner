@@ -5,7 +5,7 @@ import { fr } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
 import type { FiscalDocument } from "../types";
 
-export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "id">) => void) {
+export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "id">) => void, clientId?: string) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [createdAt, setCreatedAt] = useState<Date>(new Date());
@@ -51,11 +51,21 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
       return;
     }
 
+    if (!clientId) {
+      toast({
+        title: "Erreur",
+        description: "Aucun client sélectionné",
+        variant: "destructive",
+      });
+      return;
+    }
+
     onAddDocument({
       name,
       description,
       createdAt,
       validUntil: validUntil || null,
+      client_id: clientId
     });
     
     resetForm();

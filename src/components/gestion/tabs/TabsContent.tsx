@@ -1,18 +1,18 @@
 
 import React from "react";
-import { TabsContent as ShadcnTabsContent } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
 import { GestionEntreprise } from "./GestionEntreprise";
 import { GestionFiscale } from "./GestionFiscale";
 import { GestionComptable } from "./GestionComptable";
 import { GestionDossier } from "./GestionDossier";
-import { ContratPrestations } from "./ContratPrestations";
-import { ClotureExercice } from "./ClotureExercice";
 import { ObligationsFiscales } from "./ObligationsFiscales";
 import { OptimisationFiscale } from "./OptimisationFiscale";
 import { AdministrationFiscale } from "./AdministrationFiscale";
+import { ClotureExercice } from "./ClotureExercice";
+import { ContratPrestations } from "./ContratPrestations";
 import { Client } from "@/types/client";
 
-interface TabsContentProps {
+interface GestionTabsContentProps {
   activeTab: string;
   selectedClient: Client;
   selectedSubTab: string | null;
@@ -26,42 +26,53 @@ export function GestionTabsContent({
   selectedSubTab, 
   onTabChange, 
   onSubTabSelect 
-}: TabsContentProps) {
-  // Grouper les tabs par catégorie pour une meilleure organisation
-  const mainTabs = ["entreprise", "fiscal", "comptable", "dossier"];
-  const entrepriseTabs = ["gestion-admin", "gestion-rh", "gestion-paie", "contrat-prestations"];
-  const fiscalTabs = ["obligations-fiscales", "optimisation-fiscale", "administration-fiscale", "cloture-exercice"];
-  
-  const renderContent = () => {
-    // Tabs principales
-    if (activeTab === "entreprise") return <GestionEntreprise onTabChange={onTabChange} />;
-    if (activeTab === "fiscal") return <GestionFiscale onTabChange={onTabChange} />;
-    if (activeTab === "comptable") return <GestionComptable />;
-    if (activeTab === "dossier") return <GestionDossier />;
-    
-    // Sous-tabs d'entreprise
-    if (activeTab === "contrat-prestations") return <ContratPrestations client={selectedClient} />;
-    
-    // Sous-tabs fiscales
-    if (activeTab === "obligations-fiscales") return <ObligationsFiscales />;
-    if (activeTab === "optimisation-fiscale") return <OptimisationFiscale />;
-    if (activeTab === "administration-fiscale") return <AdministrationFiscale />;
-    if (activeTab === "cloture-exercice") {
-      return (
-        <ClotureExercice
-          selectedSubTab={selectedSubTab}
-          handleSubTabSelect={onSubTabSelect}
-        />
-      );
-    }
-    
-    // Par défaut
-    return <GestionEntreprise onTabChange={onTabChange} />;
-  };
-
+}: GestionTabsContentProps) {
   return (
-    <ShadcnTabsContent value={activeTab}>
-      {renderContent()}
-    </ShadcnTabsContent>
+    <>
+      {/* Onglets principaux */}
+      <TabsContent value="entreprise" className="space-y-4">
+        <GestionEntreprise 
+          selectedClient={selectedClient}
+          onSubTabSelect={onSubTabSelect}
+        />
+      </TabsContent>
+      
+      <TabsContent value="fiscal" className="space-y-4">
+        <GestionFiscale 
+          selectedClient={selectedClient}
+          onSubTabSelect={onSubTabSelect}
+        />
+      </TabsContent>
+      
+      <TabsContent value="comptable" className="space-y-4">
+        <GestionComptable />
+      </TabsContent>
+      
+      <TabsContent value="dossier" className="space-y-4">
+        <GestionDossier />
+      </TabsContent>
+      
+      {/* Sous-onglets fiscaux */}
+      <TabsContent value="obligations-fiscales" className="space-y-4">
+        <ObligationsFiscales selectedClient={selectedClient} />
+      </TabsContent>
+      
+      <TabsContent value="optimisation-fiscale" className="space-y-4">
+        <OptimisationFiscale selectedClient={selectedClient} />
+      </TabsContent>
+      
+      <TabsContent value="administration-fiscale" className="space-y-4">
+        <AdministrationFiscale selectedClient={selectedClient} />
+      </TabsContent>
+      
+      <TabsContent value="cloture-exercice" className="space-y-4">
+        <ClotureExercice selectedClient={selectedClient} />
+      </TabsContent>
+      
+      {/* Sous-onglets entreprise */}
+      <TabsContent value="contrat-prestations" className="space-y-4">
+        <ContratPrestations />
+      </TabsContent>
+    </>
   );
 }
