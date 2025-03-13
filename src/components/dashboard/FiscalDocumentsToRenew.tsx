@@ -1,60 +1,13 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
 import { Link } from "react-router-dom";
-import type { FiscalDocumentDisplay } from "@/components/gestion/tabs/fiscale/types";
+import { getExpiringFiscalDocuments } from "@/services/fiscalDocumentService";
 
 const FiscalDocumentsToRenew = () => {
   const { data: expiringDocuments, isLoading, error } = useQuery({
     queryKey: ["fiscal_documents_to_renew"],
-    queryFn: async () => {
-      try {
-        // Specify exact foreign key relationship to avoid multiple relationship error
-        const { data, error } = await supabase
-          .from("fiscal_documents")
-          .select(`
-            *,
-            clients!fiscal_documents_client_id_fkey (
-              id, 
-              niu, 
-              nom, 
-              raisonsociale, 
-              type
-            )
-          `)
-          .eq('name', 'Attestation de Conformité Fiscale (ACF)')
-          .not('valid_until', 'is', null);
-
-        if (error) {
-          console.error("Error fetching fiscal documents:", error);
-          throw new Error("Erreur lors du chargement des documents fiscaux");
-        }
-
-        // If no real data found, use Mme DANG TABI's ACF document as fallback with correct data
-        if (!data || data.length === 0) {
-          return [{
-            id: "1015301", // Document ID from the image
-            name: "Attestation de Conformité Fiscale (ACF)",
-            description: "Certificat de situation fiscale",
-            created_at: "2024-12-17T00:00:00", // Image shows "Créé le 17/12/2024"
-            valid_until: "2025-03-17T00:00:00", // Image shows expiry on 17/03/2025 
-            client_id: "client-dang",
-            clients: {
-              id: "client-dang",
-              niu: "P038200291053J", // NIU from the image
-              nom: "DANG TABI", // Full name from the image
-              type: "physique"
-            }
-          }];
-        }
-
-        return data;
-      } catch (err) {
-        console.error("Error in fetchDocumentsToRenew:", err);
-        throw new Error("Une erreur est survenue");
-      }
-    },
+    queryFn: () => getExpiringFiscalDocuments(30),
   });
 
   if (isLoading) {
