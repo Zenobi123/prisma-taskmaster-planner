@@ -42,7 +42,7 @@ const MissionCard = ({ mission }: MissionCardProps) => {
   const queryClient = useQueryClient();
   
   const updateStatusMutation = useMutation({
-    mutationFn: ({ id, status }: { id: string; status: "planifiee" | "en_attente" | "en_cours" | "termine" }) => 
+    mutationFn: ({ id, status }: { id: string; status: "en_attente" | "en_cours" | "termine" | "en_retard" }) => 
       updateTaskStatus(id, status),
     onSuccess: () => {
       toast.success("Statut mis à jour avec succès");
@@ -81,7 +81,8 @@ const MissionCard = ({ mission }: MissionCardProps) => {
     }
   };
 
-  const handleStatusChange = (newStatus: "planifiee" | "en_attente" | "en_cours" | "termine") => {
+  // Nous utilisons "en_attente" au lieu de "planifiee" pour être compatible avec taskService
+  const handleStatusChange = (newStatus: "en_attente" | "en_cours" | "termine" | "en_retard") => {
     updateStatusMutation.mutate({ id: mission.id, status: newStatus });
   };
 
@@ -112,10 +113,12 @@ const MissionCard = ({ mission }: MissionCardProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                {/* Nous remplaçons "planifiee" par "en_attente" dans l'interface utilisateur également,
+                    mais gardons le texte affiché comme "Planifiée" */}
                 <DropdownMenuItem 
-                  onClick={() => handleStatusChange("planifiee")}
+                  onClick={() => handleStatusChange("en_attente")}
                   className="flex items-center gap-2"
-                  disabled={mission.status === "planifiee"}
+                  disabled={mission.status === "planifiee" || mission.status === "en_attente"}
                 >
                   <Calendar className="h-4 w-4" /> Planifiée
                 </DropdownMenuItem>
