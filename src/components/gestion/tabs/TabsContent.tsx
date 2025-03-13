@@ -27,46 +27,41 @@ export function GestionTabsContent({
   onTabChange, 
   onSubTabSelect 
 }: TabsContentProps) {
-  return (
-    <>
-      <ShadcnTabsContent value="entreprise">
-        <GestionEntreprise onTabChange={onTabChange} />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="contrat-prestations">
-        <ContratPrestations client={selectedClient} />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="fiscal">
-        <GestionFiscale onTabChange={onTabChange} />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="obligations-fiscales">
-        <ObligationsFiscales />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="optimisation-fiscale">
-        <OptimisationFiscale />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="administration-fiscale">
-        <AdministrationFiscale />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="cloture-exercice">
-        <ClotureExercice 
-          selectedSubTab={selectedSubTab} 
-          handleSubTabSelect={onSubTabSelect} 
+  // Grouper les tabs par catégorie pour une meilleure organisation
+  const mainTabs = ["entreprise", "fiscal", "comptable", "dossier"];
+  const entrepriseTabs = ["gestion-admin", "gestion-rh", "gestion-paie", "contrat-prestations"];
+  const fiscalTabs = ["obligations-fiscales", "optimisation-fiscale", "administration-fiscale", "cloture-exercice"];
+  
+  const renderContent = () => {
+    // Tabs principales
+    if (activeTab === "entreprise") return <GestionEntreprise onTabChange={onTabChange} />;
+    if (activeTab === "fiscal") return <GestionFiscale onTabChange={onTabChange} />;
+    if (activeTab === "comptable") return <GestionComptable />;
+    if (activeTab === "dossier") return <GestionDossier />;
+    
+    // Sous-tabs d'entreprise
+    if (activeTab === "contrat-prestations") return <ContratPrestations client={selectedClient} />;
+    
+    // Sous-tabs fiscales
+    if (activeTab === "obligations-fiscales") return <ObligationsFiscales />;
+    if (activeTab === "optimisation-fiscale") return <OptimisationFiscale />;
+    if (activeTab === "administration-fiscale") return <AdministrationFiscale />;
+    if (activeTab === "cloture-exercice") {
+      return (
+        <ClotureExercice
+          selectedSubTab={selectedSubTab}
+          handleSubTabSelect={onSubTabSelect}
         />
-      </ShadcnTabsContent>
+      );
+    }
+    
+    // Par défaut
+    return <GestionEntreprise onTabChange={onTabChange} />;
+  };
 
-      <ShadcnTabsContent value="comptable">
-        <GestionComptable />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="dossier">
-        <GestionDossier />
-      </ShadcnTabsContent>
-    </>
+  return (
+    <ShadcnTabsContent value={activeTab}>
+      {renderContent()}
+    </ShadcnTabsContent>
   );
 }
