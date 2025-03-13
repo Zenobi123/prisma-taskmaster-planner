@@ -1,75 +1,67 @@
 
 import React from "react";
-import { 
+import { Label } from "@/components/ui/label";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue
+  SelectValue,
 } from "@/components/ui/select";
-import { 
-  FormControl, 
-  FormField as ShadcnFormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from "@/components/ui/form";
-import { Control, FieldPath, FieldValues } from "react-hook-form";
-import { cn } from "@/lib/utils";
 
-export interface SelectOption {
-  label: string;
+interface SelectOption {
   value: string;
+  label: string;
 }
 
-interface SelectFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> {
-  name: TName;
-  control: Control<TFieldValues>;
-  label?: string;
-  placeholder?: string;
+interface SelectFieldProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
   options: SelectOption[];
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+  error?: string;
   className?: string;
 }
 
-const SelectField = <
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({ 
-  name, 
-  control, 
-  label, 
-  placeholder,
+const SelectField = ({
+  id,
+  label,
+  value,
+  onChange,
   options,
-  className
-}: SelectFieldProps<TFieldValues, TName>) => {
+  placeholder = "Sélectionnez...",
+  required = false,
+  disabled = false,
+  error,
+  className,
+}: SelectFieldProps) => {
   return (
-    <ShadcnFormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <Select onValueChange={field.onChange} defaultValue={field.value}>
-            <FormControl>
-              <SelectTrigger className={cn("w-full", className)}>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    <div className={className}>
+      <Label htmlFor={id} className="mb-1.5 block">
+        {label} {required && <span className="text-destructive">*</span>}
+      </Label>
+      <Select
+        value={value}
+        onValueChange={onChange}
+        disabled={disabled}
+      >
+        <SelectTrigger id={id} className={error ? "border-destructive" : ""}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
+    </div>
   );
 };
 

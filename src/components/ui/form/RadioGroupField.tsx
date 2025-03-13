@@ -1,72 +1,71 @@
 
 import React from "react";
-import { 
-  RadioGroup, 
-  RadioGroupItem 
-} from "@/components/ui/radio-group";
-import { 
-  FormControl, 
-  FormField as ShadcnFormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from "@/components/ui/form";
-import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
-export interface RadioOption {
+interface RadioOption {
+  value: string;
+  label: string;
+}
+
+interface RadioGroupFieldProps {
+  id: string;
   label: string;
   value: string;
-}
-
-interface RadioGroupFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> {
-  name: TName;
-  control: Control<TFieldValues>;
-  label?: string;
+  onChange: (value: string) => void;
   options: RadioOption[];
+  required?: boolean;
+  disabled?: boolean;
+  error?: string;
   className?: string;
-  inline?: boolean;
+  layout?: "vertical" | "horizontal" | "grid";
+  columns?: number;
 }
 
-const RadioGroupField = <
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({ 
-  name, 
-  control, 
-  label, 
+const RadioGroupField = ({
+  id,
+  label,
+  value,
+  onChange,
   options,
+  required = false,
+  disabled = false,
+  error,
   className,
-  inline = false
-}: RadioGroupFieldProps<TFieldValues, TName>) => {
+  layout = "vertical",
+  columns = 3,
+}: RadioGroupFieldProps) => {
   return (
-    <ShadcnFormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <RadioGroup
-              onValueChange={field.onChange}
-              defaultValue={field.value}
-              className={inline ? "flex space-x-6" : "space-y-3"}
+    <div className={className}>
+      <Label className="mb-1.5 block">
+        {label} {required && <span className="text-destructive">*</span>}
+      </Label>
+      <RadioGroup
+        value={value}
+        onValueChange={onChange}
+        className={
+          layout === "horizontal"
+            ? "flex space-x-4"
+            : layout === "grid"
+            ? `grid grid-cols-1 md:grid-cols-${columns} gap-4`
+            : "space-y-2"
+        }
+        disabled={disabled}
+      >
+        {options.map((option) => (
+          <div key={option.value} className="flex items-center space-x-2">
+            <RadioGroupItem id={`${id}-${option.value}`} value={option.value} />
+            <Label
+              htmlFor={`${id}-${option.value}`}
+              className="font-normal cursor-pointer"
             >
-              {options.map((option) => (
-                <div key={option.value} className="flex items-center space-x-2">
-                  <RadioGroupItem value={option.value} id={`${name}-${option.value}`} />
-                  <Label htmlFor={`${name}-${option.value}`}>{option.label}</Label>
-                </div>
-              ))}
-            </RadioGroup>
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+              {option.label}
+            </Label>
+          </div>
+        ))}
+      </RadioGroup>
+      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
+    </div>
   );
 };
 

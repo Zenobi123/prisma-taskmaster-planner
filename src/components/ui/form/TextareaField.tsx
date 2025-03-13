@@ -1,57 +1,50 @@
 
 import React from "react";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  FormControl, 
-  FormField as ShadcnFormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from "@/components/ui/form";
-import { Control, FieldPath, FieldValues } from "react-hook-form";
 
-interface TextareaFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> {
-  name: TName;
-  control: Control<TFieldValues>;
-  label?: string;
+interface TextareaFieldProps {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
   placeholder?: string;
-  className?: string;
+  required?: boolean;
+  disabled?: boolean;
+  error?: string;
   rows?: number;
+  className?: string;
 }
 
-const TextareaField = <
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({ 
-  name, 
-  control, 
-  label, 
+const TextareaField = ({
+  id,
+  label,
+  value,
+  onChange,
   placeholder,
+  required = false,
+  disabled = false,
+  error,
+  rows = 3,
   className,
-  rows = 4
-}: TextareaFieldProps<TFieldValues, TName>) => {
+}: TextareaFieldProps) => {
   return (
-    <ShadcnFormField
-      control={control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <Textarea 
-              placeholder={placeholder} 
-              {...field} 
-              rows={rows}
-              value={field.value || ""}
-            />
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    <div className={className}>
+      <Label htmlFor={id} className="mb-1.5 block">
+        {label} {required && <span className="text-destructive">*</span>}
+      </Label>
+      <Textarea
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        required={required}
+        disabled={disabled}
+        rows={rows}
+        className={error ? "border-destructive" : ""}
+      />
+      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
+    </div>
   );
 };
 

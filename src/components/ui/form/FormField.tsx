@@ -1,42 +1,38 @@
 
-import { ReactNode } from "react";
-import { FormControl, FormField as ShadcnFormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Control, FieldPath, FieldValues } from "react-hook-form";
+import React from "react";
+import { Control, Controller, FieldValues, Path } from "react-hook-form";
 
-interface FormFieldProps<
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
-> {
-  name: TName;
-  control: Control<TFieldValues>;
-  label?: string;
-  children: ReactNode;
+interface FormFieldProps<T extends FieldValues> {
+  name: Path<T>;
+  control: Control<T>;
+  render: (props: {
+    field: {
+      value: any;
+      onChange: (value: any) => void;
+      onBlur: () => void;
+      ref: React.Ref<any>;
+    };
+    fieldState: {
+      invalid: boolean;
+      error?: {
+        message?: string;
+      };
+    };
+  }) => React.ReactNode;
 }
 
-const FormField = <
-  TFieldValues extends FieldValues = FieldValues,
-  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({ 
-  name, 
-  control, 
-  label, 
-  children 
-}: FormFieldProps<TFieldValues, TName>) => {
+function FormField<T extends FieldValues>({
+  name,
+  control,
+  render,
+}: FormFieldProps<T>) {
   return (
-    <ShadcnFormField
-      control={control}
+    <Controller
       name={name}
-      render={({ field }) => (
-        <FormItem>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            {children}
-          </FormControl>
-          <FormMessage />
-        </FormItem>
-      )}
+      control={control}
+      render={({ field, fieldState }) => render({ field, fieldState })}
     />
   );
-};
+}
 
 export default FormField;
