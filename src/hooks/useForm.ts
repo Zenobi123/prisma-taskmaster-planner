@@ -17,6 +17,39 @@ interface UseFormOptions<T extends FormState> {
   };
 }
 
+// Common validators for forms
+export const validators = {
+  required: (message = "Ce champ est requis") => (value: any) => {
+    if (value === undefined || value === null || value === "") {
+      return message;
+    }
+    return undefined;
+  },
+  email: (message = "Email invalide") => (value: any) => {
+    if (!value) return undefined; // Skip empty values (use required validator for that)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(value) ? undefined : message;
+  },
+  phone: (message = "Numéro de téléphone invalide") => (value: any) => {
+    if (!value) return undefined; // Skip empty values
+    const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+    return phoneRegex.test(value) ? undefined : message;
+  },
+  minLength: (length: number, message?: string) => (value: string) => {
+    if (!value) return undefined; // Skip empty values
+    return value.length >= length ? undefined : message || `Doit contenir au moins ${length} caractères`;
+  },
+  maxLength: (length: number, message?: string) => (value: string) => {
+    if (!value) return undefined; // Skip empty values
+    return value.length <= length ? undefined : message || `Ne doit pas dépasser ${length} caractères`;
+  },
+  numeric: (message = "Doit contenir uniquement des chiffres") => (value: string) => {
+    if (!value) return undefined; // Skip empty values
+    const numericRegex = /^[0-9]+$/;
+    return numericRegex.test(value) ? undefined : message;
+  }
+};
+
 export function useForm<T extends FormState>({
   initialValues,
   onSubmit,

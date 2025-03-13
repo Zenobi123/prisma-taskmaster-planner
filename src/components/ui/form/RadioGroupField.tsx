@@ -3,6 +3,7 @@ import React from "react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { FormField, FormFieldProps } from "./FormField";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 export interface RadioOption {
   value: string;
@@ -14,9 +15,9 @@ export interface RadioGroupFieldProps extends Omit<FormFieldProps, "children"> {
   value: string;
   onChange: (value: string) => void;
   options: RadioOption[];
-  disabled?: boolean;
-  layout?: "horizontal" | "vertical" | "grid";
+  layout?: "vertical" | "horizontal" | "grid";
   columns?: number;
+  disabled?: boolean;
 }
 
 export function RadioGroupField({
@@ -25,26 +26,14 @@ export function RadioGroupField({
   value,
   onChange,
   options,
+  layout = "vertical",
+  columns = 3,
   required,
   disabled,
   error,
   description,
   className,
-  layout = "vertical",
-  columns = 2,
 }: RadioGroupFieldProps) {
-  const getLayoutClass = () => {
-    switch (layout) {
-      case "horizontal":
-        return "flex flex-wrap gap-4";
-      case "grid":
-        return `grid grid-cols-1 md:grid-cols-${columns} gap-4`;
-      case "vertical":
-      default:
-        return "flex flex-col space-y-2";
-    }
-  };
-
   return (
     <FormField
       id={id}
@@ -57,13 +46,17 @@ export function RadioGroupField({
       <RadioGroup
         value={value}
         onValueChange={onChange}
-        className={getLayoutClass()}
+        className={cn(
+          layout === "vertical" && "flex flex-col space-y-2",
+          layout === "horizontal" && "flex space-x-4",
+          layout === "grid" && `grid grid-cols-${columns} gap-4`
+        )}
         disabled={disabled}
       >
         {options.map((option) => (
           <div key={option.value} className="flex items-center space-x-2">
-            <RadioGroupItem value={option.value} id={`${id}-${option.value}`} />
-            <Label htmlFor={`${id}-${option.value}`} className="text-sm font-normal cursor-pointer">
+            <RadioGroupItem id={`${id}-${option.value}`} value={option.value} />
+            <Label htmlFor={`${id}-${option.value}`} className="cursor-pointer">
               {option.label}
             </Label>
           </div>

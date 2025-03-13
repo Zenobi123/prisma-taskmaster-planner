@@ -4,37 +4,52 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
 export interface FormFieldProps {
-  id?: string;
+  id: string;
   label?: string;
   children: React.ReactNode;
-  className?: string;
   required?: boolean;
   error?: string;
   description?: string;
+  className?: string;
+  showLabel?: boolean;
 }
 
 export function FormField({
   id,
   label,
   children,
-  className,
   required,
   error,
   description,
+  className,
+  showLabel = true,
 }: FormFieldProps) {
   return (
-    <div className={cn("space-y-1.5", className)}>
-      {label && (
-        <Label htmlFor={id} className="flex items-center">
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+    <div className={cn("space-y-2", className)}>
+      {showLabel && label && (
+        <Label
+          htmlFor={id}
+          className="text-sm font-medium leading-none"
+        >
+          {required ? (
+            <span>
+              {label} <span className="text-red-500">*</span>
+            </span>
+          ) : (
+            label
+          )}
         </Label>
       )}
+      
       {children}
-      {description && (
-        <p className="text-xs text-neutral-500">{description}</p>
+      
+      {description && !error && (
+        <p className="text-xs text-muted-foreground">{description}</p>
       )}
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      
+      {error && (
+        <p className="text-xs text-red-500">{error}</p>
+      )}
     </div>
   );
 }

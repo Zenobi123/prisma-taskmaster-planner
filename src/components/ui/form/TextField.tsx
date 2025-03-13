@@ -2,13 +2,14 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { FormField, FormFieldProps } from "./FormField";
+import { cn } from "@/lib/utils";
 
 export interface TextFieldProps extends Omit<FormFieldProps, "children"> {
   id: string;
   value: string;
   onChange: (value: string) => void;
+  type?: string;
   placeholder?: string;
-  type?: "text" | "email" | "tel" | "password" | "number";
   disabled?: boolean;
 }
 
@@ -17,8 +18,8 @@ export function TextField({
   label,
   value,
   onChange,
-  placeholder,
   type = "text",
+  placeholder,
   required,
   disabled,
   error,
@@ -40,9 +41,8 @@ export function TextField({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        required={required}
         disabled={disabled}
-        className={error ? "border-red-500" : ""}
+        className={cn(error && "border-red-500")}
       />
     </FormField>
   );

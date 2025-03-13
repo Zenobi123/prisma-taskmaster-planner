@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { FormField, FormFieldProps } from "./FormField";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 export interface SelectOption {
   value: string;

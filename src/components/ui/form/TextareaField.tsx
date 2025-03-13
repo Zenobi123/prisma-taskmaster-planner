@@ -2,6 +2,7 @@
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { FormField, FormFieldProps } from "./FormField";
+import { cn } from "@/lib/utils";
 
 export interface TextareaFieldProps extends Omit<FormFieldProps, "children"> {
   id: string;
@@ -18,7 +19,7 @@ export function TextareaField({
   value,
   onChange,
   placeholder,
-  rows = 3,
+  rows = 4,
   required,
   disabled,
   error,
@@ -40,9 +41,8 @@ export function TextareaField({
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         rows={rows}
-        required={required}
         disabled={disabled}
-        className={error ? "border-red-500" : ""}
+        className={cn(error && "border-red-500")}
       />
     </FormField>
   );

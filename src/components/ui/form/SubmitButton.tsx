@@ -1,12 +1,14 @@
 
 import React from "react";
-import { Button, ButtonProps } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-export interface SubmitButtonProps extends ButtonProps {
+export interface SubmitButtonProps {
   isSubmitting?: boolean;
   submitText?: string;
   submittingText?: string;
+  className?: string;
 }
 
 export function SubmitButton({
@@ -14,18 +16,21 @@ export function SubmitButton({
   submitText = "Enregistrer",
   submittingText = "Enregistrement...",
   className,
-  children,
-  ...props
 }: SubmitButtonProps) {
   return (
     <Button
       type="submit"
       disabled={isSubmitting}
-      className={className}
-      {...props}
+      className={cn("", className)}
     >
-      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-      {isSubmitting ? submittingText : (children || submitText)}
+      {isSubmitting ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          {submittingText}
+        </>
+      ) : (
+        submitText
+      )}
     </Button>
   );
 }
