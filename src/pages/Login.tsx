@@ -50,8 +50,7 @@ const Login = () => {
         toast({
           variant: "destructive",
           title: "Erreur de connexion",
-          description: `${authError.message}. Veuillez vérifier vos identifiants.`,
-          className: "bg-white border-red-500 text-black",
+          description: `${authError.message}. Veuillez vérifier vos identifiants.`
         });
         return;
       }
@@ -71,8 +70,7 @@ const Login = () => {
           toast({
             variant: "destructive",
             title: "Erreur",
-            description: "Impossible de récupérer les informations de l'utilisateur.",
-            className: "bg-white border-red-500 text-black",
+            description: "Impossible de récupérer les informations de l'utilisateur."
           });
           return;
         }
@@ -85,8 +83,7 @@ const Login = () => {
 
         toast({
           title: "Connexion réussie",
-          description: "Bienvenue sur votre espace de gestion",
-          className: "bg-white border-green-500 text-black",
+          description: "Bienvenue sur votre espace de gestion"
         });
         navigate("/");
       }
@@ -95,8 +92,7 @@ const Login = () => {
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Une erreur inattendue s'est produite.",
-        className: "bg-white border-red-500 text-black",
+        description: "Une erreur inattendue s'est produite."
       });
     } finally {
       setIsLoading(false);

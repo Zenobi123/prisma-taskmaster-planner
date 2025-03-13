@@ -71,7 +71,7 @@ export function GestionTabsContent({
       
       {/* Sous-onglets entreprise */}
       <TabsContent value="contrat-prestations" className="space-y-4">
-        <ContratPrestations />
+        <ContratPrestations client={selectedClient} />
       </TabsContent>
     </>
   );
