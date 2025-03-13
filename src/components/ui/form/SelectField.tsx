@@ -1,76 +1,76 @@
 
 import React from "react";
-import {
+import { 
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui/select";
-import { FormField, FormFieldProps } from "./FormField";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { 
+  FormControl, 
+  FormField as ShadcnFormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 import { cn } from "@/lib/utils";
 
 export interface SelectOption {
-  value: string;
   label: string;
-}
-
-export interface SelectFieldProps extends Omit<FormFieldProps, "children"> {
-  id: string;
   value: string;
-  onChange: (value: string) => void;
-  options: SelectOption[];
-  placeholder?: string;
-  disabled?: boolean;
-  maxHeight?: number;
 }
 
-export function SelectField({
-  id,
-  label,
-  value,
-  onChange,
-  options,
-  placeholder = "Sélectionner une option",
-  required,
-  disabled,
-  error,
-  description,
-  className,
-  maxHeight = 200,
-}: SelectFieldProps) {
-  return (
-    <FormField
-      id={id}
-      label={label}
-      required={required}
-      error={error}
-      description={description}
-      className={className}
-    >
-      <Select
-        value={value}
-        onValueChange={onChange}
-        disabled={disabled}
-      >
-        <SelectTrigger id={id} className={cn("w-full bg-background border-input", error && "border-red-500")}>
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
-          <ScrollArea className={`max-h-[${maxHeight}px]`}>
-            {options.map((option) => (
-              <SelectItem
-                key={option.value}
-                value={option.value}
-                className="cursor-pointer hover:bg-neutral-100"
-              >
-                {option.label}
-              </SelectItem>
-            ))}
-          </ScrollArea>
-        </SelectContent>
-      </Select>
-    </FormField>
-  );
+interface SelectFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> {
+  name: TName;
+  control: Control<TFieldValues>;
+  label?: string;
+  placeholder?: string;
+  options: SelectOption[];
+  className?: string;
 }
+
+const SelectField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({ 
+  name, 
+  control, 
+  label, 
+  placeholder,
+  options,
+  className
+}: SelectFieldProps<TFieldValues, TName>) => {
+  return (
+    <ShadcnFormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel>{label}</FormLabel>}
+          <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <FormControl>
+              <SelectTrigger className={cn("w-full", className)}>
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+};
+
+export default SelectField;

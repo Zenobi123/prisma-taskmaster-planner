@@ -74,7 +74,7 @@ const Sidebar = () => {
           "p-4 border-t border-neutral-200",
           !isSidebarOpen && "flex justify-center"
         )}>
-          <LogoutButton />
+          <LogoutButton isSidebarOpen={isSidebarOpen} />
         </div>
       </aside>
       

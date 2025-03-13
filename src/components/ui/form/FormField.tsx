@@ -1,55 +1,42 @@
 
-import React from "react";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
+import { ReactNode } from "react";
+import { FormControl, FormField as ShadcnFormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 
-export interface FormFieldProps {
-  id: string;
+interface FormFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> {
+  name: TName;
+  control: Control<TFieldValues>;
   label?: string;
-  children: React.ReactNode;
-  required?: boolean;
-  error?: string;
-  description?: string;
-  className?: string;
-  showLabel?: boolean;
+  children: ReactNode;
 }
 
-export function FormField({
-  id,
-  label,
-  children,
-  required,
-  error,
-  description,
-  className,
-  showLabel = true,
-}: FormFieldProps) {
+const FormField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({ 
+  name, 
+  control, 
+  label, 
+  children 
+}: FormFieldProps<TFieldValues, TName>) => {
   return (
-    <div className={cn("space-y-2", className)}>
-      {showLabel && label && (
-        <Label
-          htmlFor={id}
-          className="text-sm font-medium leading-none"
-        >
-          {required ? (
-            <span>
-              {label} <span className="text-red-500">*</span>
-            </span>
-          ) : (
-            label
-          )}
-        </Label>
+    <ShadcnFormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            {children}
+          </FormControl>
+          <FormMessage />
+        </FormItem>
       )}
-      
-      {children}
-      
-      {description && !error && (
-        <p className="text-xs text-muted-foreground">{description}</p>
-      )}
-      
-      {error && (
-        <p className="text-xs text-red-500">{error}</p>
-      )}
-    </div>
+    />
   );
-}
+};
+
+export default FormField;

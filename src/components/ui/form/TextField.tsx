@@ -1,49 +1,58 @@
 
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { FormField, FormFieldProps } from "./FormField";
-import { cn } from "@/lib/utils";
+import { 
+  FormControl, 
+  FormField as ShadcnFormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 
-export interface TextFieldProps extends Omit<FormFieldProps, "children"> {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
+interface TextFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> {
+  name: TName;
+  control: Control<TFieldValues>;
+  label?: string;
   placeholder?: string;
-  disabled?: boolean;
+  type?: string;
+  className?: string;
 }
 
-export function TextField({
-  id,
-  label,
-  value,
-  onChange,
-  type = "text",
+const TextField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({ 
+  name, 
+  control, 
+  label, 
   placeholder,
-  required,
-  disabled,
-  error,
-  description,
-  className,
-}: TextFieldProps) {
+  type = "text",
+  className
+}: TextFieldProps<TFieldValues, TName>) => {
   return (
-    <FormField
-      id={id}
-      label={label}
-      required={required}
-      error={error}
-      description={description}
-      className={className}
-    >
-      <Input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        disabled={disabled}
-        className={cn(error && "border-red-500")}
-      />
-    </FormField>
+    <ShadcnFormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            <Input 
+              placeholder={placeholder} 
+              type={type}
+              {...field} 
+              value={field.value || ""}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
-}
+};
+
+export default TextField;

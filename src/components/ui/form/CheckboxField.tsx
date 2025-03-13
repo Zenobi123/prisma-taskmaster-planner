@@ -1,56 +1,60 @@
 
 import React from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { FormField, FormFieldProps } from "./FormField";
-import { Label } from "@/components/ui/label";
+import { 
+  FormControl, 
+  FormField as ShadcnFormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage,
+  FormDescription
+} from "@/components/ui/form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 
-export interface CheckboxFieldProps extends Omit<FormFieldProps, "children"> {
-  id: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  disabled?: boolean;
+interface CheckboxFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> {
+  name: TName;
+  control: Control<TFieldValues>;
+  label?: string;
+  description?: string;
+  className?: string;
 }
 
-export function CheckboxField({
-  id,
-  label,
-  checked,
-  onChange,
-  required,
-  disabled,
-  error,
+const CheckboxField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({ 
+  name, 
+  control, 
+  label, 
   description,
-  className,
-}: CheckboxFieldProps) {
+  className
+}: CheckboxFieldProps<TFieldValues, TName>) => {
   return (
-    <FormField
-      id={id}
-      required={required}
-      error={error}
-      description={description}
-      className={className}
-      showLabel={false}
-    >
-      <div className="flex items-center space-x-2">
-        <Checkbox
-          id={id}
-          checked={checked}
-          onCheckedChange={onChange}
-          disabled={disabled}
-        />
-        <Label
-          htmlFor={id}
-          className="text-sm font-medium leading-none cursor-pointer"
-        >
-          {required ? (
-            <span>
-              {label} <span className="text-red-500">*</span>
-            </span>
-          ) : (
-            label
-          )}
-        </Label>
-      </div>
-    </FormField>
+    <ShadcnFormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          <div className="flex items-start space-x-2">
+            <FormControl>
+              <Checkbox
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </FormControl>
+            <div className="space-y-1 leading-none">
+              {label && <FormLabel className="text-sm font-medium cursor-pointer">{label}</FormLabel>}
+              {description && <FormDescription>{description}</FormDescription>}
+            </div>
+          </div>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
-}
+};
+
+export default CheckboxField;

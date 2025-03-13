@@ -1,49 +1,58 @@
 
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
-import { FormField, FormFieldProps } from "./FormField";
-import { cn } from "@/lib/utils";
+import { 
+  FormControl, 
+  FormField as ShadcnFormField, 
+  FormItem, 
+  FormLabel, 
+  FormMessage 
+} from "@/components/ui/form";
+import { Control, FieldPath, FieldValues } from "react-hook-form";
 
-export interface TextareaFieldProps extends Omit<FormFieldProps, "children"> {
-  id: string;
-  value: string;
-  onChange: (value: string) => void;
+interface TextareaFieldProps<
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+> {
+  name: TName;
+  control: Control<TFieldValues>;
+  label?: string;
   placeholder?: string;
+  className?: string;
   rows?: number;
-  disabled?: boolean;
 }
 
-export function TextareaField({
-  id,
-  label,
-  value,
-  onChange,
+const TextareaField = <
+  TFieldValues extends FieldValues = FieldValues,
+  TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
+>({ 
+  name, 
+  control, 
+  label, 
   placeholder,
-  rows = 4,
-  required,
-  disabled,
-  error,
-  description,
   className,
-}: TextareaFieldProps) {
+  rows = 4
+}: TextareaFieldProps<TFieldValues, TName>) => {
   return (
-    <FormField
-      id={id}
-      label={label}
-      required={required}
-      error={error}
-      description={description}
-      className={className}
-    >
-      <Textarea
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        rows={rows}
-        disabled={disabled}
-        className={cn(error && "border-red-500")}
-      />
-    </FormField>
+    <ShadcnFormField
+      control={control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            <Textarea 
+              placeholder={placeholder} 
+              {...field} 
+              rows={rows}
+              value={field.value || ""}
+            />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
-}
+};
+
+export default TextareaField;

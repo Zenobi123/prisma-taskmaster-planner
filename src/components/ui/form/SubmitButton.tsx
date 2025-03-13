@@ -1,36 +1,30 @@
 
 import React from "react";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-export interface SubmitButtonProps {
-  isSubmitting?: boolean;
-  submitText?: string;
-  submittingText?: string;
-  className?: string;
+interface SubmitButtonProps extends ButtonProps {
+  loading?: boolean;
+  label?: string;
 }
 
-export function SubmitButton({
-  isSubmitting = false,
-  submitText = "Enregistrer",
-  submittingText = "Enregistrement...",
-  className,
-}: SubmitButtonProps) {
+const SubmitButton = ({ 
+  loading = false, 
+  label = "Soumettre", 
+  disabled, 
+  children, 
+  ...props 
+}: SubmitButtonProps) => {
   return (
     <Button
       type="submit"
-      disabled={isSubmitting}
-      className={cn("", className)}
+      disabled={loading || disabled}
+      {...props}
     >
-      {isSubmitting ? (
-        <>
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          {submittingText}
-        </>
-      ) : (
-        submitText
-      )}
+      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {children || label}
     </Button>
   );
-}
+};
+
+export default SubmitButton;
