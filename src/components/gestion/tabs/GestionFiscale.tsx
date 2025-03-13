@@ -1,12 +1,14 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FiscalTabsNav } from "./fiscale/FiscalTabsNav";
+import { Client } from "@/types/client";
 
 interface GestionFiscaleProps {
-  onTabChange: (tab: string) => void;
+  client: Client;
+  onSubTabSelect: (tab: string) => void;
 }
 
-export function GestionFiscale({ onTabChange }: GestionFiscaleProps) {
+export function GestionFiscale({ client, onSubTabSelect }: GestionFiscaleProps) {
   const fiscalOptions = [
     {
       id: "obligations-fiscales",
@@ -39,7 +41,7 @@ export function GestionFiscale({ onTabChange }: GestionFiscaleProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <FiscalTabsNav options={fiscalOptions} onTabChange={onTabChange} />
+        <FiscalTabsNav options={fiscalOptions} onTabChange={onSubTabSelect} />
       </CardContent>
     </Card>
   );

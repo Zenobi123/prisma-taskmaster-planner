@@ -1,12 +1,14 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FiscalTabsNav } from "./fiscale/FiscalTabsNav";
+import { Client } from "@/types/client";
 
 interface GestionEntrepriseProps {
-  onTabChange: (tab: string) => void;
+  client: Client;
+  onSubTabSelect: (tab: string) => void;
 }
 
-export function GestionEntreprise({ onTabChange }: GestionEntrepriseProps) {
+export function GestionEntreprise({ client, onSubTabSelect }: GestionEntrepriseProps) {
   const entrepriseOptions = [
     {
       id: "gestion-admin",
@@ -39,7 +41,7 @@ export function GestionEntreprise({ onTabChange }: GestionEntrepriseProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <FiscalTabsNav options={entrepriseOptions} onTabChange={onTabChange} />
+        <FiscalTabsNav options={entrepriseOptions} onTabChange={onSubTabSelect} />
       </CardContent>
     </Card>
   );
