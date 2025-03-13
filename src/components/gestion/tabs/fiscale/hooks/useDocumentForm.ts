@@ -39,6 +39,22 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
     setDocumentType("ACF");
   };
 
+  // Fonction pour générer le nom du document basé sur son type
+  const getDocumentName = (type: string): string => {
+    switch (type) {
+      case "ACF":
+        return "Attestation de Conformité Fiscale";
+      case "DSF":
+        return "Déclaration Statistique et Fiscale";
+      case "PATENTE":
+        return "Patente";
+      case "AUTRE":
+        return "Document fiscal";
+      default:
+        return "Document fiscal";
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -55,7 +71,9 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
       description,
       createdAt,
       validUntil: validUntil || null,
-      documentType
+      documentType,
+      name: getDocumentName(documentType),
+      documentUrl: null
     });
     
     resetForm();

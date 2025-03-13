@@ -29,7 +29,7 @@ export function useFiscalDocuments(clientId?: string) {
 
         const formattedDocs: FiscalDocument[] = data.map(doc => ({
           id: doc.id,
-          name: doc.name,
+          name: doc.name || getDocumentNameFromType(doc.document_type || "ACF"),
           description: doc.description || "",
           createdAt: new Date(doc.created_at),
           validUntil: doc.valid_until ? new Date(doc.valid_until) : null,
@@ -53,6 +53,22 @@ export function useFiscalDocuments(clientId?: string) {
 
     fetchDocuments();
   }, [clientId]);
+
+  // Fonction pour générer le nom du document basé sur son type
+  const getDocumentNameFromType = (type: string): string => {
+    switch (type) {
+      case "ACF":
+        return "Attestation de Conformité Fiscale";
+      case "DSF":
+        return "Déclaration Statistique et Fiscale";
+      case "PATENTE":
+        return "Patente";
+      case "AUTRE":
+        return "Document fiscal";
+      default:
+        return "Document fiscal";
+    }
+  };
 
   // Filtrer les documents expirés il y a plus de 30 jours
   const filteredDocuments = fiscalDocuments.filter(doc => {
@@ -95,7 +111,7 @@ export function useFiscalDocuments(clientId?: string) {
       const { data, error } = await supabase
         .from("fiscal_documents")
         .insert({
-          name: newDoc.name,
+          name: newDoc.name || getDocumentNameFromType(newDoc.documentType || "ACF"),
           description: newDoc.description,
           created_at: newDoc.createdAt.toISOString(),
           valid_until: newDoc.validUntil ? newDoc.validUntil.toISOString() : null,
@@ -110,7 +126,7 @@ export function useFiscalDocuments(clientId?: string) {
       if (data && data[0]) {
         const addedDoc: FiscalDocument = {
           id: data[0].id,
-          name: data[0].name,
+          name: data[0].name || getDocumentNameFromType(data[0].document_type || "ACF"),
           description: data[0].description || "",
           createdAt: new Date(data[0].created_at),
           validUntil: data[0].valid_until ? new Date(data[0].valid_until) : null,

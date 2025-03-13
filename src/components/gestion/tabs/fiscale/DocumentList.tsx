@@ -23,7 +23,7 @@ export function DocumentList({ documents, onItemClick }: DocumentListProps) {
     };
     
     // If this is the ACF document, show the exact expiry message from the image
-    if (doc.name.includes("Attestation de Conformité Fiscale")) {
+    if (doc.name && doc.name.includes("Attestation de Conformité Fiscale")) {
       return (
         <div className="flex items-center mt-1 text-amber-600 text-xs">
           Expire dans 4 jours ({formatDate(doc.validUntil)})
@@ -87,7 +87,7 @@ export function DocumentList({ documents, onItemClick }: DocumentListProps) {
           <FileText size={20} className="text-primary mt-0.5" />
           <div className="text-left flex-1">
             <div className="font-medium flex items-center gap-1">
-              {doc.name}
+              {doc.name || `Document ${doc.documentType || ""}`}
               <LinkIcon size={14} className="text-primary" />
             </div>
             <p className="text-sm text-muted-foreground">{doc.description}</p>

@@ -5,6 +5,9 @@ export type FiscalDocument = {
   createdAt: Date;
   validUntil: Date | null;
   documentType?: string;
+  // Ajout des propriétés manquantes
+  name?: string;
+  documentUrl?: string | null;
 };
 
 export type AddDocumentDialogProps = {
