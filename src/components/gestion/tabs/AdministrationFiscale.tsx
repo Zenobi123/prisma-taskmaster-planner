@@ -3,9 +3,14 @@ import React from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DocumentSection } from "./fiscale/administration/DocumentSection";
 import { useFiscalDocuments } from "./fiscale/useFiscalDocuments";
+import { Client } from "@/types/client";
 
-export function AdministrationFiscale() {
-  const { fiscalDocuments, handleAddDocument } = useFiscalDocuments();
+interface AdministrationFiscaleProps {
+  selectedClient?: Client;
+}
+
+export function AdministrationFiscale({ selectedClient }: AdministrationFiscaleProps) {
+  const { fiscalDocuments, loading, handleAddDocument } = useFiscalDocuments(selectedClient?.id);
 
   return (
     <Card>
@@ -18,6 +23,8 @@ export function AdministrationFiscale() {
         <DocumentSection 
           documents={fiscalDocuments}
           onAddDocument={handleAddDocument}
+          isLoading={loading}
+          clientId={selectedClient?.id}
         />
       </CardContent>
     </Card>

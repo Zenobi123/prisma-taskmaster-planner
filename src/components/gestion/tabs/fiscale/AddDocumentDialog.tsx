@@ -10,6 +10,7 @@ import { fr } from "date-fns/locale";
 import { toast } from "@/hooks/use-toast";
 import { useDocumentForm } from "./hooks/useDocumentForm";
 import { DateInput } from "./components/DateInput";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { AddDocumentDialogProps } from "./types";
 
 export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
@@ -23,6 +24,10 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
     validUntil,
     setValidUntil,
     dateInputValue,
+    documentType,
+    setDocumentType,
+    documentUrl,
+    setDocumentUrl,
     handleDateInputChange,
     handleCalendarSelect,
     handleSubmit,
@@ -60,6 +65,24 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
               placeholder="Ex: Attestation de Conformité Fiscale"
             />
           </div>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="type" className="text-right">
+              Type
+            </Label>
+            <Select value={documentType} onValueChange={setDocumentType}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Sélectionner un type de document" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ACF">Attestation de Conformité Fiscale</SelectItem>
+                <SelectItem value="DSF">Déclaration Statistique et Fiscale</SelectItem>
+                <SelectItem value="PATENTE">Patente</SelectItem>
+                <SelectItem value="AUTRE">Autre document</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="description" className="text-right">
               Description
@@ -97,6 +120,19 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
                 )}
               </Button>
             </div>
+          </div>
+          
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="documentUrl" className="text-right">
+              URL du document
+            </Label>
+            <Input
+              id="documentUrl"
+              value={documentUrl}
+              onChange={(e) => setDocumentUrl(e.target.value)}
+              className="col-span-3"
+              placeholder="https://exemple.com/document.pdf"
+            />
           </div>
 
           <DialogFooter>

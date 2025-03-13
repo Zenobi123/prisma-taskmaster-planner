@@ -149,6 +149,8 @@ export type Database = {
           client_id: string
           created_at: string
           description: string | null
+          document_type: string | null
+          document_url: string | null
           id: string
           name: string
           valid_until: string | null
@@ -157,6 +159,8 @@ export type Database = {
           client_id: string
           created_at?: string
           description?: string | null
+          document_type?: string | null
+          document_url?: string | null
           id?: string
           name: string
           valid_until?: string | null
@@ -165,6 +169,8 @@ export type Database = {
           client_id?: string
           created_at?: string
           description?: string | null
+          document_type?: string | null
+          document_url?: string | null
           id?: string
           name?: string
           valid_until?: string | null

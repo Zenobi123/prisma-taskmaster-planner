@@ -1,12 +1,12 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { FileText, Link as LinkIcon } from "lucide-react";
+import { FileText, Link as LinkIcon, ExternalLink } from "lucide-react";
 import { FiscalDocument } from "./types";
 
 interface DocumentListProps {
   documents: FiscalDocument[];
-  onItemClick: (item: any) => void;
+  onItemClick: (item: FiscalDocument) => void;
 }
 
 export function DocumentList({ documents, onItemClick }: DocumentListProps) {
@@ -85,7 +85,7 @@ export function DocumentList({ documents, onItemClick }: DocumentListProps) {
           onClick={() => onItemClick(doc)}
         >
           <FileText size={20} className="text-primary mt-0.5" />
-          <div className="text-left">
+          <div className="text-left flex-1">
             <div className="font-medium flex items-center gap-1">
               {doc.name}
               <LinkIcon size={14} className="text-primary" />
@@ -96,6 +96,18 @@ export function DocumentList({ documents, onItemClick }: DocumentListProps) {
               Créé le {formatCreatedDate(doc.createdAt)}
             </div>
           </div>
+          
+          {doc.documentUrl && (
+            <a 
+              href={doc.documentUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:text-primary/80 p-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ExternalLink size={16} />
+            </a>
+          )}
         </Button>
       ))}
     </div>

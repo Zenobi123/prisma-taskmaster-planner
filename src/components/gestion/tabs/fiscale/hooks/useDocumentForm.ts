@@ -11,6 +11,8 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
   const [createdAt, setCreatedAt] = useState<Date>(new Date());
   const [validUntil, setValidUntil] = useState<Date | undefined>(addDays(new Date(), 90));
   const [dateInputValue, setDateInputValue] = useState(format(new Date(), "dd/MM/yyyy", { locale: fr }));
+  const [documentType, setDocumentType] = useState<string>("ACF");
+  const [documentUrl, setDocumentUrl] = useState<string>("");
 
   useEffect(() => {
     setValidUntil(addDays(createdAt, 90));
@@ -37,6 +39,8 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
     setCreatedAt(new Date());
     setDateInputValue(format(new Date(), "dd/MM/yyyy", { locale: fr }));
     setValidUntil(addDays(new Date(), 90));
+    setDocumentType("ACF");
+    setDocumentUrl("");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -56,6 +60,8 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
       description,
       createdAt,
       validUntil: validUntil || null,
+      documentType,
+      documentUrl: documentUrl || null
     });
     
     resetForm();
@@ -71,6 +77,10 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
     validUntil,
     setValidUntil,
     dateInputValue,
+    documentType,
+    setDocumentType,
+    documentUrl,
+    setDocumentUrl,
     handleDateInputChange,
     handleCalendarSelect,
     handleSubmit,
