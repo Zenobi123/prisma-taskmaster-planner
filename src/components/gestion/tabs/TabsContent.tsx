@@ -8,7 +8,6 @@ import { GestionDossier } from "./GestionDossier";
 import { ContratPrestations } from "./ContratPrestations";
 import { ClotureExercice } from "./ClotureExercice";
 import { ObligationsFiscales } from "./ObligationsFiscales";
-import { OptimisationFiscale } from "./OptimisationFiscale";
 import { Client } from "@/types/client";
 
 interface TabsContentProps {
@@ -42,10 +41,6 @@ export function GestionTabsContent({
 
       <ShadcnTabsContent value="obligations-fiscales">
         <ObligationsFiscales />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="optimisation-fiscale">
-        <OptimisationFiscale />
       </ShadcnTabsContent>
 
       <ShadcnTabsContent value="cloture-exercice">
