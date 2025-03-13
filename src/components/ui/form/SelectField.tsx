@@ -18,12 +18,12 @@ interface SelectFieldProps {
   id: string;
   name?: string;
   label: string;
+  value: string;
+  onChange: (value: string) => void;
   options: SelectOption[];
-  value?: string;
-  onChange?: (value: string) => void;
-  placeholder?: string;
   required?: boolean;
   disabled?: boolean;
+  placeholder?: string;
   className?: string;
   error?: string;
 }
@@ -32,15 +32,19 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   id,
   name,
   label,
-  options,
   value,
   onChange,
-  placeholder = "Sélectionner...",
+  options,
   required = false,
   disabled = false,
+  placeholder = "Sélectionner...",
   className = "",
   error,
 }) => {
+  const handleValueChange = (value: string) => {
+    onChange(value);
+  };
+
   return (
     <FormField
       name={name || id}
@@ -50,7 +54,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
     >
       <Select
         value={value}
-        onValueChange={onChange}
+        onValueChange={handleValueChange}
         disabled={disabled}
       >
         <SelectTrigger id={id}>

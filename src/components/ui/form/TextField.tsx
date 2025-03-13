@@ -7,13 +7,13 @@ interface TextFieldProps {
   id: string;
   name?: string;
   label: string;
-  placeholder?: string;
-  value?: string | number;
-  onChange?: (value: string) => void;
+  value: string;
+  type?: string;
+  onChange: (value: string) => void;
   required?: boolean;
   disabled?: boolean;
+  placeholder?: string;
   className?: string;
-  type?: string;
   error?: string;
 }
 
@@ -21,17 +21,17 @@ export const TextField: React.FC<TextFieldProps> = ({
   id,
   name,
   label,
-  placeholder,
   value,
+  type = "text",
   onChange,
   required = false,
   disabled = false,
+  placeholder = "",
   className = "",
-  type = "text",
   error,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange?.(e.target.value);
+    onChange(e.target.value);
   };
 
   return (
@@ -45,10 +45,10 @@ export const TextField: React.FC<TextFieldProps> = ({
         id={id}
         name={name || id}
         type={type}
-        placeholder={placeholder}
-        value={value}
+        value={value || ""}
         onChange={handleChange}
         disabled={disabled}
+        placeholder={placeholder}
       />
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </FormField>

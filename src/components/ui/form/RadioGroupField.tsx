@@ -1,10 +1,7 @@
 
 import React from "react";
 import { FormField } from "./FormField";
-import {
-  RadioGroup,
-  RadioGroupItem
-} from "@/components/ui/radio-group";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 interface RadioOption {
@@ -16,14 +13,13 @@ interface RadioGroupFieldProps {
   id: string;
   name?: string;
   label: string;
+  value: string;
+  onChange: (value: string) => void;
   options: RadioOption[];
-  value?: string;
-  onChange?: (value: string) => void;
+  layout?: "vertical" | "horizontal";
   required?: boolean;
   disabled?: boolean;
   className?: string;
-  layout?: "vertical" | "horizontal" | "grid";
-  columns?: number;
   error?: string;
 }
 
@@ -31,26 +27,17 @@ export const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
   id,
   name,
   label,
-  options,
   value,
   onChange,
+  options,
+  layout = "vertical",
   required = false,
   disabled = false,
   className = "",
-  layout = "vertical",
-  columns = 3,
   error,
 }) => {
-  const getLayoutClass = () => {
-    switch (layout) {
-      case "horizontal":
-        return "flex flex-row gap-4";
-      case "grid":
-        return `grid grid-cols-1 md:grid-cols-${columns} gap-4`;
-      case "vertical":
-      default:
-        return "flex flex-col space-y-2";
-    }
+  const handleValueChange = (value: string) => {
+    onChange(value);
   };
 
   return (
@@ -62,19 +49,14 @@ export const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
     >
       <RadioGroup
         value={value}
-        onValueChange={onChange}
-        className={getLayoutClass()}
+        onValueChange={handleValueChange}
+        className={layout === "horizontal" ? "flex gap-4" : "space-y-2"}
+        disabled={disabled}
       >
         {options.map((option) => (
           <div key={option.value} className="flex items-center space-x-2">
-            <RadioGroupItem
-              value={option.value}
-              id={`${id}-${option.value}`}
-              disabled={disabled}
-            />
-            <Label htmlFor={`${id}-${option.value}`}>
-              {option.label}
-            </Label>
+            <RadioGroupItem value={option.value} id={`${id}-${option.value}`} />
+            <Label htmlFor={`${id}-${option.value}`}>{option.label}</Label>
           </div>
         ))}
       </RadioGroup>

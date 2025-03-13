@@ -7,11 +7,11 @@ interface TextareaFieldProps {
   id: string;
   name?: string;
   label: string;
-  placeholder?: string;
-  value?: string;
-  onChange?: (value: string) => void;
+  value: string;
+  onChange: (value: string) => void;
   required?: boolean;
   disabled?: boolean;
+  placeholder?: string;
   rows?: number;
   className?: string;
   error?: string;
@@ -21,17 +21,17 @@ export const TextareaField: React.FC<TextareaFieldProps> = ({
   id,
   name,
   label,
-  placeholder,
   value,
   onChange,
   required = false,
   disabled = false,
+  placeholder = "",
   rows = 3,
   className = "",
   error,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange?.(e.target.value);
+    onChange(e.target.value);
   };
 
   return (
@@ -44,10 +44,10 @@ export const TextareaField: React.FC<TextareaFieldProps> = ({
       <Textarea
         id={id}
         name={name || id}
-        placeholder={placeholder}
-        value={value}
+        value={value || ""}
         onChange={handleChange}
         disabled={disabled}
+        placeholder={placeholder}
         rows={rows}
       />
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
