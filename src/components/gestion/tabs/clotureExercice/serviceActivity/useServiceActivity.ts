@@ -9,15 +9,18 @@ export const useServiceActivity = () => {
   const addRow = () => {
     const newRow: ServiceActivityRow = {
       id: crypto.randomUUID(),
+      client: "",
       date: "",
       structure: "",
       numeroMarche: "",
+      montant: 0,
       montantHT: 0,
       arrondi: 0,
       acompteIRPrincipal: 0,
       acompteIRCAC: 0,
       droitEnregistrement: 0,
-      montantTTC: 0
+      montantTTC: 0,
+      statut: 'en_attente'
     };
     setRows([...rows, newRow]);
   };
@@ -33,7 +36,7 @@ export const useServiceActivity = () => {
       if (row.id === id) {
         const updatedRow = { ...row };
         
-        if (field === 'date' || field === 'structure' || field === 'numeroMarche') {
+        if (field === 'date' || field === 'structure' || field === 'numeroMarche' || field === 'client') {
           updatedRow[field] = value;
         } else {
           // For numeric fields, parse the input and calculate derived values
@@ -53,6 +56,10 @@ export const useServiceActivity = () => {
           } else if (field === 'droitEnregistrement') {
             updatedRow.droitEnregistrement = numericValue;
             updatedRow.montantTTC = updatedRow.montantHT * 1.1925; // Recalculate TTC
+          } else if (field === 'montant') {
+            updatedRow.montant = numericValue;
+          } else if (field === 'statut') {
+            updatedRow.statut = value as 'payé' | 'en_attente' | 'annulé';
           }
         }
         
