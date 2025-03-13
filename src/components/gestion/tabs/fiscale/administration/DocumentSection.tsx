@@ -1,14 +1,10 @@
-
 import React from "react";
-import { FileSpreadsheet, Trash2 } from "lucide-react";
+import { FileSpreadsheet } from "lucide-react";
 import { AddDocumentDialog } from "../AddDocumentDialog";
 import { DocumentList } from "../DocumentList";
 import { SectionHeader } from "../SectionHeader";
 import { FiscalDocument } from "../types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 
 interface DocumentSectionProps {
   documents: FiscalDocument[];
@@ -38,81 +34,30 @@ export function DocumentSection({ documents, onAddDocument, isLoading = false, c
   // Check if ACF document already exists
   const hasAcfDocument = acfDocuments.length > 0;
   
-  // Function to delete all test ACF documents
-  const deleteTestACFDocuments = async () => {
-    if (!clientId) {
-      toast({
-        title: "Erreur",
-        description: "Aucun client sélectionné",
-        variant: "destructive",
-      });
-      return;
-    }
-    
-    try {
-      const { error } = await supabase
-        .from("fiscal_documents")
-        .delete()
-        .eq("document_type", "ACF")
-        .eq("name", "Attestation de Conformité Fiscale");
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Succès",
-        description: "Les attestations de test ont été supprimées",
-      });
-      
-      // Refresh the page to update the list
-      window.location.reload();
-    } catch (err) {
-      console.error("Erreur lors de la suppression des documents:", err);
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer les attestations de test",
-        variant: "destructive",
-      });
-    }
-  };
-  
   return (
     <div>
       <SectionHeader 
         icon={<FileSpreadsheet size={20} className="text-primary" />}
         title="Attestation de Conformité Fiscale"
       >
-        <div className="flex gap-2">
-          {clientId && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={deleteTestACFDocuments}
-              className="flex items-center gap-1 text-destructive hover:text-destructive"
-            >
-              <Trash2 size={14} />
-              Supprimer documents test
-            </Button>
-          )}
-          
-          {clientId && !hasAcfDocument ? (
-            <AddDocumentDialog onAddDocument={(doc) => {
-              // Force document type to be ACF when adding a new document
-              onAddDocument({
-                ...doc,
-                documentType: 'ACF',
-                name: 'Attestation de Conformité Fiscale'
-              });
-            }} />
-          ) : clientId && hasAcfDocument ? (
-            <div className="text-sm text-muted-foreground">
-              Une attestation existe déjà
-            </div>
-          ) : (
-            <div className="text-sm text-muted-foreground">
-              Sélectionnez un client pour ajouter une attestation
-            </div>
-          )}
-        </div>
+        {clientId && !hasAcfDocument ? (
+          <AddDocumentDialog onAddDocument={(doc) => {
+            // Force document type to be ACF when adding a new document
+            onAddDocument({
+              ...doc,
+              documentType: 'ACF',
+              name: 'Attestation de Conformité Fiscale'
+            });
+          }} />
+        ) : clientId && hasAcfDocument ? (
+          <div className="text-sm text-muted-foreground">
+            Une attestation existe déjà
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">
+            Sélectionnez un client pour ajouter une attestation
+          </div>
+        )}
       </SectionHeader>
       
       {isLoading ? (
