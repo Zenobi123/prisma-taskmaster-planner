@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ActivityTypeSelector } from "./ActivityTypeSelector";
 import { CommercialActivityContent } from "./CommercialActivityContent";
 import { ServiceActivityContent } from "./ServiceActivityContent";
+import { Client } from "@/types/client";
 
 interface CommercialActivityRow {
   month: string;
@@ -14,6 +15,7 @@ interface CommercialActivityRow {
 }
 
 interface ElementsCharacteristiquesProps {
+  client: Client;
   previousYear: number;
   activityType: "commercial" | "service";
   setActivityType: (type: "commercial" | "service") => void;
@@ -23,6 +25,7 @@ interface ElementsCharacteristiquesProps {
 }
 
 export const ElementsCharacteristiques = ({
+  client,
   previousYear,
   activityType,
   setActivityType,
@@ -38,19 +41,20 @@ export const ElementsCharacteristiques = ({
             <h3 className="font-medium text-lg mb-2">Chiffre d'affaires (produits)</h3>
             
             <ActivityTypeSelector 
-              activityType={activityType} 
-              setActivityType={setActivityType} 
+              value={activityType} 
+              onChange={setActivityType} 
             />
 
             {activityType === "commercial" ? (
               <CommercialActivityContent 
+                client={client}
                 previousYear={previousYear}
                 commercialActivityData={commercialActivityData}
                 handleIRPrincipalChange={handleIRPrincipalChange}
                 formatNumberWithSeparator={formatNumberWithSeparator}
               />
             ) : (
-              <ServiceActivityContent previousYear={previousYear} />
+              <ServiceActivityContent client={client} previousYear={previousYear} />
             )}
           </div>
           
