@@ -1,48 +1,53 @@
 
 import React from 'react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { UseFormReturn } from 'react-hook-form';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface CheckboxFieldProps {
-  form: UseFormReturn<any>;
-  name: string;
+  id: string;
   label: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
   description?: string;
   disabled?: boolean;
+  error?: string;
   className?: string;
 }
 
 export const CheckboxField: React.FC<CheckboxFieldProps> = ({
-  form,
-  name,
+  id,
   label,
+  checked,
+  onChange,
   description,
   disabled = false,
+  error,
   className,
 }) => {
   return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className={cn("flex flex-row items-start space-x-3 space-y-0", className)}>
-          <FormControl>
-            <Checkbox
-              checked={field.value}
-              onCheckedChange={field.onChange}
-              disabled={disabled}
-            />
-          </FormControl>
-          <div className="space-y-1 leading-none">
-            <FormLabel className="cursor-pointer">{label}</FormLabel>
-            {description && <FormDescription>{description}</FormDescription>}
-          </div>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    <div className={cn("flex items-start space-x-2", className)}>
+      <Checkbox
+        id={id}
+        checked={checked}
+        onCheckedChange={onChange}
+        disabled={disabled}
+        className={cn(error && "border-destructive")}
+      />
+      <div className="space-y-1 leading-none">
+        <Label 
+          htmlFor={id} 
+          className={cn("cursor-pointer", error && "text-destructive")}
+        >
+          {label}
+        </Label>
+        {description && (
+          <p className="text-sm text-muted-foreground">{description}</p>
+        )}
+        {error && (
+          <p className="text-sm font-medium text-destructive">{error}</p>
+        )}
+      </div>
+    </div>
   );
 };
-
-import { cn } from '@/lib/utils';

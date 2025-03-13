@@ -2,49 +2,56 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { UseFormReturn } from 'react-hook-form';
+import { cn } from '@/lib/utils';
 
 interface TextFieldProps {
-  form: UseFormReturn<any>;
-  name: string;
+  id: string;
   label?: string;
-  placeholder?: string;
-  description?: string;
-  disabled?: boolean;
+  value: string;
+  onChange: (value: string) => void;
   type?: string;
+  placeholder?: string;
+  required?: boolean;
+  disabled?: boolean;
+  error?: string;
   className?: string;
 }
 
 export const TextField: React.FC<TextFieldProps> = ({
-  form,
-  name,
+  id,
   label,
-  placeholder,
-  description,
-  disabled = false,
+  value,
+  onChange,
   type = 'text',
+  placeholder,
+  required = false,
+  disabled = false,
+  error,
   className,
 }) => {
   return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>
-            <Input 
-              {...field} 
-              type={type} 
-              placeholder={placeholder} 
-              disabled={disabled} 
-            />
-          </FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+    <div className={cn("space-y-2", className)}>
+      {label && (
+        <Label 
+          htmlFor={id} 
+          className={cn(error && "text-destructive")}
+        >
+          {label}
+          {required && <span className="text-destructive ml-1">*</span>}
+        </Label>
       )}
-    />
+      <Input
+        id={id}
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        className={cn(error && "border-destructive")}
+      />
+      {error && (
+        <p className="text-sm font-medium text-destructive">{error}</p>
+      )}
+    </div>
   );
 };

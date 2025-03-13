@@ -7,64 +7,69 @@ import {
   SelectTrigger, 
   SelectValue 
 } from '@/components/ui/select';
-import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { UseFormReturn } from 'react-hook-form';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface SelectOption {
-  label: string;
   value: string;
+  label: string;
 }
 
 interface SelectFieldProps {
-  form: UseFormReturn<any>;
-  name: string;
+  id: string;
   label?: string;
-  placeholder?: string;
-  description?: string;
+  value: string;
+  onChange: (value: string) => void;
   options: SelectOption[];
+  placeholder?: string;
+  required?: boolean;
   disabled?: boolean;
+  error?: string;
   className?: string;
 }
 
 export const SelectField: React.FC<SelectFieldProps> = ({
-  form,
-  name,
+  id,
   label,
-  placeholder,
-  description,
+  value,
+  onChange,
   options,
+  placeholder = "Sélectionner...",
+  required = false,
   disabled = false,
+  error,
   className,
 }) => {
   return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <Select 
-            onValueChange={field.onChange} 
-            defaultValue={field.value} 
-            disabled={disabled}
-          >
-            <FormControl>
-              <SelectTrigger>
-                <SelectValue placeholder={placeholder} />
-              </SelectTrigger>
-            </FormControl>
-            <SelectContent>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
+    <div className={cn("space-y-2", className)}>
+      {label && (
+        <Label 
+          htmlFor={id} 
+          className={cn(error && "text-destructive")}
+        >
+          {label}
+          {required && <span className="text-destructive ml-1">*</span>}
+        </Label>
       )}
-    />
+      <Select
+        value={value}
+        onValueChange={onChange}
+        disabled={disabled}
+      >
+        <SelectTrigger id={id} className={cn(error && "border-destructive")}>
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent>
+          {options.map((option) => (
+            <SelectItem key={option.value} value={option.value}>
+              {option.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+      {error && (
+        <p className="text-sm font-medium text-destructive">{error}</p>
+      )}
+    </div>
   );
 };
