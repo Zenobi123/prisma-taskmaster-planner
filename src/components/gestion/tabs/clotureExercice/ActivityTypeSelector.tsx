@@ -4,18 +4,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 interface ActivityTypeSelectorProps {
-  value: "commercial" | "service";
-  onChange: (type: "commercial" | "service") => void;
+  activityType: "commercial" | "service";
+  setActivityType: (type: "commercial" | "service") => void;
 }
 
 export const ActivityTypeSelector = ({ 
-  value, 
-  onChange 
+  activityType, 
+  setActivityType 
 }: ActivityTypeSelectorProps) => {
   return (
     <RadioGroup 
-      value={value} 
-      onValueChange={(value) => onChange(value as "commercial" | "service")} 
+      value={activityType} 
+      onValueChange={(value) => setActivityType(value as "commercial" | "service")} 
       className="mt-2 mb-4"
     >
       <div className="flex items-center space-x-6">

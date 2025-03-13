@@ -1,90 +1,98 @@
 
-import { useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { 
+  LayoutDashboard, 
+  Users, 
+  Briefcase, 
+  Calendar, 
+  FileText, 
+  Menu, 
+  Receipt, 
+  Wallet,
+  ChevronRight,
+  FolderOpen
+} from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
-import { useSidebarResponsive } from "./sidebar/useSidebarResponsive";
-import { menuItems, categoryLabels } from "./sidebar/menuItems";
-import { MenuCategory } from "./sidebar/MenuCategory";
-import SidebarHeader from "./sidebar/SidebarHeader";
-import MobileMenuButton from "./sidebar/MobileMenuButton";
-import ThemeToggle from "@/components/theme/ThemeToggle";
+
+const menuItems = [
+  { path: "/", icon: LayoutDashboard, label: "Dashboard" },
+  { path: "/collaborateurs", icon: Users, label: "Collaborateurs" },
+  { path: "/clients", icon: Users, label: "Clients" },
+  { path: "/gestion", icon: FolderOpen, label: "Gestion" },
+  { path: "/missions", icon: Briefcase, label: "Mission" },
+  { path: "/planning", icon: Calendar, label: "Planning" },
+  { path: "/facturation", icon: Receipt, label: "Facturation" },
+  { path: "/depenses", icon: Wallet, label: "Dépenses" },
+  { path: "/rapports", icon: FileText, label: "Rapports" }
+];
 
 const Sidebar = () => {
-  const { isSidebarOpen, setIsSidebarOpen, isMobile, toggleSidebar } = useSidebarResponsive();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
 
-  // Group menu items by category
-  const getMenuCategories = () => {
-    const categories = menuItems.reduce((acc, item) => {
-      if (!acc[item.category]) {
-        acc[item.category] = [];
-      }
-      acc[item.category].push(item);
-      return acc;
-    }, {} as Record<string, typeof menuItems>);
-
-    return categories;
-  };
-
-  const categories = getMenuCategories();
-
-  // Gestion de la fermeture du menu sur mobile
-  const handleMobileClose = () => {
-    if (isMobile) {
-      setIsSidebarOpen(false);
-    }
+  const isActiveRoute = (path: string) => {
+    return location.pathname === path;
   };
 
   return (
-    <>
-      {/* Overlay pour fermer la sidebar sur mobile */}
-      {isMobile && isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/20 z-40 lg:hidden dark:bg-black/50"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-      
-      <aside
-        className={cn(
-          "bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 transition-all duration-300 ease-in-out flex flex-col fixed h-full z-50 md:relative",
-          isSidebarOpen ? "w-64" : "w-[70px]",
-          isMobile && !isSidebarOpen && "translate-x-[-100%]"
-        )}
-      >
-        <SidebarHeader 
-          isSidebarOpen={isSidebarOpen} 
-          isMobile={isMobile} 
-          toggleSidebar={toggleSidebar} 
-        />
-
-        <nav className="flex-1 py-4 px-2 space-y-4 overflow-y-auto">
-          {Object.entries(categories).map(([category, items]) => (
-            <MenuCategory
-              key={category}
-              category={category}
-              categoryLabel={categoryLabels[category] || category}
-              items={items}
-              isSidebarOpen={isSidebarOpen}
-              handleMobileClose={handleMobileClose}
-            />
-          ))}
-        </nav>
-
-        <div className={cn(
-          "p-4 border-t border-neutral-200 dark:border-neutral-800 flex flex-col gap-2",
-          !isSidebarOpen && "items-center"
-        )}>
-          <ThemeToggle isSidebarOpen={isSidebarOpen} />
-          <LogoutButton isSidebarOpen={isSidebarOpen} />
+    <aside
+      className={`${
+        isSidebarOpen ? "w-64" : "w-20"
+      } bg-white border-r border-neutral-200 transition-all duration-300 ease-in-out flex flex-col`}
+    >
+      <div className="p-4 border-b border-neutral-200">
+        <div className="flex items-center justify-between">
+          <h1
+            className={`font-semibold text-neutral-800 transition-opacity duration-300 ${
+              !isSidebarOpen && "opacity-0 hidden"
+            }`}
+          >
+            PRISMA GESTION
+          </h1>
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 hover:bg-neutral-100 rounded-md transition-colors"
+            aria-label={isSidebarOpen ? "Réduire le menu" : "Agrandir le menu"}
+          >
+            <Menu className="w-5 h-5 text-neutral-600" />
+          </button>
         </div>
-      </aside>
-      
-      {/* Bouton pour réouvrir le menu sur mobile */}
-      {isMobile && !isSidebarOpen && (
-        <MobileMenuButton onClick={() => setIsSidebarOpen(true)} />
-      )}
-    </>
+      </div>
+
+      <nav className="flex-1 py-4 px-2 space-y-1">
+        {menuItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`sidebar-link group relative ${
+              isActiveRoute(item.path) && "active"
+            }`}
+          >
+            <item.icon className="w-5 h-5 shrink-0" />
+            <span
+              className={`transition-opacity duration-300 ${
+                !isSidebarOpen && "opacity-0 hidden"
+              }`}
+            >
+              {item.label}
+            </span>
+            {!isSidebarOpen && (
+              <div className="absolute left-14 bg-neutral-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                {item.label}
+              </div>
+            )}
+            {isActiveRoute(item.path) && (
+              <ChevronRight className={`w-4 h-4 ml-auto ${!isSidebarOpen && "hidden"}`} />
+            )}
+          </Link>
+        ))}
+      </nav>
+
+      <div className={`p-4 border-t border-neutral-200 ${!isSidebarOpen && "flex justify-center"}`}>
+        <LogoutButton />
+      </div>
+    </aside>
   );
 };
 

@@ -1,22 +1,11 @@
 
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { LogOut } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { cn } from "@/lib/utils";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
 
-interface LogoutButtonProps {
-  isSidebarOpen?: boolean;
-}
-
-const LogoutButton = ({ isSidebarOpen = true }: LogoutButtonProps) => {
+const LogoutButton = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -45,38 +34,14 @@ const LogoutButton = ({ isSidebarOpen = true }: LogoutButtonProps) => {
   };
 
   return (
-    <TooltipProvider delayDuration={300}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button 
-            variant="ghost" 
-            onClick={handleLogout}
-            className={cn(
-              "text-neutral-600 hover:text-neutral-900 transition-all group relative dark:text-neutral-400 dark:hover:text-neutral-200",
-              !isSidebarOpen && "justify-center w-10 px-0"
-            )}
-          >
-            <LogOut className="h-4 w-4" />
-            <span
-              className={cn(
-                "ml-2 transition-opacity duration-300",
-                !isSidebarOpen && "opacity-0 invisible absolute"
-              )}
-            >
-              Déconnexion
-            </span>
-            {!isSidebarOpen && (
-              <div className="absolute left-14 bg-neutral-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-                Déconnexion
-              </div>
-            )}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="right">
-          {!isSidebarOpen && "Déconnexion"}
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
+    <Button 
+      variant="ghost" 
+      onClick={handleLogout}
+      className="text-neutral-600 hover:text-neutral-900"
+    >
+      <LogOut className="mr-2 h-4 w-4" />
+      Déconnexion
+    </Button>
   );
 };
 

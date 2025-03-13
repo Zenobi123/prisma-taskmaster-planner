@@ -6,7 +6,7 @@ import { ServiceActivityTable } from "./serviceActivity/ServiceActivityTable";
 import { useServiceActivity } from "./serviceActivity/useServiceActivity";
 import { ServiceActivityContentProps } from "./serviceActivity/types";
 
-export const ServiceActivityContent = ({ client, previousYear }: ServiceActivityContentProps) => {
+export const ServiceActivityContent = ({ previousYear }: ServiceActivityContentProps) => {
   const { rows, addRow, removeRow, handleCellChange } = useServiceActivity();
 
   return (

@@ -1,7 +1,6 @@
 
 import React from "react";
 import { CommercialActivityTable } from "./CommercialActivityTable";
-import { Client } from "@/types/client";
 
 interface CommercialActivityRow {
   month: string;
@@ -12,19 +11,17 @@ interface CommercialActivityRow {
 }
 
 interface CommercialActivityContentProps {
-  client: Client;
-  previousYear?: number;
-  commercialActivityData?: CommercialActivityRow[];
-  handleIRPrincipalChange?: (index: number, value: string) => void;
-  formatNumberWithSeparator?: (value: number) => string;
+  previousYear: number;
+  commercialActivityData: CommercialActivityRow[];
+  handleIRPrincipalChange: (index: number, value: string) => void;
+  formatNumberWithSeparator: (value: number) => string;
 }
 
 export const CommercialActivityContent = ({ 
-  client,
-  previousYear = new Date().getFullYear() - 1,
-  commercialActivityData = [],
-  handleIRPrincipalChange = () => {},
-  formatNumberWithSeparator = (value) => value.toString()
+  previousYear,
+  commercialActivityData,
+  handleIRPrincipalChange,
+  formatNumberWithSeparator
 }: CommercialActivityContentProps) => {
   return (
     <div className="space-y-3">
