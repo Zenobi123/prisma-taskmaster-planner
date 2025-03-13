@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
@@ -16,7 +17,7 @@ const FiscalDocumentsToRenew = () => {
         const sevenDaysFromNow = new Date();
         sevenDaysFromNow.setDate(now.getDate() + 7);
         
-        // Query to get documents for clients with externalized management and specific tax regimes
+        // Query to get ACF documents with valid expiration dates that are about to expire
         const { data, error } = await supabase
           .from("fiscal_documents")
           .select(`
@@ -43,13 +44,17 @@ const FiscalDocumentsToRenew = () => {
         // Filter the results to only show documents for clients:
         // 1. With externalized management
         // 2. With 'simplifié' or 'réel' tax regime
+        // 3. Ensure document_url exists (real document)
         const filteredData = data.filter(doc => 
           doc.clients && 
           doc.clients.gestionexternalisee === true && 
-          (doc.clients.regimefiscal === 'simplifie' || doc.clients.regimefiscal === 'reel')
+          (doc.clients.regimefiscal === 'simplifie' || doc.clients.regimefiscal === 'reel') &&
+          doc.document_url !== null // Only show documents that have an actual file attached
         );
 
-        // Return filtered data, or empty array if nothing found (no fallback data)
+        console.log("Filtered documents to renew:", filteredData.length);
+        
+        // Return filtered data, or empty array if nothing found
         return filteredData || [];
       } catch (err) {
         console.error("Error in fetchDocumentsToRenew:", err);
