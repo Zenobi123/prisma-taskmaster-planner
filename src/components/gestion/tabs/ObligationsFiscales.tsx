@@ -2,15 +2,26 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, FileText, CheckCircle, ClipboardCheck, Clock } from "lucide-react";
+import { Calendar, FileText, CheckCircle, ClipboardCheck, Clock, X, AlertCircle } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { format, addMonths } from "date-fns";
+import { Switch } from "@/components/ui/switch";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 export function ObligationsFiscales() {
   const [creationDate, setCreationDate] = useState<string>("");
   const [validityEndDate, setValidityEndDate] = useState<string>("");
+  
+  // Status states for annual obligations
+  const [obligationStatuses, setObligationStatuses] = useState({
+    patente: { assujetti: true, paye: false },
+    bail: { assujetti: true, paye: false },
+    taxeFonciere: { assujetti: true, paye: false },
+    dsf: { assujetti: true, depose: false },
+    darp: { assujetti: true, depose: false },
+  });
 
   // Calculate end validity date (3 months after creation date)
   useEffect(() => {
@@ -41,6 +52,57 @@ export function ObligationsFiscales() {
     if (/^[0-9/]*$/.test(value)) {
       setCreationDate(value);
     }
+  };
+
+  // Handle obligation status changes
+  const handleStatusChange = (
+    obligationType: keyof typeof obligationStatuses, 
+    statusType: "assujetti" | "paye" | "depose", 
+    value: boolean
+  ) => {
+    setObligationStatuses(prev => ({
+      ...prev,
+      [obligationType]: {
+        ...prev[obligationType],
+        [statusType]: value
+      }
+    }));
+  };
+
+  // Get status display for an obligation
+  const getStatusDisplay = (
+    obligationType: keyof typeof obligationStatuses,
+    isDeclaration: boolean = false
+  ) => {
+    const { assujetti } = obligationStatuses[obligationType];
+    const payeOrDepose = isDeclaration 
+      ? obligationStatuses[obligationType].depose
+      : obligationStatuses[obligationType].paye;
+    
+    if (!assujetti) {
+      return (
+        <div className="flex items-center gap-1 text-muted-foreground">
+          <X size={14} />
+          <span className="text-xs">Non assujetti</span>
+        </div>
+      );
+    }
+    
+    if (payeOrDepose) {
+      return (
+        <div className="flex items-center gap-1 text-green-600">
+          <CheckCircle size={14} />
+          <span className="text-xs">{isDeclaration ? "Déposée" : "Payé"}</span>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="flex items-center gap-1 text-red-500">
+        <AlertCircle size={14} />
+        <span className="text-xs">{isDeclaration ? "Non déposée" : "Non payé"}</span>
+      </div>
+    );
   };
 
   return (
@@ -126,77 +188,212 @@ export function ObligationsFiscales() {
                 <CardTitle className="text-lg">Obligations annuelles</CardTitle>
               </CardHeader>
               <CardContent>
-                <RadioGroup defaultValue="patente" className="space-y-6">
-                  <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="patente" id="patente" className="mt-1" />
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="patente" className="font-medium">Patente</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Impôt annuel payé par les entreprises pour exercer une activité commerciale ou industrielle
-                      </p>
-                      <div className="flex items-center gap-2 text-amber-600 mt-1">
-                        <Clock size={14} />
-                        <span className="text-xs">Date limite de paiement: 28 février</span>
+                <div className="space-y-6">
+                  {/* Patente */}
+                  <div className="border p-4 rounded-md">
+                    <div className="flex justify-between items-start">
+                      <div className="grid gap-1.5">
+                        <h3 className="font-medium">Patente</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Impôt annuel payé par les entreprises pour exercer une activité commerciale ou industrielle
+                        </p>
+                        <div className="flex items-center gap-2 text-amber-600 mt-1">
+                          <Clock size={14} />
+                          <span className="text-xs">Date limite de paiement: 28 février</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {getStatusDisplay('patente')}
+
+                        <div className="flex flex-col space-y-2">
+                          <div className="flex items-center justify-between space-x-2">
+                            <Label htmlFor="patente-assujetti" className="text-xs">Assujetti</Label>
+                            <Switch 
+                              id="patente-assujetti"
+                              checked={obligationStatuses.patente.assujetti} 
+                              onCheckedChange={(value) => handleStatusChange('patente', 'assujetti', value)}
+                            />
+                          </div>
+                          
+                          {obligationStatuses.patente.assujetti && (
+                            <div className="flex items-center justify-between space-x-2">
+                              <Label htmlFor="patente-paye" className="text-xs">Payé</Label>
+                              <Switch 
+                                id="patente-paye"
+                                checked={obligationStatuses.patente.paye} 
+                                onCheckedChange={(value) => handleStatusChange('patente', 'paye', value)}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="bail" id="bail" className="mt-1" />
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="bail" className="font-medium">Bail</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Contrat de location des locaux professionnels à renouveler selon les termes prévus
-                      </p>
-                      <div className="flex items-center gap-2 text-amber-600 mt-1">
-                        <Clock size={14} />
-                        <span className="text-xs">Date limite de paiement: 28 février</span>
+                  {/* Bail */}
+                  <div className="border p-4 rounded-md">
+                    <div className="flex justify-between items-start">
+                      <div className="grid gap-1.5">
+                        <h3 className="font-medium">Bail</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Contrat de location des locaux professionnels à renouveler selon les termes prévus
+                        </p>
+                        <div className="flex items-center gap-2 text-amber-600 mt-1">
+                          <Clock size={14} />
+                          <span className="text-xs">Date limite de paiement: 28 février</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {getStatusDisplay('bail')}
+
+                        <div className="flex flex-col space-y-2">
+                          <div className="flex items-center justify-between space-x-2">
+                            <Label htmlFor="bail-assujetti" className="text-xs">Assujetti</Label>
+                            <Switch 
+                              id="bail-assujetti"
+                              checked={obligationStatuses.bail.assujetti} 
+                              onCheckedChange={(value) => handleStatusChange('bail', 'assujetti', value)}
+                            />
+                          </div>
+                          
+                          {obligationStatuses.bail.assujetti && (
+                            <div className="flex items-center justify-between space-x-2">
+                              <Label htmlFor="bail-paye" className="text-xs">Payé</Label>
+                              <Switch 
+                                id="bail-paye"
+                                checked={obligationStatuses.bail.paye} 
+                                onCheckedChange={(value) => handleStatusChange('bail', 'paye', value)}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="taxe-fonciere" id="taxe-fonciere" className="mt-1" />
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="taxe-fonciere" className="font-medium">Taxe foncière</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Impôt local annuel sur les propriétés bâties et non bâties
-                      </p>
-                      <div className="flex items-center gap-2 text-amber-600 mt-1">
-                        <Clock size={14} />
-                        <span className="text-xs">Date limite de paiement: 28 février</span>
+                  {/* Taxe foncière */}
+                  <div className="border p-4 rounded-md">
+                    <div className="flex justify-between items-start">
+                      <div className="grid gap-1.5">
+                        <h3 className="font-medium">Taxe foncière</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Impôt local annuel sur les propriétés bâties et non bâties
+                        </p>
+                        <div className="flex items-center gap-2 text-amber-600 mt-1">
+                          <Clock size={14} />
+                          <span className="text-xs">Date limite de paiement: 28 février</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {getStatusDisplay('taxeFonciere')}
+
+                        <div className="flex flex-col space-y-2">
+                          <div className="flex items-center justify-between space-x-2">
+                            <Label htmlFor="taxe-assujetti" className="text-xs">Assujetti</Label>
+                            <Switch 
+                              id="taxe-assujetti"
+                              checked={obligationStatuses.taxeFonciere.assujetti} 
+                              onCheckedChange={(value) => handleStatusChange('taxeFonciere', 'assujetti', value)}
+                            />
+                          </div>
+                          
+                          {obligationStatuses.taxeFonciere.assujetti && (
+                            <div className="flex items-center justify-between space-x-2">
+                              <Label htmlFor="taxe-paye" className="text-xs">Payé</Label>
+                              <Switch 
+                                id="taxe-paye"
+                                checked={obligationStatuses.taxeFonciere.paye} 
+                                onCheckedChange={(value) => handleStatusChange('taxeFonciere', 'paye', value)}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="dsf" id="dsf" className="mt-1" />
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="dsf" className="font-medium">Déclaration Statistique et Fiscale (DSF)</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Document fiscal regroupant les données comptables et fiscales annuelles de l'entreprise
-                      </p>
-                      <div className="flex items-center gap-2 text-amber-600 mt-1">
-                        <Clock size={14} />
-                        <span className="text-xs">Date limite de dépôt: 15 avril</span>
+                  {/* DSF */}
+                  <div className="border p-4 rounded-md">
+                    <div className="flex justify-between items-start">
+                      <div className="grid gap-1.5">
+                        <h3 className="font-medium">Déclaration Statistique et Fiscale (DSF)</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Document fiscal regroupant les données comptables et fiscales annuelles de l'entreprise
+                        </p>
+                        <div className="flex items-center gap-2 text-amber-600 mt-1">
+                          <Clock size={14} />
+                          <span className="text-xs">Date limite de dépôt: 15 avril</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {getStatusDisplay('dsf', true)}
+
+                        <div className="flex flex-col space-y-2">
+                          <div className="flex items-center justify-between space-x-2">
+                            <Label htmlFor="dsf-assujetti" className="text-xs">Assujetti</Label>
+                            <Switch 
+                              id="dsf-assujetti"
+                              checked={obligationStatuses.dsf.assujetti} 
+                              onCheckedChange={(value) => handleStatusChange('dsf', 'assujetti', value)}
+                            />
+                          </div>
+                          
+                          {obligationStatuses.dsf.assujetti && (
+                            <div className="flex items-center justify-between space-x-2">
+                              <Label htmlFor="dsf-depose" className="text-xs">Déposée</Label>
+                              <Switch 
+                                id="dsf-depose"
+                                checked={obligationStatuses.dsf.depose} 
+                                onCheckedChange={(value) => handleStatusChange('dsf', 'depose', value)}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-start space-x-2">
-                    <RadioGroupItem value="darp" id="darp" className="mt-1" />
-                    <div className="grid gap-1.5">
-                      <Label htmlFor="darp" className="font-medium">Déclaration Annuelle des Revenus des Particuliers (DARP)</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Déclaration annuelle des revenus pour les personnes physiques
-                      </p>
-                      <div className="flex items-center gap-2 text-amber-600 mt-1">
-                        <Clock size={14} />
-                        <span className="text-xs">Date limite de dépôt: 30 juin</span>
+                  {/* DARP */}
+                  <div className="border p-4 rounded-md">
+                    <div className="flex justify-between items-start">
+                      <div className="grid gap-1.5">
+                        <h3 className="font-medium">Déclaration Annuelle des Revenus des Particuliers (DARP)</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Déclaration annuelle des revenus pour les personnes physiques
+                        </p>
+                        <div className="flex items-center gap-2 text-amber-600 mt-1">
+                          <Clock size={14} />
+                          <span className="text-xs">Date limite de dépôt: 30 juin</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        {getStatusDisplay('darp', true)}
+
+                        <div className="flex flex-col space-y-2">
+                          <div className="flex items-center justify-between space-x-2">
+                            <Label htmlFor="darp-assujetti" className="text-xs">Assujetti</Label>
+                            <Switch 
+                              id="darp-assujetti"
+                              checked={obligationStatuses.darp.assujetti} 
+                              onCheckedChange={(value) => handleStatusChange('darp', 'assujetti', value)}
+                            />
+                          </div>
+                          
+                          {obligationStatuses.darp.assujetti && (
+                            <div className="flex items-center justify-between space-x-2">
+                              <Label htmlFor="darp-depose" className="text-xs">Déposée</Label>
+                              <Switch 
+                                id="darp-depose"
+                                checked={obligationStatuses.darp.depose} 
+                                onCheckedChange={(value) => handleStatusChange('darp', 'depose', value)}
+                              />
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </RadioGroup>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>
