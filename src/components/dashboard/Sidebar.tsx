@@ -42,6 +42,7 @@ const Sidebar = () => {
         <div 
           className="fixed inset-0 bg-black/20 z-40 lg:hidden dark:bg-black/50"
           onClick={() => setIsSidebarOpen(false)}
+          aria-hidden="true"
         />
       )}
       
