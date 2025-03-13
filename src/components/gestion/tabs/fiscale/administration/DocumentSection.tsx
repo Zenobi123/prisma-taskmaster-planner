@@ -15,7 +15,7 @@ interface DocumentSectionProps {
 }
 
 export function DocumentSection({ documents, onAddDocument, isLoading = false, clientId }: DocumentSectionProps) {
-  // Filter to only show Attestation de Conformité Fiscale documents
+  // Filtrer pour ne montrer que les documents de type Attestation de Conformité Fiscale
   const acfDocuments = documents.filter(doc => 
     doc.documentType === 'ACF' || 
     (doc.name && doc.name.includes("Attestation de Conformité Fiscale"))

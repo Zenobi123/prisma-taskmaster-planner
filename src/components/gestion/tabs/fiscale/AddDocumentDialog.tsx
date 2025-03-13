@@ -53,17 +53,13 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
             <Label htmlFor="type" className="text-right">
               Type
             </Label>
-            <Select value={documentType} onValueChange={setDocumentType}>
-              <SelectTrigger className="col-span-3">
-                <SelectValue placeholder="Sélectionner un type de document" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ACF">Attestation de Conformité Fiscale</SelectItem>
-                <SelectItem value="DSF">Déclaration Statistique et Fiscale</SelectItem>
-                <SelectItem value="PATENTE">Patente</SelectItem>
-                <SelectItem value="AUTRE">Autre document</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="col-span-3">
+              <Input
+                value="Attestation de Conformité Fiscale"
+                disabled
+                className="w-full bg-muted/30"
+              />
+            </div>
           </div>
           
           <div className="grid grid-cols-4 items-center gap-4">
