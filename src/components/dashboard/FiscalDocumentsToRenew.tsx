@@ -17,7 +17,7 @@ const FiscalDocumentsToRenew = () => {
         const sevenDaysFromNow = new Date();
         sevenDaysFromNow.setDate(now.getDate() + 7);
         
-        // Specify exact foreign key relationship to avoid multiple relationship error
+        // Query to get documents for clients with externalized management and specific tax regimes
         const { data, error } = await supabase
           .from("fiscal_documents")
           .select(`
@@ -27,7 +27,9 @@ const FiscalDocumentsToRenew = () => {
               niu, 
               nom, 
               raisonsociale, 
-              type
+              type,
+              gestionexternalisee,
+              regimefiscal
             )
           `)
           .eq('document_type', 'ACF')
@@ -39,26 +41,17 @@ const FiscalDocumentsToRenew = () => {
           throw new Error("Erreur lors du chargement des documents fiscaux");
         }
 
-        // If no real data found, use Mme DANG TABI's ACF document as fallback with correct data
-        if (!data || data.length === 0) {
-          return [{
-            id: "1015301", // Document ID from the image
-            name: "Attestation de Conformité Fiscale",
-            description: "Certificat de situation fiscale",
-            created_at: "2024-12-17T00:00:00", // Image shows "Créé le 17/12/2024"
-            valid_until: "2025-03-17T00:00:00", // Image shows expiry on 17/03/2025 
-            client_id: "client-dang",
-            document_type: "ACF",
-            clients: {
-              id: "client-dang",
-              niu: "P038200291053J", // NIU from the image
-              nom: "DANG TABI", // Full name from the image
-              type: "physique"
-            }
-          }];
-        }
+        // Filter the results to only show documents for clients:
+        // 1. With externalized management
+        // 2. With 'simplifié' or 'réel' tax regime
+        const filteredData = data.filter(doc => 
+          doc.clients && 
+          doc.clients.gestionexternalisee === true && 
+          (doc.clients.regimefiscal === 'simplifie' || doc.clients.regimefiscal === 'reel')
+        );
 
-        return data;
+        // Return filtered data, or empty array if nothing found (no fallback data)
+        return filteredData || [];
       } catch (err) {
         console.error("Error in fetchDocumentsToRenew:", err);
         throw new Error("Une erreur est survenue");
