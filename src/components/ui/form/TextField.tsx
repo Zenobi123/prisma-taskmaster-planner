@@ -1,51 +1,50 @@
 
-import React from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import React from 'react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface TextFieldProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
+  form: UseFormReturn<any>;
+  name: string;
+  label?: string;
   placeholder?: string;
-  required?: boolean;
+  description?: string;
   disabled?: boolean;
-  error?: string;
+  type?: string;
   className?: string;
 }
 
-const TextField = ({
-  id,
+export const TextField: React.FC<TextFieldProps> = ({
+  form,
+  name,
   label,
-  value,
-  onChange,
-  type = "text",
   placeholder,
-  required = false,
+  description,
   disabled = false,
-  error,
+  type = 'text',
   className,
-}: TextFieldProps) => {
+}) => {
   return (
-    <div className={className}>
-      <Label htmlFor={id} className="mb-1.5 block">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-      <Input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        disabled={disabled}
-        className={error ? "border-destructive" : ""}
-      />
-      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
-    </div>
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            <Input 
+              {...field} 
+              type={type} 
+              placeholder={placeholder} 
+              disabled={disabled} 
+            />
+          </FormControl>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
-
-export default TextField;

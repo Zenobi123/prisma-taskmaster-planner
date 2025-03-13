@@ -1,72 +1,63 @@
 
-import React from "react";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import React from 'react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface RadioOption {
-  value: string;
   label: string;
+  value: string;
 }
 
 interface RadioGroupFieldProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
+  form: UseFormReturn<any>;
+  name: string;
+  label?: string;
+  description?: string;
   options: RadioOption[];
-  required?: boolean;
   disabled?: boolean;
-  error?: string;
   className?: string;
-  layout?: "vertical" | "horizontal" | "grid";
-  columns?: number;
 }
 
-const RadioGroupField = ({
-  id,
+export const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
+  form,
+  name,
   label,
-  value,
-  onChange,
+  description,
   options,
-  required = false,
   disabled = false,
-  error,
   className,
-  layout = "vertical",
-  columns = 3,
-}: RadioGroupFieldProps) => {
+}) => {
   return (
-    <div className={className}>
-      <Label className="mb-1.5 block">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-      <RadioGroup
-        value={value}
-        onValueChange={onChange}
-        className={
-          layout === "horizontal"
-            ? "flex space-x-4"
-            : layout === "grid"
-            ? `grid grid-cols-1 md:grid-cols-${columns} gap-4`
-            : "space-y-2"
-        }
-        disabled={disabled}
-      >
-        {options.map((option) => (
-          <div key={option.value} className="flex items-center space-x-2">
-            <RadioGroupItem id={`${id}-${option.value}`} value={option.value} />
-            <Label
-              htmlFor={`${id}-${option.value}`}
-              className="font-normal cursor-pointer"
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            <RadioGroup
+              onValueChange={field.onChange}
+              defaultValue={field.value}
+              className="flex flex-col space-y-1"
+              disabled={disabled}
             >
-              {option.label}
-            </Label>
-          </div>
-        ))}
-      </RadioGroup>
-      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
-    </div>
+              {options.map((option) => (
+                <FormItem key={option.value} className="flex items-center space-x-3 space-y-0">
+                  <FormControl>
+                    <RadioGroupItem value={option.value} />
+                  </FormControl>
+                  <FormLabel className="font-normal cursor-pointer">
+                    {option.label}
+                  </FormLabel>
+                </FormItem>
+              ))}
+            </RadioGroup>
+          </FormControl>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
-
-export default RadioGroupField;

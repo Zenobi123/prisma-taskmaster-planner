@@ -1,38 +1,37 @@
 
-import React from "react";
-import { Control, Controller, FieldValues, Path } from "react-hook-form";
+import React from 'react';
+import { FormControl, FormDescription, FormField as ShadcnFormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { UseFormReturn } from 'react-hook-form';
 
-interface FormFieldProps<T extends FieldValues> {
-  name: Path<T>;
-  control: Control<T>;
-  render: (props: {
-    field: {
-      value: any;
-      onChange: (value: any) => void;
-      onBlur: () => void;
-      ref: React.Ref<any>;
-    };
-    fieldState: {
-      invalid: boolean;
-      error?: {
-        message?: string;
-      };
-    };
-  }) => React.ReactNode;
+interface FormFieldProps {
+  form: UseFormReturn<any>;
+  name: string;
+  label?: string;
+  description?: string;
+  children: React.ReactElement;
+  className?: string;
 }
 
-function FormField<T extends FieldValues>({
+export const FormField: React.FC<FormFieldProps> = ({
+  form,
   name,
-  control,
-  render,
-}: FormFieldProps<T>) {
+  label,
+  description,
+  children,
+  className,
+}) => {
   return (
-    <Controller
+    <ShadcnFormField
+      control={form.control}
       name={name}
-      control={control}
-      render={({ field, fieldState }) => render({ field, fieldState })}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>{React.cloneElement(children, { ...field })}</FormControl>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
     />
   );
-}
-
-export default FormField;
+};

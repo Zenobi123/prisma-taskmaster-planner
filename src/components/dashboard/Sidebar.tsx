@@ -7,6 +7,7 @@ import { menuItems, categoryLabels } from "./sidebar/menuItems";
 import MenuCategory from "./sidebar/MenuCategory";
 import SidebarHeader from "./sidebar/SidebarHeader";
 import MobileMenuButton from "./sidebar/MobileMenuButton";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 
 const Sidebar = () => {
   const { isSidebarOpen, setIsSidebarOpen, isMobile, toggleSidebar } = useSidebarResponsive();
@@ -39,14 +40,14 @@ const Sidebar = () => {
       {/* Overlay pour fermer la sidebar sur mobile */}
       {isMobile && isSidebarOpen && (
         <div 
-          className="fixed inset-0 bg-black/20 z-40 lg:hidden"
+          className="fixed inset-0 bg-black/20 z-40 lg:hidden dark:bg-black/50"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
       
       <aside
         className={cn(
-          "bg-white border-r border-neutral-200 transition-all duration-300 ease-in-out flex flex-col fixed h-full z-50 md:relative",
+          "bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 transition-all duration-300 ease-in-out flex flex-col fixed h-full z-50 md:relative",
           isSidebarOpen ? "w-64" : "w-[70px]",
           isMobile && !isSidebarOpen && "translate-x-[-100%]"
         )}
@@ -71,9 +72,10 @@ const Sidebar = () => {
         </nav>
 
         <div className={cn(
-          "p-4 border-t border-neutral-200",
-          !isSidebarOpen && "flex justify-center"
+          "p-4 border-t border-neutral-200 dark:border-neutral-800 flex flex-col gap-2",
+          !isSidebarOpen && "items-center"
         )}>
+          <ThemeToggle isSidebarOpen={isSidebarOpen} />
           <LogoutButton isSidebarOpen={isSidebarOpen} />
         </div>
       </aside>

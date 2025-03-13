@@ -34,7 +34,7 @@ const MenuCategory = ({
   return (
     <div key={category} className="space-y-1">
       {isSidebarOpen && (
-        <h2 className="text-xs font-semibold text-neutral-500 uppercase px-3 py-2">
+        <h2 className="text-xs font-semibold text-neutral-500 uppercase px-3 py-2 dark:text-neutral-400">
           {categoryLabel}
         </h2>
       )}
@@ -51,7 +51,7 @@ const MenuCategory = ({
                     "flex items-center px-3 py-2 rounded-md transition-all group relative",
                     isActiveRoute(item.path) 
                       ? "bg-[#84A98C] text-white" 
-                      : "text-neutral-600 hover:bg-[#F2FCE2] hover:text-neutral-800",
+                      : "text-neutral-600 hover:bg-[#F2FCE2] hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200",
                     !isSidebarOpen && "justify-center"
                   )}
                 >

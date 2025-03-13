@@ -1,68 +1,70 @@
 
-import React from "react";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import React from 'react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface SelectOption {
-  value: string;
   label: string;
+  value: string;
 }
 
 interface SelectFieldProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  options: SelectOption[];
+  form: UseFormReturn<any>;
+  name: string;
+  label?: string;
   placeholder?: string;
-  required?: boolean;
+  description?: string;
+  options: SelectOption[];
   disabled?: boolean;
-  error?: string;
   className?: string;
 }
 
-const SelectField = ({
-  id,
+export const SelectField: React.FC<SelectFieldProps> = ({
+  form,
+  name,
   label,
-  value,
-  onChange,
+  placeholder,
+  description,
   options,
-  placeholder = "Sélectionnez...",
-  required = false,
   disabled = false,
-  error,
   className,
-}: SelectFieldProps) => {
+}) => {
   return (
-    <div className={className}>
-      <Label htmlFor={id} className="mb-1.5 block">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-      <Select
-        value={value}
-        onValueChange={onChange}
-        disabled={disabled}
-      >
-        <SelectTrigger id={id} className={error ? "border-destructive" : ""}>
-          <SelectValue placeholder={placeholder} />
-        </SelectTrigger>
-        <SelectContent>
-          {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
-              {option.label}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
-    </div>
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel>{label}</FormLabel>}
+          <Select 
+            onValueChange={field.onChange} 
+            defaultValue={field.value} 
+            disabled={disabled}
+          >
+            <FormControl>
+              <SelectTrigger>
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
+            </FormControl>
+            <SelectContent>
+              {options.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
-
-export default SelectField;

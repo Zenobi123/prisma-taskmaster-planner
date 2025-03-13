@@ -1,52 +1,74 @@
 
-import React from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
+import React from 'react';
+import { format } from 'date-fns';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
+import { CalendarIcon } from 'lucide-react';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { cn } from '@/lib/utils';
+import { UseFormReturn } from 'react-hook-form';
 
 interface DateFieldProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  required?: boolean;
+  form: UseFormReturn<any>;
+  name: string;
+  label?: string;
+  placeholder?: string;
+  description?: string;
   disabled?: boolean;
-  error?: string;
   className?: string;
-  min?: string;
-  max?: string;
 }
 
-const DateField = ({
-  id,
+export const DateField: React.FC<DateFieldProps> = ({
+  form,
+  name,
   label,
-  value,
-  onChange,
-  required = false,
+  placeholder = 'Sélectionner une date',
+  description,
   disabled = false,
-  error,
   className,
-  min,
-  max,
-}: DateFieldProps) => {
+}) => {
   return (
-    <div className={className}>
-      <Label htmlFor={id} className="mb-1.5 block">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-      <Input
-        id={id}
-        type="date"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        disabled={disabled}
-        min={min}
-        max={max}
-        className={error ? "border-destructive" : ""}
-      />
-      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
-    </div>
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel>{label}</FormLabel>}
+          <Popover>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant={'outline'}
+                  className={cn(
+                    'w-full pl-3 text-left font-normal',
+                    !field.value && 'text-muted-foreground'
+                  )}
+                  disabled={disabled}
+                >
+                  {field.value ? (
+                    format(new Date(field.value), 'PPP')
+                  ) : (
+                    <span>{placeholder}</span>
+                  )}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={field.value ? new Date(field.value) : undefined}
+                onSelect={field.onChange}
+                disabled={disabled}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
-
-export default DateField;

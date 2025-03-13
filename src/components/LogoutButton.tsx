@@ -52,7 +52,7 @@ const LogoutButton = ({ isSidebarOpen = true }: LogoutButtonProps) => {
             variant="ghost" 
             onClick={handleLogout}
             className={cn(
-              "text-neutral-600 hover:text-neutral-900 transition-all group relative",
+              "text-neutral-600 hover:text-neutral-900 transition-all group relative dark:text-neutral-400 dark:hover:text-neutral-200",
               !isSidebarOpen && "justify-center w-10 px-0"
             )}
           >

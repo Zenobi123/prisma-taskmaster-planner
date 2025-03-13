@@ -1,51 +1,49 @@
 
-import React from "react";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import React from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface TextareaFieldProps {
-  id: string;
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
+  form: UseFormReturn<any>;
+  name: string;
+  label?: string;
   placeholder?: string;
-  required?: boolean;
+  description?: string;
   disabled?: boolean;
-  error?: string;
   rows?: number;
   className?: string;
 }
 
-const TextareaField = ({
-  id,
+export const TextareaField: React.FC<TextareaFieldProps> = ({
+  form,
+  name,
   label,
-  value,
-  onChange,
   placeholder,
-  required = false,
+  description,
   disabled = false,
-  error,
-  rows = 3,
+  rows = 4,
   className,
-}: TextareaFieldProps) => {
+}) => {
   return (
-    <div className={className}>
-      <Label htmlFor={id} className="mb-1.5 block">
-        {label} {required && <span className="text-destructive">*</span>}
-      </Label>
-      <Textarea
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        required={required}
-        disabled={disabled}
-        rows={rows}
-        className={error ? "border-destructive" : ""}
-      />
-      {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
-    </div>
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={className}>
+          {label && <FormLabel>{label}</FormLabel>}
+          <FormControl>
+            <Textarea 
+              {...field} 
+              placeholder={placeholder} 
+              disabled={disabled} 
+              rows={rows}
+            />
+          </FormControl>
+          {description && <FormDescription>{description}</FormDescription>}
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
-
-export default TextareaField;

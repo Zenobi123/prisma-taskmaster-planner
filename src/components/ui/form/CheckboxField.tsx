@@ -1,41 +1,48 @@
 
-import React from "react";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import React from 'react';
+import { Checkbox } from '@/components/ui/checkbox';
+import { FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { UseFormReturn } from 'react-hook-form';
 
 interface CheckboxFieldProps {
-  id: string;
+  form: UseFormReturn<any>;
+  name: string;
   label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
+  description?: string;
   disabled?: boolean;
   className?: string;
 }
 
-const CheckboxField = ({
-  id,
+export const CheckboxField: React.FC<CheckboxFieldProps> = ({
+  form,
+  name,
   label,
-  checked,
-  onChange,
+  description,
   disabled = false,
   className,
-}: CheckboxFieldProps) => {
+}) => {
   return (
-    <div className={`flex items-center space-x-2 ${className}`}>
-      <Checkbox
-        id={id}
-        checked={checked}
-        onCheckedChange={onChange}
-        disabled={disabled}
-      />
-      <Label
-        htmlFor={id}
-        className="font-normal cursor-pointer"
-      >
-        {label}
-      </Label>
-    </div>
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className={cn("flex flex-row items-start space-x-3 space-y-0", className)}>
+          <FormControl>
+            <Checkbox
+              checked={field.value}
+              onCheckedChange={field.onChange}
+              disabled={disabled}
+            />
+          </FormControl>
+          <div className="space-y-1 leading-none">
+            <FormLabel className="cursor-pointer">{label}</FormLabel>
+            {description && <FormDescription>{description}</FormDescription>}
+          </div>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
   );
 };
 
-export default CheckboxField;
+import { cn } from '@/lib/utils';
