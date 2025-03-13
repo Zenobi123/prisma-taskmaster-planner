@@ -1,3 +1,4 @@
+
 import React from "react";
 import { FileSpreadsheet } from "lucide-react";
 import { AddDocumentDialog } from "../AddDocumentDialog";
@@ -14,22 +15,11 @@ interface DocumentSectionProps {
 }
 
 export function DocumentSection({ documents, onAddDocument, isLoading = false, clientId }: DocumentSectionProps) {
-  // Filter for unique ACF documents
-  const acfDocuments = React.useMemo(() => {
-    // First, filter for documents of type ACF
-    const acfDocs = documents.filter(doc => 
-      doc.documentType === 'ACF' || 
-      (doc.name && doc.name.includes("Attestation de Conformité Fiscale"))
-    );
-    
-    // If multiple documents exist, keep only the most recent one
-    if (acfDocs.length > 1) {
-      // Sort by creation date descending (newest first)
-      return [acfDocs.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]];
-    }
-    
-    return acfDocs;
-  }, [documents]);
+  // Filtrer pour ne montrer que les documents de type Attestation de Conformité Fiscale
+  const acfDocuments = documents.filter(doc => 
+    doc.documentType === 'ACF' || 
+    (doc.name && doc.name.includes("Attestation de Conformité Fiscale"))
+  );
   
   // Check if ACF document already exists
   const hasAcfDocument = acfDocuments.length > 0;
