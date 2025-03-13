@@ -25,7 +25,7 @@ export function DocumentSection({ documents, onAddDocument, isLoading = false, c
     <div>
       <SectionHeader 
         icon={<FileSpreadsheet size={20} className="text-primary" />}
-        title="Documents fiscaux"
+        title="Attestation de Conformité Fiscale"
       >
         {clientId ? (
           <AddDocumentDialog onAddDocument={(doc) => {
@@ -38,7 +38,7 @@ export function DocumentSection({ documents, onAddDocument, isLoading = false, c
           }} />
         ) : (
           <div className="text-sm text-muted-foreground">
-            Sélectionnez un client pour ajouter des documents
+            Sélectionnez un client pour ajouter une attestation
           </div>
         )}
       </SectionHeader>
@@ -62,7 +62,7 @@ export function DocumentSection({ documents, onAddDocument, isLoading = false, c
         </>
       ) : (
         <div className="text-center p-4 text-muted-foreground">
-          Veuillez sélectionner un client pour voir ses documents fiscaux.
+          Veuillez sélectionner un client pour voir son Attestation de Conformité Fiscale.
         </div>
       )}
     </div>

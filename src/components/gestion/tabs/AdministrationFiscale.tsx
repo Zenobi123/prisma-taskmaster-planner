@@ -16,10 +16,10 @@ export function AdministrationFiscale({ selectedClient }: AdministrationFiscaleP
     <Card>
       <CardHeader>
         <CardTitle>Administration fiscale</CardTitle>
-        <CardDescription>Gestion de l'Attestation de Conformité Fiscale</CardDescription>
+        <CardDescription>Gestion de l'Attestation de Conformité Fiscale uniquement</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Section: Documents fiscaux */}
+        {/* Section: Attestation de Conformité Fiscale */}
         <DocumentSection 
           documents={fiscalDocuments}
           onAddDocument={handleAddDocument}
