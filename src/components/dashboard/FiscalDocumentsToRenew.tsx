@@ -44,12 +44,10 @@ const FiscalDocumentsToRenew = () => {
         // Filter the results to only show documents for clients:
         // 1. With externalized management
         // 2. With 'simplifié' or 'réel' tax regime
-        // 3. Only show documents that have been added (have a document_url)
         const filteredData = data.filter(doc => 
           doc.clients && 
           doc.clients.gestionexternalisee === true && 
-          (doc.clients.regimefiscal === 'simplifie' || doc.clients.regimefiscal === 'reel') &&
-          doc.document_url !== null
+          (doc.clients.regimefiscal === 'simplifie' || doc.clients.regimefiscal === 'reel')
         );
 
         console.log("Filtered documents to renew:", filteredData.length);

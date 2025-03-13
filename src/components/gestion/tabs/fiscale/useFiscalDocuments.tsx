@@ -103,7 +103,7 @@ export function useFiscalDocuments(clientId?: string) {
     }
 
     try {
-      // Check if a document of the same type already exists for this client
+      // Find documents of the same type to delete them
       const { data: existingDocs, error: checkError } = await supabase
         .from("fiscal_documents")
         .select("*")
@@ -112,15 +112,26 @@ export function useFiscalDocuments(clientId?: string) {
       
       if (checkError) throw checkError;
       
+      // If documents of the same type exist, delete them
       if (existingDocs && existingDocs.length > 0) {
-        toast({
-          title: "Document déjà existant",
-          description: `Un document de type ${newDoc.name || getDocumentNameFromType(newDoc.documentType || "ACF")} existe déjà pour ce client.`,
-          variant: "destructive",
-        });
-        return;
+        // Delete all existing documents of the same type
+        const { error: deleteError } = await supabase
+          .from("fiscal_documents")
+          .delete()
+          .eq("client_id", clientId)
+          .eq("document_type", newDoc.documentType || "ACF");
+        
+        if (deleteError) throw deleteError;
+        
+        // Update local state by removing deleted documents
+        setFiscalDocuments(prev => 
+          prev.filter(doc => doc.documentType !== (newDoc.documentType || "ACF"))
+        );
+        
+        console.log(`Suppression de ${existingDocs.length} document(s) existant(s) du même type`);
       }
 
+      // Insert the new document
       const { data, error } = await supabase
         .from("fiscal_documents")
         .insert({
