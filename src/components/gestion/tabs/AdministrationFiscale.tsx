@@ -6,14 +6,11 @@ import { useFiscalDocuments } from "./fiscale/useFiscalDocuments";
 import { Client } from "@/types/client";
 
 interface AdministrationFiscaleProps {
-  client?: Client;
-  selectedClient?: Client;
+  client: Client;
 }
 
-export function AdministrationFiscale({ client, selectedClient }: AdministrationFiscaleProps) {
-  // Use client prop if provided, otherwise use selectedClient (for backward compatibility)
-  const clientToUse = client || selectedClient;
-  const { fiscalDocuments, handleAddDocument } = useFiscalDocuments(clientToUse?.id);
+export function AdministrationFiscale({ client }: AdministrationFiscaleProps) {
+  const { fiscalDocuments, handleAddDocument } = useFiscalDocuments(client?.id);
 
   return (
     <Card>
@@ -26,7 +23,7 @@ export function AdministrationFiscale({ client, selectedClient }: Administration
         <DocumentSection 
           documents={fiscalDocuments}
           onAddDocument={handleAddDocument}
-          clientId={clientToUse?.id}
+          clientId={client?.id}
         />
       </CardContent>
     </Card>
