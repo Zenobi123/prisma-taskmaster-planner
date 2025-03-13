@@ -16,8 +16,6 @@ import type { AddDocumentDialogProps } from "./types";
 export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
   const [open, setOpen] = React.useState(false);
   const {
-    name,
-    setName,
     description,
     setDescription,
     createdAt,
@@ -26,8 +24,6 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
     dateInputValue,
     documentType,
     setDocumentType,
-    documentUrl,
-    setDocumentUrl,
     handleDateInputChange,
     handleCalendarSelect,
     handleSubmit,
@@ -36,7 +32,7 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
     setOpen(false);
     toast({
       title: "Document ajouté",
-      description: `${doc.name} a été ajouté avec succès`,
+      description: `Le document a été ajouté avec succès`,
     });
   });
 
@@ -53,19 +49,6 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
           <DialogTitle>Ajouter un document fiscal</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Nom
-            </Label>
-            <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="col-span-3"
-              placeholder="Ex: Attestation de Conformité Fiscale"
-            />
-          </div>
-          
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="type" className="text-right">
               Type
@@ -120,19 +103,6 @@ export function AddDocumentDialog({ onAddDocument }: AddDocumentDialogProps) {
                 )}
               </Button>
             </div>
-          </div>
-          
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="documentUrl" className="text-right">
-              URL du document
-            </Label>
-            <Input
-              id="documentUrl"
-              value={documentUrl}
-              onChange={(e) => setDocumentUrl(e.target.value)}
-              className="col-span-3"
-              placeholder="https://exemple.com/document.pdf"
-            />
           </div>
 
           <DialogFooter>

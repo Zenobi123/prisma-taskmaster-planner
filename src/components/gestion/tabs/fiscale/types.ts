@@ -1,12 +1,10 @@
 
 export type FiscalDocument = {
   id: string;
-  name: string;
   description: string;
   createdAt: Date;
   validUntil: Date | null;
   documentType?: string;
-  documentUrl?: string | null;
 };
 
 export type AddDocumentDialogProps = {
@@ -16,13 +14,11 @@ export type AddDocumentDialogProps = {
 // Type pour l'affichage dans le tableau de bord
 export type FiscalDocumentDisplay = {
   id: string;
-  name: string;
   description: string;
   created_at: string;
   valid_until: string | null;
   client_id: string;
   document_type?: string;
-  document_url?: string | null;
   clients?: {
     id: string;
     niu: string;

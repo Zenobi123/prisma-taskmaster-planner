@@ -6,13 +6,11 @@ import { toast } from "@/hooks/use-toast";
 import type { FiscalDocument } from "../types";
 
 export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "id">) => void) {
-  const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [createdAt, setCreatedAt] = useState<Date>(new Date());
   const [validUntil, setValidUntil] = useState<Date | undefined>(addDays(new Date(), 90));
   const [dateInputValue, setDateInputValue] = useState(format(new Date(), "dd/MM/yyyy", { locale: fr }));
   const [documentType, setDocumentType] = useState<string>("ACF");
-  const [documentUrl, setDocumentUrl] = useState<string>("");
 
   useEffect(() => {
     setValidUntil(addDays(createdAt, 90));
@@ -34,34 +32,30 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
   };
 
   const resetForm = () => {
-    setName("");
     setDescription("");
     setCreatedAt(new Date());
     setDateInputValue(format(new Date(), "dd/MM/yyyy", { locale: fr }));
     setValidUntil(addDays(new Date(), 90));
     setDocumentType("ACF");
-    setDocumentUrl("");
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name) {
+    if (!description) {
       toast({
-        title: "Nom requis",
-        description: "Veuillez saisir un nom pour le document",
+        title: "Description requise",
+        description: "Veuillez saisir une description pour le document",
         variant: "destructive",
       });
       return;
     }
 
     onAddDocument({
-      name,
       description,
       createdAt,
       validUntil: validUntil || null,
-      documentType,
-      documentUrl: documentUrl || null
+      documentType
     });
     
     resetForm();
@@ -69,8 +63,6 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
   };
 
   return {
-    name,
-    setName,
     description,
     setDescription,
     createdAt,
@@ -79,8 +71,6 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
     dateInputValue,
     documentType,
     setDocumentType,
-    documentUrl,
-    setDocumentUrl,
     handleDateInputChange,
     handleCalendarSelect,
     handleSubmit,
