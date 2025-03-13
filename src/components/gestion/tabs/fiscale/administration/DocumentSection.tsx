@@ -21,13 +21,16 @@ export function DocumentSection({ documents, onAddDocument, isLoading = false, c
     (doc.name && doc.name.includes("Attestation de Conformité Fiscale"))
   );
   
+  // Check if ACF document already exists
+  const hasAcfDocument = acfDocuments.length > 0;
+  
   return (
     <div>
       <SectionHeader 
         icon={<FileSpreadsheet size={20} className="text-primary" />}
         title="Attestation de Conformité Fiscale"
       >
-        {clientId ? (
+        {clientId && !hasAcfDocument ? (
           <AddDocumentDialog onAddDocument={(doc) => {
             // Force document type to be ACF when adding a new document
             onAddDocument({
@@ -36,6 +39,10 @@ export function DocumentSection({ documents, onAddDocument, isLoading = false, c
               name: 'Attestation de Conformité Fiscale'
             });
           }} />
+        ) : clientId && hasAcfDocument ? (
+          <div className="text-sm text-muted-foreground">
+            Une attestation existe déjà
+          </div>
         ) : (
           <div className="text-sm text-muted-foreground">
             Sélectionnez un client pour ajouter une attestation

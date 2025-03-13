@@ -103,6 +103,24 @@ export function useFiscalDocuments(clientId?: string) {
     }
 
     try {
+      // Check if a document of the same type already exists for this client
+      const { data: existingDocs, error: checkError } = await supabase
+        .from("fiscal_documents")
+        .select("*")
+        .eq("client_id", clientId)
+        .eq("document_type", newDoc.documentType || "ACF");
+      
+      if (checkError) throw checkError;
+      
+      if (existingDocs && existingDocs.length > 0) {
+        toast({
+          title: "Document déjà existant",
+          description: `Un document de type ${newDoc.name || getDocumentNameFromType(newDoc.documentType || "ACF")} existe déjà pour ce client.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { data, error } = await supabase
         .from("fiscal_documents")
         .insert({
