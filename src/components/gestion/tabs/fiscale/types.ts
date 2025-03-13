@@ -5,7 +5,6 @@ export type FiscalDocument = {
   createdAt: Date;
   validUntil: Date | null;
   documentType?: string;
-  // Ajout des propriétés manquantes
   name?: string;
   documentUrl?: string | null;
 };
@@ -28,5 +27,7 @@ export type FiscalDocumentDisplay = {
     nom?: string;
     raisonsociale?: string;
     type: 'physique' | 'morale';
+    gestionexternalisee?: boolean;
+    regimefiscal?: string;
   };
 };

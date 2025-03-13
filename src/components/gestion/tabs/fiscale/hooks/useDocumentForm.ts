@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { format, addDays, parse, isValid } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -71,7 +72,7 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
       validUntil: validUntil || null,
       documentType,
       name: getDocumentName(documentType),
-      documentUrl: null
+      documentUrl: null // Toujours null, car on n'attache plus de document
     });
     
     resetForm();

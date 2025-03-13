@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { FiscalDocument, FiscalDocumentDisplay } from "./types";
@@ -32,7 +33,7 @@ export function useFiscalDocuments(clientId?: string) {
           createdAt: new Date(doc.created_at),
           validUntil: doc.valid_until ? new Date(doc.valid_until) : null,
           documentType: doc.document_type || "ACF",
-          documentUrl: doc.document_url || null
+          documentUrl: doc.document_url
         }));
 
         setFiscalDocuments(formattedDocs);
@@ -111,7 +112,7 @@ export function useFiscalDocuments(clientId?: string) {
           valid_until: newDoc.validUntil ? newDoc.validUntil.toISOString() : null,
           client_id: clientId,
           document_type: newDoc.documentType || "ACF",
-          document_url: newDoc.documentUrl || null
+          document_url: null // Document URL toujours null car on n'attache plus de document
         })
         .select();
 
@@ -125,7 +126,7 @@ export function useFiscalDocuments(clientId?: string) {
           createdAt: new Date(data[0].created_at),
           validUntil: data[0].valid_until ? new Date(data[0].valid_until) : null,
           documentType: data[0].document_type || "ACF",
-          documentUrl: data[0].document_url || null
+          documentUrl: data[0].document_url
         };
 
         setFiscalDocuments(prev => [...prev, addedDoc]);
