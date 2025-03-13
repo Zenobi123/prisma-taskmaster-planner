@@ -1,53 +1,41 @@
 
-import React from 'react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { FormField } from "./FormField";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 interface CheckboxFieldProps {
-  id: string;
+  name: string;
   label: string;
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  description?: string;
+  checked?: boolean;
+  onChange?: (checked: boolean) => void;
   disabled?: boolean;
-  error?: string;
   className?: string;
 }
 
 export const CheckboxField: React.FC<CheckboxFieldProps> = ({
-  id,
+  name,
   label,
   checked,
   onChange,
-  description,
   disabled = false,
-  error,
-  className,
+  className = "",
 }) => {
   return (
-    <div className={cn("flex items-start space-x-2", className)}>
+    <div className={`flex items-center space-x-2 ${className}`}>
       <Checkbox
-        id={id}
+        id={name}
+        name={name}
         checked={checked}
         onCheckedChange={onChange}
         disabled={disabled}
-        className={cn(error && "border-destructive")}
       />
-      <div className="space-y-1 leading-none">
-        <Label 
-          htmlFor={id} 
-          className={cn("cursor-pointer", error && "text-destructive")}
-        >
-          {label}
-        </Label>
-        {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        )}
-        {error && (
-          <p className="text-sm font-medium text-destructive">{error}</p>
-        )}
-      </div>
+      <Label
+        htmlFor={name}
+        className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        {label}
+      </Label>
     </div>
   );
 };

@@ -1,37 +1,32 @@
 
-import React from 'react';
-import { FormControl, FormDescription, FormField as ShadcnFormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { UseFormReturn } from 'react-hook-form';
+import React from "react";
+import { Label } from "@/components/ui/label";
 
 interface FormFieldProps {
-  form: UseFormReturn<any>;
   name: string;
-  label?: string;
-  description?: string;
-  children: React.ReactElement;
+  label: string;
+  children: React.ReactNode;
+  required?: boolean;
   className?: string;
 }
 
 export const FormField: React.FC<FormFieldProps> = ({
-  form,
   name,
   label,
-  description,
   children,
-  className,
+  required = false,
+  className = "",
 }) => {
   return (
-    <ShadcnFormField
-      control={form.control}
-      name={name}
-      render={({ field }) => (
-        <FormItem className={className}>
-          {label && <FormLabel>{label}</FormLabel>}
-          <FormControl>{React.cloneElement(children, { ...field })}</FormControl>
-          {description && <FormDescription>{description}</FormDescription>}
-          <FormMessage />
-        </FormItem>
-      )}
-    />
+    <div className={`space-y-2 ${className}`}>
+      <Label
+        htmlFor={name}
+        className="flex items-center"
+      >
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </Label>
+      {children}
+    </div>
   );
 };

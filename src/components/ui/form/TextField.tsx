@@ -1,57 +1,44 @@
 
-import React from 'react';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { FormField } from "./FormField";
+import { Input } from "@/components/ui/input";
 
 interface TextFieldProps {
-  id: string;
-  label?: string;
-  value: string;
-  onChange: (value: string) => void;
-  type?: string;
+  name: string;
+  label: string;
   placeholder?: string;
+  value?: string | number;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   required?: boolean;
   disabled?: boolean;
-  error?: string;
   className?: string;
 }
 
 export const TextField: React.FC<TextFieldProps> = ({
-  id,
+  name,
   label,
+  placeholder,
   value,
   onChange,
-  type = 'text',
-  placeholder,
   required = false,
   disabled = false,
-  error,
-  className,
+  className = "",
 }) => {
   return (
-    <div className={cn("space-y-2", className)}>
-      {label && (
-        <Label 
-          htmlFor={id} 
-          className={cn(error && "text-destructive")}
-        >
-          {label}
-          {required && <span className="text-destructive ml-1">*</span>}
-        </Label>
-      )}
+    <FormField
+      name={name}
+      label={label}
+      required={required}
+      className={className}
+    >
       <Input
-        id={id}
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        id={name}
+        name={name}
         placeholder={placeholder}
+        value={value}
+        onChange={onChange}
         disabled={disabled}
-        className={cn(error && "border-destructive")}
       />
-      {error && (
-        <p className="text-sm font-medium text-destructive">{error}</p>
-      )}
-    </div>
+    </FormField>
   );
 };

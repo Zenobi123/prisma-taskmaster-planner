@@ -1,91 +1,75 @@
-
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { MenuItem } from "./types";
-import { 
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger 
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useSidebarResponsive } from "./useSidebarResponsive";
 
-interface MenuCategoryProps {
-  category: string;
-  categoryLabel: string;
-  items: MenuItem[];
-  isSidebarOpen: boolean;
-  handleMobileClose: () => void;
+interface MenuItem {
+  name: string;
+  path: string;
+  icon?: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 }
 
-const MenuCategory = ({ 
-  category, 
-  categoryLabel, 
-  items, 
-  isSidebarOpen,
-  handleMobileClose 
-}: MenuCategoryProps) => {
-  const location = useLocation();
+interface MenuCategoryProps {
+  title: string;
+  items: MenuItem[];
+}
 
-  const isActiveRoute = (path: string) => {
-    return location.pathname === path;
+export function MenuCategory({ title, items }: MenuCategoryProps) {
+  const { pathname } = useLocation();
+  const { isSidebarOpen } = useSidebarResponsive();
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
   };
 
-  return (
-    <div key={category} className="space-y-1">
-      {isSidebarOpen && (
-        <h2 className="text-xs font-semibold text-neutral-500 uppercase px-3 py-2 dark:text-neutral-400">
-          {categoryLabel}
-        </h2>
-      )}
-      
-      <div className="space-y-1">
-        {items.map((item) => (
-          <TooltipProvider key={item.path} delayDuration={300}>
+  const renderItem = (item: MenuItem, index: number) => {
+    return (
+      <Link
+        key={index}
+        to={item.path}
+        className={cn(
+          "flex items-center gap-x-3 p-2 rounded-md text-sm group relative",
+          pathname === item.path
+            ? "bg-neutral-100 text-neutral-900 font-medium dark:bg-neutral-800 dark:text-neutral-100"
+            : "text-neutral-600 hover:text-neutral-900 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:text-neutral-100 dark:hover:bg-neutral-800"
+        )}
+      >
+        {item.icon && <item.icon className="h-4 w-4" />}
+        <span
+          className={cn(
+            "transition-all duration-300",
+            !isSidebarOpen && "opacity-0 absolute"
+          )}
+        >
+          {item.name}
+        </span>
+        {!isSidebarOpen && (
+          <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Link
-                  to={item.path}
-                  onClick={handleMobileClose}
-                  className={cn(
-                    "flex items-center px-3 py-2 rounded-md transition-all group relative",
-                    isActiveRoute(item.path) 
-                      ? "bg-[#84A98C] text-white" 
-                      : "text-neutral-600 hover:bg-[#F2FCE2] hover:text-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-800 dark:hover:text-neutral-200",
-                    !isSidebarOpen && "justify-center"
-                  )}
-                >
-                  <item.icon className={cn(
-                    "w-5 h-5 shrink-0",
-                    isActiveRoute(item.path) && "text-white"
-                  )} />
-                  <span
-                    className={cn(
-                      "ml-3 transition-opacity duration-300 whitespace-nowrap",
-                      !isSidebarOpen && "opacity-0 invisible absolute"
-                    )}
-                  >
-                    {item.label}
-                  </span>
-                  {!isSidebarOpen && (
-                    <div className="absolute left-14 bg-neutral-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-                      {item.label}
-                    </div>
-                  )}
-                  {isActiveRoute(item.path) && isSidebarOpen && (
-                    <ChevronRight className="w-4 h-4 ml-auto text-white" />
-                  )}
-                </Link>
+                <span className="absolute inset-0 z-10" />
               </TooltipTrigger>
               <TooltipContent side="right">
-                {!isSidebarOpen && item.label}
+                {item.name}
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
-        ))}
-      </div>
+        )}
+      </Link>
+    );
+  };
+
+  return (
+    <div>
+      <div className="mb-2 px-3 text-sm font-medium">{title}</div>
+      <div className="space-y-1">{items.map(renderItem)}</div>
     </div>
   );
-};
-
-export default MenuCategory;
+}

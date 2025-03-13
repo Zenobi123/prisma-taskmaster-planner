@@ -1,57 +1,47 @@
 
-import React from 'react';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { FormField } from "./FormField";
+import { Textarea } from "@/components/ui/textarea";
 
 interface TextareaFieldProps {
-  id: string;
-  label?: string;
-  value: string;
-  onChange: (value: string) => void;
+  name: string;
+  label: string;
   placeholder?: string;
-  rows?: number;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   required?: boolean;
   disabled?: boolean;
-  error?: string;
+  rows?: number;
   className?: string;
 }
 
 export const TextareaField: React.FC<TextareaFieldProps> = ({
-  id,
+  name,
   label,
+  placeholder,
   value,
   onChange,
-  placeholder,
-  rows = 4,
   required = false,
   disabled = false,
-  error,
-  className,
+  rows = 3,
+  className = "",
 }) => {
   return (
-    <div className={cn("space-y-2", className)}>
-      {label && (
-        <Label 
-          htmlFor={id} 
-          className={cn(error && "text-destructive")}
-        >
-          {label}
-          {required && <span className="text-destructive ml-1">*</span>}
-        </Label>
-      )}
+    <FormField
+      name={name}
+      label={label}
+      required={required}
+      className={className}
+    >
       <Textarea
-        id={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        id={name}
+        name={name}
         placeholder={placeholder}
-        rows={rows}
+        value={value}
+        onChange={onChange}
         disabled={disabled}
-        className={cn(error && "border-destructive")}
+        rows={rows}
       />
-      {error && (
-        <p className="text-sm font-medium text-destructive">{error}</p>
-      )}
-    </div>
+    </FormField>
   );
 };

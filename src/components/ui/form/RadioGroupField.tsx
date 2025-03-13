@@ -1,8 +1,11 @@
 
-import React from 'react';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import React from "react";
+import { FormField } from "./FormField";
+import {
+  RadioGroup,
+  RadioGroupItem
+} from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
 
 interface RadioOption {
   value: string;
@@ -10,67 +13,51 @@ interface RadioOption {
 }
 
 interface RadioGroupFieldProps {
-  id: string;
-  label?: string;
-  value: string;
-  onChange: (value: string) => void;
+  name: string;
+  label: string;
   options: RadioOption[];
-  layout?: 'vertical' | 'horizontal' | 'grid';
-  columns?: number;
+  value?: string;
+  onChange?: (value: string) => void;
   required?: boolean;
   disabled?: boolean;
-  error?: string;
   className?: string;
 }
 
 export const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
-  id,
+  name,
   label,
+  options,
   value,
   onChange,
-  options,
-  layout = 'vertical',
-  columns = 2,
   required = false,
   disabled = false,
-  error,
-  className,
+  className = "",
 }) => {
   return (
-    <div className={cn("space-y-2", className)}>
-      {label && (
-        <Label 
-          className={cn(error && "text-destructive")}
-        >
-          {label}
-          {required && <span className="text-destructive ml-1">*</span>}
-        </Label>
-      )}
+    <FormField
+      name={name}
+      label={label}
+      required={required}
+      className={className}
+    >
       <RadioGroup
         value={value}
         onValueChange={onChange}
-        className={cn(
-          layout === 'vertical' && "flex flex-col space-y-2",
-          layout === 'horizontal' && "flex flex-row space-x-4 flex-wrap",
-          layout === 'grid' && `grid grid-cols-1 md:grid-cols-${columns} gap-2`
-        )}
-        disabled={disabled}
+        className="flex flex-col space-y-1"
       >
         {options.map((option) => (
           <div key={option.value} className="flex items-center space-x-2">
-            <RadioGroupItem value={option.value} id={`${id}-${option.value}`} />
-            <Label 
-              htmlFor={`${id}-${option.value}`} 
-              className="cursor-pointer font-normal"
-            >
+            <RadioGroupItem
+              value={option.value}
+              id={`${name}-${option.value}`}
+              disabled={disabled}
+            />
+            <Label htmlFor={`${name}-${option.value}`}>
               {option.label}
             </Label>
           </div>
         ))}
       </RadioGroup>
-      {error && (
-        <p className="text-sm font-medium text-destructive">{error}</p>
-      )}
-    </div>
+    </FormField>
   );
 };
