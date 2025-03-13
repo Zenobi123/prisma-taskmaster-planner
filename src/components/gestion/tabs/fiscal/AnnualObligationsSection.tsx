@@ -1,6 +1,11 @@
 
 import React from "react";
-import { ObligationStatuses, ObligationType } from "../ObligationsFiscales";
+import { 
+  ObligationStatuses, 
+  ObligationType, 
+  TaxObligationStatus, 
+  DeclarationObligationStatus 
+} from "../ObligationsFiscales";
 import { TaxObligationItem } from "./TaxObligationItem";
 import { DeclarationObligationItem } from "./DeclarationObligationItem";
 

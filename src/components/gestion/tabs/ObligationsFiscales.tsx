@@ -1,9 +1,5 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { parse, isValid, format, addMonths, differenceInDays } from "date-fns";
 import { toast } from "@/components/ui/use-toast";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
@@ -11,14 +7,24 @@ import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 
 export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp";
 
-export interface ObligationStatus {
+export interface TaxObligationStatus {
   assujetti: boolean;
-  paye?: boolean;
-  depose?: boolean;
+  paye: boolean;
 }
 
+export interface DeclarationObligationStatus {
+  assujetti: boolean;
+  depose: boolean;
+}
+
+export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
+
 export type ObligationStatuses = {
-  [key in ObligationType]: ObligationStatus;
+  patente: TaxObligationStatus;
+  bail: TaxObligationStatus;
+  taxeFonciere: TaxObligationStatus;
+  dsf: DeclarationObligationStatus;
+  darp: DeclarationObligationStatus;
 };
 
 export function ObligationsFiscales() {
@@ -33,27 +39,21 @@ export function ObligationsFiscales() {
     darp: { assujetti: false, depose: false }
   });
 
-  // Calculate validity end date from creation date
   useEffect(() => {
     if (creationDate) {
       try {
         const parsedDate = parse(creationDate, 'dd/MM/yy', new Date());
         if (isValid(parsedDate)) {
-          // Save to localStorage for dashboard alerts
           localStorage.setItem('fiscalAttestationCreationDate', creationDate);
           
-          // Add 3 months
           const endDate = addMonths(parsedDate, 3);
           
-          // Format end date as DD/MM/YY
           setValidityEndDate(format(endDate, 'dd/MM/yy'));
           
-          // Check for approaching expiration
           const today = new Date();
           const daysUntilExpiration = differenceInDays(endDate, today);
           
           if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
-            // Show alert for approaching expiration
             toast({
               title: "Attention",
               description: `L'Attestation de Conformité Fiscale expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`,
@@ -67,7 +67,6 @@ export function ObligationsFiscales() {
     }
   }, [creationDate]);
 
-  // Handle status change for obligations
   const handleStatusChange = (
     obligationType: ObligationType, 
     statusType: "assujetti" | "paye" | "depose", 
@@ -82,7 +81,6 @@ export function ObligationsFiscales() {
         }
       };
       
-      // Save to localStorage for dashboard alerts
       localStorage.setItem(
         `fiscal${obligationType.charAt(0).toUpperCase() + obligationType.slice(1)}${statusType.charAt(0).toUpperCase() + statusType.slice(1)}`, 
         value.toString()
@@ -92,11 +90,9 @@ export function ObligationsFiscales() {
     });
   };
 
-  // Load initial state from localStorage
   useEffect(() => {
     const savedObligations: Partial<ObligationStatuses> = {};
     
-    // Try to load each obligation state from localStorage
     Object.keys(obligationStatuses).forEach((key) => {
       const obligationType = key as ObligationType;
       const obligation = obligationStatuses[obligationType];
@@ -120,7 +116,6 @@ export function ObligationsFiscales() {
       }
     });
     
-    // Update state if we found saved data
     if (Object.keys(savedObligations).length > 0) {
       setObligationStatuses(prev => ({
         ...prev,
@@ -128,7 +123,6 @@ export function ObligationsFiscales() {
       }));
     }
     
-    // Load saved creation date
     const savedCreationDate = localStorage.getItem('fiscalAttestationCreationDate');
     if (savedCreationDate) {
       setCreationDate(savedCreationDate);

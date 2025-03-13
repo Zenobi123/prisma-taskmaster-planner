@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ObligationType } from "../ObligationsFiscales";
+import { ObligationType, DeclarationObligationStatus } from "../ObligationsFiscales";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -9,10 +9,7 @@ interface DeclarationObligationItemProps {
   title: string;
   deadline: string;
   obligationType: Extract<ObligationType, "dsf" | "darp">;
-  status: {
-    assujetti: boolean;
-    depose: boolean;
-  };
+  status: DeclarationObligationStatus;
   onChange: (
     obligationType: ObligationType,
     statusType: "assujetti" | "paye" | "depose",
