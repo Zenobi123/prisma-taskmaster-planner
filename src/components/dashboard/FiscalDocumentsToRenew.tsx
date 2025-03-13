@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Clock } from "lucide-react";
@@ -43,11 +44,12 @@ const FiscalDocumentsToRenew = () => {
         // Filter the results to only show documents for clients:
         // 1. With externalized management
         // 2. With 'simplifié' or 'réel' tax regime
-        // We're no longer filtering on document_url
+        // 3. Only show documents that have been added (have a document_url)
         const filteredData = data.filter(doc => 
           doc.clients && 
           doc.clients.gestionexternalisee === true && 
-          (doc.clients.regimefiscal === 'simplifie' || doc.clients.regimefiscal === 'reel')
+          (doc.clients.regimefiscal === 'simplifie' || doc.clients.regimefiscal === 'reel') &&
+          doc.document_url !== null
         );
 
         console.log("Filtered documents to renew:", filteredData.length);
