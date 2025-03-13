@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { FiscalDocument, FiscalDocumentDisplay } from "./types";
@@ -9,7 +8,6 @@ export function useFiscalDocuments(clientId?: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Charger les documents fiscaux depuis Supabase
   useEffect(() => {
     if (!clientId) {
       setFiscalDocuments([]);
@@ -54,7 +52,6 @@ export function useFiscalDocuments(clientId?: string) {
     fetchDocuments();
   }, [clientId]);
 
-  // Fonction pour générer le nom du document basé sur son type
   const getDocumentNameFromType = (type: string): string => {
     switch (type) {
       case "ACF":
@@ -70,16 +67,14 @@ export function useFiscalDocuments(clientId?: string) {
     }
   };
 
-  // Filtrer les documents expirés il y a plus de 30 jours
   const filteredDocuments = fiscalDocuments.filter(doc => {
-    if (!doc.validUntil) return true; // Garder les documents sans expiration
-    
+    if (!doc.validUntil) return true;
+
     const now = new Date();
     const expiredDays = (now.getTime() - doc.validUntil.getTime()) / (1000 * 60 * 60 * 24);
-    return expiredDays <= 30; // Garder si expiré depuis moins de 30 jours ou non expiré
+    return expiredDays <= 30;
   });
 
-  // Vérifier les documents qui expirent bientôt
   useEffect(() => {
     filteredDocuments.forEach(doc => {
       if (doc.validUntil) {
@@ -96,7 +91,6 @@ export function useFiscalDocuments(clientId?: string) {
     });
   }, [filteredDocuments]);
 
-  // Ajouter un nouveau document
   const handleAddDocument = async (newDoc: Omit<FiscalDocument, "id">) => {
     if (!clientId) {
       toast({

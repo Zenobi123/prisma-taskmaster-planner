@@ -10,6 +10,13 @@ const FiscalDocumentsToRenew = () => {
     queryKey: ["fiscal_documents_to_renew"],
     queryFn: async () => {
       try {
+        // Get current date
+        const now = new Date();
+        
+        // Calculate date 7 days from now
+        const sevenDaysFromNow = new Date();
+        sevenDaysFromNow.setDate(now.getDate() + 7);
+        
         // Specify exact foreign key relationship to avoid multiple relationship error
         const { data, error } = await supabase
           .from("fiscal_documents")
@@ -23,8 +30,9 @@ const FiscalDocumentsToRenew = () => {
               type
             )
           `)
-          .eq('name', 'Attestation de Conformité Fiscale (ACF)')
-          .not('valid_until', 'is', null);
+          .eq('document_type', 'ACF')
+          .not('valid_until', 'is', null)
+          .lt('valid_until', sevenDaysFromNow.toISOString());
 
         if (error) {
           console.error("Error fetching fiscal documents:", error);
@@ -35,11 +43,12 @@ const FiscalDocumentsToRenew = () => {
         if (!data || data.length === 0) {
           return [{
             id: "1015301", // Document ID from the image
-            name: "Attestation de Conformité Fiscale (ACF)",
+            name: "Attestation de Conformité Fiscale",
             description: "Certificat de situation fiscale",
             created_at: "2024-12-17T00:00:00", // Image shows "Créé le 17/12/2024"
             valid_until: "2025-03-17T00:00:00", // Image shows expiry on 17/03/2025 
             client_id: "client-dang",
+            document_type: "ACF",
             clients: {
               id: "client-dang",
               niu: "P038200291053J", // NIU from the image
@@ -124,14 +133,19 @@ const FiscalDocumentsToRenew = () => {
             return (
               <div key={doc.id} className="flex items-start p-3 border rounded-md bg-muted/30 hover:bg-muted transition-colors">
                 <div className="flex-1">
-                  <h3 className="font-medium">{doc.name}</h3>
+                  <h3 className="font-medium">Attestation de Conformité Fiscale</h3>
                   <div className="text-sm text-muted-foreground">
                     {clientDisplayName} 
                     <span className="ml-2">NIU: {clientInfo?.niu}</span>
                   </div>
                   <div className="flex items-center text-sm mt-1 text-amber-600">
                     <Clock className="w-4 h-4 mr-1" />
-                    <span>Expire dans {daysRemaining} jour{daysRemaining > 1 ? 's' : ''} ({formattedExpDate})</span>
+                    <span>
+                      {daysRemaining > 0 
+                        ? `Expire dans ${daysRemaining} jour${daysRemaining > 1 ? 's' : ''} (${formattedExpDate})`
+                        : `Expiré depuis ${Math.abs(daysRemaining)} jour${Math.abs(daysRemaining) > 1 ? 's' : ''} (${formattedExpDate})`
+                      }
+                    </span>
                   </div>
                 </div>
                 <Link to="/gestion" className="text-primary hover:underline text-sm">

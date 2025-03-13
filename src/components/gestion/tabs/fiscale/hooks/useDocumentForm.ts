@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { format, addDays, parse, isValid } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -39,7 +38,6 @@ export function useDocumentForm(onAddDocument: (document: Omit<FiscalDocument, "
     setDocumentType("ACF");
   };
 
-  // Fonction pour générer le nom du document basé sur son type
   const getDocumentName = (type: string): string => {
     switch (type) {
       case "ACF":
