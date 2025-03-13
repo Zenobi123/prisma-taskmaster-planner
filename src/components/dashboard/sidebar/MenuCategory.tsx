@@ -77,7 +77,7 @@ const MenuCategory = ({
                   )}
                 </Link>
               </TooltipTrigger>
-              <TooltipContent side="right" className="hidden md:block">
+              <TooltipContent side="right">
                 {!isSidebarOpen && item.label}
               </TooltipContent>
             </Tooltip>
