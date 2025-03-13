@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { toast } from "@/hooks/use-toast";
 import { FiscalDocument, FiscalDocumentDisplay } from "./types";
@@ -35,17 +36,7 @@ export function useFiscalDocuments(clientId?: string) {
           documentUrl: doc.document_url
         }));
 
-        const docTypeMap = new Map<string, FiscalDocument>();
-        
-        formattedDocs.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-        
-        for (const doc of formattedDocs) {
-          if (!docTypeMap.has(doc.documentType || "")) {
-            docTypeMap.set(doc.documentType || "", doc);
-          }
-        }
-        
-        setFiscalDocuments(Array.from(docTypeMap.values()));
+        setFiscalDocuments(formattedDocs);
       } catch (err) {
         console.error("Erreur lors du chargement des documents:", err);
         setError("Erreur lors du chargement des documents fiscaux");
@@ -112,6 +103,7 @@ export function useFiscalDocuments(clientId?: string) {
     }
 
     try {
+      // Find documents of the same type to delete them
       const { data: existingDocs, error: checkError } = await supabase
         .from("fiscal_documents")
         .select("*")
@@ -120,7 +112,9 @@ export function useFiscalDocuments(clientId?: string) {
       
       if (checkError) throw checkError;
       
+      // If documents of the same type exist, delete them
       if (existingDocs && existingDocs.length > 0) {
+        // Delete all existing documents of the same type
         const { error: deleteError } = await supabase
           .from("fiscal_documents")
           .delete()
@@ -129,6 +123,7 @@ export function useFiscalDocuments(clientId?: string) {
         
         if (deleteError) throw deleteError;
         
+        // Update local state by removing deleted documents
         setFiscalDocuments(prev => 
           prev.filter(doc => doc.documentType !== (newDoc.documentType || "ACF"))
         );
@@ -136,6 +131,7 @@ export function useFiscalDocuments(clientId?: string) {
         console.log(`Suppression de ${existingDocs.length} document(s) existant(s) du même type`);
       }
 
+      // Insert the new document
       const { data, error } = await supabase
         .from("fiscal_documents")
         .insert({
@@ -145,7 +141,7 @@ export function useFiscalDocuments(clientId?: string) {
           valid_until: newDoc.validUntil ? newDoc.validUntil.toISOString() : null,
           client_id: clientId,
           document_type: newDoc.documentType || "ACF",
-          document_url: null
+          document_url: null // Document URL toujours null car on n'attache plus de document
         })
         .select();
 
