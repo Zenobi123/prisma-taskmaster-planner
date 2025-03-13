@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Calendar, FileText, CheckCircle } from "lucide-react";
+import { Calendar, FileText, CheckCircle, ClipboardCheck, Clock } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -134,6 +134,10 @@ export function ObligationsFiscales() {
                       <p className="text-sm text-muted-foreground">
                         Impôt annuel payé par les entreprises pour exercer une activité commerciale ou industrielle
                       </p>
+                      <div className="flex items-center gap-2 text-amber-600 mt-1">
+                        <Clock size={14} />
+                        <span className="text-xs">Date limite de paiement: 28 février</span>
+                      </div>
                     </div>
                   </div>
                   
@@ -144,6 +148,10 @@ export function ObligationsFiscales() {
                       <p className="text-sm text-muted-foreground">
                         Contrat de location des locaux professionnels à renouveler selon les termes prévus
                       </p>
+                      <div className="flex items-center gap-2 text-amber-600 mt-1">
+                        <Clock size={14} />
+                        <span className="text-xs">Date limite de paiement: 28 février</span>
+                      </div>
                     </div>
                   </div>
                   
@@ -154,6 +162,38 @@ export function ObligationsFiscales() {
                       <p className="text-sm text-muted-foreground">
                         Impôt local annuel sur les propriétés bâties et non bâties
                       </p>
+                      <div className="flex items-center gap-2 text-amber-600 mt-1">
+                        <Clock size={14} />
+                        <span className="text-xs">Date limite de paiement: 28 février</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <RadioGroupItem value="dsf" id="dsf" className="mt-1" />
+                    <div className="grid gap-1.5">
+                      <Label htmlFor="dsf" className="font-medium">Déclaration Statistique et Fiscale (DSF)</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Document fiscal regroupant les données comptables et fiscales annuelles de l'entreprise
+                      </p>
+                      <div className="flex items-center gap-2 text-amber-600 mt-1">
+                        <Clock size={14} />
+                        <span className="text-xs">Date limite de dépôt: 15 avril</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-2">
+                    <RadioGroupItem value="darp" id="darp" className="mt-1" />
+                    <div className="grid gap-1.5">
+                      <Label htmlFor="darp" className="font-medium">Déclaration Annuelle des Revenus des Particuliers (DARP)</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Déclaration annuelle des revenus pour les personnes physiques
+                      </p>
+                      <div className="flex items-center gap-2 text-amber-600 mt-1">
+                        <Clock size={14} />
+                        <span className="text-xs">Date limite de dépôt: 30 juin</span>
+                      </div>
                     </div>
                   </div>
                 </RadioGroup>
