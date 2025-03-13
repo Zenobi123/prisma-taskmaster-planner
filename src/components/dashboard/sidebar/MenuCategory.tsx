@@ -3,12 +3,12 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { ChevronUp, ChevronDown } from "lucide-react";
-import { MenuItemType } from "./types";
+import { MenuItem } from "./types";
 
 interface MenuCategoryProps {
   category: string;
   categoryLabel: string;
-  items: MenuItemType[];
+  items: MenuItem[];
   isSidebarOpen: boolean;
   handleMobileClose: () => void;
   className?: string;
@@ -51,8 +51,8 @@ export function MenuCategory({
       )}>
         {items.map((item) => (
           <NavLink
-            key={item.to}
-            to={item.to}
+            key={item.path}
+            to={item.path}
             onClick={handleMobileClose}
             className={({ isActive }) => cn(
               "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",

@@ -32,14 +32,14 @@ export function GestionTabsContent({
       {/* Onglets principaux */}
       <TabsContent value="entreprise" className="space-y-4">
         <GestionEntreprise 
-          selectedClient={selectedClient}
+          client={selectedClient}
           onSubTabSelect={onSubTabSelect}
         />
       </TabsContent>
       
       <TabsContent value="fiscal" className="space-y-4">
         <GestionFiscale 
-          selectedClient={selectedClient}
+          client={selectedClient}
           onSubTabSelect={onSubTabSelect}
         />
       </TabsContent>
@@ -54,19 +54,19 @@ export function GestionTabsContent({
       
       {/* Sous-onglets fiscaux */}
       <TabsContent value="obligations-fiscales" className="space-y-4">
-        <ObligationsFiscales selectedClient={selectedClient} />
+        <ObligationsFiscales client={selectedClient} />
       </TabsContent>
       
       <TabsContent value="optimisation-fiscale" className="space-y-4">
-        <OptimisationFiscale selectedClient={selectedClient} />
+        <OptimisationFiscale client={selectedClient} />
       </TabsContent>
       
       <TabsContent value="administration-fiscale" className="space-y-4">
-        <AdministrationFiscale selectedClient={selectedClient} />
+        <AdministrationFiscale client={selectedClient} />
       </TabsContent>
       
       <TabsContent value="cloture-exercice" className="space-y-4">
-        <ClotureExercice selectedClient={selectedClient} />
+        <ClotureExercice client={selectedClient} />
       </TabsContent>
       
       {/* Sous-onglets entreprise */}
