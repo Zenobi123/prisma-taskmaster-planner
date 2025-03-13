@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getExpiringFiscalDocuments } from "@/services/fiscalDocumentService";
+import { FiscalDocumentDisplay } from "@/components/gestion/tabs/fiscale/types";
 
 const FiscalDocumentsToRenew = () => {
   const { data: expiringDocuments, isLoading, error } = useQuery({
@@ -63,7 +64,7 @@ const FiscalDocumentsToRenew = () => {
       
       {expiringDocuments && expiringDocuments.length > 0 ? (
         <div className="space-y-4">
-          {expiringDocuments.map((doc) => {
+          {expiringDocuments.map((doc: FiscalDocumentDisplay) => {
             const clientInfo = doc.clients;
             // Display correct client name based on client type
             const clientDisplayName = clientInfo?.type === 'physique' 
@@ -71,8 +72,8 @@ const FiscalDocumentsToRenew = () => {
               : clientInfo?.raisonsociale || 'Client';
             
             // Calculate days remaining and format expiration date
-            const daysRemaining = calculateDaysRemaining(doc.valid_until);
-            const formattedExpDate = formatDate(doc.valid_until);
+            const daysRemaining = doc.valid_until ? calculateDaysRemaining(doc.valid_until) : 0;
+            const formattedExpDate = doc.valid_until ? formatDate(doc.valid_until) : 'N/A';
             
             return (
               <div key={doc.id} className="flex items-start p-3 border rounded-md bg-muted/30 hover:bg-muted transition-colors">

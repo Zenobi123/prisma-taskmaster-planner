@@ -1,11 +1,11 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { FiscalDocument } from "@/components/gestion/tabs/fiscale/types";
+import { FiscalDocument, FiscalDocumentDisplay } from "@/components/gestion/tabs/fiscale/types";
 import { toast } from "@/hooks/use-toast";
 
 export interface FiscalDocumentInput {
   name: string;
-  description?: string;
+  description?: string | null;
   client_id: string;
   valid_until?: Date | null;
 }
@@ -15,7 +15,7 @@ export interface FiscalDocumentInput {
  * @param clientId L'identifiant du client
  * @returns Une liste de documents fiscaux
  */
-export const getFiscalDocuments = async (clientId: string) => {
+export const getFiscalDocuments = async (clientId: string): Promise<FiscalDocument[]> => {
   try {
     console.log("Récupération des documents fiscaux pour le client:", clientId);
     
@@ -39,7 +39,7 @@ export const getFiscalDocuments = async (clientId: string) => {
       createdAt: new Date(doc.created_at),
       validUntil: doc.valid_until ? new Date(doc.valid_until) : null,
       client_id: doc.client_id
-    })) as FiscalDocument[];
+    }));
   } catch (error) {
     console.error("Exception lors de la récupération des documents fiscaux:", error);
     toast({
@@ -56,7 +56,7 @@ export const getFiscalDocuments = async (clientId: string) => {
  * @param daysThreshold Nombre de jours avant expiration (défaut: 30)
  * @returns Une liste de documents fiscaux avec informations client
  */
-export const getExpiringFiscalDocuments = async (daysThreshold = 30) => {
+export const getExpiringFiscalDocuments = async (daysThreshold = 30): Promise<FiscalDocumentDisplay[]> => {
   try {
     console.log(`Récupération des documents fiscaux expirant dans ${daysThreshold} jours`);
     
@@ -92,7 +92,7 @@ export const getExpiringFiscalDocuments = async (daysThreshold = 30) => {
     }
 
     console.log("Documents fiscaux expirants récupérés:", data);
-    return data;
+    return data as FiscalDocumentDisplay[];
   } catch (error) {
     console.error("Exception lors de la récupération des documents fiscaux expirants:", error);
     toast({
@@ -109,7 +109,7 @@ export const getExpiringFiscalDocuments = async (daysThreshold = 30) => {
  * @param document Les données du document à ajouter
  * @returns Le document ajouté
  */
-export const addFiscalDocument = async (document: FiscalDocumentInput) => {
+export const addFiscalDocument = async (document: FiscalDocumentInput): Promise<FiscalDocument> => {
   try {
     console.log("Ajout d'un document fiscal:", document);
     
@@ -145,7 +145,7 @@ export const addFiscalDocument = async (document: FiscalDocumentInput) => {
       createdAt: new Date(data.created_at),
       validUntil: data.valid_until ? new Date(data.valid_until) : null,
       client_id: data.client_id
-    } as FiscalDocument;
+    };
   } catch (error) {
     console.error("Exception lors de l'ajout du document fiscal:", error);
     toast({
@@ -163,7 +163,7 @@ export const addFiscalDocument = async (document: FiscalDocumentInput) => {
  * @param document Les données du document à mettre à jour
  * @returns Le document mis à jour
  */
-export const updateFiscalDocument = async (id: string, document: Partial<FiscalDocumentInput>) => {
+export const updateFiscalDocument = async (id: string, document: Partial<FiscalDocumentInput>): Promise<FiscalDocument> => {
   try {
     console.log("Mise à jour du document fiscal:", { id, document });
     
@@ -196,7 +196,7 @@ export const updateFiscalDocument = async (id: string, document: Partial<FiscalD
       createdAt: new Date(data.created_at),
       validUntil: data.valid_until ? new Date(data.valid_until) : null,
       client_id: data.client_id
-    } as FiscalDocument;
+    };
   } catch (error) {
     console.error("Exception lors de la mise à jour du document fiscal:", error);
     toast({
@@ -213,7 +213,7 @@ export const updateFiscalDocument = async (id: string, document: Partial<FiscalD
  * @param id L'identifiant du document à supprimer
  * @returns true si le document a été supprimé
  */
-export const deleteFiscalDocument = async (id: string) => {
+export const deleteFiscalDocument = async (id: string): Promise<boolean> => {
   try {
     console.log("Suppression du document fiscal:", id);
     
