@@ -4,18 +4,21 @@ import { FormField } from "./FormField";
 import { Textarea } from "@/components/ui/textarea";
 
 interface TextareaFieldProps {
-  name: string;
+  id: string;
+  name?: string;
   label: string;
   placeholder?: string;
   value?: string;
-  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onChange?: (value: string) => void;
   required?: boolean;
   disabled?: boolean;
   rows?: number;
   className?: string;
+  error?: string;
 }
 
 export const TextareaField: React.FC<TextareaFieldProps> = ({
+  id,
   name,
   label,
   placeholder,
@@ -25,23 +28,29 @@ export const TextareaField: React.FC<TextareaFieldProps> = ({
   disabled = false,
   rows = 3,
   className = "",
+  error,
 }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    onChange?.(e.target.value);
+  };
+
   return (
     <FormField
-      name={name}
+      name={name || id}
       label={label}
       required={required}
       className={className}
     >
       <Textarea
-        id={name}
-        name={name}
+        id={id}
+        name={name || id}
         placeholder={placeholder}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         disabled={disabled}
         rows={rows}
       />
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </FormField>
   );
 };

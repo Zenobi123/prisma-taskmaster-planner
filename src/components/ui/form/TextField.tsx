@@ -4,17 +4,21 @@ import { FormField } from "./FormField";
 import { Input } from "@/components/ui/input";
 
 interface TextFieldProps {
-  name: string;
+  id: string;
+  name?: string;
   label: string;
   placeholder?: string;
   value?: string | number;
-  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (value: string) => void;
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  type?: string;
+  error?: string;
 }
 
 export const TextField: React.FC<TextFieldProps> = ({
+  id,
   name,
   label,
   placeholder,
@@ -23,22 +27,30 @@ export const TextField: React.FC<TextFieldProps> = ({
   required = false,
   disabled = false,
   className = "",
+  type = "text",
+  error,
 }) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onChange?.(e.target.value);
+  };
+
   return (
     <FormField
-      name={name}
+      name={name || id}
       label={label}
       required={required}
       className={className}
     >
       <Input
-        id={name}
-        name={name}
+        id={id}
+        name={name || id}
+        type={type}
         placeholder={placeholder}
         value={value}
-        onChange={onChange}
+        onChange={handleChange}
         disabled={disabled}
       />
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </FormField>
   );
 };

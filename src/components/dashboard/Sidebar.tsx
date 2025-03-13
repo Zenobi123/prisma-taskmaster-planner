@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import LogoutButton from "@/components/LogoutButton";
 import { useSidebarResponsive } from "./sidebar/useSidebarResponsive";
 import { menuItems, categoryLabels } from "./sidebar/menuItems";
-import MenuCategory from "./sidebar/MenuCategory";
+import { MenuCategory } from "./sidebar/MenuCategory";
 import SidebarHeader from "./sidebar/SidebarHeader";
 import MobileMenuButton from "./sidebar/MobileMenuButton";
 import ThemeToggle from "@/components/theme/ThemeToggle";

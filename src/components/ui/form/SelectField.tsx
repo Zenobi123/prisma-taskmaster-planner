@@ -15,7 +15,8 @@ interface SelectOption {
 }
 
 interface SelectFieldProps {
-  name: string;
+  id: string;
+  name?: string;
   label: string;
   options: SelectOption[];
   value?: string;
@@ -24,9 +25,11 @@ interface SelectFieldProps {
   required?: boolean;
   disabled?: boolean;
   className?: string;
+  error?: string;
 }
 
 export const SelectField: React.FC<SelectFieldProps> = ({
+  id,
   name,
   label,
   options,
@@ -36,10 +39,11 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   required = false,
   disabled = false,
   className = "",
+  error,
 }) => {
   return (
     <FormField
-      name={name}
+      name={name || id}
       label={label}
       required={required}
       className={className}
@@ -49,7 +53,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
         onValueChange={onChange}
         disabled={disabled}
       >
-        <SelectTrigger>
+        <SelectTrigger id={id}>
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
         <SelectContent>
@@ -60,6 +64,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
           ))}
         </SelectContent>
       </Select>
+      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </FormField>
   );
 };
