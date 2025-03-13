@@ -16,7 +16,8 @@ interface RadioGroupFieldProps {
   value: string;
   onChange: (value: string) => void;
   options: RadioOption[];
-  layout?: "vertical" | "horizontal";
+  layout?: "vertical" | "horizontal" | "grid";
+  columns?: number;
   required?: boolean;
   disabled?: boolean;
   className?: string;
@@ -31,6 +32,7 @@ export const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
   onChange,
   options,
   layout = "vertical",
+  columns = 2,
   required = false,
   disabled = false,
   className = "",
@@ -38,6 +40,17 @@ export const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
 }) => {
   const handleValueChange = (value: string) => {
     onChange(value);
+  };
+
+  const getLayoutClass = () => {
+    switch (layout) {
+      case "horizontal":
+        return "flex flex-wrap gap-4";
+      case "grid":
+        return `grid grid-cols-1 md:grid-cols-${columns} gap-4`;
+      default:
+        return "space-y-2";
+    }
   };
 
   return (
@@ -50,7 +63,7 @@ export const RadioGroupField: React.FC<RadioGroupFieldProps> = ({
       <RadioGroup
         value={value}
         onValueChange={handleValueChange}
-        className={layout === "horizontal" ? "flex gap-4" : "space-y-2"}
+        className={getLayoutClass()}
         disabled={disabled}
       >
         {options.map((option) => (
