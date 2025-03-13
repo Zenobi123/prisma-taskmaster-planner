@@ -5,18 +5,11 @@ export function useSidebarResponsive(defaultOpen = true) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(defaultOpen);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Détection de l'écran mobile avec des points de rupture standard
+  // Détection de l'écran mobile
   useEffect(() => {
     const checkMobile = () => {
-      const isMobileScreen = window.innerWidth < 768;
-      const isTabletScreen = window.innerWidth >= 768 && window.innerWidth < 1024;
-      
-      setIsMobile(isMobileScreen || isTabletScreen);
-      
-      if (isMobileScreen) {
-        setIsSidebarOpen(false);
-      } else if (isTabletScreen && isSidebarOpen) {
-        // Sur tablette, garder le menu réduit par défaut
+      setIsMobile(window.innerWidth < 768);
+      if (window.innerWidth < 768) {
         setIsSidebarOpen(false);
       }
     };
