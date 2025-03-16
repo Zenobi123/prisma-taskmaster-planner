@@ -3,7 +3,9 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Save, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { differenceInDays, isValid, parse } from "date-fns";
 
 interface FiscalAttestationSectionProps {
   creationDate: string;
@@ -18,10 +20,43 @@ export function FiscalAttestationSection({
   setCreationDate,
   handleSave
 }: FiscalAttestationSectionProps) {
+  const getAttestationStatus = () => {
+    if (!creationDate || !validityEndDate) return null;
+    
+    try {
+      const endDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
+      if (!isValid(endDate)) return null;
+      
+      const today = new Date();
+      const daysUntilExpiration = differenceInDays(endDate, today);
+      
+      if (daysUntilExpiration < 0) {
+        return { status: "expired", label: "Expirée", icon: XCircle, variant: "destructive" };
+      } else if (daysUntilExpiration <= 15) {
+        return { status: "expiring-soon", label: `Expire dans ${daysUntilExpiration} jours`, icon: AlertTriangle, variant: "secondary" };
+      } else {
+        return { status: "valid", label: "Valide", icon: CheckCircle, variant: "success" };
+      }
+    } catch (error) {
+      console.error("Error calculating attestation status:", error);
+      return null;
+    }
+  };
+  
+  const status = getAttestationStatus();
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-start">
-        <h3 className="text-lg font-semibold">Attestation de Conformité Fiscale</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-semibold">Attestation de Conformité Fiscale</h3>
+          {status && (
+            <Badge variant={status.variant as any} className="flex items-center gap-1">
+              <status.icon className="h-3.5 w-3.5" />
+              <span>{status.label}</span>
+            </Badge>
+          )}
+        </div>
         <Button onClick={handleSave} variant="default" size="sm">
           <Save className="mr-2 h-4 w-4" />
           Enregistrer
