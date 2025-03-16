@@ -5,7 +5,8 @@ import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "./fiscal/hooks/useObligationsFiscales";
 
-export { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "./fiscal/types";
+// Properly re-export types with 'export type' syntax to fix the TS1205 error
+export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "./fiscal/types";
 
 export function ObligationsFiscales() {
   const {
