@@ -1,3 +1,4 @@
+
 import React from "react";
 import { TabsContent as ShadcnTabsContent } from "@/components/ui/tabs";
 import { GestionEntreprise } from "./GestionEntreprise";
@@ -39,9 +40,9 @@ export function GestionTabsContent({
       </ShadcnTabsContent>
 
       {activeTab === "obligations-fiscales" && (
-        <TabsContent value="obligations-fiscales">
+        <ShadcnTabsContent value="obligations-fiscales">
           <ObligationsFiscales selectedClient={selectedClient} />
-        </TabsContent>
+        </ShadcnTabsContent>
       )}
 
       <ShadcnTabsContent value="cloture-exercice">

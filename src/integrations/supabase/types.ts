@@ -17,6 +17,7 @@ export type Database = {
           created_at: string
           datecreation: string | null
           etatcivil: string | null
+          fiscal_data: Json | null
           formejuridique: string | null
           gestionexternalisee: boolean | null
           id: string
@@ -42,6 +43,7 @@ export type Database = {
           created_at?: string
           datecreation?: string | null
           etatcivil?: string | null
+          fiscal_data?: Json | null
           formejuridique?: string | null
           gestionexternalisee?: boolean | null
           id?: string
@@ -67,6 +69,7 @@ export type Database = {
           created_at?: string
           datecreation?: string | null
           etatcivil?: string | null
+          fiscal_data?: Json | null
           formejuridique?: string | null
           gestionexternalisee?: boolean | null
           id?: string
