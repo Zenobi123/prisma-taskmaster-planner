@@ -99,6 +99,45 @@ export function ObligationsFiscales() {
     });
   };
 
+  const handleSave = () => {
+    // Save all data to localStorage
+    Object.keys(obligationStatuses).forEach((key) => {
+      const obligationType = key as ObligationType;
+      const obligation = obligationStatuses[obligationType];
+      
+      if ('paye' in obligation) {
+        localStorage.setItem(
+          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti`, 
+          obligation.assujetti.toString()
+        );
+        localStorage.setItem(
+          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Paye`, 
+          obligation.paye.toString()
+        );
+      } else if ('depose' in obligation) {
+        localStorage.setItem(
+          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti`, 
+          obligation.assujetti.toString()
+        );
+        localStorage.setItem(
+          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Depose`, 
+          obligation.depose.toString()
+        );
+      }
+    });
+    
+    if (creationDate) {
+      localStorage.setItem('fiscalAttestationCreationDate', creationDate);
+    }
+    
+    // Show success toast
+    toast({
+      title: "Modifications enregistrées",
+      description: "Les informations fiscales ont été mises à jour.",
+      variant: "default",
+    });
+  };
+
   useEffect(() => {
     const savedObligations: Partial<ObligationStatuses> = {};
     
@@ -151,6 +190,7 @@ export function ObligationsFiscales() {
           creationDate={creationDate}
           validityEndDate={validityEndDate}
           setCreationDate={setCreationDate}
+          handleSave={handleSave}
         />
         
         <AnnualObligationsSection 
