@@ -8,10 +8,20 @@ import MissionFilters from "@/components/missions/MissionFilters";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from "@/components/ui/pagination";
 
 const Missions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const navigate = useNavigate();
 
   const { data: missions, isLoading } = useQuery({
@@ -58,6 +68,7 @@ const Missions = () => {
     }
   });
 
+  // Filtrer les missions par statut et recherche
   const filteredMissions = missions?.filter((mission) => {
     const matchesSearch = mission.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mission.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -65,8 +76,24 @@ const Missions = () => {
     
     const matchesStatus = statusFilter === "all" || mission.status === statusFilter;
     
+    // Pour les missions terminées, ne garder que celles des 30 derniers jours
+    if (mission.status === "termine") {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      const missionCreatedAt = new Date(mission.createdAt);
+      
+      return matchesSearch && matchesStatus && missionCreatedAt >= thirtyDaysAgo;
+    }
+    
     return matchesSearch && matchesStatus;
   }) || [];
+
+  // Pagination
+  const totalPages = Math.ceil(filteredMissions.length / itemsPerPage);
+  const currentItems = filteredMissions.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="container mx-auto p-6">
@@ -104,8 +131,8 @@ const Missions = () => {
         </div>
       ) : (
         <div className="grid gap-4">
-          {filteredMissions.length > 0 ? (
-            filteredMissions.map((mission) => (
+          {currentItems.length > 0 ? (
+            currentItems.map((mission) => (
               <MissionCard key={mission.id} mission={mission} />
             ))
           ) : (
@@ -114,6 +141,38 @@ const Missions = () => {
             </div>
           )}
         </div>
+      )}
+
+      {totalPages > 1 && (
+        <Pagination className="mt-8">
+          <PaginationContent>
+            {currentPage > 1 && (
+              <PaginationItem>
+                <PaginationPrevious onClick={() => setCurrentPage(current => Math.max(1, current - 1))} />
+              </PaginationItem>
+            )}
+            
+            {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => {
+              const pageNumber = i + 1;
+              return (
+                <PaginationItem key={pageNumber}>
+                  <PaginationLink 
+                    isActive={currentPage === pageNumber}
+                    onClick={() => setCurrentPage(pageNumber)}
+                  >
+                    {pageNumber}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            })}
+            
+            {currentPage < totalPages && (
+              <PaginationItem>
+                <PaginationNext onClick={() => setCurrentPage(current => Math.min(totalPages, current + 1))} />
+              </PaginationItem>
+            )}
+          </PaginationContent>
+        </Pagination>
       )}
     </div>
   );
