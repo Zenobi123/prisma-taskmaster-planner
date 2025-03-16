@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { ObligationType, ObligationStatuses, ClientFiscalData } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import { Json } from "@/integrations/supabase/types";
 
 export function useObligationsFiscales(client: Client) {
   const [creationDate, setCreationDate] = useState<string>("");
@@ -36,7 +37,8 @@ export function useObligationsFiscales(client: Client) {
         }
 
         if (clientData && clientData.fiscal_data) {
-          const fiscalData = clientData.fiscal_data as ClientFiscalData;
+          // Cast the JSON data to our ClientFiscalData type
+          const fiscalData = clientData.fiscal_data as Json as unknown as ClientFiscalData;
           
           if (fiscalData.attestation) {
             setCreationDate(fiscalData.attestation.creationDate || "");
@@ -110,7 +112,8 @@ export function useObligationsFiscales(client: Client) {
     }
 
     try {
-      const fiscalData: ClientFiscalData = {
+      // Prepare the fiscal data in the format expected by our database
+      const fiscalDataToSave: ClientFiscalData = {
         attestation: {
           creationDate,
           validityEndDate
@@ -118,9 +121,10 @@ export function useObligationsFiscales(client: Client) {
         obligations: obligationStatuses
       };
 
+      // Convert to Json type for database storage
       const { error } = await supabase
         .from("clients")
-        .update({ fiscal_data: fiscalData })
+        .update({ fiscal_data: fiscalDataToSave as unknown as Json })
         .eq("id", client.id);
 
       if (error) {
