@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from "react";
+import { getClients } from "@/services/clientService";
+import { Client } from "@/types/client";
 import { addMonths, differenceInDays, parse, isValid } from "date-fns";
-import { toast } from "sonner";
 
 export interface FiscalAlert {
   type: string;
@@ -21,141 +22,147 @@ export const useFiscalCompliance = () => {
   const [upcomingObligations, setUpcomingObligations] = useState<FiscalObligation[]>([]);
 
   useEffect(() => {
-    checkFiscalCompliance();
-    // Log pour le débogage
-    console.log("useFiscalCompliance hook initializing");
+    fetchFiscalCompliance();
   }, []);
 
-  const checkFiscalCompliance = () => {
-    const alerts: FiscalAlert[] = [];
-    const obligations: FiscalObligation[] = [];
-    const today = new Date();
-    
-    // Vérifier si data existe dans le localStorage pour déboguer
-    console.log("Checking fiscal compliance data");
-    console.log("localStorage items:", Object.keys(localStorage));
-    
-    const savedCreationDate = localStorage.getItem('fiscalAttestationCreationDate');
-    console.log("Saved creation date:", savedCreationDate);
-    
-    if (savedCreationDate) {
-      try {
-        const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+  const fetchFiscalCompliance = async () => {
+    try {
+      const clients = await getClients();
+      const alerts: FiscalAlert[] = [];
+      const obligations: FiscalObligation[] = [];
+      const today = new Date();
+      
+      // Parcourir tous les clients pour trouver les attestations expirantes
+      clients.forEach((client: Client) => {
+        const fiscalData = client.fiscal_data as any;
         
-        if (datePattern.test(savedCreationDate)) {
-          const parsedDate = parse(savedCreationDate, 'dd/MM/yyyy', new Date());
-          console.log("Parsed date:", parsedDate);
+        if (fiscalData) {
+          // Vérifier les attestations de conformité fiscale
+          if (fiscalData.attestation && fiscalData.attestation.validityEndDate) {
+            try {
+              const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+              const validityEndDate = fiscalData.attestation.validityEndDate;
+              
+              if (datePattern.test(validityEndDate)) {
+                const parsedDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
+                
+                if (isValid(parsedDate)) {
+                  const daysUntilExpiration = differenceInDays(parsedDate, today);
+                  
+                  // Ajouter des alertes pour les attestations expirant dans 5 jours ou moins
+                  if (daysUntilExpiration <= 5) {
+                    const clientName = client.type === 'physique' 
+                      ? client.nom || 'Client sans nom' 
+                      : client.raisonsociale || 'Entreprise sans nom';
+                    
+                    alerts.push({
+                      type: 'attestation',
+                      title: `Attestation Fiscale - ${clientName}`,
+                      description: daysUntilExpiration <= 0 
+                        ? `L'attestation du client ${clientName} est expirée.` 
+                        : `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`
+                    });
+                    
+                    obligations.push({
+                      name: `Attestation de Conformité Fiscale - ${clientName}`,
+                      deadline: validityEndDate,
+                      daysRemaining: daysUntilExpiration,
+                      type: 'attestation'
+                    });
+                  }
+                }
+              }
+            } catch (error) {
+              console.error("Error parsing attestation date:", error);
+            }
+          }
           
-          if (isValid(parsedDate)) {
-            const expirationDate = addMonths(parsedDate, 3);
-            const daysUntilExpiration = differenceInDays(expirationDate, today);
-            console.log("Days until expiration:", daysUntilExpiration);
+          // Vérifier les obligations fiscales
+          if (fiscalData.obligations) {
+            const clientName = client.type === 'physique' 
+              ? client.nom || 'Client sans nom' 
+              : client.raisonsociale || 'Entreprise sans nom';
+              
+            const obligationTypes = [
+              { 
+                key: 'patente', 
+                name: 'Patente',
+                type: 'paiement' 
+              },
+              { 
+                key: 'bail', 
+                name: 'Bail',
+                type: 'paiement' 
+              },
+              { 
+                key: 'taxeFonciere', 
+                name: 'Taxe foncière',
+                type: 'paiement' 
+              },
+              { 
+                key: 'dsf', 
+                name: 'DSF', 
+                type: 'dépôt' 
+              },
+              { 
+                key: 'darp', 
+                name: 'DARP', 
+                type: 'dépôt' 
+              }
+            ];
             
-            // Ajouter toujours pour tester, quelle que soit la date
-            alerts.push({
-              type: 'attestation',
-              title: 'Alerte Attestation de Conformité Fiscale',
-              description: `Votre attestation expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}. Veuillez la renouveler.`
-            });
+            const currentYear = today.getFullYear();
             
-            obligations.push({
-              name: 'Attestation de Conformité Fiscale',
-              deadline: expirationDate.toLocaleDateString('fr-FR'),
-              daysRemaining: daysUntilExpiration,
-              type: 'attestation'
+            obligationTypes.forEach(obligation => {
+              const obligationData = fiscalData.obligations[obligation.key];
+              
+              if (obligationData && obligationData.assujetti) {
+                const isPaid = obligation.type === 'paiement' ? obligationData.paye : obligationData.depose;
+                
+                if (!isPaid) {
+                  // Dates fictives pour les échéances fiscales (à adapter selon les règles fiscales)
+                  const obligationDate = new Date(currentYear, obligation.key === 'darp' ? 3 : 2, 30); // 30 mars pour DARP, 30 avril pour les autres
+                  const daysUntilDeadline = differenceInDays(obligationDate, today);
+                  
+                  // Ajouter des alertes pour les obligations à moins de 30 jours
+                  if (daysUntilDeadline <= 30) {
+                    alerts.push({
+                      type: obligation.key,
+                      title: `Échéance ${obligation.name} - ${clientName}`,
+                      description: daysUntilDeadline <= 0 
+                        ? `L'échéance de ${obligation.type} pour ${clientName} est dépassée.` 
+                        : `Date limite de ${obligation.type}: ${Math.abs(daysUntilDeadline)} jour${Math.abs(daysUntilDeadline) > 1 ? 's' : ''}.`
+                    });
+                    
+                    obligations.push({
+                      name: `${obligation.name} - ${clientName}`,
+                      deadline: obligationDate.toLocaleDateString('fr-FR'),
+                      daysRemaining: Math.max(0, daysUntilDeadline),
+                      type: obligation.type
+                    });
+                  }
+                }
+              }
             });
           }
         }
-      } catch (error) {
-        console.error("Error parsing attestation date:", error);
-      }
-    } else {
-      // Créer des données de test si aucune donnée n'existe
-      console.log("No attestation data found, adding test data");
-      
-      // Créer une alerte de test
-      alerts.push({
-        type: 'attestation_test',
-        title: 'Alerte Fiscale (exemple)',
-        description: 'Exemple d\'alerte fiscale pour démonstration.'
       });
       
-      // Créer des obligations de test
-      const testDeadline = new Date();
-      testDeadline.setDate(testDeadline.getDate() + 5);
-      
-      obligations.push({
-        name: 'Patente (exemple)',
-        deadline: testDeadline.toLocaleDateString('fr-FR'),
-        daysRemaining: 5,
-        type: 'paiement'
+      // Trier les alertes et obligations par urgence
+      alerts.sort((a, b) => {
+        // Mettre les attestations expirées en premier
+        if (a.description.includes('expirée') && !b.description.includes('expirée')) return -1;
+        if (!a.description.includes('expirée') && b.description.includes('expirée')) return 1;
+        return 0;
       });
       
-      const testDeadline2 = new Date();
-      testDeadline2.setDate(testDeadline2.getDate() + 2);
+      obligations.sort((a, b) => a.daysRemaining - b.daysRemaining);
       
-      obligations.push({
-        name: 'DSF (exemple)',
-        deadline: testDeadline2.toLocaleDateString('fr-FR'),
-        daysRemaining: 2,
-        type: 'dépôt'
-      });
+      setFiscalAlerts(alerts);
+      setUpcomingObligations(obligations);
+    } catch (error) {
+      console.error("Error checking fiscal compliance:", error);
     }
-    
-    const currentYear = today.getFullYear();
-    
-    const taxObligations = [
-      { 
-        type: 'patente',
-        name: 'Patente',
-        deadline: new Date(currentYear, 1, 28),
-        isPaid: localStorage.getItem('fiscalPatentePaye') === 'true',
-        isAssujetti: localStorage.getItem('fiscalPatenteAssujetti') !== 'false',
-        actionType: 'paiement'
-      },
-      { 
-        type: 'bail',
-        name: 'Bail',
-        deadline: new Date(currentYear, 1, 28),
-        isPaid: localStorage.getItem('fiscalBailPaye') === 'true',
-        isAssujetti: localStorage.getItem('fiscalBailAssujetti') !== 'false',
-        actionType: 'paiement'
-      },
-      { 
-        type: 'taxeFonciere',
-        name: 'Taxe foncière',
-        deadline: new Date(currentYear, 1, 28),
-        isPaid: localStorage.getItem('fiscalTaxeFoncierePaye') === 'true',
-        isAssujetti: localStorage.getItem('fiscalTaxeFonciereAssujetti') !== 'false',
-        actionType: 'paiement'
-      },
-    ];
-    
-    taxObligations.forEach(obligation => {
-      if (!obligation.isPaid) {
-        const daysUntilDeadline = differenceInDays(obligation.deadline, today);
-        
-        // Ajouter pour le test, peu importe la date
-        alerts.push({
-          type: obligation.type,
-          title: `Échéance ${obligation.name}`,
-          description: `Date limite de ${obligation.actionType}: ${Math.abs(daysUntilDeadline)} jour${Math.abs(daysUntilDeadline) > 1 ? 's' : ''}.`
-        });
-        
-        obligations.push({
-          name: obligation.name,
-          deadline: obligation.deadline.toLocaleDateString('fr-FR'),
-          daysRemaining: Math.max(0, daysUntilDeadline),
-          type: obligation.actionType
-        });
-      }
-    });
-    
-    console.log("Generated alerts:", alerts);
-    console.log("Generated obligations:", obligations);
-    
-    setFiscalAlerts(alerts);
-    setUpcomingObligations(obligations);
   };
 
   return {
