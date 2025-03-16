@@ -40,7 +40,8 @@ export const useExpiringClients = () => {
               if (isValid(parsedDate)) {
                 const daysUntilExpiration = differenceInDays(parsedDate, today);
                 
-                if (daysUntilExpiration <= 15) {
+                // Inclure les documents qui expirent dans 5 jours ou qui sont déjà expirés
+                if (daysUntilExpiration <= 5) {
                   clientsWithExpiringDocs.push({
                     id: client.id,
                     name: client.type === 'physique' ? client.nom || 'Client sans nom' : client.raisonsociale || 'Entreprise sans nom',
@@ -57,7 +58,15 @@ export const useExpiringClients = () => {
         }
       });
       
-      clientsWithExpiringDocs.sort((a, b) => a.daysRemaining - b.daysRemaining);
+      // Trier d'abord par les documents expirés, puis par les jours restants
+      clientsWithExpiringDocs.sort((a, b) => {
+        // Si l'un est expiré et l'autre non, l'expiré vient en premier
+        if (a.daysRemaining <= 0 && b.daysRemaining > 0) return -1;
+        if (a.daysRemaining > 0 && b.daysRemaining <= 0) return 1;
+        // Sinon, trier par jours restants
+        return a.daysRemaining - b.daysRemaining;
+      });
+      
       setExpiringClients(clientsWithExpiringDocs);
     } catch (error) {
       console.error("Error fetching clients with expiring documents:", error);

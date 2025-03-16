@@ -14,7 +14,7 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center">
           <FileWarning className="h-5 w-5 mr-2 text-orange-500" />
-          Documents clients expirant bientôt
+          Documents clients à renouveler
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -25,7 +25,7 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
                 <TableHead>Client</TableHead>
                 <TableHead>Document</TableHead>
                 <TableHead>Date d'expiration</TableHead>
-                <TableHead>Jours restants</TableHead>
+                <TableHead>Statut</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -36,13 +36,15 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
                   <TableCell>{client.expiryDate}</TableCell>
                   <TableCell>
                     <span className={
-                      client.daysRemaining <= 2 
+                      client.daysRemaining <= 0 
                         ? "text-red-600 font-semibold" 
                         : client.daysRemaining <= 5 
                           ? "text-amber-600 font-semibold" 
                           : "text-blue-600"
                     }>
-                      {client.daysRemaining} jour{client.daysRemaining > 1 ? 's' : ''}
+                      {client.daysRemaining <= 0 
+                        ? "Expiré" 
+                        : `Expire dans ${client.daysRemaining} jour${client.daysRemaining > 1 ? 's' : ''}`}
                     </span>
                   </TableCell>
                 </TableRow>
@@ -51,7 +53,7 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
           </Table>
         ) : (
           <div className="text-center py-4 text-neutral-500">
-            Aucun document client n'expire bientôt
+            Aucun document client à renouveler
           </div>
         )}
       </CardContent>
