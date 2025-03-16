@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
@@ -14,7 +13,8 @@ import {
   PaginationItem, 
   PaginationLink, 
   PaginationNext, 
-  PaginationPrevious 
+  PaginationPrevious,
+  PaginationEllipsis
 } from "@/components/ui/pagination";
 
 const Missions = () => {
@@ -68,7 +68,6 @@ const Missions = () => {
     }
   });
 
-  // Filtrer les missions par statut et recherche
   const filteredMissions = missions?.filter((mission) => {
     const matchesSearch = mission.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
       mission.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -76,7 +75,6 @@ const Missions = () => {
     
     const matchesStatus = statusFilter === "all" || mission.status === statusFilter;
     
-    // Pour les missions terminées, ne garder que celles des 30 derniers jours
     if (mission.status === "termine") {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
@@ -88,7 +86,6 @@ const Missions = () => {
     return matchesSearch && matchesStatus;
   }) || [];
 
-  // Trier les missions par priorité de statut: en_cours, en_attente, en_retard, termine
   const sortedMissions = [...filteredMissions].sort((a, b) => {
     const statusPriority = {
       "en_cours": 1,
@@ -103,54 +100,44 @@ const Missions = () => {
     return priorityA - priorityB;
   });
 
-  // Pagination
   const totalPages = Math.ceil(sortedMissions.length / itemsPerPage);
   const currentItems = sortedMissions.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
-  // Function to generate page numbers array with ellipsis
   const getPageNumbers = () => {
     const pageNumbers = [];
     const maxVisiblePages = 5;
     
     if (totalPages <= maxVisiblePages) {
-      // Show all pages if there are less than maxVisiblePages
       for (let i = 1; i <= totalPages; i++) {
         pageNumbers.push(i);
       }
     } else {
-      // Always show first page
       pageNumbers.push(1);
       
-      // Calculate start and end of visible pages
       let startPage = Math.max(2, currentPage - 1);
       let endPage = Math.min(totalPages - 1, currentPage + 1);
       
-      // Adjust if at the beginning or end
       if (currentPage <= 2) {
         endPage = 4;
       } else if (currentPage >= totalPages - 1) {
         startPage = totalPages - 3;
       }
       
-      // Add ellipsis at the beginning if needed
       if (startPage > 2) {
         pageNumbers.push('ellipsis-start');
       }
       
-      // Add middle pages
       for (let i = startPage; i <= endPage; i++) {
         pageNumbers.push(i);
       }
       
-      // Add ellipsis at the end if needed
       if (endPage < totalPages - 1) {
         pageNumbers.push('ellipsis-end');
       }
       
-      // Always show last page
       pageNumbers.push(totalPages);
     }
     
