@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { getClients } from "@/services/clientService";
 import { Client } from "@/types/client";
@@ -27,21 +26,28 @@ export const useFiscalCompliance = () => {
 
   const fetchFiscalCompliance = async () => {
     try {
+      console.log("Fetching fiscal compliance data...");
       const clients = await getClients();
+      console.log("Clients fetched:", clients.length);
+      
       const alerts: FiscalAlert[] = [];
       const obligations: FiscalObligation[] = [];
       const today = new Date();
       
       // Parcourir tous les clients pour trouver les attestations expirantes
       clients.forEach((client: Client) => {
-        const fiscalData = client.fiscal_data as any;
+        const fiscalData = client.fiscal_data;
         
         if (fiscalData) {
+          console.log(`Processing fiscal data for client: ${client.id}`, fiscalData);
+          
           // Vérifier les attestations de conformité fiscale
           if (fiscalData.attestation && fiscalData.attestation.validityEndDate) {
             try {
               const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
               const validityEndDate = fiscalData.attestation.validityEndDate;
+              
+              console.log(`Client ${client.id} attestation end date: ${validityEndDate}`);
               
               if (datePattern.test(validityEndDate)) {
                 const parsedDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
@@ -49,8 +55,11 @@ export const useFiscalCompliance = () => {
                 if (isValid(parsedDate)) {
                   const daysUntilExpiration = differenceInDays(parsedDate, today);
                   
-                  // Ajouter des alertes pour les attestations expirant dans 5 jours ou moins
-                  if (daysUntilExpiration <= 5) {
+                  console.log(`Client ${client.id} days until expiration: ${daysUntilExpiration}`);
+                  
+                  // Pas de limite maximum - inclure toutes les attestations expirées ou qui expirent bientôt
+                  // On ne limite plus à 5 jours pour voir tous les documents expirés
+                  if (daysUntilExpiration <= 30) {
                     const clientName = client.type === 'physique' 
                       ? client.nom || 'Client sans nom' 
                       : client.raisonsociale || 'Entreprise sans nom';
@@ -70,11 +79,17 @@ export const useFiscalCompliance = () => {
                       type: 'attestation'
                     });
                   }
+                } else {
+                  console.log(`Client ${client.id} has invalid date format: ${validityEndDate}`);
                 }
+              } else {
+                console.log(`Client ${client.id} date doesn't match pattern: ${validityEndDate}`);
               }
             } catch (error) {
               console.error("Error parsing attestation date:", error);
             }
+          } else {
+            console.log(`Client ${client.id} has no attestation data`);
           }
           
           // Vérifier les obligations fiscales
@@ -145,8 +160,13 @@ export const useFiscalCompliance = () => {
               }
             });
           }
+        } else {
+          console.log(`Client ${client.id} has no fiscal data`);
         }
       });
+      
+      console.log("Generated alerts:", alerts.length);
+      console.log("Generated obligations:", obligations.length);
       
       // Trier les alertes et obligations par urgence
       alerts.sort((a, b) => {
