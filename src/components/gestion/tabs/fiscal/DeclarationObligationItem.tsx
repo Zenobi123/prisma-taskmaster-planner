@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ObligationType, DeclarationObligationStatus } from "../ObligationsFiscales";
+import { ObligationType, DeclarationObligationStatus } from "../fiscal/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
