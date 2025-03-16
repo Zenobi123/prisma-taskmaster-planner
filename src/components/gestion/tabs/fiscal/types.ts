@@ -20,3 +20,13 @@ export type ObligationStatuses = {
   dsf: DeclarationObligationStatus;
   darp: DeclarationObligationStatus;
 };
+
+export interface FiscalAttestationData {
+  creationDate: string;
+  validityEndDate: string;
+}
+
+export interface ClientFiscalData {
+  attestation: FiscalAttestationData;
+  obligations: ObligationStatuses;
+}

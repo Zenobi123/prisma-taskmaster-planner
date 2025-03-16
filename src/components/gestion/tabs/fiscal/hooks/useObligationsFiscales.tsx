@@ -1,12 +1,15 @@
 
 import { useState, useEffect } from "react";
 import { parse, isValid, format, addMonths, differenceInDays } from "date-fns";
-import { toast } from "@/components/ui/use-toast";
-import { ObligationType, ObligationStatuses } from "../types";
+import { toast } from "sonner";
+import { ObligationType, ObligationStatuses, ClientFiscalData } from "../types";
+import { supabase } from "@/integrations/supabase/client";
+import { Client } from "@/types/client";
 
-export function useObligationsFiscales() {
+export function useObligationsFiscales(client: Client) {
   const [creationDate, setCreationDate] = useState<string>("");
   const [validityEndDate, setValidityEndDate] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
   
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
     patente: { assujetti: true, paye: false },
@@ -15,6 +18,46 @@ export function useObligationsFiscales() {
     dsf: { assujetti: true, depose: false },
     darp: { assujetti: false, depose: false }
   });
+
+  // Load client's fiscal data from database
+  useEffect(() => {
+    async function loadFiscalData() {
+      setIsLoading(true);
+      try {
+        const { data: clientData, error } = await supabase
+          .from("clients")
+          .select("fiscal_data")
+          .eq("id", client.id)
+          .single();
+
+        if (error) {
+          console.error("Error loading fiscal data:", error);
+          return;
+        }
+
+        if (clientData && clientData.fiscal_data) {
+          const fiscalData = clientData.fiscal_data as ClientFiscalData;
+          
+          if (fiscalData.attestation) {
+            setCreationDate(fiscalData.attestation.creationDate || "");
+            setValidityEndDate(fiscalData.attestation.validityEndDate || "");
+          }
+          
+          if (fiscalData.obligations) {
+            setObligationStatuses(fiscalData.obligations);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading fiscal data:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (client && client.id) {
+      loadFiscalData();
+    }
+  }, [client]);
 
   useEffect(() => {
     if (creationDate) {
@@ -26,8 +69,6 @@ export function useObligationsFiscales() {
           const parsedDate = parse(creationDate, 'dd/MM/yyyy', new Date());
           
           if (isValid(parsedDate)) {
-            localStorage.setItem('fiscalAttestationCreationDate', creationDate);
-            
             // Calculate end date - 3 months after creation date
             const endDate = addMonths(parsedDate, 3);
             
@@ -38,11 +79,7 @@ export function useObligationsFiscales() {
             const daysUntilExpiration = differenceInDays(endDate, today);
             
             if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
-              toast({
-                title: "Attention",
-                description: `L'Attestation de Conformité Fiscale expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`,
-                variant: "destructive",
-              });
+              toast.warning(`L'Attestation de Conformité Fiscale expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`);
             }
           }
         }
@@ -57,102 +94,47 @@ export function useObligationsFiscales() {
     statusType: "assujetti" | "paye" | "depose", 
     value: boolean
   ) => {
-    setObligationStatuses(prev => {
-      const newState = {
-        ...prev,
-        [obligationType]: {
-          ...prev[obligationType],
-          [statusType]: value
-        }
+    setObligationStatuses(prev => ({
+      ...prev,
+      [obligationType]: {
+        ...prev[obligationType],
+        [statusType]: value
+      }
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!client || !client.id) {
+      toast.error("Impossible d'enregistrer les données: client non sélectionné");
+      return;
+    }
+
+    try {
+      const fiscalData: ClientFiscalData = {
+        attestation: {
+          creationDate,
+          validityEndDate
+        },
+        obligations: obligationStatuses
       };
-      
-      localStorage.setItem(
-        `fiscal${obligationType.charAt(0).toUpperCase() + obligationType.slice(1)}${statusType.charAt(0).toUpperCase() + statusType.slice(1)}`, 
-        value.toString()
-      );
-      
-      return newState;
-    });
-  };
 
-  const handleSave = () => {
-    // Save all data to localStorage
-    Object.keys(obligationStatuses).forEach((key) => {
-      const obligationType = key as ObligationType;
-      const obligation = obligationStatuses[obligationType];
-      
-      if ('paye' in obligation) {
-        localStorage.setItem(
-          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti`, 
-          obligation.assujetti.toString()
-        );
-        localStorage.setItem(
-          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Paye`, 
-          obligation.paye.toString()
-        );
-      } else if ('depose' in obligation) {
-        localStorage.setItem(
-          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti`, 
-          obligation.assujetti.toString()
-        );
-        localStorage.setItem(
-          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Depose`, 
-          obligation.depose.toString()
-        );
-      }
-    });
-    
-    if (creationDate) {
-      localStorage.setItem('fiscalAttestationCreationDate', creationDate);
-    }
-    
-    // Show success toast
-    toast({
-      title: "Modifications enregistrées",
-      description: "Les informations fiscales ont été mises à jour.",
-      variant: "default",
-    });
-  };
+      const { error } = await supabase
+        .from("clients")
+        .update({ fiscal_data: fiscalData })
+        .eq("id", client.id);
 
-  // Load saved data from localStorage
-  useEffect(() => {
-    const savedObligations: Partial<ObligationStatuses> = {};
-    
-    Object.keys(obligationStatuses).forEach((key) => {
-      const obligationType = key as ObligationType;
-      const obligation = obligationStatuses[obligationType];
-      
-      const savedAssujetti = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti`);
-      
-      if (savedAssujetti !== null) {
-        if ('paye' in obligation) {
-          const savedPaye = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Paye`);
-          savedObligations[obligationType] = {
-            assujetti: savedAssujetti === 'true',
-            paye: savedPaye === 'true'
-          } as any;
-        } else if ('depose' in obligation) {
-          const savedDepose = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Depose`);
-          savedObligations[obligationType] = {
-            assujetti: savedAssujetti === 'true',
-            depose: savedDepose === 'true'
-          } as any;
-        }
+      if (error) {
+        console.error("Error saving fiscal data:", error);
+        toast.error("Erreur lors de l'enregistrement des données fiscales");
+        return;
       }
-    });
-    
-    if (Object.keys(savedObligations).length > 0) {
-      setObligationStatuses(prev => ({
-        ...prev,
-        ...savedObligations
-      }));
+      
+      toast.success("Les informations fiscales ont été mises à jour.");
+    } catch (error) {
+      console.error("Error saving fiscal data:", error);
+      toast.error("Erreur lors de l'enregistrement des données fiscales");
     }
-    
-    const savedCreationDate = localStorage.getItem('fiscalAttestationCreationDate');
-    if (savedCreationDate) {
-      setCreationDate(savedCreationDate);
-    }
-  }, []);
+  };
 
   return {
     creationDate,
@@ -160,6 +142,7 @@ export function useObligationsFiscales() {
     validityEndDate,
     obligationStatuses,
     handleStatusChange,
-    handleSave
+    handleSave,
+    isLoading
   };
 }

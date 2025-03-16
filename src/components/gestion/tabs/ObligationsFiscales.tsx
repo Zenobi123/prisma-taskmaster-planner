@@ -4,19 +4,36 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "./fiscal/hooks/useObligationsFiscales";
+import { Client } from "@/types/client";
+import { Loader2 } from "lucide-react";
 
 // Properly re-export types with 'export type' syntax to fix the TS1205 error
 export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "./fiscal/types";
 
-export function ObligationsFiscales() {
+interface ObligationsFiscalesProps {
+  selectedClient: Client;
+}
+
+export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps) {
   const {
     creationDate,
     setCreationDate,
     validityEndDate,
     obligationStatuses,
     handleStatusChange,
-    handleSave
-  } = useObligationsFiscales();
+    handleSave,
+    isLoading
+  } = useObligationsFiscales(selectedClient);
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center h-60">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
