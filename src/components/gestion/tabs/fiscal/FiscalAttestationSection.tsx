@@ -20,12 +20,12 @@ export function FiscalAttestationSection({
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="creation-date">Date de création (JJ/MM/AA)</Label>
+          <Label htmlFor="creation-date">Date de création (JJ/MM/AAAA)</Label>
           <Input
             id="creation-date"
             value={creationDate}
             onChange={(e) => setCreationDate(e.target.value)}
-            placeholder="JJ/MM/AA"
+            placeholder="JJ/MM/AAAA"
           />
           <p className="text-sm text-gray-500">
             Date de délivrance de l'attestation

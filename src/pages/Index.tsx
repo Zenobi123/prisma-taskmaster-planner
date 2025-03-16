@@ -30,11 +30,11 @@ const Index = () => {
     const savedCreationDate = localStorage.getItem('fiscalAttestationCreationDate');
     if (savedCreationDate) {
       try {
-        // Regular expression to match DD/MM/YY format
-        const datePattern = /^(\d{2})\/(\d{2})\/(\d{2})$/;
+        // Regular expression to match DD/MM/YYYY format
+        const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
         
         if (datePattern.test(savedCreationDate)) {
-          const parsedDate = parse(savedCreationDate, 'dd/MM/yy', new Date());
+          const parsedDate = parse(savedCreationDate, 'dd/MM/yyyy', new Date());
           if (isValid(parsedDate)) {
             const expirationDate = addMonths(parsedDate, 3);
             const daysUntilExpiration = differenceInDays(expirationDate, today);

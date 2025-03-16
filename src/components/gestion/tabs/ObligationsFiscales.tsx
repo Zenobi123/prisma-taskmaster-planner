@@ -43,11 +43,11 @@ export function ObligationsFiscales() {
   useEffect(() => {
     if (creationDate) {
       try {
-        // Date format is DD/MM/YY
-        const datePattern = /^(\d{2})\/(\d{2})\/(\d{2})$/;
+        // Date format is DD/MM/YYYY
+        const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
         
         if (datePattern.test(creationDate)) {
-          const parsedDate = parse(creationDate, 'dd/MM/yy', new Date());
+          const parsedDate = parse(creationDate, 'dd/MM/yyyy', new Date());
           
           if (isValid(parsedDate)) {
             localStorage.setItem('fiscalAttestationCreationDate', creationDate);
@@ -55,8 +55,8 @@ export function ObligationsFiscales() {
             // Calculate end date - 3 months after creation date
             const endDate = addMonths(parsedDate, 3);
             
-            // Format the end date as DD/MM/YY
-            setValidityEndDate(format(endDate, 'dd/MM/yy'));
+            // Format the end date as DD/MM/YYYY
+            setValidityEndDate(format(endDate, 'dd/MM/yyyy'));
             
             const today = new Date();
             const daysUntilExpiration = differenceInDays(endDate, today);
