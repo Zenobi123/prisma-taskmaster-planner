@@ -88,9 +88,24 @@ const Missions = () => {
     return matchesSearch && matchesStatus;
   }) || [];
 
+  // Trier les missions par priorité de statut: en_cours, en_attente, en_retard, termine
+  const sortedMissions = [...filteredMissions].sort((a, b) => {
+    const statusPriority = {
+      "en_cours": 1,
+      "en_attente": 2, 
+      "en_retard": 3,
+      "termine": 4
+    };
+    
+    const priorityA = statusPriority[a.status as keyof typeof statusPriority] || 99;
+    const priorityB = statusPriority[b.status as keyof typeof statusPriority] || 99;
+    
+    return priorityA - priorityB;
+  });
+
   // Pagination
-  const totalPages = Math.ceil(filteredMissions.length / itemsPerPage);
-  const currentItems = filteredMissions.slice(
+  const totalPages = Math.ceil(sortedMissions.length / itemsPerPage);
+  const currentItems = sortedMissions.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
