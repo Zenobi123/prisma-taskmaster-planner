@@ -6,14 +6,23 @@ import RecentTasks from "@/components/dashboard/RecentTasks";
 import { Toaster } from "@/components/ui/toaster";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useEffect, useState } from "react";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, CalendarClock } from "lucide-react";
 import { addMonths, differenceInDays, parse, isValid } from "date-fns";
+import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
   const [fiscalAlerts, setFiscalAlerts] = useState<Array<{
     type: string;
     title: string;
     description: string;
+  }>>([]);
+
+  const [upcomingObligations, setUpcomingObligations] = useState<Array<{
+    name: string;
+    deadline: string;
+    daysRemaining: number;
+    type: string;
   }>>([]);
 
   // Check for fiscal compliance alerts on component mount
@@ -24,6 +33,7 @@ const Index = () => {
   // Function to check fiscal compliance and generate alerts
   const checkFiscalCompliance = () => {
     const alerts = [];
+    const obligations = [];
     const today = new Date();
     
     // Check attestation expiration (if we have a saved date)
@@ -39,11 +49,19 @@ const Index = () => {
             const expirationDate = addMonths(parsedDate, 3);
             const daysUntilExpiration = differenceInDays(expirationDate, today);
             
+            // Changed from 5 to 5 days for attestation expiration alerts
             if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
               alerts.push({
                 type: 'attestation',
                 title: 'Alerte Attestation de Conformité Fiscale',
                 description: `Votre attestation expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}. Veuillez la renouveler.`
+              });
+              
+              obligations.push({
+                name: 'Attestation de Conformité Fiscale',
+                deadline: expirationDate.toLocaleDateString('fr-FR'),
+                daysRemaining: daysUntilExpiration,
+                type: 'attestation'
               });
             }
           }
@@ -57,7 +75,7 @@ const Index = () => {
     const currentYear = today.getFullYear();
     
     // Define annual obligations deadlines
-    const obligations = [
+    const taxObligations = [
       { 
         type: 'patente',
         name: 'Patente',
@@ -101,21 +119,30 @@ const Index = () => {
     ];
     
     // Check each obligation
-    obligations.forEach(obligation => {
+    taxObligations.forEach(obligation => {
       if (obligation.isAssujetti && !obligation.isPaid) {
         const daysUntilDeadline = differenceInDays(obligation.deadline, today);
         
-        if (daysUntilDeadline <= 15 && daysUntilDeadline >= 0) {
+        // Changed from 15 to 10 days threshold for tax obligation alerts
+        if (daysUntilDeadline <= 10 && daysUntilDeadline >= 0) {
           alerts.push({
             type: obligation.type,
             title: `Échéance ${obligation.name}`,
             description: `Date limite de ${obligation.actionType}: ${daysUntilDeadline} jour${daysUntilDeadline > 1 ? 's' : ''} restant${daysUntilDeadline > 1 ? 's' : ''}.`
+          });
+          
+          obligations.push({
+            name: obligation.name,
+            deadline: obligation.deadline.toLocaleDateString('fr-FR'),
+            daysRemaining: daysUntilDeadline,
+            type: obligation.actionType
           });
         }
       }
     });
     
     setFiscalAlerts(alerts);
+    setUpcomingObligations(obligations);
   };
 
   return (
@@ -151,6 +178,53 @@ const Index = () => {
               ))}
             </div>
           )}
+          
+          {upcomingObligations.length > 0 && (
+            <Card className="mb-6">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center">
+                  <CalendarClock className="h-5 w-5 mr-2 text-amber-500" />
+                  Échéances fiscales à venir
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Obligation</TableHead>
+                      <TableHead>Date limite</TableHead>
+                      <TableHead>Jours restants</TableHead>
+                      <TableHead>Type</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {upcomingObligations.map((obligation, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{obligation.name}</TableCell>
+                        <TableCell>{obligation.deadline}</TableCell>
+                        <TableCell>
+                          <span className={
+                            obligation.daysRemaining <= 2 
+                              ? "text-red-600 font-semibold" 
+                              : obligation.daysRemaining <= 5 
+                                ? "text-amber-600 font-semibold" 
+                                : "text-blue-600"
+                          }>
+                            {obligation.daysRemaining} jour{obligation.daysRemaining > 1 ? 's' : ''}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          {obligation.type === 'attestation' ? 'Expiration' : 
+                           obligation.type === 'dépôt' ? 'Déclaration' : 'Paiement'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
+          
           <QuickStats />
           <RecentTasks />
         </div>
