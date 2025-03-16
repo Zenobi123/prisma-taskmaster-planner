@@ -30,17 +30,22 @@ const Index = () => {
     const savedCreationDate = localStorage.getItem('fiscalAttestationCreationDate');
     if (savedCreationDate) {
       try {
-        const parsedDate = parse(savedCreationDate, 'dd/MM/yy', new Date());
-        if (isValid(parsedDate)) {
-          const expirationDate = addMonths(parsedDate, 3);
-          const daysUntilExpiration = differenceInDays(expirationDate, today);
-          
-          if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
-            alerts.push({
-              type: 'attestation',
-              title: 'Alerte Attestation de Conformité Fiscale',
-              description: `Votre attestation expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}. Veuillez la renouveler.`
-            });
+        // Regular expression to match DD/MM/YY format
+        const datePattern = /^(\d{2})\/(\d{2})\/(\d{2})$/;
+        
+        if (datePattern.test(savedCreationDate)) {
+          const parsedDate = parse(savedCreationDate, 'dd/MM/yy', new Date());
+          if (isValid(parsedDate)) {
+            const expirationDate = addMonths(parsedDate, 3);
+            const daysUntilExpiration = differenceInDays(expirationDate, today);
+            
+            if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
+              alerts.push({
+                type: 'attestation',
+                title: 'Alerte Attestation de Conformité Fiscale',
+                description: `Votre attestation expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}. Veuillez la renouveler.`
+              });
+            }
           }
         }
       } catch (error) {

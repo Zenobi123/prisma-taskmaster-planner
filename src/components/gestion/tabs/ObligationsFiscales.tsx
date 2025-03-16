@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { parse, isValid, format, addMonths, differenceInDays } from "date-fns";
@@ -42,23 +43,31 @@ export function ObligationsFiscales() {
   useEffect(() => {
     if (creationDate) {
       try {
-        const parsedDate = parse(creationDate, 'dd/MM/yy', new Date());
-        if (isValid(parsedDate)) {
-          localStorage.setItem('fiscalAttestationCreationDate', creationDate);
+        // Date format is DD/MM/YY
+        const datePattern = /^(\d{2})\/(\d{2})\/(\d{2})$/;
+        
+        if (datePattern.test(creationDate)) {
+          const parsedDate = parse(creationDate, 'dd/MM/yy', new Date());
           
-          const endDate = addMonths(parsedDate, 3);
-          
-          setValidityEndDate(format(endDate, 'dd/MM/yy'));
-          
-          const today = new Date();
-          const daysUntilExpiration = differenceInDays(endDate, today);
-          
-          if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
-            toast({
-              title: "Attention",
-              description: `L'Attestation de Conformité Fiscale expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`,
-              variant: "destructive",
-            });
+          if (isValid(parsedDate)) {
+            localStorage.setItem('fiscalAttestationCreationDate', creationDate);
+            
+            // Calculate end date - 3 months after creation date
+            const endDate = addMonths(parsedDate, 3);
+            
+            // Format the end date as DD/MM/YY
+            setValidityEndDate(format(endDate, 'dd/MM/yy'));
+            
+            const today = new Date();
+            const daysUntilExpiration = differenceInDays(endDate, today);
+            
+            if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
+              toast({
+                title: "Attention",
+                description: `L'Attestation de Conformité Fiscale expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`,
+                variant: "destructive",
+              });
+            }
           }
         }
       } catch (error) {
