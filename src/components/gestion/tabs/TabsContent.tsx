@@ -28,7 +28,7 @@ export function GestionTabsContent({
   return (
     <>
       <TabsContent value="entreprise" className="space-y-4">
-        <GestionEntreprise onTabChange={onTabChange} />
+        <GestionEntreprise />
       </TabsContent>
       
       <TabsContent value="comptable" className="space-y-4">
@@ -44,10 +44,7 @@ export function GestionTabsContent({
       </TabsContent>
       
       <TabsContent value="cloture-exercice" className="space-y-4">
-        <ClotureExercice 
-          selectedSubTab={selectedSubTab} 
-          handleSubTabSelect={onSubTabSelect} 
-        />
+        <ClotureExercice />
       </TabsContent>
       
       <TabsContent value="dossier" className="space-y-4">
@@ -55,7 +52,7 @@ export function GestionTabsContent({
       </TabsContent>
       
       <TabsContent value="contrat" className="space-y-4">
-        <ContratPrestations client={selectedClient} />
+        <ContratPrestations />
       </TabsContent>
     </>
   );

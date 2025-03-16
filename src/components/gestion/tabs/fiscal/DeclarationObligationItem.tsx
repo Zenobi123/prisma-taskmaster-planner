@@ -1,9 +1,9 @@
 
 import React from "react";
+import { ObligationType, DeclarationObligationStatus } from "../ObligationsFiscales";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { ObligationType, DeclarationObligationStatus } from "./types";
 
 interface DeclarationObligationItemProps {
   title: string;
