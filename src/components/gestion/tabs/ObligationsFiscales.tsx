@@ -5,7 +5,6 @@ import { parse, isValid, format, addMonths, differenceInDays } from "date-fns";
 import { toast } from "@/components/ui/use-toast";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
-import { Client } from "@/types/client";
 
 export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp";
 
@@ -29,11 +28,7 @@ export type ObligationStatuses = {
   darp: DeclarationObligationStatus;
 };
 
-interface ObligationsFiscalesProps {
-  selectedClient: Client;
-}
-
-export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps) {
+export function ObligationsFiscales() {
   const [creationDate, setCreationDate] = useState<string>("");
   const [validityEndDate, setValidityEndDate] = useState<string>("");
   
@@ -55,8 +50,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           const parsedDate = parse(creationDate, 'dd/MM/yyyy', new Date());
           
           if (isValid(parsedDate)) {
-            // Store with client ID to make it client-specific
-            localStorage.setItem(`fiscalAttestationCreationDate_${selectedClient.id}`, creationDate);
+            localStorage.setItem('fiscalAttestationCreationDate', creationDate);
             
             // Calculate end date - 3 months after creation date
             const endDate = addMonths(parsedDate, 3);
@@ -68,13 +62,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
             const daysUntilExpiration = differenceInDays(endDate, today);
             
             if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
-              const clientName = selectedClient.type === "physique" 
-                ? selectedClient.nom 
-                : selectedClient.raisonsociale;
-                
               toast({
                 title: "Attention",
-                description: `L'Attestation de Conformité Fiscale de ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`,
+                description: `L'Attestation de Conformité Fiscale expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`,
                 variant: "destructive",
               });
             }
@@ -84,7 +74,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         console.error("Error calculating validity end date:", error);
       }
     }
-  }, [creationDate, selectedClient]);
+  }, [creationDate]);
 
   const handleStatusChange = (
     obligationType: ObligationType, 
@@ -100,9 +90,8 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         }
       };
       
-      // Store with client ID to make it client-specific
       localStorage.setItem(
-        `fiscal${obligationType.charAt(0).toUpperCase() + obligationType.slice(1)}${statusType.charAt(0).toUpperCase() + statusType.slice(1)}_${selectedClient.id}`, 
+        `fiscal${obligationType.charAt(0).toUpperCase() + obligationType.slice(1)}${statusType.charAt(0).toUpperCase() + statusType.slice(1)}`, 
         value.toString()
       );
       
@@ -110,65 +99,24 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     });
   };
 
-  const handleSave = () => {
-    // Save all data to localStorage with client ID to make it client-specific
-    Object.keys(obligationStatuses).forEach((key) => {
-      const obligationType = key as ObligationType;
-      const obligation = obligationStatuses[obligationType];
-      
-      if ('paye' in obligation) {
-        localStorage.setItem(
-          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti_${selectedClient.id}`, 
-          obligation.assujetti.toString()
-        );
-        localStorage.setItem(
-          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Paye_${selectedClient.id}`, 
-          obligation.paye.toString()
-        );
-      } else if ('depose' in obligation) {
-        localStorage.setItem(
-          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti_${selectedClient.id}`, 
-          obligation.assujetti.toString()
-        );
-        localStorage.setItem(
-          `fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Depose_${selectedClient.id}`, 
-          obligation.depose.toString()
-        );
-      }
-    });
-    
-    if (creationDate) {
-      localStorage.setItem(`fiscalAttestationCreationDate_${selectedClient.id}`, creationDate);
-    }
-    
-    // Show success toast
-    toast({
-      title: "Modifications enregistrées",
-      description: "Les informations fiscales ont été mises à jour.",
-      variant: "default",
-    });
-  };
-
   useEffect(() => {
-    // Reset form when client changes
     const savedObligations: Partial<ObligationStatuses> = {};
     
     Object.keys(obligationStatuses).forEach((key) => {
       const obligationType = key as ObligationType;
       const obligation = obligationStatuses[obligationType];
       
-      // Load client-specific data
-      const savedAssujetti = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti_${selectedClient.id}`);
+      const savedAssujetti = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti`);
       
       if (savedAssujetti !== null) {
         if ('paye' in obligation) {
-          const savedPaye = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Paye_${selectedClient.id}`);
+          const savedPaye = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Paye`);
           savedObligations[obligationType] = {
             assujetti: savedAssujetti === 'true',
             paye: savedPaye === 'true'
           } as any;
         } else if ('depose' in obligation) {
-          const savedDepose = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Depose_${selectedClient.id}`);
+          const savedDepose = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Depose`);
           savedObligations[obligationType] = {
             assujetti: savedAssujetti === 'true',
             depose: savedDepose === 'true'
@@ -184,16 +132,11 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
       }));
     }
     
-    // Load client-specific creation date
-    const savedCreationDate = localStorage.getItem(`fiscalAttestationCreationDate_${selectedClient.id}`);
+    const savedCreationDate = localStorage.getItem('fiscalAttestationCreationDate');
     if (savedCreationDate) {
       setCreationDate(savedCreationDate);
-    } else {
-      // Reset if no saved data for this client
-      setCreationDate("");
-      setValidityEndDate("");
     }
-  }, [selectedClient]);
+  }, []);
 
   return (
     <Card>
@@ -208,7 +151,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           creationDate={creationDate}
           validityEndDate={validityEndDate}
           setCreationDate={setCreationDate}
-          handleSave={handleSave}
         />
         
         <AnnualObligationsSection 

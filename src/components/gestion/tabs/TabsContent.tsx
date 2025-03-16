@@ -1,59 +1,62 @@
 
 import React from "react";
-import { TabsContent } from "@/components/ui/tabs";
-import { ContratPrestations } from "./ContratPrestations";
+import { TabsContent as ShadcnTabsContent } from "@/components/ui/tabs";
 import { GestionEntreprise } from "./GestionEntreprise";
-import { GestionComptable } from "./GestionComptable";
 import { GestionFiscale } from "./GestionFiscale";
+import { GestionComptable } from "./GestionComptable";
 import { GestionDossier } from "./GestionDossier";
-import { ObligationsFiscales } from "./ObligationsFiscales";
+import { ContratPrestations } from "./ContratPrestations";
 import { ClotureExercice } from "./ClotureExercice";
+import { ObligationsFiscales } from "./ObligationsFiscales";
 import { Client } from "@/types/client";
 
-interface GestionTabsContentProps {
+interface TabsContentProps {
   activeTab: string;
   selectedClient: Client;
   selectedSubTab: string | null;
-  onTabChange: (tab: string) => void;
+  onTabChange: (value: string) => void;
   onSubTabSelect: (subTab: string) => void;
 }
 
-export function GestionTabsContent({
-  activeTab,
-  selectedClient,
-  selectedSubTab,
-  onTabChange,
-  onSubTabSelect
-}: GestionTabsContentProps) {
+export function GestionTabsContent({ 
+  activeTab, 
+  selectedClient, 
+  selectedSubTab, 
+  onTabChange, 
+  onSubTabSelect 
+}: TabsContentProps) {
   return (
     <>
-      <TabsContent value="entreprise" className="space-y-4">
-        <GestionEntreprise />
-      </TabsContent>
-      
-      <TabsContent value="comptable" className="space-y-4">
-        <GestionComptable />
-      </TabsContent>
-      
-      <TabsContent value="fiscale" className="space-y-4">
+      <ShadcnTabsContent value="entreprise">
+        <GestionEntreprise onTabChange={onTabChange} />
+      </ShadcnTabsContent>
+
+      <ShadcnTabsContent value="contrat-prestations">
+        <ContratPrestations client={selectedClient} />
+      </ShadcnTabsContent>
+
+      <ShadcnTabsContent value="fiscal">
         <GestionFiscale onTabChange={onTabChange} />
-      </TabsContent>
-      
-      <TabsContent value="obligations-fiscales" className="space-y-4">
-        <ObligationsFiscales selectedClient={selectedClient} />
-      </TabsContent>
-      
-      <TabsContent value="cloture-exercice" className="space-y-4">
-        <ClotureExercice />
-      </TabsContent>
-      
-      <TabsContent value="dossier" className="space-y-4">
+      </ShadcnTabsContent>
+
+      <ShadcnTabsContent value="obligations-fiscales">
+        <ObligationsFiscales />
+      </ShadcnTabsContent>
+
+      <ShadcnTabsContent value="cloture-exercice">
+        <ClotureExercice 
+          selectedSubTab={selectedSubTab} 
+          handleSubTabSelect={onSubTabSelect} 
+        />
+      </ShadcnTabsContent>
+
+      <ShadcnTabsContent value="comptable">
+        <GestionComptable />
+      </ShadcnTabsContent>
+
+      <ShadcnTabsContent value="dossier">
         <GestionDossier />
-      </TabsContent>
-      
-      <TabsContent value="contrat" className="space-y-4">
-        <ContratPrestations />
-      </TabsContent>
+      </ShadcnTabsContent>
     </>
   );
 }

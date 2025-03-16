@@ -2,31 +2,21 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
 
 interface FiscalAttestationSectionProps {
   creationDate: string;
   validityEndDate: string;
   setCreationDate: (date: string) => void;
-  handleSave: () => void;
 }
 
 export function FiscalAttestationSection({ 
   creationDate, 
   validityEndDate, 
-  setCreationDate,
-  handleSave
+  setCreationDate 
 }: FiscalAttestationSectionProps) {
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-start">
-        <h3 className="text-lg font-semibold">Attestation de Conformité Fiscale</h3>
-        <Button onClick={handleSave} variant="default" size="sm">
-          <Save className="mr-2 h-4 w-4" />
-          Enregistrer
-        </Button>
-      </div>
+      <h3 className="text-lg font-semibold">Attestation de Conformité Fiscale</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
