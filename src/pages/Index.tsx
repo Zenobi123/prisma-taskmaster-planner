@@ -6,10 +6,12 @@ import RecentTasks from "@/components/dashboard/RecentTasks";
 import { Toaster } from "@/components/ui/toaster";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useEffect, useState } from "react";
-import { AlertTriangle, CalendarClock } from "lucide-react";
+import { AlertTriangle, CalendarClock, Users } from "lucide-react";
 import { addMonths, differenceInDays, parse, isValid } from "date-fns";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getClients } from "@/services/clientService";
+import { Client } from "@/types/client";
 
 const Index = () => {
   const [fiscalAlerts, setFiscalAlerts] = useState<Array<{
@@ -25,10 +27,75 @@ const Index = () => {
     type: string;
   }>>([]);
 
+  const [expiringClients, setExpiringClients] = useState<Array<{
+    id: string;
+    name: string;
+    document: string;
+    expiryDate: string;
+    daysRemaining: number;
+  }>>([]);
+
   // Check for fiscal compliance alerts on component mount
   useEffect(() => {
     checkFiscalCompliance();
+    fetchClientsWithExpiringDocuments();
   }, []);
+
+  // Fetch clients with expiring documents
+  const fetchClientsWithExpiringDocuments = async () => {
+    try {
+      const clients = await getClients();
+      const clientsWithExpiringDocs: Array<{
+        id: string;
+        name: string;
+        document: string;
+        expiryDate: string;
+        daysRemaining: number;
+      }> = [];
+
+      const today = new Date();
+      
+      clients.forEach((client: Client) => {
+        // Check if client has fiscal_data
+        const fiscalData = client.fiscal_data as any;
+        
+        if (fiscalData && fiscalData.attestation && fiscalData.attestation.validityEndDate) {
+          try {
+            const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+            const validityEndDate = fiscalData.attestation.validityEndDate;
+            
+            if (datePattern.test(validityEndDate)) {
+              const parsedDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
+              
+              if (isValid(parsedDate)) {
+                const daysUntilExpiration = differenceInDays(parsedDate, today);
+                
+                // Include if expired (negative days) or expiring soon (within 15 days)
+                if (daysUntilExpiration <= 15) {
+                  clientsWithExpiringDocs.push({
+                    id: client.id,
+                    name: client.type === 'physique' ? client.nom || 'Client sans nom' : client.raisonsociale || 'Entreprise sans nom',
+                    document: 'Attestation de Conformité Fiscale',
+                    expiryDate: validityEndDate,
+                    daysRemaining: daysUntilExpiration
+                  });
+                }
+              }
+            }
+          } catch (error) {
+            console.error("Error parsing client expiry date:", error);
+          }
+        }
+      });
+      
+      // Sort by days remaining (most urgent first)
+      clientsWithExpiringDocs.sort((a, b) => a.daysRemaining - b.daysRemaining);
+      setExpiringClients(clientsWithExpiringDocs);
+      
+    } catch (error) {
+      console.error("Error fetching clients with expiring documents:", error);
+    }
+  };
 
   // Function to check fiscal compliance and generate alerts
   const checkFiscalCompliance = () => {
@@ -227,6 +294,54 @@ const Index = () => {
           
           <QuickStats />
           <RecentTasks />
+          
+          {/* Nouvelle section pour les clients avec documents expirés ou expirant bientôt */}
+          {expiringClients.length > 0 && (
+            <Card className="mt-6">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center">
+                  <Users className="h-5 w-5 mr-2 text-red-500" />
+                  Clients avec documents expirant bientôt
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Client</TableHead>
+                      <TableHead>Document</TableHead>
+                      <TableHead>Date d'expiration</TableHead>
+                      <TableHead>Statut</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {expiringClients.map((client, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{client.name}</TableCell>
+                        <TableCell>{client.document}</TableCell>
+                        <TableCell>{client.expiryDate}</TableCell>
+                        <TableCell>
+                          {client.daysRemaining < 0 ? (
+                            <span className="text-red-600 font-semibold">
+                              Expiré depuis {Math.abs(client.daysRemaining)} jour{Math.abs(client.daysRemaining) > 1 ? 's' : ''}
+                            </span>
+                          ) : (
+                            <span className={
+                              client.daysRemaining <= 5 
+                                ? "text-red-600 font-semibold" 
+                                : "text-amber-600 font-semibold"
+                            }>
+                              Expire dans {client.daysRemaining} jour{client.daysRemaining > 1 ? 's' : ''}
+                            </span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </main>
       <Toaster />
