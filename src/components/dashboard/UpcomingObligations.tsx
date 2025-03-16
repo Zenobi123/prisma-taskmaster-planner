@@ -49,7 +49,7 @@ const UpcomingObligations = ({ obligations }: UpcomingObligationsProps) => {
             {obligations.map((obligation, index) => (
               <TableRow key={index}>
                 <TableCell className="font-medium">{obligation.name}</TableCell>
-                <TableCell>{obligation.clientName}</TableCell>
+                <TableCell>{obligation.clientName || "N/A"}</TableCell>
                 <TableCell>{obligation.deadline}</TableCell>
                 <TableCell>
                   <span className={

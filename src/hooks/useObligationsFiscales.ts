@@ -3,7 +3,12 @@ import { useState, useEffect } from "react";
 import { parse, isValid, format, addMonths, differenceInDays } from "date-fns";
 import { toast } from "@/components/ui/use-toast";
 import { Client } from "@/types/client";
-import { ObligationType, ObligationStatuses, TaxObligationStatus, DeclarationObligationStatus } from "@/components/gestion/tabs/fiscal/types";
+import { 
+  ObligationType, 
+  ObligationStatuses, 
+  TaxObligationStatus, 
+  DeclarationObligationStatus 
+} from "@/components/gestion/tabs/fiscal/types";
 
 export function useObligationsFiscales(selectedClient: Client) {
   const [creationDate, setCreationDate] = useState<string>("");
@@ -64,13 +69,24 @@ export function useObligationsFiscales(selectedClient: Client) {
     value: boolean
   ) => {
     setObligationStatuses(prev => {
-      const newState = {
-        ...prev,
-        [obligationType]: {
-          ...prev[obligationType],
-          [statusType]: value
+      const newState = { ...prev };
+      
+      // Type-safe assignment based on obligation type
+      if (statusType === "assujetti" || statusType === "paye") {
+        // For tax obligation types (patente, bail, taxeFonciere)
+        if (obligationType === "patente" || obligationType === "bail" || obligationType === "taxeFonciere") {
+          const taxObligation = newState[obligationType] as TaxObligationStatus;
+          taxObligation[statusType] = value;
         }
-      };
+      }
+      
+      if (statusType === "assujetti" || statusType === "depose") {
+        // For declaration obligation types (dsf, darp)
+        if (obligationType === "dsf" || obligationType === "darp") {
+          const declObligation = newState[obligationType] as DeclarationObligationStatus;
+          declObligation[statusType] = value;
+        }
+      }
       
       // Store with client ID to make it client-specific
       localStorage.setItem(
@@ -123,23 +139,22 @@ export function useObligationsFiscales(selectedClient: Client) {
 
   useEffect(() => {
     // Reset form when client changes
-    const savedObligations: Partial<ObligationStatuses> = {};
+    const savedObligations: Partial<ObligationStatuses> = {} as Partial<ObligationStatuses>;
     
     Object.keys(obligationStatuses).forEach((key) => {
       const obligationType = key as ObligationType;
-      const obligation = obligationStatuses[obligationType];
       
       // Load client-specific data
       const savedAssujetti = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Assujetti_${selectedClient.id}`);
       
       if (savedAssujetti !== null) {
-        if ('paye' in obligation) {
+        if (obligationType === "patente" || obligationType === "bail" || obligationType === "taxeFonciere") {
           const savedPaye = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Paye_${selectedClient.id}`);
           savedObligations[obligationType] = {
             assujetti: savedAssujetti === 'true',
             paye: savedPaye === 'true'
           } as TaxObligationStatus;
-        } else if ('depose' in obligation) {
+        } else if (obligationType === "dsf" || obligationType === "darp") {
           const savedDepose = localStorage.getItem(`fiscal${key.charAt(0).toUpperCase() + key.slice(1)}Depose_${selectedClient.id}`);
           savedObligations[obligationType] = {
             assujetti: savedAssujetti === 'true',
