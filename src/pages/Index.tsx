@@ -1,4 +1,3 @@
-
 import Sidebar from "@/components/dashboard/Sidebar";
 import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
 import QuickStats from "@/components/dashboard/QuickStats";
@@ -35,13 +34,11 @@ const Index = () => {
     daysRemaining: number;
   }>>([]);
 
-  // Check for fiscal compliance alerts on component mount
   useEffect(() => {
     checkFiscalCompliance();
     fetchClientsWithExpiringDocuments();
   }, []);
 
-  // Fetch clients with expiring documents
   const fetchClientsWithExpiringDocuments = async () => {
     try {
       const clients = await getClients();
@@ -56,7 +53,6 @@ const Index = () => {
       const today = new Date();
       
       clients.forEach((client: Client) => {
-        // Check if client has fiscal_data
         const fiscalData = client.fiscal_data as any;
         
         if (fiscalData && fiscalData.attestation && fiscalData.attestation.validityEndDate) {
@@ -70,7 +66,6 @@ const Index = () => {
               if (isValid(parsedDate)) {
                 const daysUntilExpiration = differenceInDays(parsedDate, today);
                 
-                // Include if expired (negative days) or expiring soon (within 15 days)
                 if (daysUntilExpiration <= 15) {
                   clientsWithExpiringDocs.push({
                     id: client.id,
@@ -88,26 +83,21 @@ const Index = () => {
         }
       });
       
-      // Sort by days remaining (most urgent first)
       clientsWithExpiringDocs.sort((a, b) => a.daysRemaining - b.daysRemaining);
       setExpiringClients(clientsWithExpiringDocs);
-      
     } catch (error) {
       console.error("Error fetching clients with expiring documents:", error);
     }
   };
 
-  // Function to check fiscal compliance and generate alerts
   const checkFiscalCompliance = () => {
     const alerts = [];
     const obligations = [];
     const today = new Date();
     
-    // Check attestation expiration (if we have a saved date)
     const savedCreationDate = localStorage.getItem('fiscalAttestationCreationDate');
     if (savedCreationDate) {
       try {
-        // Regular expression to match DD/MM/YYYY format
         const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
         
         if (datePattern.test(savedCreationDate)) {
@@ -116,7 +106,6 @@ const Index = () => {
             const expirationDate = addMonths(parsedDate, 3);
             const daysUntilExpiration = differenceInDays(expirationDate, today);
             
-            // Changed from 5 to 5 days for attestation expiration alerts
             if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
               alerts.push({
                 type: 'attestation',
@@ -138,15 +127,13 @@ const Index = () => {
       }
     }
     
-    // Get current year for annual obligations
     const currentYear = today.getFullYear();
     
-    // Define annual obligations deadlines
     const taxObligations = [
       { 
         type: 'patente',
         name: 'Patente',
-        deadline: new Date(currentYear, 1, 28), // February 28
+        deadline: new Date(currentYear, 1, 28),
         isPaid: localStorage.getItem('fiscalPatentePaye') === 'true',
         isAssujetti: localStorage.getItem('fiscalPatenteAssujetti') !== 'false',
         actionType: 'paiement'
@@ -154,7 +141,7 @@ const Index = () => {
       { 
         type: 'bail',
         name: 'Bail',
-        deadline: new Date(currentYear, 1, 28), // February 28
+        deadline: new Date(currentYear, 1, 28),
         isPaid: localStorage.getItem('fiscalBailPaye') === 'true',
         isAssujetti: localStorage.getItem('fiscalBailAssujetti') !== 'false',
         actionType: 'paiement'
@@ -162,7 +149,7 @@ const Index = () => {
       { 
         type: 'taxeFonciere',
         name: 'Taxe foncière',
-        deadline: new Date(currentYear, 1, 28), // February 28
+        deadline: new Date(currentYear, 1, 28),
         isPaid: localStorage.getItem('fiscalTaxeFoncierePaye') === 'true',
         isAssujetti: localStorage.getItem('fiscalTaxeFonciereAssujetti') !== 'false',
         actionType: 'paiement'
@@ -170,7 +157,7 @@ const Index = () => {
       { 
         type: 'dsf',
         name: 'Déclaration Statistique et Fiscale (DSF)',
-        deadline: new Date(currentYear, 3, 15), // April 15
+        deadline: new Date(currentYear, 3, 15),
         isPaid: localStorage.getItem('fiscalDsfDepose') === 'true',
         isAssujetti: localStorage.getItem('fiscalDsfAssujetti') !== 'false',
         actionType: 'dépôt'
@@ -178,19 +165,17 @@ const Index = () => {
       { 
         type: 'darp',
         name: 'Déclaration Annuelle des Revenus des Particuliers (DARP)',
-        deadline: new Date(currentYear, 5, 30), // June 30
+        deadline: new Date(currentYear, 5, 30),
         isPaid: localStorage.getItem('fiscalDarpDepose') === 'true',
         isAssujetti: localStorage.getItem('fiscalDarpAssujetti') !== 'false',
         actionType: 'dépôt'
       },
     ];
     
-    // Check each obligation
     taxObligations.forEach(obligation => {
       if (obligation.isAssujetti && !obligation.isPaid) {
         const daysUntilDeadline = differenceInDays(obligation.deadline, today);
         
-        // Changed from 15 to 10 days threshold for tax obligation alerts
         if (daysUntilDeadline <= 10 && daysUntilDeadline >= 0) {
           alerts.push({
             type: obligation.type,
@@ -295,10 +280,9 @@ const Index = () => {
           <QuickStats />
           <RecentTasks />
           
-          {/* Nouvelle section pour les clients avec documents expirés ou expirant bientôt */}
           {expiringClients.length > 0 && (
-            <Card className="mt-6">
-              <CardHeader className="pb-2">
+            <Card className="mt-6 border-2 border-red-200">
+              <CardHeader className="pb-2 bg-red-50">
                 <CardTitle className="text-lg flex items-center">
                   <Users className="h-5 w-5 mr-2 text-red-500" />
                   Clients avec documents expirant bientôt
