@@ -44,7 +44,7 @@ const Missions = () => {
             prenom
           )
         `)
-        .order('created_at', { ascending: false }); // Ajout du tri par date de création
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error("Erreur lors de la récupération des missions:", error);
@@ -63,7 +63,7 @@ const Missions = () => {
         endDate: task.end_date ? new Date(task.end_date).toLocaleDateString() : 'Non définie',
         clientId: task.client_id,
         collaborateurId: task.collaborateur_id,
-        createdAt: task.created_at // Ajout de la date de création pour pouvoir trier
+        createdAt: task.created_at
       }));
     }
   });
@@ -109,6 +109,53 @@ const Missions = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  // Function to generate page numbers array with ellipsis
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages if there are less than maxVisiblePages
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Always show first page
+      pageNumbers.push(1);
+      
+      // Calculate start and end of visible pages
+      let startPage = Math.max(2, currentPage - 1);
+      let endPage = Math.min(totalPages - 1, currentPage + 1);
+      
+      // Adjust if at the beginning or end
+      if (currentPage <= 2) {
+        endPage = 4;
+      } else if (currentPage >= totalPages - 1) {
+        startPage = totalPages - 3;
+      }
+      
+      // Add ellipsis at the beginning if needed
+      if (startPage > 2) {
+        pageNumbers.push('ellipsis-start');
+      }
+      
+      // Add middle pages
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+      
+      // Add ellipsis at the end if needed
+      if (endPage < totalPages - 1) {
+        pageNumbers.push('ellipsis-end');
+      }
+      
+      // Always show last page
+      pageNumbers.push(totalPages);
+    }
+    
+    return pageNumbers;
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -163,17 +210,34 @@ const Missions = () => {
           <PaginationContent>
             {currentPage > 1 && (
               <PaginationItem>
-                <PaginationPrevious onClick={() => setCurrentPage(current => Math.max(1, current - 1))} />
+                <PaginationPrevious 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(prev => Math.max(1, prev - 1));
+                  }} 
+                />
               </PaginationItem>
             )}
             
-            {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => {
-              const pageNumber = i + 1;
+            {getPageNumbers().map((pageNumber, index) => {
+              if (pageNumber === 'ellipsis-start' || pageNumber === 'ellipsis-end') {
+                return (
+                  <PaginationItem key={`ellipsis-${index}`}>
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                );
+              }
+              
               return (
-                <PaginationItem key={pageNumber}>
+                <PaginationItem key={`page-${pageNumber}`}>
                   <PaginationLink 
+                    href="#"
                     isActive={currentPage === pageNumber}
-                    onClick={() => setCurrentPage(pageNumber)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCurrentPage(Number(pageNumber));
+                    }}
                   >
                     {pageNumber}
                   </PaginationLink>
@@ -183,7 +247,13 @@ const Missions = () => {
             
             {currentPage < totalPages && (
               <PaginationItem>
-                <PaginationNext onClick={() => setCurrentPage(current => Math.min(totalPages, current + 1))} />
+                <PaginationNext 
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault(); 
+                    setCurrentPage(prev => Math.min(totalPages, prev + 1));
+                  }} 
+                />
               </PaginationItem>
             )}
           </PaginationContent>
