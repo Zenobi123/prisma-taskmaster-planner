@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { getTasks } from "@/services/taskService";
 import { AlertTriangle, Clock, Flame } from "lucide-react";
@@ -10,11 +9,10 @@ const RecentTasks = () => {
     queryFn: getTasks,
   });
 
-  // Utiliser toutes les tâches mais limiter l'affichage aux 10 plus récentes pour le tableau de bord
+  // Filter out completed tasks and limit to 10 active tasks
   const activeTasks = tasks
-    .filter((task: any) => task.status !== "termine" || 
-            new Date(task.end_date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) // Afficher les tâches terminées des 30 derniers jours
-    .slice(0, 10); // Limiter à 10 tâches maximum sur le tableau de bord
+    .filter((task: any) => task.status !== "termine") // Remove all completed tasks
+    .slice(0, 10); // Limit to 10 tasks maximum on the dashboard
 
   const getStatusBadge = (status: string, startDate: string | null, endDate: string | null) => {
     const today = new Date();
@@ -82,7 +80,7 @@ const RecentTasks = () => {
     );
   }
 
-  console.log("Recent tasks data:", tasks);
+  console.log("Recent tasks data (excluding completed):", activeTasks);
 
   return (
     <div className="card mt-8">
