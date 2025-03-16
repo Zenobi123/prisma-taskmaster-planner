@@ -34,10 +34,10 @@ const Index = () => {
         </header>
 
         <div className="p-8">
-          <FiscalAlerts alerts={fiscalAlerts} />
-          <UpcomingObligations obligations={upcomingObligations} />
           <QuickStats />
           <RecentTasks />
+          <FiscalAlerts alerts={fiscalAlerts} />
+          <UpcomingObligations obligations={upcomingObligations} />
           <ExpiringClientDocuments clients={expiringClients} />
         </div>
       </main>
