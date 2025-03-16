@@ -10,8 +10,11 @@ const RecentTasks = () => {
     queryFn: getTasks,
   });
 
-  // Filter out completed tasks
-  const activeTasks = tasks.filter((task: any) => task.status !== "termine");
+  // Utiliser toutes les tâches mais limiter l'affichage aux 10 plus récentes pour le tableau de bord
+  const activeTasks = tasks
+    .filter((task: any) => task.status !== "termine" || 
+            new Date(task.end_date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)) // Afficher les tâches terminées des 30 derniers jours
+    .slice(0, 10); // Limiter à 10 tâches maximum sur le tableau de bord
 
   const getStatusBadge = (status: string, startDate: string | null, endDate: string | null) => {
     const today = new Date();

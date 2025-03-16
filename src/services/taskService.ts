@@ -37,7 +37,7 @@ export const getTasks = async () => {
     throw error;
   }
 
-  // Check for tasks that should change status based on dates
+  // Mise à jour des statuts sans filtrage par date
   const updatedTasks = await updateTaskStatusesBasedOnDates(data);
   return updatedTasks;
 };

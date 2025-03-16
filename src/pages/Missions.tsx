@@ -33,7 +33,8 @@ const Missions = () => {
             nom,
             prenom
           )
-        `);
+        `)
+        .order('created_at', { ascending: false }); // Ajout du tri par date de création
 
       if (error) {
         console.error("Erreur lors de la récupération des missions:", error);
@@ -51,7 +52,8 @@ const Missions = () => {
         startDate: task.start_date ? new Date(task.start_date).toLocaleDateString() : 'Non définie',
         endDate: task.end_date ? new Date(task.end_date).toLocaleDateString() : 'Non définie',
         clientId: task.client_id,
-        collaborateurId: task.collaborateur_id
+        collaborateurId: task.collaborateur_id,
+        createdAt: task.created_at // Ajout de la date de création pour pouvoir trier
       }));
     }
   });
@@ -102,23 +104,13 @@ const Missions = () => {
         </div>
       ) : (
         <div className="grid gap-4">
-          {missions && missions.length > 0 ? (
-            missions
-              .filter((mission) => {
-                const matchesSearch = mission.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  mission.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                  mission.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
-                
-                const matchesStatus = statusFilter === "all" || mission.status === statusFilter;
-                
-                return matchesSearch && matchesStatus;
-              })
-              .map((mission) => (
-                <MissionCard key={mission.id} mission={mission} />
-              ))
+          {filteredMissions.length > 0 ? (
+            filteredMissions.map((mission) => (
+              <MissionCard key={mission.id} mission={mission} />
+            ))
           ) : (
             <div className="text-center py-8 text-gray-500">
-              Aucune mission n'a été créée. Utilisez le bouton "Nouvelle tâche" pour en créer une.
+              Aucune mission n'a été trouvée. Utilisez le bouton "Nouvelle tâche" pour en créer une.
             </div>
           )}
         </div>
