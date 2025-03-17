@@ -1,11 +1,13 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Client } from "@/types/client";
 
 interface GestionEntrepriseProps {
   onTabChange: (tab: string) => void;
+  selectedClient: Client;
 }
 
-export function GestionEntreprise({ onTabChange }: GestionEntrepriseProps) {
+export function GestionEntreprise({ onTabChange, selectedClient }: GestionEntrepriseProps) {
   return (
     <Card>
       <CardHeader>

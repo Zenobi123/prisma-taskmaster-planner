@@ -9,15 +9,16 @@ import { ClotureExercice } from "./ClotureExercice";
 import { ObligationsFiscales } from "./ObligationsFiscales";
 import { Client } from "@/types/client";
 
-// Interface for the Entreprise tab props
+// Update the interface to match the GestionEntreprise component's props
 interface GestionEntrepriseProps {
+  onTabChange: (tab: string) => void;
   selectedClient: Client;
 }
 
 // Export components as nested objects
 export const TabsContent = {
-  Entreprise: ({ selectedClient }: GestionEntrepriseProps) => (
-    <GestionEntreprise selectedClient={selectedClient} />
+  Entreprise: ({ selectedClient }: { selectedClient: Client }) => (
+    <GestionEntreprise onTabChange={() => {}} selectedClient={selectedClient} />
   ),
   
   ObligationsFiscales: ({ selectedClient }: { selectedClient: Client }) => (
