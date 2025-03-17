@@ -10,10 +10,14 @@ import { useNavigate } from "react-router-dom";
 const UnpaidPatenteList = () => {
   const navigate = useNavigate();
   
-  const { data: clients = [], isLoading } = useQuery({
+  const { data: clients = [], isLoading, isFetched } = useQuery({
     queryKey: ["clients-unpaid-patente"],
     queryFn: getClientsWithUnpaidPatente,
   });
+
+  console.log("UnpaidPatenteList - Clients:", clients.length);
+  console.log("UnpaidPatenteList - isLoading:", isLoading);
+  console.log("UnpaidPatenteList - isFetched:", isFetched);
 
   const handleNavigateToClient = (clientId: string) => {
     navigate(`/gestion?client=${clientId}&tab=obligations-fiscales`);
@@ -21,7 +25,7 @@ const UnpaidPatenteList = () => {
 
   if (isLoading) {
     return (
-      <Card className="mt-8 mb-6 border-red-300 animate-pulse">
+      <Card className="mt-6 border-red-300 animate-pulse">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center">
             <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
@@ -36,7 +40,7 @@ const UnpaidPatenteList = () => {
   }
 
   return (
-    <Card className="mt-8 mb-6 border-red-300">
+    <Card className="mt-6 border-red-300">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center">
           <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />

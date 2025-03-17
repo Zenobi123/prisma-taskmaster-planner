@@ -12,51 +12,57 @@ import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 
+const queryClient = new QueryClient();
+
 const Index = () => {
   const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex">
-      <Sidebar />
+    <QueryClientProvider client={queryClient}>
+      <div className="min-h-screen flex">
+        <Sidebar />
 
-      <main className="flex-1 bg-neutral-100">
-        <header className="bg-white border-b border-neutral-200 px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-neutral-800">
-                Tableau de bord
-              </h1>
-              <p className="text-neutral-600 mt-1">
-                Bienvenue sur votre espace de gestion
-              </p>
+        <main className="flex-1 bg-neutral-100">
+          <header className="bg-white border-b border-neutral-200 px-8 py-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-semibold text-neutral-800">
+                  Tableau de bord
+                </h1>
+                <p className="text-neutral-600 mt-1">
+                  Bienvenue sur votre espace de gestion
+                </p>
+              </div>
+              <NewTaskDialog />
             </div>
-            <NewTaskDialog />
-          </div>
-        </header>
+          </header>
 
-        <div className="p-8">
-          <QuickStats />
-          
-          {/* Patente Section - Summary and List */}
-          <div className="space-y-6">
-            <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
-            <UnpaidPatenteList />
+          <div className="p-8 space-y-8">
+            <QuickStats />
+            
+            {/* Patente Section */}
+            <div className="space-y-6">
+              <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
+              <UnpaidPatenteList />
+            </div>
+            
+            <RecentTasks />
+            
+            <ExpiringFiscalAttestations 
+              attestations={attestations} 
+              isLoading={isLoading} 
+            />
           </div>
-          
-          <RecentTasks />
-          <ExpiringFiscalAttestations 
-            attestations={attestations} 
-            isLoading={isLoading} 
-          />
-        </div>
-      </main>
-      <UnpaidPatenteDialog 
-        open={isUnpaidPatenteDialogOpen} 
-        onOpenChange={setIsUnpaidPatenteDialogOpen} 
-      />
-      <Toaster />
-    </div>
+        </main>
+        
+        <UnpaidPatenteDialog 
+          open={isUnpaidPatenteDialogOpen} 
+          onOpenChange={setIsUnpaidPatenteDialogOpen} 
+        />
+        <Toaster />
+      </div>
+    </QueryClientProvider>
   );
 };
 
