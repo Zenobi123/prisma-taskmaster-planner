@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 const UnpaidPatenteList = () => {
   const navigate = useNavigate();
   
-  const { data: clients = [], isLoading, isFetched } = useQuery({
+  const { data: clients = [], isLoading, isFetched, error } = useQuery({
     queryKey: ["clients-unpaid-patente"],
     queryFn: getClientsWithUnpaidPatente,
   });
@@ -19,6 +19,8 @@ const UnpaidPatenteList = () => {
   console.log("UnpaidPatenteList - Clients length:", clients.length);
   console.log("UnpaidPatenteList - isLoading:", isLoading);
   console.log("UnpaidPatenteList - isFetched:", isFetched);
+  console.log("UnpaidPatenteList - error:", error);
+  console.log("UnpaidPatenteList - Le composant est bien rendu");
 
   const handleNavigateToClient = (clientId: string) => {
     navigate(`/gestion?client=${clientId}&tab=obligations-fiscales`);
@@ -26,11 +28,11 @@ const UnpaidPatenteList = () => {
 
   if (isLoading) {
     return (
-      <Card className="border border-red-300 animate-pulse">
+      <Card className="border-2 border-red-300 shadow-md animate-pulse">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center">
             <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
-            Patentes impayées
+            Liste des patentes impayées
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -41,14 +43,14 @@ const UnpaidPatenteList = () => {
   }
 
   return (
-    <Card className="border border-red-300">
-      <CardHeader className="pb-2">
+    <Card className="border-2 border-red-300 shadow-md">
+      <CardHeader className="pb-2 bg-red-50">
         <CardTitle className="text-lg flex items-center">
           <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
-          Patentes impayées
+          Liste des patentes impayées
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-4">
         {clients && clients.length > 0 ? (
           <div className="overflow-x-auto">
             <Table>

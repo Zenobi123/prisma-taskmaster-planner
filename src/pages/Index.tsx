@@ -15,6 +15,8 @@ const Index = () => {
   const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
 
+  console.log("Index - Rendering dashboard components");
+
   return (
     <div className="min-h-screen flex">
       <Sidebar />
@@ -34,13 +36,20 @@ const Index = () => {
           </div>
         </header>
 
-        <div className="p-8 space-y-8">
+        <div className="p-8 space-y-10">
           <QuickStats />
           
-          {/* Patente Section */}
-          <div className="mt-8 space-y-6">
+          {/* Section Patente - Avec espacement plus grand et meilleure visibilité */}
+          <div className="mt-10 space-y-8">
+            <h2 className="text-xl font-semibold text-neutral-800 mb-4">Gestion des Patentes</h2>
+            
+            {/* Résumé des patentes impayées */}
             <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
-            <UnpaidPatenteList />
+            
+            {/* Liste des clients avec patente impayée - Séparé du résumé */}
+            <div className="mt-8">
+              <UnpaidPatenteList />
+            </div>
           </div>
           
           <RecentTasks />
