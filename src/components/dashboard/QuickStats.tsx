@@ -52,6 +52,7 @@ const QuickStats = () => {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-6">
+      {/* Première rangée: les 3 premières caractéristiques */}
       <div className="card">
         <h3 className="font-semibold text-neutral-800 mb-4">
           Tâches en cours
@@ -101,7 +102,7 @@ const QuickStats = () => {
         <p className="text-neutral-600 text-sm mt-1">Sur les missions</p>
       </div>
 
-      {/* Nouveaux indicateurs */}
+      {/* Deuxième rangée: les statistiques des clients */}
       <div className="card">
         <h3 className="font-semibold text-neutral-800 mb-4">
           Clients en gestion
@@ -118,7 +119,7 @@ const QuickStats = () => {
 
       <div className="card">
         <h3 className="font-semibold text-neutral-800 mb-4">
-          Clients en gestion
+          Suivi client
         </h3>
         <div className="text-3xl font-bold text-primary">
           {isClientStatsLoading ? (
@@ -127,7 +128,7 @@ const QuickStats = () => {
             clientStats.managedClients
           )}
         </div>
-        <p className="text-neutral-600 text-sm mt-1">Total</p>
+        <p className="text-neutral-600 text-sm mt-1">En cours</p>
       </div>
 
       <div className="card">

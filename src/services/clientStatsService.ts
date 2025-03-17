@@ -20,15 +20,17 @@ export const getClientStats = async () => {
   // Clients assujettis à la patente qui ne l'ont pas payée
   const unpaidPatenteClients = allClients.filter(client => {
     // On vérifie si le client a des données fiscales
-    if (client.fiscal_data && client.fiscal_data.obligations) {
-      const obligations = client.fiscal_data.obligations;
-      
-      // On cherche une obligation de type patente qui est due mais non payée
-      return obligations.some((obligation: any) => 
-        obligation.type === 'patente' && 
-        obligation.status === 'due' && 
-        !obligation.paid
-      );
+    if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
+      // Vérifier si obligations existe dans les données fiscales
+      const fiscalData = client.fiscal_data as { obligations?: any[] };
+      if (fiscalData.obligations && Array.isArray(fiscalData.obligations)) {
+        // On cherche une obligation de type patente qui est due mais non payée
+        return fiscalData.obligations.some((obligation: any) => 
+          obligation.type === 'patente' && 
+          obligation.status === 'due' && 
+          !obligation.paid
+        );
+      }
     }
     return false;
   }).length;
