@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client, ClientType, ClientStatus, FormeJuridique, RegimeFiscal } from "@/types/client";
+import { Client, ClientType, ClientStatus, FormeJuridique, RegimeFiscal, Interaction } from "@/types/client";
 
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   console.log("Récupération des clients avec patentes impayées...");
@@ -53,9 +53,13 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
         (client.contact as any).email || "" : ""
     };
     
-    // Transformer interactions JSON en array typé
-    const interactionsTyped = Array.isArray(client.interactions) ? 
-      client.interactions : [];
+    // Transformer interactions JSON en array typé avec le bon format Interaction[]
+    const interactionsTyped: Interaction[] = Array.isArray(client.interactions) ? 
+      client.interactions.map((interaction: any) => ({
+        id: interaction.id || "",
+        date: interaction.date || "",
+        description: interaction.description || ""
+      })) : [];
     
     return {
       ...client,
