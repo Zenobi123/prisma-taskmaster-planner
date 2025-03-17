@@ -75,7 +75,7 @@ export const useExpiringFiscalAttestations = () => {
     // Configurer la mise en cache et le rafraîchissement automatique
     staleTime: 5 * 60 * 1000, // 5 minutes avant que les données soient considérées comme périmées
     gcTime: 30 * 60 * 1000,   // 30 minutes avant le nettoyage du cache
-    refetchInterval: 60000,    // Rafraîchir toutes les 60 secondes
+    refetchInterval: 10000,    // Rafraîchir toutes les 10 secondes
     refetchOnWindowFocus: true // Rafraîchir quand l'utilisateur revient sur l'onglet
   });
 };

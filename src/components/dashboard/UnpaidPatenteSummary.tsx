@@ -14,7 +14,7 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
     queryKey: ["clients-unpaid-patente-summary"],
     queryFn: getClientsWithUnpaidPatente,
     // Configurer le rafraîchissement automatique
-    refetchInterval: 60000,
+    refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
 

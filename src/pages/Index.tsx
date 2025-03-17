@@ -19,7 +19,7 @@ const Index = () => {
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
-  // Configuration de l'intervalle de rafraîchissement (toutes les 60 secondes)
+  // Configuration de l'intervalle de rafraîchissement (toutes les 10 secondes)
   useEffect(() => {
     console.log("Mise en place de l'actualisation automatique du tableau de bord");
     
@@ -43,7 +43,7 @@ const Index = () => {
     };
 
     // Configurer l'intervalle d'actualisation
-    const refreshInterval = setInterval(refreshDashboard, 60000); // 60 secondes
+    const refreshInterval = setInterval(refreshDashboard, 10000); // 10 secondes
 
     // Nettoyer l'intervalle lors du démontage du composant
     return () => {

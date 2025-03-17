@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getTasks } from "@/services/taskService";
@@ -13,7 +12,7 @@ const QuickStats = () => {
     queryKey: ["tasks"],
     queryFn: getTasks,
     // Configurer le rafraîchissement automatique
-    refetchInterval: 60000,
+    refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
 
@@ -21,7 +20,7 @@ const QuickStats = () => {
     queryKey: ["client-stats"],
     queryFn: getClientStats,
     // Configurer le rafraîchissement automatique
-    refetchInterval: 60000,
+    refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
 

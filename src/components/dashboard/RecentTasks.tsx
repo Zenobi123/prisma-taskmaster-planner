@@ -9,7 +9,7 @@ const RecentTasks = () => {
     queryKey: ["tasks"],
     queryFn: getTasks,
     // Configurer le rafraîchissement automatique
-    refetchInterval: 60000,
+    refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
 
