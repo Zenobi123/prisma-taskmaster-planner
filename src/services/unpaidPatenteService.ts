@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client, ClientType, ClientStatus, FormeJuridique, RegimeFiscal, Interaction, Sexe, EtatCivil } from "@/types/client";
+import { Client, ClientType, ClientStatus, FormeJuridique, RegimeFiscal, Interaction, Sexe, EtatCivil, SituationImmobiliere } from "@/types/client";
 
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   console.log("Récupération des clients avec patentes impayées...");
@@ -67,6 +67,17 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
     // Handle the 'etatcivil' field properly, ensuring it's cast to the EtatCivil type
     const etatcivilTyped: EtatCivil | undefined = client.etatcivil as EtatCivil | undefined;
     
+    // Handle the situationimmobiliere field properly, transforming from JSON to typed object
+    let situationimmobiliereTyped: { type: SituationImmobiliere; valeur?: number; loyer?: number } | undefined;
+    
+    if (client.situationimmobiliere && typeof client.situationimmobiliere === 'object') {
+      situationimmobiliereTyped = {
+        type: (client.situationimmobiliere as any).type as SituationImmobiliere || "locataire",
+        valeur: (client.situationimmobiliere as any).valeur as number | undefined,
+        loyer: (client.situationimmobiliere as any).loyer as number | undefined,
+      };
+    }
+    
     return {
       ...client,
       type: client.type as ClientType,
@@ -82,7 +93,7 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
       sigle: client.sigle || undefined,
       nom: client.nom || undefined,
       raisonsociale: client.raisonsociale || undefined,
-      situationimmobiliere: client.situationimmobiliere,
+      situationimmobiliere: situationimmobiliereTyped,
       sexe: sexeTyped,
       etatcivil: etatcivilTyped
     };

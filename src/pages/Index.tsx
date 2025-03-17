@@ -4,6 +4,7 @@ import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
 import QuickStats from "@/components/dashboard/QuickStats";
 import RecentTasks from "@/components/dashboard/RecentTasks";
 import UnpaidPatenteList from "@/components/dashboard/UnpaidPatenteList";
+import UnpaidPatenteSummary from "@/components/dashboard/UnpaidPatenteSummary";
 import ExpiringFiscalAttestations from "@/components/dashboard/ExpiringFiscalAttestations";
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 import { Toaster } from "@/components/ui/toaster";
@@ -33,6 +34,7 @@ const Index = () => {
 
         <div className="p-8">
           <QuickStats />
+          <UnpaidPatenteSummary />
           <RecentTasks />
           <UnpaidPatenteList />
           <ExpiringFiscalAttestations 
