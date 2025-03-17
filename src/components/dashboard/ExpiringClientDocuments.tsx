@@ -3,6 +3,7 @@ import { FileWarning } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { ExpiringClient } from "@/hooks/useExpiringClients";
+import { Badge } from "@/components/ui/badge";
 
 interface ExpiringClientDocumentsProps {
   clients: ExpiringClient[];
@@ -37,17 +38,15 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
                   <TableCell>{client.document}</TableCell>
                   <TableCell>{client.expiryDate}</TableCell>
                   <TableCell>
-                    <span className={
-                      client.daysRemaining < 0 
-                        ? "text-red-600 font-semibold" 
-                        : client.daysRemaining <= 5 
-                          ? "text-amber-600 font-semibold" 
-                          : "text-blue-600"
-                    }>
-                      {client.daysRemaining < 0 
-                        ? "Expiré" 
-                        : `Expire dans ${client.daysRemaining} jour${client.daysRemaining > 1 ? 's' : ''}`}
-                    </span>
+                    {client.daysRemaining < 0 ? (
+                      <Badge variant="destructive" className="font-semibold">
+                        Expiré
+                      </Badge>
+                    ) : (
+                      <Badge variant={client.daysRemaining <= 5 ? "outline" : "secondary"} className="font-semibold">
+                        Expire dans {client.daysRemaining} jour{client.daysRemaining > 1 ? 's' : ''}
+                      </Badge>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { getClients } from "@/services/clientService";
 import { Client } from "@/types/client";
@@ -28,62 +29,55 @@ export const useExpiringClients = () => {
       const today = new Date();
       
       clients.forEach((client: Client) => {
-        const fiscalData = client.fiscal_data;
-        
-        if (fiscalData && fiscalData.attestation && fiscalData.attestation.validityEndDate) {
+        // Vérifier si le client a des données fiscales et une attestation
+        if (client.fiscal_data && client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
+          const validityEndDate = client.fiscal_data.attestation.validityEndDate;
+          console.log(`Client ${client.id} (${client.nom || client.raisonsociale || 'Sans nom'}) has attestation with end date: ${validityEndDate}`);
+          
           try {
-            const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
-            const validityEndDate = fiscalData.attestation.validityEndDate;
+            // Format de date attendu: JJ/MM/AAAA
+            const parsedDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
             
-            console.log(`Client ${client.id} has attestation with end date: ${validityEndDate}`);
-            
-            if (datePattern.test(validityEndDate)) {
-              const parsedDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
+            if (isValid(parsedDate)) {
+              const daysUntilExpiration = differenceInDays(parsedDate, today);
+              console.log(`Client ${client.id} - Days until expiration: ${daysUntilExpiration}`);
               
-              if (isValid(parsedDate)) {
-                const daysUntilExpiration = differenceInDays(parsedDate, today);
-                
-                console.log(`Client ${client.id}, days until expiration: ${daysUntilExpiration}`);
-                
-                // Include ALL expired attestations (daysUntilExpiration <= 0)
-                // No need to check for 30 days limit for expired documents
-                if (daysUntilExpiration <= 30) {
-                  const clientName = client.type === 'physique' 
-                    ? client.nom || 'Client sans nom' 
-                    : client.raisonsociale || 'Entreprise sans nom';
-                    
-                  clientsWithExpiringDocs.push({
-                    id: client.id,
-                    name: clientName,
-                    document: 'Attestation de Conformité Fiscale',
-                    expiryDate: validityEndDate,
-                    daysRemaining: daysUntilExpiration
-                  });
+              // Inclure TOUTES les attestations expirées (daysUntilExpiration < 0) 
+              // ET celles qui expirent dans les 30 prochains jours
+              if (daysUntilExpiration <= 30) {
+                const clientName = client.type === 'physique' 
+                  ? client.nom || 'Client sans nom' 
+                  : client.raisonsociale || 'Entreprise sans nom';
                   
-                  console.log(`Added client ${clientName} to expiring docs list with ${daysUntilExpiration} days remaining`);
-                }
-              } else {
-                console.log(`Client ${client.id} date format is invalid: ${validityEndDate}`);
+                clientsWithExpiringDocs.push({
+                  id: client.id,
+                  name: clientName,
+                  document: 'Attestation de Conformité Fiscale',
+                  expiryDate: validityEndDate,
+                  daysRemaining: daysUntilExpiration
+                });
+                
+                console.log(`Added client ${clientName} to expiring docs list with ${daysUntilExpiration} days remaining`);
               }
             } else {
-              console.log(`Client ${client.id} date doesn't match required pattern: ${validityEndDate}`);
+              console.log(`Client ${client.id} - Invalid date format: ${validityEndDate}`);
             }
           } catch (error) {
             console.error(`Error processing client ${client.id}:`, error);
           }
         } else {
-          console.log(`Client ${client.id} has no attestation data or validity end date`);
+          console.log(`Client ${client.id} has no attestation data`);
         }
       });
       
       console.log(`Found ${clientsWithExpiringDocs.length} clients with expiring documents`);
       
-      // Sort expired documents first, then by days remaining
+      // Trier d'abord les documents expirés, puis par jours restants
       clientsWithExpiringDocs.sort((a, b) => {
-        // If one is expired and the other is not, the expired comes first
+        // Si l'un est expiré et l'autre non, l'expiré vient en premier
         if (a.daysRemaining < 0 && b.daysRemaining >= 0) return -1;
         if (a.daysRemaining >= 0 && b.daysRemaining < 0) return 1;
-        // Otherwise, sort by days remaining
+        // Sinon, trier par jours restants
         return a.daysRemaining - b.daysRemaining;
       });
       
