@@ -13,6 +13,10 @@ export const fetchFiscalComplianceData = async (): Promise<{
     const clients = await getClients();
     console.log("Clients fetched:", clients.length);
     
+    // Debug: Count how many clients have fiscal_data
+    const clientsWithFiscalData = clients.filter(c => !!c.fiscal_data);
+    console.log(`Found ${clientsWithFiscalData.length} clients with fiscal data`);
+    
     const alerts: FiscalAlert[] = [];
     const obligations: FiscalObligation[] = [];
     const today = new Date();
@@ -20,7 +24,11 @@ export const fetchFiscalComplianceData = async (): Promise<{
     // Process each client to find expiring attestations
     clients.forEach((client: Client) => {
       if (client.fiscal_data) {
-        console.log(`Processing client ${client.id} with fiscal data:`, client.fiscal_data);
+        console.log(`Processing client ${client.id} (${client.nom || client.raisonsociale}) with fiscal data:`, 
+          client.fiscal_data.attestation ? 
+            `Attestation valid until: ${client.fiscal_data.attestation.validityEndDate}, showInAlert: ${client.fiscal_data.attestation.showInAlert !== false}` : 
+            'No attestation data');
+        
         const { alerts: clientAlerts, obligations: clientObligations } = 
           processClientFiscalData(client, today);
         
@@ -39,6 +47,17 @@ export const fetchFiscalComplianceData = async (): Promise<{
     
     // Sort obligations by urgency (days remaining)
     const sortedObligations = sortFiscalObligations(obligations);
+    
+    // Debug: Print all alerts to see what we're returning
+    if (sortedAlerts.length > 0) {
+      console.log("Returning these alerts:", sortedAlerts.map(a => ({
+        title: a.title,
+        description: a.description,
+        type: a.type
+      })));
+    } else {
+      console.log("No alerts to return");
+    }
     
     return {
       fiscalAlerts: sortedAlerts,

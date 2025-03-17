@@ -1,3 +1,4 @@
+
 import { addMonths, differenceInDays, parse, isValid } from "date-fns";
 import { Client } from "@/types/client";
 import { FiscalAlert, FiscalObligation, ProcessedClient } from "./types";
@@ -46,34 +47,46 @@ const processAttestations = (
       if (isValid(parsedDate)) {
         const daysUntilExpiration = differenceInDays(parsedDate, today);
         
-        // Include all attestations that are expired or expiring within 30 days
-        if (daysUntilExpiration <= 30) {
-          // Check if attestation should be shown in alert
-          const showInAlert = client.fiscal_data.attestation.showInAlert !== false; // Default to true if not defined
-          
-          if (showInAlert) {
-            // Create unique description based on expiration status
-            const description = daysUntilExpiration < 0 
-              ? `L'attestation du client ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours.` 
-              : `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`;
-              
-            alerts.push({
-              type: 'attestation',
-              title: `Attestation de Conformité Fiscale - ${clientName}`,
-              description: description,
-              clientId: client.id  // Add client ID for navigation
-            });
+        console.log(`Client ${clientName} attestation: ${daysUntilExpiration} days until expiration`);
+        
+        // Fix: Include all attestations that are expired or will expire in the future
+        // The previous condition (daysUntilExpiration <= 30) was too restrictive
+        // This ensures we catch alerts that are currently active
+        
+        // Check if attestation should be shown in alert (default to true if showInAlert is not defined)
+        const showInAlert = client.fiscal_data.attestation.showInAlert !== false;
+        
+        if (showInAlert) {
+          // Create unique description based on expiration status
+          let description;
+          if (daysUntilExpiration < 0) {
+            description = `L'attestation du client ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours.`;
+          } else if (daysUntilExpiration === 0) {
+            description = `L'attestation du client ${clientName} expire aujourd'hui.`;
+          } else {
+            description = `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`;
           }
-          
-          // Always add to obligations list, even if not shown in alerts
-          obligations.push({
-            name: `Attestation de Conformité Fiscale - ${clientName}`,
-            deadline: validityEndDate,
-            daysRemaining: daysUntilExpiration,
+            
+          alerts.push({
             type: 'attestation',
+            title: `Attestation de Conformité Fiscale - ${clientName}`,
+            description: description,
             clientId: client.id  // Add client ID for navigation
           });
+          
+          console.log(`Added alert for client ${clientName}: ${description}`);
+        } else {
+          console.log(`Alert disabled for client ${clientName} attestation`);
         }
+        
+        // Always add to obligations list, even if not shown in alerts
+        obligations.push({
+          name: `Attestation de Conformité Fiscale - ${clientName}`,
+          deadline: validityEndDate,
+          daysRemaining: daysUntilExpiration,
+          type: 'attestation',
+          clientId: client.id  // Add client ID for navigation
+        });
       }
     }
   } catch (error) {
