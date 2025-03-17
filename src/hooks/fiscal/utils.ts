@@ -1,4 +1,3 @@
-
 import { addMonths, differenceInDays, parse, isValid } from "date-fns";
 import { Client } from "@/types/client";
 import { FiscalAlert, FiscalObligation, ProcessedClient } from "./types";
@@ -47,11 +46,10 @@ const processAttestations = (
       if (isValid(parsedDate)) {
         const daysUntilExpiration = differenceInDays(parsedDate, today);
         
-        // Inclure toutes les attestations qui sont expirées ou qui expirent dans les 30 jours
-        // Traitement uniforme pour tous les clients
+        // Include all attestations that are expired or expiring within 30 days
         if (daysUntilExpiration <= 30) {
-          // Vérifier si l'attestation doit être affichée en alerte
-          const showInAlert = client.fiscal_data.attestation.showInAlert !== false; // Par défaut à true si non défini
+          // Check if attestation should be shown in alert
+          const showInAlert = client.fiscal_data.attestation.showInAlert !== false; // Default to true if not defined
           
           if (showInAlert) {
             // Create unique description based on expiration status
@@ -67,7 +65,7 @@ const processAttestations = (
             });
           }
           
-          // Toujours ajouter à la liste des obligations, même si elle n'est pas affichée en alerte
+          // Always add to obligations list, even if not shown in alerts
           obligations.push({
             name: `Attestation de Conformité Fiscale - ${clientName}`,
             deadline: validityEndDate,

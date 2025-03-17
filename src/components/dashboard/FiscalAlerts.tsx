@@ -5,13 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-
-interface FiscalAlert {
-  type: string;
-  title: string;
-  description: string;
-  clientId?: string;
-}
+import { FiscalAlert } from "@/hooks/fiscal/types";
 
 interface FiscalAlertsProps {
   alerts: FiscalAlert[];
