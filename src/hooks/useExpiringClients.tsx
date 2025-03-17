@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { getClients } from "@/services/clientService";
 import { Client } from "@/types/client";
 import { differenceInDays, parse, isValid } from "date-fns";
+import { toast } from "sonner";
 
 export interface ExpiringClient {
   id: string;
@@ -63,6 +64,13 @@ export const useExpiringClients = () => {
                 });
                 
                 console.log(`Added client ${clientName} to expiring docs list with ${daysUntilExpiration} days remaining`);
+                
+                // Afficher une notification pour les attestations expirées ou qui expirent bientôt
+                if (daysUntilExpiration < 0) {
+                  toast.warning(`L'attestation fiscale de ${clientName} est expirée`);
+                } else if (daysUntilExpiration <= 7) {
+                  toast.warning(`L'attestation fiscale de ${clientName} expire dans ${daysUntilExpiration} jours`);
+                }
               }
             } else {
               console.log(`Client ${client.id} - Invalid date format: ${validityEndDate}`);
@@ -90,6 +98,7 @@ export const useExpiringClients = () => {
       setExpiringClients(clientsWithExpiringDocs);
     } catch (error) {
       console.error("Error fetching clients with expiring documents:", error);
+      toast.error("Erreur lors de la récupération des documents clients");
     } finally {
       setLoading(false);
     }

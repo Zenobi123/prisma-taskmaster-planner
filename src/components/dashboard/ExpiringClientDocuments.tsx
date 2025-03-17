@@ -25,12 +25,19 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
             <TableHeader>
               <TableRow>
                 <TableHead>Client</TableHead>
+                <TableHead className="hidden sm:table-cell">Statut</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {clients.map((client, index) => (
                 <TableRow key={index} className={client.daysRemaining < 0 ? "bg-red-50" : ""}>
                   <TableCell className="font-medium">{client.name}</TableCell>
+                  <TableCell className="hidden sm:table-cell text-sm">
+                    {client.daysRemaining < 0 
+                      ? <span className="text-red-600">Expiré</span>
+                      : <span className="text-orange-500">Expire bientôt</span>
+                    }
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
