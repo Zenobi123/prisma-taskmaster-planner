@@ -72,8 +72,10 @@ export const useExpiringFiscalAttestations = () => {
       // Sort by days remaining (most urgent first)
       return expiringAttestations.sort((a, b) => a.daysRemaining - b.daysRemaining);
     },
-    // Cache for 5 minutes, garbage collection after 30 minutes
-    staleTime: 5 * 60 * 1000,
-    gcTime: 30 * 60 * 1000
+    // Configurer la mise en cache et le rafraîchissement automatique
+    staleTime: 5 * 60 * 1000, // 5 minutes avant que les données soient considérées comme périmées
+    gcTime: 30 * 60 * 1000,   // 30 minutes avant le nettoyage du cache
+    refetchInterval: 60000,    // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true // Rafraîchir quand l'utilisateur revient sur l'onglet
   });
 };

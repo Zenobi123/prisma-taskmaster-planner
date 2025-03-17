@@ -1,11 +1,12 @@
 
-import { FileWarning, AlertTriangle, XCircle, FileClock, CalendarClock, Calendar } from "lucide-react";
+import { FileWarning, AlertTriangle, XCircle, FileClock, CalendarClock, Calendar, RefreshCw } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { FiscalAttestation } from "@/hooks/useExpiringFiscalAttestations";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ExpiringFiscalAttestationsProps {
   attestations: FiscalAttestation[];
@@ -14,9 +15,14 @@ interface ExpiringFiscalAttestationsProps {
 
 const ExpiringFiscalAttestations = ({ attestations, isLoading }: ExpiringFiscalAttestationsProps) => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   
   const handleNavigateToFiscal = (clientId: string) => {
     navigate(`/gestion?client=${clientId}&tab=obligations-fiscales`);
+  };
+  
+  const handleManualRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
   };
   
   const getStatusBadge = (daysRemaining: number) => {
@@ -62,11 +68,20 @@ const ExpiringFiscalAttestations = ({ attestations, isLoading }: ExpiringFiscalA
   
   return (
     <Card className="mb-6 border-orange-300">
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 flex flex-row items-center justify-between">
         <CardTitle className="text-lg flex items-center">
           <FileClock className="h-5 w-5 mr-2 text-orange-500" />
           Attestations de Conformité Fiscale
         </CardTitle>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={handleManualRefresh}
+          className="ml-auto h-8 w-8 p-0"
+        >
+          <RefreshCw className="h-4 w-4" />
+          <span className="sr-only">Actualiser</span>
+        </Button>
       </CardHeader>
       <CardContent>
         {attestations && attestations.length > 0 ? (

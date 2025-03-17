@@ -13,6 +13,9 @@ const UnpaidPatenteList = () => {
   const { data: clients = [], isLoading, isFetched, error } = useQuery({
     queryKey: ["clients-unpaid-patente"],
     queryFn: getClientsWithUnpaidPatente,
+    // Configurer le rafraîchissement automatique
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true
   });
 
   console.log("UnpaidPatenteList - Clients:", clients);

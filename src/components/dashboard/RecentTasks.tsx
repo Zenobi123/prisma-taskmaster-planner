@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { getTasks } from "@/services/taskService";
 import { AlertTriangle, Clock, Flame } from "lucide-react";
@@ -7,6 +8,9 @@ const RecentTasks = () => {
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
+    // Configurer le rafraîchissement automatique
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true
   });
 
   // Filter out completed tasks and limit to 10 active tasks

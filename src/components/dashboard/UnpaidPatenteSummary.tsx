@@ -13,6 +13,9 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
   const { data: clients = [], isLoading, error } = useQuery({
     queryKey: ["clients-unpaid-patente-summary"],
     queryFn: getClientsWithUnpaidPatente,
+    // Configurer le rafraîchissement automatique
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true
   });
 
   console.log("UnpaidPatenteSummary - Clients:", clients.length);

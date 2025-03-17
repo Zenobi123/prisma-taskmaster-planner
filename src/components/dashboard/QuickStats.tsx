@@ -12,11 +12,17 @@ const QuickStats = () => {
   const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
+    // Configurer le rafraîchissement automatique
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true
   });
 
   const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientStats,
+    // Configurer le rafraîchissement automatique
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true
   });
 
   // Calculate statistics based on actual data

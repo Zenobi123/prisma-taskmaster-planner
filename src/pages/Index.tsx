@@ -9,13 +9,50 @@ import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog"
 import ExpiringFiscalAttestations from "@/components/dashboard/ExpiringFiscalAttestations";
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 import { Toaster } from "@/components/ui/toaster";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "@/components/ui/use-toast";
 
 const Index = () => {
+  const queryClient = useQueryClient();
   const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
-  console.log("Index - Rendering dashboard components");
+  // Configuration de l'intervalle de rafraîchissement (toutes les 60 secondes)
+  useEffect(() => {
+    console.log("Mise en place de l'actualisation automatique du tableau de bord");
+    
+    // Fonction pour rafraîchir toutes les données du tableau de bord
+    const refreshDashboard = () => {
+      try {
+        // Rafraîchir les requêtes React Query principales
+        queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
+        queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
+        queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
+        queryClient.invalidateQueries({ queryKey: ["tasks"] });
+        queryClient.invalidateQueries({ queryKey: ["client-stats"] });
+        
+        // Mettre à jour le timestamp de dernière actualisation
+        setLastRefresh(new Date());
+        
+        console.log("Actualisation automatique du tableau de bord effectuée à", new Date().toLocaleTimeString());
+      } catch (error) {
+        console.error("Erreur lors de l'actualisation automatique:", error);
+      }
+    };
+
+    // Configurer l'intervalle d'actualisation
+    const refreshInterval = setInterval(refreshDashboard, 60000); // 60 secondes
+
+    // Nettoyer l'intervalle lors du démontage du composant
+    return () => {
+      clearInterval(refreshInterval);
+      console.log("Nettoyage de l'intervalle d'actualisation");
+    };
+  }, [queryClient]);
+
+  console.log("Index - Rendering dashboard components, last refresh:", lastRefresh.toLocaleTimeString());
 
   return (
     <div className="min-h-screen flex">
@@ -30,6 +67,9 @@ const Index = () => {
               </h1>
               <p className="text-neutral-600 mt-1">
                 Bienvenue sur votre espace de gestion
+                <span className="text-xs ml-2 text-neutral-400">
+                  Actualisé à {lastRefresh.toLocaleTimeString()}
+                </span>
               </p>
             </div>
             <NewTaskDialog />
