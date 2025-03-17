@@ -15,7 +15,8 @@ export const fetchFiscalComplianceData = async (): Promise<{
     
     // Debug: Count how many clients have fiscal_data
     const clientsWithFiscalData = clients.filter(c => !!c.fiscal_data);
-    console.log(`Found ${clientsWithFiscalData.length} clients with fiscal data`);
+    console.log(`Found ${clientsWithFiscalData.length} clients with fiscal data:`, 
+      clientsWithFiscalData.map(c => `${c.nom || c.raisonsociale} (${c.id})`));
     
     const alerts: FiscalAlert[] = [];
     const obligations: FiscalObligation[] = [];
@@ -32,15 +33,16 @@ export const fetchFiscalComplianceData = async (): Promise<{
         const { alerts: clientAlerts, obligations: clientObligations } = 
           processClientFiscalData(client, today);
         
-        console.log(`Generated ${clientAlerts.length} alerts for client ${client.id || client.nom || client.raisonsociale}`);
+        console.log(`Generated ${clientAlerts.length} alerts for client ${client.id || client.nom || client.raisonsociale}:`, 
+          clientAlerts.map(a => a.description));
         
         alerts.push(...clientAlerts);
         obligations.push(...clientObligations);
       }
     });
     
-    console.log("Generated alerts:", alerts.length);
-    console.log("Generated obligations:", obligations.length);
+    console.log("Total generated alerts:", alerts.length);
+    console.log("Total generated obligations:", obligations.length);
     
     // Sort alerts with expired attestations first
     const sortedAlerts = sortFiscalAlerts(alerts);
@@ -48,12 +50,13 @@ export const fetchFiscalComplianceData = async (): Promise<{
     // Sort obligations by urgency (days remaining)
     const sortedObligations = sortFiscalObligations(obligations);
     
-    // Debug: Print all alerts to see what we're returning
+    // Debugging: Print all alerts to see what we're returning
     if (sortedAlerts.length > 0) {
       console.log("Returning these alerts:", sortedAlerts.map(a => ({
         title: a.title,
         description: a.description,
-        type: a.type
+        type: a.type,
+        clientId: a.clientId
       })));
     } else {
       console.log("No alerts to return");

@@ -1,4 +1,3 @@
-
 import { addMonths, differenceInDays, parse, isValid } from "date-fns";
 import { Client } from "@/types/client";
 import { FiscalAlert, FiscalObligation, ProcessedClient } from "./types";
@@ -35,7 +34,10 @@ const processAttestations = (
   alerts: FiscalAlert[], 
   obligations: FiscalObligation[]
 ): void => {
-  if (!client.fiscal_data?.attestation?.validityEndDate) return;
+  if (!client.fiscal_data?.attestation?.validityEndDate) {
+    console.log(`Client ${client.id} (${clientName}) has no validityEndDate in attestation`);
+    return;
+  }
   
   try {
     const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
@@ -49,15 +51,16 @@ const processAttestations = (
         
         console.log(`Client ${clientName} attestation: ${daysUntilExpiration} days until expiration`);
         
-        // Fix: Include all attestations that are expired or will expire in the future
-        // The previous condition (daysUntilExpiration <= 30) was too restrictive
-        // This ensures we catch alerts that are currently active
+        // IMPORTANT: Nous traitons TOUTES les attestations, qu'elles soient expirées, 
+        // sur le point d'expirer ou valides pour une longue période
         
-        // Check if attestation should be shown in alert (default to true if showInAlert is not defined)
+        // Vérifier si l'attestation doit être affichée dans les alertes
+        // Si showInAlert n'est pas défini, on le considère comme true par défaut
         const showInAlert = client.fiscal_data.attestation.showInAlert !== false;
+        console.log(`Client ${clientName} showInAlert: ${showInAlert}`);
         
         if (showInAlert) {
-          // Create unique description based on expiration status
+          // Créer une description unique en fonction du statut d'expiration
           let description;
           if (daysUntilExpiration < 0) {
             description = `L'attestation du client ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours.`;
@@ -71,7 +74,7 @@ const processAttestations = (
             type: 'attestation',
             title: `Attestation de Conformité Fiscale - ${clientName}`,
             description: description,
-            clientId: client.id  // Add client ID for navigation
+            clientId: client.id  // Ajouter l'ID du client pour la navigation
           });
           
           console.log(`Added alert for client ${clientName}: ${description}`);
@@ -79,15 +82,19 @@ const processAttestations = (
           console.log(`Alert disabled for client ${clientName} attestation`);
         }
         
-        // Always add to obligations list, even if not shown in alerts
+        // Toujours ajouter aux obligations, même si non affiché dans les alertes
         obligations.push({
           name: `Attestation de Conformité Fiscale - ${clientName}`,
           deadline: validityEndDate,
           daysRemaining: daysUntilExpiration,
           type: 'attestation',
-          clientId: client.id  // Add client ID for navigation
+          clientId: client.id  // Ajouter l'ID du client pour la navigation
         });
+      } else {
+        console.error(`Invalid date format for client ${clientName}: ${validityEndDate}`);
       }
+    } else {
+      console.error(`Date does not match pattern for client ${clientName}: ${validityEndDate}`);
     }
   } catch (error) {
     console.error("Error parsing attestation date:", error);

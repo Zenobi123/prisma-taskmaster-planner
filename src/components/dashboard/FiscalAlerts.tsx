@@ -13,6 +13,7 @@ interface FiscalAlertsProps {
 
 const FiscalAlerts = ({ alerts }: FiscalAlertsProps) => {
   const navigate = useNavigate();
+  console.log("FiscalAlerts component received alerts:", alerts);
 
   const handleViewDetails = (clientId?: string) => {
     if (clientId) {
@@ -38,9 +39,9 @@ const FiscalAlerts = ({ alerts }: FiscalAlertsProps) => {
             <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
             Alertes Fiscales
           </div>
-          {alerts.length > 0 && (
+          {sortedAlerts.length > 0 && (
             <Badge variant="destructive" className="ml-2">
-              {alerts.length}
+              {sortedAlerts.length}
             </Badge>
           )}
         </CardTitle>

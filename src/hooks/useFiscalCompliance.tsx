@@ -19,11 +19,17 @@ export const useFiscalCompliance = () => {
         console.log("Calling fetchFiscalComplianceData...");
         const { fiscalAlerts, upcomingObligations } = await fetchFiscalComplianceData();
         console.log("Fiscal alerts loaded:", fiscalAlerts);
+        console.log("Fiscal obligations loaded:", upcomingObligations);
+        
+        if (fiscalAlerts.length === 0) {
+          console.log("WARNING: No fiscal alerts were loaded!");
+        }
+        
         setFiscalAlerts(fiscalAlerts);
         setUpcomingObligations(upcomingObligations);
       } catch (err) {
         console.error("Error loading fiscal compliance data:", err);
-        setError(err instanceof Error ? err : new Error('An unknown error occurred'));
+        setError(err instanceof Error ? err : new Error('Une erreur inconnue est survenue'));
       } finally {
         setIsLoading(false);
       }
