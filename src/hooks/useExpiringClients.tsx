@@ -30,28 +30,7 @@ export const useExpiringClients = () => {
       const clientsWithExpiringDocs: ExpiringClient[] = [];
       const today = new Date();
       
-      // Ajouter des attestations de test pour debug
-      // Ceci est temporaire pour vérifier l'affichage
-      const mockClient: ExpiringClient = {
-        id: "test-id-1",
-        name: "CLIENT TEST EXPIRÉ",
-        document: "Attestation de Conformité Fiscale",
-        expiryDate: "01/01/2025",
-        daysRemaining: -30  // Déjà expiré depuis 30 jours
-      };
-      
-      const mockClient2: ExpiringClient = {
-        id: "test-id-2",
-        name: "CLIENT TEST À EXPIRER",
-        document: "Attestation de Conformité Fiscale",
-        expiryDate: "30/04/2025",
-        daysRemaining: 15  // Expire dans 15 jours
-      };
-      
-      clientsWithExpiringDocs.push(mockClient);
-      clientsWithExpiringDocs.push(mockClient2);
-      
-      // Traitement des vrais clients
+      // Traitement des clients réels uniquement
       clients.forEach((client: Client) => {
         console.log(`Checking client ${client.id} (${client.nom || client.raisonsociale || 'Sans nom'}) for fiscal attestations`);
         
@@ -96,7 +75,7 @@ export const useExpiringClients = () => {
         }
       });
       
-      console.log(`Found ${clientsWithExpiringDocs.length} clients with expiring documents (including mocks)`);
+      console.log(`Found ${clientsWithExpiringDocs.length} clients with expiring documents`);
       
       // Trier d'abord les documents expirés, puis par jours restants
       clientsWithExpiringDocs.sort((a, b) => {
