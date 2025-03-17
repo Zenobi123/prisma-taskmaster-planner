@@ -43,7 +43,7 @@ export const useExpiringClients = () => {
         // Vérifier si le client a des données fiscales
         if (client.fiscal_data) {
           clientsWithFiscalData++;
-          console.log(`Client ${client.id} (${clientName}) has fiscal_data`);
+          console.log(`Client ${client.id} (${clientName}) has fiscal_data:`, client.fiscal_data);
           
           // Vérifier si le client a une attestation
           if (client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
@@ -59,9 +59,9 @@ export const useExpiringClients = () => {
                 const daysUntilExpiration = differenceInDays(parsedDate, today);
                 console.log(`Client ${client.id} - Days until expiration: ${daysUntilExpiration}`);
                 
-                // Inclure TOUTES les attestations expirées sans limite de temps
-                // ET celles qui expirent dans les 30 prochains jours
-                if (daysUntilExpiration <= 30) {
+                // Inclure toutes les attestations expirées 
+                // ET celles qui expirent dans les 5 prochains jours (comme demandé par le client)
+                if (daysUntilExpiration <= 5) {
                   clientsWithExpiringDocs.push({
                     id: client.id,
                     name: clientName,
@@ -75,7 +75,7 @@ export const useExpiringClients = () => {
                   // Afficher une notification pour les attestations expirées ou qui expirent bientôt
                   if (daysUntilExpiration < 0) {
                     toast.warning(`L'attestation fiscale de ${clientName} est expirée`);
-                  } else if (daysUntilExpiration <= 7) {
+                  } else if (daysUntilExpiration <= 5) {
                     toast.warning(`L'attestation fiscale de ${clientName} expire dans ${daysUntilExpiration} jours`);
                   }
                 }

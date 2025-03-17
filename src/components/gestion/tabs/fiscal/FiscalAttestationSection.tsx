@@ -31,11 +31,28 @@ export function FiscalAttestationSection({
       const daysUntilExpiration = differenceInDays(endDate, today);
       
       if (daysUntilExpiration < 0) {
-        return { status: "expired", label: "Expirée", icon: XCircle, variant: "destructive" };
-      } else if (daysUntilExpiration <= 15) {
-        return { status: "expiring-soon", label: `Expire dans ${daysUntilExpiration} jours`, icon: AlertTriangle, variant: "secondary" };
+        return { 
+          status: "expired", 
+          label: `Expirée depuis ${Math.abs(daysUntilExpiration)} jours`, 
+          icon: XCircle, 
+          variant: "destructive" 
+        };
+      } else if (daysUntilExpiration <= 5) {
+        return { 
+          status: "expiring-soon", 
+          label: `Expire dans ${daysUntilExpiration} jours`, 
+          icon: AlertTriangle, 
+          variant: "outline",
+          className: "bg-amber-50 text-amber-700 border-amber-200"
+        };
       } else {
-        return { status: "valid", label: "Valide", icon: CheckCircle, variant: "success" };
+        return { 
+          status: "valid", 
+          label: "Valide", 
+          icon: CheckCircle, 
+          variant: "outline",
+          className: "bg-green-50 text-green-700 border-green-200"
+        };
       }
     } catch (error) {
       console.error("Error calculating attestation status:", error);
@@ -51,7 +68,10 @@ export function FiscalAttestationSection({
         <div className="flex items-center gap-2">
           <h3 className="text-lg font-semibold">Attestation de Conformité Fiscale</h3>
           {status && (
-            <Badge variant={status.variant as any} className="flex items-center gap-1">
+            <Badge 
+              variant={status.variant as any} 
+              className={`flex items-center gap-1 ${status.className || ""}`}
+            >
               <status.icon className="h-3.5 w-3.5" />
               <span>{status.label}</span>
             </Badge>
@@ -63,7 +83,7 @@ export function FiscalAttestationSection({
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-md ${status?.status === 'expired' ? 'bg-red-50 border border-red-200' : ''}`}>
         <div className="space-y-2">
           <Label htmlFor="creation-date">Date de création (JJ/MM/AAAA)</Label>
           <Input
