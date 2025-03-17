@@ -3,25 +3,30 @@ import { CalendarIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Event } from "@/types/event";
+import { ExportOptions } from "./ExportOptions";
 
 interface EventsListProps {
   date: Date | undefined;
   events: Event[];
   isLoading: boolean;
-  getEventBadge: (type: string) => string | null;
+  getEventBadge: (type: string) => "secondary" | "outline" | null;
 }
 
 export const EventsList = ({ date, events, isLoading, getEventBadge }: EventsListProps) => {
   return (
     <div className="space-y-4">
-      <h2 className="text-lg font-semibold mb-4">
-        Événements du {date?.toLocaleDateString('fr-FR', { 
-          weekday: 'long',
-          day: 'numeric', 
-          month: 'long', 
-          year: 'numeric' 
-        })}
-      </h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">
+          Événements du {date?.toLocaleDateString('fr-FR', { 
+            weekday: 'long',
+            day: 'numeric', 
+            month: 'long', 
+            year: 'numeric' 
+          })}
+        </h2>
+        <ExportOptions events={events} date={date} />
+      </div>
+      
       {isLoading ? (
         <div className="flex justify-center items-center h-32">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>

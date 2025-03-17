@@ -40,7 +40,7 @@ export const usePlanning = () => {
     tasks
   }) : [];
 
-  const getEventBadge = (type: string) => {
+  const getEventBadge = (type: string): "secondary" | "outline" | null => {
     switch (type) {
       case "mission":
         return "secondary";
