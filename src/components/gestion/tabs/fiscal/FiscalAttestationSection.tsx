@@ -62,6 +62,18 @@ export function FiscalAttestationSection({
   
   const status = getAttestationStatus();
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow format dd/mm/yyyy
+    const value = e.target.value;
+    // Basic format validation (users can still enter invalid dates)
+    const dateRegex = /^(\d{0,2})(\/?)(\d{0,2})(\/?)(\d{0,4})$/;
+    const match = value.match(dateRegex);
+    
+    if (match) {
+      setCreationDate(value);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-start">
@@ -89,7 +101,7 @@ export function FiscalAttestationSection({
           <Input
             id="creation-date"
             value={creationDate}
-            onChange={(e) => setCreationDate(e.target.value)}
+            onChange={handleDateChange}
             placeholder="JJ/MM/AAAA"
           />
           <p className="text-sm text-gray-500">

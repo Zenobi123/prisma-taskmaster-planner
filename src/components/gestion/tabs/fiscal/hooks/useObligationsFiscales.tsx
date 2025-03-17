@@ -25,6 +25,7 @@ export function useObligationsFiscales(client: Client) {
     async function loadFiscalData() {
       setIsLoading(true);
       try {
+        console.log(`Loading fiscal data for client ID: ${client.id}`);
         const { data: clientData, error } = await supabase
           .from("clients")
           .select("fiscal_data")
@@ -37,17 +38,23 @@ export function useObligationsFiscales(client: Client) {
         }
 
         if (clientData && clientData.fiscal_data) {
+          console.log("Fiscal data loaded:", clientData.fiscal_data);
           // Cast the JSON data to our ClientFiscalData type
           const fiscalData = clientData.fiscal_data as Json as unknown as ClientFiscalData;
           
           if (fiscalData.attestation) {
+            console.log("Attestation data found:", fiscalData.attestation);
             setCreationDate(fiscalData.attestation.creationDate || "");
             setValidityEndDate(fiscalData.attestation.validityEndDate || "");
+          } else {
+            console.log("No attestation data found for client");
           }
           
           if (fiscalData.obligations) {
             setObligationStatuses(fiscalData.obligations);
           }
+        } else {
+          console.log("No fiscal data found for client");
         }
       } catch (error) {
         console.error("Error loading fiscal data:", error);
@@ -61,6 +68,7 @@ export function useObligationsFiscales(client: Client) {
     }
   }, [client]);
 
+  // Calculate end date when creation date changes
   useEffect(() => {
     if (creationDate) {
       try {
@@ -82,7 +90,11 @@ export function useObligationsFiscales(client: Client) {
             
             if (daysUntilExpiration <= 5 && daysUntilExpiration >= 0) {
               toast.warning(`L'Attestation de Conformité Fiscale expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`);
+            } else if (daysUntilExpiration < 0) {
+              toast.error(`L'Attestation de Conformité Fiscale est expirée depuis ${Math.abs(daysUntilExpiration)} jour${Math.abs(daysUntilExpiration) > 1 ? 's' : ''}.`);
             }
+          } else {
+            console.error("Invalid date format:", creationDate);
           }
         }
       } catch (error) {
@@ -112,6 +124,7 @@ export function useObligationsFiscales(client: Client) {
     }
 
     try {
+      console.log(`Saving fiscal data for client ID: ${client.id}`);
       // Prepare the fiscal data in the format expected by our database
       const fiscalDataToSave: ClientFiscalData = {
         attestation: {
@@ -120,6 +133,8 @@ export function useObligationsFiscales(client: Client) {
         },
         obligations: obligationStatuses
       };
+
+      console.log("Fiscal data to save:", fiscalDataToSave);
 
       // Convert to Json type for database storage
       const { error } = await supabase

@@ -1,5 +1,5 @@
 
-import { FileWarning, AlertTriangle, XCircle, FileClock } from "lucide-react";
+import { FileWarning, AlertTriangle, XCircle, FileClock, CalendarClock, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { ExpiringClient } from "@/hooks/useExpiringClients";
@@ -53,8 +53,18 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
                 <TableRow>
                   <TableHead>Client</TableHead>
                   <TableHead>Statut</TableHead>
-                  <TableHead>Date de création</TableHead>
-                  <TableHead>Date d'expiration</TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>Date de création</span>
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      <CalendarClock className="h-4 w-4" />
+                      <span>Date d'expiration</span>
+                    </div>
+                  </TableHead>
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -86,12 +96,12 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
             </Table>
           </div>
         ) : (
-          <div className="py-6 text-center border rounded-md bg-gray-50">
-            <FileWarning className="h-10 w-10 mx-auto text-orange-500 mb-2" />
-            <p className="text-gray-700 font-medium mb-2">
+          <div className="py-8 text-center border rounded-md bg-gray-50">
+            <FileWarning className="h-12 w-12 mx-auto text-orange-500 mb-3" />
+            <p className="text-gray-700 font-medium text-lg mb-2">
               Aucune attestation fiscale à renouveler
             </p>
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
               Les attestations de conformité fiscale doivent être configurées dans l'onglet "Obligations fiscales" de chaque client.
             </p>
             <Button 

@@ -35,34 +35,35 @@ export const useExpiringClients = () => {
       const clientsWithExpiringDocs: ExpiringClient[] = [];
       const today = new Date();
       
-      // Traitement des clients avec des attestations expirées ou bientôt expirées
+      // Process each client
       clients.forEach((client: Client) => {
         const clientName = client.type === 'physique' 
           ? client.nom || 'Client sans nom' 
           : client.raisonsociale || 'Entreprise sans nom';
           
-        // Vérifier si le client a des données fiscales
+        // Check if client has fiscal_data
         if (client.fiscal_data) {
           clientsWithFiscalData++;
           console.log(`Client ${client.id} (${clientName}) has fiscal_data:`, client.fiscal_data);
           
-          // Vérifier si le client a une attestation
-          if (client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
+          // Check if client has attestation with validity end date
+          if (client.fiscal_data.attestation && 
+              client.fiscal_data.attestation.validityEndDate) {
+            
             clientsWithAttestations++;
             const validityEndDate = client.fiscal_data.attestation.validityEndDate;
             const creationDate = client.fiscal_data.attestation.creationDate;
             console.log(`Client ${client.id} has attestation with end date: ${validityEndDate}`);
             
             try {
-              // Format de date attendu: JJ/MM/AAAA
+              // Parse date in format DD/MM/YYYY
               const parsedDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
               
               if (isValid(parsedDate)) {
                 const daysUntilExpiration = differenceInDays(parsedDate, today);
                 console.log(`Client ${client.id} - Days until expiration: ${daysUntilExpiration}`);
                 
-                // Inclure toutes les attestations expirées 
-                // ET celles qui expirent dans les 5 prochains jours (comme demandé par le client)
+                // Include expired attestations AND those expiring within 5 days
                 if (daysUntilExpiration <= 5) {
                   clientsWithExpiringDocs.push({
                     id: client.id,
@@ -75,7 +76,7 @@ export const useExpiringClients = () => {
                   
                   console.log(`Added client ${clientName} to expiring docs list with ${daysUntilExpiration} days remaining`);
                   
-                  // Afficher une notification pour les attestations expirées ou qui expirent bientôt
+                  // Show notifications for expired or soon-to-expire attestations
                   if (daysUntilExpiration < 0) {
                     toast.warning(`L'attestation fiscale de ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours`);
                   } else if (daysUntilExpiration <= 5) {
@@ -99,12 +100,12 @@ export const useExpiringClients = () => {
       console.log(`Summary: ${clients.length} clients, ${clientsWithFiscalData} with fiscal data, ${clientsWithAttestations} with attestations`);
       console.log(`Found ${clientsWithExpiringDocs.length} clients with expiring documents`);
       
-      // Trier d'abord les documents expirés, puis par jours restants
+      // Sort: expired first, then by days remaining
       clientsWithExpiringDocs.sort((a, b) => {
-        // Si l'un est expiré et l'autre non, l'expiré vient en premier
+        // If one is expired and the other is not, the expired comes first
         if (a.daysRemaining < 0 && b.daysRemaining >= 0) return -1;
         if (a.daysRemaining >= 0 && b.daysRemaining < 0) return 1;
-        // Pour les documents expirés, montrer d'abord les plus anciens (plus négatif)
+        // For expired documents, show the ones expired for longer first
         if (a.daysRemaining < 0 && b.daysRemaining < 0) return a.daysRemaining - b.daysRemaining;
         // Sinon, trier par jours restants
         return a.daysRemaining - b.daysRemaining;
