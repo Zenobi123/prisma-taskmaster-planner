@@ -5,11 +5,10 @@ import QuickStats from "@/components/dashboard/QuickStats";
 import RecentTasks from "@/components/dashboard/RecentTasks";
 import { Toaster } from "@/components/ui/toaster";
 import FiscalAlerts from "@/components/dashboard/FiscalAlerts";
-import UpcomingObligations from "@/components/dashboard/UpcomingObligations";
 import { useFiscalCompliance } from "@/hooks/useFiscalCompliance";
 
 const Index = () => {
-  const { fiscalAlerts, upcomingObligations } = useFiscalCompliance();
+  const { fiscalAlerts } = useFiscalCompliance();
 
   return (
     <div className="min-h-screen flex">
@@ -34,7 +33,6 @@ const Index = () => {
           <QuickStats />
           <RecentTasks />
           <FiscalAlerts alerts={fiscalAlerts} />
-          <UpcomingObligations obligations={upcomingObligations} />
         </div>
       </main>
       <Toaster />
