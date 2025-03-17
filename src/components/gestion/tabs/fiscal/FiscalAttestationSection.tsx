@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Save, AlertTriangle, CheckCircle, XCircle, FileCheck, Bell } from "lucide-react";
+import { Save, AlertTriangle, CheckCircle, XCircle, FileCheck, Bell, BellOff } from "lucide-react";
 import { differenceInDays, isValid, parse } from "date-fns";
 
 interface FiscalAttestationSectionProps {
@@ -99,8 +99,23 @@ export function FiscalAttestationSection({
             size="sm"
             className={`w-fit ${isShowInAlert ? "bg-amber-500 hover:bg-amber-600" : "text-muted-foreground"}`}
           >
-            <Bell className="mr-1 h-4 w-4" />
-            Affichée en alerte
+            {isShowInAlert ? (
+              <>
+                <Bell className="mr-1 h-4 w-4" />
+                <span>Alerte activée</span>
+                <Badge variant="outline" className="ml-2 bg-white text-amber-600 border-white">
+                  ON
+                </Badge>
+              </>
+            ) : (
+              <>
+                <BellOff className="mr-1 h-4 w-4" />
+                <span>Alerte désactivée</span>
+                <Badge variant="outline" className="ml-2 bg-transparent text-muted-foreground border-muted">
+                  OFF
+                </Badge>
+              </>
+            )}
           </Button>
         </div>
         {status && (

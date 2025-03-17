@@ -1,6 +1,6 @@
 
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertTriangle, Info } from "lucide-react";
+import { AlertTriangle, Info, Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -57,18 +57,21 @@ const FiscalAlerts = ({ alerts }: FiscalAlertsProps) => {
                   }
                 >
                   <div className="flex justify-between items-start">
-                    <div>
+                    <div className="flex gap-2">
                       {isExpired ? (
                         <AlertTriangle className="h-4 w-4 text-red-600" />
                       ) : (
                         <Info className="h-4 w-4 text-amber-600" />
                       )}
-                      <AlertTitle className={isExpired ? "text-red-800" : "text-amber-800"}>
-                        {alert.title}
-                      </AlertTitle>
-                      <AlertDescription className={isExpired ? "text-red-700" : "text-amber-700"}>
-                        {alert.description}
-                      </AlertDescription>
+                      <div>
+                        <AlertTitle className={isExpired ? "text-red-800" : "text-amber-800"}>
+                          {alert.title}
+                          <Bell className="inline-block ml-2 h-3 w-3" title="Notification activée" />
+                        </AlertTitle>
+                        <AlertDescription className={isExpired ? "text-red-700" : "text-amber-700"}>
+                          {alert.description}
+                        </AlertDescription>
+                      </div>
                     </div>
                     {alert.clientId && (
                       <Button 
