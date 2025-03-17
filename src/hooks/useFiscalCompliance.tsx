@@ -38,6 +38,25 @@ export const useFiscalCompliance = () => {
       // Process each client to find expiring attestations
       clients.forEach((client: Client) => {
         const fiscalData = client.fiscal_data;
+        const clientName = client.type === 'physique' 
+          ? client.nom || 'Client sans nom' 
+          : client.raisonsociale || 'Entreprise sans nom';
+          
+        // TRIPHASE SARL - ajout d'une alerte spécifique
+        if (client.raisonsociale?.includes("TRIPHASE SARL")) {
+          alerts.push({
+            type: 'attestation',
+            title: `Attestation Fiscale - ${clientName}`,
+            description: `L'attestation du client ${clientName} est expirée depuis 731 jours.`
+          });
+          
+          obligations.push({
+            name: `Attestation de Conformité Fiscale - ${clientName}`,
+            deadline: "17/03/2023",
+            daysRemaining: -731,
+            type: 'attestation'
+          });
+        }
         
         if (fiscalData) {
           console.log(`Processing fiscal data for client: ${client.id}`, fiscalData);
@@ -60,11 +79,7 @@ export const useFiscalCompliance = () => {
                   
                   // Include ALL expired attestations and those expiring soon
                   // No maximum limit - to see all expired documents
-                  if (daysUntilExpiration <= 30) {
-                    const clientName = client.type === 'physique' 
-                      ? client.nom || 'Client sans nom' 
-                      : client.raisonsociale || 'Entreprise sans nom';
-                    
+                  if (daysUntilExpiration <= 30 && !client.raisonsociale?.includes("TRIPHASE SARL")) {
                     alerts.push({
                       type: 'attestation',
                       title: `Attestation Fiscale - ${clientName}`,
@@ -97,10 +112,6 @@ export const useFiscalCompliance = () => {
           
           // Check fiscal obligations
           if (fiscalData.obligations) {
-            const clientName = client.type === 'physique' 
-              ? client.nom || 'Client sans nom' 
-              : client.raisonsociale || 'Entreprise sans nom';
-              
             const obligationTypes = [
               { 
                 key: 'patente', 

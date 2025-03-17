@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Client } from "@/types/client";
 
 interface GestionDossierProps {
-  selectedClient?: Client;
+  selectedClient: Client;
 }
 
 export function GestionDossier({ selectedClient }: GestionDossierProps) {
