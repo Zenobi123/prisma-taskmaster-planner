@@ -27,15 +27,27 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
           <span>Expirée depuis {Math.abs(daysRemaining)} jours</span>
         </Badge>
       );
-    } else {
+    } else if (daysRemaining <= 30) {
       return (
         <Badge variant="outline" className="flex items-center gap-1 bg-amber-50 text-amber-700 border-amber-200 whitespace-nowrap">
           <AlertTriangle className="h-3.5 w-3.5" />
           <span>Expire dans {daysRemaining} jours</span>
         </Badge>
       );
+    } else {
+      return (
+        <Badge variant="outline" className="flex items-center gap-1 bg-green-50 text-green-700 border-green-200 whitespace-nowrap">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          <span>Valide pour {daysRemaining} jours</span>
+        </Badge>
+      );
     }
   };
+  
+  // Filtrer pour ne montrer que les attestations fiscales
+  const fiscalClients = clients.filter(client => 
+    client.document === 'Attestation de Conformité Fiscale' || client.type === 'fiscal'
+  );
   
   return (
     <Card className="mb-6 border-orange-300">
@@ -46,7 +58,7 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {clients && clients.length > 0 ? (
+        {fiscalClients && fiscalClients.length > 0 ? (
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
@@ -69,14 +81,14 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {clients.map((client, index) => (
+                {fiscalClients.map((client, index) => (
                   <TableRow key={index} className={client.daysRemaining < 0 ? "bg-red-50" : ""}>
                     <TableCell className="font-medium">{client.name}</TableCell>
                     <TableCell>
                       {getStatusBadge(client.daysRemaining)}
                     </TableCell>
                     <TableCell className="text-sm">
-                      {client.creationDate || "Non spécifiée"}
+                      {client.creationDate}
                     </TableCell>
                     <TableCell className="text-sm">
                       {client.expiryDate}

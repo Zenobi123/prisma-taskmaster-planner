@@ -1,3 +1,4 @@
+
 import { differenceInDays, parse, isValid } from "date-fns";
 import { Client } from "@/types/client";
 import { ExpiringClient } from "./types";
@@ -20,7 +21,8 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
     // Check if client has fiscal_data with attestation
     if (client.fiscal_data?.attestation?.validityEndDate) {
       const validityEndDate = client.fiscal_data.attestation.validityEndDate;
-      const creationDate = client.fiscal_data.attestation.creationDate;
+      // Utiliser une valeur par défaut si creationDate n'est pas défini
+      const creationDate = client.fiscal_data.attestation.creationDate || 'Non spécifiée';
       
       try {
         // Parse date in format DD/MM/YYYY
@@ -29,18 +31,19 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
         if (isValid(parsedDate)) {
           const daysUntilExpiration = differenceInDays(parsedDate, today);
           
-          // Include expired attestations and those expiring within 30 days
+          // Include TOUTES les attestations expirées ou à expirer (pas de limite de jours)
+          clientsWithExpiringDocs.push({
+            id: client.id,
+            name: clientName,
+            document: 'Attestation de Conformité Fiscale',
+            expiryDate: validityEndDate,
+            creationDate: creationDate,
+            daysRemaining: daysUntilExpiration,
+            type: 'fiscal'
+          });
+          
+          // Afficher une notification seulement pour les attestations expirées ou qui expirent bientôt
           if (daysUntilExpiration <= 30) {
-            clientsWithExpiringDocs.push({
-              id: client.id,
-              name: clientName,
-              document: 'Attestation de Conformité Fiscale',
-              expiryDate: validityEndDate,
-              creationDate: creationDate || 'Non spécifiée',
-              daysRemaining: daysUntilExpiration
-            });
-            
-            // Show notifications for expired or soon-to-expire attestations
             showExpirationNotification(clientName, daysUntilExpiration);
           }
         } else {
