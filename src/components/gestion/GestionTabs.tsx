@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { GestionTabsList } from "./tabs/TabsList";
-import { TabsContent as CustomTabsContent } from "@/components/gestion/tabs/TabsContent";
+import { TabsContent as CustomTabsContent } from "./tabs/TabsContent";
 import { Client } from "@/types/client";
 import { useLocation } from "react-router-dom";
 

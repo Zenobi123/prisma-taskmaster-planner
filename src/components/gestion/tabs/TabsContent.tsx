@@ -1,6 +1,5 @@
 
 import React from "react";
-import { TabsContent as ShadcnTabsContent } from "@/components/ui/tabs";
 import { GestionEntreprise } from "./GestionEntreprise";
 import { GestionFiscale } from "./GestionFiscale";
 import { GestionComptable } from "./GestionComptable";
@@ -10,55 +9,41 @@ import { ClotureExercice } from "./ClotureExercice";
 import { ObligationsFiscales } from "./ObligationsFiscales";
 import { Client } from "@/types/client";
 
-interface TabsContentProps {
-  activeTab: string;
-  selectedClient: Client;
-  selectedSubTab: string | null;
-  onTabChange: (value: string) => void;
-  onSubTabSelect: (subTab: string) => void;
-}
-
-export function GestionTabsContent({ 
-  activeTab, 
-  selectedClient, 
-  selectedSubTab, 
-  onTabChange, 
-  onSubTabSelect 
-}: TabsContentProps) {
-  return (
-    <>
-      <ShadcnTabsContent value="entreprise">
-        <GestionEntreprise onTabChange={onTabChange} />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="contrat-prestations">
-        <ContratPrestations client={selectedClient} />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="fiscal">
-        <GestionFiscale onTabChange={onTabChange} />
-      </ShadcnTabsContent>
-
-      {activeTab === "obligations-fiscales" && (
-        <ShadcnTabsContent value="obligations-fiscales">
-          <ObligationsFiscales selectedClient={selectedClient} />
-        </ShadcnTabsContent>
-      )}
-
-      <ShadcnTabsContent value="cloture-exercice">
-        <ClotureExercice 
-          selectedSubTab={selectedSubTab} 
-          handleSubTabSelect={onSubTabSelect} 
-        />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="comptable">
-        <GestionComptable />
-      </ShadcnTabsContent>
-
-      <ShadcnTabsContent value="dossier">
-        <GestionDossier />
-      </ShadcnTabsContent>
-    </>
-  );
-}
+// Export components as nested objects
+export const TabsContent = {
+  Entreprise: ({ selectedClient }: { selectedClient: Client }) => (
+    <GestionEntreprise selectedClient={selectedClient} />
+  ),
+  
+  ObligationsFiscales: ({ selectedClient }: { selectedClient: Client }) => (
+    <ObligationsFiscales selectedClient={selectedClient} />
+  ),
+  
+  GestionComptable: ({ selectedClient }: { selectedClient: Client }) => (
+    <GestionComptable selectedClient={selectedClient} />
+  ),
+  
+  ContratPrestations: ({ selectedClient }: { selectedClient: Client }) => (
+    <ContratPrestations selectedClient={selectedClient} />
+  ),
+  
+  ClotureExercice: ({ 
+    selectedClient, 
+    selectedSubTab, 
+    onSubTabSelect 
+  }: { 
+    selectedClient: Client; 
+    selectedSubTab: string | null; 
+    onSubTabSelect: (subTab: string) => void; 
+  }) => (
+    <ClotureExercice 
+      selectedClient={selectedClient}
+      selectedSubTab={selectedSubTab} 
+      handleSubTabSelect={onSubTabSelect} 
+    />
+  ),
+  
+  GestionDossier: ({ selectedClient }: { selectedClient: Client }) => (
+    <GestionDossier selectedClient={selectedClient} />
+  ),
+};
