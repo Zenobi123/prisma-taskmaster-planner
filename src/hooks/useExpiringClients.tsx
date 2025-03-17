@@ -31,9 +31,13 @@ export const useExpiringClients = () => {
       const clientsWithExpiringDocs: ExpiringClient[] = [];
       const today = new Date();
       
-      // Traitement des clients réels uniquement
+      // Traitement des clients avec des attestations expirées ou bientôt expirées
       clients.forEach((client: Client) => {
-        console.log(`Checking client ${client.id} (${client.nom || client.raisonsociale || 'Sans nom'}) for fiscal attestations`);
+        const clientName = client.type === 'physique' 
+          ? client.nom || 'Client sans nom' 
+          : client.raisonsociale || 'Entreprise sans nom';
+          
+        console.log(`Checking client ${client.id} (${clientName}) for fiscal attestations`);
         
         // Vérifier si le client a des données fiscales et une attestation
         if (client.fiscal_data && client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
@@ -48,13 +52,9 @@ export const useExpiringClients = () => {
               const daysUntilExpiration = differenceInDays(parsedDate, today);
               console.log(`Client ${client.id} - Days until expiration: ${daysUntilExpiration}`);
               
-              // Inclure TOUTES les attestations expirées (daysUntilExpiration < 0) 
+              // Inclure TOUTES les attestations expirées sans limite de temps
               // ET celles qui expirent dans les 30 prochains jours
               if (daysUntilExpiration <= 30) {
-                const clientName = client.type === 'physique' 
-                  ? client.nom || 'Client sans nom' 
-                  : client.raisonsociale || 'Entreprise sans nom';
-                  
                 clientsWithExpiringDocs.push({
                   id: client.id,
                   name: clientName,
@@ -90,6 +90,8 @@ export const useExpiringClients = () => {
         // Si l'un est expiré et l'autre non, l'expiré vient en premier
         if (a.daysRemaining < 0 && b.daysRemaining >= 0) return -1;
         if (a.daysRemaining >= 0 && b.daysRemaining < 0) return 1;
+        // Pour les documents expirés, montrer d'abord les plus anciens (plus négatif)
+        if (a.daysRemaining < 0 && b.daysRemaining < 0) return a.daysRemaining - b.daysRemaining;
         // Sinon, trier par jours restants
         return a.daysRemaining - b.daysRemaining;
       });
