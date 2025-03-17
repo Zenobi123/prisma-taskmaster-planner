@@ -1,4 +1,3 @@
-
 import { addMonths, differenceInDays, parse, isValid } from "date-fns";
 import { Client } from "@/types/client";
 import { FiscalAlert, FiscalObligation, ProcessedClient } from "./types";
@@ -13,24 +12,6 @@ export const processClientFiscalData = (
   const clientName = client.type === 'physique' 
     ? client.nom || 'Client sans nom' 
     : client.raisonsociale || 'Entreprise sans nom';
-    
-  // TRIPHASE SARL - ajout d'une alerte spécifique
-  if (client.raisonsociale?.includes("TRIPHASE SARL")) {
-    alerts.push({
-      type: 'attestation',
-      title: `Attestation de Conformité Fiscale - ${clientName}`,
-      description: `L'attestation du client ${clientName} est expirée depuis 731 jours.`,
-      clientId: client.id  // Add client ID for navigation
-    });
-    
-    obligations.push({
-      name: `Attestation de Conformité Fiscale - ${clientName}`,
-      deadline: "17/03/2023",
-      daysRemaining: -731,
-      type: 'attestation',
-      clientId: client.id  // Add client ID for navigation
-    });
-  }
   
   // If no fiscal data, return early
   if (!client.fiscal_data) {
@@ -65,9 +46,9 @@ const processAttestations = (
       if (isValid(parsedDate)) {
         const daysUntilExpiration = differenceInDays(parsedDate, today);
         
-        // Include all attestations that are expired or expiring within 30 days
-        // This will show more alerts on the dashboard
-        if (daysUntilExpiration <= 30 && !client.raisonsociale?.includes("TRIPHASE SARL")) {
+        // Inclure toutes les attestations qui sont expirées ou qui expirent dans les 30 jours
+        // Traitement uniforme pour tous les clients
+        if (daysUntilExpiration <= 30) {
           // Create unique description based on expiration status
           const description = daysUntilExpiration < 0 
             ? `L'attestation du client ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours.` 
