@@ -15,7 +15,8 @@ const UnpaidPatenteList = () => {
     queryFn: getClientsWithUnpaidPatente,
   });
 
-  console.log("UnpaidPatenteList - Clients:", clients.length);
+  console.log("UnpaidPatenteList - Clients:", clients);
+  console.log("UnpaidPatenteList - Clients length:", clients.length);
   console.log("UnpaidPatenteList - isLoading:", isLoading);
   console.log("UnpaidPatenteList - isFetched:", isFetched);
 
@@ -25,7 +26,7 @@ const UnpaidPatenteList = () => {
 
   if (isLoading) {
     return (
-      <Card className="mt-6 border-red-300 animate-pulse">
+      <Card className="border border-red-300 animate-pulse">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center">
             <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
@@ -40,7 +41,7 @@ const UnpaidPatenteList = () => {
   }
 
   return (
-    <Card className="mt-6 border-red-300">
+    <Card className="border border-red-300">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center">
           <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />

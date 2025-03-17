@@ -15,9 +15,12 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
     queryFn: getClientsWithUnpaidPatente,
   });
 
+  console.log("UnpaidPatenteSummary - Clients:", clients.length);
+  console.log("UnpaidPatenteSummary - isLoading:", isLoading);
+
   if (isLoading) {
     return (
-      <Card className="mt-6 bg-white">
+      <Card className="bg-white">
         <CardContent className="p-6 flex items-center justify-center">
           <Loader2 className="h-5 w-5 animate-spin text-primary" />
         </CardContent>
@@ -26,7 +29,7 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
   }
 
   return (
-    <Card className="mt-6 bg-white">
+    <Card className="bg-white">
       <CardContent className="p-6">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
           <div>
