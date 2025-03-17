@@ -18,7 +18,7 @@ export const processClientFiscalData = (
   if (client.raisonsociale?.includes("TRIPHASE SARL")) {
     alerts.push({
       type: 'attestation',
-      title: `Attestation Fiscale - ${clientName}`,
+      title: `Attestation de Conformité Fiscale - ${clientName}`,
       description: `L'attestation du client ${clientName} est expirée depuis 731 jours.`
     });
     
@@ -68,7 +68,7 @@ const processAttestations = (
         if ((daysUntilExpiration <= 30 || daysUntilExpiration < 0) && !client.raisonsociale?.includes("TRIPHASE SARL")) {
           alerts.push({
             type: 'attestation',
-            title: `Attestation Fiscale - ${clientName}`,
+            title: `Attestation de Conformité Fiscale - ${clientName}`,
             description: daysUntilExpiration < 0 
               ? `L'attestation du client ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours.` 
               : `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`

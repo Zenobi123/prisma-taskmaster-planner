@@ -66,9 +66,9 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
  */
 export const showExpirationNotification = (clientName: string, daysUntilExpiration: number): void => {
   if (daysUntilExpiration < 0) {
-    toast.warning(`L'attestation fiscale de ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours`);
+    toast.warning(`L'attestation de conformité fiscale de ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours`);
   } else if (daysUntilExpiration <= 5) {
-    toast.warning(`L'attestation fiscale de ${clientName} expire dans ${daysUntilExpiration} jours`);
+    toast.warning(`L'attestation de conformité fiscale de ${clientName} expire dans ${daysUntilExpiration} jours`);
   }
 };
 
