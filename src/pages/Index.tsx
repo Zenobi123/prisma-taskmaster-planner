@@ -6,6 +6,7 @@ import RecentTasks from "@/components/dashboard/RecentTasks";
 import ExpiringFiscalAttestations from "@/components/dashboard/ExpiringFiscalAttestations";
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 import { Toaster } from "@/components/ui/toaster";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 const Index = () => {
   const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();

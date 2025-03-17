@@ -1,10 +1,14 @@
 
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { getTasks } from "@/services/taskService";
 import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
+import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 
 const QuickStats = () => {
+  const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
+
   const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
@@ -134,12 +138,13 @@ const QuickStats = () => {
           <p className="text-neutral-600 text-sm mt-1">À régulariser</p>
         </div>
 
-        <div className="card">
+        <div className="card cursor-pointer hover:bg-slate-50 transition-colors" 
+             onClick={() => setShowUnpaidPatenteDialog(true)}>
           <h3 className="font-semibold text-neutral-800 mb-4">
             Patentes impayées
           </h3>
           <div className="flex items-center">
-            <div className="text-3xl font-bold text-primary mr-2">
+            <div className="text-3xl font-bold text-emerald-600 mr-2">
               {isClientStatsLoading ? (
                 <span className="animate-pulse">--</span>
               ) : (
@@ -155,6 +160,11 @@ const QuickStats = () => {
           <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
         </div>
       </div>
+      
+      <UnpaidPatenteDialog 
+        open={showUnpaidPatenteDialog} 
+        onOpenChange={setShowUnpaidPatenteDialog} 
+      />
     </div>
   );
 };
