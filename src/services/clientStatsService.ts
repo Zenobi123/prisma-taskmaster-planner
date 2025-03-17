@@ -22,14 +22,12 @@ export const getClientStats = async () => {
     // On vérifie si le client a des données fiscales
     if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
       // Vérifier si obligations existe dans les données fiscales
-      const fiscalData = client.fiscal_data as { obligations?: any[] };
-      if (fiscalData.obligations && Array.isArray(fiscalData.obligations)) {
-        // On cherche une obligation de type patente qui est due mais non payée
-        return fiscalData.obligations.some((obligation: any) => 
-          obligation.type === 'patente' && 
-          obligation.status === 'due' && 
-          !obligation.paid
-        );
+      const fiscalData = client.fiscal_data as { obligations?: any };
+      if (fiscalData.obligations) {
+        // On cherche une obligation de type patente qui est assujetti mais non payée
+        return fiscalData.obligations.patente && 
+               fiscalData.obligations.patente.assujetti === true && 
+               fiscalData.obligations.patente.paye === false;
       }
     }
     return false;
@@ -40,14 +38,12 @@ export const getClientStats = async () => {
     // On vérifie si le client a des données fiscales
     if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
       // Vérifier si obligations existe dans les données fiscales
-      const fiscalData = client.fiscal_data as { obligations?: any[] };
-      if (fiscalData.obligations && Array.isArray(fiscalData.obligations)) {
-        // On cherche une obligation de type dsf qui est due mais non déposée
-        return fiscalData.obligations.some((obligation: any) => 
-          obligation.type === 'dsf' && 
-          obligation.assujetti === true && 
-          obligation.depose === false
-        );
+      const fiscalData = client.fiscal_data as { obligations?: any };
+      if (fiscalData.obligations) {
+        // On cherche une obligation de type dsf qui est assujetti mais non déposée
+        return fiscalData.obligations.dsf && 
+               fiscalData.obligations.dsf.assujetti === true && 
+               fiscalData.obligations.dsf.depose === false;
       }
     }
     return false;
