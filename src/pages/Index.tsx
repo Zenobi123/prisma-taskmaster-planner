@@ -5,13 +5,16 @@ import QuickStats from "@/components/dashboard/QuickStats";
 import RecentTasks from "@/components/dashboard/RecentTasks";
 import UnpaidPatenteList from "@/components/dashboard/UnpaidPatenteList";
 import UnpaidPatenteSummary from "@/components/dashboard/UnpaidPatenteSummary";
+import UnpaidPatenteDialog from "@/components/dashboard/UnpaidPatenteDialog";
 import ExpiringFiscalAttestations from "@/components/dashboard/ExpiringFiscalAttestations";
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 import { Toaster } from "@/components/ui/toaster";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useState } from "react";
 
 const Index = () => {
   const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
+  const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex">
@@ -34,7 +37,7 @@ const Index = () => {
 
         <div className="p-8">
           <QuickStats />
-          <UnpaidPatenteSummary />
+          <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
           <RecentTasks />
           <UnpaidPatenteList />
           <ExpiringFiscalAttestations 
@@ -43,6 +46,10 @@ const Index = () => {
           />
         </div>
       </main>
+      <UnpaidPatenteDialog 
+        open={isUnpaidPatenteDialogOpen} 
+        onOpenChange={setIsUnpaidPatenteDialogOpen} 
+      />
       <Toaster />
     </div>
   );

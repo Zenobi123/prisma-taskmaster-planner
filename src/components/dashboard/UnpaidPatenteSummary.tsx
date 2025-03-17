@@ -2,21 +2,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { getClientsWithUnpaidPatente } from "@/services/unpaidPatenteService";
 import { Card, CardContent } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const UnpaidPatenteSummary = () => {
-  const navigate = useNavigate();
-  
+interface UnpaidPatenteSummaryProps {
+  onViewAllClick: () => void;
+}
+
+const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => {
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients-unpaid-patente-summary"],
     queryFn: getClientsWithUnpaidPatente,
   });
-
-  const handleViewAllClick = () => {
-    navigate("/clients?filter=unpaid-patente");
-  };
 
   if (isLoading) {
     return (
@@ -47,7 +44,7 @@ const UnpaidPatenteSummary = () => {
           <Button 
             variant="outline" 
             className="mt-4 md:mt-0" 
-            onClick={handleViewAllClick}
+            onClick={onViewAllClick}
           >
             Voir tous
           </Button>
