@@ -26,7 +26,7 @@ export interface ProcessedClient {
 export interface FiscalAttestationData {
   creationDate?: string;
   validityEndDate?: string;
-  showInAlert?: boolean; // Ajout de l'option pour afficher ou non en alerte
+  showInAlert?: boolean; // Add property to control alert visibility
 }
 
 export interface ClientFiscalData {

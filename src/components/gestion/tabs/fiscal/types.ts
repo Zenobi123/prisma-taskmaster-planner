@@ -24,6 +24,7 @@ export type ObligationStatuses = {
 export interface FiscalAttestationData {
   creationDate: string;
   validityEndDate: string;
+  showInAlert?: boolean; // Add property to control alert visibility
 }
 
 export interface ClientFiscalData {
