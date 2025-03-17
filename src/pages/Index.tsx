@@ -8,6 +8,9 @@ import UnpaidPatenteSummary from "@/components/dashboard/UnpaidPatenteSummary";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import ExpiringFiscalAttestations from "@/components/dashboard/ExpiringFiscalAttestations";
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
+import UnfiledDsfList from "@/components/dashboard/UnfiledDsfList";
+import UnfiledDsfSummary from "@/components/dashboard/UnfiledDsfSummary";
+import { UnfiledDsfDialog } from "@/components/dashboard/UnfiledDsfDialog";
 import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -17,6 +20,7 @@ const Index = () => {
   const queryClient = useQueryClient();
   const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
+  const [isUnfiledDsfDialogOpen, setIsUnfiledDsfDialogOpen] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
 
   // Configuration de l'intervalle de rafraîchissement (toutes les 10 secondes)
@@ -30,6 +34,8 @@ const Index = () => {
         queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
         queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
         queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
+        queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
+        queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
         queryClient.invalidateQueries({ queryKey: ["tasks"] });
         queryClient.invalidateQueries({ queryKey: ["client-stats"] });
         
@@ -81,13 +87,13 @@ const Index = () => {
           
           <RecentTasks />
           
-          {/* Section Attestations Fiscales maintenant placée AVANT les Patentes */}
+          {/* Section Attestations Fiscales */}
           <ExpiringFiscalAttestations 
             attestations={attestations} 
             isLoading={isLoading} 
           />
 
-          {/* Section Patente maintenant placée APRÈS les attestations fiscales */}
+          {/* Section Patente */}
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-neutral-800">Gestion des Patentes</h2>
             
@@ -97,6 +103,17 @@ const Index = () => {
             {/* Liste des clients avec patente impayée */}
             <UnpaidPatenteList />
           </div>
+          
+          {/* Section DSF - Nouvelle section ajoutée */}
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-neutral-800">Déclarations Statistiques et Fiscales</h2>
+            
+            {/* Résumé des DSF non déposées */}
+            <UnfiledDsfSummary onViewAllClick={() => setIsUnfiledDsfDialogOpen(true)} />
+            
+            {/* Liste des clients avec DSF non déposée */}
+            <UnfiledDsfList />
+          </div>
         </div>
       </main>
       
@@ -104,6 +121,12 @@ const Index = () => {
         open={isUnpaidPatenteDialogOpen} 
         onOpenChange={setIsUnpaidPatenteDialogOpen} 
       />
+      
+      <UnfiledDsfDialog 
+        open={isUnfiledDsfDialogOpen} 
+        onOpenChange={setIsUnfiledDsfDialogOpen} 
+      />
+      
       <Toaster />
     </div>
   );
