@@ -3,6 +3,7 @@ export interface FiscalAlert {
   type: string;
   title: string;
   description: string;
+  clientId?: string; // Add clientId for navigation
 }
 
 export interface FiscalObligation {
@@ -10,6 +11,7 @@ export interface FiscalObligation {
   deadline: string;
   daysRemaining: number;
   type: string;
+  clientId?: string; // Add clientId for navigation
 }
 
 export interface ProcessedClient {

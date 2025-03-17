@@ -19,14 +19,16 @@ export const processClientFiscalData = (
     alerts.push({
       type: 'attestation',
       title: `Attestation de Conformité Fiscale - ${clientName}`,
-      description: `L'attestation du client ${clientName} est expirée depuis 731 jours.`
+      description: `L'attestation du client ${clientName} est expirée depuis 731 jours.`,
+      clientId: client.id  // Add client ID for navigation
     });
     
     obligations.push({
       name: `Attestation de Conformité Fiscale - ${clientName}`,
       deadline: "17/03/2023",
       daysRemaining: -731,
-      type: 'attestation'
+      type: 'attestation',
+      clientId: client.id  // Add client ID for navigation
     });
   }
   
@@ -63,22 +65,24 @@ const processAttestations = (
       if (isValid(parsedDate)) {
         const daysUntilExpiration = differenceInDays(parsedDate, today);
         
-        // Include ALL expired attestations and those expiring soon
-        // No maximum limit - to see all expired documents
-        if ((daysUntilExpiration <= 30 || daysUntilExpiration < 0) && !client.raisonsociale?.includes("TRIPHASE SARL")) {
+        // Include all expired attestations and those expiring within 5 days
+        // This aligns with the requirement to notify for expired or expiring within 5 days
+        if ((daysUntilExpiration <= 5 || daysUntilExpiration < 0) && !client.raisonsociale?.includes("TRIPHASE SARL")) {
           alerts.push({
             type: 'attestation',
             title: `Attestation de Conformité Fiscale - ${clientName}`,
             description: daysUntilExpiration < 0 
               ? `L'attestation du client ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours.` 
-              : `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`
+              : `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`,
+            clientId: client.id  // Add client ID for navigation
           });
           
           obligations.push({
             name: `Attestation de Conformité Fiscale - ${clientName}`,
             deadline: validityEndDate,
             daysRemaining: daysUntilExpiration,
-            type: 'attestation'
+            type: 'attestation',
+            clientId: client.id  // Add client ID for navigation
           });
         }
       }

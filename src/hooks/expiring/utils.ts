@@ -42,9 +42,9 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
             type: 'fiscal'
           });
           
-          // Only show notifications for soon-to-expire attestations
-          if (daysUntilExpiration <= 30) {
-            showExpirationNotification(clientName, daysUntilExpiration);
+          // Only show notifications for expired attestations or ones expiring in 5 days
+          if (daysUntilExpiration <= 5 || daysUntilExpiration < 0) {
+            showExpirationNotification(clientName, daysUntilExpiration, client.id);
           }
         } else {
           console.log(`Client ${client.id} - Invalid date format: ${validityEndDate}`);
@@ -64,11 +64,24 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
 /**
  * Show toast notifications for expired or soon-to-expire attestations
  */
-export const showExpirationNotification = (clientName: string, daysUntilExpiration: number): void => {
-  if (daysUntilExpiration < 0) {
-    toast.warning(`L'attestation de conformité fiscale de ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours`);
-  } else if (daysUntilExpiration <= 5) {
-    toast.warning(`L'attestation de conformité fiscale de ${clientName} expire dans ${daysUntilExpiration} jours`);
+export const showExpirationNotification = (clientName: string, daysUntilExpiration: number, clientId?: string): void => {
+  const message = daysUntilExpiration < 0
+    ? `L'attestation de conformité fiscale de ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours`
+    : `L'attestation de conformité fiscale de ${clientName} expire dans ${daysUntilExpiration} jours`;
+    
+  // Create a toast with an action to navigate to client's fiscal obligations page
+  if (clientId) {
+    toast.warning(message, {
+      action: {
+        label: "Voir détails",
+        onClick: () => {
+          window.location.href = `/gestion?client=${clientId}&tab=obligations-fiscales`;
+        }
+      },
+      duration: 10000 // Extended duration to give time to click
+    });
+  } else {
+    toast.warning(message);
   }
 };
 
