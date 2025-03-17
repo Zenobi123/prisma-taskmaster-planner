@@ -31,7 +31,7 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
         if (isValid(parsedDate)) {
           const daysUntilExpiration = differenceInDays(parsedDate, today);
           
-          // Include TOUTES les attestations expirées ou à expirer (pas de limite de jours)
+          // Include ALL attestations regardless of expiry (no day limit)
           clientsWithExpiringDocs.push({
             id: client.id,
             name: clientName,
@@ -42,7 +42,7 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
             type: 'fiscal'
           });
           
-          // Afficher une notification seulement pour les attestations expirées ou qui expirent bientôt
+          // Only show notifications for soon-to-expire attestations
           if (daysUntilExpiration <= 30) {
             showExpirationNotification(clientName, daysUntilExpiration);
           }
@@ -54,6 +54,9 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
       }
     }
   });
+  
+  // Log the number of clients with expiring documents
+  console.log(`Found ${clientsWithExpiringDocs.length} clients with fiscal attestations`);
   
   return clientsWithExpiringDocs;
 };

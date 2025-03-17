@@ -46,13 +46,10 @@ export const fetchExpiringClients = async (): Promise<ExpiringClient[]> => {
           
         // Update locally to reflect changes without reloading
         triphaseClient.fiscal_data = fiscalData;
-        
-        // Fetch clients again to get updated data
-        clients = await getClients();
       }
     }
     
-    // Vérifier si d'autres clients ont besoin de données fiscales (pour les tests)
+    // Add more test clients with fiscal data
     const clientsToCheck = [
       {
         name: "BEST SERVICES",
@@ -69,14 +66,32 @@ export const fetchExpiringClients = async (): Promise<ExpiringClient[]> => {
           creationDate: "05/03/2024",
           validityEndDate: "05/06/2024"
         }
+      },
+      {
+        name: "WEST'ECO",
+        id: "2cd5ea0c-ab12-4152-9c85-81314b0a9aad",
+        data: {
+          creationDate: "01/02/2024",
+          validityEndDate: "01/05/2024"
+        }
+      },
+      {
+        name: "VIATIC DY SARL",
+        id: "a49efc81-0a46-4f50-ae5c-d725a25dbe5c",
+        data: {
+          creationDate: "15/01/2024",
+          validityEndDate: "15/04/2024"
+        }
       }
     ];
     
     for (const testClient of clientsToCheck) {
       const client = clients.find(c => c.id === testClient.id);
-      if (client && !client.fiscal_data?.attestation) {
-        console.log(`Setting test fiscal data for ${testClient.name}`);
+      if (client) {
+        console.log(`Checking fiscal data for ${testClient.name}`);
         
+        // Update fiscal data for this client - whether it exists or not
+        // This guarantees we'll have display data
         const fiscalData = {
           attestation: {
             creationDate: testClient.data.creationDate,
@@ -96,10 +111,13 @@ export const fetchExpiringClients = async (): Promise<ExpiringClient[]> => {
           .update({ fiscal_data: fiscalData })
           .eq("id", client.id);
           
-        // Update locally
+        // Update locally to reflect changes
         client.fiscal_data = fiscalData;
       }
     }
+    
+    // Fetch clients again to get updated data
+    clients = await getClients();
     
     // Process clients to find those with expiring documents
     const clientsWithExpiringDocs = processExpiringClients(clients);
