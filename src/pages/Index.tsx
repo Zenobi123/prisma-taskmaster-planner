@@ -39,7 +39,15 @@ const Index = () => {
         <div className="p-8 space-y-8">
           <QuickStats />
           
-          {/* Section Patente */}
+          <RecentTasks />
+          
+          {/* Section Attestations Fiscales maintenant placée AVANT les Patentes */}
+          <ExpiringFiscalAttestations 
+            attestations={attestations} 
+            isLoading={isLoading} 
+          />
+
+          {/* Section Patente maintenant placée APRÈS les attestations fiscales */}
           <div className="space-y-6">
             <h2 className="text-xl font-semibold text-neutral-800">Gestion des Patentes</h2>
             
@@ -49,13 +57,6 @@ const Index = () => {
             {/* Liste des clients avec patente impayée */}
             <UnpaidPatenteList />
           </div>
-          
-          <RecentTasks />
-          
-          <ExpiringFiscalAttestations 
-            attestations={attestations} 
-            isLoading={isLoading} 
-          />
         </div>
       </main>
       
