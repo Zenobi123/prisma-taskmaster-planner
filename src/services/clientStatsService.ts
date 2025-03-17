@@ -35,10 +35,29 @@ export const getClientStats = async () => {
     return false;
   }).length;
   
-  console.log("Statistiques clients:", { managedClients, unpaidPatenteClients });
+  // Clients avec DSF non déposée
+  const unfiledDsfClients = allClients.filter(client => {
+    // On vérifie si le client a des données fiscales
+    if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
+      // Vérifier si obligations existe dans les données fiscales
+      const fiscalData = client.fiscal_data as { obligations?: any[] };
+      if (fiscalData.obligations && Array.isArray(fiscalData.obligations)) {
+        // On cherche une obligation de type dsf qui est due mais non déposée
+        return fiscalData.obligations.some((obligation: any) => 
+          obligation.type === 'dsf' && 
+          obligation.assujetti === true && 
+          obligation.depose === false
+        );
+      }
+    }
+    return false;
+  }).length;
+  
+  console.log("Statistiques clients:", { managedClients, unpaidPatenteClients, unfiledDsfClients });
   
   return {
     managedClients,
-    unpaidPatenteClients
+    unpaidPatenteClients,
+    unfiledDsfClients
   };
 };

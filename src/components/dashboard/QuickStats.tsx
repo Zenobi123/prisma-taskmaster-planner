@@ -10,7 +10,7 @@ const QuickStats = () => {
     queryFn: getTasks,
   });
 
-  const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
+  const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientStats,
   });
@@ -122,16 +122,16 @@ const QuickStats = () => {
 
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
-            Suivi client
+            DSF non déposées
           </h3>
           <div className="text-3xl font-bold text-primary">
             {isClientStatsLoading ? (
               <span className="animate-pulse">--</span>
             ) : (
-              clientStats.managedClients
+              clientStats.unfiledDsfClients
             )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">En cours</p>
+          <p className="text-neutral-600 text-sm mt-1">À régulariser</p>
         </div>
 
         <div className="card">
