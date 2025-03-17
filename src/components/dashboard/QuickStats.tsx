@@ -1,12 +1,18 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { getTasks } from "@/services/taskService";
+import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 
 const QuickStats = () => {
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
+  });
+
+  const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
+    queryKey: ["client-stats"],
+    queryFn: getClientStats,
   });
 
   // Calculate statistics based on actual data
@@ -45,13 +51,13 @@ const QuickStats = () => {
   const activeCollaborators = countActiveCollaborators();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-6">
       <div className="card">
         <h3 className="font-semibold text-neutral-800 mb-4">
           Tâches en cours
         </h3>
         <div className="text-3xl font-bold text-primary">
-          {isLoading ? (
+          {isTasksLoading ? (
             <span className="animate-pulse">--</span>
           ) : (
             activeTasks
@@ -65,7 +71,7 @@ const QuickStats = () => {
           Missions réalisées
         </h3>
         <div className="text-3xl font-bold text-primary">
-          {isLoading ? (
+          {isTasksLoading ? (
             <span className="animate-pulse">--</span>
           ) : (
             completedMissions
@@ -80,19 +86,69 @@ const QuickStats = () => {
         </h3>
         <div className="flex items-center">
           <div className="text-3xl font-bold text-primary mr-2">
-            {isLoading ? (
+            {isTasksLoading ? (
               <span className="animate-pulse">--</span>
             ) : (
               activeCollaborators
             )}
           </div>
-          {!isLoading && (
+          {!isTasksLoading && (
             <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
               Actifs
             </Badge>
           )}
         </div>
         <p className="text-neutral-600 text-sm mt-1">Sur les missions</p>
+      </div>
+
+      {/* Nouveaux indicateurs */}
+      <div className="card">
+        <h3 className="font-semibold text-neutral-800 mb-4">
+          Clients en gestion
+        </h3>
+        <div className="text-3xl font-bold text-primary">
+          {isClientStatsLoading ? (
+            <span className="animate-pulse">--</span>
+          ) : (
+            clientStats.managedClients
+          )}
+        </div>
+        <p className="text-neutral-600 text-sm mt-1">Total</p>
+      </div>
+
+      <div className="card">
+        <h3 className="font-semibold text-neutral-800 mb-4">
+          Clients en gestion
+        </h3>
+        <div className="text-3xl font-bold text-primary">
+          {isClientStatsLoading ? (
+            <span className="animate-pulse">--</span>
+          ) : (
+            clientStats.managedClients
+          )}
+        </div>
+        <p className="text-neutral-600 text-sm mt-1">Total</p>
+      </div>
+
+      <div className="card">
+        <h3 className="font-semibold text-neutral-800 mb-4">
+          Patentes impayées
+        </h3>
+        <div className="flex items-center">
+          <div className="text-3xl font-bold text-primary mr-2">
+            {isClientStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              clientStats.unpaidPatenteClients
+            )}
+          </div>
+          {!isClientStatsLoading && clientStats.unpaidPatenteClients > 0 && (
+            <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
+              À régulariser
+            </Badge>
+          )}
+        </div>
+        <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
       </div>
     </div>
   );
