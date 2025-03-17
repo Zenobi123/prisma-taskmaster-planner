@@ -9,9 +9,14 @@ import { ClotureExercice } from "./ClotureExercice";
 import { ObligationsFiscales } from "./ObligationsFiscales";
 import { Client } from "@/types/client";
 
+// Interface for the Entreprise tab props
+interface GestionEntrepriseProps {
+  selectedClient: Client;
+}
+
 // Export components as nested objects
 export const TabsContent = {
-  Entreprise: ({ selectedClient }: { selectedClient: Client }) => (
+  Entreprise: ({ selectedClient }: GestionEntrepriseProps) => (
     <GestionEntreprise selectedClient={selectedClient} />
   ),
   
