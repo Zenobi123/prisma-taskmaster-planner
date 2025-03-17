@@ -37,9 +37,14 @@ const Index = () => {
 
         <div className="p-8">
           <QuickStats />
-          <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
+          
+          {/* Patente Section - Summary and List */}
+          <div className="space-y-6">
+            <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
+            <UnpaidPatenteList />
+          </div>
+          
           <RecentTasks />
-          <UnpaidPatenteList />
           <ExpiringFiscalAttestations 
             attestations={attestations} 
             isLoading={isLoading} 
