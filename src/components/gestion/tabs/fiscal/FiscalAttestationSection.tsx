@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Save, AlertTriangle, CheckCircle, XCircle } from "lucide-react";
+import { Save, AlertTriangle, CheckCircle, XCircle, FileCheck } from "lucide-react";
 import { differenceInDays, isValid, parse } from "date-fns";
 
 interface FiscalAttestationSectionProps {
@@ -77,8 +77,8 @@ export function FiscalAttestationSection({
             </Badge>
           )}
         </div>
-        <Button onClick={handleSave} variant="default" size="sm">
-          <Save className="mr-2 h-4 w-4" />
+        <Button onClick={handleSave} variant="outline" size="sm" className="bg-green-100 hover:bg-green-200 border-green-300">
+          <FileCheck className="mr-2 h-4 w-4" />
           Enregistrer
         </Button>
       </div>

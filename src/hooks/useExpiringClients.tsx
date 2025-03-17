@@ -10,6 +10,7 @@ export interface ExpiringClient {
   name: string;
   document: string;
   expiryDate: string;
+  creationDate?: string;
   daysRemaining: number;
 }
 
@@ -49,6 +50,7 @@ export const useExpiringClients = () => {
           if (client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
             clientsWithAttestations++;
             const validityEndDate = client.fiscal_data.attestation.validityEndDate;
+            const creationDate = client.fiscal_data.attestation.creationDate;
             console.log(`Client ${client.id} has attestation with end date: ${validityEndDate}`);
             
             try {
@@ -67,6 +69,7 @@ export const useExpiringClients = () => {
                     name: clientName,
                     document: 'Attestation de Conformité Fiscale',
                     expiryDate: validityEndDate,
+                    creationDate: creationDate || 'Non spécifiée',
                     daysRemaining: daysUntilExpiration
                   });
                   
@@ -74,7 +77,7 @@ export const useExpiringClients = () => {
                   
                   // Afficher une notification pour les attestations expirées ou qui expirent bientôt
                   if (daysUntilExpiration < 0) {
-                    toast.warning(`L'attestation fiscale de ${clientName} est expirée`);
+                    toast.warning(`L'attestation fiscale de ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours`);
                   } else if (daysUntilExpiration <= 5) {
                     toast.warning(`L'attestation fiscale de ${clientName} expire dans ${daysUntilExpiration} jours`);
                   }
