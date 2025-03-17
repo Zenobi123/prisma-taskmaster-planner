@@ -4,7 +4,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Calendar as CalendarIcon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Select,
@@ -30,6 +30,7 @@ const Planning = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [collaborateurFilter, setCollaborateurFilter] = useState("all");
   const [events, setEvents] = useState<Event[]>([]);
+  const [datesWithEvents, setDatesWithEvents] = useState<Date[]>([]);
   const navigate = useNavigate();
 
   // Fetch real data from the database
@@ -78,6 +79,21 @@ const Planning = () => {
       });
 
       setEvents(transformedEvents);
+
+      // Extract all unique dates from tasks for calendar highlighting
+      const uniqueDates = tasks
+        .filter((task: any) => task.start_date)
+        .map((task: any) => {
+          const date = new Date(task.start_date);
+          return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        });
+
+      // Remove duplicates
+      const uniqueDateSet = Array.from(
+        new Set(uniqueDates.map(date => date.toISOString().split('T')[0]))
+      ).map(dateStr => new Date(dateStr));
+
+      setDatesWithEvents(uniqueDateSet);
     }
   }, [tasks, isLoadingTasks]);
 
@@ -111,6 +127,22 @@ const Planning = () => {
     
     return isSameCollaborateur && isSameDate;
   });
+
+  // A function to customize how we render each day in the calendar
+  const renderDay = (day: Date) => {
+    const hasEvents = datesWithEvents.some(eventDate => 
+      eventDate.getDate() === day.getDate() &&
+      eventDate.getMonth() === day.getMonth() &&
+      eventDate.getFullYear() === day.getFullYear()
+    );
+
+    // If this day has events, add a small dot indicator
+    return hasEvents ? (
+      <div className="relative flex items-center justify-center">
+        <div className="absolute bottom-0 w-1 h-1 bg-primary rounded-full"></div>
+      </div>
+    ) : null;
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -151,18 +183,50 @@ const Planning = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">
-        <div>
+        <div className="bg-white rounded-lg shadow-sm border p-1">
           <Calendar
             mode="single"
             selected={date}
             onSelect={setDate}
-            className="rounded-md border"
+            className="rounded-md"
+            components={{
+              DayContent: ({ day }) => (
+                <div className="relative w-full h-full flex items-center justify-center">
+                  {day.getDate()}
+                  {datesWithEvents.some(eventDate => 
+                    eventDate.getDate() === day.getDate() &&
+                    eventDate.getMonth() === day.getMonth() &&
+                    eventDate.getFullYear() === day.getFullYear()
+                  ) && (
+                    <div className="absolute bottom-1 w-1.5 h-1.5 bg-primary rounded-full"></div>
+                  )}
+                </div>
+              ),
+            }}
           />
+          <div className="px-4 py-2 border-t mt-2">
+            <div className="flex items-center text-sm text-gray-500 gap-2">
+              <CalendarIcon className="w-4 h-4" />
+              <span>
+                {date ? date.toLocaleDateString('fr-FR', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                }) : 'Aucune date sélectionnée'}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-4">
           <h2 className="text-lg font-semibold mb-4">
-            Événements du {date?.toLocaleDateString()}
+            Événements du {date?.toLocaleDateString('fr-FR', { 
+              weekday: 'long',
+              day: 'numeric', 
+              month: 'long', 
+              year: 'numeric' 
+            })}
           </h2>
           {isLoadingTasks || isLoadingCollabs ? (
             <div className="flex justify-center items-center h-32">
@@ -170,7 +234,7 @@ const Planning = () => {
             </div>
           ) : filteredEvents.length > 0 ? (
             filteredEvents.map((event) => (
-              <Card key={event.id} className="p-4">
+              <Card key={event.id} className="p-4 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-semibold">{event.title}</h3>
@@ -183,8 +247,10 @@ const Planning = () => {
               </Card>
             ))
           ) : (
-            <div className="text-center py-8 text-gray-500">
-              Aucun événement trouvé pour cette date.
+            <div className="text-center py-8 text-gray-500 border rounded-lg">
+              <CalendarIcon className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+              <p>Aucun événement trouvé pour cette date.</p>
+              <p className="text-sm">Sélectionnez une autre date ou modifiez vos filtres.</p>
             </div>
           )}
         </div>
