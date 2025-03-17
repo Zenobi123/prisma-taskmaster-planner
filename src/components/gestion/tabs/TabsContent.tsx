@@ -12,7 +12,7 @@ import { Client } from "@/types/client";
 // Export components as nested objects
 export const TabsContent = {
   Entreprise: ({ selectedClient }: { selectedClient: Client }) => (
-    <GestionEntreprise selectedClient={selectedClient} />
+    <GestionEntreprise onTabChange={() => {}} />
   ),
   
   ObligationsFiscales: ({ selectedClient }: { selectedClient: Client }) => (
@@ -20,11 +20,11 @@ export const TabsContent = {
   ),
   
   GestionComptable: ({ selectedClient }: { selectedClient: Client }) => (
-    <GestionComptable selectedClient={selectedClient} />
+    <GestionComptable />
   ),
   
   ContratPrestations: ({ selectedClient }: { selectedClient: Client }) => (
-    <ContratPrestations selectedClient={selectedClient} />
+    <ContratPrestations client={selectedClient} />
   ),
   
   ClotureExercice: ({ 
@@ -37,13 +37,12 @@ export const TabsContent = {
     onSubTabSelect: (subTab: string) => void; 
   }) => (
     <ClotureExercice 
-      selectedClient={selectedClient}
       selectedSubTab={selectedSubTab} 
       handleSubTabSelect={onSubTabSelect} 
     />
   ),
   
   GestionDossier: ({ selectedClient }: { selectedClient: Client }) => (
-    <GestionDossier selectedClient={selectedClient} />
+    <GestionDossier />
   ),
 };

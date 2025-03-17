@@ -1,7 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Client } from "@/types/client";
 
-export function GestionDossier() {
+interface GestionDossierProps {
+  selectedClient?: Client;
+}
+
+export function GestionDossier({ selectedClient }: GestionDossierProps) {
   return (
     <Card>
       <CardHeader>

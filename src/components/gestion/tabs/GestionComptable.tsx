@@ -1,7 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Client } from "@/types/client";
 
-export function GestionComptable() {
+interface GestionComptableProps {
+  selectedClient?: Client;
+}
+
+export function GestionComptable({ selectedClient }: GestionComptableProps) {
   return (
     <Card>
       <CardHeader>

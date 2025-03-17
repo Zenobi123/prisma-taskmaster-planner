@@ -3,8 +3,10 @@ import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ElementsCharacteristiques } from "./clotureExercice/ElementsCharacteristiques";
 import { MontageDSF } from "./clotureExercice/MontageDSF";
+import { Client } from "@/types/client";
 
 interface ClotureExerciceProps {
+  selectedClient?: Client;
   selectedSubTab: string | null;
   handleSubTabSelect: (subTab: string) => void;
 }
@@ -17,7 +19,7 @@ interface CommercialActivityRow {
   caHT: number;
 }
 
-export function ClotureExercice({ selectedSubTab, handleSubTabSelect }: ClotureExerciceProps) {
+export function ClotureExercice({ selectedClient, selectedSubTab, handleSubTabSelect }: ClotureExerciceProps) {
   // Calculate previous year for the exercise to be closed
   const currentYear = new Date().getFullYear();
   const previousYear = currentYear - 1;
