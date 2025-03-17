@@ -66,7 +66,9 @@ const FiscalAlerts = ({ alerts }: FiscalAlertsProps) => {
                       <div>
                         <AlertTitle className={isExpired ? "text-red-800" : "text-amber-800"}>
                           {alert.title}
-                          <Bell className="inline-block ml-2 h-3 w-3" title="Notification activée" />
+                          <span className="inline-flex items-center ml-2" aria-label="Notification activée">
+                            <Bell className="h-3 w-3" />
+                          </span>
                         </AlertTitle>
                         <AlertDescription className={isExpired ? "text-red-700" : "text-amber-700"}>
                           {alert.description}
