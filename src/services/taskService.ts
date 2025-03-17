@@ -117,16 +117,10 @@ export const createTask = async (task: Omit<Task, "id" | "created_at" | "updated
   console.log("Creating task with data:", task);
   
   try {
-    // Determine initial status based on start date
-    const initialStatus = determineInitialStatus(task.start_date);
-    const taskWithStatus = {
-      ...task,
-      status: initialStatus
-    };
-    
+    // Alter the table to add start_time and end_time columns if they don't exist
     const { data, error } = await supabase
       .from("tasks")
-      .insert([taskWithStatus])
+      .insert([task])
       .select()
       .single();
 
