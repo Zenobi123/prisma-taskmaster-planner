@@ -21,7 +21,7 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {clients.length > 0 ? (
+        {clients && clients.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -33,14 +33,14 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
             </TableHeader>
             <TableBody>
               {clients.map((client, index) => (
-                <TableRow key={index}>
+                <TableRow key={index} className={client.daysRemaining < 0 ? "bg-red-50" : ""}>
                   <TableCell className="font-medium">{client.name}</TableCell>
                   <TableCell>{client.document}</TableCell>
                   <TableCell>{client.expiryDate}</TableCell>
                   <TableCell>
                     {client.daysRemaining < 0 ? (
                       <Badge variant="destructive" className="font-semibold">
-                        Expiré
+                        Expiré depuis {Math.abs(client.daysRemaining)} jour{Math.abs(client.daysRemaining) > 1 ? 's' : ''}
                       </Badge>
                     ) : (
                       <Badge variant={client.daysRemaining <= 5 ? "outline" : "secondary"} className="font-semibold">

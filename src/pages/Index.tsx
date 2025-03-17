@@ -9,10 +9,11 @@ import UpcomingObligations from "@/components/dashboard/UpcomingObligations";
 import ExpiringClientDocuments from "@/components/dashboard/ExpiringClientDocuments";
 import { useFiscalCompliance } from "@/hooks/useFiscalCompliance";
 import { useExpiringClients } from "@/hooks/useExpiringClients";
+import { Card, CardContent } from "@/components/ui/card";
 
 const Index = () => {
   const { fiscalAlerts, upcomingObligations } = useFiscalCompliance();
-  const { expiringClients } = useExpiringClients();
+  const { expiringClients, loading } = useExpiringClients();
 
   return (
     <div className="min-h-screen flex">
@@ -38,7 +39,17 @@ const Index = () => {
           <RecentTasks />
           <FiscalAlerts alerts={fiscalAlerts} />
           <UpcomingObligations obligations={upcomingObligations} />
-          <ExpiringClientDocuments clients={expiringClients} />
+          {loading ? (
+            <Card className="mb-6 border-orange-300">
+              <CardContent className="p-6">
+                <div className="text-center py-4 text-neutral-500">
+                  Chargement des documents clients...
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <ExpiringClientDocuments clients={expiringClients} />
+          )}
         </div>
       </main>
       <Toaster />

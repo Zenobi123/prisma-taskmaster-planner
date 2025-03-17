@@ -14,6 +14,7 @@ export interface ExpiringClient {
 
 export const useExpiringClients = () => {
   const [expiringClients, setExpiringClients] = useState<ExpiringClient[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchClientsWithExpiringDocuments();
@@ -21,6 +22,7 @@ export const useExpiringClients = () => {
 
   const fetchClientsWithExpiringDocuments = async () => {
     try {
+      setLoading(true);
       console.log("Fetching clients with expiring documents...");
       const clients = await getClients();
       console.log(`Retrieved ${clients.length} clients`);
@@ -28,11 +30,35 @@ export const useExpiringClients = () => {
       const clientsWithExpiringDocs: ExpiringClient[] = [];
       const today = new Date();
       
+      // Ajouter des attestations de test pour debug
+      // Ceci est temporaire pour vérifier l'affichage
+      const mockClient: ExpiringClient = {
+        id: "test-id-1",
+        name: "CLIENT TEST EXPIRÉ",
+        document: "Attestation de Conformité Fiscale",
+        expiryDate: "01/01/2025",
+        daysRemaining: -30  // Déjà expiré depuis 30 jours
+      };
+      
+      const mockClient2: ExpiringClient = {
+        id: "test-id-2",
+        name: "CLIENT TEST À EXPIRER",
+        document: "Attestation de Conformité Fiscale",
+        expiryDate: "30/04/2025",
+        daysRemaining: 15  // Expire dans 15 jours
+      };
+      
+      clientsWithExpiringDocs.push(mockClient);
+      clientsWithExpiringDocs.push(mockClient2);
+      
+      // Traitement des vrais clients
       clients.forEach((client: Client) => {
+        console.log(`Checking client ${client.id} (${client.nom || client.raisonsociale || 'Sans nom'}) for fiscal attestations`);
+        
         // Vérifier si le client a des données fiscales et une attestation
         if (client.fiscal_data && client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
           const validityEndDate = client.fiscal_data.attestation.validityEndDate;
-          console.log(`Client ${client.id} (${client.nom || client.raisonsociale || 'Sans nom'}) has attestation with end date: ${validityEndDate}`);
+          console.log(`Client ${client.id} has attestation with end date: ${validityEndDate}`);
           
           try {
             // Format de date attendu: JJ/MM/AAAA
@@ -70,7 +96,7 @@ export const useExpiringClients = () => {
         }
       });
       
-      console.log(`Found ${clientsWithExpiringDocs.length} clients with expiring documents`);
+      console.log(`Found ${clientsWithExpiringDocs.length} clients with expiring documents (including mocks)`);
       
       // Trier d'abord les documents expirés, puis par jours restants
       clientsWithExpiringDocs.sort((a, b) => {
@@ -85,8 +111,10 @@ export const useExpiringClients = () => {
       setExpiringClients(clientsWithExpiringDocs);
     } catch (error) {
       console.error("Error fetching clients with expiring documents:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  return { expiringClients };
+  return { expiringClients, loading };
 };
