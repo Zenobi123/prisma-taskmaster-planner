@@ -149,7 +149,7 @@ export type Database = {
       }
       tasks: {
         Row: {
-          client_id: string
+          client_id: string | null
           collaborateur_id: string
           created_at: string
           end_date: string | null
@@ -160,7 +160,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          client_id: string
+          client_id?: string | null
           collaborateur_id: string
           created_at?: string
           end_date?: string | null
@@ -171,7 +171,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          client_id?: string
+          client_id?: string | null
           collaborateur_id?: string
           created_at?: string
           end_date?: string | null

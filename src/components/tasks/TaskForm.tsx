@@ -39,10 +39,11 @@ export const TaskForm = ({ clients, collaborateurs, onSuccess }: TaskFormProps) 
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const startDate = formData.get("start_date") as string;
+    const clientId = formData.get("client_id") as string;
     
     createTaskMutation.mutate({
       title: formData.get("title") as string,
-      client_id: formData.get("client_id") as string,
+      client_id: clientId || undefined, // Only pass client_id if it exists
       collaborateur_id: formData.get("collaborateur_id") as string,
       status: determineInitialStatus(startDate),
       start_date: startDate,

@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 export interface Task {
   id: string;
   title: string;
-  client_id: string;
+  client_id?: string; // Made optional
   collaborateur_id: string;
   status: "en_attente" | "en_cours" | "termine" | "en_retard";
   created_at: string;

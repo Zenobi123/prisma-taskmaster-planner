@@ -39,10 +39,10 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
         <Input id="title" name="title" required placeholder="Entrez le titre de la tâche" />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="client_id">Client</Label>
-        <Select name="client_id" required>
+        <Label htmlFor="client_id">Client (optionnel)</Label>
+        <Select name="client_id">
           <SelectTrigger className="w-full bg-background border-input">
-            <SelectValue placeholder="Sélectionnez un client" />
+            <SelectValue placeholder="Sélectionnez un client (optionnel)" />
           </SelectTrigger>
           <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
             <ScrollArea className="h-[200px] w-full">
