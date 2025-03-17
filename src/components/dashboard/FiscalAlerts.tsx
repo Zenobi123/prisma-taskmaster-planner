@@ -26,6 +26,9 @@ const FiscalAlerts = ({ alerts }: FiscalAlertsProps) => {
   
   // Combine them with expired ones shown first
   const sortedAlerts = [...expiredAlerts, ...expiringAlerts];
+  
+  // Log alerts for debugging
+  console.log("Fiscal alerts to display:", sortedAlerts);
 
   return (
     <Card className="mb-6">

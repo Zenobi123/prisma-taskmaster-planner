@@ -19,11 +19,16 @@ export const fetchFiscalComplianceData = async (): Promise<{
     
     // Process each client to find expiring attestations
     clients.forEach((client: Client) => {
-      const { alerts: clientAlerts, obligations: clientObligations } = 
-        processClientFiscalData(client, today);
-      
-      alerts.push(...clientAlerts);
-      obligations.push(...clientObligations);
+      if (client.fiscal_data) {
+        console.log(`Processing client ${client.id} with fiscal data:`, client.fiscal_data);
+        const { alerts: clientAlerts, obligations: clientObligations } = 
+          processClientFiscalData(client, today);
+        
+        console.log(`Generated ${clientAlerts.length} alerts for client ${client.id || client.nom || client.raisonsociale}`);
+        
+        alerts.push(...clientAlerts);
+        obligations.push(...clientObligations);
+      }
     });
     
     console.log("Generated alerts:", alerts.length);
@@ -34,9 +39,6 @@ export const fetchFiscalComplianceData = async (): Promise<{
     
     // Sort obligations by urgency (days remaining)
     const sortedObligations = sortFiscalObligations(obligations);
-    
-    console.log("Sorted alerts:", sortedAlerts);
-    console.log("Sorted obligations:", sortedObligations);
     
     return {
       fiscalAlerts: sortedAlerts,

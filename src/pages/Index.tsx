@@ -6,9 +6,10 @@ import RecentTasks from "@/components/dashboard/RecentTasks";
 import { Toaster } from "@/components/ui/toaster";
 import FiscalAlerts from "@/components/dashboard/FiscalAlerts";
 import { useFiscalCompliance } from "@/hooks/useFiscalCompliance";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
-  const { fiscalAlerts } = useFiscalCompliance();
+  const { fiscalAlerts, isLoading } = useFiscalCompliance();
 
   return (
     <div className="min-h-screen flex">
@@ -32,7 +33,13 @@ const Index = () => {
         <div className="p-8">
           <QuickStats />
           <RecentTasks />
-          <FiscalAlerts alerts={fiscalAlerts} />
+          {isLoading ? (
+            <div className="flex justify-center items-center p-8">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          ) : (
+            <FiscalAlerts alerts={fiscalAlerts} />
+          )}
         </div>
       </main>
       <Toaster />
