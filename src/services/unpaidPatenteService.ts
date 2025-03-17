@@ -33,24 +33,48 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   
   console.log("Clients avec patentes impayées:", clientsWithUnpaidPatente.length);
   
-  // Convertir les données brutes en objets Client typés avec des conversions explicites pour tous les champs enum
-  const typedClients: Client[] = clientsWithUnpaidPatente.map(client => ({
-    ...client,
-    type: client.type as ClientType,
-    adresse: client.adresse,
-    contact: client.contact,
-    interactions: client.interactions || [],
-    statut: client.statut as ClientStatus,
-    formejuridique: client.formejuridique as FormeJuridique || undefined,
-    regimefiscal: client.regimefiscal as RegimeFiscal || undefined,
-    datecreation: client.datecreation || undefined,
-    lieucreation: client.lieucreation || undefined,
-    nomdirigeant: client.nomdirigeant || undefined,
-    sigle: client.sigle || undefined,
-    nom: client.nom || undefined,
-    raisonsociale: client.raisonsociale || undefined,
-    situationimmobiliere: client.situationimmobiliere || undefined
-  }));
+  // Convertir les données brutes en objets Client typés avec des conversions explicites
+  const typedClients: Client[] = clientsWithUnpaidPatente.map(client => {
+    // Transformer adresse JSON en structure typée
+    const adresseTyped = {
+      ville: typeof client.adresse === 'object' && client.adresse !== null ? 
+        (client.adresse as any).ville || "" : "",
+      quartier: typeof client.adresse === 'object' && client.adresse !== null ? 
+        (client.adresse as any).quartier || "" : "",
+      lieuDit: typeof client.adresse === 'object' && client.adresse !== null ? 
+        (client.adresse as any).lieuDit || "" : ""
+    };
+    
+    // Transformer contact JSON en structure typée
+    const contactTyped = {
+      telephone: typeof client.contact === 'object' && client.contact !== null ? 
+        (client.contact as any).telephone || "" : "",
+      email: typeof client.contact === 'object' && client.contact !== null ? 
+        (client.contact as any).email || "" : ""
+    };
+    
+    // Transformer interactions JSON en array typé
+    const interactionsTyped = Array.isArray(client.interactions) ? 
+      client.interactions : [];
+    
+    return {
+      ...client,
+      type: client.type as ClientType,
+      adresse: adresseTyped,
+      contact: contactTyped,
+      interactions: interactionsTyped,
+      statut: client.statut as ClientStatus,
+      formejuridique: client.formejuridique as FormeJuridique || undefined,
+      regimefiscal: client.regimefiscal as RegimeFiscal || undefined,
+      datecreation: client.datecreation || undefined,
+      lieucreation: client.lieucreation || undefined,
+      nomdirigeant: client.nomdirigeant || undefined,
+      sigle: client.sigle || undefined,
+      nom: client.nom || undefined,
+      raisonsociale: client.raisonsociale || undefined,
+      situationimmobiliere: client.situationimmobiliere
+    };
+  });
   
   return typedClients;
 };
