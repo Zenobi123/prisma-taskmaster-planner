@@ -101,9 +101,9 @@ export const useExpiringClients = () => {
                 const daysUntilExpiration = differenceInDays(parsedDate, today);
                 console.log(`Client ${client.id} - Days until expiration: ${daysUntilExpiration}`);
                 
-                // Include expired attestations AND those expiring within 5 days
-                // Pour TRIPHASE SARL, on garde toujours l'attestation expirée, peu importe la date
-                if (daysUntilExpiration <= 5 || client.raisonsociale?.includes("TRIPHASE SARL")) {
+                // Always include expired attestations (daysUntilExpiration < 0) and those expiring within 30 days
+                // This includes ALL expired attestations, not just TRIPHASE SARL
+                if (daysUntilExpiration <= 30) {
                   clientsWithExpiringDocs.push({
                     id: client.id,
                     name: clientName,

@@ -79,12 +79,12 @@ export const useFiscalCompliance = () => {
                   
                   // Include ALL expired attestations and those expiring soon
                   // No maximum limit - to see all expired documents
-                  if (daysUntilExpiration <= 30 && !client.raisonsociale?.includes("TRIPHASE SARL")) {
+                  if ((daysUntilExpiration <= 30 || daysUntilExpiration < 0) && !client.raisonsociale?.includes("TRIPHASE SARL")) {
                     alerts.push({
                       type: 'attestation',
                       title: `Attestation Fiscale - ${clientName}`,
                       description: daysUntilExpiration < 0 
-                        ? `L'attestation du client ${clientName} est expirée.` 
+                        ? `L'attestation du client ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours.` 
                         : `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`
                     });
                     
