@@ -12,7 +12,7 @@ import { Client } from "@/types/client";
 // Export components as nested objects
 export const TabsContent = {
   Entreprise: ({ selectedClient }: { selectedClient: Client }) => (
-    <GestionEntreprise selectedClient={selectedClient} onTabChange={() => {}} />
+    <GestionEntreprise selectedClient={selectedClient} />
   ),
   
   ObligationsFiscales: ({ selectedClient }: { selectedClient: Client }) => (
