@@ -51,105 +51,109 @@ const QuickStats = () => {
   const activeCollaborators = countActiveCollaborators();
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-6 gap-6">
+    <div className="grid grid-cols-1 gap-6">
       {/* Première rangée: les 3 premières caractéristiques */}
-      <div className="card">
-        <h3 className="font-semibold text-neutral-800 mb-4">
-          Tâches en cours
-        </h3>
-        <div className="text-3xl font-bold text-primary">
-          {isTasksLoading ? (
-            <span className="animate-pulse">--</span>
-          ) : (
-            activeTasks
-          )}
-        </div>
-        <p className="text-neutral-600 text-sm mt-1">Cette semaine</p>
-      </div>
-
-      <div className="card">
-        <h3 className="font-semibold text-neutral-800 mb-4">
-          Missions réalisées
-        </h3>
-        <div className="text-3xl font-bold text-primary">
-          {isTasksLoading ? (
-            <span className="animate-pulse">--</span>
-          ) : (
-            completedMissions
-          )}
-        </div>
-        <p className="text-neutral-600 text-sm mt-1">Ce mois</p>
-      </div>
-
-      <div className="card">
-        <h3 className="font-semibold text-neutral-800 mb-4">
-          Collaborateurs actifs
-        </h3>
-        <div className="flex items-center">
-          <div className="text-3xl font-bold text-primary mr-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Tâches en cours
+          </h3>
+          <div className="text-3xl font-bold text-primary">
             {isTasksLoading ? (
               <span className="animate-pulse">--</span>
             ) : (
-              activeCollaborators
+              activeTasks
             )}
           </div>
-          {!isTasksLoading && (
-            <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-              Actifs
-            </Badge>
-          )}
+          <p className="text-neutral-600 text-sm mt-1">Cette semaine</p>
         </div>
-        <p className="text-neutral-600 text-sm mt-1">Sur les missions</p>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Missions réalisées
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            {isTasksLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              completedMissions
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Ce mois</p>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Collaborateurs actifs
+          </h3>
+          <div className="flex items-center">
+            <div className="text-3xl font-bold text-primary mr-2">
+              {isTasksLoading ? (
+                <span className="animate-pulse">--</span>
+              ) : (
+                activeCollaborators
+              )}
+            </div>
+            {!isTasksLoading && (
+              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
+                Actifs
+              </Badge>
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Sur les missions</p>
+        </div>
       </div>
 
       {/* Deuxième rangée: les statistiques des clients */}
-      <div className="card">
-        <h3 className="font-semibold text-neutral-800 mb-4">
-          Clients en gestion
-        </h3>
-        <div className="text-3xl font-bold text-primary">
-          {isClientStatsLoading ? (
-            <span className="animate-pulse">--</span>
-          ) : (
-            clientStats.managedClients
-          )}
-        </div>
-        <p className="text-neutral-600 text-sm mt-1">Total</p>
-      </div>
-
-      <div className="card">
-        <h3 className="font-semibold text-neutral-800 mb-4">
-          Suivi client
-        </h3>
-        <div className="text-3xl font-bold text-primary">
-          {isClientStatsLoading ? (
-            <span className="animate-pulse">--</span>
-          ) : (
-            clientStats.managedClients
-          )}
-        </div>
-        <p className="text-neutral-600 text-sm mt-1">En cours</p>
-      </div>
-
-      <div className="card">
-        <h3 className="font-semibold text-neutral-800 mb-4">
-          Patentes impayées
-        </h3>
-        <div className="flex items-center">
-          <div className="text-3xl font-bold text-primary mr-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Clients en gestion
+          </h3>
+          <div className="text-3xl font-bold text-primary">
             {isClientStatsLoading ? (
               <span className="animate-pulse">--</span>
             ) : (
-              clientStats.unpaidPatenteClients
+              clientStats.managedClients
             )}
           </div>
-          {!isClientStatsLoading && clientStats.unpaidPatenteClients > 0 && (
-            <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
-              À régulariser
-            </Badge>
-          )}
+          <p className="text-neutral-600 text-sm mt-1">Total</p>
         </div>
-        <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Suivi client
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            {isClientStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              clientStats.managedClients
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">En cours</p>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Patentes impayées
+          </h3>
+          <div className="flex items-center">
+            <div className="text-3xl font-bold text-primary mr-2">
+              {isClientStatsLoading ? (
+                <span className="animate-pulse">--</span>
+              ) : (
+                clientStats.unpaidPatenteClients
+              )}
+            </div>
+            {!isClientStatsLoading && clientStats.unpaidPatenteClients > 0 && (
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
+                À régulariser
+              </Badge>
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
+        </div>
       </div>
     </div>
   );
