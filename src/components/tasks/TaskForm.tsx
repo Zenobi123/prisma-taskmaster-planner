@@ -47,6 +47,8 @@ export const TaskForm = ({ clients, collaborateurs, onSuccess }: TaskFormProps) 
       status: determineInitialStatus(startDate),
       start_date: startDate,
       end_date: formData.get("end_date") as string,
+      start_time: formData.get("start_time") as string,
+      end_time: formData.get("end_time") as string,
     });
   };
 

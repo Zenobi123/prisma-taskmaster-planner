@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -105,6 +105,7 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
                 required
                 locale={fr}
                 initialFocus
+                className="pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
@@ -137,6 +138,7 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
                 required
                 locale={fr}
                 initialFocus
+                className="pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
@@ -146,6 +148,34 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
             name="end_date" 
             required 
             className="mt-2"
+          />
+        </div>
+      </div>
+      
+      {/* Ajout des champs pour la planche horaire */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label htmlFor="start_time" className="flex items-center">
+            <Clock className="h-4 w-4 mr-1" />
+            Heure de début
+          </Label>
+          <Input
+            type="time"
+            id="start_time"
+            name="start_time"
+            className="bg-background border-input"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="end_time" className="flex items-center">
+            <Clock className="h-4 w-4 mr-1" />
+            Heure de fin
+          </Label>
+          <Input
+            type="time"
+            id="end_time"
+            name="end_time"
+            className="bg-background border-input"
           />
         </div>
       </div>

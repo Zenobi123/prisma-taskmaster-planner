@@ -11,6 +11,8 @@ export interface Task {
   updated_at: string;
   start_date?: string;
   end_date?: string;
+  start_time?: string; // Nouvelle propriété pour l'heure de début
+  end_time?: string;   // Nouvelle propriété pour l'heure de fin
 }
 
 export const getTasks = async () => {
