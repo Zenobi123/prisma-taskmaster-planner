@@ -1,0 +1,79 @@
+
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Client } from "@/types/client";
+import { differenceInDays, isValid, parse } from "date-fns";
+
+export interface FiscalAttestation {
+  id: string;
+  name: string;
+  creationDate: string;
+  expiryDate: string;
+  daysRemaining: number;
+  type: 'fiscal';
+}
+
+export const useExpiringFiscalAttestations = () => {
+  return useQuery({
+    queryKey: ["expiring-fiscal-attestations"],
+    queryFn: async (): Promise<FiscalAttestation[]> => {
+      console.log("Fetching clients with fiscal attestations...");
+      
+      // Get all clients
+      const { data: clients, error } = await supabase
+        .from("clients")
+        .select("*")
+        .filter("fiscal_data", "not.is", null);
+      
+      if (error) {
+        console.error("Error fetching clients with fiscal data:", error);
+        throw error;
+      }
+      
+      // Filter and process clients with fiscal attestations
+      const expiringAttestations: FiscalAttestation[] = [];
+      
+      clients.forEach((client: any) => {
+        try {
+          const fiscalData = client.fiscal_data;
+          
+          // Check if client has attestation data
+          if (fiscalData && 
+              fiscalData.attestation && 
+              fiscalData.attestation.creationDate && 
+              fiscalData.attestation.validityEndDate &&
+              fiscalData.attestation.showInAlert !== false) {
+                
+            // Parse the expiry date
+            const expiryDate = parse(fiscalData.attestation.validityEndDate, 'dd/MM/yyyy', new Date());
+            
+            if (isValid(expiryDate)) {
+              const today = new Date();
+              const daysRemaining = differenceInDays(expiryDate, today);
+              
+              // Add to the result array, regardless of days remaining
+              expiringAttestations.push({
+                id: client.id,
+                name: client.type === 'physique' ? client.nom : client.raisonsociale,
+                creationDate: fiscalData.attestation.creationDate,
+                expiryDate: fiscalData.attestation.validityEndDate,
+                daysRemaining,
+                type: 'fiscal'
+              });
+            }
+          }
+        } catch (error) {
+          console.error(`Error processing fiscal data for client ${client.id}:`, error);
+        }
+      });
+      
+      console.log("Expiring attestations found:", expiringAttestations);
+      
+      // Sort by days remaining (most urgent first)
+      return expiringAttestations.sort((a, b) => a.daysRemaining - b.daysRemaining);
+    },
+    // Cache for 5 minutes, garbage collection after 30 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000
+  });
+};

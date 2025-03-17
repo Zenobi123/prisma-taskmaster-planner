@@ -3,9 +3,13 @@ import Sidebar from "@/components/dashboard/Sidebar";
 import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
 import QuickStats from "@/components/dashboard/QuickStats";
 import RecentTasks from "@/components/dashboard/RecentTasks";
+import ExpiringFiscalAttestations from "@/components/dashboard/ExpiringFiscalAttestations";
+import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 import { Toaster } from "@/components/ui/toaster";
 
 const Index = () => {
+  const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
+
   return (
     <div className="min-h-screen flex">
       <Sidebar />
@@ -28,6 +32,10 @@ const Index = () => {
         <div className="p-8">
           <QuickStats />
           <RecentTasks />
+          <ExpiringFiscalAttestations 
+            attestations={attestations} 
+            isLoading={isLoading} 
+          />
         </div>
       </main>
       <Toaster />
