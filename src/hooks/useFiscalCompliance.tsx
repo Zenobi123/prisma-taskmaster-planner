@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { getClients } from "@/services/clientService";
 import { Client } from "@/types/client";
@@ -34,14 +35,14 @@ export const useFiscalCompliance = () => {
       const obligations: FiscalObligation[] = [];
       const today = new Date();
       
-      // Parcourir tous les clients pour trouver les attestations expirantes
+      // Process each client to find expiring attestations
       clients.forEach((client: Client) => {
         const fiscalData = client.fiscal_data;
         
         if (fiscalData) {
           console.log(`Processing fiscal data for client: ${client.id}`, fiscalData);
           
-          // Vérifier les attestations de conformité fiscale
+          // Check fiscal attestations
           if (fiscalData.attestation && fiscalData.attestation.validityEndDate) {
             try {
               const datePattern = /^(\d{2})\/(\d{2})\/(\d{4})$/;
@@ -57,8 +58,8 @@ export const useFiscalCompliance = () => {
                   
                   console.log(`Client ${client.id} days until expiration: ${daysUntilExpiration}`);
                   
-                  // Pas de limite maximum - inclure toutes les attestations expirées ou qui expirent bientôt
-                  // On ne limite plus à 5 jours pour voir tous les documents expirés
+                  // Include ALL expired attestations and those expiring soon
+                  // No maximum limit - to see all expired documents
                   if (daysUntilExpiration <= 30) {
                     const clientName = client.type === 'physique' 
                       ? client.nom || 'Client sans nom' 
@@ -67,7 +68,7 @@ export const useFiscalCompliance = () => {
                     alerts.push({
                       type: 'attestation',
                       title: `Attestation Fiscale - ${clientName}`,
-                      description: daysUntilExpiration <= 0 
+                      description: daysUntilExpiration < 0 
                         ? `L'attestation du client ${clientName} est expirée.` 
                         : `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`
                     });
@@ -78,6 +79,8 @@ export const useFiscalCompliance = () => {
                       daysRemaining: daysUntilExpiration,
                       type: 'attestation'
                     });
+                    
+                    console.log(`Added ${clientName} attestation to alerts with ${daysUntilExpiration} days remaining`);
                   }
                 } else {
                   console.log(`Client ${client.id} has invalid date format: ${validityEndDate}`);
@@ -92,7 +95,7 @@ export const useFiscalCompliance = () => {
             console.log(`Client ${client.id} has no attestation data`);
           }
           
-          // Vérifier les obligations fiscales
+          // Check fiscal obligations
           if (fiscalData.obligations) {
             const clientName = client.type === 'physique' 
               ? client.nom || 'Client sans nom' 
@@ -168,15 +171,18 @@ export const useFiscalCompliance = () => {
       console.log("Generated alerts:", alerts.length);
       console.log("Generated obligations:", obligations.length);
       
-      // Trier les alertes et obligations par urgence
+      // Sort alerts with expired attestations first
       alerts.sort((a, b) => {
-        // Mettre les attestations expirées en premier
         if (a.description.includes('expirée') && !b.description.includes('expirée')) return -1;
         if (!a.description.includes('expirée') && b.description.includes('expirée')) return 1;
         return 0;
       });
       
+      // Sort obligations by urgency (days remaining)
       obligations.sort((a, b) => a.daysRemaining - b.daysRemaining);
+      
+      console.log("Sorted alerts:", alerts);
+      console.log("Sorted obligations:", obligations);
       
       setFiscalAlerts(alerts);
       setUpcomingObligations(obligations);

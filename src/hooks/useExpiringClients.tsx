@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { getClients } from "@/services/clientService";
 import { Client } from "@/types/client";
@@ -46,8 +45,8 @@ export const useExpiringClients = () => {
                 
                 console.log(`Client ${client.id}, days until expiration: ${daysUntilExpiration}`);
                 
-                // Inclure toutes les attestations expirées ainsi que celles qui vont expirer bientôt
-                // Pas de limite maximum - pour voir tous les documents expirés
+                // Include ALL expired attestations (daysUntilExpiration <= 0)
+                // No need to check for 30 days limit for expired documents
                 if (daysUntilExpiration <= 30) {
                   const clientName = client.type === 'physique' 
                     ? client.nom || 'Client sans nom' 
@@ -61,7 +60,7 @@ export const useExpiringClients = () => {
                     daysRemaining: daysUntilExpiration
                   });
                   
-                  console.log(`Added client ${clientName} to expiring docs list`);
+                  console.log(`Added client ${clientName} to expiring docs list with ${daysUntilExpiration} days remaining`);
                 }
               } else {
                 console.log(`Client ${client.id} date format is invalid: ${validityEndDate}`);
@@ -79,15 +78,16 @@ export const useExpiringClients = () => {
       
       console.log(`Found ${clientsWithExpiringDocs.length} clients with expiring documents`);
       
-      // Trier d'abord par les documents expirés, puis par les jours restants
+      // Sort expired documents first, then by days remaining
       clientsWithExpiringDocs.sort((a, b) => {
-        // Si l'un est expiré et l'autre non, l'expiré vient en premier
-        if (a.daysRemaining <= 0 && b.daysRemaining > 0) return -1;
-        if (a.daysRemaining > 0 && b.daysRemaining <= 0) return 1;
-        // Sinon, trier par jours restants
+        // If one is expired and the other is not, the expired comes first
+        if (a.daysRemaining < 0 && b.daysRemaining >= 0) return -1;
+        if (a.daysRemaining >= 0 && b.daysRemaining < 0) return 1;
+        // Otherwise, sort by days remaining
         return a.daysRemaining - b.daysRemaining;
       });
       
+      console.log("Sorted expiring clients:", clientsWithExpiringDocs);
       setExpiringClients(clientsWithExpiringDocs);
     } catch (error) {
       console.error("Error fetching clients with expiring documents:", error);

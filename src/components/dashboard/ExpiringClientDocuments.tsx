@@ -9,6 +9,8 @@ interface ExpiringClientDocumentsProps {
 }
 
 const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
+  console.log("Rendering ExpiringClientDocuments with clients:", clients);
+  
   return (
     <Card className="mb-6 border-orange-300">
       <CardHeader className="pb-2">
@@ -36,13 +38,13 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
                   <TableCell>{client.expiryDate}</TableCell>
                   <TableCell>
                     <span className={
-                      client.daysRemaining <= 0 
+                      client.daysRemaining < 0 
                         ? "text-red-600 font-semibold" 
                         : client.daysRemaining <= 5 
                           ? "text-amber-600 font-semibold" 
                           : "text-blue-600"
                     }>
-                      {client.daysRemaining <= 0 
+                      {client.daysRemaining < 0 
                         ? "Expiré" 
                         : `Expire dans ${client.daysRemaining} jour${client.daysRemaining > 1 ? 's' : ''}`}
                     </span>
