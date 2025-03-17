@@ -3,6 +3,8 @@ import { FileWarning } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { ExpiringClient } from "@/hooks/useExpiringClients";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface ExpiringClientDocumentsProps {
   clients: ExpiringClient[];
@@ -10,6 +12,11 @@ interface ExpiringClientDocumentsProps {
 
 const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
   console.log("Rendering ExpiringClientDocuments with clients:", clients);
+  const navigate = useNavigate();
+  
+  const handleNavigateToFiscal = (clientId: string) => {
+    navigate(`/gestion?client=${clientId}&tab=fiscal`);
+  };
   
   return (
     <Card className="mb-6 border-orange-300">
@@ -27,6 +34,7 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
                 <TableHead>Client</TableHead>
                 <TableHead className="hidden sm:table-cell">Statut</TableHead>
                 <TableHead className="hidden sm:table-cell">Date d'expiration</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -42,13 +50,34 @@ const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
                   <TableCell className="hidden sm:table-cell text-sm">
                     {client.expiryDate}
                   </TableCell>
+                  <TableCell className="text-right">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleNavigateToFiscal(client.id)}
+                    >
+                      Gérer
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         ) : (
-          <div className="text-center py-4 text-neutral-500">
-            Aucun document client à renouveler
+          <div className="py-6 text-center border rounded-md bg-gray-50">
+            <FileWarning className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
+            <p className="text-muted-foreground mb-4">
+              Aucun document client à renouveler n'a été trouvé
+            </p>
+            <p className="text-sm text-muted-foreground mb-4">
+              Les attestations de conformité fiscale doivent être configurées dans l'onglet "Obligations fiscales" de chaque client.
+            </p>
+            <Button 
+              variant="outline"
+              onClick={() => navigate('/gestion')}
+            >
+              Accéder à la gestion des clients
+            </Button>
           </div>
         )}
       </CardContent>

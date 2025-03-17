@@ -26,7 +26,10 @@ export const useExpiringClients = () => {
       setLoading(true);
       console.log("Fetching clients with expiring documents...");
       const clients = await getClients();
-      console.log(`Retrieved ${clients.length} clients`);
+      console.log(`Retrieved ${clients.length} clients, looking for those with fiscal_data`);
+      
+      let clientsWithFiscalData = 0;
+      let clientsWithAttestations = 0;
       
       const clientsWithExpiringDocs: ExpiringClient[] = [];
       const today = new Date();
@@ -37,52 +40,60 @@ export const useExpiringClients = () => {
           ? client.nom || 'Client sans nom' 
           : client.raisonsociale || 'Entreprise sans nom';
           
-        console.log(`Checking client ${client.id} (${clientName}) for fiscal attestations`);
-        
-        // Vérifier si le client a des données fiscales et une attestation
-        if (client.fiscal_data && client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
-          const validityEndDate = client.fiscal_data.attestation.validityEndDate;
-          console.log(`Client ${client.id} has attestation with end date: ${validityEndDate}`);
+        // Vérifier si le client a des données fiscales
+        if (client.fiscal_data) {
+          clientsWithFiscalData++;
+          console.log(`Client ${client.id} (${clientName}) has fiscal_data`);
           
-          try {
-            // Format de date attendu: JJ/MM/AAAA
-            const parsedDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
+          // Vérifier si le client a une attestation
+          if (client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
+            clientsWithAttestations++;
+            const validityEndDate = client.fiscal_data.attestation.validityEndDate;
+            console.log(`Client ${client.id} has attestation with end date: ${validityEndDate}`);
             
-            if (isValid(parsedDate)) {
-              const daysUntilExpiration = differenceInDays(parsedDate, today);
-              console.log(`Client ${client.id} - Days until expiration: ${daysUntilExpiration}`);
+            try {
+              // Format de date attendu: JJ/MM/AAAA
+              const parsedDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
               
-              // Inclure TOUTES les attestations expirées sans limite de temps
-              // ET celles qui expirent dans les 30 prochains jours
-              if (daysUntilExpiration <= 30) {
-                clientsWithExpiringDocs.push({
-                  id: client.id,
-                  name: clientName,
-                  document: 'Attestation de Conformité Fiscale',
-                  expiryDate: validityEndDate,
-                  daysRemaining: daysUntilExpiration
-                });
+              if (isValid(parsedDate)) {
+                const daysUntilExpiration = differenceInDays(parsedDate, today);
+                console.log(`Client ${client.id} - Days until expiration: ${daysUntilExpiration}`);
                 
-                console.log(`Added client ${clientName} to expiring docs list with ${daysUntilExpiration} days remaining`);
-                
-                // Afficher une notification pour les attestations expirées ou qui expirent bientôt
-                if (daysUntilExpiration < 0) {
-                  toast.warning(`L'attestation fiscale de ${clientName} est expirée`);
-                } else if (daysUntilExpiration <= 7) {
-                  toast.warning(`L'attestation fiscale de ${clientName} expire dans ${daysUntilExpiration} jours`);
+                // Inclure TOUTES les attestations expirées sans limite de temps
+                // ET celles qui expirent dans les 30 prochains jours
+                if (daysUntilExpiration <= 30) {
+                  clientsWithExpiringDocs.push({
+                    id: client.id,
+                    name: clientName,
+                    document: 'Attestation de Conformité Fiscale',
+                    expiryDate: validityEndDate,
+                    daysRemaining: daysUntilExpiration
+                  });
+                  
+                  console.log(`Added client ${clientName} to expiring docs list with ${daysUntilExpiration} days remaining`);
+                  
+                  // Afficher une notification pour les attestations expirées ou qui expirent bientôt
+                  if (daysUntilExpiration < 0) {
+                    toast.warning(`L'attestation fiscale de ${clientName} est expirée`);
+                  } else if (daysUntilExpiration <= 7) {
+                    toast.warning(`L'attestation fiscale de ${clientName} expire dans ${daysUntilExpiration} jours`);
+                  }
                 }
+              } else {
+                console.log(`Client ${client.id} - Invalid date format: ${validityEndDate}`);
               }
-            } else {
-              console.log(`Client ${client.id} - Invalid date format: ${validityEndDate}`);
+            } catch (error) {
+              console.error(`Error processing client ${client.id}:`, error);
             }
-          } catch (error) {
-            console.error(`Error processing client ${client.id}:`, error);
+          } else {
+            console.log(`Client ${client.id} has fiscal_data but no attestation or end date`);
           }
         } else {
-          console.log(`Client ${client.id} has no attestation data`);
+          console.log(`Client ${client.id} (${clientName}) has no fiscal_data`);
         }
       });
       
+      console.log(`Summary: ${clients.length} clients, ${clientsWithFiscalData} with fiscal data, ${clientsWithAttestations} with attestations`);
       console.log(`Found ${clientsWithExpiringDocs.length} clients with expiring documents`);
       
       // Trier d'abord les documents expirés, puis par jours restants
