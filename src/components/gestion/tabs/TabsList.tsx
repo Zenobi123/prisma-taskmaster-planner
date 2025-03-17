@@ -4,9 +4,10 @@ import { TabsList as ShadcnTabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface TabsListProps {
   activeTab: string;
+  onTabChange: (value: string) => void;
 }
 
-export function GestionTabsList({ activeTab }: TabsListProps) {
+export function GestionTabsList({ activeTab, onTabChange }: TabsListProps) {
   return (
     <ShadcnTabsList className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-transparent">
       <TabsTrigger 

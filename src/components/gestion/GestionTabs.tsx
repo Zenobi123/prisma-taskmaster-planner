@@ -1,8 +1,8 @@
 
 import React, { useEffect } from "react";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { TabsList } from "./tabs/TabsList";
-import { TabsContent as CustomTabsContent } from "./tabs/TabsContent";
+import { GestionTabsList } from "./tabs/TabsList";
+import { TabsContent as CustomTabsContent } from "@/components/gestion/tabs/TabsContent";
 import { Client } from "@/types/client";
 import { useLocation } from "react-router-dom";
 
@@ -49,7 +49,7 @@ export function GestionTabs({
       onValueChange={onTabChange}
       className="w-full"
     >
-      <TabsList activeTab={activeTab} onTabChange={onTabChange} />
+      <GestionTabsList activeTab={activeTab} onTabChange={onTabChange} />
       <TabsContent value="entreprise">
         <CustomTabsContent.Entreprise selectedClient={selectedClient} />
       </TabsContent>
