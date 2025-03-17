@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
@@ -33,7 +32,6 @@ const Planning = () => {
   const [datesWithEvents, setDatesWithEvents] = useState<Date[]>([]);
   const navigate = useNavigate();
 
-  // Fetch real data from the database
   const { data: tasks, isLoading: isLoadingTasks } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
@@ -44,26 +42,21 @@ const Planning = () => {
     queryFn: getCollaborateurs,
   });
 
-  // Transform tasks into events when data is loaded
   useEffect(() => {
     if (tasks && !isLoadingTasks) {
       const transformedEvents = tasks.map((task: any) => {
-        // Format time string
         const startTime = task.start_time || "00:00";
         const endTime = task.end_time || "00:00";
         const timeString = `${startTime} - ${endTime}`;
 
-        // Determine client name
         const clientName = task.clients 
           ? (task.clients.type === "physique" ? task.clients.nom : task.clients.raisonsociale) 
           : "Sans client";
 
-        // Determine collaborator name
         const collaborateurName = task.collaborateurs
           ? `${task.collaborateurs.prenom} ${task.collaborateurs.nom}`
           : "Non assigné";
 
-        // Default type is mission, but could be extended with more logic
         const eventType: "mission" | "reunion" = task.title.toLowerCase().includes("réunion") 
           ? "reunion" 
           : "mission";
@@ -80,7 +73,6 @@ const Planning = () => {
 
       setEvents(transformedEvents);
 
-      // Extract all unique dates from tasks for calendar highlighting
       const uniqueDates = tasks
         .filter((task: any) => task.start_date)
         .map((task: any) => {
@@ -88,7 +80,6 @@ const Planning = () => {
           return new Date(date.getFullYear(), date.getMonth(), date.getDate());
         });
 
-      // Remove duplicates
       const uniqueDateSet = Array.from(
         new Set(uniqueDates.map(date => date.toISOString().split('T')[0]))
       ).map(dateStr => new Date(dateStr));
@@ -108,15 +99,12 @@ const Planning = () => {
     }
   };
 
-  // Filter events by selected date and collaborateur
   const filteredEvents = events.filter((event) => {
     const isSameCollaborateur = collaborateurFilter === "all" || event.collaborateur === collaborateurFilter;
     
-    // Find task to check date
     const taskData = tasks?.find((task: any) => task.id === event.id);
     const taskDate = taskData?.start_date ? new Date(taskData.start_date) : null;
     
-    // Check if task date matches selected date
     let isSameDate = false;
     if (date && taskDate) {
       isSameDate = 
@@ -128,7 +116,6 @@ const Planning = () => {
     return isSameCollaborateur && isSameDate;
   });
 
-  // A function to customize how we render each day in the calendar
   const renderDay = (day: Date) => {
     const hasEvents = datesWithEvents.some(eventDate => 
       eventDate.getDate() === day.getDate() &&
@@ -136,7 +123,6 @@ const Planning = () => {
       eventDate.getFullYear() === day.getFullYear()
     );
 
-    // If this day has events, add a small dot indicator
     return hasEvents ? (
       <div className="relative flex items-center justify-center">
         <div className="absolute bottom-0 w-1 h-1 bg-primary rounded-full"></div>
@@ -190,13 +176,13 @@ const Planning = () => {
             onSelect={setDate}
             className="rounded-md"
             components={{
-              DayContent: ({ day }) => (
+              DayContent: (props) => (
                 <div className="relative w-full h-full flex items-center justify-center">
-                  {day.getDate()}
+                  {props.date.getDate()}
                   {datesWithEvents.some(eventDate => 
-                    eventDate.getDate() === day.getDate() &&
-                    eventDate.getMonth() === day.getMonth() &&
-                    eventDate.getFullYear() === day.getFullYear()
+                    eventDate.getDate() === props.date.getDate() &&
+                    eventDate.getMonth() === props.date.getMonth() &&
+                    eventDate.getFullYear() === props.date.getFullYear()
                   ) && (
                     <div className="absolute bottom-1 w-1.5 h-1.5 bg-primary rounded-full"></div>
                   )}
