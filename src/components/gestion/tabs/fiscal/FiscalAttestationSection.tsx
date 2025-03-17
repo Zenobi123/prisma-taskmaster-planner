@@ -1,10 +1,10 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Save, AlertTriangle, CheckCircle, XCircle, FileCheck } from "lucide-react";
+import { Save, AlertTriangle, CheckCircle, XCircle, FileCheck, Bell } from "lucide-react";
 import { differenceInDays, isValid, parse } from "date-fns";
 
 interface FiscalAttestationSectionProps {
@@ -12,14 +12,20 @@ interface FiscalAttestationSectionProps {
   validityEndDate: string;
   setCreationDate: (date: string) => void;
   handleSave: () => void;
+  showInAlert?: boolean;
+  onToggleAlert?: (showInAlert: boolean) => void;
 }
 
 export function FiscalAttestationSection({ 
   creationDate, 
   validityEndDate, 
   setCreationDate,
-  handleSave
+  handleSave,
+  showInAlert = true,
+  onToggleAlert
 }: FiscalAttestationSectionProps) {
+  const [isShowInAlert, setIsShowInAlert] = useState(showInAlert);
+
   const getAttestationStatus = () => {
     if (!creationDate || !validityEndDate) return null;
     
@@ -74,21 +80,38 @@ export function FiscalAttestationSection({
     }
   };
 
+  const handleToggleAlert = () => {
+    const newValue = !isShowInAlert;
+    setIsShowInAlert(newValue);
+    if (onToggleAlert) {
+      onToggleAlert(newValue);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-start">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2">
           <h3 className="text-lg font-semibold">Attestation de Conformité Fiscale</h3>
-          {status && (
-            <Badge 
-              variant={status.variant as any} 
-              className={`flex items-center gap-1 ${status.className || ""}`}
-            >
-              <status.icon className="h-3.5 w-3.5" />
-              <span>{status.label}</span>
-            </Badge>
-          )}
+          <Button 
+            onClick={handleToggleAlert} 
+            variant={isShowInAlert ? "default" : "outline"} 
+            size="sm"
+            className={`w-fit ${isShowInAlert ? "bg-amber-500 hover:bg-amber-600" : "text-muted-foreground"}`}
+          >
+            <Bell className="mr-1 h-4 w-4" />
+            Affichée en alerte
+          </Button>
         </div>
+        {status && (
+          <Badge 
+            variant={status.variant as any} 
+            className={`flex items-center gap-1 ${status.className || ""}`}
+          >
+            <status.icon className="h-3.5 w-3.5" />
+            <span>{status.label}</span>
+          </Badge>
+        )}
         <Button onClick={handleSave} variant="outline" size="sm" className="bg-green-100 hover:bg-green-200 border-green-300">
           <FileCheck className="mr-2 h-4 w-4" />
           Enregistrer

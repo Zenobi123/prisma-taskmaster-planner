@@ -22,7 +22,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     obligationStatuses,
     handleStatusChange,
     handleSave,
-    isLoading
+    isLoading,
+    showInAlert,
+    handleToggleAlert
   } = useObligationsFiscales(selectedClient);
 
   if (isLoading) {
@@ -49,6 +51,8 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           validityEndDate={validityEndDate}
           setCreationDate={setCreationDate}
           handleSave={handleSave}
+          showInAlert={showInAlert}
+          onToggleAlert={handleToggleAlert}
         />
         
         <AnnualObligationsSection 

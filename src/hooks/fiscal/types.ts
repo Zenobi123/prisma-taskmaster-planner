@@ -22,3 +22,14 @@ export interface ProcessedClient {
   nom?: string;
   raisonsociale?: string;
 }
+
+export interface FiscalAttestationData {
+  creationDate?: string;
+  validityEndDate?: string;
+  showInAlert?: boolean; // Ajout de l'option pour afficher ou non en alerte
+}
+
+export interface ClientFiscalData {
+  attestation?: FiscalAttestationData;
+  obligations?: any;
+}

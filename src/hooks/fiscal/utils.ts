@@ -1,3 +1,4 @@
+
 import { addMonths, differenceInDays, parse, isValid } from "date-fns";
 import { Client } from "@/types/client";
 import { FiscalAlert, FiscalObligation, ProcessedClient } from "./types";
@@ -49,18 +50,24 @@ const processAttestations = (
         // Inclure toutes les attestations qui sont expirées ou qui expirent dans les 30 jours
         // Traitement uniforme pour tous les clients
         if (daysUntilExpiration <= 30) {
-          // Create unique description based on expiration status
-          const description = daysUntilExpiration < 0 
-            ? `L'attestation du client ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours.` 
-            : `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`;
-            
-          alerts.push({
-            type: 'attestation',
-            title: `Attestation de Conformité Fiscale - ${clientName}`,
-            description: description,
-            clientId: client.id  // Add client ID for navigation
-          });
+          // Vérifier si l'attestation doit être affichée en alerte
+          const showInAlert = client.fiscal_data.attestation.showInAlert !== false; // Par défaut à true si non défini
           
+          if (showInAlert) {
+            // Create unique description based on expiration status
+            const description = daysUntilExpiration < 0 
+              ? `L'attestation du client ${clientName} est expirée depuis ${Math.abs(daysUntilExpiration)} jours.` 
+              : `L'attestation du client ${clientName} expire dans ${daysUntilExpiration} jour${daysUntilExpiration > 1 ? 's' : ''}.`;
+              
+            alerts.push({
+              type: 'attestation',
+              title: `Attestation de Conformité Fiscale - ${clientName}`,
+              description: description,
+              clientId: client.id  // Add client ID for navigation
+            });
+          }
+          
+          // Toujours ajouter à la liste des obligations, même si elle n'est pas affichée en alerte
           obligations.push({
             name: `Attestation de Conformité Fiscale - ${clientName}`,
             deadline: validityEndDate,

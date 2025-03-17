@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { parse, isValid, format, addMonths, differenceInDays } from "date-fns";
 import { toast } from "sonner";
@@ -11,6 +10,7 @@ export function useObligationsFiscales(client: Client) {
   const [creationDate, setCreationDate] = useState<string>("");
   const [validityEndDate, setValidityEndDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
+  const [showInAlert, setShowInAlert] = useState<boolean>(true);
   
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
     patente: { assujetti: true, paye: false },
@@ -46,6 +46,7 @@ export function useObligationsFiscales(client: Client) {
             console.log("Attestation data found:", fiscalData.attestation);
             setCreationDate(fiscalData.attestation.creationDate || "");
             setValidityEndDate(fiscalData.attestation.validityEndDate || "");
+            setShowInAlert(fiscalData.attestation.showInAlert !== false); // Si non défini, par défaut à true
           } else {
             console.log("No attestation data found for client");
           }
@@ -117,6 +118,10 @@ export function useObligationsFiscales(client: Client) {
     }));
   };
 
+  const handleToggleAlert = (value: boolean) => {
+    setShowInAlert(value);
+  };
+
   const handleSave = async () => {
     if (!client || !client.id) {
       toast.error("Impossible d'enregistrer les données: client non sélectionné");
@@ -129,7 +134,8 @@ export function useObligationsFiscales(client: Client) {
       const fiscalDataToSave: ClientFiscalData = {
         attestation: {
           creationDate,
-          validityEndDate
+          validityEndDate,
+          showInAlert
         },
         obligations: obligationStatuses
       };
@@ -162,6 +168,8 @@ export function useObligationsFiscales(client: Client) {
     obligationStatuses,
     handleStatusChange,
     handleSave,
-    isLoading
+    isLoading,
+    showInAlert,
+    handleToggleAlert
   };
 }
