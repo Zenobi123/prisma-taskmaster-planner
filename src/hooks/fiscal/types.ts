@@ -1,9 +1,10 @@
 
+// Types conservés pour référence et compatibilité avec d'autres parties de l'application
 export interface FiscalAlert {
   type: string;
   title: string;
   description: string;
-  clientId?: string; // Add clientId for navigation
+  clientId?: string;
 }
 
 export interface FiscalObligation {
@@ -11,7 +12,7 @@ export interface FiscalObligation {
   deadline: string;
   daysRemaining: number;
   type: string;
-  clientId?: string; // Add clientId for navigation
+  clientId?: string;
 }
 
 export interface ProcessedClient {
@@ -26,7 +27,7 @@ export interface ProcessedClient {
 export interface FiscalAttestationData {
   creationDate?: string;
   validityEndDate?: string;
-  showInAlert?: boolean; // Add property to control alert visibility
+  showInAlert?: boolean;
 }
 
 export interface ClientFiscalData {
