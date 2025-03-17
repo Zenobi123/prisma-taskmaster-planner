@@ -28,7 +28,7 @@ const UnpaidPatenteList = () => {
 
   if (isLoading) {
     return (
-      <Card className="border-2 border-red-300 shadow-md animate-pulse">
+      <Card className="border-[3px] border-red-400 shadow-md animate-pulse">
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center">
             <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
@@ -42,12 +42,15 @@ const UnpaidPatenteList = () => {
     );
   }
 
+  // Si nous avons des clients et qu'ils ne sont pas affichés, ajoutons plus de visibilité
+  console.log("UnpaidPatenteList - Clients à afficher:", clients.length > 0 ? "OUI" : "NON");
+
   return (
-    <Card className="border-2 border-red-300 shadow-md">
+    <Card className="border-[3px] border-red-400 shadow-lg overflow-visible">
       <CardHeader className="pb-2 bg-red-50">
         <CardTitle className="text-lg flex items-center">
           <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
-          Liste des patentes impayées
+          Liste des patentes impayées ({clients.length})
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
@@ -75,7 +78,7 @@ const UnpaidPatenteList = () => {
               </TableHeader>
               <TableBody>
                 {clients.map((client) => (
-                  <TableRow key={client.id}>
+                  <TableRow key={client.id} className="hover:bg-red-50">
                     <TableCell className="font-medium">
                       {client.type === "physique" ? client.nom : client.raisonsociale}
                     </TableCell>
@@ -87,6 +90,7 @@ const UnpaidPatenteList = () => {
                         variant="outline" 
                         size="sm"
                         onClick={() => handleNavigateToClient(client.id)}
+                        className="border-red-300 hover:bg-red-50 hover:text-red-700"
                       >
                         Gérer
                       </Button>
@@ -97,7 +101,7 @@ const UnpaidPatenteList = () => {
             </Table>
           </div>
         ) : (
-          <div className="py-8 text-center border rounded-md bg-gray-50">
+          <div className="py-8 text-center border-2 border-red-200 rounded-md bg-red-50">
             <FileWarning className="h-12 w-12 mx-auto text-red-500 mb-3" />
             <p className="text-gray-700 font-medium text-lg mb-2">
               Aucun client avec patente impayée

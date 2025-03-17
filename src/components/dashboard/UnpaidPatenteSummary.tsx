@@ -31,7 +31,7 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
   }
 
   return (
-    <Card className="bg-white shadow-md">
+    <Card className="bg-white shadow-md border-2 border-red-200">
       <CardContent className="p-6">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
           <div>
@@ -51,7 +51,7 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
           </div>
           <Button 
             variant="outline" 
-            className="mt-4 md:mt-0 border-red-300 hover:bg-red-50" 
+            className="mt-4 md:mt-0 border-red-300 hover:bg-red-50 hover:text-red-700" 
             onClick={onViewAllClick}
           >
             Voir tous

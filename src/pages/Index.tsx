@@ -36,20 +36,18 @@ const Index = () => {
           </div>
         </header>
 
-        <div className="p-8 space-y-10">
+        <div className="p-8 space-y-8">
           <QuickStats />
           
-          {/* Section Patente - Avec espacement plus grand et meilleure visibilité */}
-          <div className="mt-10 space-y-8">
-            <h2 className="text-xl font-semibold text-neutral-800 mb-4">Gestion des Patentes</h2>
+          {/* Section Patente */}
+          <div className="space-y-6">
+            <h2 className="text-xl font-semibold text-neutral-800">Gestion des Patentes</h2>
             
             {/* Résumé des patentes impayées */}
             <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
             
-            {/* Liste des clients avec patente impayée - Séparé du résumé */}
-            <div className="mt-8">
-              <UnpaidPatenteList />
-            </div>
+            {/* Liste des clients avec patente impayée */}
+            <UnpaidPatenteList />
           </div>
           
           <RecentTasks />
