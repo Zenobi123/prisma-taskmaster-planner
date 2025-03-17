@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Task {
@@ -11,8 +10,8 @@ export interface Task {
   updated_at: string;
   start_date?: string;
   end_date?: string;
-  start_time?: string; // Nouvelle propriété pour l'heure de début
-  end_time?: string;   // Nouvelle propriété pour l'heure de fin
+  start_time?: string;
+  end_time?: string;
 }
 
 export const getTasks = async () => {

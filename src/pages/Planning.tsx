@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,39 +13,73 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useQuery } from "@tanstack/react-query";
+import { getTasks, Task } from "@/services/taskService";
+import { getCollaborateurs } from "@/services/collaborateurService";
+
+interface Event {
+  id: string;
+  title: string;
+  client: string;
+  collaborateur: string;
+  time: string;
+  type: "mission" | "reunion";
+}
 
 const Planning = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [collaborateurFilter, setCollaborateurFilter] = useState("all");
+  const [events, setEvents] = useState<Event[]>([]);
   const navigate = useNavigate();
 
-  // Données mockées pour l'exemple
-  const events = [
-    {
-      id: 1,
-      title: "Audit comptable",
-      client: "SARL TechPro",
-      collaborateur: "Sophie Martin",
-      time: "09:00 - 12:00",
-      type: "mission",
-    },
-    {
-      id: 2,
-      title: "Réunion client",
-      client: "SAS WebDev",
-      collaborateur: "Pierre Dubois",
-      time: "14:00 - 15:30",
-      type: "reunion",
-    },
-    {
-      id: 3,
-      title: "Déclaration TVA",
-      client: "EURL ConseilPlus",
-      collaborateur: "Marie Lambert",
-      time: "15:30 - 17:00",
-      type: "mission",
-    },
-  ];
+  // Fetch real data from the database
+  const { data: tasks, isLoading: isLoadingTasks } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: getTasks,
+  });
+
+  const { data: collaborateurs, isLoading: isLoadingCollabs } = useQuery({
+    queryKey: ["collaborateurs"],
+    queryFn: getCollaborateurs,
+  });
+
+  // Transform tasks into events when data is loaded
+  useEffect(() => {
+    if (tasks && !isLoadingTasks) {
+      const transformedEvents = tasks.map((task: any) => {
+        // Format time string
+        const startTime = task.start_time || "00:00";
+        const endTime = task.end_time || "00:00";
+        const timeString = `${startTime} - ${endTime}`;
+
+        // Determine client name
+        const clientName = task.clients 
+          ? (task.clients.type === "physique" ? task.clients.nom : task.clients.raisonsociale) 
+          : "Sans client";
+
+        // Determine collaborator name
+        const collaborateurName = task.collaborateurs
+          ? `${task.collaborateurs.prenom} ${task.collaborateurs.nom}`
+          : "Non assigné";
+
+        // Default type is mission, but could be extended with more logic
+        const eventType: "mission" | "reunion" = task.title.toLowerCase().includes("réunion") 
+          ? "reunion" 
+          : "mission";
+
+        return {
+          id: task.id,
+          title: task.title,
+          client: clientName,
+          collaborateur: collaborateurName,
+          time: timeString,
+          type: eventType,
+        };
+      });
+
+      setEvents(transformedEvents);
+    }
+  }, [tasks, isLoadingTasks]);
 
   const getEventBadge = (type: string) => {
     switch (type) {
@@ -57,8 +92,24 @@ const Planning = () => {
     }
   };
 
+  // Filter events by selected date and collaborateur
   const filteredEvents = events.filter((event) => {
-    return collaborateurFilter === "all" || event.collaborateur === collaborateurFilter;
+    const isSameCollaborateur = collaborateurFilter === "all" || event.collaborateur === collaborateurFilter;
+    
+    // Find task to check date
+    const taskData = tasks?.find((task: any) => task.id === event.id);
+    const taskDate = taskData?.start_date ? new Date(taskData.start_date) : null;
+    
+    // Check if task date matches selected date
+    let isSameDate = false;
+    if (date && taskDate) {
+      isSameDate = 
+        date.getDate() === taskDate.getDate() && 
+        date.getMonth() === taskDate.getMonth() && 
+        date.getFullYear() === taskDate.getFullYear();
+    }
+    
+    return isSameCollaborateur && isSameDate;
   });
 
   return (
@@ -87,9 +138,14 @@ const Planning = () => {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Tous les collaborateurs</SelectItem>
-            <SelectItem value="Sophie Martin">Sophie Martin</SelectItem>
-            <SelectItem value="Pierre Dubois">Pierre Dubois</SelectItem>
-            <SelectItem value="Marie Lambert">Marie Lambert</SelectItem>
+            {collaborateurs?.map((collaborateur: any) => (
+              <SelectItem 
+                key={collaborateur.id} 
+                value={`${collaborateur.prenom} ${collaborateur.nom}`}
+              >
+                {collaborateur.prenom} {collaborateur.nom}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
@@ -108,19 +164,29 @@ const Planning = () => {
           <h2 className="text-lg font-semibold mb-4">
             Événements du {date?.toLocaleDateString()}
           </h2>
-          {filteredEvents.map((event) => (
-            <Card key={event.id} className="p-4">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="font-semibold">{event.title}</h3>
-                  <p className="text-sm text-gray-600">{event.client}</p>
-                  <p className="text-sm text-gray-500">{event.collaborateur}</p>
-                  <p className="text-sm text-gray-500 mt-1">{event.time}</p>
+          {isLoadingTasks || isLoadingCollabs ? (
+            <div className="flex justify-center items-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            </div>
+          ) : filteredEvents.length > 0 ? (
+            filteredEvents.map((event) => (
+              <Card key={event.id} className="p-4">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold">{event.title}</h3>
+                    <p className="text-sm text-gray-600">{event.client}</p>
+                    <p className="text-sm text-gray-500">{event.collaborateur}</p>
+                    <p className="text-sm text-gray-500 mt-1">{event.time}</p>
+                  </div>
+                  <div>{getEventBadge(event.type)}</div>
                 </div>
-                <div>{getEventBadge(event.type)}</div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              Aucun événement trouvé pour cette date.
+            </div>
+          )}
         </div>
       </div>
     </div>
