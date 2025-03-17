@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client, ClientType, ClientStatus, FormeJuridique, RegimeFiscal, Interaction } from "@/types/client";
+import { Client, ClientType, ClientStatus, FormeJuridique, RegimeFiscal, Interaction, Sexe } from "@/types/client";
 
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   console.log("Récupération des clients avec patentes impayées...");
@@ -61,6 +61,9 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
         description: interaction.description || ""
       })) : [];
     
+    // Handle the 'sexe' field properly, ensuring it's cast to the Sexe type
+    const sexeTyped: Sexe | undefined = client.sexe as Sexe | undefined;
+    
     return {
       ...client,
       type: client.type as ClientType,
@@ -76,7 +79,8 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
       sigle: client.sigle || undefined,
       nom: client.nom || undefined,
       raisonsociale: client.raisonsociale || undefined,
-      situationimmobiliere: client.situationimmobiliere
+      situationimmobiliere: client.situationimmobiliere,
+      sexe: sexeTyped
     };
   });
   
