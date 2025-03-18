@@ -9,6 +9,10 @@ import { NewFactureDialog } from "@/components/facturation/NewFactureDialog";
 import { useFacturationPermissions } from "@/hooks/useFacturationPermissions";
 import { Facture } from "@/types/facture";
 import { facturesMockData, filterFactures, formatMontant } from "@/data/factureData";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileText, Wallet, Users } from "lucide-react";
+import { GestionPaiements } from "@/components/facturation/sections/GestionPaiements";
+import { SituationClients } from "@/components/facturation/sections/SituationClients";
 
 const Facturation = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,6 +21,7 @@ const Facturation = () => {
   const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("factures");
   const { toast } = useToast();
   
   // Vérification des permissions
@@ -74,22 +79,52 @@ const Facturation = () => {
     <div className="container mx-auto p-4 md:p-6 animate-fade-in">
       <FacturationHeader onNewFactureClick={() => setIsNewFactureDialogOpen(true)} />
       
-      <FacturationFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        periodFilter={periodFilter}
-        setPeriodFilter={setPeriodFilter}
-      />
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="mb-6 w-full md:w-auto">
+          <TabsTrigger value="factures" className="flex gap-2 items-center">
+            <FileText className="w-4 h-4" />
+            <span className="hidden sm:inline">Gestion des factures</span>
+            <span className="sm:hidden">Factures</span>
+          </TabsTrigger>
+          <TabsTrigger value="paiements" className="flex gap-2 items-center">
+            <Wallet className="w-4 h-4" />
+            <span className="hidden sm:inline">Gestion des paiements</span>
+            <span className="sm:hidden">Paiements</span>
+          </TabsTrigger>
+          <TabsTrigger value="clients" className="flex gap-2 items-center">
+            <Users className="w-4 h-4" />
+            <span className="hidden sm:inline">Situation Clients</span>
+            <span className="sm:hidden">Clients</span>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="factures" className="animate-fade-in">
+          <FacturationFilters
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            periodFilter={periodFilter}
+            setPeriodFilter={setPeriodFilter}
+          />
 
-      <FactureTable
-        factures={filteredFactures}
-        formatMontant={formatMontant}
-        onViewDetails={handleViewDetails}
-        onPrintInvoice={handlePrintInvoice}
-        onDownloadInvoice={handleDownloadInvoice}
-      />
+          <FactureTable
+            factures={filteredFactures}
+            formatMontant={formatMontant}
+            onViewDetails={handleViewDetails}
+            onPrintInvoice={handlePrintInvoice}
+            onDownloadInvoice={handleDownloadInvoice}
+          />
+        </TabsContent>
+        
+        <TabsContent value="paiements" className="animate-fade-in">
+          <GestionPaiements />
+        </TabsContent>
+        
+        <TabsContent value="clients" className="animate-fade-in">
+          <SituationClients />
+        </TabsContent>
+      </Tabs>
 
       <FactureDetailsDialog
         showDetails={showDetails}
