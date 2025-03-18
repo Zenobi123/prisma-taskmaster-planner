@@ -1,7 +1,7 @@
 
 import { Event } from "@/types/event";
 import { jsPDF } from "jspdf";
-import "jspdf-autotable";
+import autoTable from "jspdf-autotable";
 
 /**
  * Formats a date to a string in local format
@@ -82,7 +82,7 @@ export const exportToPDF = (events: Event[], date: Date | undefined): void => {
   ];
   
   // Add the table to the PDF
-  (doc as any).autoTable({
+  autoTable(doc, {
     startY: 30,
     head: tableHeader,
     body: tableData,
