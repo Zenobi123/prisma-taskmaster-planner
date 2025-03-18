@@ -1,9 +1,8 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, FileUp, Filter, CreditCard, Clock, ReceiptCheck } from "lucide-react";
+import { Search, FileUp, Filter, CreditCard, Clock, Receipt } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const GestionPaiements = () => {
@@ -66,7 +65,7 @@ export const GestionPaiements = () => {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center gap-2">
-              <ReceiptCheck className="w-5 h-5 text-green-600" />
+              <Receipt className="w-5 h-5 text-green-600" />
               Paiements confirmés
             </CardTitle>
             <CardDescription>Total des paiements confirmés</CardDescription>
