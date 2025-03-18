@@ -65,7 +65,7 @@ export const exportToPDF = (events: Event[], date: Date | undefined): void => {
   // Set title with the date
   const dateStr = formatDateToString(date);
   doc.setFontSize(16);
-  doc.text(`Événements du ${dateStr}`, 14, 20);
+  doc.text(`Planning du ${dateStr}`, 14, 20);
   
   // Prepare data for the table
   const tableData = events.map(event => [
