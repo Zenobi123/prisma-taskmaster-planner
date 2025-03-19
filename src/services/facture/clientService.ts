@@ -16,8 +16,12 @@ export const fetchClients = async (): Promise<Client[]> => {
   return data.map(client => ({
     id: client.id,
     nom: client.raisonsociale || client.nom || "Client sans nom",
-    email: client.contact && typeof client.contact === 'object' ? client.contact.email || "" : "",
-    telephone: client.contact && typeof client.contact === 'object' ? client.contact.telephone || "" : "",
+    email: client.contact && typeof client.contact === 'object' 
+      ? typeof client.contact.email === 'string' ? client.contact.email : "" 
+      : "",
+    telephone: client.contact && typeof client.contact === 'object'
+      ? typeof client.contact.telephone === 'string' ? client.contact.telephone : ""
+      : "",
     adresse: formatAdresse(client.adresse)
   }));
 };
@@ -37,8 +41,12 @@ export const fetchClientById = async (id: string): Promise<Client> => {
   return {
     id: data.id,
     nom: data.raisonsociale || data.nom || "Client sans nom",
-    email: data.contact && typeof data.contact === 'object' ? data.contact.email || "" : "",
-    telephone: data.contact && typeof data.contact === 'object' ? data.contact.telephone || "" : "",
+    email: data.contact && typeof data.contact === 'object'
+      ? typeof data.contact.email === 'string' ? data.contact.email : ""
+      : "",
+    telephone: data.contact && typeof data.contact === 'object'
+      ? typeof data.contact.telephone === 'string' ? data.contact.telephone : ""
+      : "",
     adresse: formatAdresse(data.adresse)
   };
 };

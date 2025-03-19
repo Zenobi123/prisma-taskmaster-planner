@@ -11,14 +11,19 @@ interface FacturesQueryParams {
   pageSize?: number;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
+  q?: string; // Pour la recherche
 }
 
 // Fonction pour parser les champs JSON retournés par Supabase
 const parseFactureData = (data: any): Facture => {
   return {
     ...data,
-    prestations: JSON.parse(data.prestations || '[]'),
-    paiements: JSON.parse(data.paiements || '[]')
+    prestations: typeof data.prestations === 'string'
+      ? JSON.parse(data.prestations)
+      : data.prestations || [],
+    paiements: typeof data.paiements === 'string'
+      ? JSON.parse(data.paiements)
+      : data.paiements || []
   };
 };
 
@@ -31,7 +36,8 @@ export const fetchFactures = async (params: FacturesQueryParams = {}): Promise<{
     page = 1,
     pageSize = 10,
     sortBy = "date",
-    sortOrder = "desc"
+    sortOrder = "desc",
+    q
   } = params;
 
   // Calcul de l'offset pour la pagination
@@ -58,6 +64,10 @@ export const fetchFactures = async (params: FacturesQueryParams = {}): Promise<{
   
   if (dateFin) {
     query = query.lte("date", dateFin);
+  }
+
+  if (q) {
+    query = query.or(`id.ilike.%${q}%,client_nom.ilike.%${q}%`);
   }
 
   // Tri et pagination

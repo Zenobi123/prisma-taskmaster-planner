@@ -56,7 +56,11 @@ export const createFacture = async (data: CreateFactureData): Promise<Facture> =
   // Reconvertir les données JSON en objets
   return {
     ...insertedData,
-    prestations: JSON.parse(insertedData.prestations || '[]'),
-    paiements: JSON.parse(insertedData.paiements || '[]')
+    prestations: typeof insertedData.prestations === 'string' 
+      ? JSON.parse(insertedData.prestations) 
+      : [],
+    paiements: typeof insertedData.paiements === 'string'
+      ? JSON.parse(insertedData.paiements)
+      : []
   } as Facture;
 };

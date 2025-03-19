@@ -44,8 +44,12 @@ export const updateFacture = async (id: string, data: Partial<Facture>): Promise
   // Reconvertir les champs JSON en objets
   return {
     ...updatedData,
-    prestations: JSON.parse(updatedData.prestations || '[]'),
-    paiements: JSON.parse(updatedData.paiements || '[]')
+    prestations: typeof updatedData.prestations === 'string'
+      ? JSON.parse(updatedData.prestations)
+      : [],
+    paiements: typeof updatedData.paiements === 'string'
+      ? JSON.parse(updatedData.paiements)
+      : []
   } as Facture;
 };
 
@@ -66,8 +70,12 @@ export const updateFactureStatus = async (id: string, status: FactureStatus): Pr
   // Reconvertir les champs JSON en objets
   return {
     ...data,
-    prestations: JSON.parse(data.prestations || '[]'),
-    paiements: JSON.parse(data.paiements || '[]')
+    prestations: typeof data.prestations === 'string'
+      ? JSON.parse(data.prestations)
+      : [],
+    paiements: typeof data.paiements === 'string'
+      ? JSON.parse(data.paiements)
+      : []
   } as Facture;
 };
 
@@ -86,7 +94,9 @@ export const enregistrerPaiement = async (id: string, paiement: Paiement): Promi
   }
 
   // Parser les paiements existants
-  const paiements = JSON.parse(facture.paiements || '[]');
+  const paiements = typeof facture.paiements === 'string'
+    ? JSON.parse(facture.paiements)
+    : facture.paiements || [];
   
   // Ajouter le nouveau paiement
   paiements.push(paiement);
@@ -122,7 +132,11 @@ export const enregistrerPaiement = async (id: string, paiement: Paiement): Promi
   // Reconvertir les champs JSON en objets
   return {
     ...updatedFacture,
-    prestations: JSON.parse(updatedFacture.prestations || '[]'),
-    paiements: JSON.parse(updatedFacture.paiements || '[]')
+    prestations: typeof updatedFacture.prestations === 'string'
+      ? JSON.parse(updatedFacture.prestations)
+      : [],
+    paiements: typeof updatedFacture.paiements === 'string'
+      ? JSON.parse(updatedFacture.paiements)
+      : []
   } as Facture;
 };
