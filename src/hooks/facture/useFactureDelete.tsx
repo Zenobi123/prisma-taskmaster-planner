@@ -1,7 +1,6 @@
-
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
-import { deleteFacture } from "@/services/factureService";
+import { deleteFactureFromDB } from "@/services/factureService";
 import { supabase } from "@/integrations/supabase/client";
 
 export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatch<React.SetStateAction<Facture[]>>) => {
@@ -27,7 +26,7 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
       }
 
       // Appel à l'API pour supprimer la facture du backend
-      const { error } = await deleteFacture(factureId);
+      const { error } = await deleteFactureFromDB(factureId);
       
       if (error) {
         console.error("Erreur lors de la suppression de la facture:", error);
