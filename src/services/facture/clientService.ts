@@ -17,10 +17,10 @@ export const fetchClients = async (): Promise<Client[]> => {
     id: client.id,
     nom: client.raisonsociale || client.nom || "Client sans nom",
     email: client.contact && typeof client.contact === 'object' 
-      ? typeof client.contact.email === 'string' ? client.contact.email : "" 
+      ? getContactValue(client.contact, 'email') 
       : "",
     telephone: client.contact && typeof client.contact === 'object'
-      ? typeof client.contact.telephone === 'string' ? client.contact.telephone : ""
+      ? getContactValue(client.contact, 'telephone')
       : "",
     adresse: formatAdresse(client.adresse)
   }));
@@ -42,13 +42,22 @@ export const fetchClientById = async (id: string): Promise<Client> => {
     id: data.id,
     nom: data.raisonsociale || data.nom || "Client sans nom",
     email: data.contact && typeof data.contact === 'object'
-      ? typeof data.contact.email === 'string' ? data.contact.email : ""
+      ? getContactValue(data.contact, 'email')
       : "",
     telephone: data.contact && typeof data.contact === 'object'
-      ? typeof data.contact.telephone === 'string' ? data.contact.telephone : ""
+      ? getContactValue(data.contact, 'telephone')
       : "",
     adresse: formatAdresse(data.adresse)
   };
+};
+
+// Fonction utilitaire pour extraire des valeurs du contact de manière type-safe
+const getContactValue = (contact: Record<string, any>, field: string): string => {
+  if (contact && typeof contact === 'object' && field in contact) {
+    const value = contact[field];
+    return typeof value === 'string' ? value : '';
+  }
+  return '';
 };
 
 const formatAdresse = (adresse: any): string => {

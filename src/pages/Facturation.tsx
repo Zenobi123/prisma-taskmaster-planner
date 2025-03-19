@@ -2,6 +2,14 @@
 import { useFacturationPermissions } from "@/hooks/useFacturationPermissions";
 import { FacturationTabs } from "@/components/facturation/FacturationTabs";
 
+/**
+ * Page de facturation qui permet:
+ * - Gérer les factures (création, modification, suppression)
+ * - Gérer les paiements (enregistrement des paiements complets ou partiels)
+ * - Consulter la situation financière des clients (impayés, historique)
+ * 
+ * L'accès à cette page est contrôlé par les permissions utilisateur.
+ */
 const Facturation = () => {
   // Hook pour les permissions
   const { hasPermission, isLoading: permissionsLoading } = useFacturationPermissions();
