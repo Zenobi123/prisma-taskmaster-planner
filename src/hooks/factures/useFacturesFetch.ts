@@ -1,10 +1,11 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Facture } from '@/types/facture';
 import * as factureService from '@/services/factureService';
 import { useToast } from '@/components/ui/use-toast';
-import { FacturesFilters } from '@/services/factures/getFactures';
+import type { FacturesFilters } from '@/services/factures/getFactures';
 
-export { FacturesFilters } from '@/services/factures/getFactures';
+export type { FacturesFilters } from '@/services/factures/getFactures';
 
 export const useFacturesFetch = (initialFilters?: FacturesFilters) => {
   const { toast } = useToast();

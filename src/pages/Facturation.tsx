@@ -3,7 +3,7 @@ import { useState } from "react";
 import { FacturationHeader } from "@/components/facturation/FacturationHeader";
 import { useFacturationPermissions } from "@/hooks/useFacturationPermissions";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FacturesManagement } from "@/components/facturation/sections/FacturesManagement";
+import { FacturesManagement } from "@/components/facturation/facturesManagement";
 import { PaiementsManagement } from "@/components/facturation/sections/PaiementsManagement";
 import { ClientsSituation } from "@/components/facturation/sections/ClientsSituation";
 
