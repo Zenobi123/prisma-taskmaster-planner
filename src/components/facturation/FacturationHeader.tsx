@@ -33,6 +33,10 @@ export const FacturationHeader = ({ onNewFactureClick }: FacturationHeaderProps)
             Gérez vos factures clients et suivez les paiements
           </p>
         </div>
+        <Button className="flex items-center gap-2" onClick={onNewFactureClick}>
+          <span className="w-4 h-4">+</span>
+          Nouvelle facture
+        </Button>
       </div>
     </>
   );
