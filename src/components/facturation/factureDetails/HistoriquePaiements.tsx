@@ -4,13 +4,20 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Receipt, CreditCard } from "lucide-react";
 
 interface HistoriquePaiementsProps {
-  facture: Facture;
+  paiements: Array<{
+    id?: string;
+    date: string;
+    montant: number;
+    moyenPaiement: string;
+    prestationIds?: string[];
+    notes?: string;
+  }>;
   formatMontant: (montant: number) => string;
 }
 
-export const HistoriquePaiements = ({ facture, formatMontant }: HistoriquePaiementsProps) => {
+export const HistoriquePaiements = ({ paiements, formatMontant }: HistoriquePaiementsProps) => {
   // Si la facture n'a pas de paiements, on n'affiche pas le composant
-  if (!facture.paiements || facture.paiements.length === 0) {
+  if (!paiements || paiements.length === 0) {
     return null;
   }
 
@@ -28,7 +35,7 @@ export const HistoriquePaiements = ({ facture, formatMontant }: HistoriquePaieme
     <div className="space-y-3">
       <h3 className="font-medium text-base">Historique des paiements</h3>
       <div className="space-y-2">
-        {facture.paiements.map((paiement, index) => (
+        {paiements.map((paiement, index) => (
           <Card key={paiement.id || index} className="overflow-hidden">
             <CardContent className="p-3">
               <div className="flex justify-between items-center mb-2">
