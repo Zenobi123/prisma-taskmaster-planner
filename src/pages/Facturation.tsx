@@ -139,6 +139,18 @@ const Facturation = () => {
   };
 
   const handleDeleteInvoice = (factureId: string) => {
+    // Find the facture to check its status
+    const factureToDelete = factures.find(f => f.id === factureId);
+    
+    if (factureToDelete && factureToDelete.status !== 'en_attente') {
+      toast({
+        title: "Action non autorisée",
+        description: "Seules les factures en attente peuvent être supprimées.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setFactureToDelete(factureId);
     setIsDeleteConfirmOpen(true);
   };
@@ -380,7 +392,11 @@ const Facturation = () => {
         </TabsContent>
         
         <TabsContent value="paiements" className="animate-fade-in">
-          <GestionPaiements />
+          <GestionPaiements 
+            factures={factures} 
+            onUpdateStatus={handleUpdateStatus}
+            formatMontant={formatMontant}
+          />
         </TabsContent>
         
         <TabsContent value="clients" className="animate-fade-in">

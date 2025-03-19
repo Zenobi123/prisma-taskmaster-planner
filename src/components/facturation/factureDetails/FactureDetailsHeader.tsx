@@ -33,6 +33,8 @@ export const FactureDetailsHeader = ({
   onEditInvoice,
   onDeleteInvoice,
 }: FactureDetailsHeaderProps) => {
+  const canDelete = selectedFacture.status === 'en_attente';
+  
   return (
     <DialogHeader>
       <DialogTitle className="flex items-center justify-between">
@@ -83,9 +85,14 @@ export const FactureDetailsHeader = ({
             <Button
               variant="outline"
               size="icon"
-              onClick={() => onDeleteInvoice(selectedFacture.id)}
-              className="h-8 w-8 transition-transform hover:scale-105 text-red-500 hover:text-red-700 hover:border-red-300"
-              title="Supprimer"
+              onClick={() => canDelete ? onDeleteInvoice(selectedFacture.id) : undefined}
+              className={`h-8 w-8 transition-transform hover:scale-105 ${
+                canDelete 
+                  ? 'text-red-500 hover:text-red-700 hover:border-red-300'
+                  : 'text-gray-300 cursor-not-allowed hover:scale-100 hover:border-gray-200'
+              }`}
+              title={canDelete ? "Supprimer" : "Seules les factures en attente peuvent être supprimées"}
+              disabled={!canDelete}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

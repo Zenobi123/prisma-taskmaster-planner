@@ -158,8 +158,13 @@ export const FactureTable = ({
                           variant="ghost"
                           size="icon"
                           onClick={() => onDeleteInvoice(facture.id)}
-                          className="opacity-70 group-hover:opacity-100 transition-all duration-300 text-red-500 hover:text-red-700 hover:bg-red-50"
-                          title="Supprimer"
+                          className={`opacity-70 group-hover:opacity-100 transition-all duration-300 ${
+                            facture.status !== 'en_attente' 
+                              ? 'opacity-30 cursor-not-allowed hover:bg-transparent hover:text-inherit' 
+                              : 'text-red-500 hover:text-red-700 hover:bg-red-50'
+                          }`}
+                          disabled={facture.status !== 'en_attente'}
+                          title={facture.status === 'en_attente' ? "Supprimer" : "Seules les factures en attente peuvent être supprimées"}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
