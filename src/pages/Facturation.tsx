@@ -72,10 +72,12 @@ const Facturation = () => {
       id: newFactureId,
       client: {
         id: formData.clientId,
-        nom: "Client", // Idéalement, récupérer le nom du client à partir de l'ID
-        adresse: "",   // Ces champs seraient normalement remplis avec les vraies données du client
-        telephone: "",
-        email: ""
+        nom: formData.clientId === "1" ? "SARL TechPro" : 
+             formData.clientId === "2" ? "SAS WebDev" : 
+             formData.clientId === "3" ? "EURL ConseilPlus" : "Nouveau Client",
+        adresse: "Adresse du client",
+        telephone: "Téléphone du client",
+        email: "email@client.com"
       },
       date: formData.dateEmission,
       echeance: formData.dateEcheance,
@@ -85,10 +87,12 @@ const Facturation = () => {
       notes: formData.notes
     };
     
-    // Ajouter la nouvelle facture à la liste
-    setFactures(prevFactures => [...prevFactures, newFacture]);
+    // Ajouter la nouvelle facture à la liste et forcer la mise à jour de l'UI
+    setFactures([...factures, newFacture]);
     
-    console.log("Nouvelle facture:", newFacture);
+    console.log("Nouvelle facture créée:", newFacture);
+    console.log("Liste des factures mise à jour:", [...factures, newFacture]);
+    
     toast({
       title: "Facture créée",
       description: "La nouvelle facture a été créée avec succès.",
