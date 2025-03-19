@@ -72,23 +72,9 @@ export const FacturationTabs = ({
       </TabsList>
       
       <TabsContent value="factures">
-        <FacturesTab 
-          searchTerm={searchTerm}
-          setSearchTerm={setSearchTerm}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          periodFilter={periodFilter}
-          setPeriodFilter={setPeriodFilter}
-          filteredFactures={filteredFactures}
-          formatMontant={formatMontant}
-          onViewDetails={onViewDetails}
-          onPrintInvoice={onPrintInvoice}
-          onDownloadInvoice={onDownloadInvoice}
-          onUpdateStatus={onUpdateStatus}
-          onEditInvoice={onEditInvoice}
-          onDeleteInvoice={onDeleteInvoice}
-          isAdmin={isAdmin}
-        />
+        <div className="py-12 text-center text-muted-foreground">
+          Aucune facture disponible
+        </div>
       </TabsContent>
       
       <TabsContent value="paiements">
