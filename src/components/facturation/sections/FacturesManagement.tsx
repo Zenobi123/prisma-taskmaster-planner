@@ -7,8 +7,6 @@ import { FactureDetailsDialog } from "@/components/facturation/FactureDetailsDia
 import { NewFactureDialog } from "@/components/facturation/NewFactureDialog";
 import { Facture } from "@/types/facture";
 import { facturesMockData, filterFactures, formatMontant } from "@/data/factureData";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 export const FacturesManagement = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -60,16 +58,6 @@ export const FacturesManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
-        <Button 
-          onClick={() => setIsNewFactureDialogOpen(true)}
-          className="flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          Nouvelle facture
-        </Button>
-      </div>
-      
       <FacturationFilters
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
