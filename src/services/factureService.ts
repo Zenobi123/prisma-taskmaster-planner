@@ -1,4 +1,3 @@
-
 import { Facture, Paiement, Prestation } from "@/types/facture";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -74,7 +73,7 @@ export const enregistrerPaiementPartiel = async (
     throw fetchError;
   }
   
-  // Récupérer les paiements existants et convertir en format JSON-compatible
+  // Récupérer les paiements existants et s'assurer qu'ils sont dans un format de tableau
   const paiementsExistants = currentFacture.paiements || [];
   
   // Conversion du paiement en format JSON pour Supabase
@@ -100,7 +99,7 @@ export const enregistrerPaiementPartiel = async (
   const { error: updateError } = await supabase
     .from('factures')
     .update({ 
-      paiements: [...Array.from(paiementsExistants), paiementJSON],
+      paiements: [...paiementsExistants, paiementJSON],
       montant_paye: nouveauMontantPaye,
       status: newStatus
     })
@@ -111,7 +110,6 @@ export const enregistrerPaiementPartiel = async (
   }
 };
 
-// Helper function to map database rows to Facture objects
 const mapFacturesFromDB = (data: any[]): Facture[] => {
   return data.map((row: any) => ({
     id: row.id,
