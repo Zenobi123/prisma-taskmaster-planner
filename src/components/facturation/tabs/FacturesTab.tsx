@@ -17,7 +17,7 @@ interface FacturesTabProps {
   onDownloadInvoice: (factureId: string) => void;
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
   onEditInvoice: (facture: Facture) => void;
-  onDeleteInvoice: (factureId: string) => void;
+  onDeleteInvoice: (factureId: string) => Promise<boolean> | void;
   isAdmin?: boolean;
 }
 

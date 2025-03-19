@@ -11,7 +11,7 @@ interface FactureRowActionsProps {
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
   onEditInvoice: (facture: Facture) => void;
-  onDeleteInvoice: (factureId: string) => Promise<boolean>;
+  onDeleteInvoice: (factureId: string) => Promise<boolean> | void;
 }
 
 export const FactureRowActions = ({
@@ -33,14 +33,23 @@ export const FactureRowActions = ({
     try {
       setIsDeleting(true);
       console.log(`Suppression de la facture ${facture.id} initiée...`);
-      const success = await onDeleteInvoice(facture.id);
       
-      if (success) {
-        console.log(`Suppression de la facture ${facture.id} réussie.`);
-        setShowDeleteDialog(false);
+      const result = onDeleteInvoice(facture.id);
+      
+      // Handle both Promise<boolean> and void return types
+      if (result instanceof Promise) {
+        const success = await result;
+        if (success) {
+          console.log(`Suppression de la facture ${facture.id} réussie.`);
+          setShowDeleteDialog(false);
+        } else {
+          console.error(`Échec de la suppression de la facture ${facture.id}.`);
+          // Le dialogue reste ouvert en cas d'échec
+        }
       } else {
-        console.error(`Échec de la suppression de la facture ${facture.id}.`);
-        // Le dialogue reste ouvert en cas d'échec
+        // If void is returned, just close the dialog after a short delay
+        console.log(`Suppression de la facture ${facture.id} initiée (sans retour).`);
+        setTimeout(() => setShowDeleteDialog(false), 500);
       }
     } catch (error) {
       console.error("Erreur lors de la suppression de la facture:", error);
