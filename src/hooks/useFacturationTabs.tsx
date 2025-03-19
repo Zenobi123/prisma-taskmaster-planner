@@ -1,11 +1,11 @@
 
-import { useState } from "react";
+// This hook is kept for backward compatibility but no longer contains tab functionality
+// since Paiements and Situation clients tabs have been removed
 
 export const useFacturationTabs = () => {
-  const [activeTab, setActiveTab] = useState("paiements");
-  
+  // Return dummy values to maintain API compatibility with existing code
   return {
-    activeTab,
-    setActiveTab
+    activeTab: "",
+    setActiveTab: () => {}
   };
 };
