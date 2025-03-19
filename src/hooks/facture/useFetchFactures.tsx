@@ -34,6 +34,7 @@ export const useFetchFactures = () => {
   return {
     factures,
     setFactures,
-    isLoading
+    isLoading,
+    fetchFactures // Exposer la fonction pour permettre un rechargement manuel si nécessaire
   };
 };

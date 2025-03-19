@@ -1,3 +1,4 @@
+
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
 import { deleteFactureFromDB } from "@/services/factureService";
@@ -15,7 +16,7 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
       await deleteFactureFromDB(factureId);
       
       // Mettre à jour l'état local après suppression
-      setFactures(factures.filter(f => f.id !== factureId));
+      setFactures(prevFactures => prevFactures.filter(f => f.id !== factureId));
       
       toast({
         title: "Facture supprimée",
@@ -58,7 +59,9 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
       let failCount = 0;
       
       // Pour chaque facture, essayer de la supprimer
-      for (const facture of factures) {
+      const facturesCopy = [...factures]; // Créer une copie pour éviter des problèmes de mutation pendant l'itération
+      
+      for (const facture of facturesCopy) {
         try {
           // Ici, nous supposons que toutes les factures doivent être supprimées
           // Dans une vraie application, vous devriez vérifier si l'utilisateur actuel est le créateur

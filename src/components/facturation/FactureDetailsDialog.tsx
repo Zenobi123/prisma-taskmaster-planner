@@ -39,9 +39,13 @@ export const FactureDetailsDialog = ({
 
   // Calculer le montant total des prestations
   const montantTotal = selectedFacture.prestations.reduce(
-    (total, prestation) => total + prestation.montant * prestation.quantite,
+    (total, prestation) => total + prestation.montant * (prestation.quantite || 1),
     0
   );
+
+  const handleClose = () => {
+    setShowDetails(false);
+  };
 
   return (
     <Dialog open={showDetails} onOpenChange={setShowDetails}>
@@ -71,7 +75,7 @@ export const FactureDetailsDialog = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <PaiementInfo 
               status={selectedFacture.status}
-              montant={selectedFacture.montant}
+              montantTotal={selectedFacture.montant}
               montantPaye={selectedFacture.montantPaye || 0}
               modeReglement={selectedFacture.modeReglement}
               moyenPaiement={selectedFacture.moyenPaiement}
@@ -85,18 +89,12 @@ export const FactureDetailsDialog = ({
           
           {selectedFacture.paiements && selectedFacture.paiements.length > 0 && (
             <HistoriquePaiements 
-              historiquePaiements={selectedFacture.paiements}
+              paiements={selectedFacture.paiements}
               formatMontant={formatMontant} 
             />
           )}
           
-          <FactureDetailsFooter
-            factureId={selectedFacture.id}
-            status={selectedFacture.status}
-            montant={selectedFacture.montant}
-            formatMontant={formatMontant}
-            onUpdateStatus={onUpdateStatus}
-          />
+          <FactureDetailsFooter onClose={handleClose} />
         </div>
       </DialogContent>
     </Dialog>
