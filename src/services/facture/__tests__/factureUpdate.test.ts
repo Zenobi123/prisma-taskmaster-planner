@@ -64,7 +64,7 @@ describe('factureUpdate', () => {
         id: 'P1',
         date: '2023-02-01',
         montant: 500,
-        moyenPaiement: 'especes',
+        moyenPaiement: 'especes' as 'especes' | 'orange_money' | 'mtn_mobile' | 'virement',
         prestationIds: ['prestation-1']
       };
       const prestationsPayees = ['prestation-1'];
@@ -107,7 +107,7 @@ describe('factureUpdate', () => {
         id: 'P1',
         date: '2023-02-01',
         montant: 500,
-        moyenPaiement: 'especes',
+        moyenPaiement: 'especes' as 'especes' | 'orange_money' | 'mtn_mobile' | 'virement',
         prestationIds: ['prestation-1']
       };
       const prestationsPayees = ['prestation-1'];
@@ -130,7 +130,7 @@ describe('factureUpdate', () => {
         id: 'P1',
         date: '2023-02-01',
         montant: 500,
-        moyenPaiement: 'especes',
+        moyenPaiement: 'especes' as 'especes' | 'orange_money' | 'mtn_mobile' | 'virement',
         prestationIds: ['prestation-1']
       };
       const prestationsPayees = ['prestation-1'];
