@@ -1,7 +1,7 @@
 
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
-import { createFactureInDB } from "@/services/factureService";
+import { createFactureInDB } from "@/services/facture/factureCreate";
 import { prepareNewInvoice } from "@/utils/factureUtils";
 
 export const useFactureCreate = (factures: Facture[], setFactures: React.Dispatch<React.SetStateAction<Facture[]>>) => {

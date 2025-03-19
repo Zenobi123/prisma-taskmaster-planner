@@ -1,7 +1,7 @@
 
 import { useToast } from "@/components/ui/use-toast";
 import { Facture, Paiement } from "@/types/facture";
-import { enregistrerPaiementPartiel, updateFactureStatus } from "@/services/factureService";
+import { enregistrerPaiementPartiel, updateFactureStatus } from "@/services/facture/factureUpdate";
 
 export const useFactureUpdates = (factures: Facture[], setFactures: React.Dispatch<React.SetStateAction<Facture[]>>) => {
   const { toast } = useToast();

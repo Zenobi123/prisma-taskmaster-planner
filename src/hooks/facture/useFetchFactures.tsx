@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
-import { fetchFacturesFromDB } from "@/services/factureService";
+import { fetchFacturesFromDB } from "@/services/facture/facturesQuery";
 
 export const useFetchFactures = () => {
   const [factures, setFactures] = useState<Facture[]>([]);

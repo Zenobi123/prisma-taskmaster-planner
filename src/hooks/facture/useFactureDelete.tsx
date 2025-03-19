@@ -1,7 +1,7 @@
 
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
-import { deleteFactureFromDB } from "@/services/factureService";
+import { deleteFactureFromDB } from "@/services/facture/factureDelete";
 
 export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatch<React.SetStateAction<Facture[]>>) => {
   const { toast } = useToast();

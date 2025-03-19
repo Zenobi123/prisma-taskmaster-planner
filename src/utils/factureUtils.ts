@@ -1,6 +1,6 @@
 
 import { Facture } from "@/types/facture";
-import { getClientData } from "@/services/factureService";
+import { getClientData } from "@/services/facture/clientService";
 
 export const prepareNewInvoice = async (formData: any, factures: Facture[]) => {
   const newId = generateNewInvoiceId(factures);
