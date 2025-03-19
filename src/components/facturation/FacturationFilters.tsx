@@ -89,7 +89,7 @@ export const FacturationFilters = ({
           <SelectValue placeholder="Statut" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">Tous les statuts</SelectItem>
+          <SelectItem value="tous">Tous les statuts</SelectItem>
           <SelectItem value="non_paye">Non payé</SelectItem>
           <SelectItem value="partiellement_paye">Partiellement payé</SelectItem>
           <SelectItem value="paye">Payé</SelectItem>
@@ -104,7 +104,7 @@ export const FacturationFilters = ({
           <SelectValue placeholder="Client" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="">Tous les clients</SelectItem>
+          <SelectItem value="tous">Tous les clients</SelectItem>
           {clients.map(client => (
             <SelectItem key={client.id} value={client.id}>
               {client.nom}

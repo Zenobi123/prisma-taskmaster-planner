@@ -13,6 +13,15 @@ interface FacturesQueryParams {
   sortOrder?: "asc" | "desc";
 }
 
+// Fonction pour parser les champs JSON retournés par Supabase
+const parseFactureData = (data: any): Facture => {
+  return {
+    ...data,
+    prestations: JSON.parse(data.prestations || '[]'),
+    paiements: JSON.parse(data.paiements || '[]')
+  };
+};
+
 export const fetchFactures = async (params: FacturesQueryParams = {}): Promise<{ data: Facture[], count: number }> => {
   const {
     status,
@@ -61,8 +70,11 @@ export const fetchFactures = async (params: FacturesQueryParams = {}): Promise<{
     throw new Error(error.message);
   }
 
+  // Parser les champs JSON
+  const parsedData = data ? data.map(parseFactureData) : [];
+
   return { 
-    data: data as Facture[], 
+    data: parsedData, 
     count: count || 0 
   };
 };
@@ -79,5 +91,6 @@ export const fetchFactureById = async (id: string): Promise<Facture> => {
     throw new Error(error.message);
   }
 
-  return data as Facture;
+  // Parser les champs JSON
+  return parseFactureData(data);
 };

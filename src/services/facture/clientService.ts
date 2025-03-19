@@ -15,9 +15,9 @@ export const fetchClients = async (): Promise<Client[]> => {
 
   return data.map(client => ({
     id: client.id,
-    nom: client.type === "physique" ? client.nom : client.raisonsociale,
-    email: client.contact?.email || "",
-    telephone: client.contact?.telephone || "",
+    nom: client.raisonsociale || client.nom || "Client sans nom",
+    email: client.contact && typeof client.contact === 'object' ? client.contact.email || "" : "",
+    telephone: client.contact && typeof client.contact === 'object' ? client.contact.telephone || "" : "",
     adresse: formatAdresse(client.adresse)
   }));
 };
@@ -25,7 +25,7 @@ export const fetchClients = async (): Promise<Client[]> => {
 export const fetchClientById = async (id: string): Promise<Client> => {
   const { data, error } = await supabase
     .from("clients")
-    .select("id, nom, raisonsociale, type, contact, adresse")
+    .select("id, nom, raisonsociale, contact, adresse")
     .eq("id", id)
     .single();
 
@@ -36,15 +36,19 @@ export const fetchClientById = async (id: string): Promise<Client> => {
 
   return {
     id: data.id,
-    nom: data.type === "physique" ? data.nom : data.raisonsociale,
-    email: data.contact?.email || "",
-    telephone: data.contact?.telephone || "",
+    nom: data.raisonsociale || data.nom || "Client sans nom",
+    email: data.contact && typeof data.contact === 'object' ? data.contact.email || "" : "",
+    telephone: data.contact && typeof data.contact === 'object' ? data.contact.telephone || "" : "",
     adresse: formatAdresse(data.adresse)
   };
 };
 
 const formatAdresse = (adresse: any): string => {
   if (!adresse) return "";
+  
+  if (typeof adresse === 'string') {
+    return adresse;
+  }
   
   const parts = [
     adresse.rue,

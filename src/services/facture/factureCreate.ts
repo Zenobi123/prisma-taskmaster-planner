@@ -35,9 +35,16 @@ export const createFacture = async (data: CreateFactureData): Promise<Facture> =
     paiements: []
   };
 
+  // Préparer les données pour Supabase (conversion des objets en JSON)
+  const supabaseData = {
+    ...newFacture,
+    prestations: JSON.stringify(newFacture.prestations),
+    paiements: JSON.stringify(newFacture.paiements)
+  };
+
   const { data: insertedData, error } = await supabase
     .from("factures")
-    .insert(newFacture)
+    .insert(supabaseData)
     .select()
     .single();
 
@@ -46,5 +53,10 @@ export const createFacture = async (data: CreateFactureData): Promise<Facture> =
     throw new Error(error.message);
   }
 
-  return insertedData as Facture;
+  // Reconvertir les données JSON en objets
+  return {
+    ...insertedData,
+    prestations: JSON.parse(insertedData.prestations || '[]'),
+    paiements: JSON.parse(insertedData.paiements || '[]')
+  } as Facture;
 };

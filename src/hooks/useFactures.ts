@@ -152,7 +152,7 @@ export const useFactures = (params: UseFacturesParams = {}) => {
     return deleteMutation.mutateAsync(id);
   }, [deleteMutation]);
 
-  const fetchFactures = useCallback(() => {
+  const refreshFactures = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['factures'] });
   }, [queryClient]);
 
@@ -169,6 +169,6 @@ export const useFactures = (params: UseFacturesParams = {}) => {
     handleUpdateStatus,
     handlePaiementPartiel,
     handleDeleteInvoice,
-    fetchFactures,
+    fetchFactures: refreshFactures,
   };
 };
