@@ -16,7 +16,13 @@ export const getPrestationsByFactureId = async (factureId: string): Promise<Pres
   return prestations || [];
 };
 
-export const createPrestation = async (prestation: Omit<Prestation, "id">): Promise<Prestation> => {
+export const createPrestation = async (prestation: { 
+  facture_id: string;
+  description: string;
+  quantite: number;
+  montant: number;
+  taux?: number;
+}): Promise<Prestation> => {
   const { data, error } = await supabase
     .from("prestations")
     .insert({

@@ -1,58 +1,44 @@
 
-import { ChartContainer } from "@/components/ui/chart";
-import { BarChart } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
-interface ChartData {
+export interface ChartData {
   name: string;
+  value: number;
   total: number;
+  color: string;
 }
 
 interface SituationChartProps {
-  chartData: ChartData[];
+  data: ChartData[];
 }
 
-export const SituationChart = ({ chartData }: SituationChartProps) => {
+export const SituationChart = ({ data }: SituationChartProps) => {
   return (
-    <ChartContainer config={{}} className="h-[300px]">
-      <BarChart
-        data={chartData}
-        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-      >
-        <rect x="0" y="0" width="100%" height="100%" fill="#f8f9fa" />
-        <g className="recharts-layer recharts-cartesian-axis recharts-xAxis xAxis">
-          <g className="recharts-cartesian-axis-ticks">
-            {chartData.map((entry, index) => (
-              <text
-                key={`text-${index}`}
-                x={index * 100 + 50}
-                y={280}
-                textAnchor="middle"
-                fill="#666"
-              >
-                {entry.name}
-              </text>
+    <div className="h-[300px] w-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            outerRadius={80}
+            fill="#8884d8"
+            dataKey="value"
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
-          </g>
-        </g>
-        <g className="recharts-layer recharts-bar">
-          {chartData.map((entry, index) => (
-            <rect
-              key={`bar-${index}`}
-              x={index * 100 + 30}
-              y={280 - entry.total * 40}
-              width={40}
-              height={entry.total * 40}
-              fill={
-                entry.name === "À jour" 
-                  ? "#84A98C" 
-                  : entry.name === "Partiellement payé" 
-                    ? "#F9C74F" 
-                    : "#E63946"
-              }
-            />
-          ))}
-        </g>
-      </BarChart>
-    </ChartContainer>
+          </Pie>
+          <Tooltip 
+            formatter={(value: number, name: string, entry: { payload: ChartData }) => [
+              `${value.toLocaleString('fr-FR')} XAF (${Math.round(value / entry.payload.total * 100)}%)`,
+              name
+            ]}
+          />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
   );
 };

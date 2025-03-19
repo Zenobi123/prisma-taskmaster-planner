@@ -1,93 +1,86 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getClientStats } from "@/services/clientStatsService";
-import { Facture } from "@/types/facture";
+import { getClientsAvecFactures } from "@/services/clientFacturationService";
 
-export function useSituationClients() {
+export const useSituationClients = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  
-  // Récupérer les statistiques des clients
-  const { data: clientsStats = [], isLoading } = useQuery({
-    queryKey: ["clients-stats"],
-    queryFn: getClientStats,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+  const [sortColumn, setSortColumn] = useState("montantTotal");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+
+  // Requête pour récupérer les clients avec leurs factures
+  const { data: clients = [], isLoading } = useQuery({
+    queryKey: ["clientsAvecFactures"],
+    queryFn: getClientsAvecFactures,
   });
-  
+
   // Filtrer les clients en fonction du terme de recherche
-  const filteredClients = clientsStats.filter(client => 
+  const filteredClients = Array.isArray(clients) ? clients.filter((client) =>
     client.nom.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-  
-  // Déterminer le statut de chaque client
-  const clientsWithStatus = filteredClients.map(client => {
-    let status: Facture["status"] = "en_attente";
+  ) : [];
+
+  // Trier les clients
+  const sortedClients = [...filteredClients].sort((a, b) => {
+    const factor = sortDirection === "asc" ? 1 : -1;
     
-    if (client.montantDu === 0 && client.montantTotal > 0) {
-      status = "payée";
-    } else if (client.montantDu > 0 && client.montantPaye > 0) {
-      status = "partiellement_payée";
-    } else if (client.montantDu > 0 && client.montantPaye === 0) {
-      status = "en_attente";
+    if (sortColumn === "nom") {
+      return factor * a.nom.localeCompare(b.nom);
+    } else {
+      const aValue = a[sortColumn] || 0;
+      const bValue = b[sortColumn] || 0;
+      return factor * (aValue - bValue);
     }
-    
-    return {
-      ...client,
-      status
-    };
   });
-  
-  // Calculer les statistiques globales
-  const montantTotalGlobal = filteredClients.reduce((sum, client) => sum + client.montantTotal, 0);
-  const montantPayeGlobal = filteredClients.reduce((sum, client) => sum + client.montantPaye, 0);
-  const montantDuGlobal = filteredClients.reduce((sum, client) => sum + client.montantDu, 0);
+
+  // Gérer le changement de colonne de tri
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortColumn(column);
+      setSortDirection("desc");
+    }
+  };
+
+  // Formater le montant
+  const formatMontant = (montant: number) => {
+    return new Intl.NumberFormat('fr-FR').format(montant) + " XAF";
+  };
+
+  // Calculer les totaux globaux
+  const montantTotalGlobal = sortedClients.reduce((sum, client) => sum + client.montantTotal, 0);
+  const montantPayeGlobal = sortedClients.reduce((sum, client) => sum + client.montantPaye, 0);
+  const montantDuGlobal = sortedClients.reduce((sum, client) => sum + client.montantDu, 0);
   const pourcentagePayeGlobal = montantTotalGlobal > 0 
     ? (montantPayeGlobal / montantTotalGlobal) * 100 
     : 0;
-  
-  // Statistiques par statut
-  const countByStatus = {
-    payée: clientsWithStatus.filter(c => c.status === "payée").length,
-    partiellement_payée: clientsWithStatus.filter(c => c.status === "partiellement_payée").length,
-    en_attente: clientsWithStatus.filter(c => c.status === "en_attente").length
-  };
-  
-  const totalClients = clientsWithStatus.length;
+
+  // Préparer les données pour le graphique
   const statusItems = [
-    { 
-      label: "Payées", 
-      count: countByStatus.payée, 
-      color: "bg-green-500" 
-    },
-    { 
-      label: "Partiellement payées", 
-      count: countByStatus.partiellement_payée, 
-      color: "bg-amber-500" 
-    },
-    { 
-      label: "En attente", 
-      count: countByStatus.en_attente, 
-      color: "bg-gray-300" 
-    }
+    { name: "Payées", value: montantPayeGlobal, total: montantTotalGlobal, color: "#16a34a" },
+    { name: "En attente", value: montantDuGlobal, total: montantTotalGlobal, color: "#f59e0b" }
   ];
-  
-  // Données pour le graphique
-  const chartData = [
-    { name: "Payé", value: montantPayeGlobal },
-    { name: "Dû", value: montantDuGlobal }
-  ];
-  
+
+  const chartData = statusItems.filter(item => item.value > 0);
+
+  const totalClients = sortedClients.length;
+
   return {
-    clients: clientsWithStatus,
+    clients: sortedClients,
     isLoading,
     searchTerm,
     setSearchTerm,
+    sortColumn,
+    sortDirection,
+    handleSort,
+    filteredClients: sortedClients,
+    formatMontant,
     montantTotalGlobal,
     montantPayeGlobal,
     montantDuGlobal,
     pourcentagePayeGlobal,
     statusItems,
     chartData,
-    totalClients
+    totalClients,
   };
-}
+};
