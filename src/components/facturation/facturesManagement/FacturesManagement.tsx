@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { FacturesTable } from "./FacturesTable";
 import { FacturesPagination } from "./FacturesPagination";
@@ -71,7 +72,22 @@ export const FacturesManagement = () => {
   };
 
   const handleCreateInvoice = async (formData: any): Promise<boolean> => {
-    return await createFacture(formData);
+    try {
+      const success = await createFacture(formData);
+      if (success) {
+        // Notification de succès gérée dans useFactureOperations
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Erreur lors de la création de la facture:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la facture",
+        variant: "destructive"
+      });
+      return false;
+    }
   };
 
   const handleConfirmDelete = async () => {
