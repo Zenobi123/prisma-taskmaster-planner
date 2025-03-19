@@ -111,8 +111,13 @@ export function useFactureForm({ factureExistante, onSuccess }: UseFactureFormPr
         echeance: format(data.echeance, "yyyy-MM-dd"),
         montant: montantTotal,
         status: "en_attente" as const,
-        notes: data.notes,
-        prestations: data.prestations
+        notes: data.notes || "",
+        prestations: data.prestations.map(p => ({
+          description: p.description,
+          quantite: p.quantite,
+          montant: p.montant,
+          taux: p.taux || 0
+        }))
       };
       
       let facture: Facture;
