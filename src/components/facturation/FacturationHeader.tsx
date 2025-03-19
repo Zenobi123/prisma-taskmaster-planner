@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Receipt, Search } from "lucide-react";
+import { ArrowLeft, Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface FacturationHeaderProps {
@@ -37,7 +37,6 @@ export const FacturationHeader = ({
 
       <div className="flex items-center mb-6">
         <div className="flex items-center gap-2">
-          <Receipt className="w-8 h-8 text-primary" />
           <div className="text-left">
             <h1 className="text-2xl font-bold">Facturation</h1>
             <p className="text-neutral-600">
