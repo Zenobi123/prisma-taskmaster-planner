@@ -4,11 +4,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X } from "lucide-react";
 import { Prestation } from "@/types/facture";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 
 interface PrestationsFormProps {
   prestations: Prestation[];
   setPrestations: (prestations: Prestation[]) => void;
 }
+
+// Liste des prestations prédéfinies
+const PRESTATIONS_OPTIONS = [
+  "AVANCE POUR PAIEMENT SOLDE IRPP N",
+  "AVANCE POUR PAIEMENT SOLDE IS N",
+  "AVANCE POUR PAIEMENT BAIL N",
+  "AVANCE POUR PAIEMENT PRÉCOMPTE LOYER N",
+  "AVANCE POUR PAIEMENT PATENTE N",
+  "AVANCE POUR PAIEMENT TAXE FONCIÈRE N",
+  "DÉCLARATION ANNUELLE DES REVENUS - N-1",
+  "RENOUVELLEMENT DU DOSSIER FISCAL N",
+  "MONTAGE ET MISE EN LIGNE DE LA DSF N",
+  "MONTAGE ET MISE EN LIGNE DE LA DSF N-1",
+  "FORFAIT SUIVI-GESTION FISCAL EXERCICE N",
+  "PRESTATION FISCALE"
+];
 
 export const PrestationsForm = ({
   prestations,
@@ -60,12 +83,21 @@ export const PrestationsForm = ({
         {prestations.map((prestation, index) => (
           <div key={index} className="flex gap-2 items-start">
             <div className="flex-1">
-              <Input
-                placeholder="Description de la prestation"
+              <Select 
                 value={prestation.description}
-                onChange={(e) => handleDescriptionChange(index, e.target.value)}
-                className="w-full"
-              />
+                onValueChange={(value) => handleDescriptionChange(index, value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Sélectionner une prestation" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRESTATIONS_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="w-1/4">
               <Input
