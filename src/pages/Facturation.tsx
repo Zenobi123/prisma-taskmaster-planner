@@ -6,16 +6,13 @@ import { NewFactureDialog } from "@/components/facturation/NewFactureDialog";
 import { useFacturationPermissions } from "@/hooks/useFacturationPermissions";
 import { useFactures } from "@/hooks/useFactures";
 import { useFacturationTabs } from "@/hooks/useFacturationTabs";
-import { useFacturationFilters } from "@/hooks/useFacturationFilters";
 import { useInvoiceActions } from "@/utils/invoiceActions";
 import { Facture } from "@/types/facture";
-import { FactureDetailsManager } from "@/components/facturation/FactureDetailsManager";
 import { useToast } from "@/components/ui/use-toast";
 import { FacturationTabs } from "@/components/facturation/FacturationTabs";
 
 const Facturation = () => {
   const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { toast } = useToast();
   
   // Hooks for data and functionality
@@ -30,8 +27,6 @@ const Facturation = () => {
     fetchFactures
   } = useFactures();
   const { activeTab, setActiveTab } = useFacturationTabs();
-  // Récupérons quand même les factures filtrées
-  const { filteredFactures } = useFacturationFilters(factures);
   const { handlePrintInvoice, handleDownloadInvoice } = useInvoiceActions();
 
   // Vérifie si l'utilisateur est administrateur
@@ -46,34 +41,6 @@ const Facturation = () => {
     });
   }, [fetchFactures, toast]);
 
-  // Define all functions BEFORE using them
-  const handleEditInvoice = (facture: Facture) => {
-    factureDetailsManager.setSelectedFacture(facture);
-    setIsEditDialogOpen(true);
-    factureDetailsManager.setShowDetails(false);
-  };
-
-  const handleDeleteInvoiceRequest = (factureId: string) => {
-    console.log(`Requesting deletion of facture ${factureId}`);
-    handleDeleteInvoice(factureId);
-  };
-
-  // Create handlers for various actions
-  const handleViewDetails = (facture: Facture) => {
-    factureDetailsManager.handleViewDetails(facture);
-  };
-
-  // Create facture details manager for viewing details and actions
-  const factureDetailsManager = FactureDetailsManager({
-    onPrintInvoice: handlePrintInvoice,
-    onDownloadInvoice: handleDownloadInvoice,
-    onUpdateStatus: handleUpdateStatus,
-    onEditInvoice: handleEditInvoice,
-    onDeleteInvoice: handleDeleteInvoiceRequest,
-    formatMontant,
-    isAdmin
-  });
-
   // Loading state
   if (isLoading || permissionsLoading) {
     return (
@@ -83,11 +50,6 @@ const Facturation = () => {
         </div>
       </div>
     );
-  }
-
-  // Au démarrage, on s'assure que l'onglet actif est un des onglets disponibles
-  if (activeTab === "factures") {
-    setActiveTab("paiements");
   }
 
   return (
@@ -102,13 +64,10 @@ const Facturation = () => {
         factures={factures}
         formatMontant={formatMontant}
         onUpdateStatus={handleUpdateStatus}
-        onEditInvoice={handleEditInvoice}
-        onDeleteInvoice={handleDeleteInvoiceRequest}
+        onDeleteInvoice={handleDeleteInvoice}
         onPaiementPartiel={handlePaiementPartiel}
         isAdmin={isAdmin}
       />
-
-      {factureDetailsManager.detailsDialog}
 
       <NewFactureDialog 
         isOpen={isNewFactureDialogOpen}
