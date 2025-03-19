@@ -36,16 +36,6 @@ const Facturation = () => {
   };
 
   const handleDeleteInvoiceRequest = (factureId: string) => {
-    // Si l'utilisateur n'est pas admin, vérifie si la facture peut être supprimée
-    if (!isAdmin) {
-      // Find the facture to check its status
-      const factureToDelete = factures.find(f => f.id === factureId);
-      
-      if (factureToDelete && factureToDelete.status !== 'en_attente') {
-        return;
-      }
-    }
-    
     setFactureToDelete(factureId);
     setIsDeleteConfirmOpen(true);
   };
@@ -57,6 +47,7 @@ const Facturation = () => {
     onUpdateStatus: handleUpdateStatus,
     onEditInvoice: handleEditInvoice,
     onDeleteInvoice: handleDeleteInvoiceRequest,
+    isAdmin: isAdmin, // S'assurer que le statut d'admin est passé ici
   });
 
   if (permissionsLoading || isLoading) {
@@ -70,6 +61,7 @@ const Facturation = () => {
   const confirmDeleteInvoice = async () => {
     if (!factureToDelete) return;
     
+    // Passer explicitement le statut d'admin lors de la suppression
     const success = await handleDeleteInvoice(factureToDelete, isAdmin);
     
     if (success) {
@@ -101,7 +93,7 @@ const Facturation = () => {
         onEditInvoice={handleEditInvoice}
         onDeleteInvoice={handleDeleteInvoiceRequest}
         onPaiementPartiel={handlePaiementPartiel}
-        isAdmin={isAdmin}
+        isAdmin={isAdmin} // S'assurer que le statut d'admin est passé ici
       />
 
       {factureDetailsManager.detailsDialog}

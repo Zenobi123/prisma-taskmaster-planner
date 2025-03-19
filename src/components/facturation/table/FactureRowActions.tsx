@@ -22,7 +22,8 @@ export const FactureRowActions = ({
   onDownloadInvoice,
   isAdmin = false,
 }: FactureRowActionsProps) => {
-  // Determine if this invoice can be deleted
+  // Si l'utilisateur est admin, il peut supprimer n'importe quelle facture
+  // Sinon, il ne peut supprimer que les factures en attente
   const canDelete = isAdmin || facture.status === 'en_attente';
   
   return (

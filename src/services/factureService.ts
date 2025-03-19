@@ -96,11 +96,14 @@ export const enregistrerPaiementPartiel = async (
     newStatus = 'partiellement_payée';
   }
   
-  // Mettre à jour la facture en utilisant paiementsExistants directement
+  // Utiliser un spread operator au lieu de Array.from pour éviter l'erreur TS2488
+  const updatedPaiements = [...paiementsExistants, paiementJSON];
+  
+  // Mettre à jour la facture
   const { error: updateError } = await supabase
     .from('factures')
     .update({ 
-      paiements: [...paiementsExistants, paiementJSON],
+      paiements: updatedPaiements,
       montant_paye: nouveauMontantPaye,
       status: newStatus
     })

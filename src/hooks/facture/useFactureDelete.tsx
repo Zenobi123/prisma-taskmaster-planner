@@ -8,8 +8,9 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
 
   const handleDeleteInvoice = async (factureId: string, isAdmin: boolean = false) => {
     try {
-      // Vérifier si l'utilisateur a le droit de supprimer cette facture
+      // Si l'utilisateur est admin, il peut supprimer n'importe quelle facture
       if (!isAdmin) {
+        // Seul l'admin peut supprimer les factures déjà envoyées ou payées
         const factureToDelete = factures.find(f => f.id === factureId);
         if (factureToDelete && factureToDelete.status !== 'en_attente') {
           toast({

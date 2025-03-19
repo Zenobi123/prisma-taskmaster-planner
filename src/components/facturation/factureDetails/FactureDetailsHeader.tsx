@@ -35,6 +35,8 @@ export const FactureDetailsHeader = ({
   onDeleteInvoice,
   isAdmin = false,
 }: FactureDetailsHeaderProps) => {
+  // Si l'utilisateur est admin, il peut supprimer n'importe quelle facture
+  // Sinon, il ne peut supprimer que les factures en attente
   const canDelete = isAdmin || selectedFacture.status === 'en_attente';
   
   return (

@@ -11,6 +11,7 @@ interface FactureDetailsManagerProps {
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
   formatMontant: (montant: number) => string;
+  isAdmin?: boolean;
 }
 
 export const FactureDetailsManager = ({
@@ -19,7 +20,8 @@ export const FactureDetailsManager = ({
   onUpdateStatus,
   onEditInvoice,
   onDeleteInvoice,
-  formatMontant
+  formatMontant,
+  isAdmin = false
 }: FactureDetailsManagerProps) => {
   const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -47,6 +49,7 @@ export const FactureDetailsManager = ({
         onUpdateStatus={onUpdateStatus}
         onEditInvoice={onEditInvoice}
         onDeleteInvoice={onDeleteInvoice}
+        isAdmin={isAdmin}
       />
     )
   };
