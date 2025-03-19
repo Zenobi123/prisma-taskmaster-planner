@@ -25,6 +25,7 @@ interface FactureTableProps {
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
+  isAdmin?: boolean;
 }
 
 export const FactureTable = ({
@@ -36,6 +37,7 @@ export const FactureTable = ({
   onUpdateStatus,
   onEditInvoice,
   onDeleteInvoice,
+  isAdmin = false,
 }: FactureTableProps) => {
   // Calculate total amount of invoices
   const totalMontant = factures.reduce((sum, facture) => sum + facture.montant, 0);
@@ -67,6 +69,7 @@ export const FactureTable = ({
                     onUpdateStatus={onUpdateStatus}
                     onEditInvoice={onEditInvoice}
                     onDeleteInvoice={onDeleteInvoice}
+                    isAdmin={isAdmin}
                   />
                 ))
               )}

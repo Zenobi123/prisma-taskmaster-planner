@@ -19,11 +19,14 @@ const Facturation = () => {
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [factureToDelete, setFactureToDelete] = useState<string | null>(null);
   
-  const { hasPermission, isLoading: permissionsLoading } = useFacturationPermissions();
+  const { hasPermission, isLoading: permissionsLoading, collaborateur } = useFacturationPermissions();
   const { factures, isLoading, handleUpdateStatus, handleDeleteInvoice, handleCreateInvoice, handlePaiementPartiel } = useFactures();
   const { activeTab, setActiveTab } = useFacturationTabs();
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, periodFilter, setPeriodFilter, filteredFactures } = useFacturationFilters(factures);
   const { handlePrintInvoice, handleDownloadInvoice } = useInvoiceActions();
+
+  // Vérifie si l'utilisateur est administrateur
+  const isAdmin = collaborateur?.permissions?.some(p => p.niveau === 'administration' && p.module === 'facturation') || false;
 
   // Define all functions BEFORE using them
   const handleEditInvoice = (facture: Facture) => {
@@ -33,11 +36,14 @@ const Facturation = () => {
   };
 
   const handleDeleteInvoiceRequest = (factureId: string) => {
-    // Find the facture to check its status
-    const factureToDelete = factures.find(f => f.id === factureId);
-    
-    if (factureToDelete && factureToDelete.status !== 'en_attente') {
-      return;
+    // Si l'utilisateur n'est pas admin, vérifie si la facture peut être supprimée
+    if (!isAdmin) {
+      // Find the facture to check its status
+      const factureToDelete = factures.find(f => f.id === factureId);
+      
+      if (factureToDelete && factureToDelete.status !== 'en_attente') {
+        return;
+      }
     }
     
     setFactureToDelete(factureId);
@@ -64,7 +70,7 @@ const Facturation = () => {
   const confirmDeleteInvoice = async () => {
     if (!factureToDelete) return;
     
-    const success = await handleDeleteInvoice(factureToDelete);
+    const success = await handleDeleteInvoice(factureToDelete, isAdmin);
     
     if (success) {
       setIsDeleteConfirmOpen(false);
@@ -95,6 +101,7 @@ const Facturation = () => {
         onEditInvoice={handleEditInvoice}
         onDeleteInvoice={handleDeleteInvoiceRequest}
         onPaiementPartiel={handlePaiementPartiel}
+        isAdmin={isAdmin}
       />
 
       {factureDetailsManager.detailsDialog}

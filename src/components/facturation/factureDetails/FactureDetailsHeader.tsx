@@ -1,3 +1,4 @@
+
 import { Facture } from "@/types/facture";
 import { Download, Printer, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ interface FactureDetailsHeaderProps {
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
   onEditInvoice?: (facture: Facture) => void;
   onDeleteInvoice?: (factureId: string) => void;
+  isAdmin?: boolean;
 }
 
 export const FactureDetailsHeader = ({
@@ -31,8 +33,9 @@ export const FactureDetailsHeader = ({
   onUpdateStatus,
   onEditInvoice,
   onDeleteInvoice,
+  isAdmin = false,
 }: FactureDetailsHeaderProps) => {
-  const canDelete = selectedFacture.status === 'en_attente';
+  const canDelete = isAdmin || selectedFacture.status === 'en_attente';
   
   return (
     <DialogHeader>
@@ -90,7 +93,7 @@ export const FactureDetailsHeader = ({
                   ? 'text-red-500 hover:text-red-700 hover:border-red-300'
                   : 'text-gray-300 cursor-not-allowed hover:scale-100 hover:border-gray-200'
               }`}
-              title={canDelete ? "Supprimer" : "Seules les factures en attente peuvent être supprimées"}
+              title={canDelete ? "Supprimer" : "Seul l'administrateur peut supprimer cette facture"}
               disabled={!canDelete}
             >
               <Trash2 className="h-4 w-4" />

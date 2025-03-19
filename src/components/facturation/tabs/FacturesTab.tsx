@@ -18,6 +18,7 @@ interface FacturesTabProps {
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
+  isAdmin?: boolean;
 }
 
 export const FacturesTab = ({
@@ -35,6 +36,7 @@ export const FacturesTab = ({
   onUpdateStatus,
   onEditInvoice,
   onDeleteInvoice,
+  isAdmin = false,
 }: FacturesTabProps) => {
   return (
     <div className="animate-fade-in">
@@ -56,6 +58,7 @@ export const FacturesTab = ({
         onUpdateStatus={onUpdateStatus}
         onEditInvoice={onEditInvoice}
         onDeleteInvoice={onDeleteInvoice}
+        isAdmin={isAdmin}
       />
     </div>
   );

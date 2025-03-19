@@ -1,10 +1,9 @@
 
-import { FileText, Wallet, Users } from "lucide-react";
-import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { FacturesTab } from "./tabs/FacturesTab";
-import { GestionPaiements } from "./sections/GestionPaiements";
-import { SituationClients } from "./sections/SituationClients";
-import { Facture, Paiement } from "@/types/facture";
+import { Facture } from "@/types/facture";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FacturesTab } from "@/components/facturation/tabs/FacturesTab";
+import { GestionPaiements } from "@/components/facturation/sections/GestionPaiements";
+import { SituationClients } from "@/components/facturation/sections/SituationClients";
 
 interface FacturationTabsProps {
   activeTab: string;
@@ -21,10 +20,11 @@ interface FacturationTabsProps {
   onViewDetails: (facture: Facture) => void;
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
-  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
+  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
-  onPaiementPartiel?: (factureId: string, paiement: Paiement, prestationsIds: string[]) => Promise<Facture | null>;
+  onPaiementPartiel: (factureId: string, paiement: any, prestationsIds: string[]) => void;
+  isAdmin?: boolean;
 }
 
 export const FacturationTabs = ({
@@ -46,81 +46,44 @@ export const FacturationTabs = ({
   onEditInvoice,
   onDeleteInvoice,
   onPaiementPartiel,
+  isAdmin = false,
 }: FacturationTabsProps) => {
   return (
-    <>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex border-b mb-6 overflow-x-auto">
-          <div 
-            onClick={() => setActiveTab("factures")} 
-            className={`flex gap-2 items-center py-3 px-4 cursor-pointer transition-all duration-300 ${
-              activeTab === "factures" 
-                ? "text-primary border-b-2 border-primary font-medium bg-primary/5" 
-                : "text-neutral-600 hover:text-primary"
-            }`}
-          >
-            <FileText className="w-4 h-4" />
-            <span className="hidden sm:inline">Gestion des factures</span>
-            <span className="sm:hidden">Factures</span>
-          </div>
-          <div 
-            onClick={() => setActiveTab("paiements")} 
-            className={`flex gap-2 items-center py-3 px-4 cursor-pointer transition-all duration-300 ${
-              activeTab === "paiements" 
-                ? "text-primary border-b-2 border-primary font-medium bg-primary/5" 
-                : "text-neutral-600 hover:text-primary"
-            }`}
-          >
-            <Wallet className="w-4 h-4" />
-            <span className="hidden sm:inline">Gestion des paiements</span>
-            <span className="sm:hidden">Paiements</span>
-          </div>
-          <div 
-            onClick={() => setActiveTab("clients")} 
-            className={`flex gap-2 items-center py-3 px-4 cursor-pointer transition-all duration-300 ${
-              activeTab === "clients" 
-                ? "text-primary border-b-2 border-primary font-medium bg-primary/5" 
-                : "text-neutral-600 hover:text-primary"
-            }`}
-          >
-            <Users className="w-4 h-4" />
-            <span className="hidden sm:inline">Situation Clients</span>
-            <span className="sm:hidden">Clients</span>
-          </div>
-        </div>
-        
-        <TabsContent value="factures">
-          <FacturesTab
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            periodFilter={periodFilter}
-            setPeriodFilter={setPeriodFilter}
-            filteredFactures={filteredFactures}
-            formatMontant={formatMontant}
-            onViewDetails={onViewDetails}
-            onPrintInvoice={onPrintInvoice}
-            onDownloadInvoice={onDownloadInvoice}
-            onUpdateStatus={onUpdateStatus}
-            onEditInvoice={onEditInvoice}
-            onDeleteInvoice={onDeleteInvoice}
-          />
-        </TabsContent>
-        
-        <TabsContent value="paiements" className="animate-fade-in">
-          <GestionPaiements 
-            factures={factures} 
-            onUpdateStatus={onUpdateStatus}
-            formatMontant={formatMontant}
-            onPaiementPartiel={onPaiementPartiel}
-          />
-        </TabsContent>
-        
-        <TabsContent value="clients" className="animate-fade-in">
-          <SituationClients />
-        </TabsContent>
-      </Tabs>
-    </>
+    <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6 animate-fade-in">
+      <TabsList className="grid grid-cols-3 mb-8">
+        <TabsTrigger value="factures" className="text-sm">Factures</TabsTrigger>
+        <TabsTrigger value="paiements" className="text-sm">Paiements</TabsTrigger>
+        <TabsTrigger value="clients" className="text-sm">Situation clients</TabsTrigger>
+      </TabsList>
+      <TabsContent value="factures">
+        <FacturesTab 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          periodFilter={periodFilter}
+          setPeriodFilter={setPeriodFilter}
+          filteredFactures={filteredFactures}
+          formatMontant={formatMontant}
+          onViewDetails={onViewDetails}
+          onPrintInvoice={onPrintInvoice}
+          onDownloadInvoice={onDownloadInvoice}
+          onUpdateStatus={onUpdateStatus}
+          onEditInvoice={onEditInvoice}
+          onDeleteInvoice={onDeleteInvoice}
+          isAdmin={isAdmin}
+        />
+      </TabsContent>
+      <TabsContent value="paiements">
+        <GestionPaiements 
+          factures={factures.filter(f => f.status !== 'payée')}
+          formatMontant={formatMontant}
+          onPaiementPartiel={onPaiementPartiel}
+        />
+      </TabsContent>
+      <TabsContent value="clients">
+        <SituationClients factures={factures} formatMontant={formatMontant} />
+      </TabsContent>
+    </Tabs>
   );
 };

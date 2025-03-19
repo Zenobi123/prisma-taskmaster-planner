@@ -13,6 +13,7 @@ interface FactureTableRowProps {
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
+  isAdmin?: boolean;
 }
 
 export const FactureTableRow = ({
@@ -24,6 +25,7 @@ export const FactureTableRow = ({
   onUpdateStatus,
   onEditInvoice,
   onDeleteInvoice,
+  isAdmin = false,
 }: FactureTableRowProps) => {
   return (
     <TableRow 
@@ -50,6 +52,7 @@ export const FactureTableRow = ({
           onDownloadInvoice={onDownloadInvoice}
           onEditInvoice={onEditInvoice}
           onDeleteInvoice={onDeleteInvoice}
+          isAdmin={isAdmin}
         />
       </TableCell>
     </TableRow>

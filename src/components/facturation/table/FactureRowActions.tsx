@@ -10,6 +10,7 @@ interface FactureRowActionsProps {
   onDownloadInvoice: (factureId: string) => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
+  isAdmin?: boolean;
 }
 
 export const FactureRowActions = ({
@@ -19,7 +20,11 @@ export const FactureRowActions = ({
   onDeleteInvoice,
   onPrintInvoice,
   onDownloadInvoice,
+  isAdmin = false,
 }: FactureRowActionsProps) => {
+  // Determine if this invoice can be deleted
+  const canDelete = isAdmin || facture.status === 'en_attente';
+  
   return (
     <div className="flex justify-end items-center gap-2">
       <Button
@@ -43,14 +48,14 @@ export const FactureRowActions = ({
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => onDeleteInvoice(facture.id)}
+        onClick={() => canDelete ? onDeleteInvoice(facture.id) : undefined}
         className={`opacity-70 group-hover:opacity-100 transition-all duration-300 ${
-          facture.status !== 'en_attente' 
+          !canDelete 
             ? 'opacity-30 cursor-not-allowed hover:bg-transparent hover:text-inherit' 
             : 'text-red-500 hover:text-red-700 hover:bg-red-50'
         }`}
-        disabled={facture.status !== 'en_attente'}
-        title={facture.status === 'en_attente' ? "Supprimer" : "Seules les factures en attente peuvent être supprimées"}
+        disabled={!canDelete}
+        title={canDelete ? "Supprimer" : "Seul l'administrateur peut supprimer cette facture"}
       >
         <Trash2 className="w-4 h-4" />
       </Button>
