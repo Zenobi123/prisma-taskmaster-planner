@@ -65,26 +65,25 @@ const generateNewInvoiceId = (factures: Facture[]) => {
   const currentYear = new Date().getFullYear();
   const prefix = `F${currentYear}-`;
   
-  // Filtrer les factures de l'année en cours et identifier les numéros séquentiels
-  const currentYearFactures = factures.filter(f => f.id.startsWith(prefix));
+  // Filtrer les factures de l'année en cours et avec un format valide
+  const currentYearFactures = factures.filter(f => f.id && f.id.startsWith(prefix));
   
   if (currentYearFactures.length === 0) {
     // Première facture de l'année
     return `${prefix}001`;
   }
   
-  // Trouver le numéro le plus élevé parmi les ID valides (format F2025-001, F2025-002, etc.)
+  // Trouver le numéro le plus élevé
   let maxNumber = 0;
-  const pattern = new RegExp(`^${prefix}(\\d{3})$`);
   
   currentYearFactures.forEach(facture => {
     try {
-      const match = facture.id.match(pattern);
-      if (match && match[1]) {
-        const number = parseInt(match[1], 10);
-        if (!isNaN(number) && number > maxNumber) {
-          maxNumber = number;
-        }
+      // Extraire seulement la partie numérique après le préfixe
+      const numericPart = facture.id.substring(prefix.length);
+      const number = parseInt(numericPart, 10);
+      
+      if (!isNaN(number) && number > maxNumber) {
+        maxNumber = number;
       }
     } catch (e) {
       console.error("Erreur lors de l'analyse de l'ID de facture:", facture.id);
