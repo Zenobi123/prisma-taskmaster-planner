@@ -27,14 +27,24 @@ export const updateFactureStatus = async (factureId: string, newStatus: 'payée'
 
 export const deleteFactureFromDB = async (factureId: string) => {
   try {
-    const { error } = await supabase
+    // Log the beginning of the delete operation
+    console.log(`Début de l'opération de suppression pour la facture ${factureId}`);
+    
+    const { data, error } = await supabase
       .from('factures')
       .delete()
-      .eq('id', factureId);
+      .eq('id', factureId)
+      .select();
       
-    if (error) throw error;
+    if (error) {
+      console.error(`Erreur Supabase lors de la suppression de la facture ${factureId}:`, error);
+      throw error;
+    }
+    
+    console.log(`Résultat de la suppression pour la facture ${factureId}:`, data);
+    return data;
   } catch (error) {
-    console.error("Erreur dans deleteFactureFromDB:", error);
+    console.error(`Exception dans deleteFactureFromDB pour la facture ${factureId}:`, error);
     throw error; // Propager l'erreur pour être gérée par l'appelant
   }
 };
