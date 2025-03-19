@@ -1,75 +1,34 @@
 
-import { useState, useCallback } from "react";
-import { formatMontant } from "@/data/factureData";
-import { FacturationHeader } from "@/components/facturation/FacturationHeader";
-import { NewFactureDialog } from "@/components/facturation/NewFactureDialog";
-import { useFacturationPermissions } from "@/hooks/useFacturationPermissions";
-import { useFactures } from "@/hooks/useFactures";
-import { useToast } from "@/components/ui/use-toast";
-import { FacturationTabs } from "@/components/facturation/FacturationTabs";
-import { useInvoiceActions } from "@/utils/invoiceActions";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Facturation = () => {
-  const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
-  const { toast } = useToast();
-  
-  // Hooks pour les données et fonctionnalités
-  const { hasPermission, isLoading: permissionsLoading, collaborateur } = useFacturationPermissions();
-  const { 
-    factures, 
-    isLoading, 
-    handleUpdateStatus, 
-    handleDeleteInvoice, 
-    handleCreateInvoice, 
-    handlePaiementPartiel, 
-    fetchFactures
-  } = useFactures();
-
-  // Vérifie si l'utilisateur est administrateur
-  const isAdmin = collaborateur?.permissions?.some(p => p.niveau === 'administration' && p.module === 'facturation') || false;
-
-  // Fonction pour rafraîchir les données
-  const handleRefresh = useCallback(() => {
-    fetchFactures();
-    toast({
-      title: "Rechargement",
-      description: "Liste des factures mise à jour."
-    });
-  }, [fetchFactures, toast]);
-
-  // État de chargement
-  if (isLoading || permissionsLoading) {
-    return (
-      <div className="container mx-auto py-8">
-        <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Chargement des factures...</p>
-        </div>
-      </div>
-    );
-  }
+  const navigate = useNavigate();
 
   return (
     <div className="container mx-auto py-8">
-      <FacturationHeader 
-        onNewFactureClick={() => setIsNewFactureDialogOpen(true)}
-        searchTerm=""
-        setSearchTerm={() => {}}
-      />
+      <div className="flex items-center justify-between gap-4 mb-4">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour
+        </Button>
+      </div>
 
-      <FacturationTabs 
-        factures={factures}
-        formatMontant={formatMontant}
-        onUpdateStatus={handleUpdateStatus}
-        onDeleteInvoice={handleDeleteInvoice}
-        onPaiementPartiel={handlePaiementPartiel}
-        isAdmin={isAdmin}
-      />
-
-      <NewFactureDialog 
-        isOpen={isNewFactureDialogOpen}
-        onOpenChange={setIsNewFactureDialogOpen}
-        onCreateInvoice={handleCreateInvoice}
-      />
+      <div className="flex flex-col items-center justify-center h-64">
+        <h1 className="text-2xl font-bold mb-4">Module de facturation</h1>
+        <p className="text-muted-foreground text-center max-w-md mb-6">
+          Le module de facturation a été supprimé du système.
+          Veuillez contacter l'administrateur pour plus d'informations.
+        </p>
+        <Button variant="outline" onClick={() => navigate("/")}>
+          Retourner à l'accueil
+        </Button>
+      </div>
     </div>
   );
 };
