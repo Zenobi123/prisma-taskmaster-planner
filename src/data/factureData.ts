@@ -1,3 +1,4 @@
+
 import { Facture } from "@/types/facture";
 
 // Tableau vide pour les factures
@@ -9,6 +10,10 @@ export const filterFactures = (
   statusFilter: string,
   periodFilter: string
 ): Facture[] => {
+  if (!factures || factures.length === 0) {
+    return [];
+  }
+  
   return factures.filter((facture) => {
     const matchesSearch =
       facture.client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||

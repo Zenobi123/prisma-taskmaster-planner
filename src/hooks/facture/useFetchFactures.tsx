@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
-import { fetchFacturesFromDB } from "@/services/facture/facturesQuery";
 
 export const useFetchFactures = () => {
   const [factures, setFactures] = useState<Facture[]>([]);
@@ -12,12 +11,11 @@ export const useFetchFactures = () => {
   const fetchFactures = useCallback(async () => {
     setIsLoading(true);
     try {
-      console.log("Fetching factures...");
-      const mappedFactures = await fetchFacturesFromDB();
-      console.log(`Successfully loaded ${mappedFactures.length} factures`);
+      console.log("Resetting factures to empty array...");
       
-      // Mettre à jour l'état avec les nouvelles factures
-      setFactures(mappedFactures);
+      // Return empty array instead of fetching from DB
+      setFactures([]);
+      
     } catch (error) {
       console.error("Error loading factures:", error);
       toast({
@@ -32,7 +30,7 @@ export const useFetchFactures = () => {
 
   // Charger les factures uniquement lors du montage initial du composant
   useEffect(() => {
-    console.log("Initial factures loading...");
+    console.log("Initial factures loading (returning empty array)...");
     fetchFactures();
   }, [fetchFactures]);
 
