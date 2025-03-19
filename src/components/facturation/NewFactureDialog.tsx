@@ -13,6 +13,7 @@ import { Prestation } from "@/types/facture";
 import { ClientDateForm } from "./newFacture/ClientDateForm";
 import { PrestationsForm } from "./newFacture/PrestationsForm";
 import { NotesForm } from "./newFacture/NotesForm";
+import { ModeReglementForm } from "./newFacture/ModeReglementForm";
 
 interface NewFactureDialogProps {
   isOpen: boolean;
@@ -32,6 +33,8 @@ export const NewFactureDialog = ({
     { description: "", montant: 0 }
   ]);
   const [notes, setNotes] = useState("");
+  const [modeReglement, setModeReglement] = useState<'credit' | 'comptant'>('credit');
+  const [moyenPaiement, setMoyenPaiement] = useState<'especes' | 'orange_money' | 'mtn_mobile' | 'virement' | undefined>(undefined);
 
   const handleSubmit = () => {
     const formData = {
@@ -40,6 +43,8 @@ export const NewFactureDialog = ({
       dateEcheance,
       prestations: prestations.filter(p => p.description.trim() !== ""),
       notes,
+      modeReglement,
+      moyenPaiement: modeReglement === 'comptant' ? moyenPaiement : undefined,
     };
     onCreateInvoice(formData);
     resetForm();
@@ -51,6 +56,8 @@ export const NewFactureDialog = ({
     setDateEcheance("");
     setPrestations([{ description: "", montant: 0 }]);
     setNotes("");
+    setModeReglement('credit');
+    setMoyenPaiement(undefined);
   };
 
   return (
@@ -81,6 +88,13 @@ export const NewFactureDialog = ({
           <PrestationsForm 
             prestations={prestations}
             setPrestations={setPrestations}
+          />
+          
+          <ModeReglementForm 
+            modeReglement={modeReglement}
+            setModeReglement={setModeReglement}
+            moyenPaiement={moyenPaiement}
+            setMoyenPaiement={setMoyenPaiement}
           />
           
           <NotesForm 

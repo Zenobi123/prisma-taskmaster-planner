@@ -26,4 +26,6 @@ export interface Facture {
   prestations: Prestation[];
   reference?: string;
   notes?: string;
+  modeReglement?: 'credit' | 'comptant';
+  moyenPaiement?: 'especes' | 'orange_money' | 'mtn_mobile' | 'virement';
 }

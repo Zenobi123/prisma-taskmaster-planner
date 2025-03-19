@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { FacturationHeader } from "@/components/facturation/FacturationHeader";
@@ -42,7 +41,6 @@ const Facturation = () => {
   
   const { hasPermission, isLoading: permissionsLoading } = useFacturationPermissions();
 
-  // Fetch factures from Supabase
   useEffect(() => {
     const fetchFactures = async () => {
       setIsLoading(true);
@@ -55,7 +53,6 @@ const Facturation = () => {
           throw error;
         }
         
-        // Map the database data to our Facture interface
         const mappedFactures: Facture[] = data.map((row: any) => ({
           id: row.id,
           client: {
@@ -72,7 +69,9 @@ const Facturation = () => {
           prestations: Array.isArray(row.prestations) 
             ? row.prestations 
             : JSON.parse(row.prestations),
-          notes: row.notes
+          notes: row.notes,
+          modeReglement: row.mode_reglement,
+          moyenPaiement: row.moyen_paiement
         }));
         
         setFactures(mappedFactures);
@@ -131,12 +130,11 @@ const Facturation = () => {
   const handleEditInvoice = (facture: Facture) => {
     setSelectedFacture(facture);
     setIsEditDialogOpen(true);
-    setShowDetails(false); // Fermer la boîte de dialogue des détails si elle est ouverte
+    setShowDetails(false);
     toast({
       title: "Modification",
       description: `Modification de la facture ${facture.id}...`,
     });
-    // Pour l'instant, nous allons juste afficher un toast, mais vous pourriez implémenter un formulaire d'édition
   };
 
   const handleDeleteInvoice = (factureId: string) => {
@@ -155,10 +153,8 @@ const Facturation = () => {
         
       if (error) throw error;
       
-      // Mettre à jour l'état local
       setFactures(factures.filter(f => f.id !== factureToDelete));
       
-      // Fermer les boîtes de dialogue
       setIsDeleteConfirmOpen(false);
       setShowDetails(false);
       
@@ -180,10 +176,8 @@ const Facturation = () => {
 
   const handleCreateInvoice = async (formData: any) => {
     try {
-      // Générer un nouvel ID de facture
       const newId = `F${new Date().getFullYear()}-${(factures.length + 1).toString().padStart(3, '0')}`;
       
-      // Récupérer les informations du client
       const { data: clientData, error: clientError } = await supabase
         .from('clients')
         .select('*')
@@ -194,26 +188,36 @@ const Facturation = () => {
         throw new Error("Client non trouvé");
       }
       
-      // Calculer le montant total
       const montantTotal = formData.prestations.reduce((sum: number, p: any) => sum + p.montant, 0);
       
-      // Créer l'objet facture pour l'insertion
+      const clientNom = clientData.raisonsociale || clientData.nom || "Client sans nom";
+      const clientAdresse = clientData.adresse && typeof clientData.adresse === 'object' ? 
+        clientData.adresse.ville || "Adresse non spécifiée" : 
+        "Adresse non spécifiée";
+      const clientTelephone = clientData.contact && typeof clientData.contact === 'object' ? 
+        clientData.contact.telephone || "Téléphone non spécifié" : 
+        "Téléphone non spécifié";
+      const clientEmail = clientData.contact && typeof clientData.contact === 'object' ? 
+        clientData.contact.email || "Email non spécifié" : 
+        "Email non spécifié";
+      
       const newFacture = {
         id: newId,
         client_id: formData.clientId,
-        client_nom: clientData.raisonsociale || clientData.nom || "Client sans nom",
-        client_adresse: clientData.adresse?.ville || "Adresse non spécifiée",
-        client_telephone: clientData.contact?.telephone || "Téléphone non spécifié",
-        client_email: clientData.contact?.email || "Email non spécifié",
+        client_nom: clientNom,
+        client_adresse: clientAdresse,
+        client_telephone: clientTelephone,
+        client_email: clientEmail,
         date: formData.dateEmission,
         echeance: formData.dateEcheance,
         montant: montantTotal,
-        status: 'en_attente',
+        status: formData.modeReglement === 'comptant' ? 'payée' : 'en_attente',
         prestations: JSON.stringify(formData.prestations),
-        notes: formData.notes
+        notes: formData.notes,
+        mode_reglement: formData.modeReglement,
+        moyen_paiement: formData.moyenPaiement
       };
       
-      // Insérer dans la base de données
       const { error: insertError } = await supabase
         .from('factures')
         .insert(newFacture);
@@ -222,25 +226,25 @@ const Facturation = () => {
         throw insertError;
       }
       
-      // Créer l'objet facture pour le state local
       const newFactureForState: Facture = {
         id: newId,
         client: {
           id: formData.clientId,
-          nom: clientData.raisonsociale || clientData.nom || "Client sans nom",
-          adresse: clientData.adresse?.ville || "Adresse non spécifiée",
-          telephone: clientData.contact?.telephone || "Téléphone non spécifié",
-          email: clientData.contact?.email || "Email non spécifié"
+          nom: clientNom,
+          adresse: clientAdresse,
+          telephone: clientTelephone,
+          email: clientEmail
         },
         date: formData.dateEmission,
         echeance: formData.dateEcheance,
         montant: montantTotal,
-        status: 'en_attente',
+        status: formData.modeReglement === 'comptant' ? 'payée' : 'en_attente',
         prestations: formData.prestations,
-        notes: formData.notes
+        notes: formData.notes,
+        modeReglement: formData.modeReglement,
+        moyenPaiement: formData.moyenPaiement
       };
       
-      // Mettre à jour l'état local
       setFactures([...factures, newFactureForState]);
       
       toast({
@@ -261,7 +265,6 @@ const Facturation = () => {
 
   const handleUpdateStatus = async (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => {
     try {
-      // Mettre à jour le statut dans la base de données
       const { error } = await supabase
         .from('factures')
         .update({ status: newStatus })
@@ -271,7 +274,6 @@ const Facturation = () => {
         throw error;
       }
       
-      // Mettre à jour l'état local
       const updatedFactures = factures.map(facture => 
         facture.id === factureId 
           ? { ...facture, status: newStatus } 

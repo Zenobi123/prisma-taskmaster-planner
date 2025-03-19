@@ -10,6 +10,7 @@ import { ClientDateInfo } from "./factureDetails/ClientDateInfo";
 import { PrestationsTable } from "./factureDetails/PrestationsTable";
 import { NotesSection } from "./factureDetails/NotesSection";
 import { FactureDetailsFooter } from "./factureDetails/FactureDetailsFooter";
+import { PaiementInfo } from "./factureDetails/PaiementInfo";
 
 interface FactureDetailsDialogProps {
   showDetails: boolean;
@@ -51,6 +52,14 @@ export const FactureDetailsDialog = ({
         <ScrollArea className="max-h-[60vh] pr-4">
           <div className="space-y-6 animate-fade-in">
             <ClientDateInfo selectedFacture={selectedFacture} />
+            
+            {(selectedFacture.modeReglement || selectedFacture.status === 'payée') && (
+              <PaiementInfo 
+                modeReglement={selectedFacture.modeReglement}
+                moyenPaiement={selectedFacture.moyenPaiement}
+                status={selectedFacture.status}
+              />
+            )}
 
             <PrestationsTable 
               prestations={selectedFacture.prestations}
