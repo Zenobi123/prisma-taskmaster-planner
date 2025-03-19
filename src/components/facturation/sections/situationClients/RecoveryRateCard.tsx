@@ -1,20 +1,18 @@
 
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
+import { Facture } from "@/types/facture";
+import { getClientsFromFactures, calculateTotals } from "./utils";
 
 interface RecoveryRateCardProps {
-  tauxRecouvrement: number;
-  totalEncours: number;
-  totalSolde: number;
+  factures: Facture[];
   formatMontant: (montant: number) => string;
 }
 
-export const RecoveryRateCard = ({ 
-  tauxRecouvrement, 
-  totalEncours, 
-  totalSolde, 
-  formatMontant 
-}: RecoveryRateCardProps) => {
+export const RecoveryRateCard = ({ factures, formatMontant }: RecoveryRateCardProps) => {
+  const clients = getClientsFromFactures(factures);
+  const { totalEncours, totalSolde, tauxRecouvrement } = calculateTotals(clients);
+  
   return (
     <Card className="p-4">
       <div className="space-y-4">

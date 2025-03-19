@@ -1,3 +1,4 @@
+
 import { Facture, Paiement, Prestation } from "@/types/facture";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -95,7 +96,7 @@ export const enregistrerPaiementPartiel = async (
     newStatus = 'partiellement_payée';
   }
   
-  // Mettre à jour la facture
+  // Mettre à jour la facture en utilisant paiementsExistants directement
   const { error: updateError } = await supabase
     .from('factures')
     .update({ 

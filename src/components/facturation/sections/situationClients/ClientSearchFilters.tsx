@@ -6,10 +6,18 @@ import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 interface ClientSearchFiltersProps {
+  searchTerm: string;
+  setSearchTerm: (value: string) => void;
+  clientsCount: number;
   onFilterChange?: (value: string) => void;
 }
 
-export const ClientSearchFilters = ({ onFilterChange }: ClientSearchFiltersProps = {}) => {
+export const ClientSearchFilters = ({ 
+  searchTerm, 
+  setSearchTerm, 
+  clientsCount, 
+  onFilterChange 
+}: ClientSearchFiltersProps) => {
   const [activeFilter, setActiveFilter] = useState<string>("tous");
 
   const handleFilterChange = (value: string) => {
@@ -25,7 +33,12 @@ export const ClientSearchFilters = ({ onFilterChange }: ClientSearchFiltersProps
       <div className="flex flex-col md:flex-row justify-between gap-4">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-          <Input placeholder="Rechercher un client..." className="pl-10" />
+          <Input 
+            placeholder="Rechercher un client..." 
+            className="pl-10" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" className="flex items-center gap-2 hover:bg-neutral-200">
@@ -43,23 +56,28 @@ export const ClientSearchFilters = ({ onFilterChange }: ClientSearchFiltersProps
         </div>
       </div>
       
-      <div className="flex space-x-2 overflow-x-auto pb-2">
-        {["tous", "à_jour", "en_retard", "impayé"].map((filter) => (
-          <div
-            key={filter}
-            onClick={() => handleFilterChange(filter)}
-            className={`px-4 py-2 rounded-full text-sm cursor-pointer transition-all duration-300 ${
-              activeFilter === filter 
-                ? "bg-primary text-white font-medium shadow-md" 
-                : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
-            }`}
-          >
-            {filter === "tous" && "Tous"}
-            {filter === "à_jour" && "À jour"}
-            {filter === "en_retard" && "En retard"}
-            {filter === "impayé" && "Impayé"}
-          </div>
-        ))}
+      <div className="flex justify-between items-center">
+        <div className="flex space-x-2 overflow-x-auto pb-2">
+          {["tous", "à_jour", "en_retard", "impayé"].map((filter) => (
+            <div
+              key={filter}
+              onClick={() => handleFilterChange(filter)}
+              className={`px-4 py-2 rounded-full text-sm cursor-pointer transition-all duration-300 ${
+                activeFilter === filter 
+                  ? "bg-primary text-white font-medium shadow-md" 
+                  : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+              }`}
+            >
+              {filter === "tous" && "Tous"}
+              {filter === "à_jour" && "À jour"}
+              {filter === "en_retard" && "En retard"}
+              {filter === "impayé" && "Impayé"}
+            </div>
+          ))}
+        </div>
+        <div className="text-sm text-muted-foreground">
+          {clientsCount} client{clientsCount !== 1 ? 's' : ''}
+        </div>
       </div>
     </div>
   );

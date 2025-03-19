@@ -1,14 +1,22 @@
 
 import { UserCheck, Clock, AlertTriangle } from "lucide-react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Facture } from "@/types/facture";
+import { getClientsFromFactures, calculateTotals } from "./utils";
 
 interface ClientStatsCardsProps {
-  clientsData: any[];
+  factures: Facture[];
   formatMontant: (montant: number) => string;
-  totalSolde: number;
 }
 
-export const ClientStatsCards = ({ clientsData, formatMontant, totalSolde }: ClientStatsCardsProps) => {
+export const ClientStatsCards = ({ factures, formatMontant }: ClientStatsCardsProps) => {
+  const clients = getClientsFromFactures(factures);
+  const { totalSolde } = calculateTotals(clients);
+  
+  const clientsAJour = clients.filter(c => c.statut === "à jour").length;
+  const clientsEnRetard = clients.filter(c => c.statut === "en_retard").length;
+  const clientsImpayes = clients.filter(c => c.statut === "impayé").length;
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Card>
@@ -21,7 +29,7 @@ export const ClientStatsCards = ({ clientsData, formatMontant, totalSolde }: Cli
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-bold">
-            {clientsData.filter(c => c.statut === "à jour").length} clients
+            {clientsAJour} client{clientsAJour !== 1 ? 's' : ''}
           </p>
         </CardContent>
       </Card>
@@ -35,7 +43,7 @@ export const ClientStatsCards = ({ clientsData, formatMontant, totalSolde }: Cli
         </CardHeader>
         <CardContent>
           <p className="text-2xl font-bold">
-            {clientsData.filter(c => c.statut === "en_retard").length} clients
+            {clientsEnRetard} client{clientsEnRetard !== 1 ? 's' : ''}
           </p>
         </CardContent>
       </Card>
