@@ -1,16 +1,9 @@
 
-import React, { useMemo } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X } from "lucide-react";
 import { Prestation } from "@/types/facture";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from "@/components/ui/select";
 
 interface PrestationsFormProps {
   prestations: Prestation[];
@@ -21,26 +14,6 @@ export const PrestationsForm = ({
   prestations,
   setPrestations,
 }: PrestationsFormProps) => {
-  // Get current year and previous year
-  const currentYear = new Date().getFullYear();
-  const previousYear = currentYear - 1;
-  
-  // Generate prestation options with actual years instead of N and N-1
-  const PRESTATIONS_OPTIONS = useMemo(() => [
-    `AVANCE POUR PAIEMENT SOLDE IRPP ${currentYear}`,
-    `AVANCE POUR PAIEMENT SOLDE IS ${currentYear}`,
-    `AVANCE POUR PAIEMENT BAIL ${currentYear}`,
-    `AVANCE POUR PAIEMENT PRÉCOMPTE LOYER ${currentYear}`,
-    `AVANCE POUR PAIEMENT PATENTE ${currentYear}`,
-    `AVANCE POUR PAIEMENT TAXE FONCIÈRE ${currentYear}`,
-    `DÉCLARATION ANNUELLE DES REVENUS - ${previousYear}`,
-    `RENOUVELLEMENT DU DOSSIER FISCAL ${currentYear}`,
-    `MONTAGE ET MISE EN LIGNE DE LA DSF ${currentYear}`,
-    `MONTAGE ET MISE EN LIGNE DE LA DSF ${previousYear}`,
-    `FORFAIT SUIVI-GESTION FISCAL EXERCICE ${currentYear}`,
-    `PRESTATION FISCALE ${currentYear}`
-  ], [currentYear, previousYear]);
-
   const handleAddPrestation = () => {
     setPrestations([...prestations, { description: "", montant: 0 }]);
   };
@@ -87,21 +60,12 @@ export const PrestationsForm = ({
         {prestations.map((prestation, index) => (
           <div key={index} className="flex gap-2 items-start">
             <div className="flex-1">
-              <Select 
+              <Input
+                placeholder="Description de la prestation"
                 value={prestation.description}
-                onValueChange={(value) => handleDescriptionChange(index, value)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Sélectionner une prestation" />
-                </SelectTrigger>
-                <SelectContent>
-                  {PRESTATIONS_OPTIONS.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={(e) => handleDescriptionChange(index, e.target.value)}
+                className="w-full"
+              />
             </div>
             <div className="w-1/4">
               <Input

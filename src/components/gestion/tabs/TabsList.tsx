@@ -9,30 +9,31 @@ interface TabsListProps {
 
 export function GestionTabsList({ activeTab, onTabChange }: TabsListProps) {
   return (
-    <div className="w-full overflow-x-auto py-2">
-      <div className="flex space-x-2 min-w-max">
-        {[
-          { value: "entreprise", label: "Gestion d'entreprise" },
-          { value: "fiscal", label: "Gestion fiscale" },
-          { value: "comptable", label: "Gestion comptable" },
-          { value: "dossier", label: "Gestion documentaire" }
-        ].map(tab => (
-          <div
-            key={tab.value}
-            onClick={() => onTabChange(tab.value)}
-            className={`
-              px-4 py-3 rounded-md cursor-pointer transition-all duration-300
-              ${
-                activeTab === tab.value
-                  ? "bg-primary text-white font-medium shadow-md border-b-2 border-primary-hover"
-                  : "bg-white text-neutral-700 hover:bg-[#F2FCE2] border border-neutral-200"
-              }
-            `}
-          >
-            {tab.label}
-          </div>
-        ))}
-      </div>
-    </div>
+    <ShadcnTabsList className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-transparent">
+      <TabsTrigger 
+        value="entreprise"
+        className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
+      >
+        Gestion d'entreprise
+      </TabsTrigger>
+      <TabsTrigger 
+        value="fiscal"
+        className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
+      >
+        Gestion fiscale
+      </TabsTrigger>
+      <TabsTrigger 
+        value="comptable"
+        className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
+      >
+        Gestion comptable
+      </TabsTrigger>
+      <TabsTrigger 
+        value="dossier"
+        className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
+      >
+        Gestion documentaire
+      </TabsTrigger>
+    </ShadcnTabsList>
   );
 }

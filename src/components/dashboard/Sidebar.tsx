@@ -65,10 +65,8 @@ const Sidebar = () => {
           <Link
             key={item.path}
             to={item.path}
-            className={`flex items-center gap-3 px-4 py-3 rounded-md transition-all duration-300 group relative ${
-              isActiveRoute(item.path) 
-                ? "bg-primary text-white font-medium shadow-md border-l-4 border-primary-hover" 
-                : "text-neutral-600 hover:bg-neutral-100"
+            className={`sidebar-link group relative ${
+              isActiveRoute(item.path) && "active"
             }`}
           >
             <item.icon className="w-5 h-5 shrink-0" />

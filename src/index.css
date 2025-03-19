@@ -32,7 +32,7 @@
   }
 
   .sidebar-link.active {
-    @apply bg-primary text-white hover:bg-primary-hover border-l-4 border-primary-hover;
+    @apply bg-primary text-white hover:bg-primary-hover;
   }
 
   .btn-primary {
@@ -94,15 +94,6 @@
   
   .slide-in {
     @apply animate-slide-in;
-  }
-  
-  /* Active state enhancements */
-  .tab-active {
-    @apply bg-primary text-white font-medium shadow-md border-b-2 border-primary-hover;
-  }
-  
-  .filter-active {
-    @apply bg-primary text-white font-medium;
   }
   
   /* Responsive improvements */
