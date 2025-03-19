@@ -34,7 +34,7 @@ export const FactureDetailsHeader = ({
             <StatusBadge status={selectedFacture.status} />
           </DialogTitle>
           <DialogDescription>
-            Client: {selectedFacture.client.nom}
+            Client: {selectedFacture.client_nom}
           </DialogDescription>
         </div>
         

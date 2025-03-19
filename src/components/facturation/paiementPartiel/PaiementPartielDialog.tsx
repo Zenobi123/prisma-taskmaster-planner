@@ -40,21 +40,22 @@ export const PaiementPartielDialog = ({
   useEffect(() => {
     if (!facture) return;
     
+    // For simple prestations without IDs, use the index as identifier
     const montant = facture.prestations
-      .filter(p => p.id && selectedPrestations.includes(p.id))
+      .filter((_, index) => selectedPrestations.includes(index.toString()))
       .reduce((sum, p) => sum + p.montant, 0);
     
     setMontantPaiement(montant);
   }, [selectedPrestations, facture]);
 
-  const handleTogglePrestation = (prestationId: string | undefined) => {
-    if (!prestationId) return;
+  const handleTogglePrestation = (prestationIndex: string) => {
+    if (!prestationIndex) return;
     
     setSelectedPrestations(prev => {
-      if (prev.includes(prestationId)) {
-        return prev.filter(id => id !== prestationId);
+      if (prev.includes(prestationIndex)) {
+        return prev.filter(id => id !== prestationIndex);
       } else {
-        return [...prev, prestationId];
+        return [...prev, prestationIndex];
       }
     });
   };
@@ -65,10 +66,9 @@ export const PaiementPartielDialog = ({
     setLoading(true);
     
     const paiement: Paiement = {
-      id: uuidv4(),
       date: new Date().toISOString().split('T')[0],
       montant: montantPaiement,
-      moyenPaiement,
+      mode: moyenPaiement,
       prestationIds: selectedPrestations,
       notes: notes || undefined
     };
@@ -91,7 +91,7 @@ export const PaiementPartielDialog = ({
         <DialogHeader>
           <DialogTitle>Paiement partiel</DialogTitle>
           <DialogDescription>
-            Facture {facture.id} - {facture.client.nom} - Restant à payer: {formatMontant((facture.montant || 0) - (facture.montantPaye || 0))}
+            Facture {facture.id} - {facture.client_nom} - Restant à payer: {formatMontant((facture.montant || 0) - (facture.montant_paye || 0))}
           </DialogDescription>
         </DialogHeader>
 

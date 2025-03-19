@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Facture, FactureStatus, Paiement } from "@/types/facture";
@@ -24,13 +23,11 @@ export const useFactures = (params: UseFacturesParams = {}) => {
   const queryClient = useQueryClient();
   const [queryParams, setQueryParams] = useState<UseFacturesParams>(params);
 
-  // Requête pour récupérer les factures
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['factures', queryParams],
     queryFn: () => fetchFactures(queryParams),
   });
 
-  // Mutation pour créer une facture
   const createMutation = useMutation({
     mutationFn: (factureData: CreateFactureData) => createFacture(factureData),
     onSuccess: () => {
@@ -49,7 +46,6 @@ export const useFactures = (params: UseFacturesParams = {}) => {
     },
   });
 
-  // Mutation pour mettre à jour une facture
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) => updateFacture(id, data),
     onSuccess: () => {
@@ -68,7 +64,6 @@ export const useFactures = (params: UseFacturesParams = {}) => {
     },
   });
 
-  // Mutation pour mettre à jour le statut d'une facture
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: FactureStatus }) => 
       updateFactureStatus(id, status),
@@ -88,7 +83,6 @@ export const useFactures = (params: UseFacturesParams = {}) => {
     },
   });
 
-  // Mutation pour enregistrer un paiement
   const paiementMutation = useMutation({
     mutationFn: ({ id, paiement }: { id: string; paiement: Paiement }) => 
       enregistrerPaiement(id, paiement),
@@ -108,7 +102,6 @@ export const useFactures = (params: UseFacturesParams = {}) => {
     },
   });
 
-  // Mutation pour supprimer une facture
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteFacture(id),
     onSuccess: () => {
@@ -127,7 +120,6 @@ export const useFactures = (params: UseFacturesParams = {}) => {
     },
   });
 
-  // Méthodes pour interagir avec les factures
   const handleUpdateParams = useCallback((newParams: Partial<UseFacturesParams>) => {
     setQueryParams(prev => ({ ...prev, ...newParams }));
   }, []);
@@ -144,7 +136,7 @@ export const useFactures = (params: UseFacturesParams = {}) => {
     return updateStatusMutation.mutateAsync({ id, status });
   }, [updateStatusMutation]);
 
-  const handlePaiementPartiel = useCallback((id: string, paiement: Paiement) => {
+  const handlePaiementPartiel = useCallback((id: string, paiement: Paiement): Promise<Facture> => {
     return paiementMutation.mutateAsync({ id, paiement });
   }, [paiementMutation]);
 

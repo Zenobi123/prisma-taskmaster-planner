@@ -1,82 +1,54 @@
 
-import { useState, useEffect } from "react";
-import { format } from "date-fns";
-import { fr } from 'date-fns/locale';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Facture, Paiement } from "@/types/facture";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { CalendarIcon } from "lucide-react";
 
 interface PaiementDialogProps {
   facture: Facture | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onPaiement: (id: string, paiement: Paiement) => Promise<void>;
+  onPaiement: (id: string, paiement: Paiement) => Promise<Facture>;
 }
 
 export const PaiementDialog = ({
   facture,
   isOpen,
   onOpenChange,
-  onPaiement,
+  onPaiement
 }: PaiementDialogProps) => {
-  const [date, setDate] = useState<Date>(new Date());
-  const [montant, setMontant] = useState<string>("");
+  const [montant, setMontant] = useState<number | "">("");
   const [mode, setMode] = useState<string>("especes");
   const [reference, setReference] = useState<string>("");
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState(false);
 
-  // Réinitialiser le formulaire lorsque la facture change
-  useEffect(() => {
-    if (facture) {
-      setDate(new Date());
-      
-      // Déterminer le montant restant à payer
-      const resteAPayer = facture.montant - (facture.montant_paye || 0);
-      setMontant(resteAPayer.toString());
-      
+  // Reset form when dialog opens/closes
+  useState(() => {
+    if (isOpen && facture) {
+      // Préremplit le montant avec le reste à payer
+      const restant = facture.montant - (facture.montant_paye || 0);
+      setMontant(restant);
       setMode("especes");
       setReference("");
     }
-  }, [facture]);
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!facture) return;
-
+  const handleSubmit = async () => {
+    if (!facture || !montant) return;
+    
     setLoading(true);
+    
     try {
-      // Créer l'objet paiement
       const paiement: Paiement = {
-        date: format(date, 'yyyy-MM-dd'),
-        montant: parseFloat(montant),
+        date: new Date().toISOString().split('T')[0],
+        montant: Number(montant),
         mode,
-        reference: reference || undefined,
+        reference: reference || undefined
       };
-
-      // Enregistrer le paiement
+      
       await onPaiement(facture.id, paiement);
       onOpenChange(false);
     } catch (error) {
@@ -86,120 +58,71 @@ export const PaiementDialog = ({
     }
   };
 
+  if (!facture) return null;
+  
+  // Calculer le reste à payer
+  const montantRestant = facture.montant - (facture.montant_paye || 0);
+  
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>Enregistrer un paiement</DialogTitle>
-          <DialogDescription>
-            {facture
-              ? `Enregistrer un paiement pour la facture ${facture.id}`
-              : "Veuillez sélectionner une facture"}
-          </DialogDescription>
         </DialogHeader>
-
-        {facture && (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="date" className="text-right">
-                Date
-              </Label>
-              <div className="col-span-3">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant={"outline"}
-                      className="w-full justify-start text-left"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {format(date, "dd MMMM yyyy", { locale: fr })}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={date}
-                      onSelect={(date) => date && setDate(date)}
-                      initialFocus
-                      locale={fr}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="montant" className="text-right">
-                Montant
-              </Label>
-              <div className="col-span-3">
-                <Input
-                  id="montant"
-                  value={montant}
-                  onChange={(e) => {
-                    // Permettre uniquement les nombres et le point décimal
-                    const value = e.target.value.replace(/[^0-9.]/g, "");
-                    setMontant(value);
-                  }}
-                  className="text-right"
-                  required
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Reste à payer: {(facture.montant - (facture.montant_paye || 0)).toLocaleString()} FCFA
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="mode" className="text-right">
-                Mode
-              </Label>
-              <Select
-                value={mode}
-                onValueChange={setMode}
-                defaultValue="especes"
-              >
-                <SelectTrigger className="col-span-3" id="mode">
-                  <SelectValue placeholder="Mode de paiement" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="especes">Espèces</SelectItem>
-                  <SelectItem value="cheque">Chèque</SelectItem>
-                  <SelectItem value="virement">Virement</SelectItem>
-                  <SelectItem value="carte">Carte bancaire</SelectItem>
-                  <SelectItem value="mobile">Mobile Money</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {(mode === "cheque" || mode === "virement" || mode === "mobile") && (
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="reference" className="text-right">
-                  Référence
-                </Label>
-                <Input
-                  id="reference"
-                  value={reference}
-                  onChange={(e) => setReference(e.target.value)}
-                  className="col-span-3"
-                  placeholder={
-                    mode === "cheque"
-                      ? "N° de chèque"
-                      : mode === "virement"
-                      ? "Référence du virement"
-                      : "N° de transaction"
-                  }
-                />
-              </div>
-            )}
-
-            <DialogFooter>
-              <Button type="submit" disabled={loading}>
-                {loading ? "Enregistrement..." : "Enregistrer le paiement"}
-              </Button>
-            </DialogFooter>
-          </form>
-        )}
+        
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="montant">Montant (FCFA)</Label>
+            <Input
+              id="montant"
+              type="number"
+              value={montant}
+              onChange={(e) => setMontant(e.target.value ? Number(e.target.value) : "")}
+              max={montantRestant}
+              placeholder="Montant du paiement"
+            />
+            <p className="text-sm text-muted-foreground">
+              Reste à payer: {montantRestant.toLocaleString()} FCFA
+            </p>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="mode">Mode de paiement</Label>
+            <Select value={mode} onValueChange={setMode}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner un mode de paiement" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="especes">Espèces</SelectItem>
+                <SelectItem value="cheque">Chèque</SelectItem>
+                <SelectItem value="virement">Virement bancaire</SelectItem>
+                <SelectItem value="mobile_money">Mobile Money</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="reference">Référence (Optionnel)</Label>
+            <Input
+              id="reference"
+              value={reference}
+              onChange={(e) => setReference(e.target.value)}
+              placeholder="Numéro de chèque, référence de virement..."
+            />
+          </div>
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Annuler
+          </Button>
+          <Button 
+            onClick={handleSubmit}
+            disabled={!montant || Number(montant) <= 0 || Number(montant) > montantRestant || loading}
+          >
+            {loading ? "Enregistrement..." : "Enregistrer le paiement"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

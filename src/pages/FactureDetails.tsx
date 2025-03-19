@@ -1,34 +1,8 @@
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardFooter
-} from "@/components/ui/card";
-import { 
-  ArrowLeft, 
-  Printer, 
-  Download, 
-  CreditCard,
-  Edit,
-  Trash2
-} from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchFactureById } from "@/services/facture/facturesQuery";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { StatusBadge } from "@/components/facturation/table/StatusBadge";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { downloadFacturePDF, printFacturePDF } from "@/utils/pdfUtils";
@@ -44,6 +18,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { FactureDetailsPageHeader } from "@/components/facturation/factureDetails/FactureDetailsPageHeader";
+import { FactureInfoCards } from "@/components/facturation/factureDetails/FactureInfoCards";
+import { PrestationsTable } from "@/components/facturation/factureDetails/PrestationsTable";
+import { PaymentHistoryTable } from "@/components/facturation/factureDetails/PaymentHistoryTable";
+import { InvoiceNotes } from "@/components/facturation/factureDetails/InvoiceNotes";
+import { Facture } from "@/types/facture";
 
 const FactureDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -59,7 +39,7 @@ const FactureDetails = () => {
   
   const { handlePaiementPartiel, handleDeleteInvoice } = useFactures();
 
-  // Formatage des valeurs
+  // Helper functions
   const formatMontant = (montant?: number) => {
     if (montant === undefined) return "0 FCFA";
     return montant.toLocaleString('fr-FR') + " FCFA";
@@ -77,7 +57,11 @@ const FactureDetails = () => {
     }
   };
 
-  // Gestionnaire de suppression
+  // Event handlers
+  const handleBack = () => navigate("/facturation");
+  
+  const handleEdit = (id: string) => navigate(`/facturation/${id}/edit`);
+  
   const handleDelete = async () => {
     if (!id) return;
     try {
@@ -87,7 +71,12 @@ const FactureDetails = () => {
       console.error("Erreur lors de la suppression:", error);
     }
   };
+  
+  const handlePaymentClick = () => setIsPaiementDialogOpen(true);
+  
+  const handleDeleteClick = () => setIsDeleteDialogOpen(true);
 
+  // Loading state
   if (isLoading) {
     return (
       <div className="container mx-auto py-8">
@@ -98,12 +87,13 @@ const FactureDetails = () => {
     );
   }
 
+  // Error state
   if (isError || !facture) {
     return (
       <div className="container mx-auto py-8">
         <div className="flex flex-col items-center justify-center h-64">
           <p className="text-destructive mb-4">Erreur lors du chargement de la facture</p>
-          <Button variant="outline" onClick={() => navigate("/facturation")}>
+          <Button variant="outline" onClick={handleBack}>
             <ArrowLeft className="mr-2 h-4 w-4" />
             Retour à la liste
           </Button>
@@ -112,214 +102,50 @@ const FactureDetails = () => {
     );
   }
 
-  // Calcul du reste à payer
-  const resteAPayer = facture.montant - (facture.montant_paye || 0);
-
   return (
     <div className="container mx-auto py-8">
-      {/* En-tête avec actions */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => navigate("/facturation")}
-            size="sm"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Retour
-          </Button>
-          <h1 className="text-2xl font-bold">Facture {facture.id}</h1>
-          <StatusBadge status={facture.status} />
-        </div>
-        
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => printFacturePDF(facture)}
-          >
-            <Printer className="mr-2 h-4 w-4" />
-            Imprimer
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => downloadFacturePDF(facture)}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Télécharger PDF
-          </Button>
-          
-          {facture.status !== "paye" && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(`/facturation/${facture.id}/edit`)}
-              >
-                <Edit className="mr-2 h-4 w-4" />
-                Modifier
-              </Button>
-              
-              <Button
-                variant="default"
-                size="sm"
-                onClick={() => setIsPaiementDialogOpen(true)}
-              >
-                <CreditCard className="mr-2 h-4 w-4" />
-                Enregistrer un paiement
-              </Button>
-              
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => setIsDeleteDialogOpen(true)}
-              >
-                <Trash2 className="mr-2 h-4 w-4" />
-                Supprimer
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <FactureDetailsPageHeader 
+        facture={facture}
+        onBack={handleBack}
+        onPrint={printFacturePDF}
+        onDownload={downloadFacturePDF}
+        onEdit={handleEdit}
+        onPaymentClick={handlePaymentClick}
+        onDeleteClick={handleDeleteClick}
+      />
       
-      {/* Informations générales */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Informations de la facture</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Date d'émission:</span>
-              <span>{formatDate(facture.date)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Date d'échéance:</span>
-              <span>{formatDate(facture.echeance)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Mode de règlement:</span>
-              <span>{facture.mode_reglement || "Non spécifié"}</span>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle>Client</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Nom:</span>
-              <span>{facture.client_nom}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Email:</span>
-              <span>{facture.client_email}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Téléphone:</span>
-              <span>{facture.client_telephone}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Adresse:</span>
-              <span>{facture.client_adresse}</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <FactureInfoCards 
+        invoiceDate={formatDate(facture.date)}
+        dueDate={formatDate(facture.echeance)}
+        paymentMethod={facture.mode_reglement}
+        clientName={facture.client_nom}
+        clientEmail={facture.client_email}
+        clientPhone={facture.client_telephone}
+        clientAddress={facture.client_adresse}
+      />
       
-      {/* Prestations */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Prestations facturées</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[60%]">Description</TableHead>
-                <TableHead className="text-right">Montant (FCFA)</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {facture.prestations.map((prestation, index) => (
-                <TableRow key={index}>
-                  <TableCell>{prestation.description}</TableCell>
-                  <TableCell className="text-right">{prestation.montant.toLocaleString()}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          
-          <div className="mt-4 border-t pt-4">
-            <div className="flex justify-between font-semibold text-lg">
-              <span>Total:</span>
-              <span>{formatMontant(facture.montant)}</span>
-            </div>
-            <div className="flex justify-between text-muted-foreground">
-              <span>Montant payé:</span>
-              <span>{formatMontant(facture.montant_paye)}</span>
-            </div>
-            <div className="flex justify-between font-bold text-lg mt-2">
-              <span>Reste à payer:</span>
-              <span>{formatMontant(resteAPayer)}</span>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <PrestationsTable 
+        prestations={facture.prestations}
+        totalAmount={facture.montant}
+        paidAmount={facture.montant_paye}
+        formatAmount={formatMontant}
+      />
       
-      {/* Historique des paiements */}
-      {facture.paiements && facture.paiements.length > 0 && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Historique des paiements</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Mode</TableHead>
-                  <TableHead>Référence</TableHead>
-                  <TableHead className="text-right">Montant (FCFA)</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {facture.paiements.map((paiement, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{formatDate(paiement.date)}</TableCell>
-                    <TableCell>{paiement.mode}</TableCell>
-                    <TableCell>{paiement.reference || "-"}</TableCell>
-                    <TableCell className="text-right">{paiement.montant.toLocaleString()}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
+      <PaymentHistoryTable 
+        payments={facture.paiements}
+        formatDate={formatDate}
+      />
       
-      {/* Notes */}
-      {facture.notes && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Notes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>{facture.notes}</p>
-          </CardContent>
-        </Card>
-      )}
+      <InvoiceNotes notes={facture.notes} />
       
       {/* Dialogue de paiement */}
       <PaiementDialog
         facture={facture}
         isOpen={isPaiementDialogOpen}
         onOpenChange={setIsPaiementDialogOpen}
-        onPaiement={handlePaiementPartiel}
+        onPaiement={(id, paiement) => {
+          return handlePaiementPartiel(id, paiement);
+        }}
       />
       
       {/* Dialogue de confirmation de suppression */}
@@ -344,3 +170,6 @@ const FactureDetails = () => {
 };
 
 export default FactureDetails;
+
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";

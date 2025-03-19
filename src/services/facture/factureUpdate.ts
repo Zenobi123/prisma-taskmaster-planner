@@ -95,7 +95,7 @@ export const enregistrerPaiement = async (id: string, paiement: Paiement): Promi
   const montantPaye = paiements.reduce((sum: number, p: Paiement) => sum + p.montant, 0);
   
   // Déterminer le nouveau statut
-  let status: FactureStatus = facture.status;
+  let status: FactureStatus = facture.status as FactureStatus;
   if (montantPaye >= facture.montant) {
     status = "paye";
   } else if (montantPaye > 0) {
