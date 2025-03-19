@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Facture } from "@/types/facture";
 import { Download, Eye, Pencil, Printer, Trash2 } from "lucide-react";
@@ -10,7 +11,7 @@ interface FactureRowActionsProps {
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
   onEditInvoice: (facture: Facture) => void;
-  onDeleteInvoice: (factureId: string) => void;
+  onDeleteInvoice: (factureId: string) => Promise<boolean>;
 }
 
 export const FactureRowActions = ({
@@ -22,6 +23,7 @@ export const FactureRowActions = ({
   onDownloadInvoice,
 }: FactureRowActionsProps) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const handleDelete = () => {
     setShowDeleteDialog(true);
@@ -29,12 +31,21 @@ export const FactureRowActions = ({
   
   const confirmDelete = async () => {
     try {
-      console.log(`Requesting deletion for facture ${facture.id}`);
-      await onDeleteInvoice(facture.id);
-      setShowDeleteDialog(false);
+      setIsDeleting(true);
+      console.log(`Suppression de la facture ${facture.id} initiée...`);
+      const success = await onDeleteInvoice(facture.id);
+      
+      if (success) {
+        console.log(`Suppression de la facture ${facture.id} réussie.`);
+        setShowDeleteDialog(false);
+      } else {
+        console.error(`Échec de la suppression de la facture ${facture.id}.`);
+        // Le dialogue reste ouvert en cas d'échec
+      }
     } catch (error) {
-      console.error("Error deleting invoice:", error);
-      // Keep dialog open if error occurs
+      console.error("Erreur lors de la suppression de la facture:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
   
@@ -65,6 +76,7 @@ export const FactureRowActions = ({
           onClick={handleDelete}
           className="opacity-70 group-hover:opacity-100 transition-all duration-300 text-red-500 hover:text-red-700 hover:bg-red-50"
           title="Supprimer"
+          disabled={isDeleting}
         >
           <Trash2 className="w-4 h-4" />
         </Button>
@@ -94,6 +106,7 @@ export const FactureRowActions = ({
         onConfirm={confirmDelete}
         title={`Supprimer la facture ${facture.id}`}
         description="Êtes-vous sûr de vouloir supprimer définitivement cette facture ? Cette action est irréversible."
+        isDeleting={isDeleting}
       />
     </>
   );

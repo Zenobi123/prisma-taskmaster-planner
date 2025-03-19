@@ -41,11 +41,7 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
       
       // Mise à jour de l'état local immédiatement après la suppression réussie
       console.log(`Mise à jour de l'état local après suppression de ${factureId}`);
-      setFactures(prevFactures => {
-        const newFactures = prevFactures.filter(f => f.id !== factureId);
-        console.log(`Nouvelles factures (${newFactures.length} vs précédent ${prevFactures.length})`);
-        return newFactures;
-      });
+      setFactures(prevFactures => prevFactures.filter(f => f.id !== factureId));
       
       // Notification de succès
       toast({
@@ -54,12 +50,14 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
       });
       
       return true;
-    } catch (error) {
-      // Gestion d'erreur
+    } catch (error: any) {
+      // Gestion détaillée de l'erreur
       console.error("Erreur lors de la suppression de la facture:", error);
+      
+      // Message d'erreur adapté à l'utilisateur
       toast({
         title: "Erreur",
-        description: "Impossible de supprimer cette facture. Veuillez réessayer.",
+        description: `Impossible de supprimer cette facture. ${error.message || "Veuillez réessayer."}`,
         variant: "destructive"
       });
       return false;

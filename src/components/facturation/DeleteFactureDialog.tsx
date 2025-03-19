@@ -16,6 +16,7 @@ interface DeleteFactureDialogProps {
   onConfirm: () => void;
   title?: string;
   description?: string;
+  isDeleting?: boolean;
 }
 
 export const DeleteFactureDialog = ({
@@ -23,7 +24,8 @@ export const DeleteFactureDialog = ({
   onOpenChange,
   onConfirm,
   title = "Confirmer la suppression",
-  description = "Êtes-vous sûr de vouloir supprimer cette facture ? Cette action est irréversible."
+  description = "Êtes-vous sûr de vouloir supprimer cette facture ? Cette action est irréversible.",
+  isDeleting = false
 }: DeleteFactureDialogProps) => {
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
@@ -35,12 +37,13 @@ export const DeleteFactureDialog = ({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Annuler</AlertDialogCancel>
+          <AlertDialogCancel disabled={isDeleting}>Annuler</AlertDialogCancel>
           <AlertDialogAction 
             onClick={onConfirm}
             className="bg-red-600 hover:bg-red-700 text-white"
+            disabled={isDeleting}
           >
-            Supprimer
+            {isDeleting ? "Suppression en cours..." : "Supprimer"}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

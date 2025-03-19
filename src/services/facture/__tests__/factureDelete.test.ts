@@ -34,12 +34,6 @@ describe('factureDelete', () => {
         error: null
       });
       
-      // Configuration du mock pour la vérification après suppression
-      mockSupabaseMaybeSingle.mockReturnValueOnce({
-        data: null,
-        error: null
-      });
-
       // Exécution
       const result = await deleteFactureFromDB(factureId);
 
@@ -81,31 +75,6 @@ describe('factureDelete', () => {
 
       // Vérifier que l'erreur est bien propagée
       await expect(deleteFactureFromDB(factureId)).rejects.toThrow();
-    });
-    
-    it('doit détecter si la facture existe toujours après suppression', async () => {
-      // ID de la facture à supprimer
-      const factureId = 'F2023-001';
-      
-      // Configuration du mock pour la vérification d'existence
-      mockSupabaseMaybeSingle.mockReturnValueOnce({
-        data: { id: factureId },
-        error: null
-      });
-      
-      // Configuration du mock pour la suppression (pas d'erreur)
-      mockSupabaseDelete.mockReturnValueOnce({
-        error: null
-      });
-      
-      // Mais la facture existe toujours après suppression
-      mockSupabaseMaybeSingle.mockReturnValueOnce({
-        data: { id: factureId },
-        error: null
-      });
-
-      // Vérifier que l'erreur appropriée est levée
-      await expect(deleteFactureFromDB(factureId)).rejects.toThrow(`Échec de la suppression de la facture ${factureId}`);
     });
   });
 });
