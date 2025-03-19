@@ -52,16 +52,16 @@ export const getClientsFromFactures = (factures: Facture[]) => {
     clientData.solde += soldeFacture;
     
     // Déterminer le statut et le retard
-    const aujourd'hui = new Date();
+    const aujourdHui = new Date(); // Changed from aujourd'hui to aujourdHui
     const dateEcheance = new Date(facture.echeance);
     
     if (soldeFacture > 0) {
-      if (dateEcheance < aujourd'hui) {
+      if (dateEcheance < aujourdHui) { // Changed from aujourd'hui to aujourdHui
         // Si la date d'échéance est passée et qu'il reste un solde, le client est en retard
         clientData.statut = "en_retard";
         
         // Calculer le retard en jours
-        const differenceEnJours = Math.floor((aujourd'hui.getTime() - dateEcheance.getTime()) / (1000 * 3600 * 24));
+        const differenceEnJours = Math.floor((aujourdHui.getTime() - dateEcheance.getTime()) / (1000 * 3600 * 24)); // Changed from aujourd'hui to aujourdHui
         clientData.retard = Math.max(clientData.retard, differenceEnJours);
         
         // Si le retard est supérieur à 30 jours, le client est considéré comme ayant des impayés
