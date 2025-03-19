@@ -9,7 +9,7 @@ export const useFactureOperations = (refetchFactures: () => Promise<void>) => {
   const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const createFacture = async (factureData: any) => {
+  const createFacture = async (factureData: any): Promise<boolean> => {
     setIsLoading(true);
     try {
       await factureService.createFacture(factureData);

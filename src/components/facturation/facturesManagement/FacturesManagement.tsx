@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { FacturesTable } from "./FacturesTable";
 import { FacturesPagination } from "./FacturesPagination";
@@ -71,11 +70,8 @@ export const FacturesManagement = () => {
     }
   };
 
-  const handleCreateInvoice = async (formData: any) => {
-    const success = await createFacture(formData);
-    if (success) {
-      setIsNewFactureDialogOpen(false);
-    }
+  const handleCreateInvoice = async (formData: any): Promise<boolean> => {
+    return await createFacture(formData);
   };
 
   const handleConfirmDelete = async () => {
@@ -91,10 +87,8 @@ export const FacturesManagement = () => {
     return await updateFacture(id, updates);
   };
 
-  // Effet de latence pour éviter trop de requêtes pendant la saisie
   const handleSearchChange = (term: string) => {
     setSearchTerm(term);
-    // Applique les filtres après un délai
     setTimeout(() => {
       updateFilters({
         status: statusFilter !== "all" ? statusFilter : undefined,
