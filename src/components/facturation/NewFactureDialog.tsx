@@ -14,12 +14,12 @@ import { ClientDateForm } from "./newFacture/ClientDateForm";
 import { PrestationsForm } from "./newFacture/PrestationsForm";
 import { NotesForm } from "./newFacture/NotesForm";
 import { useToast } from "@/components/ui/use-toast";
-import { getClients } from "@/services/clientService";
+import { Loader2 } from "lucide-react";
 
 interface NewFactureDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateInvoice: (formData: any) => void;
+  onCreateInvoice: (formData: any) => Promise<boolean>;
 }
 
 export const NewFactureDialog = ({
@@ -34,6 +34,7 @@ export const NewFactureDialog = ({
     { description: "", montant: 0 }
   ]);
   const [notes, setNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   // Définir les dates par défaut lors de l'ouverture
@@ -48,7 +49,7 @@ export const NewFactureDialog = ({
     }
   }, [isOpen]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validation des données
     if (!clientId) {
       toast({
@@ -88,22 +89,49 @@ export const NewFactureDialog = ({
       return;
     }
 
-    const formData = {
-      clientId,
-      dateEmission,
-      dateEcheance,
-      prestations: validPrestations,
-      notes,
-    };
+    setIsSubmitting(true);
     
-    onCreateInvoice(formData);
-    resetForm();
+    try {
+      const formData = {
+        clientId,
+        dateEmission,
+        dateEcheance,
+        prestations: validPrestations,
+        notes: notes || "",
+      };
+      
+      console.log("Données envoyées pour création de facture:", formData);
+      
+      const success = await onCreateInvoice(formData);
+      
+      if (success) {
+        resetForm();
+        onOpenChange(false);
+        toast({
+          title: "Succès",
+          description: "La facture a été créée avec succès"
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la création de la facture:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la création de la facture",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const resetForm = () => {
     setClientId("");
-    setDateEmission("");
-    setDateEcheance("");
+    const today = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(today.getDate() + 30);
+    
+    setDateEmission(today.toISOString().split('T')[0]);
+    setDateEcheance(futureDate.toISOString().split('T')[0]);
     setPrestations([{ description: "", montant: 0 }]);
     setNotes("");
   };
@@ -144,11 +172,18 @@ export const NewFactureDialog = ({
           />
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
             Annuler
           </Button>
-          <Button onClick={handleSubmit}>
-            Créer la facture
+          <Button onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Création en cours...
+              </>
+            ) : (
+              "Créer la facture"
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

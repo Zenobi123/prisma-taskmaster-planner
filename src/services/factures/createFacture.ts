@@ -20,10 +20,10 @@ export const createFacture = async (data: {
     
     // Si les données client ne sont pas fournies directement, les récupérer
     let clientData = {
-      nom: data.clientNom,
-      adresse: data.clientAdresse,
-      telephone: data.clientTelephone,
-      email: data.clientEmail
+      nom: data.clientNom || '',
+      adresse: data.clientAdresse || '',
+      telephone: data.clientTelephone || '',
+      email: data.clientEmail || ''
     };
     
     if (!data.clientNom || !data.clientAdresse || !data.clientTelephone || !data.clientEmail) {
@@ -39,12 +39,18 @@ export const createFacture = async (data: {
         throw clientError;
       }
       
-      // Préparer les données client
+      // Préparer les données client, en gérant de manière sûre l'accès aux propriétés potentiellement indéfinies
       clientData = {
-        nom: client.raisonsociale || client.nom || '',
-        adresse: client.adresse ? (client.adresse as any).adresse || '' : '',
-        telephone: client.contact ? (client.contact as any).telephone || '' : '',
-        email: client.contact ? (client.contact as any).email || '' : ''
+        nom: client?.raisonsociale || client?.nom || '',
+        adresse: client?.adresse ? 
+          (typeof client.adresse === 'object' && client.adresse !== null && 'adresse' in client.adresse) ? 
+            String(client.adresse.adresse || '') : '' : '',
+        telephone: client?.contact ? 
+          (typeof client.contact === 'object' && client.contact !== null && 'telephone' in client.contact) ? 
+            String(client.contact.telephone || '') : '' : '',
+        email: client?.contact ? 
+          (typeof client.contact === 'object' && client.contact !== null && 'email' in client.contact) ? 
+            String(client.contact.email || '') : '' : ''
       };
     }
     
@@ -53,13 +59,14 @@ export const createFacture = async (data: {
       return sum + (item.montant || 0);
     }, 0);
 
+    // S'assurer que toutes les propriétés requises sont définies
     const newFacture = {
       id: factureId,
       client_id: data.clientId,
-      client_nom: clientData.nom || '',
-      client_adresse: clientData.adresse || '',
-      client_telephone: clientData.telephone || '',
-      client_email: clientData.email || '',
+      client_nom: clientData.nom,
+      client_adresse: clientData.adresse,
+      client_telephone: clientData.telephone,
+      client_email: clientData.email,
       date: data.dateEmission,
       echeance: data.dateEcheance,
       prestations: data.prestations as unknown as Json,
@@ -67,6 +74,9 @@ export const createFacture = async (data: {
       status: 'en_attente',
       notes: data.notes || null
     };
+
+    // Vérification des données avant insertion
+    console.log("Données facture à insérer:", JSON.stringify(newFacture, null, 2));
 
     const { data: result, error } = await supabase
       .from('factures')
@@ -79,6 +89,7 @@ export const createFacture = async (data: {
       throw error;
     }
 
+    console.log("Facture créée avec succès:", result);
     return convertToFacture(result as unknown as FactureDB);
   } catch (error) {
     console.error("Erreur dans createFacture:", error);
