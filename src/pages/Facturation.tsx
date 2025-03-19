@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { FacturationHeader } from "@/components/facturation/FacturationHeader";
@@ -21,6 +22,7 @@ const Facturation = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("factures");
+  const [factures, setFactures] = useState<Facture[]>(facturesMockData);
   const { toast } = useToast();
   
   const { hasPermission, isLoading } = useFacturationPermissions();
@@ -34,7 +36,7 @@ const Facturation = () => {
   }
 
   const filteredFactures = filterFactures(
-    facturesMockData,
+    factures,
     searchTerm,
     statusFilter,
     periodFilter
@@ -62,13 +64,36 @@ const Facturation = () => {
   };
 
   const handleCreateInvoice = (formData: any) => {
-    console.log("Nouvelle facture:", formData);
+    // Créer un nouvel ID de facture basé sur le nombre de factures existantes
+    const newFactureId = `F2024-${(factures.length + 1).toString().padStart(3, '0')}`;
+    
+    // Créer un objet facture à partir des données du formulaire
+    const newFacture: Facture = {
+      id: newFactureId,
+      client: {
+        id: formData.clientId,
+        nom: "Client", // Idéalement, récupérer le nom du client à partir de l'ID
+        adresse: "",   // Ces champs seraient normalement remplis avec les vraies données du client
+        telephone: "",
+        email: ""
+      },
+      date: formData.dateEmission,
+      echeance: formData.dateEcheance,
+      montant: formData.prestations.reduce((sum: number, p: any) => sum + p.montant, 0),
+      status: "en_attente",
+      prestations: formData.prestations,
+      notes: formData.notes
+    };
+    
+    // Ajouter la nouvelle facture à la liste
+    setFactures(prevFactures => [...prevFactures, newFacture]);
+    
+    console.log("Nouvelle facture:", newFacture);
     toast({
       title: "Facture créée",
       description: "La nouvelle facture a été créée avec succès.",
     });
     setIsNewFactureDialogOpen(false);
-    // Logique de création de facture à implémenter
   };
 
   return (
