@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { FacturationHeader } from "@/components/facturation/FacturationHeader";
@@ -9,7 +8,7 @@ import { NewFactureDialog } from "@/components/facturation/NewFactureDialog";
 import { useFacturationPermissions } from "@/hooks/useFacturationPermissions";
 import { Facture } from "@/types/facture";
 import { facturesMockData, filterFactures, formatMontant } from "@/data/factureData";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { FileText, Wallet, Users } from "lucide-react";
 import { GestionPaiements } from "@/components/facturation/sections/GestionPaiements";
 import { SituationClients } from "@/components/facturation/sections/SituationClients";
@@ -24,10 +23,8 @@ const Facturation = () => {
   const [activeTab, setActiveTab] = useState("factures");
   const { toast } = useToast();
   
-  // Vérification des permissions
   const { hasPermission, isLoading } = useFacturationPermissions();
 
-  // Si en chargement, afficher un indicateur
   if (isLoading) {
     return (
       <div className="container mx-auto p-6 flex justify-center items-center h-[50vh]">
@@ -36,7 +33,6 @@ const Facturation = () => {
     );
   }
 
-  // Filtrer les factures selon les critères
   const filteredFactures = filterFactures(
     facturesMockData,
     searchTerm,
@@ -80,23 +76,44 @@ const Facturation = () => {
       <FacturationHeader onNewFactureClick={() => setIsNewFactureDialogOpen(true)} />
       
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 w-full md:w-auto">
-          <TabsTrigger value="factures" className="flex gap-2 items-center">
+        <div className="flex border-b mb-6 overflow-x-auto">
+          <div 
+            onClick={() => setActiveTab("factures")} 
+            className={`flex gap-2 items-center py-3 px-4 cursor-pointer transition-all duration-300 ${
+              activeTab === "factures" 
+                ? "text-primary border-b-2 border-primary font-medium bg-primary/5" 
+                : "text-neutral-600 hover:text-primary"
+            }`}
+          >
             <FileText className="w-4 h-4" />
             <span className="hidden sm:inline">Gestion des factures</span>
             <span className="sm:hidden">Factures</span>
-          </TabsTrigger>
-          <TabsTrigger value="paiements" className="flex gap-2 items-center">
+          </div>
+          <div 
+            onClick={() => setActiveTab("paiements")} 
+            className={`flex gap-2 items-center py-3 px-4 cursor-pointer transition-all duration-300 ${
+              activeTab === "paiements" 
+                ? "text-primary border-b-2 border-primary font-medium bg-primary/5" 
+                : "text-neutral-600 hover:text-primary"
+            }`}
+          >
             <Wallet className="w-4 h-4" />
             <span className="hidden sm:inline">Gestion des paiements</span>
             <span className="sm:hidden">Paiements</span>
-          </TabsTrigger>
-          <TabsTrigger value="clients" className="flex gap-2 items-center">
+          </div>
+          <div 
+            onClick={() => setActiveTab("clients")} 
+            className={`flex gap-2 items-center py-3 px-4 cursor-pointer transition-all duration-300 ${
+              activeTab === "clients" 
+                ? "text-primary border-b-2 border-primary font-medium bg-primary/5" 
+                : "text-neutral-600 hover:text-primary"
+            }`}
+          >
             <Users className="w-4 h-4" />
             <span className="hidden sm:inline">Situation Clients</span>
             <span className="sm:hidden">Clients</span>
-          </TabsTrigger>
-        </TabsList>
+          </div>
+        </div>
         
         <TabsContent value="factures" className="animate-fade-in">
           <FacturationFilters

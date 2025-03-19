@@ -1,9 +1,9 @@
 
+import React, { useState } from "react";
 import { Search, FileUp, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useState } from "react";
 
 interface ClientSearchFiltersProps {
   onFilterChange?: (value: string) => void;
@@ -43,37 +43,24 @@ export const ClientSearchFilters = ({ onFilterChange }: ClientSearchFiltersProps
         </div>
       </div>
       
-      <ToggleGroup 
-        type="single" 
-        value={activeFilter} 
-        onValueChange={handleFilterChange}
-        className="justify-start"
-      >
-        <ToggleGroupItem 
-          value="tous" 
-          className="data-[state=on]:bg-primary data-[state=on]:text-white font-medium transition-all"
-        >
-          Tous
-        </ToggleGroupItem>
-        <ToggleGroupItem 
-          value="à_jour" 
-          className="data-[state=on]:bg-primary data-[state=on]:text-white font-medium transition-all"
-        >
-          À jour
-        </ToggleGroupItem>
-        <ToggleGroupItem 
-          value="en_retard" 
-          className="data-[state=on]:bg-primary data-[state=on]:text-white font-medium transition-all"
-        >
-          En retard
-        </ToggleGroupItem>
-        <ToggleGroupItem 
-          value="impayé" 
-          className="data-[state=on]:bg-primary data-[state=on]:text-white font-medium transition-all"
-        >
-          Impayé
-        </ToggleGroupItem>
-      </ToggleGroup>
+      <div className="flex space-x-2 overflow-x-auto pb-2">
+        {["tous", "à_jour", "en_retard", "impayé"].map((filter) => (
+          <div
+            key={filter}
+            onClick={() => handleFilterChange(filter)}
+            className={`px-4 py-2 rounded-full text-sm cursor-pointer transition-all duration-300 ${
+              activeFilter === filter 
+                ? "bg-primary text-white font-medium shadow-md" 
+                : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
+            }`}
+          >
+            {filter === "tous" && "Tous"}
+            {filter === "à_jour" && "À jour"}
+            {filter === "en_retard" && "En retard"}
+            {filter === "impayé" && "Impayé"}
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
