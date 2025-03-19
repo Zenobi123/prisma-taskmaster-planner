@@ -57,7 +57,7 @@ export const createFacture = async (data: {
     throw error;
   }
 
-  return convertToFacture(result as FactureDB);
+  return convertToFacture(result as unknown as FactureDB);
 };
 
 export const getFactures = async (filters?: {
@@ -110,7 +110,7 @@ export const getFactures = async (filters?: {
     throw error;
   }
 
-  const facturesConverties = data?.map(item => convertToFacture(item as FactureDB)) || [];
+  const facturesConverties = data?.map(item => convertToFacture(item as unknown as FactureDB)) || [];
   
   return { factures: facturesConverties, count };
 };
@@ -127,7 +127,7 @@ export const getFactureById = async (id: string) => {
     throw error;
   }
   
-  return convertToFacture(data as FactureDB);
+  return convertToFacture(data as unknown as FactureDB);
 };
 
 export const updateFacture = async (
@@ -154,7 +154,7 @@ export const updateFacture = async (
     throw error;
   }
   
-  return convertToFacture(data as FactureDB);
+  return convertToFacture(data as unknown as FactureDB);
 };
 
 export const deleteFacture = async (id: string) => {
@@ -200,7 +200,7 @@ export const enregistrerPaiement = async (
     throw new Error("Facture non trouvée");
   }
 
-  const facture = factureData as FactureDB;
+  const facture = factureData as unknown as FactureDB;
   
   // Calculer le nouveau montant payé
   const nouveauMontantPaye = (facture.montant_paye || 0) + montant;
@@ -223,7 +223,8 @@ export const enregistrerPaiement = async (
   };
   
   // Ajouter le paiement à la liste des paiements
-  const paiements = [...(facture.paiements || []), paiement];
+  const paiementActuels = (facture.paiements || []) as any[];
+  const paiements = [...paiementActuels, paiement];
   
   // Mettre à jour la facture
   const { data, error } = await supabase
@@ -242,5 +243,5 @@ export const enregistrerPaiement = async (
     throw error;
   }
   
-  return convertToFacture(data as FactureDB);
+  return convertToFacture(data as unknown as FactureDB);
 };
