@@ -36,6 +36,7 @@ export const deleteFactureFromDB = async (factureId: string) => {
       console.error(`Supabase error when deleting facture ${factureId}:`, error);
       
       // Try a more direct approach if the first method fails
+      // We need to fix the type error by calling rpc with correct parameter types
       const { error: rpcError } = await supabase.rpc('force_delete_facture', { 
         facture_id: factureId 
       });

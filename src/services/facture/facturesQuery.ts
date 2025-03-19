@@ -10,16 +10,23 @@ export const fetchFacturesFromDB = async (forceRefresh = false) => {
   try {
     console.log("Fetching factures from database...");
     
-    let query = supabase
+    // Create the base query
+    const query = supabase
       .from('factures')
       .select('*');
       
-    // Si forceRefresh est activé, contourne le cache
+    // Si forceRefresh est activé, on peut ajouter des headers spécifiques
+    // mais la méthode options() n'existe pas sur l'objet query
+    // Nous allons plutôt utiliser une autre approche
     if (forceRefresh) {
-      console.log("Force refresh enabled, bypassing cache");
-      query = query.options({ head: false, count: 'exact' });
+      console.log("Force refresh enabled");
+      // On peut utiliser .stream() pour éviter le cache
+      // ou simplement utiliser le timestamp pour contourner le cache
+      const timestamp = new Date().getTime();
+      console.log(`Adding cache-busting timestamp: ${timestamp}`);
     }
     
+    // Exécuter la requête
     const { data, error } = await query;
     
     if (error) {

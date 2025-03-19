@@ -20,6 +20,12 @@ export const useFetchFactures = () => {
       
       setFactures(dbFactures);
       
+      // Notification de succès si le chargement a réussi
+      toast({
+        title: "Succès",
+        description: `${dbFactures.length} factures chargées avec succès.`
+      });
+      
     } catch (error) {
       console.error("Error loading factures:", error);
       toast({
