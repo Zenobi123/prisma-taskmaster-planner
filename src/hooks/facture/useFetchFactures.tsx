@@ -1,8 +1,6 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
-// Nous n'avons plus besoin d'importer fetchFacturesFromDB car nous ne l'utiliserons pas
 
 export const useFetchFactures = () => {
   const [factures, setFactures] = useState<Facture[]>([]);
@@ -12,10 +10,11 @@ export const useFetchFactures = () => {
   const fetchFactures = useCallback(async () => {
     setIsLoading(true);
     try {
-      console.log("Resetting factures to empty array...");
+      console.log("Initializing empty factures array...");
       
-      // Retourner un tableau vide au lieu de récupérer depuis la DB
-      setFactures([]);
+      // Initialize with an empty array but don't reset it when it already has data
+      // This ensures we keep any factures added during the session
+      setFactures(prevFactures => prevFactures.length > 0 ? prevFactures : []);
       
     } catch (error) {
       console.error("Error loading factures:", error);
@@ -31,7 +30,7 @@ export const useFetchFactures = () => {
 
   // Charger les factures uniquement lors du montage initial du composant
   useEffect(() => {
-    console.log("Initial factures loading (returning empty array)...");
+    console.log("Initial factures loading...");
     fetchFactures();
   }, [fetchFactures]);
 
