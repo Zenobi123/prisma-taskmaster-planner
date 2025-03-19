@@ -67,6 +67,7 @@ export const FactureDetailsDialog = ({
       return sum + (item.montant || 0);
     }, 0);
     
+    // Créer l'objet de mise à jour avec le bon type
     const updates: Partial<Facture> = {
       prestations: editPrestations,
       notes: editNotes,
@@ -91,7 +92,7 @@ export const FactureDetailsDialog = ({
     setEditPrestations(editPrestations.filter((_, i) => i !== index));
   };
 
-  const handlePrestationChange = (index: number, field: keyof Prestation, value: any) => {
+  const handlePrestationChange = (index: number, field: keyof Prestation, value: string | number) => {
     const newPrestations = [...editPrestations];
     
     if (field === 'montant' && typeof value === 'string') {
@@ -99,7 +100,8 @@ export const FactureDetailsDialog = ({
       const numericValue = value.replace(/[^0-9]/g, "");
       newPrestations[index].montant = numericValue ? parseInt(numericValue, 10) : 0;
     } else {
-      newPrestations[index][field] = value;
+      // Utiliser une assertion de type pour gérer différents types de valeurs
+      (newPrestations[index][field] as any) = value;
     }
     
     setEditPrestations(newPrestations);

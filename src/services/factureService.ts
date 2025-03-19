@@ -1,7 +1,8 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Facture, Prestation } from "@/types/facture";
+import { Facture, Prestation, FactureDB, convertToFacture, convertToFactureDB } from "@/types/facture";
 import { v4 as uuidv4 } from 'uuid';
+import { Json } from "@/integrations/supabase/types";
 
 // Générer un numéro de facture unique
 const generateFactureId = () => {
@@ -39,7 +40,7 @@ export const createFacture = async (data: {
     client_email: data.clientEmail,
     date: data.dateEmission,
     echeance: data.dateEcheance,
-    prestations: data.prestations,
+    prestations: data.prestations as unknown as Json,
     montant: montantTotal,
     status: 'en_attente',
     notes: data.notes || null
@@ -56,7 +57,7 @@ export const createFacture = async (data: {
     throw error;
   }
 
-  return result;
+  return convertToFacture(result as FactureDB);
 };
 
 export const getFactures = async (filters?: {
@@ -108,8 +109,10 @@ export const getFactures = async (filters?: {
     console.error("Erreur lors de la récupération des factures:", error);
     throw error;
   }
+
+  const facturesConverties = data?.map(item => convertToFacture(item as FactureDB)) || [];
   
-  return { factures: data, count };
+  return { factures: facturesConverties, count };
 };
 
 export const getFactureById = async (id: string) => {
@@ -124,7 +127,7 @@ export const getFactureById = async (id: string) => {
     throw error;
   }
   
-  return data;
+  return convertToFacture(data as FactureDB);
 };
 
 export const updateFacture = async (
@@ -136,9 +139,12 @@ export const updateFacture = async (
     throw new Error("Une facture payée ne peut pas être modifiée");
   }
   
+  // Convertir les mises à jour au format DB
+  const dbUpdates = convertToFactureDB(updates);
+  
   const { data, error } = await supabase
     .from('factures')
-    .update(updates)
+    .update(dbUpdates as any)
     .eq('id', id)
     .select()
     .single();
@@ -148,7 +154,7 @@ export const updateFacture = async (
     throw error;
   }
   
-  return data;
+  return convertToFacture(data as FactureDB);
 };
 
 export const deleteFacture = async (id: string) => {
@@ -184,15 +190,17 @@ export const enregistrerPaiement = async (
   notes?: string
 ) => {
   // Récupérer la facture actuelle
-  const { data: facture } = await supabase
+  const { data: factureData } = await supabase
     .from('factures')
     .select('*')
     .eq('id', factureId)
     .single();
     
-  if (!facture) {
+  if (!factureData) {
     throw new Error("Facture non trouvée");
   }
+
+  const facture = factureData as FactureDB;
   
   // Calculer le nouveau montant payé
   const nouveauMontantPaye = (facture.montant_paye || 0) + montant;
@@ -223,7 +231,7 @@ export const enregistrerPaiement = async (
     .update({
       montant_paye: nouveauMontantPaye,
       status: nouveauStatut,
-      paiements
+      paiements: paiements as unknown as Json
     })
     .eq('id', factureId)
     .select()
@@ -234,5 +242,5 @@ export const enregistrerPaiement = async (
     throw error;
   }
   
-  return data;
+  return convertToFacture(data as FactureDB);
 };

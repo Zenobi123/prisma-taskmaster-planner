@@ -30,7 +30,7 @@ export const useFactures = (initialFilters?: FacturesFilters) => {
     setIsLoading(true);
     try {
       const { factures: data, count } = await factureService.getFactures(filters);
-      setFactures(data as Facture[]);
+      setFactures(data);
       setTotalCount(count || data.length);
     } catch (error) {
       console.error("Erreur lors de la récupération des factures:", error);
@@ -78,7 +78,7 @@ export const useFactures = (initialFilters?: FacturesFilters) => {
       fetchFactures();
       if (selectedFacture && selectedFacture.id === id) {
         const updatedFacture = await factureService.getFactureById(id);
-        setSelectedFacture(updatedFacture as Facture);
+        setSelectedFacture(updatedFacture);
       }
       toast({
         title: "Succès",
@@ -128,7 +128,7 @@ export const useFactures = (initialFilters?: FacturesFilters) => {
     setIsLoading(true);
     try {
       const facture = await factureService.getFactureById(id);
-      setSelectedFacture(facture as Facture);
+      setSelectedFacture(facture);
       return facture;
     } catch (error) {
       console.error(`Erreur lors de la récupération de la facture ${id}:`, error);
@@ -161,7 +161,7 @@ export const useFactures = (initialFilters?: FacturesFilters) => {
       );
       fetchFactures();
       if (selectedFacture && selectedFacture.id === factureId) {
-        setSelectedFacture(facture as Facture);
+        setSelectedFacture(facture);
       }
       toast({
         title: "Succès",
