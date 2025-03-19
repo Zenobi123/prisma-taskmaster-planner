@@ -1,78 +1,39 @@
 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, ArrowUpDown } from "lucide-react";
+import { Eye, FileText } from "lucide-react";
 import { ClientStatusBadge } from "./ClientStatusBadge";
-
-interface ClientData {
-  id: string;
-  nom: string;
-  facturesMontant: number;
-  paiementsMontant: number;
-  solde: number;
-  status: string;
-}
+import { Facture } from "@/types/facture";
 
 interface ClientTableProps {
-  clients: ClientData[];
-  sortColumn: string;
-  sortDirection: 'asc' | 'desc';
-  handleSort: (column: string) => void;
-  formatMontant: (montant: number) => string;
+  clients: Array<{
+    id: string;
+    nom: string;
+    facturesCount: number;
+    montantTotal: number;
+    montantPaye: number;
+    montantDu: number;
+    status: Facture["status"];
+    derniereFacture?: string;
+  }>;
+  onViewClient: (clientId: string) => void;
 }
 
-export const ClientTable = ({
-  clients,
-  sortColumn,
-  sortDirection,
-  handleSort,
-  formatMontant
-}: ClientTableProps) => {
+export const ClientTable = ({ clients, onViewClient }: ClientTableProps) => {
+  // Fonction pour formater les montants
+  const formatMontant = (montant: number) => {
+    return new Intl.NumberFormat('fr-FR').format(montant) + " XAF";
+  };
+
   return (
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-[100px]">ID</TableHead>
-          <TableHead>
-            <Button 
-              variant="ghost" 
-              className="p-0 font-semibold flex items-center gap-1"
-              onClick={() => handleSort('nom')}
-            >
-              Client
-              <ArrowUpDown className="h-4 w-4" />
-            </Button>
-          </TableHead>
-          <TableHead>
-            <Button 
-              variant="ghost" 
-              className="p-0 font-semibold flex items-center gap-1"
-              onClick={() => handleSort('facturesMontant')}
-            >
-              Total facturé
-              <ArrowUpDown className="h-4 w-4" />
-            </Button>
-          </TableHead>
-          <TableHead>
-            <Button 
-              variant="ghost" 
-              className="p-0 font-semibold flex items-center gap-1"
-              onClick={() => handleSort('paiementsMontant')}
-            >
-              Total payé
-              <ArrowUpDown className="h-4 w-4" />
-            </Button>
-          </TableHead>
-          <TableHead>
-            <Button 
-              variant="ghost" 
-              className="p-0 font-semibold flex items-center gap-1"
-              onClick={() => handleSort('solde')}
-            >
-              Solde
-              <ArrowUpDown className="h-4 w-4" />
-            </Button>
-          </TableHead>
+          <TableHead>Client</TableHead>
+          <TableHead>Factures</TableHead>
+          <TableHead>Montant total</TableHead>
+          <TableHead>Montant payé</TableHead>
+          <TableHead>Montant dû</TableHead>
           <TableHead>Statut</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -81,23 +42,38 @@ export const ClientTable = ({
         {clients.length > 0 ? (
           clients.map((client) => (
             <TableRow key={client.id}>
-              <TableCell className="font-medium">{client.id}</TableCell>
-              <TableCell>{client.nom}</TableCell>
-              <TableCell>{formatMontant(client.facturesMontant)}</TableCell>
-              <TableCell>{formatMontant(client.paiementsMontant)}</TableCell>
-              <TableCell>{formatMontant(client.solde)}</TableCell>
+              <TableCell className="font-medium">{client.nom}</TableCell>
+              <TableCell>{client.facturesCount}</TableCell>
+              <TableCell>{formatMontant(client.montantTotal)}</TableCell>
+              <TableCell>{formatMontant(client.montantPaye)}</TableCell>
+              <TableCell>{formatMontant(client.montantDu)}</TableCell>
               <TableCell><ClientStatusBadge status={client.status} /></TableCell>
               <TableCell className="text-right">
-                <Button variant="outline" size="icon">
-                  <Eye className="h-4 w-4" />
-                </Button>
+                <div className="flex justify-end space-x-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onViewClient(client.id)}
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  {client.derniereFacture && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => window.open(`/facturation?tab=factures&id=${client.derniereFacture}`, '_blank')}
+                    >
+                      <FileText className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))
         ) : (
           <TableRow>
             <TableCell colSpan={7} className="text-center py-8 text-gray-500">
-              Aucun client trouvé
+              Aucun client avec des factures
             </TableCell>
           </TableRow>
         )}
