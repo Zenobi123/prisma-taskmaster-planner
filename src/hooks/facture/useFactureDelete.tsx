@@ -10,14 +10,14 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
   /**
    * Supprime une facture
    * @param factureId ID de la facture à supprimer
-   * @param isAdmin Indique si l'utilisateur est administrateur
    * @returns true si la suppression a réussi, false sinon
    */
-  const handleDeleteInvoice = async (factureId: string, isAdmin: boolean = false): Promise<boolean> => {
+  const handleDeleteInvoice = async (factureId: string): Promise<boolean> => {
     try {
-      // Vérification supplémentaire pour confirmer que la facture existe
+      // Vérification que la facture existe dans l'état local
       const factureExists = factures.find(f => f.id === factureId);
       if (!factureExists) {
+        console.error(`La facture ${factureId} n'existe pas dans l'état local`);
         toast({
           title: "Erreur",
           description: "La facture n'existe pas ou a déjà été supprimée.",
@@ -26,16 +26,16 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
         return false;
       }
 
-      console.log("Tentative de suppression de la facture:", factureId);
+      console.log(`Tentative de suppression de la facture: ${factureId}`);
       
       try {
-        // Appel à l'API pour supprimer la facture du backend
+        // Appel à l'API pour supprimer la facture
         await deleteFactureFromDB(factureId);
         
         // Si la suppression dans la DB est réussie, mettre à jour l'état local
         setFactures(prevFactures => prevFactures.filter(f => f.id !== factureId));
         
-        console.log("Facture supprimée avec succès:", factureId);
+        console.log(`Facture ${factureId} supprimée avec succès`);
         
         toast({
           title: "Facture supprimée",
@@ -44,16 +44,16 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
         
         return true;
       } catch (apiError) {
-        console.error("Erreur lors de la suppression de la facture:", apiError);
+        console.error(`Erreur lors de la suppression de la facture ${factureId}:`, apiError);
         toast({
           title: "Erreur de suppression",
-          description: "Une erreur est survenue lors de la suppression. La facture n'a pas été supprimée de la base de données.",
+          description: "Une erreur est survenue lors de la suppression. Veuillez réessayer.",
           variant: "destructive"
         });
         return false;
       }
     } catch (error) {
-      console.error("Exception lors de la suppression:", error);
+      console.error(`Exception lors de la suppression de la facture ${factureId}:`, error);
       toast({
         title: "Erreur critique",
         description: "Une erreur critique est survenue pendant la suppression.",
@@ -64,26 +64,24 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
   };
 
   /**
-   * Supprime toutes les factures non créées par l'utilisateur (admin uniquement)
+   * Supprime toutes les factures
    * @returns true si la suppression a réussi, false sinon
    */
-  const deleteNonUserCreatedInvoices = async (): Promise<boolean> => {
+  const deleteAllInvoices = async (): Promise<boolean> => {
     try {
       console.log("Tentative de suppression massive des factures");
       
+      // Confirmer avec l'utilisateur avant de procéder
+      const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer toutes les factures ? Cette action est irréversible.");
+      if (!confirmDelete) {
+        console.log("Suppression massive annulée par l'utilisateur");
+        return false;
+      }
+      
       try {
-        // Cette opération supprime toutes les factures (à adapter selon vos besoins)
-        const { error } = await supabase.from('factures').delete().not('id', 'is', null);
-        
-        if (error) {
-          console.error("Erreur lors de la suppression massive:", error);
-          toast({
-            title: "Erreur de suppression",
-            description: "Une erreur est survenue lors de la suppression massive. Certaines factures peuvent ne pas avoir été supprimées.",
-            variant: "destructive"
-          });
-          return false;
-        }
+        // Supprimer toutes les factures une par une pour plus de fiabilité
+        const deletePromises = factures.map(facture => deleteFactureFromDB(facture.id));
+        await Promise.all(deletePromises);
         
         // Si la suppression dans la DB est réussie, mettre à jour l'état local
         setFactures([]);
@@ -116,5 +114,5 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
     }
   };
 
-  return { handleDeleteInvoice, deleteNonUserCreatedInvoices };
+  return { handleDeleteInvoice, deleteAllInvoices };
 };

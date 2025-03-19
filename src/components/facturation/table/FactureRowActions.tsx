@@ -10,7 +10,6 @@ interface FactureRowActionsProps {
   onDownloadInvoice: (factureId: string) => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
-  isAdmin?: boolean;
 }
 
 export const FactureRowActions = ({
@@ -20,10 +19,13 @@ export const FactureRowActions = ({
   onDeleteInvoice,
   onPrintInvoice,
   onDownloadInvoice,
-  isAdmin = false,
 }: FactureRowActionsProps) => {
-  // Tous les utilisateurs peuvent maintenant supprimer n'importe quelle facture
-  const canDelete = true;
+  const handleDelete = () => {
+    // Confirm before deleting
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer la facture ${facture.id} ?`)) {
+      onDeleteInvoice(facture.id);
+    }
+  };
   
   return (
     <div className="flex justify-end items-center gap-2">
@@ -48,7 +50,7 @@ export const FactureRowActions = ({
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => onDeleteInvoice(facture.id)}
+        onClick={handleDelete}
         className="opacity-70 group-hover:opacity-100 transition-all duration-300 text-red-500 hover:text-red-700 hover:bg-red-50"
         title="Supprimer"
       >

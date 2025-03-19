@@ -12,14 +12,15 @@ export const useFetchFactures = () => {
   const fetchFactures = useCallback(async () => {
     setIsLoading(true);
     try {
+      console.log("Fetching factures...");
       const mappedFactures = await fetchFacturesFromDB();
       setFactures(mappedFactures);
-      console.log("Factures chargées:", mappedFactures);
+      console.log(`Successfully loaded ${mappedFactures.length} factures`);
     } catch (error) {
-      console.error("Erreur lors du chargement des factures:", error);
+      console.error("Error loading factures:", error);
       toast({
         title: "Erreur",
-        description: "Impossible de charger les factures.",
+        description: "Impossible de charger les factures. Veuillez réessayer.",
         variant: "destructive"
       });
     } finally {
@@ -28,6 +29,7 @@ export const useFetchFactures = () => {
   }, [toast]);
 
   useEffect(() => {
+    console.log("Initial factures loading...");
     fetchFactures();
   }, [fetchFactures]);
 
@@ -35,6 +37,6 @@ export const useFetchFactures = () => {
     factures,
     setFactures,
     isLoading,
-    fetchFactures // Exposer la fonction pour permettre un rechargement manuel si nécessaire
+    fetchFactures
   };
 };

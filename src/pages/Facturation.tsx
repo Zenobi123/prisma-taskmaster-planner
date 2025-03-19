@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { formatMontant } from "@/data/factureData";
 import { FacturationHeader } from "@/components/facturation/FacturationHeader";
 import { NewFactureDialog } from "@/components/facturation/NewFactureDialog";
@@ -13,7 +13,7 @@ import { useInvoiceActions } from "@/utils/invoiceActions";
 import { Facture } from "@/types/facture";
 import { FactureDetailsManager } from "@/components/facturation/FactureDetailsManager";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { Trash2, RefreshCw } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const Facturation = () => {
@@ -24,14 +24,33 @@ const Facturation = () => {
   const [isBulkDelete, setIsBulkDelete] = useState(false);
   const { toast } = useToast();
   
+  // Hooks for data and functionality
   const { hasPermission, isLoading: permissionsLoading, collaborateur } = useFacturationPermissions();
-  const { factures, isLoading, handleUpdateStatus, handleDeleteInvoice, handleCreateInvoice, handlePaiementPartiel, deleteNonUserCreatedInvoices } = useFactures();
+  const { 
+    factures, 
+    isLoading, 
+    handleUpdateStatus, 
+    handleDeleteInvoice, 
+    handleCreateInvoice, 
+    handlePaiementPartiel, 
+    deleteAllInvoices,
+    fetchFactures 
+  } = useFactures();
   const { activeTab, setActiveTab } = useFacturationTabs();
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, periodFilter, setPeriodFilter, filteredFactures } = useFacturationFilters(factures);
   const { handlePrintInvoice, handleDownloadInvoice } = useInvoiceActions();
 
   // Vérifie si l'utilisateur est administrateur
   const isAdmin = collaborateur?.permissions?.some(p => p.niveau === 'administration' && p.module === 'facturation') || false;
+
+  // Function to refresh the data
+  const handleRefresh = useCallback(() => {
+    fetchFactures();
+    toast({
+      title: "Rechargement",
+      description: "Liste des factures mise à jour."
+    });
+  }, [fetchFactures, toast]);
 
   // Define all functions BEFORE using them
   const handleEditInvoice = (facture: Facture) => {
@@ -41,21 +60,14 @@ const Facturation = () => {
   };
 
   const handleDeleteInvoiceRequest = (factureId: string) => {
+    console.log(`Requesting deletion of facture ${factureId}`);
     setFactureToDelete(factureId);
     setIsBulkDelete(false);
     setIsDeleteConfirmOpen(true);
   };
   
   const handleBulkDeleteRequest = () => {
-    if (!isAdmin) {
-      toast({
-        title: "Accès refusé",
-        description: "Seul l'administrateur peut supprimer en masse les factures.",
-        variant: "destructive"
-      });
-      return;
-    }
-    
+    console.log("Requesting bulk deletion of all factures");
     setIsBulkDelete(true);
     setIsDeleteConfirmOpen(true);
   };
@@ -67,7 +79,7 @@ const Facturation = () => {
     onUpdateStatus: handleUpdateStatus,
     onEditInvoice: handleEditInvoice,
     onDeleteInvoice: handleDeleteInvoiceRequest,
-    isAdmin: isAdmin,
+    isAdmin,
   });
 
   if (permissionsLoading || isLoading) {
@@ -79,11 +91,15 @@ const Facturation = () => {
   }
 
   const confirmDeleteInvoice = async () => {
+    console.log("Confirming invoice deletion, isBulkDelete:", isBulkDelete);
     if (isBulkDelete) {
-      await deleteNonUserCreatedInvoices();
-      setIsDeleteConfirmOpen(false);
+      const success = await deleteAllInvoices();
+      if (success) {
+        setIsDeleteConfirmOpen(false);
+      }
     } else if (factureToDelete) {
-      const success = await handleDeleteInvoice(factureToDelete, isAdmin);
+      console.log(`Confirming deletion of facture ${factureToDelete}`);
+      const success = await handleDeleteInvoice(factureToDelete);
       
       if (success) {
         setIsDeleteConfirmOpen(false);
@@ -100,18 +116,26 @@ const Facturation = () => {
         setSearchTerm={setSearchTerm}
       />
       
-      <div className="flex justify-end mb-6">
-        {isAdmin && (
-          <Button 
-            variant="destructive" 
-            size="sm" 
-            className="flex items-center gap-2"
-            onClick={handleBulkDeleteRequest}
-          >
-            <Trash2 className="h-4 w-4" />
-            Supprimer toutes les factures
-          </Button>
-        )}
+      <div className="flex justify-between mb-6">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          className="flex items-center gap-2"
+          onClick={handleRefresh}
+        >
+          <RefreshCw className="h-4 w-4" />
+          Actualiser
+        </Button>
+        
+        <Button 
+          variant="destructive" 
+          size="sm" 
+          className="flex items-center gap-2"
+          onClick={handleBulkDeleteRequest}
+        >
+          <Trash2 className="h-4 w-4" />
+          Supprimer toutes les factures
+        </Button>
       </div>
       
       <FacturationTabs
