@@ -51,10 +51,26 @@ export const FacturationTabs = ({
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-6 animate-fade-in">
       <TabsList className="grid grid-cols-3 mb-8">
-        <TabsTrigger value="factures" className="text-sm">Factures</TabsTrigger>
-        <TabsTrigger value="paiements" className="text-sm">Paiements</TabsTrigger>
-        <TabsTrigger value="clients" className="text-sm">Situation clients</TabsTrigger>
+        <TabsTrigger 
+          value="factures" 
+          className="text-sm data-[state=active]:bg-primary data-[state=active]:text-white"
+        >
+          Factures
+        </TabsTrigger>
+        <TabsTrigger 
+          value="paiements" 
+          className="text-sm data-[state=active]:bg-primary data-[state=active]:text-white"
+        >
+          Paiements
+        </TabsTrigger>
+        <TabsTrigger 
+          value="clients" 
+          className="text-sm data-[state=active]:bg-primary data-[state=active]:text-white"
+        >
+          Situation clients
+        </TabsTrigger>
       </TabsList>
+      
       <TabsContent value="factures">
         <FacturesTab 
           searchTerm={searchTerm}
@@ -74,6 +90,7 @@ export const FacturationTabs = ({
           isAdmin={isAdmin}
         />
       </TabsContent>
+      
       <TabsContent value="paiements">
         <GestionPaiements 
           factures={factures.filter(f => f.status !== 'payée')}
@@ -82,6 +99,7 @@ export const FacturationTabs = ({
           onPaiementPartiel={onPaiementPartiel}
         />
       </TabsContent>
+      
       <TabsContent value="clients">
         <SituationClients 
           factures={factures} 
