@@ -19,7 +19,7 @@ export const FacturationHeader = ({
 
   return (
     <>
-      <div className="flex items-center gap-4 mb-4">
+      <div className="flex items-center justify-between gap-4 mb-4">
         <Button
           variant="outline"
           onClick={() => navigate("/")}
@@ -27,6 +27,11 @@ export const FacturationHeader = ({
         >
           <ArrowLeft className="w-4 h-4" />
           Retour
+        </Button>
+        
+        <Button className="flex items-center gap-2 whitespace-nowrap" onClick={onNewFactureClick}>
+          <span className="w-4 h-4">+</span>
+          Nouvelle facture
         </Button>
       </div>
 
@@ -42,24 +47,18 @@ export const FacturationHeader = ({
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-6">
-        {setSearchTerm && (
-          <div className="relative w-full md:w-1/2">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              type="text"
-              placeholder="Rechercher une facture par numéro, client..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-full"
-            />
-          </div>
-        )}
-        <Button className="flex items-center gap-2 whitespace-nowrap" onClick={onNewFactureClick}>
-          <span className="w-4 h-4">+</span>
-          Nouvelle facture
-        </Button>
-      </div>
+      {setSearchTerm && (
+        <div className="relative w-full mb-6">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Rechercher une facture par numéro, client..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 w-full"
+          />
+        </div>
+      )}
     </>
   );
 };

@@ -61,7 +61,8 @@ export const FactureDetailsDialog = ({
         
         <div className="grid grid-cols-1 gap-6">
           <ClientDateInfo 
-            client={selectedFacture.client}
+            clientName={selectedFacture.client.nom}
+            clientAddress={selectedFacture.client.adresse}
             date={selectedFacture.date}
             echeance={selectedFacture.echeance}
           />
@@ -89,7 +90,7 @@ export const FactureDetailsDialog = ({
           
           {selectedFacture.paiements && selectedFacture.paiements.length > 0 && (
             <HistoriquePaiements 
-              historiquePaiements={selectedFacture.paiements}
+              paiements={selectedFacture.paiements}
               formatMontant={formatMontant} 
             />
           )}
