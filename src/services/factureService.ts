@@ -26,12 +26,17 @@ export const updateFactureStatus = async (factureId: string, newStatus: 'payée'
 };
 
 export const deleteFactureFromDB = async (factureId: string) => {
-  const { error } = await supabase
-    .from('factures')
-    .delete()
-    .eq('id', factureId);
-    
-  if (error) throw error;
+  try {
+    const { error } = await supabase
+      .from('factures')
+      .delete()
+      .eq('id', factureId);
+      
+    if (error) throw error;
+  } catch (error) {
+    console.error("Erreur dans deleteFactureFromDB:", error);
+    throw error; // Propager l'erreur pour être gérée par l'appelant
+  }
 };
 
 export const createFactureInDB = async (newFacture: any) => {
