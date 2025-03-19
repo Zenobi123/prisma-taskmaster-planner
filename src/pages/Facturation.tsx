@@ -27,7 +27,8 @@ const Facturation = () => {
     handleDeleteInvoice, 
     handleCreateInvoice, 
     handlePaiementPartiel, 
-    fetchFactures 
+    fetchFactures,
+    deleteAllInvoices
   } = useFactures();
   const { activeTab, setActiveTab } = useFacturationTabs();
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, periodFilter, setPeriodFilter, filteredFactures } = useFacturationFilters(factures);
@@ -108,6 +109,7 @@ const Facturation = () => {
         onUpdateStatus={handleUpdateStatus}
         onEditInvoice={handleEditInvoice}
         onDeleteInvoice={handleDeleteInvoiceRequest}
+        onDeleteAllInvoices={deleteAllInvoices}
         onPaiementPartiel={handlePaiementPartiel}
         isAdmin={isAdmin}
       />
