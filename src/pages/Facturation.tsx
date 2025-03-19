@@ -11,20 +11,28 @@ import { useFacturationTabs } from "@/hooks/useFacturationTabs";
 import { useFacturationFilters } from "@/hooks/useFacturationFilters";
 import { useInvoiceActions } from "@/utils/invoiceActions";
 import { Facture } from "@/types/facture";
+import { FactureDetailsManager } from "@/components/facturation/FactureDetailsManager";
 
 const Facturation = () => {
   const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [factureToDelete, setFactureToDelete] = useState<string | null>(null);
-  const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
   
   const { hasPermission, isLoading: permissionsLoading } = useFacturationPermissions();
   const { factures, isLoading, handleUpdateStatus, handleDeleteInvoice, handleCreateInvoice } = useFactures();
   const { activeTab, setActiveTab } = useFacturationTabs();
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, periodFilter, setPeriodFilter, filteredFactures } = useFacturationFilters(factures);
   const { handlePrintInvoice, handleDownloadInvoice } = useInvoiceActions();
+
+  const factureDetailsManager = FactureDetailsManager({
+    formatMontant,
+    onPrintInvoice: handlePrintInvoice,
+    onDownloadInvoice: handleDownloadInvoice,
+    onUpdateStatus: handleUpdateStatus,
+    onEditInvoice: handleEditInvoice,
+    onDeleteInvoice: handleDeleteInvoiceRequest,
+  });
 
   if (permissionsLoading || isLoading) {
     return (
@@ -34,15 +42,10 @@ const Facturation = () => {
     );
   }
 
-  const handleViewDetails = (facture: Facture) => {
-    setSelectedFacture(facture);
-    setShowDetails(true);
-  };
-
   const handleEditInvoice = (facture: Facture) => {
-    setSelectedFacture(facture);
+    factureDetailsManager.setSelectedFacture(facture);
     setIsEditDialogOpen(true);
-    setShowDetails(false);
+    factureDetailsManager.setShowDetails(false);
   };
 
   const handleDeleteInvoiceRequest = (factureId: string) => {
@@ -64,7 +67,7 @@ const Facturation = () => {
     
     if (success) {
       setIsDeleteConfirmOpen(false);
-      setShowDetails(false);
+      factureDetailsManager.setShowDetails(false);
     }
   };
 
@@ -84,7 +87,7 @@ const Facturation = () => {
         setPeriodFilter={setPeriodFilter}
         filteredFactures={filteredFactures}
         formatMontant={formatMontant}
-        onViewDetails={handleViewDetails}
+        onViewDetails={factureDetailsManager.handleViewDetails}
         onPrintInvoice={handlePrintInvoice}
         onDownloadInvoice={handleDownloadInvoice}
         onUpdateStatus={handleUpdateStatus}
@@ -92,17 +95,7 @@ const Facturation = () => {
         onDeleteInvoice={handleDeleteInvoiceRequest}
       />
 
-      <FactureDetailsDialog
-        showDetails={showDetails}
-        setShowDetails={setShowDetails}
-        selectedFacture={selectedFacture}
-        formatMontant={formatMontant}
-        onPrintInvoice={handlePrintInvoice}
-        onDownloadInvoice={handleDownloadInvoice}
-        onUpdateStatus={handleUpdateStatus}
-        onEditInvoice={handleEditInvoice}
-        onDeleteInvoice={handleDeleteInvoiceRequest}
-      />
+      {factureDetailsManager.detailsDialog}
 
       <NewFactureDialog
         isOpen={isNewFactureDialogOpen}
