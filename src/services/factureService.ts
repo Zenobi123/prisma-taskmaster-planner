@@ -46,21 +46,28 @@ export const getFactures = async (): Promise<Facture[]> => {
         console.error("Erreur lors de la récupération des paiements:", erreurPaiements);
       }
 
-      // Formater les données client
+      // Formater les données client avec validation des types
+      const adresse = facture.client.adresse as Record<string, string>;
+      const contact = facture.client.contact as Record<string, string>;
+      
       const client = {
         id: facture.client.id,
         nom: facture.client.type === "physique" ? facture.client.nom : facture.client.raisonsociale,
-        adresse: `${facture.client.adresse.quartier}, ${facture.client.adresse.ville}`,
-        telephone: facture.client.contact.telephone,
-        email: facture.client.contact.email
+        adresse: `${adresse.quartier || ''}, ${adresse.ville || ''}`,
+        telephone: contact.telephone || '',
+        email: contact.email || ''
       };
+
+      // S'assurer que le statut correspond à un type valide
+      const status = mapStatusToValidEnum(facture.status);
 
       return {
         ...facture,
         client,
+        status,
         prestations: prestations || [],
         paiements: paiements || []
-      };
+      } as Facture;
     })
   );
 
@@ -111,22 +118,47 @@ export const getFactureById = async (id: string): Promise<Facture> => {
     throw erreurPaiements;
   }
 
-  // Formater les données client
+  // Formater les données client avec validation des types
+  const adresse = facture.client.adresse as Record<string, string>;
+  const contact = facture.client.contact as Record<string, string>;
+  
   const client = {
     id: facture.client.id,
     nom: facture.client.type === "physique" ? facture.client.nom : facture.client.raisonsociale,
-    adresse: `${facture.client.adresse.quartier}, ${facture.client.adresse.ville}`,
-    telephone: facture.client.contact.telephone,
-    email: facture.client.contact.email
+    adresse: `${adresse.quartier || ''}, ${adresse.ville || ''}`,
+    telephone: contact.telephone || '',
+    email: contact.email || ''
   };
+
+  // S'assurer que le statut correspond à un type valide
+  const status = mapStatusToValidEnum(facture.status);
 
   return {
     ...facture,
     client,
+    status,
     prestations: prestations || [],
     paiements: paiements || []
-  };
+  } as Facture;
 };
+
+// Fonction utilitaire pour assurer que le statut est d'un type valide
+function mapStatusToValidEnum(status: string): Facture["status"] {
+  switch (status) {
+    case "en_attente":
+      return "en_attente";
+    case "envoyée":
+      return "envoyée";
+    case "payée":
+      return "payée";
+    case "partiellement_payée":
+      return "partiellement_payée";
+    case "annulée":
+      return "annulée";
+    default:
+      return "en_attente"; // Valeur par défaut si le statut est inconnu
+  }
+}
 
 export const createFacture = async (factureData: Omit<Facture, "id" | "client">): Promise<Facture> => {
   // 1. Créer la facture
