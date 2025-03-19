@@ -1,23 +1,23 @@
 
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
 import { FacturationHeader } from "@/components/facturation/FacturationHeader";
-import { FacturationFilters } from "@/components/facturation/FacturationFilters";
-import { FactureTable } from "@/components/facturation/FactureTable";
-import { FactureDetailsDialog } from "@/components/facturation/FactureDetailsDialog";
-import { NewFactureDialog } from "@/components/facturation/NewFactureDialog";
 import { useFacturationPermissions } from "@/hooks/useFacturationPermissions";
-import { Facture } from "@/types/facture";
-import { facturesMockData, filterFactures, formatMontant } from "@/data/factureData";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FacturesManagement } from "@/components/facturation/sections/FacturesManagement";
+import { PaiementsManagement } from "@/components/facturation/sections/PaiementsManagement";
+import { ClientsSituation } from "@/components/facturation/sections/ClientsSituation";
 
+/**
+ * Page de Facturation
+ * 
+ * Cette page permet de gérer les factures, les paiements et de visualiser la situation des clients.
+ * Elle est structurée en trois onglets principaux:
+ * 1. Gestion des factures: création, modification, suppression des factures
+ * 2. Gestion des paiements: enregistrement et suivi des paiements
+ * 3. Situation clients: visualisation des soldes dus par client
+ */
 const Facturation = () => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [periodFilter, setPeriodFilter] = useState("all");
-  const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
-  const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
-  const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("factures");
   
   // Vérification des permissions
   const { hasPermission, isLoading } = useFacturationPermissions();
@@ -31,80 +31,34 @@ const Facturation = () => {
     );
   }
 
-  // Filtrer les factures selon les critères
-  const filteredFactures = filterFactures(
-    facturesMockData,
-    searchTerm,
-    statusFilter,
-    periodFilter
-  );
-
-  const handleViewDetails = (facture: Facture) => {
-    setSelectedFacture(facture);
-    setShowDetails(true);
-  };
-
-  const handlePrintInvoice = (factureId: string) => {
-    toast({
-      title: "Impression lancée",
-      description: `Impression de la facture ${factureId} en cours...`,
-    });
-    // Logique d'impression à implémenter
-  };
-
-  const handleDownloadInvoice = (factureId: string) => {
-    toast({
-      title: "Téléchargement en cours",
-      description: `Téléchargement de la facture ${factureId}...`,
-    });
-    // Logique de téléchargement à implémenter
-  };
-
-  const handleCreateInvoice = (formData: any) => {
-    console.log("Nouvelle facture:", formData);
-    toast({
-      title: "Facture créée",
-      description: "La nouvelle facture a été créée avec succès.",
-    });
-    setIsNewFactureDialogOpen(false);
-    // Logique de création de facture à implémenter
-  };
-
   return (
     <div className="container mx-auto p-4 md:p-6 animate-fade-in">
-      <FacturationHeader onNewFactureClick={() => setIsNewFactureDialogOpen(true)} />
+      <FacturationHeader onNewFactureClick={() => setActiveTab("factures")} />
       
-      <FacturationFilters
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        periodFilter={periodFilter}
-        setPeriodFilter={setPeriodFilter}
-      />
-
-      <FactureTable
-        factures={filteredFactures}
-        formatMontant={formatMontant}
-        onViewDetails={handleViewDetails}
-        onPrintInvoice={handlePrintInvoice}
-        onDownloadInvoice={handleDownloadInvoice}
-      />
-
-      <FactureDetailsDialog
-        showDetails={showDetails}
-        setShowDetails={setShowDetails}
-        selectedFacture={selectedFacture}
-        formatMontant={formatMontant}
-        onPrintInvoice={handlePrintInvoice}
-        onDownloadInvoice={handleDownloadInvoice}
-      />
-
-      <NewFactureDialog
-        isOpen={isNewFactureDialogOpen}
-        onOpenChange={setIsNewFactureDialogOpen}
-        onCreateInvoice={handleCreateInvoice}
-      />
+      <Tabs 
+        defaultValue="factures" 
+        value={activeTab} 
+        onValueChange={setActiveTab}
+        className="mt-6"
+      >
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="factures">Gestion des factures</TabsTrigger>
+          <TabsTrigger value="paiements">Gestion des paiements</TabsTrigger>
+          <TabsTrigger value="clients">Situation clients</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="factures" className="mt-6">
+          <FacturesManagement />
+        </TabsContent>
+        
+        <TabsContent value="paiements" className="mt-6">
+          <PaiementsManagement />
+        </TabsContent>
+        
+        <TabsContent value="clients" className="mt-6">
+          <ClientsSituation />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

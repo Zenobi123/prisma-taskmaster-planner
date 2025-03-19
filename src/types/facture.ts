@@ -5,6 +5,8 @@ export interface Prestation {
   montant: number;
   quantite?: number;
   taux?: number;
+  estPaye?: boolean;
+  datePaiement?: string;
 }
 
 export interface Client {
@@ -25,5 +27,14 @@ export interface Facture {
   status: 'payée' | 'en_attente' | 'envoyée';
   prestations: Prestation[];
   reference?: string;
+  notes?: string;
+}
+
+export interface Paiement {
+  id: string;
+  factureId: string;
+  montant: number;
+  date: string;
+  mode: 'espèces' | 'virement' | 'chèque' | 'carte';
   notes?: string;
 }
