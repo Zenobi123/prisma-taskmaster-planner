@@ -1,6 +1,8 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
+import { fetchFacturesFromDB } from "@/services/facture/facturesQuery";
 
 export const useFetchFactures = () => {
   const [factures, setFactures] = useState<Facture[]>([]);
@@ -10,11 +12,13 @@ export const useFetchFactures = () => {
   const fetchFactures = useCallback(async () => {
     setIsLoading(true);
     try {
-      console.log("Initializing empty factures array...");
+      console.log("Fetching factures from database...");
       
-      // Initialize with an empty array but don't reset it when it already has data
-      // This ensures we keep any factures added during the session
-      setFactures(prevFactures => prevFactures.length > 0 ? prevFactures : []);
+      // Charger les factures depuis la base de données
+      const dbFactures = await fetchFacturesFromDB();
+      console.log(`Loaded ${dbFactures.length} factures from database`);
+      
+      setFactures(dbFactures);
       
     } catch (error) {
       console.error("Error loading factures:", error);
