@@ -1,4 +1,3 @@
-
 import { Facture } from "@/types/facture";
 import { Download, Printer, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getStatusBadge } from "../FactureTable";
+import { StatusBadge } from "@/components/facturation/table/StatusBadge";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -43,7 +42,7 @@ export const FactureDetailsHeader = ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 p-0 flex items-center gap-1">
-                {getStatusBadge(selectedFacture.status)}
+                <StatusBadge status={selectedFacture.status} />
                 <ChevronDown className="h-3 w-3 opacity-50" />
               </Button>
             </DropdownMenuTrigger>

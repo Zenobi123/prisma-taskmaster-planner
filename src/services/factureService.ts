@@ -1,0 +1,83 @@
+
+import { Facture } from "@/types/facture";
+import { supabase } from "@/integrations/supabase/client";
+
+export const fetchFacturesFromDB = async () => {
+  const { data, error } = await supabase
+    .from('factures')
+    .select('*');
+  
+  if (error) {
+    throw error;
+  }
+  
+  return mapFacturesFromDB(data);
+};
+
+export const updateFactureStatus = async (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => {
+  const { error } = await supabase
+    .from('factures')
+    .update({ status: newStatus })
+    .eq('id', factureId);
+    
+  if (error) {
+    throw error;
+  }
+};
+
+export const deleteFactureFromDB = async (factureId: string) => {
+  const { error } = await supabase
+    .from('factures')
+    .delete()
+    .eq('id', factureId);
+    
+  if (error) throw error;
+};
+
+export const createFactureInDB = async (newFacture: any) => {
+  const { error } = await supabase
+    .from('factures')
+    .insert(newFacture);
+    
+  if (error) {
+    throw error;
+  }
+};
+
+export const getClientData = async (clientId: string) => {
+  const { data, error } = await supabase
+    .from('clients')
+    .select('*')
+    .eq('id', clientId)
+    .single();
+    
+  if (error) {
+    throw new Error("Client non trouvé");
+  }
+  
+  return data;
+};
+
+// Helper function to map database rows to Facture objects
+const mapFacturesFromDB = (data: any[]): Facture[] => {
+  return data.map((row: any) => ({
+    id: row.id,
+    client: {
+      id: row.client_id,
+      nom: row.client_nom,
+      adresse: row.client_adresse,
+      telephone: row.client_telephone,
+      email: row.client_email
+    },
+    date: row.date,
+    echeance: row.echeance,
+    montant: Number(row.montant),
+    status: row.status,
+    prestations: Array.isArray(row.prestations) 
+      ? row.prestations 
+      : JSON.parse(row.prestations),
+    notes: row.notes,
+    modeReglement: row.mode_reglement,
+    moyenPaiement: row.moyen_paiement
+  }));
+};

@@ -25,23 +25,7 @@ const Facturation = () => {
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, periodFilter, setPeriodFilter, filteredFactures } = useFacturationFilters(factures);
   const { handlePrintInvoice, handleDownloadInvoice } = useInvoiceActions();
 
-  const factureDetailsManager = FactureDetailsManager({
-    formatMontant,
-    onPrintInvoice: handlePrintInvoice,
-    onDownloadInvoice: handleDownloadInvoice,
-    onUpdateStatus: handleUpdateStatus,
-    onEditInvoice: handleEditInvoice,
-    onDeleteInvoice: handleDeleteInvoiceRequest,
-  });
-
-  if (permissionsLoading || isLoading) {
-    return (
-      <div className="container mx-auto p-6 flex justify-center items-center h-[50vh]">
-        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
-      </div>
-    );
-  }
-
+  // Move function declarations before usage
   const handleEditInvoice = (facture: Facture) => {
     factureDetailsManager.setSelectedFacture(facture);
     setIsEditDialogOpen(true);
@@ -59,6 +43,23 @@ const Facturation = () => {
     setFactureToDelete(factureId);
     setIsDeleteConfirmOpen(true);
   };
+
+  const factureDetailsManager = FactureDetailsManager({
+    formatMontant,
+    onPrintInvoice: handlePrintInvoice,
+    onDownloadInvoice: handleDownloadInvoice,
+    onUpdateStatus: handleUpdateStatus,
+    onEditInvoice: handleEditInvoice,
+    onDeleteInvoice: handleDeleteInvoiceRequest,
+  });
+
+  if (permissionsLoading || isLoading) {
+    return (
+      <div className="container mx-auto p-6 flex justify-center items-center h-[50vh]">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+      </div>
+    );
+  }
 
   const confirmDeleteInvoice = async () => {
     if (!factureToDelete) return;
