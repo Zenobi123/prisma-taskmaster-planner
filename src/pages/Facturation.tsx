@@ -94,14 +94,18 @@ const Facturation = () => {
 
   return (
     <div className="container mx-auto p-4 md:p-6 animate-fade-in">
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
-        <FacturationHeader onNewFactureClick={() => setIsNewFactureDialogOpen(true)} />
-        
+      <FacturationHeader 
+        onNewFactureClick={() => setIsNewFactureDialogOpen(true)} 
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
+      
+      <div className="flex justify-end mb-6">
         {isAdmin && (
           <Button 
             variant="destructive" 
             size="sm" 
-            className="mt-4 md:mt-0 flex items-center gap-2"
+            className="flex items-center gap-2"
             onClick={handleBulkDeleteRequest}
           >
             <Trash2 className="h-4 w-4" />

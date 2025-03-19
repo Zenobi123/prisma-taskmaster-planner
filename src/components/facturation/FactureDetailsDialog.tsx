@@ -89,7 +89,7 @@ export const FactureDetailsDialog = ({
           
           {selectedFacture.paiements && selectedFacture.paiements.length > 0 && (
             <HistoriquePaiements 
-              paiements={selectedFacture.paiements}
+              historiquePaiements={selectedFacture.paiements}
               formatMontant={formatMontant} 
             />
           )}

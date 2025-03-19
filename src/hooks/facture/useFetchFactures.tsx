@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
 import { fetchFacturesFromDB } from "@/services/factureService";
@@ -9,11 +9,7 @@ export const useFetchFactures = () => {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchFactures();
-  }, []);
-
-  const fetchFactures = async () => {
+  const fetchFactures = useCallback(async () => {
     setIsLoading(true);
     try {
       const mappedFactures = await fetchFacturesFromDB();
@@ -29,7 +25,11 @@ export const useFetchFactures = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchFactures();
+  }, [fetchFactures]);
 
   return {
     factures,
