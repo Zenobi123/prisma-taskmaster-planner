@@ -66,7 +66,7 @@ const Sidebar = () => {
             key={item.path}
             to={item.path}
             className={`sidebar-link group relative ${
-              isActiveRoute(item.path) && "active"
+              isActiveRoute(item.path) ? "active shadow-md font-medium" : ""
             }`}
           >
             <item.icon className="w-5 h-5 shrink-0" />
