@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -35,10 +34,8 @@ export const GestionPaiements = ({
   const [paymentMethod, setPaymentMethod] = useState<string>("especes");
   const { toast } = useToast();
 
-  // Filter factures that can receive payments (not already fully paid)
   const facturesForPayment = factures.filter(f => f.status !== 'payée');
   
-  // Filter displayed list based on search and status filter
   const filteredFactures = facturesForPayment
     .filter(facture => 
       (searchTerm === "" || 
@@ -48,7 +45,6 @@ export const GestionPaiements = ({
       (statusFilter === "all" || facture.status === statusFilter)
     );
   
-  // Calculate confirmed and pending payments
   const pendingPayments = facturesForPayment
     .filter(f => f.status === 'en_attente' || f.status === 'envoyée' || f.status === 'partiellement_payée')
     .reduce((sum, f) => {
@@ -59,7 +55,6 @@ export const GestionPaiements = ({
   const confirmedPayments = factures
     .reduce((sum, f) => sum + (f.montantPaye || 0), 0);
   
-  // Calculate payment methods distribution
   const paymentMethods = {
     especes: 0,
     orange_money: 0,
@@ -67,7 +62,6 @@ export const GestionPaiements = ({
     virement: 0
   };
   
-  // Calculer les méthodes de paiement à partir des paiements stockés
   factures.forEach(facture => {
     if (facture.paiements && facture.paiements.length > 0) {
       facture.paiements.forEach(paiement => {
@@ -76,12 +70,10 @@ export const GestionPaiements = ({
         }
       });
     } else if (facture.status === 'payée' && facture.moyenPaiement) {
-      // Pour la rétrocompatibilité avec les factures existantes
       paymentMethods[facture.moyenPaiement as keyof typeof paymentMethods]++;
     }
   });
   
-  // Calculate percentages
   const totalPaidFactures = factures
     .flatMap(f => f.paiements || [])
     .length || factures.filter(f => f.status === 'payée' && f.moyenPaiement).length;
@@ -108,27 +100,29 @@ export const GestionPaiements = ({
     if (!selectedFacture) return;
     
     try {
+      const newPaiement = {
+        id: Date.now().toString(),
+        date: new Date().toISOString().split('T')[0],
+        montant: selectedFacture.montant - (selectedFacture.montantPaye || 0),
+        moyenPaiement: paymentMethod
+      };
+      
+      const paiementsArray = selectedFacture.paiements ? 
+        [...selectedFacture.paiements, newPaiement] : 
+        [newPaiement];
+      
       const { error } = await supabase
         .from('factures')
         .update({ 
           status: 'payée', 
           moyen_paiement: paymentMethod,
           montant_paye: selectedFacture.montant,
-          paiements: [
-            ...(selectedFacture.paiements || []),
-            {
-              id: Date.now().toString(),
-              date: new Date().toISOString().split('T')[0],
-              montant: selectedFacture.montant - (selectedFacture.montantPaye || 0),
-              moyenPaiement: paymentMethod
-            }
-          ]
+          paiements: paiementsArray
         })
         .eq('id', selectedFacture.id);
       
       if (error) throw error;
       
-      // Call the parent function to update the state
       onUpdateStatus(selectedFacture.id, 'payée');
       
       toast({
@@ -174,8 +168,7 @@ export const GestionPaiements = ({
     }
   };
 
-  // Calculer le montant restant à payer
-  const getMontantRestant = (facture: Facture) => {
+  const getMontantRestant = (facture: Facture): number => {
     return facture.montant - (facture.montantPaye || 0);
   };
 
@@ -342,13 +335,12 @@ export const GestionPaiements = ({
         </CardContent>
       </Card>
       
-      {/* Payment Dialog */}
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Enregistrer un paiement</DialogTitle>
             <DialogDescription>
-              Facture {selectedFacture?.id} - {formatMontant(getMontantRestant(selectedFacture || { montant: 0 }))}
+              Facture {selectedFacture?.id} - {selectedFacture ? formatMontant(getMontantRestant(selectedFacture)) : ""}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -388,7 +380,6 @@ export const GestionPaiements = ({
         </DialogContent>
       </Dialog>
 
-      {/* Dialog de paiement partiel */}
       {onPaiementPartiel && (
         <PaiementPartielDialog
           isOpen={showPartialPaymentDialog}

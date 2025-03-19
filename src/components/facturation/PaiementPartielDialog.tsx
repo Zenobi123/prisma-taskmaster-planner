@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -32,7 +31,6 @@ export const PaiementPartielDialog = ({
 
   useEffect(() => {
     if (isOpen && facture) {
-      // Réinitialiser les valeurs
       setSelectedPrestations([]);
       setMontantPaiement(0);
       setMoyenPaiement('especes');
@@ -40,7 +38,6 @@ export const PaiementPartielDialog = ({
     }
   }, [isOpen, facture]);
 
-  // Calculer le montant total des prestations sélectionnées
   useEffect(() => {
     if (!facture) return;
     

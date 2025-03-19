@@ -74,8 +74,18 @@ export const enregistrerPaiementPartiel = async (
     throw fetchError;
   }
   
-  // Récupérer les paiements existants
+  // Récupérer les paiements existants et convertir en format JSON-compatible
   const paiementsExistants = currentFacture.paiements || [];
+  
+  // Conversion du paiement en format JSON pour Supabase
+  const paiementJSON = {
+    id: paiement.id,
+    date: paiement.date,
+    montant: paiement.montant,
+    moyenPaiement: paiement.moyenPaiement,
+    prestationIds: paiement.prestationIds || [],
+    notes: paiement.notes
+  };
   
   // Calculer le nouveau status
   let newStatus: 'payée' | 'partiellement_payée' | 'en_attente' | 'envoyée' = 'en_attente';
@@ -90,7 +100,7 @@ export const enregistrerPaiementPartiel = async (
   const { error: updateError } = await supabase
     .from('factures')
     .update({ 
-      paiements: [...paiementsExistants, paiement],
+      paiements: [...paiementsExistants, paiementJSON],
       montant_paye: nouveauMontantPaye,
       status: newStatus
     })
