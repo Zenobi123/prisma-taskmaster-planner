@@ -13,6 +13,7 @@ import Clients from "./pages/Clients";
 import Gestion from "./pages/Gestion";
 import Missions from "./pages/Missions";
 import Planning from "./pages/Planning";
+import Facturation from "./pages/Facturation";
 import Depenses from "./pages/Depenses";
 import Rapports from "./pages/Rapports";
 
@@ -103,6 +104,14 @@ const App = () => (
               element={
                 <PrivateRoute>
                   <Planning />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/facturation"
+              element={
+                <PrivateRoute>
+                  <Facturation />
                 </PrivateRoute>
               }
             />

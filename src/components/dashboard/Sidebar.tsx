@@ -10,7 +10,8 @@ import {
   Menu, 
   Wallet,
   ChevronRight,
-  FolderOpen
+  FolderOpen,
+  Receipt
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -21,6 +22,7 @@ const menuItems = [
   { path: "/gestion", icon: FolderOpen, label: "Gestion" },
   { path: "/missions", icon: Briefcase, label: "Mission" },
   { path: "/planning", icon: Calendar, label: "Planning" },
+  { path: "/facturation", icon: Receipt, label: "Facturation" },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
   { path: "/rapports", icon: FileText, label: "Rapports" }
 ];
