@@ -1,2 +1,0 @@
-
-export { FacturesManagement } from './FacturesManagement';

@@ -147,66 +147,6 @@ export type Database = {
         }
         Relationships: []
       }
-      factures: {
-        Row: {
-          client_adresse: string
-          client_email: string
-          client_id: string
-          client_nom: string
-          client_telephone: string
-          created_at: string | null
-          date: string
-          echeance: string
-          id: string
-          mode_reglement: string | null
-          montant: number
-          montant_paye: number | null
-          moyen_paiement: string | null
-          notes: string | null
-          paiements: Json | null
-          prestations: Json
-          status: string
-        }
-        Insert: {
-          client_adresse: string
-          client_email: string
-          client_id: string
-          client_nom: string
-          client_telephone: string
-          created_at?: string | null
-          date: string
-          echeance: string
-          id: string
-          mode_reglement?: string | null
-          montant: number
-          montant_paye?: number | null
-          moyen_paiement?: string | null
-          notes?: string | null
-          paiements?: Json | null
-          prestations: Json
-          status: string
-        }
-        Update: {
-          client_adresse?: string
-          client_email?: string
-          client_id?: string
-          client_nom?: string
-          client_telephone?: string
-          created_at?: string | null
-          date?: string
-          echeance?: string
-          id?: string
-          mode_reglement?: string | null
-          montant?: number
-          montant_paye?: number | null
-          moyen_paiement?: string | null
-          notes?: string | null
-          paiements?: Json | null
-          prestations?: Json
-          status?: string
-        }
-        Relationships: []
-      }
       tasks: {
         Row: {
           client_id: string | null
