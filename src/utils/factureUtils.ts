@@ -1,6 +1,6 @@
+
 import { Facture } from "@/types/facture";
 import { getClientData } from "@/services/facture/clientService";
-import { v4 as uuidv4 } from 'uuid';
 
 export const prepareNewInvoice = async (formData: any, factures: Facture[]) => {
   const newId = generateNewInvoiceId(factures);
@@ -62,9 +62,34 @@ export const prepareNewInvoice = async (formData: any, factures: Facture[]) => {
 
 // Helper functions
 const generateNewInvoiceId = (factures: Facture[]) => {
-  // Utiliser UUID à la place d'un compteur incrémental pour éviter les collisions
-  const shortUuid = uuidv4().substring(0, 6);
-  return `F${new Date().getFullYear()}-${shortUuid}`;
+  const currentYear = new Date().getFullYear();
+  const prefix = `F${currentYear}-`;
+  
+  // Filtrer les factures de l'année en cours
+  const currentYearFactures = factures.filter(f => f.id.startsWith(prefix));
+  
+  if (currentYearFactures.length === 0) {
+    // Première facture de l'année
+    return `${prefix}001`;
+  }
+  
+  // Trouver le numéro le plus élevé
+  let maxNumber = 0;
+  currentYearFactures.forEach(facture => {
+    try {
+      const numberPart = facture.id.substring(prefix.length);
+      const number = parseInt(numberPart, 10);
+      if (!isNaN(number) && number > maxNumber) {
+        maxNumber = number;
+      }
+    } catch (e) {
+      console.error("Erreur lors de l'analyse de l'ID de facture:", facture.id);
+    }
+  });
+  
+  // Incrémenter et formater avec des zéros en préfixe
+  const nextNumber = maxNumber + 1;
+  return `${prefix}${nextNumber.toString().padStart(3, '0')}`;
 };
 
 const calculateTotalAmount = (prestations: any[]) => {
