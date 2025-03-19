@@ -31,12 +31,7 @@ describe('factureDelete', () => {
       
       // Configuration du mock pour la suppression
       mockSupabaseDelete.mockReturnValue({
-        data: [{ id: factureId }],
-        error: null,
-        select: jest.fn().mockReturnValue({
-          data: [{ id: factureId }],
-          error: null
-        })
+        error: null
       });
 
       // Exécution
@@ -46,7 +41,7 @@ describe('factureDelete', () => {
       expect(supabaseMock.from).toHaveBeenCalledWith('factures');
       expect(mockSupabaseEq).toHaveBeenCalledWith('id', factureId);
       expect(mockSupabaseDelete).toHaveBeenCalled();
-      expect(result).toEqual([{ id: factureId }]);
+      expect(result).toEqual({ id: factureId });
     });
 
     it('doit lever une erreur si la facture n\'existe pas', async () => {
@@ -75,12 +70,7 @@ describe('factureDelete', () => {
       
       // Configuration du mock pour simuler une erreur lors de la suppression
       mockSupabaseDelete.mockReturnValue({
-        data: null,
-        error: new Error('Erreur lors de la suppression'),
-        select: jest.fn().mockReturnValue({
-          data: null,
-          error: new Error('Erreur lors de la suppression')
-        })
+        error: new Error('Erreur lors de la suppression')
       });
 
       // Vérifier que l'erreur est bien propagée
