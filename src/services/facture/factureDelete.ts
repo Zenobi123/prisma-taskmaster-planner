@@ -6,9 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
  */
 export const deleteFactureFromDB = async (factureId: string) => {
   try {
-    console.log(`Starting deletion operation for facture ${factureId}`);
+    console.log(`Tentative de suppression de la facture ${factureId}`);
     
-    // First check if the facture exists
+    // Première étape : vérifier si la facture existe
     const { data: existingFacture, error: checkError } = await supabase
       .from('factures')
       .select('id')
@@ -16,30 +16,30 @@ export const deleteFactureFromDB = async (factureId: string) => {
       .maybeSingle();
     
     if (checkError) {
-      console.error(`Error checking if facture ${factureId} exists:`, checkError);
+      console.error(`Erreur lors de la vérification de l'existence de la facture ${factureId}:`, checkError);
       throw checkError;
     }
     
     if (!existingFacture) {
-      console.error(`Facture ${factureId} not found`);
-      throw new Error(`Facture ${factureId} not found`);
+      console.error(`Facture ${factureId} introuvable`);
+      throw new Error(`Facture ${factureId} introuvable`);
     }
     
-    // Proceed with deletion as a separate operation
-    const { error } = await supabase
+    // Deuxième étape : supprimer la facture
+    const { error: deleteError } = await supabase
       .from('factures')
       .delete()
       .eq('id', factureId);
     
-    if (error) {
-      console.error(`Error deleting facture ${factureId}:`, error);
-      throw error;
+    if (deleteError) {
+      console.error(`Erreur lors de la suppression de la facture ${factureId}:`, deleteError);
+      throw deleteError;
     }
     
-    console.log(`Successfully deleted facture ${factureId}`);
+    console.log(`Facture ${factureId} supprimée avec succès`);
     return { id: factureId };
   } catch (error) {
-    console.error(`Exception in deleteFactureFromDB for facture ${factureId}:`, error);
+    console.error(`Exception dans deleteFactureFromDB pour la facture ${factureId}:`, error);
     throw error;
   }
 };
