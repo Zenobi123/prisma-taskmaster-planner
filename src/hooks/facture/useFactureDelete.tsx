@@ -27,15 +27,16 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
 
     // Éviter les suppressions simultanées
     if (isDeleting) {
+      console.log("Une opération de suppression est déjà en cours");
       return false;
     }
 
     try {
       // Indiquer que la suppression est en cours
       setIsDeleting(true);
+      console.log(`Suppression de la facture ${factureId} en cours...`);
       
       // Tentative de suppression en base de données
-      console.log(`Suppression de la facture ${factureId} en cours...`);
       await deleteFactureFromDB(factureId);
       
       // Mise à jour de l'état local immédiatement après la suppression réussie

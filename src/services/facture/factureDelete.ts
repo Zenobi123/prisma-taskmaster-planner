@@ -35,18 +35,24 @@ export const deleteFactureFromDB = async (factureId: string) => {
     if (error) {
       console.error(`Supabase error when deleting facture ${factureId}:`, error);
       
-      // Fix the type error by using a properly typed parameter object
-      // The RPC function expects a parameter called "p_facture_id"
-      const { error: rpcError } = await supabase.rpc('force_delete_facture', {
-        p_facture_id: factureId
-      });
+      // The issue is likely that we're trying to use an RPC function that doesn't exist
+      // or has different parameters than what we're sending.
+      // Let's try a more direct approach without using RPC
       
-      if (rpcError) {
-        console.error(`RPC deletion failed for facture ${factureId}:`, rpcError);
-        throw rpcError;
+      console.log(`Attempting alternative deletion method for facture ${factureId}`);
+      
+      // Try a direct delete without using .select() which might be causing issues
+      const { error: directDeleteError } = await supabase
+        .from('factures')
+        .delete()
+        .eq('id', factureId);
+      
+      if (directDeleteError) {
+        console.error(`Direct deletion also failed for facture ${factureId}:`, directDeleteError);
+        throw directDeleteError;
       }
       
-      console.log(`Successfully deleted facture ${factureId} through RPC call`);
+      console.log(`Successfully deleted facture ${factureId} through direct delete`);
       return { id: factureId };
     }
     
