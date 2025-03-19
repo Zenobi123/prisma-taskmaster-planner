@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 export const getStatutClient = (statut: string) => {
   switch (statut) {
     case "à jour":
