@@ -158,7 +158,9 @@ export type Database = {
           date: string
           echeance: string
           id: string
+          mode_reglement: string | null
           montant: number
+          moyen_paiement: string | null
           notes: string | null
           prestations: Json
           status: string
@@ -173,7 +175,9 @@ export type Database = {
           date: string
           echeance: string
           id: string
+          mode_reglement?: string | null
           montant: number
+          moyen_paiement?: string | null
           notes?: string | null
           prestations: Json
           status: string
@@ -188,7 +192,9 @@ export type Database = {
           date?: string
           echeance?: string
           id?: string
+          mode_reglement?: string | null
           montant?: number
+          moyen_paiement?: string | null
           notes?: string | null
           prestations?: Json
           status?: string

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { FacturationHeader } from "@/components/facturation/FacturationHeader";
@@ -190,16 +191,28 @@ const Facturation = () => {
       
       const montantTotal = formData.prestations.reduce((sum: number, p: any) => sum + p.montant, 0);
       
-      const clientNom = clientData.raisonsociale || clientData.nom || "Client sans nom";
-      const clientAdresse = clientData.adresse && typeof clientData.adresse === 'object' ? 
-        clientData.adresse.ville || "Adresse non spécifiée" : 
-        "Adresse non spécifiée";
-      const clientTelephone = clientData.contact && typeof clientData.contact === 'object' ? 
-        clientData.contact.telephone || "Téléphone non spécifié" : 
-        "Téléphone non spécifié";
-      const clientEmail = clientData.contact && typeof clientData.contact === 'object' ? 
-        clientData.contact.email || "Email non spécifié" : 
-        "Email non spécifié";
+      // Get client name correctly based on client type
+      const clientNom = clientData.type === 'physique' 
+        ? clientData.nom || "Client sans nom"
+        : clientData.raisonsociale || "Client sans nom";
+      
+      // Safely extract client address, ensuring proper access to the nested JSON object
+      let clientAdresse = "Adresse non spécifiée";
+      if (clientData.adresse && typeof clientData.adresse === 'object' && 'ville' in clientData.adresse) {
+        clientAdresse = clientData.adresse.ville || "Adresse non spécifiée";
+      }
+      
+      // Safely extract client telephone, ensuring proper access to the nested JSON object
+      let clientTelephone = "Téléphone non spécifié";
+      if (clientData.contact && typeof clientData.contact === 'object' && 'telephone' in clientData.contact) {
+        clientTelephone = clientData.contact.telephone || "Téléphone non spécifié";
+      }
+      
+      // Safely extract client email, ensuring proper access to the nested JSON object
+      let clientEmail = "Email non spécifié";
+      if (clientData.contact && typeof clientData.contact === 'object' && 'email' in clientData.contact) {
+        clientEmail = clientData.contact.email || "Email non spécifié";
+      }
       
       const newFacture = {
         id: newId,
