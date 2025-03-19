@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -13,6 +13,8 @@ import { Prestation } from "@/types/facture";
 import { ClientDateForm } from "./newFacture/ClientDateForm";
 import { PrestationsForm } from "./newFacture/PrestationsForm";
 import { NotesForm } from "./newFacture/NotesForm";
+import { useToast } from "@/components/ui/use-toast";
+import { getClients } from "@/services/clientService";
 
 interface NewFactureDialogProps {
   isOpen: boolean;
@@ -32,15 +34,68 @@ export const NewFactureDialog = ({
     { description: "", montant: 0 }
   ]);
   const [notes, setNotes] = useState("");
+  const { toast } = useToast();
+
+  // Définir les dates par défaut lors de l'ouverture
+  useEffect(() => {
+    if (isOpen) {
+      const today = new Date();
+      const futureDate = new Date();
+      futureDate.setDate(today.getDate() + 30); // Date d'échéance par défaut à 30 jours
+      
+      setDateEmission(today.toISOString().split('T')[0]);
+      setDateEcheance(futureDate.toISOString().split('T')[0]);
+    }
+  }, [isOpen]);
 
   const handleSubmit = () => {
+    // Validation des données
+    if (!clientId) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez sélectionner un client",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!dateEmission) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez définir une date d'émission",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!dateEcheance) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez définir une date d'échéance",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Vérifier qu'il y a au moins une prestation avec description
+    const validPrestations = prestations.filter(p => p.description.trim() !== "");
+    if (validPrestations.length === 0) {
+      toast({
+        title: "Erreur",
+        description: "Veuillez ajouter au moins une prestation avec une description",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const formData = {
       clientId,
       dateEmission,
       dateEcheance,
-      prestations: prestations.filter(p => p.description.trim() !== ""),
+      prestations: validPrestations,
       notes,
     };
+    
     onCreateInvoice(formData);
     resetForm();
   };

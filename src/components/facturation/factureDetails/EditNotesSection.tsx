@@ -13,7 +13,7 @@ export const EditNotesSection = ({ notes, onNotesChange }: EditNotesSectionProps
       <Label htmlFor="notes">Notes</Label>
       <Textarea
         id="notes"
-        value={notes}
+        value={notes || ""}
         onChange={(e) => onNotesChange(e.target.value)}
         placeholder="Notes ou informations supplémentaires..."
         className="min-h-[100px] mt-1"
