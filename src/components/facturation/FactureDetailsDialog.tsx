@@ -18,6 +18,7 @@ interface FactureDetailsDialogProps {
   formatMontant: (montant: number) => string;
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
+  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
 }
 
 export const FactureDetailsDialog = ({
@@ -27,6 +28,7 @@ export const FactureDetailsDialog = ({
   formatMontant,
   onPrintInvoice,
   onDownloadInvoice,
+  onUpdateStatus,
 }: FactureDetailsDialogProps) => {
   if (!selectedFacture) return null;
 
@@ -37,6 +39,7 @@ export const FactureDetailsDialog = ({
           selectedFacture={selectedFacture}
           onPrintInvoice={onPrintInvoice}
           onDownloadInvoice={onDownloadInvoice}
+          onUpdateStatus={onUpdateStatus}
         />
 
         <ScrollArea className="max-h-[60vh] pr-4">

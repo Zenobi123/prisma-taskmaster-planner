@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { FacturationHeader } from "@/components/facturation/FacturationHeader";
 import { FacturationFilters } from "@/components/facturation/FacturationFilters";
@@ -8,11 +8,12 @@ import { FactureDetailsDialog } from "@/components/facturation/FactureDetailsDia
 import { NewFactureDialog } from "@/components/facturation/NewFactureDialog";
 import { useFacturationPermissions } from "@/hooks/useFacturationPermissions";
 import { Facture } from "@/types/facture";
-import { facturesMockData, filterFactures, formatMontant } from "@/data/factureData";
+import { filterFactures, formatMontant } from "@/data/factureData";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { FileText, Wallet, Users } from "lucide-react";
 import { GestionPaiements } from "@/components/facturation/sections/GestionPaiements";
 import { SituationClients } from "@/components/facturation/sections/SituationClients";
+import { supabase } from "@/integrations/supabase/client";
 
 const Facturation = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,12 +23,63 @@ const Facturation = () => {
   const [showDetails, setShowDetails] = useState(false);
   const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("factures");
-  const [factures, setFactures] = useState<Facture[]>(facturesMockData);
+  const [factures, setFactures] = useState<Facture[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
   
-  const { hasPermission, isLoading } = useFacturationPermissions();
+  const { hasPermission, isLoading: permissionsLoading } = useFacturationPermissions();
 
-  if (isLoading) {
+  // Fetch factures from Supabase
+  useEffect(() => {
+    const fetchFactures = async () => {
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('factures')
+          .select('*');
+        
+        if (error) {
+          throw error;
+        }
+        
+        // Map the database data to our Facture interface
+        const mappedFactures: Facture[] = data.map((row: any) => ({
+          id: row.id,
+          client: {
+            id: row.client_id,
+            nom: row.client_nom,
+            adresse: row.client_adresse,
+            telephone: row.client_telephone,
+            email: row.client_email
+          },
+          date: row.date,
+          echeance: row.echeance,
+          montant: Number(row.montant),
+          status: row.status,
+          prestations: Array.isArray(row.prestations) 
+            ? row.prestations 
+            : JSON.parse(row.prestations),
+          notes: row.notes
+        }));
+        
+        setFactures(mappedFactures);
+        console.log("Factures chargées:", mappedFactures);
+      } catch (error) {
+        console.error("Erreur lors du chargement des factures:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les factures.",
+          variant: "destructive"
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchFactures();
+  }, [toast]);
+
+  if (permissionsLoading || isLoading) {
     return (
       <div className="container mx-auto p-6 flex justify-center items-center h-[50vh]">
         <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
@@ -63,48 +115,124 @@ const Facturation = () => {
     // Logique de téléchargement à implémenter
   };
 
-  const handleCreateInvoice = (formData: any) => {
-    // Créer un nouvel ID de facture basé sur le nombre de factures existantes
-    const newFactureId = `F2024-${(factures.length + 1).toString().padStart(3, '0')}`;
-    
-    // Map des noms de clients par ID (normalement ce serait récupéré depuis l'API)
-    const clientNames: Record<string, string> = {
-      "1": "SARL TechPro",
-      "2": "SAS WebDev",
-      "3": "EURL ConseilPlus"
-    };
-    
-    // Créer un objet facture à partir des données du formulaire
-    const newFacture: Facture = {
-      id: newFactureId,
-      client: {
-        id: formData.clientId,
-        nom: clientNames[formData.clientId] || "Nouveau Client",
-        adresse: "Adresse du client",
-        telephone: "Téléphone du client",
-        email: "email@client.com"
-      },
-      date: formData.dateEmission,
-      echeance: formData.dateEcheance,
-      montant: formData.prestations.reduce((sum: number, p: any) => sum + p.montant, 0),
-      status: "en_attente",
-      prestations: formData.prestations,
-      notes: formData.notes
-    };
-    
-    // Ajouter la nouvelle facture à la liste et forcer la mise à jour de l'UI
-    const updatedFactures = [...factures, newFacture];
-    setFactures(updatedFactures);
-    
-    console.log("Nouvelle facture créée:", newFacture);
-    console.log("Liste des factures mise à jour:", updatedFactures);
-    console.log("Nombre de factures:", updatedFactures.length);
-    
-    toast({
-      title: "Facture créée",
-      description: "La nouvelle facture a été créée avec succès.",
-    });
-    setIsNewFactureDialogOpen(false);
+  const handleCreateInvoice = async (formData: any) => {
+    try {
+      // Générer un nouvel ID de facture
+      const newId = `F${new Date().getFullYear()}-${(factures.length + 1).toString().padStart(3, '0')}`;
+      
+      // Récupérer les informations du client
+      const { data: clientData, error: clientError } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('id', formData.clientId)
+        .single();
+        
+      if (clientError) {
+        throw new Error("Client non trouvé");
+      }
+      
+      // Calculer le montant total
+      const montantTotal = formData.prestations.reduce((sum: number, p: any) => sum + p.montant, 0);
+      
+      // Créer l'objet facture pour l'insertion
+      const newFacture = {
+        id: newId,
+        client_id: formData.clientId,
+        client_nom: clientData.raisonsociale || clientData.nom || "Client sans nom",
+        client_adresse: clientData.adresse?.ville || "Adresse non spécifiée",
+        client_telephone: clientData.contact?.telephone || "Téléphone non spécifié",
+        client_email: clientData.contact?.email || "Email non spécifié",
+        date: formData.dateEmission,
+        echeance: formData.dateEcheance,
+        montant: montantTotal,
+        status: 'en_attente',
+        prestations: JSON.stringify(formData.prestations),
+        notes: formData.notes
+      };
+      
+      // Insérer dans la base de données
+      const { error: insertError } = await supabase
+        .from('factures')
+        .insert(newFacture);
+        
+      if (insertError) {
+        throw insertError;
+      }
+      
+      // Créer l'objet facture pour le state local
+      const newFactureForState: Facture = {
+        id: newId,
+        client: {
+          id: formData.clientId,
+          nom: clientData.raisonsociale || clientData.nom || "Client sans nom",
+          adresse: clientData.adresse?.ville || "Adresse non spécifiée",
+          telephone: clientData.contact?.telephone || "Téléphone non spécifié",
+          email: clientData.contact?.email || "Email non spécifié"
+        },
+        date: formData.dateEmission,
+        echeance: formData.dateEcheance,
+        montant: montantTotal,
+        status: 'en_attente',
+        prestations: formData.prestations,
+        notes: formData.notes
+      };
+      
+      // Mettre à jour l'état local
+      setFactures([...factures, newFactureForState]);
+      
+      toast({
+        title: "Facture créée",
+        description: "La nouvelle facture a été créée avec succès.",
+      });
+      
+      setIsNewFactureDialogOpen(false);
+    } catch (error) {
+      console.error("Erreur lors de la création de la facture:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer la facture.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleUpdateStatus = async (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => {
+    try {
+      // Mettre à jour le statut dans la base de données
+      const { error } = await supabase
+        .from('factures')
+        .update({ status: newStatus })
+        .eq('id', factureId);
+        
+      if (error) {
+        throw error;
+      }
+      
+      // Mettre à jour l'état local
+      const updatedFactures = factures.map(facture => 
+        facture.id === factureId 
+          ? { ...facture, status: newStatus } 
+          : facture
+      );
+      
+      setFactures(updatedFactures);
+      
+      if (selectedFacture && selectedFacture.id === factureId) {
+        setSelectedFacture({ ...selectedFacture, status: newStatus });
+      }
+      
+      toast({
+        title: "Statut mis à jour",
+        description: `La facture ${factureId} est maintenant ${newStatus.replace('_', ' ')}.`
+      });
+    } catch (error) {
+      console.error("Erreur lors de la mise à jour du statut:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le statut.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -167,6 +295,7 @@ const Facturation = () => {
             onViewDetails={handleViewDetails}
             onPrintInvoice={handlePrintInvoice}
             onDownloadInvoice={handleDownloadInvoice}
+            onUpdateStatus={handleUpdateStatus}
           />
         </TabsContent>
         
@@ -186,6 +315,7 @@ const Facturation = () => {
         formatMontant={formatMontant}
         onPrintInvoice={handlePrintInvoice}
         onDownloadInvoice={handleDownloadInvoice}
+        onUpdateStatus={handleUpdateStatus}
       />
 
       <NewFactureDialog

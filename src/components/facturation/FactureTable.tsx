@@ -19,6 +19,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 interface FactureTableProps {
   factures: Facture[];
@@ -26,6 +33,7 @@ interface FactureTableProps {
   onViewDetails: (facture: Facture) => void;
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
+  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
 }
 
 export const getStatusBadge = (status: string) => {
@@ -47,6 +55,7 @@ export const FactureTable = ({
   onViewDetails,
   onPrintInvoice,
   onDownloadInvoice,
+  onUpdateStatus,
 }: FactureTableProps) => {
   // Calculer le montant total des factures
   const totalMontant = factures.reduce((sum, facture) => sum + facture.montant, 0);
@@ -91,7 +100,36 @@ export const FactureTable = ({
                     <TableCell className="whitespace-nowrap hidden md:table-cell">{facture.date}</TableCell>
                     <TableCell className="whitespace-nowrap hidden md:table-cell">{facture.echeance}</TableCell>
                     <TableCell className="min-w-32">{formatMontant(facture.montant)}</TableCell>
-                    <TableCell>{getStatusBadge(facture.status)}</TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 p-0 flex items-center gap-1">
+                            {getStatusBadge(facture.status)}
+                            <ChevronDown className="h-3 w-3 opacity-50" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-[160px]">
+                          <DropdownMenuItem 
+                            onClick={() => onUpdateStatus(facture.id, 'en_attente')}
+                            className={facture.status === 'en_attente' ? 'bg-accent text-accent-foreground' : ''}
+                          >
+                            En attente
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => onUpdateStatus(facture.id, 'envoyée')}
+                            className={facture.status === 'envoyée' ? 'bg-accent text-accent-foreground' : ''}
+                          >
+                            Envoyée
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => onUpdateStatus(facture.id, 'payée')}
+                            className={facture.status === 'payée' ? 'bg-accent text-accent-foreground' : ''}
+                          >
+                            Payée
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
                     <TableCell className="text-right">
                       <div className="flex justify-end items-center gap-2">
                         <Button
