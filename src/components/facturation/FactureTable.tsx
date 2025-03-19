@@ -1,7 +1,7 @@
 
 import { Facture } from "@/types/facture";
 import { Badge } from "@/components/ui/badge";
-import { Download, Eye, Printer } from "lucide-react";
+import { Download, Eye, Printer, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -19,6 +19,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface FactureTableProps {
   factures: Facture[];
@@ -26,12 +27,16 @@ interface FactureTableProps {
   onViewDetails: (facture: Facture) => void;
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
+  onDeleteFacture: (factureId: string) => void;
+  isLoading: boolean;
 }
 
 export const getStatusBadge = (status: string) => {
   switch (status) {
     case "payée":
       return <Badge className="bg-green-500 hover:bg-green-600 transition-all duration-300">Payée</Badge>;
+    case "partiellement_payée":
+      return <Badge className="bg-amber-500 hover:bg-amber-600 transition-all duration-300">Partiellement payée</Badge>;
     case "en_attente":
       return <Badge variant="secondary" className="transition-all duration-300">En attente</Badge>;
     case "envoyée":
@@ -47,6 +52,8 @@ export const FactureTable = ({
   onViewDetails,
   onPrintInvoice,
   onDownloadInvoice,
+  onDeleteFacture,
+  isLoading,
 }: FactureTableProps) => {
   // Calculer le montant total des factures
   const totalMontant = factures.reduce((sum, facture) => sum + facture.montant, 0);
@@ -56,7 +63,7 @@ export const FactureTable = ({
       <CardHeader className="pb-2">
         <CardTitle className="text-lg">Liste des factures</CardTitle>
         <CardDescription>
-          {factures.length} facture(s) trouvée(s)
+          {!isLoading && `${factures.length} facture(s) trouvée(s)`}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -74,7 +81,26 @@ export const FactureTable = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {factures.length === 0 ? (
+              {isLoading ? (
+                // Squelette de chargement
+                Array.from({ length: 5 }).map((_, index) => (
+                  <TableRow key={index}>
+                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-32" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-20" /></TableCell>
+                    <TableCell className="hidden md:table-cell"><Skeleton className="h-5 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-24" /></TableCell>
+                    <TableCell><Skeleton className="h-5 w-20" /></TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-2">
+                        <Skeleton className="h-8 w-8" />
+                        <Skeleton className="h-8 w-8 hidden sm:block" />
+                        <Skeleton className="h-8 w-8 hidden sm:block" />
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : factures.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     Aucune facture trouvée
@@ -118,13 +144,24 @@ export const FactureTable = ({
                         >
                           <Download className="w-4 h-4" />
                         </Button>
+                        {/* N'afficher le bouton de suppression que si la facture n'est pas payée */}
+                        {facture.status !== "payée" && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onDeleteFacture(facture.id)}
+                            className="opacity-70 group-hover:opacity-100 transition-all duration-300 text-destructive hidden sm:flex"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
-            {factures.length > 0 && (
+            {factures.length > 0 && !isLoading && (
               <TableFooter>
                 <TableRow>
                   <TableCell colSpan={3} className="font-semibold">Total</TableCell>
