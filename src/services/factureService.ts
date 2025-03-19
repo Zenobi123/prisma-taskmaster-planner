@@ -128,7 +128,7 @@ const mapFacturesFromDB = (data: any[]): Facture[] => {
     status: row.status,
     prestations: Array.isArray(row.prestations) 
       ? row.prestations 
-      : (typeof row.prestations === 'string' ? JSON.parse(row.prestations) : row.prestations || []),
+      : (typeof row.prestations === 'string' ? JSON.parse(row.prestations) : []),
     notes: row.notes,
     modeReglement: row.mode_reglement,
     moyenPaiement: row.moyen_paiement,
