@@ -30,7 +30,8 @@ const Facturation = () => {
     fetchFactures
   } = useFactures();
   const { activeTab, setActiveTab } = useFacturationTabs();
-  const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, periodFilter, setPeriodFilter, filteredFactures } = useFacturationFilters(factures);
+  // Récupérons quand même les factures filtrées
+  const { filteredFactures } = useFacturationFilters(factures);
   const { handlePrintInvoice, handleDownloadInvoice } = useInvoiceActions();
 
   // Vérifie si l'utilisateur est administrateur
@@ -84,6 +85,11 @@ const Facturation = () => {
     );
   }
 
+  // Au démarrage, on s'assure que l'onglet actif est un des onglets disponibles
+  if (activeTab === "factures") {
+    setActiveTab("paiements");
+  }
+
   return (
     <div className="container mx-auto py-8">
       <FacturationHeader 
@@ -94,17 +100,7 @@ const Facturation = () => {
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         factures={factures}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
-        periodFilter={periodFilter}
-        setPeriodFilter={setPeriodFilter}
-        filteredFactures={filteredFactures}
         formatMontant={formatMontant}
-        onViewDetails={handleViewDetails}
-        onPrintInvoice={handlePrintInvoice}
-        onDownloadInvoice={handleDownloadInvoice}
         onUpdateStatus={handleUpdateStatus}
         onEditInvoice={handleEditInvoice}
         onDeleteInvoice={handleDeleteInvoiceRequest}
