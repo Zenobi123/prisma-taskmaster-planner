@@ -22,8 +22,10 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
         }
       }
       
+      // Appeler le service pour supprimer la facture de la base de données
       await deleteFactureFromDB(factureId);
       
+      // Mettre à jour l'état local après suppression
       setFactures(factures.filter(f => f.id !== factureId));
       
       toast({

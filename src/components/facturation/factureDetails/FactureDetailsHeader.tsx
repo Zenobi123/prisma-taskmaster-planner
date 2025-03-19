@@ -1,28 +1,16 @@
 
-import { Facture } from "@/types/facture";
-import { Download, Printer, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { StatusBadge } from "@/components/facturation/table/StatusBadge";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import { DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Download, Pencil, Printer, Trash2 } from "lucide-react";
+import { Facture } from "@/types/facture";
+import { StatusBadge } from "../table/StatusBadge";
 
 interface FactureDetailsHeaderProps {
   selectedFacture: Facture;
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
-  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
-  onEditInvoice?: (facture: Facture) => void;
-  onDeleteInvoice?: (factureId: string) => void;
+  onEditInvoice: (facture: Facture) => void;
+  onDeleteInvoice: (factureId: string) => void;
   isAdmin?: boolean;
 }
 
@@ -30,7 +18,6 @@ export const FactureDetailsHeader = ({
   selectedFacture,
   onPrintInvoice,
   onDownloadInvoice,
-  onUpdateStatus,
   onEditInvoice,
   onDeleteInvoice,
   isAdmin = false,
@@ -41,89 +28,61 @@ export const FactureDetailsHeader = ({
   
   return (
     <DialogHeader>
-      <DialogTitle className="flex items-center justify-between">
-        <span className="flex items-center gap-3">
-          Facture {selectedFacture.id}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 p-0 flex items-center gap-1">
-                <StatusBadge status={selectedFacture.status} />
-                <ChevronDown className="h-3 w-3 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="start" className="w-[160px]">
-              <DropdownMenuItem 
-                onClick={() => onUpdateStatus(selectedFacture.id, 'en_attente')}
-                className={selectedFacture.status === 'en_attente' ? 'bg-accent text-accent-foreground' : ''}
-              >
-                En attente
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => onUpdateStatus(selectedFacture.id, 'envoyée')}
-                className={selectedFacture.status === 'envoyée' ? 'bg-accent text-accent-foreground' : ''}
-              >
-                Envoyée
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => onUpdateStatus(selectedFacture.id, 'payée')}
-                className={selectedFacture.status === 'payée' ? 'bg-accent text-accent-foreground' : ''}
-              >
-                Payée
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </span>
-        <div className="flex items-center gap-2">
-          {onEditInvoice && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => onEditInvoice(selectedFacture)}
-              className="h-8 w-8 transition-transform hover:scale-105"
-              title="Modifier"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-          )}
-          {onDeleteInvoice && (
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => canDelete ? onDeleteInvoice(selectedFacture.id) : undefined}
-              className={`h-8 w-8 transition-transform hover:scale-105 ${
-                canDelete 
-                  ? 'text-red-500 hover:text-red-700 hover:border-red-300'
-                  : 'text-gray-300 cursor-not-allowed hover:scale-100 hover:border-gray-200'
-              }`}
-              title={canDelete ? "Supprimer" : "Seul l'administrateur peut supprimer cette facture"}
-              disabled={!canDelete}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
+      <div className="flex flex-col sm:flex-row justify-between gap-2 sm:items-center">
+        <div>
+          <DialogTitle className="text-lg flex space-x-3 items-center">
+            <span>Facture {selectedFacture.id}</span>
+            <StatusBadge status={selectedFacture.status} />
+          </DialogTitle>
+          <DialogDescription>
+            Client: {selectedFacture.client.nom}
+          </DialogDescription>
+        </div>
+        
+        <div className="flex space-x-2 flex-wrap gap-2">
           <Button
+            size="sm"
             variant="outline"
-            size="icon"
-            onClick={() => onPrintInvoice(selectedFacture.id)}
-            className="h-8 w-8 transition-transform hover:scale-105"
-            title="Imprimer"
+            onClick={() => onEditInvoice(selectedFacture)}
+            className="flex items-center"
           >
-            <Printer className="h-4 w-4" />
+            <Pencil className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">Modifier</span>
           </Button>
+          
           <Button
+            size="sm"
             variant="outline"
-            size="icon"
-            onClick={() => onDownloadInvoice(selectedFacture.id)}
-            className="h-8 w-8 transition-transform hover:scale-105"
-            title="Télécharger"
+            onClick={() => onPrintInvoice(selectedFacture.id)}
+            className="flex items-center"
           >
-            <Download className="h-4 w-4" />
+            <Printer className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">Imprimer</span>
+          </Button>
+          
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => onDownloadInvoice(selectedFacture.id)}
+            className="flex items-center"
+          >
+            <Download className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">Télécharger</span>
+          </Button>
+          
+          <Button
+            size="sm"
+            variant={canDelete ? "destructive" : "outline"}
+            onClick={() => canDelete ? onDeleteInvoice(selectedFacture.id) : undefined}
+            className={`flex items-center ${!canDelete ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={!canDelete}
+            title={canDelete ? "Supprimer" : "Seul l'administrateur peut supprimer cette facture"}
+          >
+            <Trash2 className="w-4 h-4 mr-1" />
+            <span className="hidden sm:inline">Supprimer</span>
           </Button>
         </div>
-      </DialogTitle>
-      <DialogDescription>
-        Détails de la facture du {selectedFacture.date}
-      </DialogDescription>
+      </div>
     </DialogHeader>
   );
 };
