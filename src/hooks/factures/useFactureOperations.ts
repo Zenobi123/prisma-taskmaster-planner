@@ -13,7 +13,7 @@ export const useFactureOperations = (refetchFactures: () => Promise<void>) => {
     setIsLoading(true);
     try {
       await factureService.createFacture(factureData);
-      refetchFactures();
+      await refetchFactures();
       toast({
         title: "Succès",
         description: "La facture a été créée avec succès"
@@ -36,7 +36,7 @@ export const useFactureOperations = (refetchFactures: () => Promise<void>) => {
     setIsLoading(true);
     try {
       await factureService.updateFacture(id, updates);
-      refetchFactures();
+      await refetchFactures();
       if (selectedFacture && selectedFacture.id === id) {
         const updatedFacture = await factureService.getFactureById(id);
         setSelectedFacture(updatedFacture);
@@ -63,7 +63,7 @@ export const useFactureOperations = (refetchFactures: () => Promise<void>) => {
     setIsLoading(true);
     try {
       await factureService.deleteFacture(id);
-      refetchFactures();
+      await refetchFactures();
       if (selectedFacture && selectedFacture.id === id) {
         setSelectedFacture(null);
       }

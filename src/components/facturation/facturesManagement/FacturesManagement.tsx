@@ -14,6 +14,8 @@ import { formatMontant } from "@/data/factureData";
 import { generatePDF } from "@/utils/pdfUtils";
 import { FacturationFilters } from "@/components/facturation/FacturationFilters";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export const FacturesManagement = () => {
   const [showDetails, setShowDetails] = useState(false);
@@ -132,14 +134,24 @@ export const FacturesManagement = () => {
       setPeriodFilter,
     }}>
       <div className="space-y-6">
-        <FacturationFilters
-          searchTerm={searchTerm}
-          setSearchTerm={handleSearchChange}
-          statusFilter={statusFilter}
-          setStatusFilter={handleStatusFilterChange}
-          periodFilter={periodFilter}
-          setPeriodFilter={setPeriodFilter}
-        />
+        <div className="flex justify-between items-center">
+          <FacturationFilters
+            searchTerm={searchTerm}
+            setSearchTerm={handleSearchChange}
+            statusFilter={statusFilter}
+            setStatusFilter={handleStatusFilterChange}
+            periodFilter={periodFilter}
+            setPeriodFilter={setPeriodFilter}
+          />
+          <Button 
+            onClick={() => setIsNewFactureDialogOpen(true)}
+            data-new-facture-trigger
+            className="flex items-center gap-1"
+          >
+            <Plus className="h-4 w-4" />
+            Nouvelle facture
+          </Button>
+        </div>
 
         <FacturesTable
           factures={factures}
