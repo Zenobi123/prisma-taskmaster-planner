@@ -14,7 +14,7 @@ export const NotesForm = ({ notes, setNotes }: NotesFormProps) => {
       <Textarea
         id="notes"
         placeholder="Notes ou informations supplémentaires..."
-        value={notes}
+        value={notes || ""}
         onChange={(e) => setNotes(e.target.value)}
         className="min-h-[80px]"
       />

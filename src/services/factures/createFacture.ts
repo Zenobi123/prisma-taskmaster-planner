@@ -41,10 +41,10 @@ export const createFacture = async (data: {
       
       // Préparer les données client
       clientData = {
-        nom: client.type === 'physique' ? client.nom : client.raisonsociale,
-        adresse: client.adresse?.adresse || '',
-        telephone: client.contact?.telephone || '',
-        email: client.contact?.email || ''
+        nom: client.raisonsociale || client.nom || '',
+        adresse: client.adresse ? (client.adresse as any).adresse || '' : '',
+        telephone: client.contact ? (client.contact as any).telephone || '' : '',
+        email: client.contact ? (client.contact as any).email || '' : ''
       };
     }
     
