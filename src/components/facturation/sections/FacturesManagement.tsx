@@ -8,8 +8,6 @@ import { FacturationHeader } from "@/components/facturation/FacturationHeader";
 import { FacturationFilters } from "@/components/facturation/FacturationFilters";
 import { NewFactureDialog } from "@/components/facturation/NewFactureDialog";
 import { PaiementDialog } from "@/components/facturation/PaiementDialog";
-import { deleteFacture } from "@/services/facture/factureDelete";
-import { enregistrerPaiement } from "@/services/facture/factureUpdate";
 
 // Ce composant gère l'affichage et la manipulation des factures
 // - Créer de nouvelles factures
@@ -35,7 +33,14 @@ export const FacturesManagement = () => {
   });
 
   // Hook personnalisé pour récupérer les factures avec filtres
-  const { data, isLoading, refetch } = useFactures({
+  const { 
+    factures, 
+    totalCount, 
+    isLoading, 
+    refetch,
+    handleDeleteInvoice,
+    handlePaiementPartiel
+  } = useFactures({
     page: currentPage,
     pageSize: 10,
     status: filters.status || undefined,
@@ -45,50 +50,10 @@ export const FacturesManagement = () => {
     q: searchTerm || undefined
   });
 
-  // Gestionnaire pour supprimer une facture
-  const handleDeleteFacture = async (id: string) => {
-    try {
-      await deleteFacture(id);
-      toast({
-        title: "Facture supprimée",
-        description: "La facture a été supprimée avec succès.",
-      });
-      refetch();
-    } catch (error) {
-      console.error("Erreur lors de la suppression:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de supprimer cette facture.",
-      });
-    }
-  };
-
   // Gestionnaire pour ouvrir le dialog de paiement
   const handlePaiementClick = (facture: Facture) => {
     setSelectedFacture(facture);
     setIsPaiementOpen(true);
-  };
-
-  // Gestionnaire pour enregistrer un paiement
-  const handlePaiementSubmit = async (factureId: string, paiement: any) => {
-    try {
-      const updatedFacture = await enregistrerPaiement(factureId, paiement);
-      toast({
-        title: "Paiement enregistré",
-        description: `Paiement de ${paiement.montant.toLocaleString()} FCFA enregistré avec succès.`,
-      });
-      refetch();
-      return updatedFacture;
-    } catch (error) {
-      console.error("Erreur lors de l'enregistrement du paiement:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible d'enregistrer ce paiement.",
-      });
-      throw error;
-    }
   };
 
   return (
@@ -116,12 +81,12 @@ export const FacturesManagement = () => {
         </div>
       ) : (
         <FacturesTable
-          factures={data?.data || []}
-          totalCount={data?.count || 0}
+          factures={factures || []}
+          totalCount={totalCount || 0}
           currentPage={currentPage}
           pageSize={10}
           onPageChange={setCurrentPage}
-          onDeleteInvoice={handleDeleteFacture}
+          onDeleteInvoice={handleDeleteInvoice}
           onPaiementClick={handlePaiementClick}
         />
       )}
@@ -130,7 +95,7 @@ export const FacturesManagement = () => {
       <NewFactureDialog
         isOpen={isNewFactureOpen}
         onOpenChange={setIsNewFactureOpen}
-        onSuccess={() => {
+        onCreated={() => {
           refetch();
           setIsNewFactureOpen(false);
         }}
@@ -141,7 +106,7 @@ export const FacturesManagement = () => {
         facture={selectedFacture}
         isOpen={isPaiementOpen}
         onOpenChange={setIsPaiementOpen}
-        onPaiement={handlePaiementSubmit}
+        onPaiement={handlePaiementPartiel}
       />
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -23,7 +22,8 @@ import { FactureInfoCards } from "@/components/facturation/factureDetails/Factur
 import { PrestationsTable } from "@/components/facturation/factureDetails/PrestationsTable";
 import { PaymentHistoryTable } from "@/components/facturation/factureDetails/PaymentHistoryTable";
 import { InvoiceNotes } from "@/components/facturation/factureDetails/InvoiceNotes";
-import { Facture } from "@/types/facture";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
 
 const FactureDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -170,6 +170,3 @@ const FactureDetails = () => {
 };
 
 export default FactureDetails;
-
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";

@@ -8,8 +8,12 @@ export interface Client {
 }
 
 export interface Prestation {
+  id?: string;
   description: string;
   montant: number;
+  quantite?: number;
+  estPaye?: boolean;
+  datePaiement?: string;
 }
 
 export type FactureStatus = "non_paye" | "partiellement_paye" | "paye";
@@ -19,6 +23,7 @@ export interface Paiement {
   montant: number;
   mode: string;
   reference?: string;
+  notes?: string;
 }
 
 export interface Facture {

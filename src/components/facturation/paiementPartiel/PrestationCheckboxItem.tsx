@@ -21,23 +21,24 @@ export const PrestationCheckboxItem = ({
   formatMontant
 }: PrestationCheckboxItemProps) => {
   const isPayee = !!prestation.estPaye;
+  const prestationId = prestation.id || index.toString();
 
   return (
     <div className="flex items-start space-x-3 p-2 rounded bg-muted/30">
       <Checkbox 
-        id={`prestation-${prestation.id || index}`}
+        id={`prestation-${prestationId}`}
         checked={isSelected}
-        onCheckedChange={() => onToggle(prestation.id)}
+        onCheckedChange={() => onToggle(prestationId)}
         disabled={isDisabled}
         className="mt-1"
       />
       <div className="flex-1 space-y-1">
         <Label 
-          htmlFor={`prestation-${prestation.id || index}`}
+          htmlFor={`prestation-${prestationId}`}
           className={`${isPayee ? 'line-through text-muted-foreground' : ''}`}
         >
           {prestation.description}
-          {isPayee && (
+          {isPayee && prestation.datePaiement && (
             <span className="ml-2 text-xs text-green-600 font-medium">
               (Payé le {prestation.datePaiement})
             </span>

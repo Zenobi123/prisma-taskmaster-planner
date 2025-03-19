@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Facture, Paiement } from "@/types/facture";
-import { v4 as uuidv4 } from "uuid";
 import { PrestationsSelectionList } from "./PrestationsSelectionList";
 import { PaiementFormControls } from "./PaiementFormControls";
 
@@ -69,7 +68,6 @@ export const PaiementPartielDialog = ({
       date: new Date().toISOString().split('T')[0],
       montant: montantPaiement,
       mode: moyenPaiement,
-      prestationIds: selectedPrestations,
       notes: notes || undefined
     };
     

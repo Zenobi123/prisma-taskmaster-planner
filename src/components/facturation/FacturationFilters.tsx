@@ -20,21 +20,30 @@ import { Calendar as CalendarIcon, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchClients } from "@/services/facture/clientService";
 
-interface FacturationFiltersProps {
-  onStatusChange: (status: string | undefined) => void;
-  onClientChange: (clientId: string | undefined) => void;
-  onDateChange: (dateDebut: string | undefined, dateFin: string | undefined) => void;
+interface FilterValues {
+  status: string;
+  clientId: string;
+  dateDebut: string;
+  dateFin: string;
+}
+
+export interface FacturationFiltersProps {
+  filters: FilterValues;
+  onFilterChange: (filters: FilterValues) => void;
 }
 
 export const FacturationFilters = ({
-  onStatusChange,
-  onClientChange,
-  onDateChange
+  filters,
+  onFilterChange
 }: FacturationFiltersProps) => {
-  const [status, setStatus] = useState<string | undefined>(undefined);
-  const [clientId, setClientId] = useState<string | undefined>(undefined);
-  const [dateDebut, setDateDebut] = useState<Date | undefined>(undefined);
-  const [dateFin, setDateFin] = useState<Date | undefined>(undefined);
+  const [status, setStatus] = useState<string>(filters.status);
+  const [clientId, setClientId] = useState<string>(filters.clientId);
+  const [dateDebut, setDateDebut] = useState<Date | undefined>(
+    filters.dateDebut ? new Date(filters.dateDebut) : undefined
+  );
+  const [dateFin, setDateFin] = useState<Date | undefined>(
+    filters.dateFin ? new Date(filters.dateFin) : undefined
+  );
 
   // Récupération de la liste des clients
   const { data: clients = [] } = useQuery({
@@ -58,23 +67,19 @@ export const FacturationFilters = ({
 
   // Transmission des filtres au composant parent
   useEffect(() => {
-    onStatusChange(status);
-  }, [status, onStatusChange]);
-
-  useEffect(() => {
-    onClientChange(clientId);
-  }, [clientId, onClientChange]);
-
-  useEffect(() => {
-    const debutStr = dateDebut ? format(dateDebut, 'yyyy-MM-dd') : undefined;
-    const finStr = dateFin ? format(dateFin, 'yyyy-MM-dd') : undefined;
-    onDateChange(debutStr, finStr);
-  }, [dateDebut, dateFin, onDateChange]);
+    const newFilters = {
+      status,
+      clientId,
+      dateDebut: dateDebut ? format(dateDebut, 'yyyy-MM-dd') : '',
+      dateFin: dateFin ? format(dateFin, 'yyyy-MM-dd') : ''
+    };
+    onFilterChange(newFilters);
+  }, [status, clientId, dateDebut, dateFin, onFilterChange]);
 
   // Réinitialisation des filtres
   const handleReset = () => {
-    setStatus(undefined);
-    setClientId(undefined);
+    setStatus('');
+    setClientId('');
     setDateDebut(undefined);
     setDateFin(undefined);
   };
@@ -89,7 +94,7 @@ export const FacturationFilters = ({
           <SelectValue placeholder="Statut" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="tous">Tous les statuts</SelectItem>
+          <SelectItem value="">Tous les statuts</SelectItem>
           <SelectItem value="non_paye">Non payé</SelectItem>
           <SelectItem value="partiellement_paye">Partiellement payé</SelectItem>
           <SelectItem value="paye">Payé</SelectItem>
@@ -104,7 +109,7 @@ export const FacturationFilters = ({
           <SelectValue placeholder="Client" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="tous">Tous les clients</SelectItem>
+          <SelectItem value="">Tous les clients</SelectItem>
           {clients.map(client => (
             <SelectItem key={client.id} value={client.id}>
               {client.nom}

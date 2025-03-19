@@ -16,13 +16,13 @@ import { PaymentHistoryTable } from "@/components/facturation/factureDetails/Pay
 export const PaiementsManagement = () => {
   // États locaux
   const [clientId, setClientId] = useState<string | undefined>(undefined);
-  const [status, setStatus] = useState<string | undefined>(undefined);
+  const [status, setStatus] = useState<string | undefined>("non_paye");
   const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
   const [isPaiementDialogOpen, setIsPaiementDialogOpen] = useState(false);
 
   // Récupération des factures
   const { 
-    factures, 
+    factures,
     isLoading,
     updateParams,
     handlePaiementPartiel
