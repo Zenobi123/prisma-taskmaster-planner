@@ -3,8 +3,8 @@ export interface Prestation {
   id?: string;
   description: string;
   montant: number;
-  quantite?: number;
-  taux?: number;
+  quantite: number;
+  prix_unitaire: number;
   estPaye?: boolean;
   datePaiement?: string;
 }

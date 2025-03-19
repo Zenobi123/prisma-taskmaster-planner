@@ -59,6 +59,13 @@ export const createFacture = async (data: {
       return sum + (item.montant || 0);
     }, 0);
 
+    // Assurer que les prestations ont des valeurs pour quantité et prix unitaire
+    const prestationsFormatees = data.prestations.map(p => ({
+      ...p,
+      quantite: p.quantite || 1,
+      prix_unitaire: p.prix_unitaire || p.montant,
+    }));
+
     // S'assurer que toutes les propriétés requises sont définies
     const newFacture = {
       id: factureId,
@@ -69,7 +76,7 @@ export const createFacture = async (data: {
       client_email: clientData.email,
       date: data.dateEmission,
       echeance: data.dateEcheance,
-      prestations: data.prestations as unknown as Json,
+      prestations: prestationsFormatees as unknown as Json,
       montant: montantTotal,
       status: 'en_attente',
       notes: data.notes || null

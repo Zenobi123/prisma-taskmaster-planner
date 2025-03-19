@@ -31,7 +31,7 @@ export const NewFactureDialog = ({
   const [dateEmission, setDateEmission] = useState("");
   const [dateEcheance, setDateEcheance] = useState("");
   const [prestations, setPrestations] = useState<Prestation[]>([
-    { description: "", montant: 0 }
+    { description: "", montant: 0, quantite: 1, prix_unitaire: 0 }
   ]);
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -132,7 +132,7 @@ export const NewFactureDialog = ({
     
     setDateEmission(today.toISOString().split('T')[0]);
     setDateEcheance(futureDate.toISOString().split('T')[0]);
-    setPrestations([{ description: "", montant: 0 }]);
+    setPrestations([{ description: "", montant: 0, quantite: 1, prix_unitaire: 0 }]);
     setNotes("");
   };
 

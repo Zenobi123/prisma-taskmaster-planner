@@ -15,24 +15,38 @@ export const PrestationsForm = ({
   setPrestations,
 }: PrestationsFormProps) => {
   const handleAddPrestation = () => {
-    setPrestations([...prestations, { description: "", montant: 0 }]);
+    setPrestations([...prestations, { description: "", montant: 0, quantite: 1, prix_unitaire: 0 }]);
   };
 
   const handleRemovePrestation = (index: number) => {
     setPrestations(prestations.filter((_, i) => i !== index));
   };
 
-  const handleMontantChange = (index: number, value: string) => {
-    const newPrestations = [...prestations];
-    // Convert string to number, remove non-numeric characters
-    const numericValue = value.replace(/[^0-9]/g, "");
-    newPrestations[index].montant = numericValue ? parseInt(numericValue, 10) : 0;
-    setPrestations(newPrestations);
-  };
-
   const handleDescriptionChange = (index: number, value: string) => {
     const newPrestations = [...prestations];
     newPrestations[index].description = value;
+    setPrestations(newPrestations);
+  };
+
+  const handleQuantiteChange = (index: number, value: string) => {
+    const newPrestations = [...prestations];
+    // Convert string to number, remove non-numeric characters
+    const numericValue = value.replace(/[^0-9]/g, "");
+    const quantity = numericValue ? parseInt(numericValue, 10) : 1;
+    newPrestations[index].quantite = quantity;
+    // Recalculate total amount
+    newPrestations[index].montant = quantity * newPrestations[index].prix_unitaire;
+    setPrestations(newPrestations);
+  };
+
+  const handlePrixUnitaireChange = (index: number, value: string) => {
+    const newPrestations = [...prestations];
+    // Convert string to number, remove non-numeric characters
+    const numericValue = value.replace(/[^0-9]/g, "");
+    const prixUnitaire = numericValue ? parseInt(numericValue, 10) : 0;
+    newPrestations[index].prix_unitaire = prixUnitaire;
+    // Recalculate total amount
+    newPrestations[index].montant = prixUnitaire * newPrestations[index].quantite;
     setPrestations(newPrestations);
   };
 
@@ -67,12 +81,28 @@ export const PrestationsForm = ({
                 className="w-full"
               />
             </div>
+            <div className="w-1/6">
+              <Input
+                placeholder="Quantité"
+                value={prestation.quantite || 1}
+                onChange={(e) => handleQuantiteChange(index, e.target.value)}
+                className="w-full text-right"
+              />
+            </div>
+            <div className="w-1/4">
+              <Input
+                placeholder="Prix unitaire (FCFA)"
+                value={prestation.prix_unitaire ? prestation.prix_unitaire.toLocaleString() : ""}
+                onChange={(e) => handlePrixUnitaireChange(index, e.target.value)}
+                className="w-full text-right"
+              />
+            </div>
             <div className="w-1/4">
               <Input
                 placeholder="Montant (FCFA)"
                 value={prestation.montant ? prestation.montant.toLocaleString() : ""}
-                onChange={(e) => handleMontantChange(index, e.target.value)}
-                className="w-full text-right"
+                readOnly
+                className="w-full text-right bg-gray-50"
               />
             </div>
             {prestations.length > 1 && (

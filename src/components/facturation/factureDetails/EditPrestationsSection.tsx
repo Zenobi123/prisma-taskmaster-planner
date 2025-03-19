@@ -31,12 +31,44 @@ export const EditPrestationsSection = ({
                 className="w-full"
               />
             </div>
+            <div className="w-1/6">
+              <Input
+                placeholder="Quantité"
+                value={prestation.quantite || 1}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9]/g, "");
+                  const quantite = value ? parseInt(value, 10) : 1;
+                  onPrestationChange(index, 'quantite', quantite);
+                  // Update montant based on new quantity
+                  if (prestation.prix_unitaire) {
+                    onPrestationChange(index, 'montant', quantite * prestation.prix_unitaire);
+                  }
+                }}
+                className="w-full text-right"
+              />
+            </div>
+            <div className="w-1/4">
+              <Input
+                placeholder="Prix unitaire (FCFA)"
+                value={prestation.prix_unitaire ? prestation.prix_unitaire.toLocaleString() : ""}
+                onChange={(e) => {
+                  const value = e.target.value.replace(/[^0-9]/g, "");
+                  const prixUnitaire = value ? parseInt(value, 10) : 0;
+                  onPrestationChange(index, 'prix_unitaire', prixUnitaire);
+                  // Update montant based on new unit price
+                  if (prestation.quantite) {
+                    onPrestationChange(index, 'montant', prixUnitaire * prestation.quantite);
+                  }
+                }}
+                className="w-full text-right"
+              />
+            </div>
             <div className="w-1/4">
               <Input
                 placeholder="Montant (FCFA)"
                 value={prestation.montant ? prestation.montant.toLocaleString() : ""}
-                onChange={(e) => onPrestationChange(index, 'montant', e.target.value)}
-                className="w-full text-right"
+                readOnly
+                className="w-full text-right bg-gray-50"
               />
             </div>
             {prestations.length > 1 && (

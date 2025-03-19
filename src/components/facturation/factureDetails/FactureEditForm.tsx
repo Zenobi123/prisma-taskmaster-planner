@@ -21,10 +21,17 @@ export const FactureEditForm = ({
   isLoading,
 }: FactureEditFormProps) => {
   const [editNotes, setEditNotes] = useState(selectedFacture.notes || "");
-  const [editPrestations, setEditPrestations] = useState<Prestation[]>([...selectedFacture.prestations]);
+  const [editPrestations, setEditPrestations] = useState<Prestation[]>(
+    selectedFacture.prestations.map(p => ({
+      ...p,
+      // Ensure quantite and prix_unitaire are set
+      quantite: p.quantite || 1,
+      prix_unitaire: p.prix_unitaire || p.montant
+    }))
+  );
 
   const handleAddPrestation = () => {
-    setEditPrestations([...editPrestations, { description: "", montant: 0 }]);
+    setEditPrestations([...editPrestations, { description: "", montant: 0, quantite: 1, prix_unitaire: 0 }]);
   };
 
   const handleRemovePrestation = (index: number) => {
@@ -34,12 +41,13 @@ export const FactureEditForm = ({
   const handlePrestationChange = (index: number, field: keyof Prestation, value: string | number) => {
     const newPrestations = [...editPrestations];
     
+    // Handle different field types
     if (field === 'montant' && typeof value === 'string') {
-      // Convertir la chaîne en nombre, supprimer les caractères non numériques
+      // Convert string to number, remove non-numeric characters
       const numericValue = value.replace(/[^0-9]/g, "");
       newPrestations[index].montant = numericValue ? parseInt(numericValue, 10) : 0;
     } else {
-      // Utiliser une assertion de type pour gérer différents types de valeurs
+      // Use type assertion for different field types
       (newPrestations[index][field] as any) = value;
     }
     
@@ -47,12 +55,12 @@ export const FactureEditForm = ({
   };
 
   const handleSaveChanges = async () => {
-    // Calculer le nouveau montant total
+    // Calculate the new total amount
     const montantTotal = editPrestations.reduce((sum, item) => {
       return sum + (item.montant || 0);
     }, 0);
     
-    // Créer l'objet de mise à jour avec le bon type
+    // Create the update object
     const updates: Partial<Facture> = {
       prestations: editPrestations,
       notes: editNotes,
