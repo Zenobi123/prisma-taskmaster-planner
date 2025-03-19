@@ -70,30 +70,40 @@ const generateNewInvoiceId = (factures: Facture[]) => {
   
   if (currentYearFactures.length === 0) {
     // Première facture de l'année
+    console.log(`Aucune facture trouvée pour l'année ${currentYear}, création de la première: ${prefix}001`);
     return `${prefix}001`;
   }
   
-  // Trouver le numéro le plus élevé parmi les ID valides (format F2025-001, F2025-002, etc.)
-  let maxNumber = 0;
+  // Définir un pattern strict pour les ID de factures (ex: F2025-001)
   const pattern = new RegExp(`^${prefix}(\\d{3})$`);
+  let maxNumber = 0;
   
+  // Analyser chaque facture pour trouver le numéro le plus élevé
   currentYearFactures.forEach(facture => {
-    try {
-      const match = facture.id.match(pattern);
-      if (match && match[1]) {
-        const number = parseInt(match[1], 10);
-        if (!isNaN(number) && number > maxNumber) {
-          maxNumber = number;
-        }
+    if (!facture.id) return;
+    
+    console.log(`Analyse de l'ID de facture: ${facture.id}`);
+    const match = facture.id.match(pattern);
+    
+    if (match && match[1]) {
+      const number = parseInt(match[1], 10);
+      console.log(`  - Numéro extrait: ${number}`);
+      
+      if (!isNaN(number) && number > maxNumber) {
+        maxNumber = number;
+        console.log(`  - Nouveau maximum: ${maxNumber}`);
       }
-    } catch (e) {
-      console.error("Erreur lors de l'analyse de l'ID de facture:", facture.id);
+    } else {
+      console.log(`  - Format non reconnu pour l'ID: ${facture.id}`);
     }
   });
   
   // Incrémenter et formater avec des zéros en préfixe
   const nextNumber = maxNumber + 1;
-  return `${prefix}${nextNumber.toString().padStart(3, '0')}`;
+  const newId = `${prefix}${nextNumber.toString().padStart(3, '0')}`;
+  console.log(`Génération d'un nouvel ID de facture: ${newId} (basé sur maxNumber=${maxNumber})`);
+  
+  return newId;
 };
 
 const calculateTotalAmount = (prestations: any[]) => {

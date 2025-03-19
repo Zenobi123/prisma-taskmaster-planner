@@ -40,12 +40,17 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
       await deleteFactureFromDB(factureId);
       
       // Mise à jour de l'état local immédiatement après la suppression réussie
-      setFactures(prevFactures => prevFactures.filter(f => f.id !== factureId));
+      console.log(`Mise à jour de l'état local après suppression de ${factureId}`);
+      setFactures(prevFactures => {
+        const newFactures = prevFactures.filter(f => f.id !== factureId);
+        console.log(`Nouvelles factures (${newFactures.length} vs précédent ${prevFactures.length})`);
+        return newFactures;
+      });
       
       // Notification de succès
       toast({
         title: "Facture supprimée",
-        description: `La facture a été supprimée avec succès.`
+        description: `La facture ${factureId} a été supprimée avec succès.`
       });
       
       return true;
