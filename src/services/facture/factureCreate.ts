@@ -7,6 +7,23 @@ import { supabase } from "@/integrations/supabase/client";
 export const createFactureInDB = async (newFacture: any) => {
   try {
     console.log("Creating new facture:", newFacture.id);
+    
+    // Vérifier si une facture avec cet ID existe déjà
+    const { data: existingFacture, error: checkError } = await supabase
+      .from('factures')
+      .select('id')
+      .eq('id', newFacture.id)
+      .maybeSingle();
+      
+    if (checkError) {
+      console.error("Error checking for existing facture:", checkError);
+      throw checkError;
+    }
+    
+    if (existingFacture) {
+      throw new Error(`Une facture avec l'identifiant ${newFacture.id} existe déjà.`);
+    }
+    
     const { data, error } = await supabase
       .from('factures')
       .insert(newFacture)

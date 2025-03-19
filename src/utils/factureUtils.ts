@@ -1,6 +1,6 @@
-
 import { Facture } from "@/types/facture";
 import { getClientData } from "@/services/facture/clientService";
+import { v4 as uuidv4 } from 'uuid';
 
 export const prepareNewInvoice = async (formData: any, factures: Facture[]) => {
   const newId = generateNewInvoiceId(factures);
@@ -62,7 +62,9 @@ export const prepareNewInvoice = async (formData: any, factures: Facture[]) => {
 
 // Helper functions
 const generateNewInvoiceId = (factures: Facture[]) => {
-  return `F${new Date().getFullYear()}-${(factures.length + 1).toString().padStart(3, '0')}`;
+  // Utiliser UUID à la place d'un compteur incrémental pour éviter les collisions
+  const shortUuid = uuidv4().substring(0, 6);
+  return `F${new Date().getFullYear()}-${shortUuid}`;
 };
 
 const calculateTotalAmount = (prestations: any[]) => {
