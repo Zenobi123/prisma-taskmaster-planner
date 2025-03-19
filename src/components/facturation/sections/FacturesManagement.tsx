@@ -60,8 +60,7 @@ export const FacturesManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Gestion des factures</h2>
+      <div className="flex justify-end">
         <Button 
           onClick={() => setIsNewFactureDialogOpen(true)}
           className="flex items-center gap-2"
