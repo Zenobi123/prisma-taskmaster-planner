@@ -45,7 +45,7 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
       // Notification de succès
       toast({
         title: "Facture supprimée",
-        description: `La facture ${factureId} a été supprimée avec succès.`
+        description: `La facture a été supprimée avec succès.`
       });
       
       return true;

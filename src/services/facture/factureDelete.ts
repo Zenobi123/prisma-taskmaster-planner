@@ -25,39 +25,19 @@ export const deleteFactureFromDB = async (factureId: string) => {
       throw new Error(`Facture ${factureId} not found`);
     }
     
-    // Proceed with deletion - force delete with RPC call if regular delete fails
-    const { data, error } = await supabase
+    // Proceed with deletion
+    const { error } = await supabase
       .from('factures')
       .delete()
-      .eq('id', factureId)
-      .select();
+      .eq('id', factureId);
     
     if (error) {
-      console.error(`Supabase error when deleting facture ${factureId}:`, error);
-      
-      // The issue is likely that we're trying to use an RPC function that doesn't exist
-      // or has different parameters than what we're sending.
-      // Let's try a more direct approach without using RPC
-      
-      console.log(`Attempting alternative deletion method for facture ${factureId}`);
-      
-      // Try a direct delete without using .select() which might be causing issues
-      const { error: directDeleteError } = await supabase
-        .from('factures')
-        .delete()
-        .eq('id', factureId);
-      
-      if (directDeleteError) {
-        console.error(`Direct deletion also failed for facture ${factureId}:`, directDeleteError);
-        throw directDeleteError;
-      }
-      
-      console.log(`Successfully deleted facture ${factureId} through direct delete`);
-      return { id: factureId };
+      console.error(`Error deleting facture ${factureId}:`, error);
+      throw error;
     }
     
-    console.log(`Result of deletion for facture ${factureId}:`, data);
-    return data;
+    console.log(`Successfully deleted facture ${factureId}`);
+    return { id: factureId };
   } catch (error) {
     console.error(`Exception in deleteFactureFromDB for facture ${factureId}:`, error);
     throw error;
