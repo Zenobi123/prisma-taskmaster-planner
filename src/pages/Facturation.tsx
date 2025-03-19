@@ -12,15 +12,20 @@ import { useFacturationFilters } from "@/hooks/useFacturationFilters";
 import { useInvoiceActions } from "@/utils/invoiceActions";
 import { Facture } from "@/types/facture";
 import { FactureDetailsManager } from "@/components/facturation/FactureDetailsManager";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const Facturation = () => {
   const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [factureToDelete, setFactureToDelete] = useState<string | null>(null);
+  const [isBulkDelete, setIsBulkDelete] = useState(false);
+  const { toast } = useToast();
   
   const { hasPermission, isLoading: permissionsLoading, collaborateur } = useFacturationPermissions();
-  const { factures, isLoading, handleUpdateStatus, handleDeleteInvoice, handleCreateInvoice, handlePaiementPartiel } = useFactures();
+  const { factures, isLoading, handleUpdateStatus, handleDeleteInvoice, handleCreateInvoice, handlePaiementPartiel, deleteNonUserCreatedInvoices } = useFactures();
   const { activeTab, setActiveTab } = useFacturationTabs();
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, periodFilter, setPeriodFilter, filteredFactures } = useFacturationFilters(factures);
   const { handlePrintInvoice, handleDownloadInvoice } = useInvoiceActions();
@@ -37,6 +42,21 @@ const Facturation = () => {
 
   const handleDeleteInvoiceRequest = (factureId: string) => {
     setFactureToDelete(factureId);
+    setIsBulkDelete(false);
+    setIsDeleteConfirmOpen(true);
+  };
+  
+  const handleBulkDeleteRequest = () => {
+    if (!isAdmin) {
+      toast({
+        title: "Accès refusé",
+        description: "Seul l'administrateur peut supprimer en masse les factures.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsBulkDelete(true);
     setIsDeleteConfirmOpen(true);
   };
 
@@ -47,7 +67,7 @@ const Facturation = () => {
     onUpdateStatus: handleUpdateStatus,
     onEditInvoice: handleEditInvoice,
     onDeleteInvoice: handleDeleteInvoiceRequest,
-    isAdmin: isAdmin, // S'assurer que le statut d'admin est passé ici
+    isAdmin: isAdmin,
   });
 
   if (permissionsLoading || isLoading) {
@@ -59,20 +79,36 @@ const Facturation = () => {
   }
 
   const confirmDeleteInvoice = async () => {
-    if (!factureToDelete) return;
-    
-    // Passer explicitement le statut d'admin lors de la suppression
-    const success = await handleDeleteInvoice(factureToDelete, isAdmin);
-    
-    if (success) {
+    if (isBulkDelete) {
+      await deleteNonUserCreatedInvoices();
       setIsDeleteConfirmOpen(false);
-      factureDetailsManager.setShowDetails(false);
+    } else if (factureToDelete) {
+      const success = await handleDeleteInvoice(factureToDelete, isAdmin);
+      
+      if (success) {
+        setIsDeleteConfirmOpen(false);
+        factureDetailsManager.setShowDetails(false);
+      }
     }
   };
 
   return (
     <div className="container mx-auto p-4 md:p-6 animate-fade-in">
-      <FacturationHeader onNewFactureClick={() => setIsNewFactureDialogOpen(true)} />
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6">
+        <FacturationHeader onNewFactureClick={() => setIsNewFactureDialogOpen(true)} />
+        
+        {isAdmin && (
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            className="mt-4 md:mt-0 flex items-center gap-2"
+            onClick={handleBulkDeleteRequest}
+          >
+            <Trash2 className="h-4 w-4" />
+            Supprimer toutes les factures
+          </Button>
+        )}
+      </div>
       
       <FacturationTabs
         activeTab={activeTab}
@@ -93,7 +129,7 @@ const Facturation = () => {
         onEditInvoice={handleEditInvoice}
         onDeleteInvoice={handleDeleteInvoiceRequest}
         onPaiementPartiel={handlePaiementPartiel}
-        isAdmin={isAdmin} // S'assurer que le statut d'admin est passé ici
+        isAdmin={isAdmin}
       />
 
       {factureDetailsManager.detailsDialog}
@@ -108,6 +144,10 @@ const Facturation = () => {
         isOpen={isDeleteConfirmOpen}
         onOpenChange={setIsDeleteConfirmOpen}
         onConfirm={confirmDeleteInvoice}
+        title={isBulkDelete ? "Supprimer toutes les factures" : "Confirmer la suppression"}
+        description={isBulkDelete 
+          ? "Êtes-vous sûr de vouloir supprimer toutes les factures ? Cette action est irréversible." 
+          : "Êtes-vous sûr de vouloir supprimer cette facture ? Cette action est irréversible."}
       />
     </div>
   );

@@ -37,6 +37,12 @@ export const FactureDetailsDialog = ({
 }: FactureDetailsDialogProps) => {
   if (!selectedFacture) return null;
 
+  // Calculer le montant total des prestations
+  const montantTotal = selectedFacture.prestations.reduce(
+    (total, prestation) => total + prestation.montant * prestation.quantite,
+    0
+  );
+
   return (
     <Dialog open={showDetails} onOpenChange={setShowDetails}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -50,15 +56,27 @@ export const FactureDetailsDialog = ({
         />
         
         <div className="grid grid-cols-1 gap-6">
-          <ClientDateInfo facture={selectedFacture} />
+          <ClientDateInfo 
+            client={selectedFacture.client}
+            date={selectedFacture.date}
+            echeance={selectedFacture.echeance}
+          />
           
           <PrestationsTable 
             prestations={selectedFacture.prestations} 
-            formatMontant={formatMontant} 
+            formatMontant={formatMontant}
+            montantTotal={montantTotal}
           />
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <PaiementInfo facture={selectedFacture} formatMontant={formatMontant} />
+            <PaiementInfo 
+              status={selectedFacture.status}
+              montant={selectedFacture.montant}
+              montantPaye={selectedFacture.montantPaye || 0}
+              modeReglement={selectedFacture.modeReglement}
+              moyenPaiement={selectedFacture.moyenPaiement}
+              formatMontant={formatMontant}
+            />
             
             {selectedFacture.notes && (
               <NotesSection notes={selectedFacture.notes} />
@@ -67,13 +85,15 @@ export const FactureDetailsDialog = ({
           
           {selectedFacture.paiements && selectedFacture.paiements.length > 0 && (
             <HistoriquePaiements 
-              paiements={selectedFacture.paiements} 
+              historiquePaiements={selectedFacture.paiements}
               formatMontant={formatMontant} 
             />
           )}
           
           <FactureDetailsFooter
-            facture={selectedFacture}
+            factureId={selectedFacture.id}
+            status={selectedFacture.status}
+            montant={selectedFacture.montant}
             formatMontant={formatMontant}
             onUpdateStatus={onUpdateStatus}
           />
