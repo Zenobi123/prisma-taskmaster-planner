@@ -7,12 +7,13 @@ import { useFacturationPermissions } from "@/hooks/useFacturationPermissions";
 import { useFactures } from "@/hooks/useFactures";
 import { useToast } from "@/components/ui/use-toast";
 import { FacturationTabs } from "@/components/facturation/FacturationTabs";
+import { useInvoiceActions } from "@/utils/invoiceActions";
 
 const Facturation = () => {
   const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
   const { toast } = useToast();
   
-  // Hooks for data and functionality
+  // Hooks pour les données et fonctionnalités
   const { hasPermission, isLoading: permissionsLoading, collaborateur } = useFacturationPermissions();
   const { 
     factures, 
@@ -27,7 +28,7 @@ const Facturation = () => {
   // Vérifie si l'utilisateur est administrateur
   const isAdmin = collaborateur?.permissions?.some(p => p.niveau === 'administration' && p.module === 'facturation') || false;
 
-  // Function to refresh the data
+  // Fonction pour rafraîchir les données
   const handleRefresh = useCallback(() => {
     fetchFactures();
     toast({
@@ -36,7 +37,7 @@ const Facturation = () => {
     });
   }, [fetchFactures, toast]);
 
-  // Loading state
+  // État de chargement
   if (isLoading || permissionsLoading) {
     return (
       <div className="container mx-auto py-8">
@@ -51,6 +52,8 @@ const Facturation = () => {
     <div className="container mx-auto py-8">
       <FacturationHeader 
         onNewFactureClick={() => setIsNewFactureDialogOpen(true)}
+        searchTerm=""
+        setSearchTerm={() => {}}
       />
 
       <FacturationTabs 

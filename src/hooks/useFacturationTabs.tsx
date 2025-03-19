@@ -1,11 +1,11 @@
 
-// This hook is kept for backward compatibility but no longer contains tab functionality
-// since Paiements and Situation clients tabs have been removed
+// Ce hook est conservé pour la rétrocompatibilité mais ne contient plus de fonctionnalité d'onglets
+// puisque les onglets "Paiements" et "Situation clients" ont été supprimés et remplacés par une vue unique
 
 export const useFacturationTabs = () => {
-  // Return dummy values to maintain API compatibility with existing code
+  // Retourner des valeurs fictives pour maintenir la compatibilité API avec le code existant
   return {
-    activeTab: "",
+    activeTab: "factures",
     setActiveTab: () => {}
   };
 };
