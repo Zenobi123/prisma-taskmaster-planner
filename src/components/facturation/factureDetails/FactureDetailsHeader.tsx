@@ -22,9 +22,8 @@ export const FactureDetailsHeader = ({
   onDeleteInvoice,
   isAdmin = false,
 }: FactureDetailsHeaderProps) => {
-  // Si l'utilisateur est admin, il peut supprimer n'importe quelle facture
-  // Sinon, il ne peut supprimer que les factures en attente
-  const canDelete = isAdmin || selectedFacture.status === 'en_attente';
+  // Tous les utilisateurs peuvent maintenant supprimer n'importe quelle facture
+  const canDelete = true;
   
   return (
     <DialogHeader>
@@ -72,11 +71,10 @@ export const FactureDetailsHeader = ({
           
           <Button
             size="sm"
-            variant={canDelete ? "destructive" : "outline"}
-            onClick={() => canDelete ? onDeleteInvoice(selectedFacture.id) : undefined}
-            className={`flex items-center ${!canDelete ? 'opacity-50 cursor-not-allowed' : ''}`}
-            disabled={!canDelete}
-            title={canDelete ? "Supprimer" : "Seul l'administrateur peut supprimer cette facture"}
+            variant="destructive"
+            onClick={() => onDeleteInvoice(selectedFacture.id)}
+            className="flex items-center"
+            title="Supprimer"
           >
             <Trash2 className="w-4 h-4 mr-1" />
             <span className="hidden sm:inline">Supprimer</span>

@@ -22,9 +22,8 @@ export const FactureRowActions = ({
   onDownloadInvoice,
   isAdmin = false,
 }: FactureRowActionsProps) => {
-  // Si l'utilisateur est admin, il peut supprimer n'importe quelle facture
-  // Sinon, il ne peut supprimer que les factures en attente
-  const canDelete = isAdmin || facture.status === 'en_attente';
+  // Tous les utilisateurs peuvent maintenant supprimer n'importe quelle facture
+  const canDelete = true;
   
   return (
     <div className="flex justify-end items-center gap-2">
@@ -49,14 +48,9 @@ export const FactureRowActions = ({
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => canDelete ? onDeleteInvoice(facture.id) : undefined}
-        className={`opacity-70 group-hover:opacity-100 transition-all duration-300 ${
-          !canDelete 
-            ? 'opacity-30 cursor-not-allowed hover:bg-transparent hover:text-inherit' 
-            : 'text-red-500 hover:text-red-700 hover:bg-red-50'
-        }`}
-        disabled={!canDelete}
-        title={canDelete ? "Supprimer" : "Seul l'administrateur peut supprimer cette facture"}
+        onClick={() => onDeleteInvoice(facture.id)}
+        className="opacity-70 group-hover:opacity-100 transition-all duration-300 text-red-500 hover:text-red-700 hover:bg-red-50"
+        title="Supprimer"
       >
         <Trash2 className="w-4 h-4" />
       </Button>

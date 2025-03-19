@@ -1,4 +1,3 @@
-
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
 import { deleteFactureFromDB } from "@/services/factureService";
@@ -9,19 +8,8 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
 
   const handleDeleteInvoice = async (factureId: string, isAdmin: boolean = false) => {
     try {
-      // Si l'utilisateur est admin, il peut supprimer n'importe quelle facture
-      if (!isAdmin) {
-        // Seul l'admin peut supprimer les factures déjà envoyées ou payées
-        const factureToDelete = factures.find(f => f.id === factureId);
-        if (factureToDelete && factureToDelete.status !== 'en_attente') {
-          toast({
-            title: "Accès refusé",
-            description: "Seul l'administrateur peut supprimer les factures déjà envoyées ou payées.",
-            variant: "destructive"
-          });
-          return false;
-        }
-      }
+      // Tous les utilisateurs peuvent désormais supprimer n'importe quelle facture
+      // La vérification du statut a été supprimée
       
       // Appeler le service pour supprimer la facture de la base de données
       await deleteFactureFromDB(factureId);
