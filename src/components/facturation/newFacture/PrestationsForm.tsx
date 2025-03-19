@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X } from "lucide-react";
@@ -17,26 +17,30 @@ interface PrestationsFormProps {
   setPrestations: (prestations: Prestation[]) => void;
 }
 
-// Liste des prestations prédéfinies
-const PRESTATIONS_OPTIONS = [
-  "AVANCE POUR PAIEMENT SOLDE IRPP N",
-  "AVANCE POUR PAIEMENT SOLDE IS N",
-  "AVANCE POUR PAIEMENT BAIL N",
-  "AVANCE POUR PAIEMENT PRÉCOMPTE LOYER N",
-  "AVANCE POUR PAIEMENT PATENTE N",
-  "AVANCE POUR PAIEMENT TAXE FONCIÈRE N",
-  "DÉCLARATION ANNUELLE DES REVENUS - N-1",
-  "RENOUVELLEMENT DU DOSSIER FISCAL N",
-  "MONTAGE ET MISE EN LIGNE DE LA DSF N",
-  "MONTAGE ET MISE EN LIGNE DE LA DSF N-1",
-  "FORFAIT SUIVI-GESTION FISCAL EXERCICE N",
-  "PRESTATION FISCALE"
-];
-
 export const PrestationsForm = ({
   prestations,
   setPrestations,
 }: PrestationsFormProps) => {
+  // Get current year and previous year
+  const currentYear = new Date().getFullYear();
+  const previousYear = currentYear - 1;
+  
+  // Generate prestation options with actual years instead of N and N-1
+  const PRESTATIONS_OPTIONS = useMemo(() => [
+    `AVANCE POUR PAIEMENT SOLDE IRPP ${currentYear}`,
+    `AVANCE POUR PAIEMENT SOLDE IS ${currentYear}`,
+    `AVANCE POUR PAIEMENT BAIL ${currentYear}`,
+    `AVANCE POUR PAIEMENT PRÉCOMPTE LOYER ${currentYear}`,
+    `AVANCE POUR PAIEMENT PATENTE ${currentYear}`,
+    `AVANCE POUR PAIEMENT TAXE FONCIÈRE ${currentYear}`,
+    `DÉCLARATION ANNUELLE DES REVENUS - ${previousYear}`,
+    `RENOUVELLEMENT DU DOSSIER FISCAL ${currentYear}`,
+    `MONTAGE ET MISE EN LIGNE DE LA DSF ${currentYear}`,
+    `MONTAGE ET MISE EN LIGNE DE LA DSF ${previousYear}`,
+    `FORFAIT SUIVI-GESTION FISCAL EXERCICE ${currentYear}`,
+    `PRESTATION FISCALE ${currentYear}`
+  ], [currentYear, previousYear]);
+
   const handleAddPrestation = () => {
     setPrestations([...prestations, { description: "", montant: 0 }]);
   };

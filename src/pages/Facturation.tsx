@@ -67,14 +67,19 @@ const Facturation = () => {
     // Créer un nouvel ID de facture basé sur le nombre de factures existantes
     const newFactureId = `F2024-${(factures.length + 1).toString().padStart(3, '0')}`;
     
+    // Map des noms de clients par ID (normalement ce serait récupéré depuis l'API)
+    const clientNames: Record<string, string> = {
+      "1": "SARL TechPro",
+      "2": "SAS WebDev",
+      "3": "EURL ConseilPlus"
+    };
+    
     // Créer un objet facture à partir des données du formulaire
     const newFacture: Facture = {
       id: newFactureId,
       client: {
         id: formData.clientId,
-        nom: formData.clientId === "1" ? "SARL TechPro" : 
-             formData.clientId === "2" ? "SAS WebDev" : 
-             formData.clientId === "3" ? "EURL ConseilPlus" : "Nouveau Client",
+        nom: clientNames[formData.clientId] || "Nouveau Client",
         adresse: "Adresse du client",
         telephone: "Téléphone du client",
         email: "email@client.com"
@@ -88,10 +93,12 @@ const Facturation = () => {
     };
     
     // Ajouter la nouvelle facture à la liste et forcer la mise à jour de l'UI
-    setFactures([...factures, newFacture]);
+    const updatedFactures = [...factures, newFacture];
+    setFactures(updatedFactures);
     
     console.log("Nouvelle facture créée:", newFacture);
-    console.log("Liste des factures mise à jour:", [...factures, newFacture]);
+    console.log("Liste des factures mise à jour:", updatedFactures);
+    console.log("Nombre de factures:", updatedFactures.length);
     
     toast({
       title: "Facture créée",
