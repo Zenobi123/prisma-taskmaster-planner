@@ -2,7 +2,6 @@
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
 import { deleteFactureFromDB } from "@/services/factureService";
-import { supabase } from "@/integrations/supabase/client";
 
 export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatch<React.SetStateAction<Facture[]>>) => {
   const { toast } = useToast();
@@ -32,8 +31,14 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
         // Appel à l'API pour supprimer la facture
         await deleteFactureFromDB(factureId);
         
-        // Si la suppression dans la DB est réussie, mettre à jour l'état local
-        setFactures(prevFactures => prevFactures.filter(f => f.id !== factureId));
+        // Si la suppression dans la DB est réussie, mettre à jour l'état local immédiatement
+        // Utiliser une fonction de mise à jour pour garantir qu'on travaille avec l'état le plus récent
+        setFactures(prevFactures => {
+          console.log(`Mise à jour de l'état local après suppression de ${factureId}`);
+          const updatedFactures = prevFactures.filter(f => f.id !== factureId);
+          console.log(`Nombre de factures après suppression: ${updatedFactures.length}`);
+          return updatedFactures;
+        });
         
         console.log(`Facture ${factureId} supprimée avec succès`);
         

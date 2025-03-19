@@ -69,7 +69,6 @@ export const FactureTableRow = ({
           onDownloadInvoice={onDownloadInvoice}
           onEditInvoice={onEditInvoice}
           onDeleteInvoice={onDeleteInvoice}
-          isAdmin={isAdmin}
         />
       </TableCell>
     </TableRow>

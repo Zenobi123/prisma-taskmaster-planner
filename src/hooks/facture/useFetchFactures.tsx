@@ -14,8 +14,10 @@ export const useFetchFactures = () => {
     try {
       console.log("Fetching factures...");
       const mappedFactures = await fetchFacturesFromDB();
-      setFactures(mappedFactures);
       console.log(`Successfully loaded ${mappedFactures.length} factures`);
+      
+      // Mettre à jour l'état avec les nouvelles factures
+      setFactures(mappedFactures);
     } catch (error) {
       console.error("Error loading factures:", error);
       toast({
@@ -28,6 +30,7 @@ export const useFetchFactures = () => {
     }
   }, [toast]);
 
+  // Charger les factures uniquement lors du montage initial du composant
   useEffect(() => {
     console.log("Initial factures loading...");
     fetchFactures();
