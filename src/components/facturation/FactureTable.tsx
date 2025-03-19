@@ -1,7 +1,7 @@
 
 import { Facture } from "@/types/facture";
 import { Badge } from "@/components/ui/badge";
-import { Download, Eye, Printer } from "lucide-react";
+import { Download, Eye, Printer, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -34,6 +34,8 @@ interface FactureTableProps {
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
+  onEditInvoice: (facture: Facture) => void;
+  onDeleteInvoice: (factureId: string) => void;
 }
 
 export const getStatusBadge = (status: string) => {
@@ -56,6 +58,8 @@ export const FactureTable = ({
   onPrintInvoice,
   onDownloadInvoice,
   onUpdateStatus,
+  onEditInvoice,
+  onDeleteInvoice,
 }: FactureTableProps) => {
   // Calculer le montant total des factures
   const totalMontant = factures.reduce((sum, facture) => sum + facture.montant, 0);
@@ -137,14 +141,34 @@ export const FactureTable = ({
                           size="icon"
                           onClick={() => onViewDetails(facture)}
                           className="opacity-70 group-hover:opacity-100 transition-all duration-300"
+                          title="Voir les détails"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => onEditInvoice(facture)}
+                          className="opacity-70 group-hover:opacity-100 transition-all duration-300"
+                          title="Modifier"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onDeleteInvoice(facture.id)}
+                          className="opacity-70 group-hover:opacity-100 transition-all duration-300 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          title="Supprimer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => onPrintInvoice(facture.id)}
                           className="opacity-70 group-hover:opacity-100 transition-all duration-300 hidden sm:flex"
+                          title="Imprimer"
                         >
                           <Printer className="w-4 h-4" />
                         </Button>
@@ -153,6 +177,7 @@ export const FactureTable = ({
                           size="icon"
                           onClick={() => onDownloadInvoice(facture.id)}
                           className="opacity-70 group-hover:opacity-100 transition-all duration-300 hidden sm:flex"
+                          title="Télécharger"
                         >
                           <Download className="w-4 h-4" />
                         </Button>

@@ -1,6 +1,6 @@
 
 import { Facture } from "@/types/facture";
-import { Download, Printer } from "lucide-react";
+import { Download, Printer, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DialogDescription,
@@ -21,6 +21,8 @@ interface FactureDetailsHeaderProps {
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
+  onEditInvoice?: (facture: Facture) => void;
+  onDeleteInvoice?: (factureId: string) => void;
 }
 
 export const FactureDetailsHeader = ({
@@ -28,6 +30,8 @@ export const FactureDetailsHeader = ({
   onPrintInvoice,
   onDownloadInvoice,
   onUpdateStatus,
+  onEditInvoice,
+  onDeleteInvoice,
 }: FactureDetailsHeaderProps) => {
   return (
     <DialogHeader>
@@ -64,11 +68,34 @@ export const FactureDetailsHeader = ({
           </DropdownMenu>
         </span>
         <div className="flex items-center gap-2">
+          {onEditInvoice && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onEditInvoice(selectedFacture)}
+              className="h-8 w-8 transition-transform hover:scale-105"
+              title="Modifier"
+            >
+              <Pencil className="h-4 w-4" />
+            </Button>
+          )}
+          {onDeleteInvoice && (
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => onDeleteInvoice(selectedFacture.id)}
+              className="h-8 w-8 transition-transform hover:scale-105 text-red-500 hover:text-red-700 hover:border-red-300"
+              title="Supprimer"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
           <Button
             variant="outline"
             size="icon"
             onClick={() => onPrintInvoice(selectedFacture.id)}
             className="h-8 w-8 transition-transform hover:scale-105"
+            title="Imprimer"
           >
             <Printer className="h-4 w-4" />
           </Button>
@@ -77,6 +104,7 @@ export const FactureDetailsHeader = ({
             size="icon"
             onClick={() => onDownloadInvoice(selectedFacture.id)}
             className="h-8 w-8 transition-transform hover:scale-105"
+            title="Télécharger"
           >
             <Download className="h-4 w-4" />
           </Button>

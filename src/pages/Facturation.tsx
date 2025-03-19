@@ -14,6 +14,16 @@ import { FileText, Wallet, Users } from "lucide-react";
 import { GestionPaiements } from "@/components/facturation/sections/GestionPaiements";
 import { SituationClients } from "@/components/facturation/sections/SituationClients";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Facturation = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,9 +32,12 @@ const Facturation = () => {
   const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [isNewFactureDialogOpen, setIsNewFactureDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("factures");
   const [factures, setFactures] = useState<Facture[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [factureToDelete, setFactureToDelete] = useState<string | null>(null);
   const { toast } = useToast();
   
   const { hasPermission, isLoading: permissionsLoading } = useFacturationPermissions();
@@ -113,6 +126,56 @@ const Facturation = () => {
       description: `Téléchargement de la facture ${factureId}...`,
     });
     // Logique de téléchargement à implémenter
+  };
+
+  const handleEditInvoice = (facture: Facture) => {
+    setSelectedFacture(facture);
+    setIsEditDialogOpen(true);
+    setShowDetails(false); // Fermer la boîte de dialogue des détails si elle est ouverte
+    toast({
+      title: "Modification",
+      description: `Modification de la facture ${facture.id}...`,
+    });
+    // Pour l'instant, nous allons juste afficher un toast, mais vous pourriez implémenter un formulaire d'édition
+  };
+
+  const handleDeleteInvoice = (factureId: string) => {
+    setFactureToDelete(factureId);
+    setIsDeleteConfirmOpen(true);
+  };
+
+  const confirmDeleteInvoice = async () => {
+    if (!factureToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from('factures')
+        .delete()
+        .eq('id', factureToDelete);
+        
+      if (error) throw error;
+      
+      // Mettre à jour l'état local
+      setFactures(factures.filter(f => f.id !== factureToDelete));
+      
+      // Fermer les boîtes de dialogue
+      setIsDeleteConfirmOpen(false);
+      setShowDetails(false);
+      
+      toast({
+        title: "Facture supprimée",
+        description: `La facture ${factureToDelete} a été supprimée avec succès.`,
+      });
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la facture:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de supprimer la facture.",
+        variant: "destructive"
+      });
+    } finally {
+      setFactureToDelete(null);
+    }
   };
 
   const handleCreateInvoice = async (formData: any) => {
@@ -296,6 +359,8 @@ const Facturation = () => {
             onPrintInvoice={handlePrintInvoice}
             onDownloadInvoice={handleDownloadInvoice}
             onUpdateStatus={handleUpdateStatus}
+            onEditInvoice={handleEditInvoice}
+            onDeleteInvoice={handleDeleteInvoice}
           />
         </TabsContent>
         
@@ -316,6 +381,8 @@ const Facturation = () => {
         onPrintInvoice={handlePrintInvoice}
         onDownloadInvoice={handleDownloadInvoice}
         onUpdateStatus={handleUpdateStatus}
+        onEditInvoice={handleEditInvoice}
+        onDeleteInvoice={handleDeleteInvoice}
       />
 
       <NewFactureDialog
@@ -323,6 +390,26 @@ const Facturation = () => {
         onOpenChange={setIsNewFactureDialogOpen}
         onCreateInvoice={handleCreateInvoice}
       />
+
+      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+            <AlertDialogDescription>
+              Êtes-vous sûr de vouloir supprimer cette facture ? Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteInvoice}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

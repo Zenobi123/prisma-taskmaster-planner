@@ -19,6 +19,8 @@ interface FactureDetailsDialogProps {
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
+  onEditInvoice?: (facture: Facture) => void;
+  onDeleteInvoice?: (factureId: string) => void;
 }
 
 export const FactureDetailsDialog = ({
@@ -29,6 +31,8 @@ export const FactureDetailsDialog = ({
   onPrintInvoice,
   onDownloadInvoice,
   onUpdateStatus,
+  onEditInvoice,
+  onDeleteInvoice,
 }: FactureDetailsDialogProps) => {
   if (!selectedFacture) return null;
 
@@ -40,6 +44,8 @@ export const FactureDetailsDialog = ({
           onPrintInvoice={onPrintInvoice}
           onDownloadInvoice={onDownloadInvoice}
           onUpdateStatus={onUpdateStatus}
+          onEditInvoice={onEditInvoice}
+          onDeleteInvoice={onDeleteInvoice}
         />
 
         <ScrollArea className="max-h-[60vh] pr-4">
