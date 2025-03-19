@@ -3,31 +3,39 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, FileUp, Filter, CreditCard, Clock, Receipt, Check, X, Eye } from "lucide-react";
+import { Search, FileUp, Filter, CreditCard, Clock, Receipt, Check, X, Eye, CreditCard as PartialIcon } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState, useEffect } from "react";
-import { Facture } from "@/types/facture";
+import { Facture, Paiement } from "@/types/facture";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { PaiementPartielDialog } from "../PaiementPartielDialog";
 
 interface GestionPaiementsProps {
   factures: Facture[];
-  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
+  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
   formatMontant: (montant: number) => string;
+  onPaiementPartiel?: (factureId: string, paiement: Paiement, prestationsIds: string[]) => Promise<Facture | null>;
 }
 
-export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: GestionPaiementsProps) => {
+export const GestionPaiements = ({ 
+  factures, 
+  onUpdateStatus, 
+  formatMontant,
+  onPaiementPartiel 
+}: GestionPaiementsProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showPartialPaymentDialog, setShowPartialPaymentDialog] = useState(false);
   const [selectedFacture, setSelectedFacture] = useState<Facture | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<string>("especes");
   const { toast } = useToast();
 
-  // Filter factures that can receive payments (not already paid)
+  // Filter factures that can receive payments (not already fully paid)
   const facturesForPayment = factures.filter(f => f.status !== 'payée');
   
   // Filter displayed list based on search and status filter
@@ -42,12 +50,14 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
   
   // Calculate confirmed and pending payments
   const pendingPayments = facturesForPayment
-    .filter(f => f.status === 'en_attente' || f.status === 'envoyée')
-    .reduce((sum, f) => sum + f.montant, 0);
+    .filter(f => f.status === 'en_attente' || f.status === 'envoyée' || f.status === 'partiellement_payée')
+    .reduce((sum, f) => {
+      const montantPaye = f.montantPaye || 0;
+      return sum + (f.montant - montantPaye);
+    }, 0);
   
   const confirmedPayments = factures
-    .filter(f => f.status === 'payée')
-    .reduce((sum, f) => sum + f.montant, 0);
+    .reduce((sum, f) => sum + (f.montantPaye || 0), 0);
   
   // Calculate payment methods distribution
   const paymentMethods = {
@@ -57,16 +67,25 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
     virement: 0
   };
   
-  factures
-    .filter(f => f.status === 'payée' && f.moyenPaiement)
-    .forEach(f => {
-      if (f.moyenPaiement) {
-        paymentMethods[f.moyenPaiement as keyof typeof paymentMethods]++;
-      }
-    });
+  // Calculer les méthodes de paiement à partir des paiements stockés
+  factures.forEach(facture => {
+    if (facture.paiements && facture.paiements.length > 0) {
+      facture.paiements.forEach(paiement => {
+        if (paiement.moyenPaiement) {
+          paymentMethods[paiement.moyenPaiement as keyof typeof paymentMethods]++;
+        }
+      });
+    } else if (facture.status === 'payée' && facture.moyenPaiement) {
+      // Pour la rétrocompatibilité avec les factures existantes
+      paymentMethods[facture.moyenPaiement as keyof typeof paymentMethods]++;
+    }
+  });
   
   // Calculate percentages
-  const totalPaidFactures = factures.filter(f => f.status === 'payée' && f.moyenPaiement).length;
+  const totalPaidFactures = factures
+    .flatMap(f => f.paiements || [])
+    .length || factures.filter(f => f.status === 'payée' && f.moyenPaiement).length;
+  
   const paymentMethodsPercentages = {
     especes: totalPaidFactures > 0 ? Math.round((paymentMethods.especes / totalPaidFactures) * 100) : 0,
     orange_money: totalPaidFactures > 0 ? Math.round((paymentMethods.orange_money / totalPaidFactures) * 100) : 0,
@@ -79,6 +98,11 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
     setPaymentMethod("especes");
     setShowPaymentDialog(true);
   };
+
+  const handleOpenPartialPaymentDialog = (facture: Facture) => {
+    setSelectedFacture(facture);
+    setShowPartialPaymentDialog(true);
+  };
   
   const handleRegisterPayment = async () => {
     if (!selectedFacture) return;
@@ -88,7 +112,17 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
         .from('factures')
         .update({ 
           status: 'payée', 
-          moyen_paiement: paymentMethod 
+          moyen_paiement: paymentMethod,
+          montant_paye: selectedFacture.montant,
+          paiements: [
+            ...(selectedFacture.paiements || []),
+            {
+              id: Date.now().toString(),
+              date: new Date().toISOString().split('T')[0],
+              montant: selectedFacture.montant - (selectedFacture.montantPaye || 0),
+              moyenPaiement: paymentMethod
+            }
+          ]
         })
         .eq('id', selectedFacture.id);
       
@@ -117,6 +151,8 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
     switch (status) {
       case "payée":
         return <Badge className="bg-green-500 hover:bg-green-600">Payée</Badge>;
+      case "partiellement_payée":
+        return <Badge className="bg-blue-500 hover:bg-blue-600">Partiellement payée</Badge>;
       case "en_attente":
         return <Badge variant="secondary">En attente</Badge>;
       case "envoyée":
@@ -136,6 +172,11 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
       case "virement": return "Virement bancaire";
       default: return method;
     }
+  };
+
+  // Calculer le montant restant à payer
+  const getMontantRestant = (facture: Facture) => {
+    return facture.montant - (facture.montantPaye || 0);
   };
 
   return (
@@ -163,6 +204,7 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
               <SelectItem value="all">Tous les statuts</SelectItem>
               <SelectItem value="en_attente">En attente</SelectItem>
               <SelectItem value="envoyée">Envoyée</SelectItem>
+              <SelectItem value="partiellement_payée">Partiellement payée</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -244,6 +286,7 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
                   <TableHead className="whitespace-nowrap">Client</TableHead>
                   <TableHead className="whitespace-nowrap hidden md:table-cell">Date</TableHead>
                   <TableHead className="whitespace-nowrap min-w-32">Montant</TableHead>
+                  <TableHead className="whitespace-nowrap">Déjà payé</TableHead>
                   <TableHead className="whitespace-nowrap">Statut</TableHead>
                   <TableHead className="text-right whitespace-nowrap">Actions</TableHead>
                 </TableRow>
@@ -251,7 +294,7 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
               <TableBody>
                 {filteredFactures.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                       Aucune facture en attente de paiement
                     </TableCell>
                   </TableRow>
@@ -262,6 +305,9 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
                       <TableCell>{facture.client.nom}</TableCell>
                       <TableCell className="hidden md:table-cell">{facture.date}</TableCell>
                       <TableCell>{formatMontant(facture.montant)}</TableCell>
+                      <TableCell>
+                        {facture.montantPaye ? formatMontant(facture.montantPaye) : "0 FCFA"}
+                      </TableCell>
                       <TableCell>{getStatusBadge(facture.status)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
@@ -272,8 +318,19 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
                             className="flex items-center gap-1"
                           >
                             <Check className="h-4 w-4" />
-                            <span className="hidden sm:inline">Encaisser</span>
+                            <span className="hidden sm:inline">Encaisser (Total)</span>
                           </Button>
+                          {onPaiementPartiel && (
+                            <Button 
+                              variant="secondary" 
+                              size="sm" 
+                              onClick={() => handleOpenPartialPaymentDialog(facture)}
+                              className="flex items-center gap-1"
+                            >
+                              <PartialIcon className="h-4 w-4" />
+                              <span className="hidden sm:inline">Paiement partiel</span>
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -291,7 +348,7 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
           <DialogHeader>
             <DialogTitle>Enregistrer un paiement</DialogTitle>
             <DialogDescription>
-              Facture {selectedFacture?.id} - {formatMontant(selectedFacture?.montant || 0)}
+              Facture {selectedFacture?.id} - {formatMontant(getMontantRestant(selectedFacture || { montant: 0 }))}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -330,6 +387,17 @@ export const GestionPaiements = ({ factures, onUpdateStatus, formatMontant }: Ge
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de paiement partiel */}
+      {onPaiementPartiel && (
+        <PaiementPartielDialog
+          isOpen={showPartialPaymentDialog}
+          onOpenChange={setShowPartialPaymentDialog}
+          facture={selectedFacture}
+          formatMontant={formatMontant}
+          onConfirmPaiement={onPaiementPartiel}
+        />
+      )}
     </div>
   );
 };

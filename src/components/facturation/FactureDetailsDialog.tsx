@@ -11,6 +11,7 @@ import { PrestationsTable } from "./factureDetails/PrestationsTable";
 import { NotesSection } from "./factureDetails/NotesSection";
 import { FactureDetailsFooter } from "./factureDetails/FactureDetailsFooter";
 import { PaiementInfo } from "./factureDetails/PaiementInfo";
+import { HistoriquePaiements } from "./factureDetails/HistoriquePaiements";
 
 interface FactureDetailsDialogProps {
   showDetails: boolean;
@@ -19,7 +20,7 @@ interface FactureDetailsDialogProps {
   formatMontant: (montant: number) => string;
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
-  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
+  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
   onEditInvoice?: (facture: Facture) => void;
   onDeleteInvoice?: (factureId: string) => void;
 }
@@ -53,11 +54,21 @@ export const FactureDetailsDialog = ({
           <div className="space-y-6 animate-fade-in">
             <ClientDateInfo selectedFacture={selectedFacture} />
             
-            {(selectedFacture.modeReglement || selectedFacture.status === 'payée') && (
+            {(selectedFacture.modeReglement || selectedFacture.status === 'payée' || selectedFacture.status === 'partiellement_payée') && (
               <PaiementInfo 
                 modeReglement={selectedFacture.modeReglement}
                 moyenPaiement={selectedFacture.moyenPaiement}
                 status={selectedFacture.status}
+                montantPaye={selectedFacture.montantPaye}
+                montantTotal={selectedFacture.montant}
+                formatMontant={formatMontant}
+              />
+            )}
+
+            {selectedFacture.paiements && selectedFacture.paiements.length > 0 && (
+              <HistoriquePaiements 
+                facture={selectedFacture} 
+                formatMontant={formatMontant} 
               />
             )}
 

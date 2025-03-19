@@ -160,8 +160,10 @@ export type Database = {
           id: string
           mode_reglement: string | null
           montant: number
+          montant_paye: number | null
           moyen_paiement: string | null
           notes: string | null
+          paiements: Json | null
           prestations: Json
           status: string
         }
@@ -177,8 +179,10 @@ export type Database = {
           id: string
           mode_reglement?: string | null
           montant: number
+          montant_paye?: number | null
           moyen_paiement?: string | null
           notes?: string | null
+          paiements?: Json | null
           prestations: Json
           status: string
         }
@@ -194,8 +198,10 @@ export type Database = {
           id?: string
           mode_reglement?: string | null
           montant?: number
+          montant_paye?: number | null
           moyen_paiement?: string | null
           notes?: string | null
+          paiements?: Json | null
           prestations?: Json
           status?: string
         }

@@ -6,7 +6,7 @@ import { useFactureCreate } from "./facture/useFactureCreate";
 
 export const useFactures = () => {
   const { factures, setFactures, isLoading } = useFetchFactures();
-  const { handleUpdateStatus } = useFactureUpdates(factures, setFactures);
+  const { handleUpdateStatus, handlePaiementPartiel } = useFactureUpdates(factures, setFactures);
   const { handleDeleteInvoice } = useFactureDelete(factures, setFactures);
   const { handleCreateInvoice } = useFactureCreate(factures, setFactures);
 
@@ -15,6 +15,7 @@ export const useFactures = () => {
     isLoading,
     handleUpdateStatus,
     handleDeleteInvoice,
-    handleCreateInvoice
+    handleCreateInvoice,
+    handlePaiementPartiel
   };
 };

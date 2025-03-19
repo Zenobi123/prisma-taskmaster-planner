@@ -4,7 +4,7 @@ import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { FacturesTab } from "./tabs/FacturesTab";
 import { GestionPaiements } from "./sections/GestionPaiements";
 import { SituationClients } from "./sections/SituationClients";
-import { Facture } from "@/types/facture";
+import { Facture, Paiement } from "@/types/facture";
 
 interface FacturationTabsProps {
   activeTab: string;
@@ -21,9 +21,10 @@ interface FacturationTabsProps {
   onViewDetails: (facture: Facture) => void;
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
-  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
+  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
+  onPaiementPartiel?: (factureId: string, paiement: Paiement, prestationsIds: string[]) => Promise<Facture | null>;
 }
 
 export const FacturationTabs = ({
@@ -44,6 +45,7 @@ export const FacturationTabs = ({
   onUpdateStatus,
   onEditInvoice,
   onDeleteInvoice,
+  onPaiementPartiel,
 }: FacturationTabsProps) => {
   return (
     <>
@@ -111,6 +113,7 @@ export const FacturationTabs = ({
             factures={factures} 
             onUpdateStatus={onUpdateStatus}
             formatMontant={formatMontant}
+            onPaiementPartiel={onPaiementPartiel}
           />
         </TabsContent>
         

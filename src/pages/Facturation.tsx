@@ -20,7 +20,7 @@ const Facturation = () => {
   const [factureToDelete, setFactureToDelete] = useState<string | null>(null);
   
   const { hasPermission, isLoading: permissionsLoading } = useFacturationPermissions();
-  const { factures, isLoading, handleUpdateStatus, handleDeleteInvoice, handleCreateInvoice } = useFactures();
+  const { factures, isLoading, handleUpdateStatus, handleDeleteInvoice, handleCreateInvoice, handlePaiementPartiel } = useFactures();
   const { activeTab, setActiveTab } = useFacturationTabs();
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, periodFilter, setPeriodFilter, filteredFactures } = useFacturationFilters(factures);
   const { handlePrintInvoice, handleDownloadInvoice } = useInvoiceActions();
@@ -94,6 +94,7 @@ const Facturation = () => {
         onUpdateStatus={handleUpdateStatus}
         onEditInvoice={handleEditInvoice}
         onDeleteInvoice={handleDeleteInvoiceRequest}
+        onPaiementPartiel={handlePaiementPartiel}
       />
 
       {factureDetailsManager.detailsDialog}
