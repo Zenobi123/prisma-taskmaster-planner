@@ -2,9 +2,11 @@
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
 import { deleteFactureFromDB } from "@/services/facture/factureDelete";
+import { useState } from "react";
 
 export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatch<React.SetStateAction<Facture[]>>) => {
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
 
   /**
    * Supprime une facture
@@ -23,13 +25,21 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
       return false;
     }
 
+    // Éviter les suppressions simultanées
+    if (isDeleting) {
+      return false;
+    }
+
     try {
+      // Indiquer que la suppression est en cours
+      setIsDeleting(true);
+      
       // Tentative de suppression en base de données
       console.log(`Suppression de la facture ${factureId} en cours...`);
       await deleteFactureFromDB(factureId);
       
-      // Mise à jour de l'état local
-      setFactures(factures.filter(f => f.id !== factureId));
+      // Mise à jour de l'état local immédiatement après la suppression réussie
+      setFactures(prevFactures => prevFactures.filter(f => f.id !== factureId));
       
       // Notification de succès
       toast({
@@ -47,8 +57,11 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
         variant: "destructive"
       });
       return false;
+    } finally {
+      // Toujours réinitialiser l'état de suppression
+      setIsDeleting(false);
     }
   };
 
-  return { handleDeleteInvoice };
+  return { handleDeleteInvoice, isDeleting };
 };

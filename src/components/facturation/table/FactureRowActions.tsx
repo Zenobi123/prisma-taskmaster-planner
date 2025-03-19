@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Facture } from "@/types/facture";
 import { Download, Eye, Pencil, Printer, Trash2 } from "lucide-react";
@@ -28,9 +27,15 @@ export const FactureRowActions = ({
     setShowDeleteDialog(true);
   };
   
-  const confirmDelete = () => {
-    onDeleteInvoice(facture.id);
-    setShowDeleteDialog(false);
+  const confirmDelete = async () => {
+    try {
+      console.log(`Requesting deletion for facture ${facture.id}`);
+      await onDeleteInvoice(facture.id);
+      setShowDeleteDialog(false);
+    } catch (error) {
+      console.error("Error deleting invoice:", error);
+      // Keep dialog open if error occurs
+    }
   };
   
   return (

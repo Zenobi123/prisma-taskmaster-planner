@@ -14,8 +14,8 @@ export const useFetchFactures = () => {
     try {
       console.log("Fetching factures from database...");
       
-      // Charger les factures depuis la base de données
-      const dbFactures = await fetchFacturesFromDB();
+      // Charger les factures depuis la base de données avec force refresh
+      const dbFactures = await fetchFacturesFromDB(true);
       console.log(`Loaded ${dbFactures.length} factures from database`);
       
       setFactures(dbFactures);

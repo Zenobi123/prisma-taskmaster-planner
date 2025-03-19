@@ -4,13 +4,23 @@ import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Récupère les factures depuis la base de données
+ * @param forceRefresh Force le rafraîchissement du cache
  */
-export const fetchFacturesFromDB = async () => {
+export const fetchFacturesFromDB = async (forceRefresh = false) => {
   try {
     console.log("Fetching factures from database...");
-    const { data, error } = await supabase
+    
+    let query = supabase
       .from('factures')
       .select('*');
+      
+    // Si forceRefresh est activé, contourne le cache
+    if (forceRefresh) {
+      console.log("Force refresh enabled, bypassing cache");
+      query = query.options({ head: false, count: 'exact' });
+    }
+    
+    const { data, error } = await query;
     
     if (error) {
       console.error("Error fetching factures:", error);

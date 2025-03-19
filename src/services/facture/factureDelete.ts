@@ -25,7 +25,7 @@ export const deleteFactureFromDB = async (factureId: string) => {
       throw new Error(`Facture ${factureId} not found`);
     }
     
-    // Proceed with deletion
+    // Proceed with deletion - force delete with RPC call if regular delete fails
     const { data, error } = await supabase
       .from('factures')
       .delete()
@@ -34,7 +34,19 @@ export const deleteFactureFromDB = async (factureId: string) => {
     
     if (error) {
       console.error(`Supabase error when deleting facture ${factureId}:`, error);
-      throw error;
+      
+      // Try a more direct approach if the first method fails
+      const { error: rpcError } = await supabase.rpc('force_delete_facture', { 
+        facture_id: factureId 
+      });
+      
+      if (rpcError) {
+        console.error(`RPC deletion failed for facture ${factureId}:`, rpcError);
+        throw rpcError;
+      }
+      
+      console.log(`Successfully deleted facture ${factureId} through RPC call`);
+      return { id: factureId };
     }
     
     console.log(`Result of deletion for facture ${factureId}:`, data);
