@@ -25,7 +25,7 @@ const Facturation = () => {
   const { searchTerm, setSearchTerm, statusFilter, setStatusFilter, periodFilter, setPeriodFilter, filteredFactures } = useFacturationFilters(factures);
   const { handlePrintInvoice, handleDownloadInvoice } = useInvoiceActions();
 
-  // Move function declarations before usage
+  // Define all functions BEFORE using them
   const handleEditInvoice = (facture: Facture) => {
     factureDetailsManager.setSelectedFacture(facture);
     setIsEditDialogOpen(true);
