@@ -12,7 +12,7 @@ import { StatusBadge } from "./StatusBadge";
 interface FactureStatusDropdownProps {
   status: string;
   factureId: string;
-  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
+  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
 }
 
 export const FactureStatusDropdown = ({
@@ -28,7 +28,7 @@ export const FactureStatusDropdown = ({
           <ChevronDown className="h-3 w-3 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[160px]">
+      <DropdownMenuContent align="start" className="w-[180px]">
         <DropdownMenuItem
           onClick={() => onUpdateStatus(factureId, 'en_attente')}
           className={status === 'en_attente' ? 'bg-accent text-accent-foreground' : ''}
@@ -40,6 +40,12 @@ export const FactureStatusDropdown = ({
           className={status === 'envoyée' ? 'bg-accent text-accent-foreground' : ''}
         >
           Envoyée
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => onUpdateStatus(factureId, 'partiellement_payée')}
+          className={status === 'partiellement_payée' ? 'bg-accent text-accent-foreground' : ''}
+        >
+          Partiellement payée
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => onUpdateStatus(factureId, 'payée')}

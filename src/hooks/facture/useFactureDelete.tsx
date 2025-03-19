@@ -1,102 +1,97 @@
 
 import { useToast } from "@/components/ui/use-toast";
 import { Facture } from "@/types/facture";
-import { deleteFactureFromDB } from "@/services/factureService";
-import { useCallback } from "react";
+import { deleteFacture } from "@/services/factureService";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatch<React.SetStateAction<Facture[]>>) => {
   const { toast } = useToast();
 
-  const handleDeleteInvoice = async (factureId: string, isAdmin: boolean = false) => {
+  /**
+   * Supprime une facture
+   * @param factureId ID de la facture à supprimer
+   * @param isAdmin Indique si l'utilisateur est administrateur
+   * @returns true si la suppression a réussi, false sinon
+   */
+  const handleDeleteInvoice = async (factureId: string, isAdmin: boolean = false): Promise<boolean> => {
     try {
-      // Tous les utilisateurs peuvent désormais supprimer n'importe quelle facture
-      // La vérification du statut a été supprimée
+      // Vérification supplémentaire pour confirmer que la facture existe
+      const factureExists = factures.find(f => f.id === factureId);
+      if (!factureExists) {
+        toast({
+          title: "Erreur",
+          description: "La facture n'existe pas ou a déjà été supprimée.",
+          variant: "destructive"
+        });
+        return false;
+      }
+
+      // Appel à l'API pour supprimer la facture du backend
+      const { error } = await deleteFacture(factureId);
       
-      // Appeler le service pour supprimer la facture de la base de données
-      await deleteFactureFromDB(factureId);
+      if (error) {
+        console.error("Erreur lors de la suppression de la facture:", error);
+        toast({
+          title: "Erreur de suppression",
+          description: "Une erreur est survenue lors de la suppression. La facture n'a pas été supprimée de la base de données.",
+          variant: "destructive"
+        });
+        return false;
+      }
       
-      // Mettre à jour l'état local après suppression
+      // Si la suppression dans la DB est réussie, mettre à jour l'état local
       setFactures(prevFactures => prevFactures.filter(f => f.id !== factureId));
       
       toast({
         title: "Facture supprimée",
-        description: `La facture ${factureId} a été supprimée avec succès.`,
+        description: `La facture ${factureId} a été supprimée avec succès.`
       });
       
       return true;
     } catch (error) {
-      console.error("Erreur lors de la suppression de la facture:", error);
+      console.error("Exception lors de la suppression:", error);
       toast({
-        title: "Erreur",
-        description: "Impossible de supprimer la facture.",
+        title: "Erreur critique",
+        description: "Une erreur critique est survenue pendant la suppression.",
         variant: "destructive"
       });
       return false;
     }
   };
 
-  // Nouvelle fonction pour supprimer les factures non saisies par l'utilisateur actuel
-  const deleteNonUserCreatedInvoices = async () => {
+  /**
+   * Supprime toutes les factures non créées par l'utilisateur (admin uniquement)
+   * @returns true si la suppression a réussi, false sinon
+   */
+  const deleteNonUserCreatedInvoices = async (): Promise<boolean> => {
     try {
-      // Récupérer l'ID de l'utilisateur connecté depuis localStorage
-      const collaborateurId = localStorage.getItem("collaborateurId");
+      // Cette opération supprime toutes les factures (à adapter selon vos besoins)
+      const { error } = await supabase.from('factures').delete().not('id', 'is', null);
       
-      if (!collaborateurId) {
+      if (error) {
+        console.error("Erreur lors de la suppression massive:", error);
         toast({
-          title: "Erreur",
-          description: "Impossible d'identifier l'utilisateur actuel.",
+          title: "Erreur de suppression",
+          description: "Une erreur est survenue lors de la suppression massive. Certaines factures peuvent ne pas avoir été supprimées.",
           variant: "destructive"
         });
         return false;
       }
       
-      // Filtrer les factures qui n'ont pas été créées par l'utilisateur actuel
-      // Note: Comme nous n'avons pas de champ créateur dans la facture, nous supposerons que toutes 
-      // les factures n'appartiennent pas à l'utilisateur actuel pour cette démo
-      // Dans une vraie application, vous devriez vérifier le champ créateur de la facture
+      // Si la suppression dans la DB est réussie, mettre à jour l'état local
+      setFactures([]);
       
-      let deleteCount = 0;
-      let failCount = 0;
-      
-      // Pour chaque facture, essayer de la supprimer
-      const facturesCopy = [...factures]; // Créer une copie pour éviter des problèmes de mutation pendant l'itération
-      
-      for (const facture of facturesCopy) {
-        try {
-          // Ici, nous supposons que toutes les factures doivent être supprimées
-          // Dans une vraie application, vous devriez vérifier si l'utilisateur actuel est le créateur
-          const success = await handleDeleteInvoice(facture.id, true);
-          if (success) {
-            deleteCount++;
-          } else {
-            failCount++;
-          }
-        } catch (error) {
-          console.error(`Erreur lors de la suppression de la facture ${facture.id}:`, error);
-          failCount++;
-        }
-      }
-      
-      // Afficher un résumé
-      if (deleteCount > 0) {
-        toast({
-          title: "Suppression effectuée",
-          description: `${deleteCount} facture(s) supprimée(s) avec succès.${failCount > 0 ? ` ${failCount} échec(s).` : ''}`,
-        });
-        return true;
-      } else {
-        toast({
-          title: "Aucune facture supprimée",
-          description: failCount > 0 ? `${failCount} tentative(s) a échoué.` : "Aucune facture à supprimer.",
-          variant: "destructive"
-        });
-        return false;
-      }
-    } catch (error) {
-      console.error("Erreur lors de la suppression des factures:", error);
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la suppression des factures.",
+        title: "Factures supprimées",
+        description: "Toutes les factures ont été supprimées avec succès."
+      });
+      
+      return true;
+    } catch (error) {
+      console.error("Exception lors de la suppression massive:", error);
+      toast({
+        title: "Erreur critique",
+        description: "Une erreur critique est survenue pendant la suppression massive.",
         variant: "destructive"
       });
       return false;

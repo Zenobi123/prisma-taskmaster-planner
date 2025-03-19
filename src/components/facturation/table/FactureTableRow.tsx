@@ -3,6 +3,7 @@ import { Facture } from "@/types/facture";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { FactureStatusDropdown } from "./FactureStatusDropdown";
 import { FactureRowActions } from "./FactureRowActions";
+import { Progress } from "@/components/ui/progress";
 
 interface FactureTableRowProps {
   facture: Facture;
@@ -10,7 +11,7 @@ interface FactureTableRowProps {
   onViewDetails: (facture: Facture) => void;
   onPrintInvoice: (factureId: string) => void;
   onDownloadInvoice: (factureId: string) => void;
-  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
+  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
   isAdmin?: boolean;
@@ -27,6 +28,11 @@ export const FactureTableRow = ({
   onDeleteInvoice,
   isAdmin = false,
 }: FactureTableRowProps) => {
+  // Calculer le montant restant et le pourcentage payé pour les factures partiellement payées
+  const montantPaye = facture.montantPaye || 0;
+  const montantRestant = facture.montant - montantPaye;
+  const pourcentagePaye = (montantPaye / facture.montant) * 100;
+  
   return (
     <TableRow 
       key={facture.id} 
@@ -36,7 +42,18 @@ export const FactureTableRow = ({
       <TableCell>{facture.client.nom}</TableCell>
       <TableCell className="whitespace-nowrap hidden md:table-cell">{facture.date}</TableCell>
       <TableCell className="whitespace-nowrap hidden md:table-cell">{facture.echeance}</TableCell>
-      <TableCell className="min-w-32">{formatMontant(facture.montant)}</TableCell>
+      <TableCell className="min-w-32">
+        {formatMontant(facture.montant)}
+        {facture.status === 'partiellement_payée' && (
+          <div className="mt-1 space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="text-muted-foreground">{formatMontant(montantPaye)} payés</span>
+              <span className="font-medium">{Math.round(pourcentagePaye)}%</span>
+            </div>
+            <Progress value={pourcentagePaye} className="h-1.5" />
+          </div>
+        )}
+      </TableCell>
       <TableCell>
         <FactureStatusDropdown
           status={facture.status}
