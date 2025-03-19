@@ -12,7 +12,7 @@ export const FacturationHeader = ({ onNewFactureClick }: FacturationHeaderProps)
 
   return (
     <>
-      <div className="flex items-center gap-4 mb-8">
+      <div className="flex items-center justify-between gap-4 mb-8">
         <Button
           variant="outline"
           onClick={() => navigate("/")}
@@ -20,6 +20,11 @@ export const FacturationHeader = ({ onNewFactureClick }: FacturationHeaderProps)
         >
           <ArrowLeft className="w-4 h-4" />
           Retour
+        </Button>
+        
+        <Button className="flex items-center gap-2" onClick={onNewFactureClick}>
+          <span className="w-4 h-4">+</span>
+          Nouvelle facture
         </Button>
       </div>
 
@@ -33,10 +38,6 @@ export const FacturationHeader = ({ onNewFactureClick }: FacturationHeaderProps)
             Gérez vos factures clients et suivez les paiements
           </p>
         </div>
-        <Button className="flex items-center gap-2" onClick={onNewFactureClick}>
-          <span className="w-4 h-4">+</span>
-          Nouvelle facture
-        </Button>
       </div>
     </>
   );

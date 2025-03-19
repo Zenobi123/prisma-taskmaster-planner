@@ -31,9 +31,23 @@ const Facturation = () => {
     );
   }
 
+  const handleNewFactureClick = () => {
+    // Sélectionner l'onglet factures
+    setActiveTab("factures");
+    
+    // Référence pour accéder au composant FacturesManagement
+    // Nous utilisons un délai pour s'assurer que le TabsContent est rendu
+    setTimeout(() => {
+      const newFactureButton = document.querySelector('[data-new-facture-trigger]');
+      if (newFactureButton) {
+        (newFactureButton as HTMLButtonElement).click();
+      }
+    }, 0);
+  };
+
   return (
     <div className="container mx-auto p-4 md:p-6 animate-fade-in">
-      <FacturationHeader onNewFactureClick={() => setActiveTab("factures")} />
+      <FacturationHeader onNewFactureClick={handleNewFactureClick} />
       
       <Tabs 
         defaultValue="factures" 
