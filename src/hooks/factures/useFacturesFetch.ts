@@ -1,18 +1,10 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Facture } from '@/types/facture';
 import * as factureService from '@/services/factureService';
 import { useToast } from '@/components/ui/use-toast';
+import { FacturesFilters } from '@/services/factures/getFactures';
 
-export interface FacturesFilters {
-  status?: string;
-  clientId?: string;
-  startDate?: string;
-  endDate?: string;
-  searchTerm?: string;
-  page?: number;
-  limit?: number;
-}
+export { FacturesFilters } from '@/services/factures/getFactures';
 
 export const useFacturesFetch = (initialFilters?: FacturesFilters) => {
   const { toast } = useToast();
@@ -51,7 +43,6 @@ export const useFacturesFetch = (initialFilters?: FacturesFilters) => {
     setFilters(prevFilters => ({
       ...prevFilters,
       ...newFilters,
-      // Réinitialiser la page à 1 si les filtres changent (sauf si la page elle-même est mise à jour)
       page: newFilters.page || 1
     }));
   };
