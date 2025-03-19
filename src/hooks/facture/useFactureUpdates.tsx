@@ -39,7 +39,7 @@ export const useFactureUpdates = (factures: Facture[], setFactures: React.Dispat
     factureId: string, 
     paiement: Paiement, 
     prestationsIds: string[]
-  ) => {
+  ): Promise<Facture | null> => {
     try {
       const factureIndex = factures.findIndex(f => f.id === factureId);
       if (factureIndex === -1) {

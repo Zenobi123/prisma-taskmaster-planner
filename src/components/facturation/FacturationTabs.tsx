@@ -23,7 +23,7 @@ interface FacturationTabsProps {
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée') => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
-  onPaiementPartiel: (factureId: string, paiement: any, prestationsIds: string[]) => void;
+  onPaiementPartiel: (factureId: string, paiement: any, prestationsIds: string[]) => Promise<Facture | null>;
   isAdmin?: boolean;
 }
 
@@ -78,11 +78,15 @@ export const FacturationTabs = ({
         <GestionPaiements 
           factures={factures.filter(f => f.status !== 'payée')}
           formatMontant={formatMontant}
+          onUpdateStatus={onUpdateStatus}
           onPaiementPartiel={onPaiementPartiel}
         />
       </TabsContent>
       <TabsContent value="clients">
-        <SituationClients factures={factures} formatMontant={formatMontant} />
+        <SituationClients 
+          factures={factures} 
+          formatMontant={formatMontant}
+        />
       </TabsContent>
     </Tabs>
   );

@@ -1,5 +1,5 @@
 
-import { Facture, Prestation } from "@/types/facture";
+import { Prestation } from "@/types/facture";
 
 interface PrestationsTableProps {
   prestations: Prestation[];

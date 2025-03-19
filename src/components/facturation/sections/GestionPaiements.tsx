@@ -10,14 +10,14 @@ import { usePaiementsState } from "./paiements/usePaiementsState";
 
 interface GestionPaiementsProps {
   factures: Facture[];
-  onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
+  onUpdateStatus?: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
   formatMontant: (montant: number) => string;
   onPaiementPartiel?: (factureId: string, paiement: Paiement, prestationsIds: string[]) => Promise<Facture | null>;
 }
 
 export const GestionPaiements = ({ 
   factures, 
-  onUpdateStatus, 
+  onUpdateStatus,
   formatMontant,
   onPaiementPartiel 
 }: GestionPaiementsProps) => {

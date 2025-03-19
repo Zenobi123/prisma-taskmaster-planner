@@ -1,3 +1,4 @@
+
 import { Facture } from "@/types/facture";
 import {
   Dialog,
@@ -55,11 +56,12 @@ export const FactureDetailsDialog = ({
           <PrestationsTable 
             prestations={selectedFacture.prestations} 
             formatMontant={formatMontant} 
+            montantTotal={selectedFacture.montant}
           />
 
           {selectedFacture.paiements && selectedFacture.paiements.length > 0 && (
             <HistoriquePaiements 
-              paiements={selectedFacture.paiements} 
+              facture={selectedFacture}
               formatMontant={formatMontant} 
             />
           )}
@@ -67,12 +69,16 @@ export const FactureDetailsDialog = ({
           <NotesSection notes={selectedFacture.notes} />
 
           <PaiementInfo 
-            selectedFacture={selectedFacture} 
+            modeReglement={selectedFacture.modeReglement}
+            moyenPaiement={selectedFacture.moyenPaiement}
+            status={selectedFacture.status}
+            montantPaye={selectedFacture.montantPaye || 0}
+            montantTotal={selectedFacture.montant}
             formatMontant={formatMontant} 
           />
         </div>
 
-        <FactureDetailsFooter selectedFacture={selectedFacture} formatMontant={formatMontant} />
+        <FactureDetailsFooter onClose={() => setShowDetails(false)} />
       </DialogContent>
     </Dialog>
   );

@@ -1,7 +1,6 @@
 
-import { Facture, Paiement } from "@/types/facture";
+import { Facture } from "@/types/facture";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Receipt, CreditCard } from "lucide-react";
 
 interface HistoriquePaiementsProps {

@@ -100,7 +100,7 @@ export const enregistrerPaiementPartiel = async (
   const { error: updateError } = await supabase
     .from('factures')
     .update({ 
-      paiements: [...paiementsExistants, paiementJSON],
+      paiements: [...Array.from(paiementsExistants), paiementJSON],
       montant_paye: nouveauMontantPaye,
       status: newStatus
     })
