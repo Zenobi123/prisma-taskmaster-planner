@@ -25,7 +25,7 @@ export const deleteFactureFromDB = async (factureId: string) => {
       throw new Error(`Facture ${factureId} not found`);
     }
     
-    // Proceed with deletion
+    // Proceed with deletion as a separate operation
     const { error } = await supabase
       .from('factures')
       .delete()
