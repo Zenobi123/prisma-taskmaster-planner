@@ -23,7 +23,6 @@ interface FacturationTabsProps {
   onUpdateStatus: (factureId: string, newStatus: 'payée' | 'en_attente' | 'envoyée' | 'partiellement_payée') => void;
   onEditInvoice: (facture: Facture) => void;
   onDeleteInvoice: (factureId: string) => void;
-  onDeleteAllInvoices: () => Promise<boolean>;
   onPaiementPartiel: (factureId: string, paiement: any, prestationsIds: string[]) => Promise<Facture | null>;
   isAdmin?: boolean;
 }
@@ -46,7 +45,6 @@ export const FacturationTabs = ({
   onUpdateStatus,
   onEditInvoice,
   onDeleteInvoice,
-  onDeleteAllInvoices,
   onPaiementPartiel,
   isAdmin = false,
 }: FacturationTabsProps) => {
@@ -90,7 +88,6 @@ export const FacturationTabs = ({
             onUpdateStatus={onUpdateStatus}
             onEditInvoice={onEditInvoice}
             onDeleteInvoice={onDeleteInvoice}
-            onDeleteAllInvoices={onDeleteAllInvoices}
             isAdmin={isAdmin}
           />
         ) : (

@@ -50,38 +50,5 @@ export const useFactureDelete = (factures: Facture[], setFactures: React.Dispatc
     }
   };
 
-  /**
-   * Supprime toutes les factures
-   * @returns true si la suppression a réussi, false sinon
-   */
-  const deleteAllInvoices = async (): Promise<boolean> => {
-    try {
-      // Suppression de toutes les factures une par une
-      for (const facture of factures) {
-        await deleteFactureFromDB(facture.id);
-      }
-      
-      // Mise à jour de l'état local
-      setFactures([]);
-      
-      // Notification de succès
-      toast({
-        title: "Toutes les factures supprimées",
-        description: "Toutes les factures ont été supprimées avec succès."
-      });
-      
-      return true;
-    } catch (error) {
-      // Gestion d'erreur
-      console.error("Erreur lors de la suppression massive des factures:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de supprimer toutes les factures. Veuillez réessayer.",
-        variant: "destructive"
-      });
-      return false;
-    }
-  };
-
-  return { handleDeleteInvoice, deleteAllInvoices };
+  return { handleDeleteInvoice };
 };
