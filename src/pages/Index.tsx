@@ -1,5 +1,4 @@
 
-import Sidebar from "@/components/dashboard/Sidebar";
 import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
 import QuickStats from "@/components/dashboard/QuickStats";
 import RecentTasks from "@/components/dashboard/RecentTasks";
@@ -15,6 +14,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
+import PageLayout from "@/components/layout/PageLayout";
 
 const Index = () => {
   const queryClient = useQueryClient();
@@ -61,11 +61,9 @@ const Index = () => {
   console.log("Index - Rendering dashboard components, last refresh:", lastRefresh.toLocaleTimeString());
 
   return (
-    <div className="min-h-screen flex">
-      <Sidebar />
-
-      <main className="flex-1 bg-neutral-100">
-        <header className="bg-white border-b border-neutral-200 px-8 py-6">
+    <PageLayout>
+      <div className="p-8 space-y-8 w-full">
+        <header className="bg-white border-b border-neutral-200 px-8 py-6 -mx-8 -mt-8 mb-8">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-semibold text-neutral-800">
@@ -82,53 +80,51 @@ const Index = () => {
           </div>
         </header>
 
-        <div className="p-8 space-y-8">
-          <QuickStats />
-          
-          <RecentTasks />
-          
-          {/* Section Attestations Fiscales */}
-          <ExpiringFiscalAttestations 
-            attestations={attestations} 
-            isLoading={isLoading} 
-          />
+        <QuickStats />
+        
+        <RecentTasks />
+        
+        {/* Section Attestations Fiscales */}
+        <ExpiringFiscalAttestations 
+          attestations={attestations} 
+          isLoading={isLoading} 
+        />
 
-          {/* Section Patente */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-neutral-800">Gestion des Patentes</h2>
-            
-            {/* Résumé des patentes impayées */}
-            <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
-            
-            {/* Liste des clients avec patente impayée */}
-            <UnpaidPatenteList />
-          </div>
+        {/* Section Patente */}
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold text-neutral-800">Gestion des Patentes</h2>
           
-          {/* Section DSF - Nouvelle section ajoutée */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-neutral-800">Déclarations Statistiques et Fiscales</h2>
-            
-            {/* Résumé des DSF non déposées */}
-            <UnfiledDsfSummary onViewAllClick={() => setIsUnfiledDsfDialogOpen(true)} />
-            
-            {/* Liste des clients avec DSF non déposée */}
-            <UnfiledDsfList />
-          </div>
+          {/* Résumé des patentes impayées */}
+          <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
+          
+          {/* Liste des clients avec patente impayée */}
+          <UnpaidPatenteList />
         </div>
-      </main>
-      
-      <UnpaidPatenteDialog 
-        open={isUnpaidPatenteDialogOpen} 
-        onOpenChange={setIsUnpaidPatenteDialogOpen} 
-      />
-      
-      <UnfiledDsfDialog 
-        open={isUnfiledDsfDialogOpen} 
-        onOpenChange={setIsUnfiledDsfDialogOpen} 
-      />
+        
+        {/* Section DSF - Nouvelle section ajoutée */}
+        <div className="space-y-6">
+          <h2 className="text-xl font-semibold text-neutral-800">Déclarations Statistiques et Fiscales</h2>
+          
+          {/* Résumé des DSF non déposées */}
+          <UnfiledDsfSummary onViewAllClick={() => setIsUnfiledDsfDialogOpen(true)} />
+          
+          {/* Liste des clients avec DSF non déposée */}
+          <UnfiledDsfList />
+        </div>
+        
+        <UnpaidPatenteDialog 
+          open={isUnpaidPatenteDialogOpen} 
+          onOpenChange={setIsUnpaidPatenteDialogOpen} 
+        />
+        
+        <UnfiledDsfDialog 
+          open={isUnfiledDsfDialogOpen} 
+          onOpenChange={setIsUnfiledDsfDialogOpen} 
+        />
+      </div>
       
       <Toaster />
-    </div>
+    </PageLayout>
   );
 };
 
