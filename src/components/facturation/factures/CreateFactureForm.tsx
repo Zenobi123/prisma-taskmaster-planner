@@ -1,7 +1,7 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -61,7 +61,6 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
   const selectedClientId = watch("client_id");
   const selectedClient = allClients.find(client => client.id === selectedClientId);
 
-  // Calculer le montant total quand les prestations changent
   useEffect(() => {
     const total = prestations.reduce((sum, prestation) => {
       return sum + (prestation.montant * (prestation.quantite || 1));
@@ -108,11 +107,9 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
       return;
     }
 
-    // Format des dates en string pour correspondre au format attendu
     const formattedDate = format(data.date, "dd/MM/yyyy");
     const formattedEcheance = format(data.echeance, "dd/MM/yyyy");
 
-    // Générer une référence unique pour la facture (ex: F-2023-005)
     const factureId = `F-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`;
 
     const nouvelleFacture: Facture = {
