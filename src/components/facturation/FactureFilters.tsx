@@ -1,6 +1,8 @@
 
 import { useState } from "react";
 import { Client } from "@/types/client";
+import { RefreshCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import SearchInput from "./filters/SearchInput";
 import FilterPopover from "./filters/FilterPopover";
 import SortButton from "./filters/SortButton";
@@ -16,6 +18,7 @@ interface FactureFiltersProps {
   setClientFilter: (value: string | null) => void;
   dateFilter: Date | null;
   setDateFilter: (value: Date | null) => void;
+  clearFilters: () => void;
   sortKey: string;
   setSortKey: (value: string) => void;
   sortDirection: "asc" | "desc";
@@ -32,6 +35,7 @@ const FactureFilters = ({
   setClientFilter,
   dateFilter,
   setDateFilter,
+  clearFilters,
   sortKey,
   setSortKey,
   sortDirection,
@@ -47,12 +51,6 @@ const FactureFilters = ({
       setSortKey(key);
       setSortDirection("asc");
     }
-  };
-
-  const clearFilters = () => {
-    setStatusFilter(null);
-    setClientFilter(null);
-    setDateFilter(null);
   };
 
   const hasActiveFilters = !!(statusFilter || clientFilter || dateFilter);
@@ -86,6 +84,18 @@ const FactureFilters = ({
           sortDirection={sortDirection}
           onSort={handleSort}
         />
+
+        {hasActiveFilters && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={clearFilters}
+            className="flex items-center gap-1"
+          >
+            <RefreshCcw className="h-3.5 w-3.5" />
+            Réinitialiser
+          </Button>
+        )}
       </div>
 
       <FilterChips

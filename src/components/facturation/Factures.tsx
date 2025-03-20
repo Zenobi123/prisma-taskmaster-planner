@@ -21,6 +21,7 @@ const Factures = () => {
     setClientFilter,
     dateFilter,
     setDateFilter,
+    clearFilters,
     sortKey,
     setSortKey,
     sortDirection,
@@ -50,6 +51,7 @@ const Factures = () => {
           setClientFilter={setClientFilter}
           dateFilter={dateFilter}
           setDateFilter={setDateFilter}
+          clearFilters={clearFilters}
           sortKey={sortKey}
           setSortKey={setSortKey}
           sortDirection={sortDirection}
