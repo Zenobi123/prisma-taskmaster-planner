@@ -155,4 +155,3 @@ export const deleteCollaborateur = async (id: string) => {
     throw error;
   }
 };
-

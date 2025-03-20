@@ -159,6 +159,16 @@ const Login = () => {
             )}
           </Button>
         </form>
+
+        <div className="mt-6 text-center text-sm text-gray-600">
+          <p>Comptes de démo:</p>
+          <p className="mt-1">
+            <strong>Comptable:</strong> comptable@prisma.com / Medaille-123
+          </p>
+          <p className="mt-1">
+            <strong>Admin:</strong> admin@prisma.com / Admin-123
+          </p>
+        </div>
       </div>
     </div>
   );
