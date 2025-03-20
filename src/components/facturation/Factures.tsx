@@ -28,6 +28,7 @@ import { Facture } from "@/types/facture";
 const facturesExemple = [
   { 
     id: "F-2023-001", 
+    client_id: "client1", // Added client_id to fix the TypeScript error
     client: {
       nom: "Société ABC",
       adresse: "123 Rue Principale, Douala",
@@ -46,6 +47,7 @@ const facturesExemple = [
   },
   { 
     id: "F-2023-002", 
+    client_id: "client2", // Added client_id to fix the TypeScript error
     client: {
       nom: "Entreprise XYZ",
       adresse: "456 Avenue Centrale, Yaoundé",
@@ -63,6 +65,7 @@ const facturesExemple = [
   },
   { 
     id: "F-2023-003", 
+    client_id: "client3", // Added client_id to fix the TypeScript error
     client: {
       nom: "Cabinet DEF",
       adresse: "789 Boulevard Ouest, Bafoussam",
@@ -80,6 +83,7 @@ const facturesExemple = [
   },
   { 
     id: "F-2023-004", 
+    client_id: "client4", // Added client_id to fix the TypeScript error
     client: {
       nom: "M. Dupont",
       adresse: "101 Rue des Jardins, Limbé",
@@ -178,10 +182,10 @@ const Factures = () => {
                   <TableCell>{getStatusBadge(facture.status)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end space-x-2">
-                      <Button variant="outline" size="icon" onClick={() => handleVoirFacture(facture)}>
+                      <Button variant="outline" size="icon" onClick={() => handleVoirFacture(facture as Facture)}>
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button variant="outline" size="icon" onClick={() => handleTelechargerFacture(facture)}>
+                      <Button variant="outline" size="icon" onClick={() => handleTelechargerFacture(facture as Facture)}>
                         <Download className="h-4 w-4" />
                       </Button>
                       <Button variant="outline" size="icon">
