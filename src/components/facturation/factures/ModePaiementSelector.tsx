@@ -6,20 +6,25 @@ import { Banknote, CreditCard, Building, Smartphone, Wallet } from "lucide-react
 interface ModePaiementSelectorProps {
   value: string;
   onChange: (value: string) => void;
+  includeEmpty?: boolean;
+  label?: string;
 }
 
-const ModePaiementSelector = ({ value, onChange }: ModePaiementSelectorProps) => {
+const ModePaiementSelector = ({ value, onChange, includeEmpty = false, label = "Mode de paiement" }: ModePaiementSelectorProps) => {
   return (
     <div className="space-y-1">
-      <Label htmlFor="modePaiement" className="text-sm">Mode de paiement</Label>
+      <Label htmlFor="modePaiement" className="text-sm">{label}</Label>
       <Select 
-        defaultValue={value}
+        value={value}
         onValueChange={onChange}
       >
         <SelectTrigger className="h-8 text-sm">
           <SelectValue placeholder="Sélectionner" />
         </SelectTrigger>
         <SelectContent>
+          {includeEmpty && (
+            <SelectItem value="">Tous les modes</SelectItem>
+          )}
           <SelectItem value="espèces">
             <div className="flex items-center">
               <Banknote className="h-3 w-3 mr-1" />

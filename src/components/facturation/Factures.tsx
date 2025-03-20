@@ -2,21 +2,34 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText } from "lucide-react";
 import { formatMontant } from "@/utils/formatUtils";
-import FactureSearchBar from "./FactureSearchBar";
 import FactureTable from "./FactureTable";
 import { useFactures } from "@/hooks/useFactures";
 import CreateFactureDialog from "./factures/CreateFactureDialog";
+import FactureFilters from "./FactureFilters";
+import FacturePagination from "./FacturePagination";
 
 const Factures = () => {
   const { 
     searchTerm, 
-    setSearchTerm, 
-    filteredFactures, 
+    setSearchTerm,
+    paginatedFactures,
     handleVoirFacture, 
-    handleTelechargerFacture 
+    handleTelechargerFacture,
+    statusFilter,
+    setStatusFilter,
+    clientFilter,
+    setClientFilter,
+    dateFilter,
+    setDateFilter,
+    sortKey,
+    setSortKey,
+    sortDirection,
+    setSortDirection,
+    currentPage,
+    setCurrentPage,
+    totalPages,
+    allClients
   } = useFactures();
-
-  console.log("Rendering Factures component", { filteredFactures: filteredFactures.length });
 
   return (
     <Card className="shadow-md border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
@@ -25,21 +38,43 @@ const Factures = () => {
           <FileText className="h-5 w-5 text-[#84A98C]" /> 
           Gestion des factures
         </CardTitle>
-        <div className="flex items-center gap-3">
-          <FactureSearchBar 
-            searchTerm={searchTerm} 
-            setSearchTerm={setSearchTerm} 
-          />
-          <CreateFactureDialog />
-        </div>
+        <CreateFactureDialog />
       </CardHeader>
-      <CardContent className="p-0">
-        <FactureTable 
-          factures={filteredFactures}
-          formatMontant={formatMontant}
-          onViewFacture={handleVoirFacture}
-          onDownloadFacture={handleTelechargerFacture}
+      <CardContent className="p-4">
+        <FactureFilters 
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          clientFilter={clientFilter}
+          setClientFilter={setClientFilter}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
+          sortKey={sortKey}
+          setSortKey={setSortKey}
+          sortDirection={sortDirection}
+          setSortDirection={setSortDirection}
+          clients={allClients}
         />
+        
+        <div className="mt-4">
+          <FactureTable 
+            factures={paginatedFactures}
+            formatMontant={formatMontant}
+            onViewFacture={handleVoirFacture}
+            onDownloadFacture={handleTelechargerFacture}
+          />
+        </div>
+        
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-4">
+            <FacturePagination 
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
+        )}
       </CardContent>
     </Card>
   );
