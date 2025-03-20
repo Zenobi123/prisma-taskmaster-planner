@@ -33,6 +33,7 @@ export interface Facture {
   montant: number;
   montant_paye?: number;
   status: "en_attente" | "envoyée" | "payée" | "partiellement_payée" | "annulée";
+  mode_paiement?: string;
   prestations: Prestation[];
   paiements?: Paiement[];
   notes?: string;

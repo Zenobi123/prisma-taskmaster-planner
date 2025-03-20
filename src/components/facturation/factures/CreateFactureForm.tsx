@@ -5,6 +5,7 @@ import ClientSelector from "./ClientSelector";
 import PrestationFields from "./PrestationFields";
 import DatePickerField from "./DatePickerField";
 import StatusSelector from "./StatusSelector";
+import ModePaiementSelector from "./ModePaiementSelector";
 import ClientInfoDisplay from "./ClientInfoDisplay";
 import TotalAmountDisplay from "./TotalAmountDisplay";
 import { useFactureForm } from "@/hooks/useFactureForm";
@@ -31,6 +32,7 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
     selectedDate,
     selectedEcheance,
     selectedStatus,
+    selectedModePaiement,
     allClients,
     onSubmit
   } = useFactureForm(onSuccess);
@@ -67,6 +69,11 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
             <StatusSelector 
               value={selectedStatus}
               onChange={(value) => setValue("status", value)}
+            />
+            
+            <ModePaiementSelector
+              value={selectedModePaiement}
+              onChange={(value) => setValue("mode_paiement", value)}
             />
           </div>
         </div>

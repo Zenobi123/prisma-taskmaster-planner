@@ -15,6 +15,7 @@ export interface FactureFormData {
   date: Date;
   echeance: Date;
   status: string;
+  mode_paiement: string;
   prestations: Prestation[];
   notes?: string;
 }
@@ -41,6 +42,7 @@ export function useFactureForm(onSuccess: () => void) {
       date: new Date(),
       echeance: new Date(new Date().setDate(new Date().getDate() + 30)), // +30 jours par défaut
       status: "en_attente",
+      mode_paiement: "espèces",
       prestations: prestations,
       notes: ""
     }
@@ -51,6 +53,7 @@ export function useFactureForm(onSuccess: () => void) {
   const selectedDate = watch("date");
   const selectedEcheance = watch("echeance");
   const selectedStatus = watch("status");
+  const selectedModePaiement = watch("mode_paiement");
   const notes = watch("notes");
 
   useEffect(() => {
@@ -87,12 +90,19 @@ export function useFactureForm(onSuccess: () => void) {
     const nouvelleFacture: Facture = {
       id: factureId,
       client_id: selectedClient.id,
-      client: selectedClient,
+      client: {
+        id: selectedClient.id,
+        nom: selectedClient.nom || "",
+        adresse: selectedClient.adresse?.ville || "",
+        telephone: selectedClient.contact?.telephone || "",
+        email: selectedClient.contact?.email || ""
+      },
       date: formattedDate,
       echeance: formattedEcheance,
       montant: totalAmount,
       montant_paye: 0,
       status: data.status as "en_attente" | "envoyée" | "payée" | "partiellement_payée" | "annulée",
+      mode_paiement: data.mode_paiement,
       prestations: prestations.map(p => ({
         id: uuidv4(),
         description: p.description,
@@ -129,6 +139,7 @@ export function useFactureForm(onSuccess: () => void) {
     selectedDate,
     selectedEcheance,
     selectedStatus,
+    selectedModePaiement,
     notes,
     allClients,
     onSubmit
