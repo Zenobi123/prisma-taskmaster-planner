@@ -56,12 +56,16 @@ export const useSituationClients = () => {
     : 0;
 
   // Préparer les données pour le graphique
-  const statusItems = [
+  const chartData = [
     { name: "Payées", value: montantPayeGlobal, total: montantTotalGlobal, color: "#16a34a" },
     { name: "En attente", value: montantDuGlobal, total: montantTotalGlobal, color: "#f59e0b" }
-  ];
+  ].filter(item => item.value > 0);
 
-  const chartData = statusItems.filter(item => item.value > 0);
+  // Préparer les données pour la légende
+  const statusItems = [
+    { label: "Payées", count: montantPayeGlobal, color: "#16a34a" },
+    { label: "En attente", count: montantDuGlobal, color: "#f59e0b" }
+  ];
 
   const totalClients = sortedClients.length;
 

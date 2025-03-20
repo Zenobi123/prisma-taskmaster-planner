@@ -55,7 +55,7 @@ const SituationClients = () => {
           <CardTitle>Répartition des paiements</CardTitle>
         </CardHeader>
         <CardContent>
-          <SituationChart chartData={chartData} />
+          <SituationChart data={chartData} />
           <StatusLegend items={statusItems} />
         </CardContent>
       </Card>
