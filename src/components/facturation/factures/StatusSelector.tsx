@@ -9,13 +9,13 @@ interface StatusSelectorProps {
 
 const StatusSelector = ({ value, onChange }: StatusSelectorProps) => {
   return (
-    <div className="space-y-2">
-      <Label htmlFor="status">Statut de paiement</Label>
+    <div className="space-y-1">
+      <Label htmlFor="status" className="text-sm">Statut de paiement</Label>
       <Select 
         defaultValue={value}
         onValueChange={onChange}
       >
-        <SelectTrigger>
+        <SelectTrigger className="h-8 text-sm">
           <SelectValue placeholder="Sélectionner un statut" />
         </SelectTrigger>
         <SelectContent>

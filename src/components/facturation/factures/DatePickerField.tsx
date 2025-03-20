@@ -16,19 +16,19 @@ interface DatePickerFieldProps {
 
 const DatePickerField = ({ label, date, onSelect }: DatePickerFieldProps) => {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={label}>{label}</Label>
+    <div className="space-y-1">
+      <Label htmlFor={label} className="text-sm">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             variant={"outline"}
             className={cn(
-              "w-full justify-start text-left font-normal",
+              "w-full justify-start text-left font-normal h-8 text-sm",
               !date && "text-muted-foreground"
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(date, "dd MMMM yyyy", { locale: fr }) : <span>Sélectionner une date</span>}
+            <CalendarIcon className="mr-1 h-3 w-3" />
+            {date ? format(date, "dd/MM/yyyy", { locale: fr }) : <span>Sélectionner une date</span>}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">

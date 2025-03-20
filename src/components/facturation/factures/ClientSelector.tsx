@@ -17,10 +17,10 @@ interface ClientSelectorProps {
 
 const ClientSelector = ({ clients, value, onChange }: ClientSelectorProps) => {
   return (
-    <div className="space-y-2">
-      <Label htmlFor="client">Client</Label>
+    <div className="space-y-1">
+      <Label htmlFor="client" className="text-sm">Client</Label>
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger className="w-full">
+        <SelectTrigger className="w-full h-8 text-sm">
           <SelectValue placeholder="Sélectionner un client" />
         </SelectTrigger>
         <SelectContent>

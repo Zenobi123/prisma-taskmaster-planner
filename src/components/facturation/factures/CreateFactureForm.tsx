@@ -36,46 +36,52 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
   console.log("Rendering CreateFactureForm", { totalAmount, selectedClientId });
   
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      <div className="space-y-4">
-        <ClientSelector 
-          clients={allClients}
-          value={selectedClientId} 
-          onChange={(value) => setValue("client_id", value)}
-        />
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <div className="space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <ClientSelector 
+              clients={allClients}
+              value={selectedClientId} 
+              onChange={(value) => setValue("client_id", value)}
+            />
 
-        <ClientInfoDisplay client={selectedClient} />
+            <ClientInfoDisplay client={selectedClient} />
+          </div>
+          
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
+              <DatePickerField 
+                label="Date d'émission"
+                date={selectedDate}
+                onSelect={(date) => setValue("date", date)}
+              />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <DatePickerField 
-            label="Date d'émission"
-            date={selectedDate}
-            onSelect={(date) => setValue("date", date)}
-          />
+              <DatePickerField 
+                label="Date d'échéance"
+                date={selectedEcheance}
+                onSelect={(date) => setValue("echeance", date)}
+              />
+            </div>
 
-          <DatePickerField 
-            label="Date d'échéance"
-            date={selectedEcheance}
-            onSelect={(date) => setValue("echeance", date)}
-          />
+            <StatusSelector 
+              value={selectedStatus}
+              onChange={(value) => setValue("status", value)}
+            />
+          </div>
         </div>
-
-        <StatusSelector 
-          value={selectedStatus}
-          onChange={(value) => setValue("status", value)}
-        />
 
         <PrestationFields
           prestations={prestations}
           onPrestationsChange={setPrestations}
         />
 
-        <div className="space-y-2">
-          <Label htmlFor="notes">Notes</Label>
+        <div className="space-y-1">
+          <Label htmlFor="notes" className="text-sm">Notes</Label>
           <Textarea
             id="notes"
             placeholder="Notes supplémentaires pour cette facture..."
-            className="min-h-[100px]"
+            className="min-h-[80px] text-sm"
             {...register("notes")}
           />
         </div>
@@ -83,7 +89,7 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
         <TotalAmountDisplay amount={totalAmount} />
       </div>
 
-      <DialogFooter>
+      <DialogFooter className="pt-2">
         <Button type="submit" className="bg-[#84A98C] hover:bg-[#6B8E74] text-white">
           Créer la facture
         </Button>
