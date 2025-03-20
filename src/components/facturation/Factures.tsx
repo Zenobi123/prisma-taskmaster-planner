@@ -1,11 +1,11 @@
 
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText, Plus } from "lucide-react";
+import { FileText } from "lucide-react";
 import { formatMontant } from "@/utils/formatUtils";
 import FactureSearchBar from "./FactureSearchBar";
 import FactureTable from "./FactureTable";
 import { useFactures } from "@/hooks/useFactures";
+import CreateFactureDialog from "./factures/CreateFactureDialog";
 
 const Factures = () => {
   const { 
@@ -28,9 +28,7 @@ const Factures = () => {
             searchTerm={searchTerm} 
             setSearchTerm={setSearchTerm} 
           />
-          <Button className="bg-[#84A98C] hover:bg-[#6B8E74] shadow-sm">
-            <Plus className="mr-2 h-4 w-4" /> Nouvelle facture
-          </Button>
+          <CreateFactureDialog />
         </div>
       </CardHeader>
       <CardContent className="p-0">

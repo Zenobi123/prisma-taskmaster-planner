@@ -1,7 +1,39 @@
 
 import { useState } from "react";
-import { Facture } from "@/types/facture";
+import { Facture, Client } from "@/types/facture";
 import { generatePDF } from "@/utils/pdfUtils";
+
+// Données d'exemple pour les clients
+const clientsExemple: Client[] = [
+  {
+    id: "client1",
+    nom: "Société ABC",
+    adresse: "123 Rue Principale, Douala",
+    telephone: "694123456",
+    email: "contact@societeabc.com"
+  },
+  {
+    id: "client2",
+    nom: "Entreprise XYZ",
+    adresse: "456 Avenue Centrale, Yaoundé",
+    telephone: "677654321",
+    email: "info@xyz.com"
+  },
+  {
+    id: "client3",
+    nom: "Cabinet DEF",
+    adresse: "789 Boulevard Ouest, Bafoussam",
+    telephone: "698765432",
+    email: "cabinet@def.com"
+  },
+  {
+    id: "client4",
+    nom: "M. Dupont",
+    adresse: "101 Rue des Jardins, Limbé",
+    telephone: "651234567",
+    email: "dupont@mail.com"
+  },
+];
 
 // Données d'exemple pour les factures
 const facturesExemple: Facture[] = [
@@ -86,8 +118,10 @@ const facturesExemple: Facture[] = [
 
 export const useFactures = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [factures, setFactures] = useState<Facture[]>(facturesExemple);
+  const [allClients] = useState<Client[]>(clientsExemple);
   
-  const filteredFactures = facturesExemple.filter(facture => 
+  const filteredFactures = factures.filter(facture => 
     facture.client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
     facture.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -100,11 +134,18 @@ export const useFactures = () => {
     generatePDF(facture, true);
   };
 
+  const addFacture = (facture: Facture) => {
+    setFactures(prevFactures => [facture, ...prevFactures]);
+  };
+
   return {
     searchTerm,
     setSearchTerm,
+    factures,
     filteredFactures,
+    allClients,
     handleVoirFacture,
-    handleTelechargerFacture
+    handleTelechargerFacture,
+    addFacture
   };
 };
