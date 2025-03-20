@@ -17,36 +17,36 @@ const ModePaiementSelector = ({ value, onChange }: ModePaiementSelectorProps) =>
         onValueChange={onChange}
       >
         <SelectTrigger className="h-8 text-sm">
-          <SelectValue placeholder="Sélectionner un mode de paiement" />
+          <SelectValue placeholder="Sélectionner" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="espèces" className="flex items-center">
+          <SelectItem value="espèces">
             <div className="flex items-center">
-              <Banknote className="h-4 w-4 mr-2" />
+              <Banknote className="h-3 w-3 mr-1" />
               <span>Espèces</span>
             </div>
           </SelectItem>
           <SelectItem value="orange_money">
             <div className="flex items-center">
-              <Smartphone className="h-4 w-4 mr-2" />
+              <Smartphone className="h-3 w-3 mr-1" />
               <span>Orange Money</span>
             </div>
           </SelectItem>
           <SelectItem value="mtn_mobile_money">
             <div className="flex items-center">
-              <Smartphone className="h-4 w-4 mr-2" />
+              <Smartphone className="h-3 w-3 mr-1" />
               <span>MTN Mobile Money</span>
             </div>
           </SelectItem>
           <SelectItem value="virement">
             <div className="flex items-center">
-              <Building className="h-4 w-4 mr-2" />
+              <Building className="h-3 w-3 mr-1" />
               <span>Virement</span>
             </div>
           </SelectItem>
           <SelectItem value="chèque">
             <div className="flex items-center">
-              <CreditCard className="h-4 w-4 mr-2" />
+              <CreditCard className="h-3 w-3 mr-1" />
               <span>Chèque</span>
             </div>
           </SelectItem>

@@ -38,9 +38,9 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
   } = useFactureForm(onSuccess);
   
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <div className="space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+      <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div>
             <ClientSelector 
               clients={allClients}
@@ -51,8 +51,8 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
             <ClientInfoDisplay client={selectedClient} />
           </div>
           
-          <div className="space-y-3">
-            <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
               <DatePickerField 
                 label="Date d'émission"
                 date={selectedDate}
@@ -66,15 +66,17 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
               />
             </div>
 
-            <StatusSelector 
-              value={selectedStatus}
-              onChange={(value) => setValue("status", value)}
-            />
-            
-            <ModePaiementSelector
-              value={selectedModePaiement}
-              onChange={(value) => setValue("mode_paiement", value)}
-            />
+            <div className="grid grid-cols-2 gap-2">
+              <StatusSelector 
+                value={selectedStatus}
+                onChange={(value) => setValue("status", value)}
+              />
+              
+              <ModePaiementSelector
+                value={selectedModePaiement}
+                onChange={(value) => setValue("mode_paiement", value)}
+              />
+            </div>
           </div>
         </div>
 
@@ -88,7 +90,7 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
           <Textarea
             id="notes"
             placeholder="Notes supplémentaires pour cette facture..."
-            className="min-h-[80px] text-sm"
+            className="min-h-[60px] text-sm"
             {...register("notes")}
           />
         </div>
@@ -96,16 +98,17 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
         <TotalAmountDisplay amount={totalAmount} />
       </div>
 
-      <DialogFooter className="pt-2 flex justify-between">
+      <DialogFooter className="pt-1 flex justify-between">
         <Button 
           type="button" 
           variant="outline" 
           onClick={onCancel}
           className="gap-2"
+          size="sm"
         >
           <X size={16} /> Annuler
         </Button>
-        <Button type="submit" className="bg-[#84A98C] hover:bg-[#6B8E74] text-white">
+        <Button type="submit" className="bg-[#84A98C] hover:bg-[#6B8E74] text-white" size="sm">
           Créer la facture
         </Button>
       </DialogFooter>

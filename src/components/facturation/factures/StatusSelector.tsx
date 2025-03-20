@@ -16,7 +16,7 @@ const StatusSelector = ({ value, onChange }: StatusSelectorProps) => {
         onValueChange={onChange}
       >
         <SelectTrigger className="h-8 text-sm">
-          <SelectValue placeholder="Sélectionner un statut" />
+          <SelectValue placeholder="Sélectionner" />
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="en_attente">Non payé</SelectItem>
