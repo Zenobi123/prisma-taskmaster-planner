@@ -6,6 +6,9 @@ import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import { useFactures } from "@/hooks/useFactures";
 import { Facture, Prestation } from "@/types/facture";
+import { useQuery } from "@tanstack/react-query";
+import { getClients } from "@/services/clientService";
+import { Client } from "@/types/client";
 
 export interface FactureFormData {
   client_id: string;
@@ -18,11 +21,19 @@ export interface FactureFormData {
 
 export function useFactureForm(onSuccess: () => void) {
   const { toast } = useToast();
-  const { addFacture, allClients } = useFactures();
+  const { addFacture } = useFactures();
   const [prestations, setPrestations] = useState<Prestation[]>([
     { description: "", quantite: 1, montant: 0 },
   ]);
   const [totalAmount, setTotalAmount] = useState(0);
+
+  // Fetch clients using the client service
+  const { data: allClients = [] } = useQuery({
+    queryKey: ["clients"],
+    queryFn: getClients,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: 2
+  });
 
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FactureFormData>({
     defaultValues: {

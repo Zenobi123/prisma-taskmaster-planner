@@ -24,11 +24,17 @@ const ClientSelector = ({ clients, value, onChange }: ClientSelectorProps) => {
           <SelectValue placeholder="Sélectionner un client" />
         </SelectTrigger>
         <SelectContent>
-          {clients.map((client) => (
-            <SelectItem key={client.id} value={client.id}>
-              {client.nom}
-            </SelectItem>
-          ))}
+          {clients.length === 0 ? (
+            <SelectItem value="empty" disabled>Aucun client disponible</SelectItem>
+          ) : (
+            clients.map((client) => (
+              <SelectItem key={client.id} value={client.id}>
+                {client.type === "physique" 
+                  ? client.nom 
+                  : client.raisonsociale || client.nom}
+              </SelectItem>
+            ))
+          )}
         </SelectContent>
       </Select>
     </div>
