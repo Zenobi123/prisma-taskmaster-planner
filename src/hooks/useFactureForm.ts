@@ -13,6 +13,7 @@ export interface FactureFormData {
   echeance: Date;
   status: string;
   prestations: Prestation[];
+  notes?: string;
 }
 
 export function useFactureForm(onSuccess: () => void) {
@@ -30,6 +31,7 @@ export function useFactureForm(onSuccess: () => void) {
       echeance: new Date(new Date().setDate(new Date().getDate() + 30)), // +30 jours par défaut
       status: "en_attente",
       prestations: prestations,
+      notes: ""
     }
   });
 
@@ -38,6 +40,7 @@ export function useFactureForm(onSuccess: () => void) {
   const selectedDate = watch("date");
   const selectedEcheance = watch("echeance");
   const selectedStatus = watch("status");
+  const notes = watch("notes");
 
   useEffect(() => {
     const total = prestations.reduce((sum, prestation) => {
@@ -86,6 +89,7 @@ export function useFactureForm(onSuccess: () => void) {
         montant: p.montant,
       })),
       paiements: [],
+      notes: data.notes,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -114,6 +118,7 @@ export function useFactureForm(onSuccess: () => void) {
     selectedDate,
     selectedEcheance,
     selectedStatus,
+    notes,
     allClients,
     onSubmit
   };

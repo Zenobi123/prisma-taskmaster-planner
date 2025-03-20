@@ -8,6 +8,8 @@ import StatusSelector from "./StatusSelector";
 import ClientInfoDisplay from "./ClientInfoDisplay";
 import TotalAmountDisplay from "./TotalAmountDisplay";
 import { useFactureForm } from "@/hooks/useFactureForm";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 interface CreateFactureFormProps {
   onSuccess: () => void;
@@ -17,6 +19,8 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
   const {
     handleSubmit,
     setValue,
+    watch,
+    register,
     prestations,
     setPrestations,
     totalAmount,
@@ -65,6 +69,16 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
           prestations={prestations}
           onPrestationsChange={setPrestations}
         />
+
+        <div className="space-y-2">
+          <Label htmlFor="notes">Notes</Label>
+          <Textarea
+            id="notes"
+            placeholder="Notes supplémentaires pour cette facture..."
+            className="min-h-[100px]"
+            {...register("notes")}
+          />
+        </div>
 
         <TotalAmountDisplay amount={totalAmount} />
       </div>
