@@ -1,38 +1,91 @@
 
 import { useState, useMemo, useEffect } from "react";
-import { Facture, Client } from "@/types/facture";
+import { Facture } from "@/types/facture";
+import { Client } from "@/types/client"; 
 import { generatePDF } from "@/utils/pdfUtils";
 import { supabase } from "@/integrations/supabase/client";
 
-// Données d'exemple pour les clients
+// Données d'exemple pour les clients convertis au format Client de @/types/client
 const clientsExemple: Client[] = [
   {
     id: "client1",
-    nom: "Société ABC",
-    adresse: "123 Rue Principale, Douala",
-    telephone: "694123456",
-    email: "contact@societeabc.com"
+    type: "morale",
+    niu: "12345678",
+    centrerattachement: "Centre Nord",
+    adresse: {
+      ville: "Douala",
+      quartier: "Centre",
+      lieuDit: "123 Rue Principale"
+    },
+    contact: {
+      telephone: "694123456",
+      email: "contact@societeabc.com"
+    },
+    raisonsociale: "Société ABC",
+    secteuractivite: "Commerce",
+    statut: "actif",
+    gestionexternalisee: false,
+    interactions: []
   },
   {
     id: "client2",
-    nom: "Entreprise XYZ",
-    adresse: "456 Avenue Centrale, Yaoundé",
-    telephone: "677654321",
-    email: "info@xyz.com"
+    type: "morale",
+    niu: "87654321",
+    centrerattachement: "Centre Sud",
+    adresse: {
+      ville: "Yaoundé",
+      quartier: "Ouest",
+      lieuDit: "456 Avenue Centrale"
+    },
+    contact: {
+      telephone: "677654321",
+      email: "info@xyz.com"
+    },
+    raisonsociale: "Entreprise XYZ",
+    secteuractivite: "Services",
+    statut: "actif",
+    gestionexternalisee: false,
+    interactions: []
   },
   {
     id: "client3",
+    type: "morale",
+    niu: "98765432",
+    centrerattachement: "Centre Ouest",
+    adresse: {
+      ville: "Bafoussam",
+      quartier: "Centre",
+      lieuDit: "789 Boulevard Ouest"
+    },
+    contact: {
+      telephone: "698765432",
+      email: "cabinet@def.com"
+    },
     nom: "Cabinet DEF",
-    adresse: "789 Boulevard Ouest, Bafoussam",
-    telephone: "698765432",
-    email: "cabinet@def.com"
+    secteuractivite: "Services",
+    statut: "actif",
+    gestionexternalisee: false,
+    interactions: []
   },
   {
     id: "client4",
+    type: "physique",
+    niu: "12340987",
+    centrerattachement: "Centre Est",
+    adresse: {
+      ville: "Limbé",
+      quartier: "Jardins",
+      lieuDit: "101 Rue des Jardins"
+    },
+    contact: {
+      telephone: "651234567",
+      email: "dupont@mail.com"
+    },
     nom: "M. Dupont",
-    adresse: "101 Rue des Jardins, Limbé",
-    telephone: "651234567",
-    email: "dupont@mail.com"
+    secteuractivite: "Commerce",
+    statut: "actif",
+    gestionexternalisee: false,
+    interactions: []
   },
 ];
 
