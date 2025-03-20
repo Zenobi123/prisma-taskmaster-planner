@@ -5,7 +5,6 @@ import { ClientsHeader } from "./components/ClientsHeader";
 import { ClientsContent } from "./components/ClientsContent";
 import { ClientDialogs } from "./components/ClientDialogs";
 import { LoadingState } from "./components/LoadingState";
-import PageLayout from "@/components/layout/PageLayout";
 
 export default function ClientsPage() {
   const {
@@ -40,11 +39,7 @@ export default function ClientsPage() {
   } = useClientsPage();
 
   if (isLoading) {
-    return (
-      <PageLayout>
-        <LoadingState />
-      </PageLayout>
-    );
+    return <LoadingState />;
   }
 
   if (error) {
@@ -57,50 +52,48 @@ export default function ClientsPage() {
   }
 
   return (
-    <PageLayout>
-      <div className="p-8 w-full">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ClientsHeader onAddClientClick={() => setIsDialogOpen(true)} />
+    <div className="p-8">
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <ClientsHeader onAddClientClick={() => setIsDialogOpen(true)} />
 
-          <ClientsContent
-            clients={clients}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedType={selectedType}
-            onTypeChange={setSelectedType}
-            selectedSecteur={selectedSecteur}
-            onSecteurChange={setSelectedSecteur}
-            showArchived={showArchived}
-            onShowArchivedChange={setShowArchived}
-            onView={handleView}
-            onEdit={handleEdit}
-            onArchive={handleArchive}
-            onRestore={handleRestore}
-            onDelete={handleDelete}
-          />
+        <ClientsContent
+          clients={clients}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedType={selectedType}
+          onTypeChange={setSelectedType}
+          selectedSecteur={selectedSecteur}
+          onSecteurChange={setSelectedSecteur}
+          showArchived={showArchived}
+          onShowArchivedChange={setShowArchived}
+          onView={handleView}
+          onEdit={handleEdit}
+          onArchive={handleArchive}
+          onRestore={handleRestore}
+          onDelete={handleDelete}
+        />
 
-          <ClientDialogs
-            isAddDialogOpen={isDialogOpen}
-            setIsAddDialogOpen={setIsDialogOpen}
-            isEditDialogOpen={isEditDialogOpen}
-            setIsEditDialogOpen={setIsEditDialogOpen}
-            isViewDialogOpen={isViewDialogOpen}
-            setIsViewDialogOpen={setIsViewDialogOpen}
-            selectedClient={selectedClient}
-            newClientType={newClientType}
-            onNewClientTypeChange={setNewClientType}
-            onAddClient={(clientData) => addMutation.mutate(clientData)}
-            onUpdateClient={(clientData) => {
-              if (selectedClient) {
-                updateMutation.mutate({
-                  id: selectedClient.id,
-                  updates: clientData,
-                });
-              }
-            }}
-          />
-        </Dialog>
-      </div>
-    </PageLayout>
+        <ClientDialogs
+          isAddDialogOpen={isDialogOpen}
+          setIsAddDialogOpen={setIsDialogOpen}
+          isEditDialogOpen={isEditDialogOpen}
+          setIsEditDialogOpen={setIsEditDialogOpen}
+          isViewDialogOpen={isViewDialogOpen}
+          setIsViewDialogOpen={setIsViewDialogOpen}
+          selectedClient={selectedClient}
+          newClientType={newClientType}
+          onNewClientTypeChange={setNewClientType}
+          onAddClient={(clientData) => addMutation.mutate(clientData)}
+          onUpdateClient={(clientData) => {
+            if (selectedClient) {
+              updateMutation.mutate({
+                id: selectedClient.id,
+                updates: clientData,
+              });
+            }
+          }}
+        />
+      </Dialog>
+    </div>
   );
 }

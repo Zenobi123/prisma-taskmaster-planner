@@ -1,5 +1,5 @@
 
-import React from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
@@ -7,19 +7,13 @@ import {
   Briefcase, 
   Calendar, 
   FileText, 
+  Menu, 
   Wallet,
+  ChevronRight,
   FolderOpen,
   Receipt
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
-import {
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarHeader,
-  SidebarFooter,
-  SidebarGroupContent
-} from "@/components/ui/sidebar";
 
 const menuItems = [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -33,7 +27,8 @@ const menuItems = [
   { path: "/rapports", icon: FileText, label: "Rapports" }
 ];
 
-const DashboardSidebar = () => {
+const Sidebar = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
 
   const isActiveRoute = (path: string) => {
@@ -41,33 +36,64 @@ const DashboardSidebar = () => {
   };
 
   return (
-    <>
-      <SidebarHeader className="border-b border-neutral-200">
-        <h1 className="font-semibold text-neutral-800">
-          PRISMA GESTION
-        </h1>
-      </SidebarHeader>
-      
-      <SidebarGroupContent className="flex-1 py-2">
-        <SidebarMenu>
-          {menuItems.map((item) => (
-            <SidebarMenuItem key={item.path} className={isActiveRoute(item.path) ? "bg-gray-100" : ""}>
-              <SidebarMenuButton asChild>
-                <Link to={item.path} className="w-full">
-                  <item.icon className="w-5 h-5" />
-                  <span>{item.label}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-      
-      <SidebarFooter className="border-t border-neutral-200 flex justify-center">
+    <aside
+      className={`${
+        isSidebarOpen ? "w-64" : "w-20"
+      } bg-white border-r border-neutral-200 transition-all duration-300 ease-in-out flex flex-col`}
+    >
+      <div className="p-4 border-b border-neutral-200">
+        <div className="flex items-center justify-between">
+          <h1
+            className={`font-semibold text-neutral-800 transition-opacity duration-300 ${
+              !isSidebarOpen && "opacity-0 hidden"
+            }`}
+          >
+            PRISMA GESTION
+          </h1>
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 hover:bg-neutral-100 rounded-md transition-colors"
+            aria-label={isSidebarOpen ? "Réduire le menu" : "Agrandir le menu"}
+          >
+            <Menu className="w-5 h-5 text-neutral-600" />
+          </button>
+        </div>
+      </div>
+
+      <nav className="flex-1 py-4 px-2 space-y-1">
+        {menuItems.map((item) => (
+          <Link
+            key={item.path}
+            to={item.path}
+            className={`sidebar-link group relative ${
+              isActiveRoute(item.path) && "active"
+            }`}
+          >
+            <item.icon className="w-5 h-5 shrink-0" />
+            <span
+              className={`transition-opacity duration-300 ${
+                !isSidebarOpen && "opacity-0 hidden"
+              }`}
+            >
+              {item.label}
+            </span>
+            {!isSidebarOpen && (
+              <div className="absolute left-14 bg-neutral-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+                {item.label}
+              </div>
+            )}
+            {isActiveRoute(item.path) && (
+              <ChevronRight className={`w-4 h-4 ml-auto ${!isSidebarOpen && "hidden"}`} />
+            )}
+          </Link>
+        ))}
+      </nav>
+
+      <div className={`p-4 border-t border-neutral-200 ${!isSidebarOpen && "flex justify-center"}`}>
         <LogoutButton />
-      </SidebarFooter>
-    </>
+      </div>
+    </aside>
   );
 };
 
-export default DashboardSidebar;
+export default Sidebar;

@@ -7,7 +7,6 @@ import { ArrowLeft } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { CollaborateurForm } from "@/components/collaborateurs/CollaborateurForm";
 import { Collaborateur } from "@/types/collaborateur";
-import PageLayout from "@/components/layout/PageLayout";
 
 export default function CollaborateurEdit() {
   const { id } = useParams<{ id: string }>();
@@ -61,51 +60,45 @@ export default function CollaborateurEdit() {
 
   if (isLoading) {
     return (
-      <PageLayout>
-        <div className="p-8 w-full">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          </div>
+      <div className="p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
-      </PageLayout>
+      </div>
     );
   }
 
   if (!collaborateur) {
     return (
-      <PageLayout>
-        <div className="p-8 w-full">
-          <h1>Collaborateur non trouvé</h1>
-        </div>
-      </PageLayout>
+      <div className="p-8">
+        <h1>Collaborateur non trouvé</h1>
+      </div>
     );
   }
 
   return (
-    <PageLayout>
-      <div className="p-8 w-full">
-        <div className="flex items-center justify-between mb-6">
-          <Button
-            variant="outline"
-            onClick={() => navigate(`/collaborateurs/${id}`)}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Retour
-          </Button>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
-          <h2 className="text-2xl font-semibold mb-6">
-            Modifier {collaborateur.prenom} {collaborateur.nom}
-          </h2>
-          <CollaborateurForm
-            collaborateur={collaborateur}
-            onChange={handleChange}
-            onSubmit={handleSubmit}
-          />
-        </div>
+    <div className="p-8">
+      <div className="flex items-center justify-between mb-6">
+        <Button
+          variant="outline"
+          onClick={() => navigate(`/collaborateurs/${id}`)}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour
+        </Button>
       </div>
-    </PageLayout>
+
+      <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
+        <h2 className="text-2xl font-semibold mb-6">
+          Modifier {collaborateur.prenom} {collaborateur.nom}
+        </h2>
+        <CollaborateurForm
+          collaborateur={collaborateur}
+          onChange={handleChange}
+          onSubmit={handleSubmit}
+        />
+      </div>
+    </div>
   );
 }

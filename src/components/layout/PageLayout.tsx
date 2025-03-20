@@ -1,12 +1,6 @@
 
 import React from "react";
-import { 
-  SidebarProvider, 
-  Sidebar, 
-  SidebarContent,
-  SidebarInset
-} from "@/components/ui/sidebar";
-import DashboardSidebar from "@/components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/Sidebar";
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -14,18 +8,12 @@ interface PageLayoutProps {
 
 const PageLayout = ({ children }: PageLayoutProps) => {
   return (
-    <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-gray-50">
-        <Sidebar variant="sidebar" collapsible="icon">
-          <SidebarContent>
-            <DashboardSidebar />
-          </SidebarContent>
-        </Sidebar>
-        <SidebarInset className="p-0 overflow-x-hidden">
-          {children}
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar />
+      <main className="flex-1 overflow-x-hidden">
+        {children}
+      </main>
+    </div>
   );
 };
 

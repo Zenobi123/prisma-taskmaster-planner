@@ -10,16 +10,6 @@ export interface ClientFacturation {
   email: string;
 }
 
-export interface ClientAvecFactures {
-  id: string;
-  nom: string;
-  montantTotal: number;
-  montantPaye: number;
-  montantDu: number;
-  pourcentagePaye: number;
-  status: string;
-}
-
 export const getClientsFacturation = async (): Promise<ClientFacturation[]> => {
   const { data, error } = await supabase
     .from("clients")
@@ -70,59 +60,4 @@ export const getClientFacturationById = async (id: string): Promise<ClientFactur
     telephone: contact.telephone,
     email: contact.email
   };
-};
-
-// Récupérer les clients avec leurs factures pour la vue "Situation clients"
-export const getClientsAvecFactures = async (): Promise<ClientAvecFactures[]> => {
-  // Ici, nous simulons des données pour l'exemple
-  // Dans une application réelle, nous récupérerions ces données depuis la base de données
-  const mockClients = [
-    {
-      id: "1",
-      nom: "Entreprise ABC",
-      montantTotal: 1250000,
-      montantPaye: 750000,
-      montantDu: 500000,
-      pourcentagePaye: 60,
-      status: "partiellement_payée"
-    },
-    {
-      id: "2",
-      nom: "Société XYZ",
-      montantTotal: 850000,
-      montantPaye: 850000,
-      montantDu: 0,
-      pourcentagePaye: 100,
-      status: "payée"
-    },
-    {
-      id: "3",
-      nom: "Cabinet Juridique DEF",
-      montantTotal: 1500000,
-      montantPaye: 0,
-      montantDu: 1500000,
-      pourcentagePaye: 0,
-      status: "en_attente"
-    },
-    {
-      id: "4",
-      nom: "Boutique Mode GHI",
-      montantTotal: 650000,
-      montantPaye: 325000,
-      montantDu: 325000,
-      pourcentagePaye: 50,
-      status: "partiellement_payée"
-    },
-    {
-      id: "5",
-      nom: "Restaurant JKL",
-      montantTotal: 750000,
-      montantPaye: 750000,
-      montantDu: 0,
-      pourcentagePaye: 100,
-      status: "payée"
-    }
-  ];
-
-  return mockClients;
 };

@@ -1,12 +1,6 @@
 
-interface LegendItem {
-  label: string;
-  count: number;
-  color: string;
-}
-
 interface StatusLegendProps {
-  items: LegendItem[];
+  items: { label: string; count: number; color: string }[];
 }
 
 export const StatusLegend = ({ items }: StatusLegendProps) => {
@@ -15,10 +9,7 @@ export const StatusLegend = ({ items }: StatusLegendProps) => {
       {items.map((item, index) => (
         <div key={index} className="flex justify-between items-center">
           <span className="flex items-center">
-            <span 
-              className="h-3 w-3 rounded-full mr-2" 
-              style={{ backgroundColor: item.color }}
-            ></span>
+            <span className={`h-3 w-3 rounded-full ${item.color} mr-2`}></span>
             {item.label}
           </span>
           <span className="font-medium">{item.count}</span>
