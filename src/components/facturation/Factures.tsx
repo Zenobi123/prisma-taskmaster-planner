@@ -1,12 +1,13 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FileText } from "lucide-react";
+import { FileText, FilterX } from "lucide-react";
 import { formatMontant } from "@/utils/formatUtils";
 import FactureTable from "./FactureTable";
 import { useFactures } from "@/hooks/useFactures";
 import CreateFactureDialog from "./factures/CreateFactureDialog";
 import FactureFilters from "./FactureFilters";
 import FacturePagination from "./FacturePagination";
+import { Button } from "@/components/ui/button";
 
 const Factures = () => {
   const { 
@@ -32,14 +33,31 @@ const Factures = () => {
     allClients
   } = useFactures();
 
+  const hasActiveFilters = !!(searchTerm || statusFilter || clientFilter || dateFilter);
+
   return (
     <Card className="shadow-md border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-4 bg-gray-50 border-b">
-        <CardTitle className="text-xl flex items-center gap-2 text-gray-800">
-          <FileText className="h-5 w-5 text-[#84A98C]" /> 
-          Gestion des factures
-        </CardTitle>
-        <CreateFactureDialog />
+        <div className="flex items-center justify-between w-full">
+          <CardTitle className="text-xl flex items-center gap-2 text-gray-800">
+            <FileText className="h-5 w-5 text-[#84A98C]" /> 
+            Gestion des factures
+          </CardTitle>
+          <div className="flex items-center gap-3">
+            {hasActiveFilters && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearFilters}
+                className="flex items-center gap-2 text-gray-600"
+              >
+                <FilterX className="h-4 w-4" />
+                Effacer tous les filtres
+              </Button>
+            )}
+            <CreateFactureDialog />
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="p-4">
         <FactureFilters 
