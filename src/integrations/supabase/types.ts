@@ -147,6 +147,129 @@ export type Database = {
         }
         Relationships: []
       }
+      factures: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          date: string
+          echeance: string
+          id: string
+          montant: number
+          montant_paye: number | null
+          notes: string | null
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          date?: string
+          echeance: string
+          id?: string
+          montant?: number
+          montant_paye?: number | null
+          notes?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          date?: string
+          echeance?: string
+          id?: string
+          montant?: number
+          montant_paye?: number | null
+          notes?: string | null
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "factures_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      paiements: {
+        Row: {
+          created_at: string | null
+          date: string
+          facture_id: string
+          id: string
+          mode: string
+          montant: number
+          notes: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date?: string
+          facture_id: string
+          id?: string
+          mode: string
+          montant: number
+          notes?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          facture_id?: string
+          id?: string
+          mode?: string
+          montant?: number
+          notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paiements_facture_id_fkey"
+            columns: ["facture_id"]
+            isOneToOne: false
+            referencedRelation: "factures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prestations: {
+        Row: {
+          created_at: string | null
+          description: string
+          facture_id: string
+          id: string
+          montant: number
+          quantite: number
+          taux: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          facture_id: string
+          id?: string
+          montant: number
+          quantite?: number
+          taux?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          facture_id?: string
+          id?: string
+          montant?: number
+          quantite?: number
+          taux?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "prestations_facture_id_fkey"
+            columns: ["facture_id"]
+            isOneToOne: false
+            referencedRelation: "factures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           client_id: string | null
