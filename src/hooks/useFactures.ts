@@ -45,6 +45,7 @@ export const useFactures = () => {
   // Apply all filters and sort
   const filteredAndSortedFactures = useMemo(() => {
     // Apply all filters
+    console.log("Applying filters to factures:", factures);
     let result = filterFacturesBySearchTerm(factures, searchTerm);
     result = filterFacturesByStatus(result, statusFilter);
     result = filterFacturesByClient(result, clientFilter);

@@ -3,6 +3,7 @@ import { Facture } from "@/types/facture";
 
 // Filter factures by search term
 export const filterFacturesBySearchTerm = (factures: Facture[], searchTerm: string): Facture[] => {
+  if (!factures || !Array.isArray(factures)) return [];
   if (!searchTerm) return factures;
   
   return factures.filter(facture => 
@@ -13,6 +14,7 @@ export const filterFacturesBySearchTerm = (factures: Facture[], searchTerm: stri
 
 // Filter factures by status
 export const filterFacturesByStatus = (factures: Facture[], statusFilter: string | null): Facture[] => {
+  if (!factures || !Array.isArray(factures)) return [];
   if (!statusFilter) return factures;
   
   return factures.filter(facture => facture.status === statusFilter);
@@ -20,6 +22,7 @@ export const filterFacturesByStatus = (factures: Facture[], statusFilter: string
 
 // Filter factures by client
 export const filterFacturesByClient = (factures: Facture[], clientFilter: string | null): Facture[] => {
+  if (!factures || !Array.isArray(factures)) return [];
   if (!clientFilter) return factures;
   
   return factures.filter(facture => facture.client_id === clientFilter);
@@ -27,6 +30,7 @@ export const filterFacturesByClient = (factures: Facture[], clientFilter: string
 
 // Filter factures by date
 export const filterFacturesByDate = (factures: Facture[], dateFilter: Date | null): Facture[] => {
+  if (!factures || !Array.isArray(factures)) return [];
   if (!dateFilter) return factures;
   
   const dateFormatted = dateFilter.toLocaleDateString('fr-FR');
@@ -39,6 +43,8 @@ export const sortFactures = (
   sortKey: string, 
   sortDirection: "asc" | "desc"
 ): Facture[] => {
+  if (!factures || !Array.isArray(factures)) return [];
+  
   return [...factures].sort((a, b) => {
     if (sortKey === 'date') {
       // Convert date string (DD/MM/YYYY) to Date object for comparison
@@ -66,6 +72,8 @@ export const paginateFactures = (
   currentPage: number, 
   itemsPerPage: number
 ): Facture[] => {
+  if (!factures || !Array.isArray(factures)) return [];
+  
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   return factures.slice(startIndex, endIndex);
