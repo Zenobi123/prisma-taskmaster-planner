@@ -10,12 +10,14 @@ import TotalAmountDisplay from "./TotalAmountDisplay";
 import { useFactureForm } from "@/hooks/useFactureForm";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { X } from "lucide-react";
 
 interface CreateFactureFormProps {
   onSuccess: () => void;
+  onCancel: () => void;
 }
 
-const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
+const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
   const {
     handleSubmit,
     setValue,
@@ -32,8 +34,6 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
     allClients,
     onSubmit
   } = useFactureForm(onSuccess);
-
-  console.log("Rendering CreateFactureForm", { totalAmount, selectedClientId });
   
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -89,7 +89,15 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
         <TotalAmountDisplay amount={totalAmount} />
       </div>
 
-      <DialogFooter className="pt-2">
+      <DialogFooter className="pt-2 flex justify-between">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onCancel}
+          className="gap-2"
+        >
+          <X size={16} /> Annuler
+        </Button>
         <Button type="submit" className="bg-[#84A98C] hover:bg-[#6B8E74] text-white">
           Créer la facture
         </Button>

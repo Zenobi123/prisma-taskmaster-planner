@@ -1,5 +1,5 @@
 
-import { Client } from "@/types/facture";
+import { Client } from "@/types/client";
 
 interface ClientInfoDisplayProps {
   client: Client | undefined;
@@ -28,7 +28,7 @@ const ClientInfoDisplay = ({ client }: ClientInfoDisplayProps) => {
         <strong>Contact:</strong> {client.contact?.telephone || 'N/A'}
       </p>
       <p>
-        <strong>Adresse:</strong> {client.adresse?.quartier}, {client.adresse?.ville}
+        <strong>Adresse:</strong> {client.adresse?.ville || 'N/A'}
       </p>
     </div>
   );

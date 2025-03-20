@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -30,7 +29,10 @@ const CreateFactureDialog = () => {
             Remplissez les informations pour créer une nouvelle facture.
           </DialogDescription>
         </DialogHeader>
-        <CreateFactureForm onSuccess={() => setOpen(false)} />
+        <CreateFactureForm 
+          onSuccess={() => setOpen(false)} 
+          onCancel={() => setOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );

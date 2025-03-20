@@ -1,5 +1,5 @@
 
-import { Client } from "@/types/facture";
+import { Client } from "@/types/client";
 import {
   Select,
   SelectContent,
