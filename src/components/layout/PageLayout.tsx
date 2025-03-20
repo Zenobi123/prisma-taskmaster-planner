@@ -1,6 +1,5 @@
 
 import React from "react";
-import Sidebar from "@/components/dashboard/Sidebar";
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -8,9 +7,8 @@ interface PageLayoutProps {
 
 const PageLayout = ({ children }: PageLayoutProps) => {
   return (
-    <div className="flex h-screen bg-gray-50">
-      <Sidebar />
-      <main className="flex-1 overflow-auto">
+    <div className="min-h-screen bg-gray-50">
+      <main className="w-full">
         {children}
       </main>
     </div>

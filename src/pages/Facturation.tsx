@@ -15,8 +15,8 @@ const Facturation = () => {
 
   return (
     <PageLayout>
-      <div className="py-4 px-6">
-        <div className="flex items-center gap-4 mb-6">
+      <div className="p-6">
+        <div className="mb-6">
           <Button
             variant="outline"
             onClick={() => navigate("/")}
@@ -37,21 +37,38 @@ const Facturation = () => {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-8 max-w-2xl">
-            <TabsTrigger value="factures">Factures</TabsTrigger>
-            <TabsTrigger value="paiements">Paiements</TabsTrigger>
-            <TabsTrigger value="situation">Situation clients</TabsTrigger>
-          </TabsList>
+          <div className="border-b border-gray-200">
+            <TabsList className="bg-transparent h-auto p-0">
+              <TabsTrigger 
+                value="factures" 
+                className="px-6 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base"
+              >
+                Factures
+              </TabsTrigger>
+              <TabsTrigger 
+                value="paiements" 
+                className="px-6 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base"
+              >
+                Paiements
+              </TabsTrigger>
+              <TabsTrigger 
+                value="situation" 
+                className="px-6 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base"
+              >
+                Situation clients
+              </TabsTrigger>
+            </TabsList>
+          </div>
           
-          <TabsContent value="factures">
+          <TabsContent value="factures" className="mt-6">
             <Factures />
           </TabsContent>
           
-          <TabsContent value="paiements">
+          <TabsContent value="paiements" className="mt-6">
             <Paiements />
           </TabsContent>
           
-          <TabsContent value="situation">
+          <TabsContent value="situation" className="mt-6">
             <SituationClients />
           </TabsContent>
         </Tabs>
