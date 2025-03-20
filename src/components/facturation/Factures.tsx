@@ -28,7 +28,7 @@ import { Facture } from "@/types/facture";
 const facturesExemple = [
   { 
     id: "F-2023-001", 
-    client_id: "client1", // Added client_id to fix the TypeScript error
+    client_id: "client1",
     client: {
       nom: "Société ABC",
       adresse: "123 Rue Principale, Douala",
@@ -47,7 +47,7 @@ const facturesExemple = [
   },
   { 
     id: "F-2023-002", 
-    client_id: "client2", // Added client_id to fix the TypeScript error
+    client_id: "client2",
     client: {
       nom: "Entreprise XYZ",
       adresse: "456 Avenue Centrale, Yaoundé",
@@ -65,7 +65,7 @@ const facturesExemple = [
   },
   { 
     id: "F-2023-003", 
-    client_id: "client3", // Added client_id to fix the TypeScript error
+    client_id: "client3",
     client: {
       nom: "Cabinet DEF",
       adresse: "789 Boulevard Ouest, Bafoussam",
@@ -83,7 +83,7 @@ const facturesExemple = [
   },
   { 
     id: "F-2023-004", 
-    client_id: "client4", // Added client_id to fix the TypeScript error
+    client_id: "client4",
     client: {
       nom: "M. Dupont",
       adresse: "101 Rue des Jardins, Limbé",
@@ -112,13 +112,13 @@ const Factures = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "payée":
-        return <Badge className="bg-green-500">Payée</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600">Payée</Badge>;
       case "en_attente":
-        return <Badge variant="outline">En attente</Badge>;
+        return <Badge variant="outline" className="text-neutral-600 border-neutral-400">En attente</Badge>;
       case "partiellement_payée":
-        return <Badge className="bg-amber-500">Partiellement payée</Badge>;
+        return <Badge className="bg-amber-500 hover:bg-amber-600">Partiellement payée</Badge>;
       case "envoyée":
-        return <Badge className="bg-blue-500">Envoyée</Badge>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600">Envoyée</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -128,85 +128,87 @@ const Factures = () => {
     return new Intl.NumberFormat('fr-FR').format(montant) + " XAF";
   };
 
-  const handleVoirFacture = (facture: Facture) => {
-    generatePDF(facture);
+  const handleVoirFacture = (facture: any) => {
+    generatePDF(facture as Facture);
   };
 
-  const handleTelechargerFacture = (facture: Facture) => {
-    generatePDF(facture, true);
+  const handleTelechargerFacture = (facture: any) => {
+    generatePDF(facture as Facture, true);
   };
 
   return (
-    <Card className="shadow-sm border-gray-200">
-      <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-xl flex items-center gap-2">
-          <FileText className="h-5 w-5" /> 
+    <Card className="shadow-sm border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300">
+      <CardHeader className="flex flex-row items-center justify-between pb-4 bg-gray-50 border-b">
+        <CardTitle className="text-xl flex items-center gap-2 text-gray-800">
+          <FileText className="h-5 w-5 text-[#84A98C]" /> 
           Gestion des factures
         </CardTitle>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
             <Input
               type="search"
               placeholder="Rechercher..."
-              className="pl-8 w-64"
+              className="pl-9 w-64 border-gray-300 focus:border-[#84A98C] focus:ring-[#84A98C]/20"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Button className="bg-[#84A98C] hover:bg-[#6B8E74]">
+          <Button className="bg-[#84A98C] hover:bg-[#6B8E74] shadow-sm">
             <Plus className="mr-2 h-4 w-4" /> Nouvelle facture
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>N° Facture</TableHead>
-              <TableHead>Client</TableHead>
-              <TableHead>Date</TableHead>
-              <TableHead>Montant</TableHead>
-              <TableHead>Statut</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredFactures.length > 0 ? (
-              filteredFactures.map((facture) => (
-                <TableRow key={facture.id}>
-                  <TableCell className="font-medium">{facture.id}</TableCell>
-                  <TableCell>{facture.client.nom}</TableCell>
-                  <TableCell>{facture.date}</TableCell>
-                  <TableCell>{formatMontant(facture.montant)}</TableCell>
-                  <TableCell>{getStatusBadge(facture.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end space-x-2">
-                      <Button variant="outline" size="icon" onClick={() => handleVoirFacture(facture as Facture)}>
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon" onClick={() => handleTelechargerFacture(facture as Facture)}>
-                        <Download className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button variant="outline" size="icon">
-                        <Trash className="h-4 w-4" />
-                      </Button>
-                    </div>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader className="bg-gray-50">
+              <TableRow>
+                <TableHead className="font-medium text-gray-700">N° Facture</TableHead>
+                <TableHead className="font-medium text-gray-700">Client</TableHead>
+                <TableHead className="font-medium text-gray-700">Date</TableHead>
+                <TableHead className="font-medium text-gray-700">Montant</TableHead>
+                <TableHead className="font-medium text-gray-700">Statut</TableHead>
+                <TableHead className="text-right font-medium text-gray-700">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredFactures.length > 0 ? (
+                filteredFactures.map((facture) => (
+                  <TableRow key={facture.id} className="hover:bg-gray-50">
+                    <TableCell className="font-medium text-gray-800">{facture.id}</TableCell>
+                    <TableCell>{facture.client.nom}</TableCell>
+                    <TableCell>{facture.date}</TableCell>
+                    <TableCell className="font-medium">{formatMontant(facture.montant)}</TableCell>
+                    <TableCell>{getStatusBadge(facture.status)}</TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end space-x-2">
+                        <Button variant="ghost" size="icon" className="text-blue-500 hover:text-blue-700 hover:bg-blue-50" onClick={() => handleVoirFacture(facture)}>
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-green-500 hover:text-green-700 hover:bg-green-50" onClick={() => handleTelechargerFacture(facture)}>
+                          <Download className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-amber-500 hover:text-amber-700 hover:bg-amber-50">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700 hover:bg-red-50">
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-10 text-gray-500">
+                    Aucune facture trouvée
                   </TableCell>
                 </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
-                  Aucune facture trouvée
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </CardContent>
     </Card>
   );

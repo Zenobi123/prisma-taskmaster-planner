@@ -15,21 +15,21 @@ const Facturation = () => {
 
   return (
     <PageLayout>
-      <div className="p-6">
+      <div className="p-6 max-w-7xl mx-auto">
         <div className="mb-6">
           <Button
             variant="outline"
             onClick={() => navigate("/")}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 hover:bg-gray-100"
           >
             <ArrowLeft className="w-4 h-4" />
             Retour
           </Button>
         </div>
 
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-2xl font-bold">Facturation</h1>
+            <h1 className="text-3xl font-bold text-gray-800">Facturation</h1>
             <p className="text-neutral-600 mt-1">
               Gestion de la facturation et des paiements
             </p>
@@ -41,34 +41,34 @@ const Facturation = () => {
             <TabsList className="bg-transparent h-auto p-0">
               <TabsTrigger 
                 value="factures" 
-                className="px-6 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base"
+                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all"
               >
                 Factures
               </TabsTrigger>
               <TabsTrigger 
                 value="paiements" 
-                className="px-6 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base"
+                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all"
               >
                 Paiements
               </TabsTrigger>
               <TabsTrigger 
                 value="situation" 
-                className="px-6 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none text-base"
+                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all"
               >
                 Situation clients
               </TabsTrigger>
             </TabsList>
           </div>
           
-          <TabsContent value="factures" className="mt-6">
+          <TabsContent value="factures" className="mt-6 animate-fade-in">
             <Factures />
           </TabsContent>
           
-          <TabsContent value="paiements" className="mt-6">
+          <TabsContent value="paiements" className="mt-6 animate-fade-in">
             <Paiements />
           </TabsContent>
           
-          <TabsContent value="situation" className="mt-6">
+          <TabsContent value="situation" className="mt-6 animate-fade-in">
             <SituationClients />
           </TabsContent>
         </Tabs>
