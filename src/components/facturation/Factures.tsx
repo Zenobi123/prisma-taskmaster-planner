@@ -16,8 +16,10 @@ const Factures = () => {
     handleTelechargerFacture 
   } = useFactures();
 
+  console.log("Rendering Factures component", { filteredFactures: filteredFactures.length });
+
   return (
-    <Card className="shadow-sm border-gray-200 overflow-hidden hover:shadow-md transition-all duration-300">
+    <Card className="shadow-md border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
       <CardHeader className="flex flex-row items-center justify-between pb-4 bg-gray-50 border-b">
         <CardTitle className="text-xl flex items-center gap-2 text-gray-800">
           <FileText className="h-5 w-5 text-[#84A98C]" /> 

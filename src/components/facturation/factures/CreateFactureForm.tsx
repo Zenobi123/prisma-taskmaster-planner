@@ -29,6 +29,8 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
     onSubmit
   } = useFactureForm(onSuccess);
 
+  console.log("Rendering CreateFactureForm", { totalAmount, selectedClientId });
+  
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="space-y-4">
@@ -40,7 +42,7 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
 
         <ClientInfoDisplay client={selectedClient} />
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <DatePickerField 
             label="Date d'émission"
             date={selectedDate}
@@ -68,7 +70,7 @@ const CreateFactureForm = ({ onSuccess }: CreateFactureFormProps) => {
       </div>
 
       <DialogFooter>
-        <Button type="submit" className="bg-[#84A98C] hover:bg-[#6B8E74]">
+        <Button type="submit" className="bg-[#84A98C] hover:bg-[#6B8E74] text-white">
           Créer la facture
         </Button>
       </DialogFooter>
