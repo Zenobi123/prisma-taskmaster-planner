@@ -2,7 +2,7 @@
 export interface Prestation {
   id?: string;
   description: string;
-  quantite: number;
+  quantite?: number;
   montant: number;
   taux?: number;
 }
