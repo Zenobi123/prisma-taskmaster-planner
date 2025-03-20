@@ -51,7 +51,7 @@ const DashboardSidebar = () => {
       <SidebarGroupContent className="flex-1 py-2">
         <SidebarMenu>
           {menuItems.map((item) => (
-            <SidebarMenuItem key={item.path} active={isActiveRoute(item.path)}>
+            <SidebarMenuItem key={item.path} className={isActiveRoute(item.path) ? "bg-gray-100" : ""}>
               <SidebarMenuButton asChild>
                 <Link to={item.path} className="w-full">
                   <item.icon className="w-5 h-5" />
