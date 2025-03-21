@@ -27,7 +27,8 @@ const sampleFactures: Facture[] = [
     echeance: '01/02/2023',
     montant: 1000,
     montant_paye: 0,
-    status: 'en_attente',
+    status: 'brouillon',
+    status_paiement: 'non_payée',
     mode_paiement: 'espèces',
     prestations: [],
     paiements: []
@@ -46,7 +47,8 @@ const sampleFactures: Facture[] = [
     echeance: '15/02/2023',
     montant: 2000,
     montant_paye: 2000,
-    status: 'payée',
+    status: 'envoyée',
+    status_paiement: 'payée',
     mode_paiement: 'virement',
     prestations: [],
     paiements: []
@@ -76,9 +78,9 @@ describe('factureUtils', () => {
 
   describe('applyStatusFilter', () => {
     it('should filter factures by status', () => {
-      const result = applyStatusFilter(sampleFactures, 'payée');
+      const result = applyStatusFilter(sampleFactures, 'envoyée');
       expect(result).toHaveLength(1);
-      expect(result[0].status).toBe('payée');
+      expect(result[0].status).toBe('envoyée');
     });
 
     it('should return all factures when status filter is null', () => {
