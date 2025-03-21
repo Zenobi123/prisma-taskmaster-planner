@@ -13,9 +13,10 @@ interface ClientSelectorProps {
   clients: Client[];
   value: string;
   onChange: (value: string) => void;
+  includeEmpty?: boolean;
 }
 
-const ClientSelector = ({ clients, value, onChange }: ClientSelectorProps) => {
+const ClientSelector = ({ clients, value, onChange, includeEmpty = false }: ClientSelectorProps) => {
   return (
     <div className="space-y-1">
       <Label htmlFor="client" className="text-sm">Client</Label>
@@ -24,6 +25,9 @@ const ClientSelector = ({ clients, value, onChange }: ClientSelectorProps) => {
           <SelectValue placeholder="Sélectionner un client" />
         </SelectTrigger>
         <SelectContent>
+          {includeEmpty && (
+            <SelectItem value="">Tous les clients</SelectItem>
+          )}
           {clients.length === 0 ? (
             <SelectItem value="empty" disabled>Aucun client disponible</SelectItem>
           ) : (

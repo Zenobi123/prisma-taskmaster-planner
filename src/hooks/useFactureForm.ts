@@ -9,6 +9,7 @@ import { Facture, Prestation } from "@/types/facture";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
 import { Client } from "@/types/client";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface FactureFormData {
   client_id: string;
@@ -115,6 +116,7 @@ export function useFactureForm(onSuccess: () => void) {
       updated_at: new Date().toISOString(),
     };
 
+    // Add the facture to the local state
     addFacture(nouvelleFacture);
     
     toast({

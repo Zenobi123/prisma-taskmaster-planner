@@ -1,45 +1,15 @@
 
 import { useState, useMemo, useEffect } from "react";
-import { Facture, Client } from "@/types/facture";
+import { Facture } from "@/types/facture";
+import { Client } from "@/types/client";
 import { generatePDF } from "@/utils/pdfUtils";
 import { supabase } from "@/integrations/supabase/client";
-
-// Données d'exemple pour les clients
-const clientsExemple: Client[] = [
-  {
-    id: "client1",
-    nom: "Société ABC",
-    adresse: "123 Rue Principale, Douala",
-    telephone: "694123456",
-    email: "contact@societeabc.com"
-  },
-  {
-    id: "client2",
-    nom: "Entreprise XYZ",
-    adresse: "456 Avenue Centrale, Yaoundé",
-    telephone: "677654321",
-    email: "info@xyz.com"
-  },
-  {
-    id: "client3",
-    nom: "Cabinet DEF",
-    adresse: "789 Boulevard Ouest, Bafoussam",
-    telephone: "698765432",
-    email: "cabinet@def.com"
-  },
-  {
-    id: "client4",
-    nom: "M. Dupont",
-    adresse: "101 Rue des Jardins, Limbé",
-    telephone: "651234567",
-    email: "dupont@mail.com"
-  },
-];
 
 export const useFactures = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [factures, setFactures] = useState<Facture[]>([]);
-  const [allClients] = useState<Client[]>(clientsExemple);
+  // Empty array to start with, no demo data
+  const [allClients, setAllClients] = useState<Client[]>([]);
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
