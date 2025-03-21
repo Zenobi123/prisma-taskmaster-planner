@@ -8,14 +8,19 @@ import CreateFactureDialog from "./factures/CreateFactureDialog";
 import FactureFilters from "./FactureFilters";
 import FacturePagination from "./FacturePagination";
 import { Button } from "@/components/ui/button";
+import { Facture } from "@/types/facture";
 
 const Factures = () => {
   const { 
     searchTerm, 
     setSearchTerm,
     paginatedFactures,
+    factures,
+    setFactures,
     handleVoirFacture, 
     handleTelechargerFacture,
+    handleModifierFacture,
+    handleAnnulerFacture,
     statusFilter,
     setStatusFilter,
     clientFilter,
@@ -50,6 +55,16 @@ const Factures = () => {
     montantFilter.max || 
     modePaiementFilter
   );
+
+  const onEditFacture = (facture: Facture, updatedData: Partial<Facture>) => {
+    const updatedFacture = handleModifierFacture(facture, updatedData);
+    setFactures(prev => prev.map(f => f.id === updatedFacture.id ? updatedFacture : f));
+  };
+
+  const onCancelFacture = (facture: Facture) => {
+    const canceledFacture = handleAnnulerFacture(facture);
+    setFactures(prev => prev.map(f => f.id === canceledFacture.id ? canceledFacture : f));
+  };
 
   return (
     <Card className="shadow-md border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
@@ -105,6 +120,8 @@ const Factures = () => {
             formatMontant={formatMontant}
             onViewFacture={handleVoirFacture}
             onDownloadFacture={handleTelechargerFacture}
+            onEditFacture={onEditFacture}
+            onCancelFacture={onCancelFacture}
           />
         </div>
         

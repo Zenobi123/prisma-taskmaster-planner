@@ -23,7 +23,13 @@ export const useFactures = () => {
   const [allClients] = useState(clientsExemple);
   
   // Get facture actions
-  const { handleVoirFacture, handleTelechargerFacture, addFacture } = useFactureActions();
+  const { 
+    handleVoirFacture, 
+    handleTelechargerFacture,
+    handleModifierFacture,
+    handleAnnulerFacture, 
+    addFacture 
+  } = useFactureActions();
   
   // Get facture filters
   const {
@@ -54,7 +60,6 @@ export const useFactures = () => {
   // Apply all filters and sort
   const filteredAndSortedFactures = useMemo(() => {
     // Apply all filters
-    console.log("Applying filters to factures:", factures);
     let result = filterFacturesBySearchTerm(factures, searchTerm);
     result = filterFacturesByStatus(result, statusFilter);
     result = filterFacturesByClient(result, clientFilter);
@@ -98,11 +103,14 @@ export const useFactures = () => {
     searchTerm,
     setSearchTerm,
     factures,
+    setFactures,
     paginatedFactures,
     filteredAndSortedFactures,
     allClients,
     handleVoirFacture,
     handleTelechargerFacture,
+    handleModifierFacture,
+    handleAnnulerFacture,
     addFacture: addNewFacture,
     // Filters
     statusFilter,

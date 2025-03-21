@@ -15,6 +15,8 @@ const StatusBadge = ({ status }: StatusBadgeProps) => {
       return <Badge className="bg-amber-500 hover:bg-amber-600">Partiellement payée</Badge>;
     case "envoyée":
       return <Badge className="bg-blue-500 hover:bg-blue-600">Envoyée</Badge>;
+    case "annulée":
+      return <Badge className="bg-red-500 hover:bg-red-600">Annulée</Badge>;
     default:
       return <Badge variant="outline">{status}</Badge>;
   }
