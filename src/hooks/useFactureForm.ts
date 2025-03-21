@@ -86,49 +86,60 @@ export function useFactureForm(onSuccess: () => void) {
     const formattedDate = format(data.date, "dd/MM/yyyy");
     const formattedEcheance = format(data.echeance, "dd/MM/yyyy");
 
-    // Generate the next facture number in format FP XXXX-YYYY
-    const nextNumber = await getNextFactureNumber();
-    const currentYear = new Date().getFullYear();
-    const factureId = `FP ${nextNumber}-${currentYear}`;
+    try {
+      // Generate the next facture number in format FP XXXX-YYYY
+      const nextNumber = await getNextFactureNumber();
+      const currentYear = new Date().getFullYear();
+      const factureId = `FP ${nextNumber}-${currentYear}`;
+      
+      console.log("Creating new facture with ID:", factureId);
 
-    const nouvelleFacture: Facture = {
-      id: factureId,
-      client_id: selectedClient.id,
-      client: {
-        id: selectedClient.id,
-        nom: selectedClient.nom || selectedClient.raisonsociale || "",
-        adresse: selectedClient.adresse?.ville || "",
-        telephone: selectedClient.contact?.telephone || "",
-        email: selectedClient.contact?.email || ""
-      },
-      date: formattedDate,
-      echeance: formattedEcheance,
-      montant: totalAmount,
-      montant_paye: 0,
-      status: data.status as "en_attente" | "envoyée" | "payée" | "partiellement_payée" | "annulée",
-      mode_paiement: data.mode_paiement,
-      prestations: prestations.map(p => ({
-        id: uuidv4(),
-        description: p.description,
-        quantite: p.quantite,
-        montant: p.montant,
-      })),
-      paiements: [],
-      notes: data.notes,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
+      const nouvelleFacture: Facture = {
+        id: factureId,
+        client_id: selectedClient.id,
+        client: {
+          id: selectedClient.id,
+          nom: selectedClient.nom || selectedClient.raisonsociale || "",
+          adresse: selectedClient.adresse?.ville || "",
+          telephone: selectedClient.contact?.telephone || "",
+          email: selectedClient.contact?.email || ""
+        },
+        date: formattedDate,
+        echeance: formattedEcheance,
+        montant: totalAmount,
+        montant_paye: 0,
+        status: data.status as "en_attente" | "envoyée" | "payée" | "partiellement_payée" | "annulée",
+        mode_paiement: data.mode_paiement,
+        prestations: prestations.map(p => ({
+          id: uuidv4(),
+          description: p.description,
+          quantite: p.quantite,
+          montant: p.montant,
+        })),
+        paiements: [],
+        notes: data.notes,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
 
-    // Save the facture to Supabase via the useFactures hook
-    await addFacture(nouvelleFacture);
-    
-    // Show success message and close modal
-    toast({
-      title: "Facture créée",
-      description: `La facture ${factureId} a été créée avec succès.`,
-    });
-    
-    onSuccess();
+      // Save the facture to Supabase via the useFactures hook
+      await addFacture(nouvelleFacture);
+      
+      // Show success message and close modal
+      toast({
+        title: "Facture créée",
+        description: `La facture ${factureId} a été créée avec succès.`,
+      });
+      
+      onSuccess();
+    } catch (error) {
+      console.error("Error creating facture:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de la création de la facture.",
+      });
+    }
   };
 
   return {

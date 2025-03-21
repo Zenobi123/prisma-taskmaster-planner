@@ -1,59 +1,44 @@
 
-import { supabase } from "@/integrations/supabase/client";
 import { Facture } from "@/types/facture";
+import { supabase } from "@/integrations/supabase/client";
 
 // Add a new facture to the database
-export const addFactureToDatabase = async (facture: Facture) => {
+export const addFactureToDatabase = async (facture: Facture): Promise<boolean> => {
   try {
-    // Convert date strings to ISO format for database storage
-    let dateISO: string;
-    let echeanceISO: string;
+    console.log("Adding facture to database:", facture.id);
     
-    if (facture.date.includes('/')) {
-      const [day, month, year] = facture.date.split('/');
-      dateISO = `${year}-${month}-${day}`;
-    } else {
-      dateISO = facture.date;
-    }
-    
-    if (facture.echeance.includes('/')) {
-      const [day, month, year] = facture.echeance.split('/');
-      echeanceISO = `${year}-${month}-${day}`;
-    } else {
-      echeanceISO = facture.echeance;
-    }
-
-    console.log("Inserting facture with mode_paiement:", facture.mode_paiement);
-
-    // Add to Supabase database
+    // 1. Insert the facture into the database
     const { data: factureData, error: factureError } = await supabase
       .from("factures")
       .insert({
+        id: facture.id, // Use the pre-generated ID (FP XXXX-YYYY format)
         client_id: facture.client_id,
-        date: dateISO,
-        echeance: echeanceISO,
+        date: facture.date,
+        echeance: facture.echeance,
         montant: facture.montant,
-        montant_paye: facture.montant_paye || 0,
+        montant_paye: facture.montant_paye,
         status: facture.status,
-        notes: facture.notes,
-        mode_paiement: facture.mode_paiement || "espèces"
+        mode_paiement: facture.mode_paiement,
+        notes: facture.notes
       })
       .select()
       .single();
       
     if (factureError) {
       console.error("Error inserting facture:", factureError);
-      throw new Error(`Failed to create invoice: ${factureError.message}`);
+      throw new Error(`Failed to add invoice: ${factureError.message}`);
     }
     
-    // Add prestations
+    console.log("Facture inserted successfully:", factureData.id);
+    
+    // 2. Insert all the prestations for this facture
     if (facture.prestations && facture.prestations.length > 0) {
       const prestationsToInsert = facture.prestations.map(prestation => ({
-        facture_id: factureData.id,
+        id: prestation.id,
+        facture_id: facture.id,
         description: prestation.description,
-        quantite: prestation.quantite || 1,
-        montant: prestation.montant,
-        taux: prestation.taux || 0
+        quantite: prestation.quantite,
+        montant: prestation.montant
       }));
       
       const { error: prestationsError } = await supabase
@@ -62,24 +47,15 @@ export const addFactureToDatabase = async (facture: Facture) => {
         
       if (prestationsError) {
         console.error("Error inserting prestations:", prestationsError);
-        throw new Error(`Failed to add services to invoice: ${prestationsError.message}`);
+        throw new Error(`Failed to add invoice services: ${prestationsError.message}`);
       }
+      
+      console.log("Prestations inserted successfully");
     }
     
-    return factureData;
+    return true;
   } catch (error) {
     console.error("Error in addFactureToDatabase:", error);
-    // Provide more specific error messages based on the error type
-    if (error instanceof Error) {
-      if (error.message.includes("duplicate key")) {
-        throw new Error("This invoice ID already exists. Please try again with a different ID.");
-      } else if (error.message.includes("foreign key constraint")) {
-        throw new Error("The client referenced in this invoice doesn't exist.");
-      } else {
-        throw new Error(`Failed to save invoice: ${error.message}`);
-      }
-    } else {
-      throw new Error("An unexpected error occurred while saving the invoice");
-    }
+    throw error;
   }
 };

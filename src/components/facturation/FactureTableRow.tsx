@@ -39,9 +39,12 @@ const FactureTableRow = ({
     setIsDeleteDialogOpen(false);
   };
 
+  // Display the formatted facture ID (FP XXXX-YYYY)
+  const factureId = facture.id && typeof facture.id === 'string' ? facture.id : 'ID inconnu';
+
   return (
     <TableRow className="hover:bg-gray-50">
-      <TableCell className="font-medium text-gray-800">{facture.id}</TableCell>
+      <TableCell className="font-medium text-gray-800">{factureId}</TableCell>
       <TableCell>{facture.client.nom}</TableCell>
       <TableCell>{facture.date}</TableCell>
       <TableCell className="font-medium">{formatMontant(facture.montant)}</TableCell>
@@ -86,7 +89,7 @@ const FactureTableRow = ({
               <AlertDialogHeader>
                 <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Êtes-vous sûr de vouloir supprimer la facture {facture.id} ?
+                  Êtes-vous sûr de vouloir supprimer la facture {factureId} ?
                   Cette action est irréversible.
                 </AlertDialogDescription>
               </AlertDialogHeader>
