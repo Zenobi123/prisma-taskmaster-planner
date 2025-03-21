@@ -45,7 +45,14 @@ export function FilterForm({
         <Label className="text-sm mb-1">Statut</Label>
         <StatusSelector
           value={statusFilter || ""}
-          onChange={(value) => setStatusFilter(value === "" ? null : value)}
+          onChange={(value) => {
+            // Check if the value is the empty option and set to null
+            if (value === "empty") {
+              setStatusFilter(null);
+            } else {
+              setStatusFilter(value);
+            }
+          }}
           includeEmpty
         />
       </div>

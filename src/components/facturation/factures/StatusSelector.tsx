@@ -5,7 +5,7 @@ import { Facture } from "@/types/facture";
 
 interface StatusSelectorProps {
   value: string;
-  onChange: (value: Facture["status"]) => void; // Ensure the onChange returns a properly typed value
+  onChange: (value: Facture["status"] | "empty") => void; // Updated to handle "empty" value
   includeEmpty?: boolean;
   label?: string;
 }
@@ -17,8 +17,8 @@ const StatusSelector = ({ value, onChange, includeEmpty = false, label = "Statut
       <Select 
         value={value}
         onValueChange={(value) => {
-          // Ensure the value is one of the allowed status types
-          onChange(value as Facture["status"]);
+          // Pass the value directly, including "empty" 
+          onChange(value as Facture["status"] | "empty");
         }}
       >
         <SelectTrigger className="h-8 text-sm">
@@ -26,7 +26,7 @@ const StatusSelector = ({ value, onChange, includeEmpty = false, label = "Statut
         </SelectTrigger>
         <SelectContent>
           {includeEmpty && (
-            <SelectItem value="">Tous les statuts</SelectItem>
+            <SelectItem value="empty">Tous les statuts</SelectItem>
           )}
           <SelectItem value="en_attente">Non payé</SelectItem>
           <SelectItem value="partiellement_payée">Partiellement payé</SelectItem>
