@@ -138,19 +138,37 @@ export const formatClientsForSelector = (clientsData: any[]): Client[] => {
 // Add a new facture to the database
 export const addFactureToDatabase = async (facture: Facture) => {
   try {
+    // Convert date strings to ISO format for database storage
+    let dateISO: string;
+    let echeanceISO: string;
+    
+    if (facture.date.includes('/')) {
+      const [day, month, year] = facture.date.split('/');
+      dateISO = `${year}-${month}-${day}`;
+    } else {
+      dateISO = facture.date;
+    }
+    
+    if (facture.echeance.includes('/')) {
+      const [day, month, year] = facture.echeance.split('/');
+      echeanceISO = `${year}-${month}-${day}`;
+    } else {
+      echeanceISO = facture.echeance;
+    }
+
     // Add to Supabase database
     const { data: factureData, error: factureError } = await supabase
       .from("factures")
       .insert({
         id: facture.id,
         client_id: facture.client_id,
-        date: new Date(facture.date.split('/').reverse().join('-')),
-        echeance: new Date(facture.echeance.split('/').reverse().join('-')),
+        date: dateISO,
+        echeance: echeanceISO,
         montant: facture.montant,
         montant_paye: facture.montant_paye || 0,
         status: facture.status,
         notes: facture.notes,
-        mode_paiement: facture.mode_paiement
+        mode_paiement: facture.mode_paiement || "espèces"
       })
       .select()
       .single();
