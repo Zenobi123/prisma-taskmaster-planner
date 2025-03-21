@@ -36,8 +36,8 @@ export function FilterForm({
     onClose();
   };
   
-  // Fixed type comparison here
-  const hasStatusFilter = statusFilter !== null && statusFilter !== "";
+  // Fix the type comparison by only checking for null
+  const hasActiveFilter = statusFilter !== null;
   
   return (
     <div className="space-y-4">
