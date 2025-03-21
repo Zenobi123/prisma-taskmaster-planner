@@ -15,6 +15,7 @@ const Factures = () => {
     paginatedFactures,
     handleVoirFacture, 
     handleTelechargerFacture,
+    deleteFacture,
     statusFilter,
     setStatusFilter,
     clientFilter,
@@ -63,6 +64,7 @@ const Factures = () => {
             formatMontant={formatMontant}
             onViewFacture={handleVoirFacture}
             onDownloadFacture={handleTelechargerFacture}
+            onDeleteFacture={deleteFacture}
           />
         </div>
         

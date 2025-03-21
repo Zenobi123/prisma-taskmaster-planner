@@ -9,13 +9,15 @@ interface FactureTableProps {
   formatMontant: (montant: number) => string;
   onViewFacture: (facture: Facture) => void;
   onDownloadFacture: (facture: Facture) => void;
+  onDeleteFacture: (factureId: string) => void;
 }
 
 const FactureTable = ({ 
   factures, 
   formatMontant,
   onViewFacture,
-  onDownloadFacture
+  onDownloadFacture,
+  onDeleteFacture
 }: FactureTableProps) => {
   return (
     <div className="overflow-x-auto">
@@ -30,6 +32,7 @@ const FactureTable = ({
                 formatMontant={formatMontant}
                 onViewFacture={onViewFacture}
                 onDownloadFacture={onDownloadFacture}
+                onDeleteFacture={onDeleteFacture}
               />
             ))
           ) : (
