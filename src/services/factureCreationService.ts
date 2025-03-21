@@ -37,6 +37,7 @@ export const addFactureToDatabase = async (facture: Facture): Promise<boolean> =
         montant: facture.montant,
         montant_paye: facture.montant_paye,
         status: facture.status,
+        status_paiement: facture.status_paiement,
         mode_paiement: facture.mode_paiement,
         notes: facture.notes
       })

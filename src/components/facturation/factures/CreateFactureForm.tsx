@@ -32,6 +32,7 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
     selectedDate,
     selectedEcheance,
     selectedStatus,
+    selectedStatusPaiement,
     selectedModePaiement,
     allClients,
     onSubmit
@@ -70,8 +71,19 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
               <StatusSelector 
                 value={selectedStatus}
                 onChange={(value) => setValue("status", value)}
+                type="document"
+                label="Statut du document"
               />
               
+              <StatusSelector 
+                value={selectedStatusPaiement}
+                onChange={(value) => setValue("status_paiement", value)}
+                type="paiement"
+                label="Statut de paiement"
+              />
+            </div>
+            
+            <div className="grid grid-cols-1">
               <ModePaiementSelector
                 value={selectedModePaiement}
                 onChange={(value) => setValue("mode_paiement", value)}

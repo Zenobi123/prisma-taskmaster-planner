@@ -18,6 +18,8 @@ const Factures = () => {
     deleteFacture,
     statusFilter,
     setStatusFilter,
+    statusPaiementFilter,
+    setStatusPaiementFilter,
     clientFilter,
     setClientFilter,
     dateFilter,
@@ -47,6 +49,8 @@ const Factures = () => {
           setSearchTerm={setSearchTerm}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
+          statusPaiementFilter={statusPaiementFilter}
+          setStatusPaiementFilter={setStatusPaiementFilter}
           clientFilter={clientFilter}
           setClientFilter={setClientFilter}
           dateFilter={dateFilter}

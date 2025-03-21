@@ -32,7 +32,8 @@ export interface Facture {
   echeance: string;
   montant: number;
   montant_paye?: number;
-  status: "en_attente" | "envoyée" | "payée" | "partiellement_payée" | "annulée";
+  status: "brouillon" | "envoyée" | "annulée";
+  status_paiement: "non_payée" | "partiellement_payée" | "payée";
   mode_paiement?: string;
   prestations: Prestation[];
   paiements?: Paiement[];

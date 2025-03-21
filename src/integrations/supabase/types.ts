@@ -166,7 +166,7 @@ export type Database = {
           created_at?: string | null
           date?: string
           echeance: string
-          id?: string
+          id: string
           mode_paiement?: string
           montant?: number
           montant_paye?: number | null

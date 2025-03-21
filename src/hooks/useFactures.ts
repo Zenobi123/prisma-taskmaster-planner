@@ -28,6 +28,7 @@ export const useFactures = () => {
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
+  const [statusPaiementFilter, setStatusPaiementFilter] = useState<string | null>(null);
   const [clientFilter, setClientFilter] = useState<string | null>(null);
   const [dateFilter, setDateFilter] = useState<Date | null>(null);
   
@@ -80,12 +81,18 @@ export const useFactures = () => {
   const filteredAndSortedFactures = useMemo(() => {
     let result = applySearchFilter(factures, searchTerm);
     result = applyStatusFilter(result, statusFilter);
+    
+    // Apply status_paiement filter
+    if (statusPaiementFilter) {
+      result = result.filter(facture => facture.status_paiement === statusPaiementFilter);
+    }
+    
     result = applyClientFilter(result, clientFilter);
     result = applyDateFilter(result, dateFilter);
     result = sortFactures(result, sortKey, sortDirection);
     
     return result;
-  }, [factures, searchTerm, statusFilter, clientFilter, dateFilter, sortKey, sortDirection]);
+  }, [factures, searchTerm, statusFilter, statusPaiementFilter, clientFilter, dateFilter, sortKey, sortDirection]);
 
   // Get paginated results
   const paginatedFactures = useMemo(() => {
@@ -100,7 +107,7 @@ export const useFactures = () => {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, clientFilter, dateFilter]);
+  }, [searchTerm, statusFilter, statusPaiementFilter, clientFilter, dateFilter]);
 
   const handleVoirFacture = (facture: Facture) => {
     generatePDF(facture);
@@ -173,6 +180,8 @@ export const useFactures = () => {
     // Filters
     statusFilter,
     setStatusFilter,
+    statusPaiementFilter,
+    setStatusPaiementFilter,
     clientFilter,
     setClientFilter,
     dateFilter,

@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -31,6 +30,8 @@ interface FactureFiltersProps {
   setSearchTerm: (value: string) => void;
   statusFilter: string | null;
   setStatusFilter: (value: string | null) => void;
+  statusPaiementFilter: string | null;
+  setStatusPaiementFilter: (value: string | null) => void;
   clientFilter: string | null;
   setClientFilter: (value: string | null) => void;
   dateFilter: Date | null;
@@ -47,6 +48,8 @@ const FactureFilters = ({
   setSearchTerm,
   statusFilter,
   setStatusFilter,
+  statusPaiementFilter,
+  setStatusPaiementFilter,
   clientFilter,
   setClientFilter,
   dateFilter,
@@ -64,20 +67,21 @@ const FactureFilters = ({
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortKey(key);
-      setSortDirection("desc"); // Default to descending when changing sort key
+      setSortDirection("desc");
     }
   };
   
   const clearFilters = () => {
     setSearchTerm("");
     setStatusFilter(null);
+    setStatusPaiementFilter(null);
     setClientFilter(null);
     setDateFilter(null);
     setSortKey("date");
     setSortDirection("desc");
   };
   
-  const hasActiveFilters = !!searchTerm || !!statusFilter || !!clientFilter || !!dateFilter;
+  const hasActiveFilters = !!searchTerm || !!statusFilter || !!statusPaiementFilter || !!clientFilter || !!dateFilter;
   
   return (
     <div className="space-y-4">
@@ -141,9 +145,9 @@ const FactureFilters = ({
       </div>
       
       {expanded && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pb-2 pt-1">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pb-2 pt-1">
           <div className="space-y-1">
-            <Label htmlFor="status" className="text-xs">Statut</Label>
+            <Label htmlFor="status" className="text-xs">Statut document</Label>
             <Select 
               value={statusFilter || ""} 
               onValueChange={(value) => setStatusFilter(value || null)}
@@ -153,11 +157,27 @@ const FactureFilters = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Tous les statuts</SelectItem>
-                <SelectItem value="en_attente">En attente</SelectItem>
+                <SelectItem value="brouillon">Brouillon</SelectItem>
                 <SelectItem value="envoyée">Envoyée</SelectItem>
-                <SelectItem value="payée">Payée</SelectItem>
-                <SelectItem value="partiellement_payée">Partiellement payée</SelectItem>
                 <SelectItem value="annulée">Annulée</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="space-y-1">
+            <Label htmlFor="statusPaiement" className="text-xs">Statut paiement</Label>
+            <Select 
+              value={statusPaiementFilter || ""} 
+              onValueChange={(value) => setStatusPaiementFilter(value || null)}
+            >
+              <SelectTrigger className="h-8 text-sm">
+                <SelectValue placeholder="Tous les statuts" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">Tous les statuts</SelectItem>
+                <SelectItem value="non_payée">Non payée</SelectItem>
+                <SelectItem value="partiellement_payée">Partiellement payée</SelectItem>
+                <SelectItem value="payée">Payée</SelectItem>
               </SelectContent>
             </Select>
           </div>

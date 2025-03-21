@@ -3,20 +3,32 @@ import { Badge } from "@/components/ui/badge";
 
 interface StatusBadgeProps {
   status: string;
+  type?: "document" | "paiement";
 }
 
-const StatusBadge = ({ status }: StatusBadgeProps) => {
-  switch (status) {
-    case "payée":
-      return <Badge className="bg-green-500 hover:bg-green-600">Payée</Badge>;
-    case "en_attente":
-      return <Badge variant="outline" className="text-neutral-600 border-neutral-400">En attente</Badge>;
-    case "partiellement_payée":
-      return <Badge className="bg-amber-500 hover:bg-amber-600">Partiellement payée</Badge>;
-    case "envoyée":
-      return <Badge className="bg-blue-500 hover:bg-blue-600">Envoyée</Badge>;
-    default:
-      return <Badge variant="outline">{status}</Badge>;
+const StatusBadge = ({ status, type = "document" }: StatusBadgeProps) => {
+  if (type === "document") {
+    switch (status) {
+      case "brouillon":
+        return <Badge variant="outline" className="text-neutral-600 border-neutral-400">Brouillon</Badge>;
+      case "envoyée":
+        return <Badge className="bg-blue-500 hover:bg-blue-600">Envoyée</Badge>;
+      case "annulée":
+        return <Badge className="bg-red-500 hover:bg-red-600">Annulée</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  } else {
+    switch (status) {
+      case "payée":
+        return <Badge className="bg-green-500 hover:bg-green-600">Payée</Badge>;
+      case "non_payée":
+        return <Badge variant="outline" className="text-neutral-600 border-neutral-400">Non payée</Badge>;
+      case "partiellement_payée":
+        return <Badge className="bg-amber-500 hover:bg-amber-600">Partiellement payée</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
   }
 };
 

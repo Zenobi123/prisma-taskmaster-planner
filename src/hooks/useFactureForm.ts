@@ -16,6 +16,7 @@ export interface FactureFormData {
   date: Date;
   echeance: Date;
   status: string;
+  status_paiement: string;
   mode_paiement: string;
   prestations: Prestation[];
   notes?: string;
@@ -42,7 +43,8 @@ export function useFactureForm(onSuccess: () => void) {
       client_id: "",
       date: new Date(),
       echeance: new Date(new Date().setDate(new Date().getDate() + 30)), // +30 jours par défaut
-      status: "en_attente",
+      status: "brouillon",
+      status_paiement: "non_payée",
       mode_paiement: "espèces",
       prestations: prestations,
       notes: ""
@@ -54,8 +56,16 @@ export function useFactureForm(onSuccess: () => void) {
   const selectedDate = watch("date");
   const selectedEcheance = watch("echeance");
   const selectedStatus = watch("status");
+  const selectedStatusPaiement = watch("status_paiement");
   const selectedModePaiement = watch("mode_paiement");
   const notes = watch("notes");
+
+  // When status changes to 'brouillon', automatically set payment status to 'non_payée'
+  useEffect(() => {
+    if (selectedStatus === "brouillon") {
+      setValue("status_paiement", "non_payée");
+    }
+  }, [selectedStatus, setValue]);
 
   useEffect(() => {
     const total = prestations.reduce((sum, prestation) => {
@@ -108,7 +118,8 @@ export function useFactureForm(onSuccess: () => void) {
         echeance: formattedEcheance,
         montant: totalAmount,
         montant_paye: 0,
-        status: data.status as "en_attente" | "envoyée" | "payée" | "partiellement_payée" | "annulée",
+        status: data.status as "brouillon" | "envoyée" | "annulée",
+        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée",
         mode_paiement: data.mode_paiement,
         prestations: prestations.map(p => ({
           id: uuidv4(),
@@ -156,6 +167,7 @@ export function useFactureForm(onSuccess: () => void) {
     selectedDate,
     selectedEcheance,
     selectedStatus,
+    selectedStatusPaiement,
     selectedModePaiement,
     notes,
     allClients,
