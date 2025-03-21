@@ -31,12 +31,15 @@ const DatePickerField = ({ label, date, onSelect }: DatePickerFieldProps) => {
             {date ? format(date, "dd/MM/yyyy", { locale: fr }) : <span>Sélectionner une date</span>}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
+        <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
             selected={date}
             onSelect={(selectedDate) => selectedDate && onSelect(selectedDate)}
             initialFocus
+            className="pointer-events-auto"
+            locale={fr}
+            weekStartsOn={1}
           />
         </PopoverContent>
       </Popover>
