@@ -1,9 +1,24 @@
+
 import { useState, useMemo, useEffect } from "react";
 import { Facture } from "@/types/facture";
 import { Client } from "@/types/client";
 import { generatePDF } from "@/utils/pdfUtils";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { 
+  getFactures, 
+  formatClientsForSelector, 
+  addFactureToDatabase 
+} from "@/services/factureService";
+import {
+  applySearchFilter,
+  applyStatusFilter,
+  applyClientFilter,
+  applyDateFilter,
+  sortFactures,
+  getPaginatedFactures,
+  calculateTotalPages
+} from "@/utils/factureUtils";
 
 export const useFactures = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -26,22 +41,12 @@ export const useFactures = () => {
   
   // Fetch factures and clients from Supabase on component mount
   useEffect(() => {
-    const fetchFactures = async () => {
+    const fetchData = async () => {
       try {
-        const { data: facturesData, error: facturesError } = await supabase
-          .from("factures")
-          .select("*");
-          
-        if (facturesError) {
-          console.error("Error fetching factures:", facturesError);
-          toast({
-            variant: "destructive",
-            title: "Erreur",
-            description: "Impossible de récupérer les factures.",
-          });
-          return;
-        }
+        const facturesData = await getFactures();
+        setFactures(facturesData);
         
+        // We need to fetch clients separately for the selector
         const { data: clientsData, error: clientsError } = await supabase
           .from("clients")
           .select("*");
@@ -56,116 +61,10 @@ export const useFactures = () => {
           return;
         }
         
-        // Fetch prestations for each facture
-        const facturesWithDetails = await Promise.all(
-          facturesData.map(async (facture) => {
-            // Find the client for this facture
-            const client = clientsData.find((c) => c.id === facture.client_id);
-            
-            if (!client) {
-              console.error(`Client not found for facture: ${facture.id}`);
-              return null;
-            }
-            
-            // Fetch prestations
-            const { data: prestationsData, error: prestationsError } = await supabase
-              .from("prestations")
-              .select("*")
-              .eq("facture_id", facture.id);
-              
-            if (prestationsError) {
-              console.error(`Error fetching prestations for facture ${facture.id}:`, prestationsError);
-              return null;
-            }
-            
-            // Fetch paiements
-            const { data: paiementsData, error: paiementsError } = await supabase
-              .from("paiements")
-              .select("*")
-              .eq("facture_id", facture.id);
-              
-            if (paiementsError) {
-              console.error(`Error fetching paiements for facture ${facture.id}:`, paiementsError);
-              return null;
-            }
-            
-            // Format dates
-            const formatDate = (dateStr: string) => {
-              const date = new Date(dateStr);
-              return date.toLocaleDateString('fr-FR');
-            };
-
-            // Safely extract address and contact information with proper type checking
-            const adresse = typeof client.adresse === 'object' && client.adresse 
-              ? client.adresse 
-              : { ville: '', quartier: '', lieuDit: '' };
-
-            const contact = typeof client.contact === 'object' && client.contact 
-              ? client.contact 
-              : { telephone: '', email: '' };
-            
-            // Create complete facture object with all related data
-            const completeFacture: Facture = {
-              id: facture.id,
-              client_id: facture.client_id,
-              client: {
-                id: client.id,
-                nom: client.type === "physique" ? client.nom || "" : client.raisonsociale || "",
-                adresse: adresse.ville || "",
-                telephone: contact.telephone || "",
-                email: contact.email || ""
-              },
-              date: formatDate(facture.date),
-              echeance: formatDate(facture.echeance),
-              montant: facture.montant,
-              montant_paye: facture.montant_paye || 0,
-              status: facture.status as any,
-              mode_paiement: facture.mode_paiement || "espèces",
-              prestations: prestationsData || [],
-              paiements: paiementsData || [],
-              notes: facture.notes,
-              created_at: facture.created_at,
-              updated_at: facture.updated_at,
-            };
-            
-            return completeFacture;
-          })
-        );
-        
-        // Filter out any null values (factures that failed to load properly)
-        const validFactures = facturesWithDetails.filter(f => f !== null) as Facture[];
-        setFactures(validFactures);
-        
-        // Format clients for the client selector
-        const formattedClients: Client[] = clientsData.map(client => {
-          // Safely extract address and contact information
-          const adresse = typeof client.adresse === 'object' && client.adresse 
-            ? client.adresse 
-            : { ville: '', quartier: '', lieuDit: '' };
-
-          const contact = typeof client.contact === 'object' && client.contact 
-            ? client.contact 
-            : { telephone: '', email: '' };
-
-          return {
-            id: client.id,
-            nom: client.type === "physique" ? client.nom || "" : client.raisonsociale || "",
-            adresse: adresse.ville || "",
-            telephone: contact.telephone || "",
-            email: contact.email || "",
-            type: client.type,
-            niu: client.niu,
-            centrerattachement: client.centrerattachement,
-            secteuractivite: client.secteuractivite,
-            statut: client.statut,
-            interactions: client.interactions || [],
-            contact: contact,
-          } as Client;
-        });
-        
+        const formattedClients = formatClientsForSelector(clientsData);
         setAllClients(formattedClients);
       } catch (error) {
-        console.error("Error in fetchFactures:", error);
+        console.error("Error in fetchData:", error);
         toast({
           variant: "destructive",
           title: "Erreur",
@@ -174,69 +73,28 @@ export const useFactures = () => {
       }
     };
     
-    fetchFactures();
+    fetchData();
   }, [toast]); // Re-fetch when toast changes (should be stable, so effectively once on mount)
 
   // Apply filters and sort
   const filteredAndSortedFactures = useMemo(() => {
-    // First apply search term filter
-    let result = factures.filter(facture => 
-      facture.client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      facture.id.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    
-    // Apply status filter
-    if (statusFilter) {
-      result = result.filter(facture => facture.status === statusFilter);
-    }
-    
-    // Apply client filter
-    if (clientFilter) {
-      result = result.filter(facture => facture.client_id === clientFilter);
-    }
-    
-    // Apply date filter
-    if (dateFilter) {
-      const dateFormatted = dateFilter.toLocaleDateString('fr-FR');
-      result = result.filter(facture => {
-        return facture.date === dateFormatted;
-      });
-    }
-    
-    // Apply sorting
-    result.sort((a, b) => {
-      if (sortKey === 'date') {
-        // Convert date string (DD/MM/YYYY) to Date object for comparison
-        const dateA = new Date(a.date.split('/').reverse().join('-'));
-        const dateB = new Date(b.date.split('/').reverse().join('-'));
-        
-        return sortDirection === 'asc' 
-          ? dateA.getTime() - dateB.getTime() 
-          : dateB.getTime() - dateA.getTime();
-      }
-      
-      if (sortKey === 'montant') {
-        return sortDirection === 'asc' 
-          ? a.montant - b.montant 
-          : b.montant - a.montant;
-      }
-      
-      return 0;
-    });
+    let result = applySearchFilter(factures, searchTerm);
+    result = applyStatusFilter(result, statusFilter);
+    result = applyClientFilter(result, clientFilter);
+    result = applyDateFilter(result, dateFilter);
+    result = sortFactures(result, sortKey, sortDirection);
     
     return result;
   }, [factures, searchTerm, statusFilter, clientFilter, dateFilter, sortKey, sortDirection]);
 
   // Get paginated results
   const paginatedFactures = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return filteredAndSortedFactures.slice(startIndex, endIndex);
+    return getPaginatedFactures(filteredAndSortedFactures, currentPage, itemsPerPage);
   }, [filteredAndSortedFactures, currentPage, itemsPerPage]);
 
   // Calculate total pages
   const totalPages = useMemo(() => {
-    return Math.ceil(filteredAndSortedFactures.length / itemsPerPage);
+    return calculateTotalPages(filteredAndSortedFactures.length, itemsPerPage);
   }, [filteredAndSortedFactures, itemsPerPage]);
 
   // Reset to first page when filters change
@@ -254,64 +112,18 @@ export const useFactures = () => {
 
   const addFacture = async (facture: Facture) => {
     try {
-      // Add to Supabase database
-      const { data: factureData, error: factureError } = await supabase
-        .from("factures")
-        .insert({
-          id: facture.id,
-          client_id: facture.client_id,
-          date: new Date(facture.date.split('/').reverse().join('-')),
-          echeance: new Date(facture.echeance.split('/').reverse().join('-')),
-          montant: facture.montant,
-          montant_paye: facture.montant_paye || 0,
-          status: facture.status,
-          notes: facture.notes,
-          mode_paiement: facture.mode_paiement
-        })
-        .select()
-        .single();
-        
-      if (factureError) {
-        console.error("Error inserting facture:", factureError);
-        toast({
-          variant: "destructive",
-          title: "Erreur",
-          description: "Impossible d'enregistrer la facture.",
-        });
-        return;
-      }
+      // Save to database
+      await addFactureToDatabase(facture);
       
-      // Add prestations
-      if (facture.prestations && facture.prestations.length > 0) {
-        const prestationsToInsert = facture.prestations.map(prestation => ({
-          facture_id: facture.id,
-          description: prestation.description,
-          quantite: prestation.quantite || 1,
-          montant: prestation.montant,
-          taux: prestation.taux || 0
-        }));
-        
-        const { error: prestationsError } = await supabase
-          .from("prestations")
-          .insert(prestationsToInsert);
-          
-        if (prestationsError) {
-          console.error("Error inserting prestations:", prestationsError);
-          toast({
-            variant: "destructive",
-            title: "Attention",
-            description: "Facture créée, mais problème avec les prestations.",
-          });
-        }
-      }
-      
-      // Add the facture to the local state (include complete facture object with client info)
+      // Add the facture to the local state
       setFactures(prevFactures => [facture, ...prevFactures]);
       
       toast({
         title: "Succès",
         description: "Facture enregistrée avec succès.",
       });
+      
+      return true;
     } catch (error) {
       console.error("Error in addFacture:", error);
       toast({
@@ -319,6 +131,7 @@ export const useFactures = () => {
         title: "Erreur",
         description: "Une erreur s'est produite lors de l'enregistrement de la facture.",
       });
+      return false;
     }
   };
 
