@@ -9,6 +9,16 @@ export const useFactureFilters = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [clientFilter, setClientFilter] = useState<string | null>(null);
   const [dateFilter, setDateFilter] = useState<Date | null>(null);
+  // Nouveaux filtres
+  const [periodeFilter, setPeriodeFilter] = useState<{
+    debut: Date | null;
+    fin: Date | null;
+  }>({ debut: null, fin: null });
+  const [montantFilter, setMontantFilter] = useState<{
+    min: number | null;
+    max: number | null;
+  }>({ min: null, max: null });
+  const [modePaiementFilter, setModePaiementFilter] = useState<string | null>(null);
   
   // Sort states
   const [sortKey, setSortKey] = useState<string>("date");
@@ -21,12 +31,15 @@ export const useFactureFilters = () => {
   // Reset to first page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, statusFilter, clientFilter, dateFilter]);
+  }, [searchTerm, statusFilter, clientFilter, dateFilter, periodeFilter, montantFilter, modePaiementFilter]);
 
   const resetFilters = () => {
     setStatusFilter(null);
     setClientFilter(null);
     setDateFilter(null);
+    setPeriodeFilter({ debut: null, fin: null });
+    setMontantFilter({ min: null, max: null });
+    setModePaiementFilter(null);
   };
 
   return {
@@ -41,6 +54,13 @@ export const useFactureFilters = () => {
     setClientFilter,
     dateFilter,
     setDateFilter,
+    // Nouveaux filtres
+    periodeFilter,
+    setPeriodeFilter,
+    montantFilter,
+    setMontantFilter,
+    modePaiementFilter,
+    setModePaiementFilter,
     resetFilters,
     
     // Sorting

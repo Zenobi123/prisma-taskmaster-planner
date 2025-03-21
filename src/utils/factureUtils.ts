@@ -37,6 +37,69 @@ export const filterFacturesByDate = (factures: Facture[], dateFilter: Date | nul
   return factures.filter(facture => facture.date === dateFormatted);
 };
 
+// Filter factures by period
+export const filterFacturesByPeriode = (
+  factures: Facture[],
+  debut: Date | null,
+  fin: Date | null
+): Facture[] => {
+  if (!factures || !Array.isArray(factures)) return [];
+  if (!debut && !fin) return factures;
+  
+  return factures.filter(facture => {
+    // Convert date string (DD/MM/YYYY) to Date object for comparison
+    const dateParts = facture.date.split('/');
+    const factureDate = new Date(
+      parseInt(dateParts[2]), 
+      parseInt(dateParts[1]) - 1, 
+      parseInt(dateParts[0])
+    );
+    
+    // Check if facture date is within range
+    if (debut && fin) {
+      return factureDate >= debut && factureDate <= fin;
+    } else if (debut) {
+      return factureDate >= debut;
+    } else if (fin) {
+      return factureDate <= fin;
+    }
+    
+    return true;
+  });
+};
+
+// Filter factures by amount range
+export const filterFacturesByMontant = (
+  factures: Facture[],
+  min: number | null,
+  max: number | null
+): Facture[] => {
+  if (!factures || !Array.isArray(factures)) return [];
+  if (min === null && max === null) return factures;
+  
+  return factures.filter(facture => {
+    if (min !== null && max !== null) {
+      return facture.montant >= min && facture.montant <= max;
+    } else if (min !== null) {
+      return facture.montant >= min;
+    } else if (max !== null) {
+      return facture.montant <= max;
+    }
+    return true;
+  });
+};
+
+// Filter factures by payment method
+export const filterFacturesByModePaiement = (
+  factures: Facture[],
+  modePaiement: string | null
+): Facture[] => {
+  if (!factures || !Array.isArray(factures)) return [];
+  if (!modePaiement) return factures;
+  
+  return factures.filter(facture => facture.mode_paiement === modePaiement);
+};
+
 // Sort factures by key and direction
 export const sortFactures = (
   factures: Facture[], 

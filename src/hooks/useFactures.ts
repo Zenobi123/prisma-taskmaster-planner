@@ -9,6 +9,9 @@ import {
   filterFacturesByStatus,
   filterFacturesByClient,
   filterFacturesByDate,
+  filterFacturesByPeriode,
+  filterFacturesByMontant,
+  filterFacturesByModePaiement,
   sortFactures,
   paginateFactures,
   calculateTotalPages 
@@ -32,6 +35,12 @@ export const useFactures = () => {
     setClientFilter,
     dateFilter,
     setDateFilter,
+    periodeFilter,
+    setPeriodeFilter,
+    montantFilter,
+    setMontantFilter,
+    modePaiementFilter,
+    setModePaiementFilter,
     resetFilters,
     sortKey,
     setSortKey,
@@ -51,11 +60,20 @@ export const useFactures = () => {
     result = filterFacturesByClient(result, clientFilter);
     result = filterFacturesByDate(result, dateFilter);
     
+    // Appliquer les nouveaux filtres
+    result = filterFacturesByPeriode(result, periodeFilter.debut, periodeFilter.fin);
+    result = filterFacturesByMontant(result, montantFilter.min, montantFilter.max);
+    result = filterFacturesByModePaiement(result, modePaiementFilter);
+    
     // Apply sorting
     result = sortFactures(result, sortKey, sortDirection);
     
     return result;
-  }, [factures, searchTerm, statusFilter, clientFilter, dateFilter, sortKey, sortDirection]);
+  }, [
+    factures, searchTerm, statusFilter, clientFilter, dateFilter, 
+    periodeFilter, montantFilter, modePaiementFilter, 
+    sortKey, sortDirection
+  ]);
 
   // Get paginated results
   const paginatedFactures = useMemo(() => {
@@ -93,6 +111,12 @@ export const useFactures = () => {
     setClientFilter,
     dateFilter,
     setDateFilter,
+    periodeFilter,
+    setPeriodeFilter,
+    montantFilter,
+    setMontantFilter,
+    modePaiementFilter,
+    setModePaiementFilter,
     clearFilters,
     // Sorting
     sortKey,

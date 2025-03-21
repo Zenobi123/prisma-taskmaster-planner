@@ -22,6 +22,12 @@ const Factures = () => {
     setClientFilter,
     dateFilter,
     setDateFilter,
+    periodeFilter,
+    setPeriodeFilter,
+    montantFilter,
+    setMontantFilter,
+    modePaiementFilter,
+    setModePaiementFilter,
     clearFilters,
     sortKey,
     setSortKey,
@@ -33,7 +39,17 @@ const Factures = () => {
     allClients
   } = useFactures();
 
-  const hasActiveFilters = !!(searchTerm || statusFilter || clientFilter || dateFilter);
+  const hasActiveFilters = !!(
+    searchTerm || 
+    statusFilter || 
+    clientFilter || 
+    dateFilter || 
+    periodeFilter.debut || 
+    periodeFilter.fin || 
+    montantFilter.min || 
+    montantFilter.max || 
+    modePaiementFilter
+  );
 
   return (
     <Card className="shadow-md border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
@@ -69,6 +85,12 @@ const Factures = () => {
           setClientFilter={setClientFilter}
           dateFilter={dateFilter}
           setDateFilter={setDateFilter}
+          periodeFilter={periodeFilter}
+          setPeriodeFilter={setPeriodeFilter}
+          montantFilter={montantFilter}
+          setMontantFilter={setMontantFilter}
+          modePaiementFilter={modePaiementFilter}
+          setModePaiementFilter={setModePaiementFilter}
           clearFilters={clearFilters}
           sortKey={sortKey}
           setSortKey={setSortKey}
