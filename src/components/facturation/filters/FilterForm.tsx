@@ -1,3 +1,4 @@
+
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -35,7 +36,8 @@ export function FilterForm({
     onClose();
   };
   
-  const hasStatusFilter = statusFilter !== undefined && statusFilter !== null && statusFilter !== "" as any;
+  // Fixed type comparison here
+  const hasStatusFilter = statusFilter !== null && statusFilter !== "";
   
   return (
     <div className="space-y-4">
