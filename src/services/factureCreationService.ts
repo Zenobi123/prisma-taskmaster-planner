@@ -23,6 +23,8 @@ export const addFactureToDatabase = async (facture: Facture) => {
       echeanceISO = facture.echeance;
     }
 
+    console.log("Inserting facture with mode_paiement:", facture.mode_paiement);
+
     // Add to Supabase database
     const { data: factureData, error: factureError } = await supabase
       .from("factures")

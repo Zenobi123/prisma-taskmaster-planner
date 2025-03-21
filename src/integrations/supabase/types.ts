@@ -154,6 +154,7 @@ export type Database = {
           date: string
           echeance: string
           id: string
+          mode_paiement: string
           montant: number
           montant_paye: number | null
           notes: string | null
@@ -166,6 +167,7 @@ export type Database = {
           date?: string
           echeance: string
           id?: string
+          mode_paiement?: string
           montant?: number
           montant_paye?: number | null
           notes?: string | null
@@ -178,6 +180,7 @@ export type Database = {
           date?: string
           echeance?: string
           id?: string
+          mode_paiement?: string
           montant?: number
           montant_paye?: number | null
           notes?: string | null

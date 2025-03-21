@@ -90,6 +90,7 @@ const buildCompleteFacture = (facture: any, client: any, prestationsData: any[],
 // Fetch all factures with related data
 export const getFacturesData = async () => {
   try {
+    console.log("Fetching factures data...");
     // Fetch factures data
     const { data: facturesData, error: facturesError } = await supabase
       .from("factures")
@@ -99,6 +100,8 @@ export const getFacturesData = async () => {
       console.error("Error fetching factures:", facturesError);
       throw new Error(`Failed to fetch invoices: ${facturesError.message}`);
     }
+    
+    console.log("Factures fetched:", facturesData?.length || 0);
     
     // Fetch clients data once for all factures
     const clientsData = await getClientsData();
@@ -125,6 +128,7 @@ export const getFacturesData = async () => {
     
     // Filter out any null values (factures that failed to load properly)
     const validFactures = facturesWithDetails.filter(f => f !== null) as Facture[];
+    console.log("Valid factures processed:", validFactures.length);
     
     return validFactures;
   } catch (error) {
