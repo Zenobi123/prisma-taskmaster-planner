@@ -7,6 +7,7 @@ import { useFactures } from "@/hooks/useFactures";
 import CreateFactureDialog from "./factures/CreateFactureDialog";
 import FactureFilters from "./FactureFilters";
 import FacturePagination from "./FacturePagination";
+import EditFactureDialog from "./factures/EditFactureDialog";
 
 const Factures = () => {
   const { 
@@ -32,8 +33,17 @@ const Factures = () => {
     currentPage,
     setCurrentPage,
     totalPages,
-    allClients
+    allClients,
+    // Edit dialog state
+    editFactureDialogOpen,
+    setEditFactureDialogOpen,
+    currentEditFacture,
+    setCurrentEditFacture
   } = useFactures();
+
+  const handleEditSuccess = () => {
+    setEditFactureDialogOpen(false);
+  };
 
   return (
     <Card className="shadow-md border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
@@ -83,6 +93,14 @@ const Factures = () => {
             />
           </div>
         )}
+
+        {/* Edit Facture Dialog */}
+        <EditFactureDialog 
+          facture={currentEditFacture}
+          open={editFactureDialogOpen}
+          onOpenChange={setEditFactureDialogOpen}
+          onSuccess={handleEditSuccess}
+        />
       </CardContent>
     </Card>
   );

@@ -106,5 +106,83 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
   }
 };
 
+// Update an existing facture in the database
+export const updateFactureInDatabase = async (facture: Facture): Promise<boolean> => {
+  try {
+    console.log("Updating facture:", facture.id);
+    
+    // Format dates for PostgreSQL
+    const formatDateForDatabase = (dateStr: string): string => {
+      // If the date is in DD/MM/YYYY format, convert it to YYYY-MM-DD
+      if (dateStr && dateStr.includes('/')) {
+        const [day, month, year] = dateStr.split('/');
+        return `${year}-${month}-${day}`;
+      }
+      return dateStr;
+    };
+    
+    const formattedDate = formatDateForDatabase(facture.date);
+    const formattedEcheance = formatDateForDatabase(facture.echeance);
+    
+    // 1. Update the facture in the database
+    const { error: factureError } = await supabase
+      .from("factures")
+      .update({
+        date: formattedDate,
+        echeance: formattedEcheance,
+        montant: facture.montant,
+        montant_paye: facture.montant_paye || 0,
+        status: facture.status,
+        status_paiement: facture.status_paiement,
+        mode_paiement: facture.mode_paiement,
+        notes: facture.notes,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", facture.id);
+      
+    if (factureError) {
+      console.error("Error updating facture:", factureError);
+      throw new Error(`Failed to update invoice: ${factureError.message}`);
+    }
+    
+    // 2. Delete existing prestations for this facture
+    const { error: deleteError } = await supabase
+      .from("prestations")
+      .delete()
+      .eq("facture_id", facture.id);
+      
+    if (deleteError) {
+      console.error("Error deleting existing prestations:", deleteError);
+      throw new Error(`Failed to update invoice services: ${deleteError.message}`);
+    }
+    
+    // 3. Insert new prestations for this facture
+    if (facture.prestations && facture.prestations.length > 0) {
+      const prestationsToInsert = facture.prestations.map(prestation => ({
+        id: prestation.id,
+        facture_id: facture.id,
+        description: prestation.description,
+        quantite: prestation.quantite,
+        montant: prestation.montant
+      }));
+      
+      const { error: prestationsError } = await supabase
+        .from("prestations")
+        .insert(prestationsToInsert);
+        
+      if (prestationsError) {
+        console.error("Error inserting prestations:", prestationsError);
+        throw new Error(`Failed to update invoice services: ${prestationsError.message}`);
+      }
+    }
+    
+    console.log("Facture successfully updated");
+    return true;
+  } catch (error) {
+    console.error("Error in updateFactureInDatabase:", error);
+    throw error;
+  }
+};
+
 // This file acts as a facade for the facture services and maintains
 // backward compatibility with existing code that imports from factureService.ts

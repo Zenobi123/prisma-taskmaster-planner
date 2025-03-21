@@ -14,13 +14,20 @@ interface ClientSelectorProps {
   value: string;
   onChange: (value: string) => void;
   includeEmpty?: boolean;
+  disabled?: boolean;
 }
 
-const ClientSelector = ({ clients, value, onChange, includeEmpty = false }: ClientSelectorProps) => {
+const ClientSelector = ({ 
+  clients, 
+  value, 
+  onChange, 
+  includeEmpty = false,
+  disabled = false 
+}: ClientSelectorProps) => {
   return (
     <div className="space-y-1">
       <Label htmlFor="client" className="text-sm">Client</Label>
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value} onValueChange={onChange} disabled={disabled}>
         <SelectTrigger className="w-full h-8 text-sm">
           <SelectValue placeholder="Sélectionner un client" />
         </SelectTrigger>

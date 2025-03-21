@@ -12,14 +12,23 @@ import { useFactureForm } from "@/hooks/useFactureForm";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
-import { Form, FormField, FormItem } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
+import { Facture } from "@/types/facture";
+import { useEffect } from "react";
 
 interface CreateFactureFormProps {
   onSuccess: () => void;
   onCancel: () => void;
+  editMode?: boolean;
+  factureToEdit?: Facture;
 }
 
-const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
+const CreateFactureForm = ({ 
+  onSuccess, 
+  onCancel, 
+  editMode = false,
+  factureToEdit
+}: CreateFactureFormProps) => {
   const {
     handleSubmit,
     setValue,
@@ -36,9 +45,17 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
     selectedStatusPaiement,
     selectedModePaiement,
     allClients,
-    onSubmit
-  } = useFactureForm(onSuccess);
+    onSubmit,
+    initializeFormForEdit
+  } = useFactureForm(onSuccess, editMode);
   
+  // Initialize form with existing facture data when in edit mode
+  useEffect(() => {
+    if (editMode && factureToEdit) {
+      initializeFormForEdit(factureToEdit);
+    }
+  }, [editMode, factureToEdit, initializeFormForEdit]);
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
       <div className="space-y-2 max-h-[70vh] overflow-y-auto px-1">
@@ -48,6 +65,7 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
               clients={allClients}
               value={selectedClientId} 
               onChange={(value) => setValue("client_id", value)}
+              disabled={editMode}
             />
 
             <ClientInfoDisplay client={selectedClient} />
@@ -121,7 +139,7 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
           <X size={16} /> Annuler
         </Button>
         <Button type="submit" className="bg-[#84A98C] hover:bg-[#6B8E74] text-white" size="sm">
-          Créer la facture
+          {editMode ? "Mettre à jour" : "Créer la facture"}
         </Button>
       </DialogFooter>
     </form>

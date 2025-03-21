@@ -9,7 +9,8 @@ import {
   getFactures, 
   formatClientsForSelector, 
   addFactureToDatabase,
-  deleteFactureFromDatabase
+  deleteFactureFromDatabase,
+  updateFactureInDatabase
 } from "@/services/factureService";
 import {
   applySearchFilter,
@@ -28,6 +29,10 @@ export const useFactures = () => {
   const [allClients, setAllClients] = useState<Client[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  // State for edit dialog
+  const [editFactureDialogOpen, setEditFactureDialogOpen] = useState(false);
+  const [currentEditFacture, setCurrentEditFacture] = useState<Facture | null>(null);
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -121,18 +126,9 @@ export const useFactures = () => {
   };
 
   const handleEditFacture = (facture: Facture) => {
-    // Pour l'instant, nous affichons seulement une notification
-    // Dans une implémentation réelle, on pourrait rediriger vers un formulaire d'édition
-    toast({
-      title: "Modification",
-      description: `Édition de la facture ${facture.id}`,
-    });
-    
-    // Logique à implémenter pour l'édition de facture
-    console.log("Édition de la facture:", facture);
-    
-    // Exemple de redirection vers une future page d'édition de facture
-    // navigate(`/facturation/edit/${facture.id}`);
+    // Set the current facture to edit and open the dialog
+    setCurrentEditFacture(facture);
+    setEditFactureDialogOpen(true);
   };
 
   const addFacture = async (facture: Facture) => {
@@ -155,6 +151,31 @@ export const useFactures = () => {
         variant: "destructive",
         title: "Erreur",
         description: "Une erreur s'est produite lors de l'enregistrement de la facture.",
+      });
+      return false;
+    }
+  };
+
+  const updateFacture = async (facture: Facture) => {
+    try {
+      // Update in database
+      await updateFactureInDatabase(facture);
+      
+      // Update the facture in the local state
+      setFactures(prevFactures => prevFactures.map(f => f.id === facture.id ? facture : f));
+      
+      toast({
+        title: "Succès",
+        description: "Facture mise à jour avec succès.",
+      });
+      
+      return true;
+    } catch (error) {
+      console.error("Error in updateFacture:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de la mise à jour de la facture.",
       });
       return false;
     }
@@ -195,6 +216,7 @@ export const useFactures = () => {
     handleTelechargerFacture,
     handleEditFacture,
     addFacture,
+    updateFacture,
     deleteFacture,
     // Filters
     statusFilter,
@@ -214,5 +236,10 @@ export const useFactures = () => {
     currentPage,
     setCurrentPage,
     totalPages,
+    // Edit dialog state
+    editFactureDialogOpen,
+    setEditFactureDialogOpen,
+    currentEditFacture,
+    setCurrentEditFacture
   };
 };
