@@ -1,4 +1,3 @@
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -61,6 +60,7 @@ const AdvancedFilterForm = ({
   };
 
   return (
+    
     <div className="space-y-4">
       <div>
         <Label className="text-sm font-medium">Période</Label>

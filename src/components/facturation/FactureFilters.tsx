@@ -62,18 +62,6 @@ const FactureFilters = ({
   setSortDirection,
   clients
 }: FactureFiltersProps) => {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
-  const [isAdvancedFilterOpen, setIsAdvancedFilterOpen] = useState(false);
-
-  const handleSort = (key: string) => {
-    if (sortKey === key) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortKey(key);
-      setSortDirection("asc");
-    }
-  };
-
   const hasBasicFilters = !!(statusFilter || clientFilter || dateFilter);
   const hasAdvancedFilters = !!(
     periodeFilter.debut || 
@@ -135,7 +123,7 @@ const FactureFilters = ({
             dateFilter={dateFilter}
             setDateFilter={setDateFilter}
             clients={clients}
-            onClose={() => setIsPopoverOpen(false)}
+            onClose={() => {}}
             clearFilters={clearFilters}
           />
         </FilterPopover>
@@ -163,7 +151,7 @@ const FactureFilters = ({
             setMontantMax={setMontantMax}
             modePaiement={modePaiementFilter}
             setModePaiement={setModePaiementFilter}
-            onClose={() => setIsAdvancedFilterOpen(false)}
+            onClose={() => {}}
             clearFilters={clearFilters}
           />
         </FilterPopover>
@@ -204,6 +192,16 @@ const FactureFilters = ({
       />
     </div>
   );
+};
+
+// Fonction de tri ajoutée
+const handleSort = (key: string) => {
+  if (sortKey === key) {
+    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+  } else {
+    setSortKey(key);
+    setSortDirection("asc");
+  }
 };
 
 export default FactureFilters;

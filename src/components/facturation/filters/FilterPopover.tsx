@@ -15,7 +15,7 @@ interface FilterPopoverProps {
 }
 
 const FilterPopover = ({ children, hasActiveFilters, trigger }: FilterPopoverProps) => {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const defaultTrigger = (
     <Button variant="outline" size="sm" className="gap-1">
@@ -28,7 +28,7 @@ const FilterPopover = ({ children, hasActiveFilters, trigger }: FilterPopoverPro
   );
 
   return (
-    <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         {trigger || defaultTrigger}
       </PopoverTrigger>

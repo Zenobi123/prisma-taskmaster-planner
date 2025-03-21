@@ -31,6 +31,10 @@ const FilterForm = ({
   onClose,
   clearFilters
 }: FilterFormProps) => {
+  const handleApply = () => {
+    onClose();
+  };
+  
   return (
     <div className="space-y-4">
       <div>
@@ -80,7 +84,7 @@ const FilterForm = ({
         </Button>
         <Button 
           size="sm" 
-          onClick={onClose}
+          onClick={handleApply}
           className="bg-[#84A98C] hover:bg-[#6B8E74] text-white"
         >
           Appliquer
