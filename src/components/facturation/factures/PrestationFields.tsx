@@ -38,8 +38,8 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <Label className="text-sm font-medium">Prestations</Label>
-        <Button type="button" variant="outline" size="sm" onClick={addPrestation} className="h-7 text-xs">
+        <Label className="text-xs font-medium">Prestations</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addPrestation} className="h-6 text-xs">
           + Prestation
         </Button>
       </div>
@@ -50,7 +50,7 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
             <div className="col-span-5">
               <Input
                 placeholder="Description"
-                className="text-xs h-7"
+                className="text-xs h-6"
                 value={prestation.description}
                 onChange={(e) => updatePrestation(index, "description", e.target.value)}
               />
@@ -59,7 +59,7 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
               <Input
                 type="number"
                 min="1"
-                className="text-xs h-7"
+                className="text-xs h-6"
                 value={prestation.quantite}
                 onChange={(e) => updatePrestation(index, "quantite", e.target.value)}
               />
@@ -68,7 +68,7 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
               <Input
                 type="number"
                 min="0"
-                className="text-xs h-7"
+                className="text-xs h-6"
                 value={prestation.montant}
                 onChange={(e) => updatePrestation(index, "montant", e.target.value)}
               />
@@ -83,7 +83,7 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
                 type="button" 
                 variant="ghost" 
                 size="sm" 
-                className="h-5 w-5 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                className="h-4 w-4 p-0 text-red-500 hover:text-red-700 hover:bg-red-50"
                 onClick={() => removePrestation(index)}
                 disabled={prestations.length === 1}
               >

@@ -12,6 +12,7 @@ import { useFactureForm } from "@/hooks/useFactureForm";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
+import { Form, FormField, FormItem } from "@/components/ui/form";
 
 interface CreateFactureFormProps {
   onSuccess: () => void;
@@ -40,7 +41,7 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
   
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-      <div className="space-y-2">
+      <div className="space-y-2 max-h-[70vh] overflow-y-auto px-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div>
             <ClientSelector 
@@ -52,7 +53,7 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
             <ClientInfoDisplay client={selectedClient} />
           </div>
           
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="grid grid-cols-2 gap-2">
               <DatePickerField 
                 label="Date d'émission"
@@ -72,23 +73,22 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
                 value={selectedStatus}
                 onChange={(value) => setValue("status", value)}
                 type="document"
-                label="Statut du document"
+                label="Statut document"
               />
               
               <StatusSelector 
                 value={selectedStatusPaiement}
                 onChange={(value) => setValue("status_paiement", value)}
                 type="paiement"
-                label="Statut de paiement"
+                label="Statut paiement"
               />
             </div>
             
-            <div className="grid grid-cols-1">
-              <ModePaiementSelector
-                value={selectedModePaiement}
-                onChange={(value) => setValue("mode_paiement", value)}
-              />
-            </div>
+            <ModePaiementSelector
+              value={selectedModePaiement}
+              onChange={(value) => setValue("mode_paiement", value)}
+              label="Mode paiement"
+            />
           </div>
         </div>
 
@@ -98,11 +98,11 @@ const CreateFactureForm = ({ onSuccess, onCancel }: CreateFactureFormProps) => {
         />
 
         <div className="space-y-1">
-          <Label htmlFor="notes" className="text-sm">Notes</Label>
+          <Label htmlFor="notes" className="text-xs font-medium">Notes</Label>
           <Textarea
             id="notes"
             placeholder="Notes supplémentaires pour cette facture..."
-            className="min-h-[60px] text-sm"
+            className="min-h-[50px] text-xs"
             {...register("notes")}
           />
         </div>
