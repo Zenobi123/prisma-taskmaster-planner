@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Download, Edit, Eye, Trash, Ban, Send } from "lucide-react";
+import { Download, Edit, Eye, Trash } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { Facture } from "@/types/facture";
 
@@ -10,17 +10,13 @@ interface FactureTableRowProps {
   formatMontant: (montant: number) => string;
   onViewFacture: (facture: Facture) => void;
   onDownloadFacture: (facture: Facture) => void;
-  onCancelFacture?: (facture: Facture) => void;
-  onSendFacture?: (facture: Facture) => void;
 }
 
 const FactureTableRow = ({ 
   facture, 
   formatMontant, 
   onViewFacture, 
-  onDownloadFacture,
-  onCancelFacture,
-  onSendFacture
+  onDownloadFacture 
 }: FactureTableRowProps) => {
   return (
     <TableRow className="hover:bg-gray-50">
@@ -50,14 +46,6 @@ const FactureTableRow = ({
           <Button 
             variant="ghost" 
             size="icon" 
-            className="text-purple-500 hover:text-purple-700 hover:bg-purple-50"
-            onClick={() => onSendFacture && onSendFacture(facture)}
-          >
-            <Send className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
             className="text-amber-500 hover:text-amber-700 hover:bg-amber-50"
           >
             <Edit className="h-4 w-4" />
@@ -66,9 +54,8 @@ const FactureTableRow = ({
             variant="ghost" 
             size="icon" 
             className="text-red-500 hover:text-red-700 hover:bg-red-50"
-            onClick={() => onCancelFacture && onCancelFacture(facture)}
           >
-            <Ban className="h-4 w-4" />
+            <Trash className="h-4 w-4" />
           </Button>
         </div>
       </TableCell>
