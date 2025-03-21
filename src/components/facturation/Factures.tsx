@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText } from "lucide-react";
 import { formatMontant } from "@/utils/formatUtils";
 import FactureTable from "./FactureTable";
-import { useFactures } from "@/hooks/useFactures";
+import { useFactures } from "@/hooks/facturation/useFactures";
 import CreateFactureDialog from "./factures/CreateFactureDialog";
 import FactureFilters from "./FactureFilters";
 import FacturePagination from "./FacturePagination";

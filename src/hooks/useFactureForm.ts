@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { format, parse } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
-import { useFactures } from "@/hooks/useFactures";
+import { useFactures } from "@/hooks/facturation/useFactures";
 import { Facture, Prestation } from "@/types/facture";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
