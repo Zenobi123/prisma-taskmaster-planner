@@ -1,3 +1,4 @@
+
 import { useState, useMemo, useEffect } from "react";
 import { Facture } from "@/types/facture";
 import { Client } from "@/types/client";
@@ -19,12 +20,14 @@ import {
   getPaginatedFactures,
   calculateTotalPages
 } from "@/utils/factureUtils";
+import { useNavigate } from "react-router-dom";
 
 export const useFactures = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [factures, setFactures] = useState<Facture[]>([]);
   const [allClients, setAllClients] = useState<Client[]>([]);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Filter states
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
@@ -117,6 +120,21 @@ export const useFactures = () => {
     generatePDF(facture, true);
   };
 
+  const handleEditFacture = (facture: Facture) => {
+    // Pour l'instant, nous affichons seulement une notification
+    // Dans une implémentation réelle, on pourrait rediriger vers un formulaire d'édition
+    toast({
+      title: "Modification",
+      description: `Édition de la facture ${facture.id}`,
+    });
+    
+    // Logique à implémenter pour l'édition de facture
+    console.log("Édition de la facture:", facture);
+    
+    // Exemple de redirection vers une future page d'édition de facture
+    // navigate(`/facturation/edit/${facture.id}`);
+  };
+
   const addFacture = async (facture: Facture) => {
     try {
       // Save to database
@@ -175,6 +193,7 @@ export const useFactures = () => {
     allClients,
     handleVoirFacture,
     handleTelechargerFacture,
+    handleEditFacture,
     addFacture,
     deleteFacture,
     // Filters

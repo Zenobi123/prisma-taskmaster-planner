@@ -23,6 +23,7 @@ interface FactureTableRowProps {
   onViewFacture: (facture: Facture) => void;
   onDownloadFacture: (facture: Facture) => void;
   onDeleteFacture: (factureId: string) => void;
+  onEditFacture: (facture: Facture) => void;
 }
 
 const FactureTableRow = ({ 
@@ -30,7 +31,8 @@ const FactureTableRow = ({
   formatMontant, 
   onViewFacture, 
   onDownloadFacture,
-  onDeleteFacture
+  onDeleteFacture,
+  onEditFacture
 }: FactureTableRowProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -45,6 +47,10 @@ const FactureTableRow = ({
 
   const handleDownloadClick = () => {
     onDownloadFacture(facture);
+  };
+
+  const handleEditClick = () => {
+    onEditFacture(facture);
   };
 
   // Display the formatted facture ID (FP XXXX-YYYY)
@@ -87,7 +93,7 @@ const FactureTableRow = ({
             variant="ghost" 
             size="icon" 
             className="text-amber-500 hover:text-amber-700 hover:bg-amber-50"
-            onClick={() => console.log("Edit facture:", factureId)}
+            onClick={handleEditClick}
             title="Modifier la facture"
           >
             <Edit className="h-4 w-4" />
