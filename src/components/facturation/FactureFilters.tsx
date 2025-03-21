@@ -1,14 +1,11 @@
 
-import { useState } from "react";
 import { Client } from "@/types/client";
-import { RefreshCcw, SlidersHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import SearchInput from "./filters/SearchInput";
-import FilterPopover from "./filters/FilterPopover";
 import SortButton from "./filters/SortButton";
 import FilterChips from "./filters/FilterChips";
-import FilterForm from "./filters/FilterForm";
-import AdvancedFilterForm from "./filters/AdvancedFilterForm";
+import FilterSection from "./filters/FilterSection";
+import FilterActions from "./filters/FilterActions";
+import { useSortFactures } from "@/hooks/useSortFactures";
 
 interface FactureFiltersProps {
   searchTerm: string;
@@ -72,36 +69,16 @@ const FactureFilters = ({
   );
   const hasAnyFilters = hasBasicFilters || hasAdvancedFilters;
 
-  const handleClearAllFilters = () => {
-    clearFilters();
-  };
+  const { handleSort } = useSortFactures(sortKey, sortDirection);
 
-  const setPeriodeDebut = (date: Date | null) => {
-    setPeriodeFilter({
-      ...periodeFilter,
-      debut: date
-    });
-  };
-
-  const setPeriodeFin = (date: Date | null) => {
-    setPeriodeFilter({
-      ...periodeFilter,
-      fin: date
-    });
-  };
-
-  const setMontantMin = (value: number | null) => {
-    setMontantFilter({
-      ...montantFilter,
-      min: value
-    });
-  };
-
-  const setMontantMax = (value: number | null) => {
-    setMontantFilter({
-      ...montantFilter,
-      max: value
-    });
+  // Custom handleSort that updates the parent component's state
+  const handleSortWithParentState = (key: string) => {
+    if (sortKey === key) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
   };
 
   return (
@@ -112,67 +89,33 @@ const FactureFilters = ({
           setSearchTerm={setSearchTerm} 
         />
 
-        <FilterPopover 
-          hasActiveFilters={hasBasicFilters}
-        >
-          <FilterForm
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            clientFilter={clientFilter}
-            setClientFilter={setClientFilter}
-            dateFilter={dateFilter}
-            setDateFilter={setDateFilter}
-            clients={clients}
-            onClose={() => {}}
-            clearFilters={clearFilters}
-          />
-        </FilterPopover>
-
-        <FilterPopover 
-          hasActiveFilters={hasAdvancedFilters}
-          trigger={
-            <Button variant="outline" size="sm" className="gap-1">
-              <SlidersHorizontal size={16} />
-              Filtres avancés
-              {hasAdvancedFilters && (
-                <span className="ml-1 rounded-full bg-primary w-2 h-2" />
-              )}
-            </Button>
-          }
-        >
-          <AdvancedFilterForm
-            periodeDebut={periodeFilter.debut}
-            periodeFin={periodeFilter.fin}
-            setPeriodeDebut={setPeriodeDebut}
-            setPeriodeFin={setPeriodeFin}
-            montantMin={montantFilter.min}
-            montantMax={montantFilter.max}
-            setMontantMin={setMontantMin}
-            setMontantMax={setMontantMax}
-            modePaiement={modePaiementFilter}
-            setModePaiement={setModePaiementFilter}
-            onClose={() => {}}
-            clearFilters={clearFilters}
-          />
-        </FilterPopover>
+        <FilterSection
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          clientFilter={clientFilter}
+          setClientFilter={setClientFilter}
+          dateFilter={dateFilter}
+          setDateFilter={setDateFilter}
+          periodeFilter={periodeFilter}
+          setPeriodeFilter={setPeriodeFilter}
+          montantFilter={montantFilter}
+          setMontantFilter={setMontantFilter}
+          modePaiementFilter={modePaiementFilter}
+          setModePaiementFilter={setModePaiementFilter}
+          clearFilters={clearFilters}
+          clients={clients}
+        />
 
         <SortButton
           sortKey={sortKey}
           sortDirection={sortDirection}
-          onSort={handleSort}
+          onSort={handleSortWithParentState}
         />
 
-        {hasAnyFilters && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleClearAllFilters}
-            className="flex items-center gap-1"
-          >
-            <RefreshCcw className="h-3.5 w-3.5" />
-            Réinitialiser
-          </Button>
-        )}
+        <FilterActions 
+          hasAnyFilters={hasAnyFilters}
+          clearFilters={clearFilters}
+        />
       </div>
 
       <FilterChips
@@ -192,16 +135,6 @@ const FactureFilters = ({
       />
     </div>
   );
-};
-
-// Fonction de tri ajoutée
-const handleSort = (key: string) => {
-  if (sortKey === key) {
-    setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-  } else {
-    setSortKey(key);
-    setSortDirection("asc");
-  }
 };
 
 export default FactureFilters;
