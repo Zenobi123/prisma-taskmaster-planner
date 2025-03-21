@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import ClientSelector from "./ClientSelector";
@@ -8,7 +7,7 @@ import StatusSelector from "./StatusSelector";
 import ModePaiementSelector from "./ModePaiementSelector";
 import ClientInfoDisplay from "./ClientInfoDisplay";
 import TotalAmountDisplay from "./TotalAmountDisplay";
-import { useFactureForm } from "@/hooks/useFactureForm";
+import { useFactureForm } from "@/hooks/facturation/factureForm";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
@@ -49,7 +48,6 @@ const CreateFactureForm = ({
     initializeFormForEdit
   } = useFactureForm(onSuccess, editMode);
   
-  // Initialize form with existing facture data when in edit mode
   useEffect(() => {
     if (editMode && factureToEdit) {
       initializeFormForEdit(factureToEdit);

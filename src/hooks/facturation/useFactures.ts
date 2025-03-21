@@ -13,7 +13,7 @@ export const useFactures = () => {
   const { toast } = useToast();
   
   // Get factures data and clients
-  const { factures, allClients } = useFacturesList(toast);
+  const { factures, setFactures, allClients } = useFacturesList(toast);
   
   // Filter states and handlers
   const { 
