@@ -39,6 +39,14 @@ const FactureTableRow = ({
     setIsDeleteDialogOpen(false);
   };
 
+  const handleViewClick = () => {
+    onViewFacture(facture);
+  };
+
+  const handleDownloadClick = () => {
+    onDownloadFacture(facture);
+  };
+
   // Display the formatted facture ID (FP XXXX-YYYY)
   const factureId = facture.id && typeof facture.id === 'string' ? facture.id : 'ID inconnu';
 
@@ -61,7 +69,8 @@ const FactureTableRow = ({
             variant="ghost" 
             size="icon" 
             className="text-blue-500 hover:text-blue-700 hover:bg-blue-50" 
-            onClick={() => onViewFacture(facture)}
+            onClick={handleViewClick}
+            title="Voir la facture"
           >
             <Eye className="h-4 w-4" />
           </Button>
@@ -69,7 +78,8 @@ const FactureTableRow = ({
             variant="ghost" 
             size="icon" 
             className="text-green-500 hover:text-green-700 hover:bg-green-50" 
-            onClick={() => onDownloadFacture(facture)}
+            onClick={handleDownloadClick}
+            title="Télécharger la facture"
           >
             <Download className="h-4 w-4" />
           </Button>
@@ -77,6 +87,8 @@ const FactureTableRow = ({
             variant="ghost" 
             size="icon" 
             className="text-amber-500 hover:text-amber-700 hover:bg-amber-50"
+            onClick={() => console.log("Edit facture:", factureId)}
+            title="Modifier la facture"
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -87,6 +99,7 @@ const FactureTableRow = ({
                 variant="ghost" 
                 size="icon" 
                 className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                title="Supprimer la facture"
               >
                 <Trash className="h-4 w-4" />
               </Button>
