@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { loginUser } from "@/services/authService";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -23,48 +22,66 @@ const Login = () => {
     try {
       console.log("Tentative de connexion avec:", { email, password });
       
-      // Utiliser le service d'authentification
-      const { data, error } = await loginUser(email, password);
+      // Vérification de l'existence de l'utilisateur
+      const { data: userExists, error: userCheckError } = await supabase
+        .from('users')
+        .select('id, role')
+        .eq('email', email.toLowerCase().trim())
+        .single();
 
-      if (error) {
+      if (userCheckError) {
+        console.log("Erreur lors de la vérification de l'utilisateur:", userCheckError);
+      } else {
+        console.log("Utilisateur trouvé dans la table users:", userExists);
+      }
+      
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase().trim(),
+        password: password.trim()
+      });
+
+      if (authError) {
         console.error("Erreur d'authentification détaillée:", {
-          message: error.message,
-          status: error.status,
-          name: error.name
+          message: authError.message,
+          status: authError.status,
+          name: authError.name
         });
         
         toast({
           variant: "destructive",
           title: "Erreur de connexion",
-          description: `${error.message}. Veuillez vérifier vos identifiants.`,
+          description: `${authError.message}. Veuillez vérifier vos identifiants.`,
           className: "bg-white border-red-500 text-black",
         });
         return;
       }
 
-      if (data.user) {
-        console.log("Authentification réussie:", data.user);
+      if (authData.user) {
+        console.log("Authentification réussie:", authData.user);
         
-        let userRole = "comptable"; // Rôle par défaut
-        
-        if (data.session && data.session.access_token !== "demo_token") {
-          // Si c'est une vraie session Supabase, récupérer le rôle depuis la base
-          const { data: userData, error: userError } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
+        // Récupérer le rôle de l'utilisateur depuis la table users
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', authData.user.id)
+          .single();
 
-          if (!userError && userData) {
-            userRole = userData.role;
-          }
-        } else if (email.toLowerCase() === "admin@prisma.com") {
-          userRole = "admin";
+        if (userError) {
+          console.error("Erreur lors de la récupération du rôle:", userError);
+          toast({
+            variant: "destructive",
+            title: "Erreur",
+            description: "Impossible de récupérer les informations de l'utilisateur.",
+            className: "bg-white border-red-500 text-black",
+          });
+          return;
         }
+
+        console.log("Données utilisateur récupérées:", userData);
 
         // Stocker les informations de l'utilisateur
         localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("userRole", userRole);
+        localStorage.setItem("userRole", userData.role);
 
         toast({
           title: "Connexion réussie",
@@ -73,7 +90,7 @@ const Login = () => {
         });
         navigate("/");
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error("Erreur inattendue détaillée:", error);
       toast({
         variant: "destructive",

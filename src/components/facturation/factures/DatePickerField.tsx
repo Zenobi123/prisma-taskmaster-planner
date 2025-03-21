@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -8,14 +9,15 @@ import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DatePickerFieldProps {
-  date: Date | null;
+  label: string;
+  date: Date;
   onSelect: (date: Date) => void;
-  label?: string; // Made label optional
 }
 
-const DatePickerField = ({ date, onSelect, label = "Date" }: DatePickerFieldProps) => {
+const DatePickerField = ({ label, date, onSelect }: DatePickerFieldProps) => {
   return (
     <div className="space-y-1">
+      <Label htmlFor={label} className="text-sm">{label}</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -35,7 +37,6 @@ const DatePickerField = ({ date, onSelect, label = "Date" }: DatePickerFieldProp
             selected={date}
             onSelect={(selectedDate) => selectedDate && onSelect(selectedDate)}
             initialFocus
-            className="pointer-events-auto"
           />
         </PopoverContent>
       </Popover>
