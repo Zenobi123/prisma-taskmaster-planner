@@ -21,57 +21,11 @@ import { Button } from "@/components/ui/button";
 import { ChartContainer } from "@/components/ui/chart";
 import { BarChart } from "recharts";
 
-// Données d'exemple pour la situation des clients
-const clientsExemple = [
-  { 
-    id: "C001", 
-    nom: "Société ABC", 
-    facturesMontant: 750000, 
-    paiementsMontant: 450000, 
-    solde: 300000,
-    status: "partiel"
-  },
-  { 
-    id: "C002", 
-    nom: "Entreprise XYZ", 
-    facturesMontant: 175000, 
-    paiementsMontant: 175000, 
-    solde: 0,
-    status: "àjour"
-  },
-  { 
-    id: "C003", 
-    nom: "Cabinet DEF", 
-    facturesMontant: 325000, 
-    paiementsMontant: 150000, 
-    solde: 175000,
-    status: "partiel"
-  },
-  { 
-    id: "C004", 
-    nom: "M. Dupont", 
-    facturesMontant: 85000, 
-    paiementsMontant: 0, 
-    solde: 85000,
-    status: "retard"
-  },
-];
+// Empty clients data
+const clientsExemple = [];
 
-// Données pour le graphique
-const chartData = [
-  {
-    name: "À jour",
-    total: 1,
-  },
-  {
-    name: "Partiellement payé",
-    total: 2,
-  },
-  {
-    name: "En retard",
-    total: 1,
-  },
-];
+// Empty chart data
+const chartData = [];
 
 const SituationClients = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -89,8 +43,8 @@ const SituationClients = () => {
   
   const filteredClients = clientsExemple
     .filter(client => 
-      client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.id.toLowerCase().includes(searchTerm.toLowerCase())
+      client.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.id?.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
       const aValue = a[sortColumn as keyof typeof a];
@@ -222,39 +176,43 @@ const SituationClients = () => {
               margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
             >
               <rect x="0" y="0" width="100%" height="100%" fill="#f8f9fa" />
-              <g className="recharts-layer recharts-cartesian-axis recharts-xAxis xAxis">
-                <g className="recharts-cartesian-axis-ticks">
-                  {chartData.map((entry, index) => (
-                    <text
-                      key={`text-${index}`}
-                      x={index * 100 + 50}
-                      y={280}
-                      textAnchor="middle"
-                      fill="#666"
-                    >
-                      {entry.name}
-                    </text>
-                  ))}
-                </g>
-              </g>
-              <g className="recharts-layer recharts-bar">
-                {chartData.map((entry, index) => (
-                  <rect
-                    key={`bar-${index}`}
-                    x={index * 100 + 30}
-                    y={280 - entry.total * 40}
-                    width={40}
-                    height={entry.total * 40}
-                    fill={
-                      entry.name === "À jour" 
-                        ? "#84A98C" 
-                        : entry.name === "Partiellement payé" 
-                          ? "#F9C74F" 
-                          : "#E63946"
-                    }
-                  />
-                ))}
-              </g>
+              {chartData.length > 0 && (
+                <>
+                  <g className="recharts-layer recharts-cartesian-axis recharts-xAxis xAxis">
+                    <g className="recharts-cartesian-axis-ticks">
+                      {chartData.map((entry, index) => (
+                        <text
+                          key={`text-${index}`}
+                          x={index * 100 + 50}
+                          y={280}
+                          textAnchor="middle"
+                          fill="#666"
+                        >
+                          {entry.name}
+                        </text>
+                      ))}
+                    </g>
+                  </g>
+                  <g className="recharts-layer recharts-bar">
+                    {chartData.map((entry, index) => (
+                      <rect
+                        key={`bar-${index}`}
+                        x={index * 100 + 30}
+                        y={280 - entry.total * 40}
+                        width={40}
+                        height={entry.total * 40}
+                        fill={
+                          entry.name === "À jour" 
+                            ? "#84A98C" 
+                            : entry.name === "Partiellement payé" 
+                              ? "#F9C74F" 
+                              : "#E63946"
+                        }
+                      />
+                    ))}
+                  </g>
+                </>
+              )}
             </BarChart>
           </ChartContainer>
           <div className="mt-6 space-y-2">
@@ -263,21 +221,21 @@ const SituationClients = () => {
                 <span className="h-3 w-3 rounded-full bg-green-500 mr-2"></span>
                 À jour
               </span>
-              <span className="font-medium">1</span>
+              <span className="font-medium">0</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="flex items-center">
                 <span className="h-3 w-3 rounded-full bg-amber-500 mr-2"></span>
                 Partiellement payé
               </span>
-              <span className="font-medium">2</span>
+              <span className="font-medium">0</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="flex items-center">
                 <span className="h-3 w-3 rounded-full bg-red-500 mr-2"></span>
                 En retard
               </span>
-              <span className="font-medium">1</span>
+              <span className="font-medium">0</span>
             </div>
           </div>
         </CardContent>
