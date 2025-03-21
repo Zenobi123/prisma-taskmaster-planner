@@ -1,10 +1,10 @@
-
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Client } from "@/types/client";
+import { Facture } from "@/types/facture";
 import StatusSelector from "../factures/StatusSelector";
 import ClientSelector from "../factures/ClientSelector";
 
@@ -20,7 +20,7 @@ interface FilterFormProps {
   clearFilters: () => void;
 }
 
-const FilterForm = ({
+export function FilterForm({ 
   statusFilter,
   setStatusFilter,
   clientFilter,
@@ -30,10 +30,12 @@ const FilterForm = ({
   clients,
   onClose,
   clearFilters
-}: FilterFormProps) => {
+}: FilterFormProps) {
   const handleApply = () => {
     onClose();
   };
+  
+  const hasStatusFilter = statusFilter !== undefined && statusFilter !== null && statusFilter !== "" as any;
   
   return (
     <div className="space-y-4">

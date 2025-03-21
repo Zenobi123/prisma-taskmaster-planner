@@ -50,6 +50,22 @@ export const useFactureActions = () => {
     };
   };
 
+  const handleSendFacture = (facture: Facture) => {
+    // In a real application, this would call an API to send the invoice
+    // For now, we'll just show a toast notification
+    toast({
+      title: "Facture envoyée",
+      description: `La facture ${facture.id} a été envoyée au client ${facture.client.nom}.`,
+    });
+    
+    // Return a properly typed sent facture
+    return {
+      ...facture,
+      status: "envoyée" as const,
+      updated_at: new Date().toISOString()
+    };
+  };
+
   const addFacture = (factures: Facture[], facture: Facture): Facture[] => {
     return [facture, ...factures];
   };
@@ -65,6 +81,7 @@ export const useFactureActions = () => {
     handleTelechargerFacture,
     handleModifierFacture,
     handleAnnulerFacture,
+    handleSendFacture,
     addFacture,
     updateFacture
   };

@@ -1,3 +1,4 @@
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, FilterX } from "lucide-react";
 import { formatMontant } from "@/utils/formatUtils";
@@ -20,6 +21,7 @@ const Factures = () => {
     handleTelechargerFacture,
     handleModifierFacture,
     handleAnnulerFacture,
+    handleSendFacture,
     statusFilter,
     setStatusFilter,
     clientFilter,
@@ -63,6 +65,11 @@ const Factures = () => {
   const onCancelFacture = (facture: Facture) => {
     const canceledFacture = handleAnnulerFacture(facture);
     setFactures(prev => prev.map(f => f.id === canceledFacture.id ? canceledFacture : f));
+  };
+
+  const onSendFacture = (facture: Facture) => {
+    const sentFacture = handleSendFacture(facture);
+    setFactures(prev => prev.map(f => f.id === sentFacture.id ? sentFacture : f));
   };
 
   return (
@@ -121,6 +128,7 @@ const Factures = () => {
             onDownloadFacture={handleTelechargerFacture}
             onEditFacture={onEditFacture}
             onCancelFacture={onCancelFacture}
+            onSendFacture={onSendFacture}
           />
         </div>
         

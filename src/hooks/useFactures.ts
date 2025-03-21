@@ -27,7 +27,8 @@ export const useFactures = () => {
     handleVoirFacture, 
     handleTelechargerFacture,
     handleModifierFacture,
-    handleAnnulerFacture, 
+    handleAnnulerFacture,
+    handleSendFacture,
     addFacture 
   } = useFactureActions();
   
@@ -111,6 +112,7 @@ export const useFactures = () => {
     handleTelechargerFacture,
     handleModifierFacture,
     handleAnnulerFacture,
+    handleSendFacture,
     addFacture: addNewFacture,
     // Filters
     statusFilter,

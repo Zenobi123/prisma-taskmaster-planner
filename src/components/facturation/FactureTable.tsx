@@ -11,6 +11,7 @@ interface FactureTableProps {
   onDownloadFacture: (facture: Facture) => void;
   onEditFacture?: (facture: Facture, updatedData: Partial<Facture>) => void;
   onCancelFacture?: (facture: Facture) => void;
+  onSendFacture?: (facture: Facture) => void;
 }
 
 const FactureTable = ({ 
@@ -19,7 +20,8 @@ const FactureTable = ({
   onViewFacture,
   onDownloadFacture,
   onEditFacture,
-  onCancelFacture
+  onCancelFacture,
+  onSendFacture
 }: FactureTableProps) => {
   return (
     <div className="overflow-x-auto">
@@ -36,6 +38,7 @@ const FactureTable = ({
                 onDownloadFacture={onDownloadFacture}
                 onEditFacture={onEditFacture}
                 onCancelFacture={onCancelFacture}
+                onSendFacture={onSendFacture}
               />
             ))
           ) : (

@@ -1,12 +1,19 @@
 
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Download, Edit, Eye, Trash } from "lucide-react";
+import { Download, Edit, Eye, MoreVertical, Send, Trash } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { Facture } from "@/types/facture";
 import { useState } from "react";
 import UpdateFactureDialog from "./factures/UpdateFactureDialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { useToast } from "@/components/ui/use-toast";
 
 interface FactureTableRowProps {
   facture: Facture;
@@ -15,6 +22,7 @@ interface FactureTableRowProps {
   onDownloadFacture: (facture: Facture) => void;
   onEditFacture?: (facture: Facture, updatedData: Partial<Facture>) => void;
   onCancelFacture?: (facture: Facture) => void;
+  onSendFacture?: (facture: Facture) => void;
 }
 
 const FactureTableRow = ({ 
@@ -23,9 +31,11 @@ const FactureTableRow = ({
   onViewFacture, 
   onDownloadFacture,
   onEditFacture,
-  onCancelFacture
+  onCancelFacture,
+  onSendFacture
 }: FactureTableRowProps) => {
   const [updateDialogOpen, setUpdateDialogOpen] = useState(false);
+  const { toast } = useToast();
   
   // Check if the invoice can be edited (not fully paid)
   const canEditInvoice = facture.status !== "payée" && facture.status !== "annulée";
@@ -44,6 +54,18 @@ const FactureTableRow = ({
   const handleCancelInvoice = () => {
     if (onCancelFacture) {
       onCancelFacture(facture);
+    }
+  };
+
+  const handleSendInvoice = () => {
+    if (onSendFacture) {
+      onSendFacture(facture);
+    } else {
+      // Fallback if onSendFacture is not provided
+      toast({
+        title: "Facture envoyée",
+        description: `La facture ${facture.id} a été envoyée au client.`,
+      });
     }
   };
 
@@ -88,17 +110,36 @@ const FactureTableRow = ({
                   <Edit className="h-4 w-4" />
                 </Button>
                 
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
                     <Button 
                       variant="ghost" 
                       size="icon" 
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                      title="Annuler la facture"
+                      className="text-slate-500 hover:text-slate-700 hover:bg-slate-50"
+                      title="Plus d'options"
                     >
-                      <Trash className="h-4 w-4" />
+                      <MoreVertical className="h-4 w-4" />
                     </Button>
-                  </AlertDialogTrigger>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem 
+                      onClick={handleSendInvoice}
+                      className="flex items-center gap-2 cursor-pointer"
+                    >
+                      <Send className="h-4 w-4 text-blue-500" />
+                      <span>Envoyer</span>
+                    </DropdownMenuItem>
+                    
+                    <DropdownMenuItem asChild>
+                      <AlertDialogTrigger className="flex items-center gap-2 cursor-pointer w-full">
+                        <Trash className="h-4 w-4 text-red-500" />
+                        <span>Annuler</span>
+                      </AlertDialogTrigger>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                
+                <AlertDialog>
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Annuler la facture</AlertDialogTitle>
