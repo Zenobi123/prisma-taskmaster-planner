@@ -22,11 +22,16 @@ export const useFactureActions = () => {
       description: `La facture ${facture.id} a été mise à jour.`,
     });
     
-    return {
+    // Create a properly typed updated facture
+    const updated: Facture = {
       ...facture,
       ...updatedData,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      // Ensure status is properly typed
+      status: (updatedData.status || facture.status) as Facture["status"]
     };
+    
+    return updated;
   };
 
   const handleAnnulerFacture = (facture: Facture) => {
@@ -37,9 +42,10 @@ export const useFactureActions = () => {
       description: `La facture ${facture.id} a été annulée.`,
     });
     
+    // Return a properly typed canceled facture
     return {
       ...facture,
-      status: "annulée",
+      status: "annulée" as const,
       updated_at: new Date().toISOString()
     };
   };

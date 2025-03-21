@@ -1,10 +1,11 @@
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Facture } from "@/types/facture";
 
 interface StatusSelectorProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (value: Facture["status"]) => void; // Ensure the onChange returns a properly typed value
   includeEmpty?: boolean;
   label?: string;
 }
@@ -15,7 +16,10 @@ const StatusSelector = ({ value, onChange, includeEmpty = false, label = "Statut
       <Label htmlFor="status" className="text-sm">{label}</Label>
       <Select 
         value={value}
-        onValueChange={onChange}
+        onValueChange={(value) => {
+          // Ensure the value is one of the allowed status types
+          onChange(value as Facture["status"]);
+        }}
       >
         <SelectTrigger className="h-8 text-sm">
           <SelectValue placeholder="Sélectionner" />

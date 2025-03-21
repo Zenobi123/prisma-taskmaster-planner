@@ -1,8 +1,9 @@
 
 import { Badge } from "@/components/ui/badge";
+import { Facture } from "@/types/facture";
 
 interface StatusBadgeProps {
-  status: string;
+  status: Facture["status"]; // Use the Facture type to ensure status is correctly typed
 }
 
 const StatusBadge = ({ status }: StatusBadgeProps) => {

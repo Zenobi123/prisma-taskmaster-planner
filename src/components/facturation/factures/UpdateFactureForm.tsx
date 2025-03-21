@@ -9,7 +9,6 @@ import ModePaiementSelector from "./ModePaiementSelector";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 
 interface UpdateFactureFormProps {
@@ -48,7 +47,7 @@ const UpdateFactureForm = ({ facture, onSuccess, onCancel }: UpdateFactureFormPr
     }
 
     const updatedData: Partial<Facture> = {
-      status: data.status as any,
+      status: data.status as Facture["status"], // Ensure correct typing
       echeance: formattedEcheance || facture.echeance,
       notes: data.notes,
       mode_paiement: data.mode_paiement

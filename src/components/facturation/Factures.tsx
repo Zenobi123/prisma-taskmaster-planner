@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, FilterX } from "lucide-react";
 import { formatMontant } from "@/utils/formatUtils";
