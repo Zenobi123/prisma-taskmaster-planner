@@ -9,6 +9,7 @@ import { Facture, Prestation } from "@/types/facture";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
 import { Client } from "@/types/client";
+import { getNextFactureNumber } from "@/services/factureService";
 
 export interface FactureFormData {
   client_id: string;
@@ -22,7 +23,7 @@ export interface FactureFormData {
 
 export function useFactureForm(onSuccess: () => void) {
   const { toast } = useToast();
-  const { addFacture } = useFactures();
+  const { addFacture, factures } = useFactures();
   const [prestations, setPrestations] = useState<Prestation[]>([
     { description: "", quantite: 1, montant: 0 },
   ]);
@@ -85,7 +86,10 @@ export function useFactureForm(onSuccess: () => void) {
     const formattedDate = format(data.date, "dd/MM/yyyy");
     const formattedEcheance = format(data.echeance, "dd/MM/yyyy");
 
-    const factureId = `F-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`;
+    // Generate the next facture number in format FP XXXX-YYYY
+    const nextNumber = await getNextFactureNumber();
+    const currentYear = new Date().getFullYear();
+    const factureId = `FP ${nextNumber}-${currentYear}`;
 
     const nouvelleFacture: Facture = {
       id: factureId,
