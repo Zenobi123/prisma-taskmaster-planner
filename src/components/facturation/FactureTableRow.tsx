@@ -47,6 +47,7 @@ const FactureTableRow = ({
       <TableCell className="font-medium text-gray-800">{factureId}</TableCell>
       <TableCell>{facture.client.nom}</TableCell>
       <TableCell>{facture.date}</TableCell>
+      <TableCell>{facture.echeance}</TableCell>
       <TableCell className="font-medium">{formatMontant(facture.montant)}</TableCell>
       <TableCell>
         <div className="flex flex-col gap-1">
