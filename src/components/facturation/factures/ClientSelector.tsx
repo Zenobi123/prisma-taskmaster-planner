@@ -1,5 +1,5 @@
 
-import { Client } from "@/types/client";
+import { Client } from "@/types/facture";
 import {
   Select,
   SelectContent,
@@ -40,9 +40,7 @@ const ClientSelector = ({
           ) : (
             clients.map((client) => (
               <SelectItem key={client.id} value={client.id}>
-                {client.type === "physique" 
-                  ? client.nom 
-                  : client.raisonsociale || client.nom}
+                {client.nom}
               </SelectItem>
             ))
           )}
