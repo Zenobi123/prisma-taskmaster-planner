@@ -1,4 +1,3 @@
-
 import { useState, useMemo, useEffect } from "react";
 import { Facture } from "@/types/facture";
 import { Client } from "@/types/client";
@@ -95,6 +94,15 @@ export const useFactures = () => {
               const date = new Date(dateStr);
               return date.toLocaleDateString('fr-FR');
             };
+
+            // Safely extract address and contact information with proper type checking
+            const adresse = typeof client.adresse === 'object' && client.adresse 
+              ? client.adresse 
+              : { ville: '', quartier: '', lieuDit: '' };
+
+            const contact = typeof client.contact === 'object' && client.contact 
+              ? client.contact 
+              : { telephone: '', email: '' };
             
             // Create complete facture object with all related data
             const completeFacture: Facture = {
@@ -103,16 +111,16 @@ export const useFactures = () => {
               client: {
                 id: client.id,
                 nom: client.type === "physique" ? client.nom || "" : client.raisonsociale || "",
-                adresse: client.adresse?.ville || "",
-                telephone: client.contact?.telephone || "",
-                email: client.contact?.email || ""
+                adresse: adresse.ville || "",
+                telephone: contact.telephone || "",
+                email: contact.email || ""
               },
               date: formatDate(facture.date),
               echeance: formatDate(facture.echeance),
               montant: facture.montant,
               montant_paye: facture.montant_paye || 0,
               status: facture.status as any,
-              mode_paiement: facture.mode_paiement,
+              mode_paiement: facture.mode_paiement || "espèces",
               prestations: prestationsData || [],
               paiements: paiementsData || [],
               notes: facture.notes,
@@ -129,13 +137,31 @@ export const useFactures = () => {
         setFactures(validFactures);
         
         // Format clients for the client selector
-        const formattedClients = clientsData.map(client => ({
-          id: client.id,
-          nom: client.type === "physique" ? client.nom || "" : client.raisonsociale || "",
-          adresse: client.adresse?.ville || "",
-          telephone: client.contact?.telephone || "",
-          email: client.contact?.email || ""
-        }));
+        const formattedClients: Client[] = clientsData.map(client => {
+          // Safely extract address and contact information
+          const adresse = typeof client.adresse === 'object' && client.adresse 
+            ? client.adresse 
+            : { ville: '', quartier: '', lieuDit: '' };
+
+          const contact = typeof client.contact === 'object' && client.contact 
+            ? client.contact 
+            : { telephone: '', email: '' };
+
+          return {
+            id: client.id,
+            nom: client.type === "physique" ? client.nom || "" : client.raisonsociale || "",
+            adresse: adresse.ville || "",
+            telephone: contact.telephone || "",
+            email: contact.email || "",
+            type: client.type,
+            niu: client.niu,
+            centrerattachement: client.centrerattachement,
+            secteuractivite: client.secteuractivite,
+            statut: client.statut,
+            interactions: client.interactions || [],
+            contact: contact,
+          } as Client;
+        });
         
         setAllClients(formattedClients);
       } catch (error) {
