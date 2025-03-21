@@ -50,10 +50,10 @@ const FactureTableRow = ({
       <TableCell>{facture.echeance}</TableCell>
       <TableCell className="font-medium">{formatMontant(facture.montant)}</TableCell>
       <TableCell>
-        <div className="flex flex-col gap-1">
-          <StatusBadge status={facture.status} type="document" />
-          <StatusBadge status={facture.status_paiement} type="paiement" />
-        </div>
+        <StatusBadge status={facture.status} type="document" />
+      </TableCell>
+      <TableCell>
+        <StatusBadge status={facture.status_paiement} type="paiement" />
       </TableCell>
       <TableCell className="text-right">
         <div className="flex justify-end space-x-2">

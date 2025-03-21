@@ -10,7 +10,8 @@ const FactureTableHeader = () => {
         <TableHead>Date</TableHead>
         <TableHead>Échéance</TableHead>
         <TableHead>Montant</TableHead>
-        <TableHead>Statut</TableHead>
+        <TableHead>Stat. Document</TableHead>
+        <TableHead>Stat. Paiement</TableHead>
         <TableHead className="text-right">Actions</TableHead>
       </TableRow>
     </TableHeader>
