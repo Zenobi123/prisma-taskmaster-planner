@@ -26,16 +26,14 @@ const ClientSelector = ({ clients, value, onChange, includeEmpty = false }: Clie
         </SelectTrigger>
         <SelectContent>
           {includeEmpty && (
-            <SelectItem value="">Tous les clients</SelectItem>
+            <SelectItem value="all">Tous les clients</SelectItem>
           )}
           {clients.length === 0 ? (
-            <SelectItem value="empty" disabled>Aucun client disponible</SelectItem>
+            <SelectItem value="no-clients" disabled>Aucun client disponible</SelectItem>
           ) : (
             clients.map((client) => (
               <SelectItem key={client.id} value={client.id}>
-                {client.type === "physique" 
-                  ? client.nom 
-                  : client.raisonsociale || client.nom}
+                {client.nom}
               </SelectItem>
             ))
           )}

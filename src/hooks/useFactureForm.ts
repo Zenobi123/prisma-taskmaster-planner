@@ -64,7 +64,7 @@ export function useFactureForm(onSuccess: () => void) {
     setTotalAmount(total);
   }, [prestations]);
 
-  const onSubmit = (data: FactureFormData) => {
+  const onSubmit = async (data: FactureFormData) => {
     if (!selectedClient) {
       toast({
         variant: "destructive",
@@ -93,7 +93,7 @@ export function useFactureForm(onSuccess: () => void) {
       client_id: selectedClient.id,
       client: {
         id: selectedClient.id,
-        nom: selectedClient.nom || "",
+        nom: selectedClient.nom || selectedClient.raisonsociale || "",
         adresse: selectedClient.adresse?.ville || "",
         telephone: selectedClient.contact?.telephone || "",
         email: selectedClient.contact?.email || ""
@@ -116,9 +116,10 @@ export function useFactureForm(onSuccess: () => void) {
       updated_at: new Date().toISOString(),
     };
 
-    // Add the facture to the local state
-    addFacture(nouvelleFacture);
+    // Save the facture to Supabase via the useFactures hook
+    await addFacture(nouvelleFacture);
     
+    // Show success message and close modal
     toast({
       title: "Facture créée",
       description: `La facture ${factureId} a été créée avec succès.`,
