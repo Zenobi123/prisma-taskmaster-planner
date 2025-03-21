@@ -13,7 +13,7 @@ export const getFactures = async () => {
       
     if (facturesError) {
       console.error("Error fetching factures:", facturesError);
-      throw facturesError;
+      throw new Error(`Failed to fetch invoices: ${facturesError.message}`);
     }
     
     const { data: clientsData, error: clientsError } = await supabase
@@ -22,7 +22,7 @@ export const getFactures = async () => {
       
     if (clientsError) {
       console.error("Error fetching clients:", clientsError);
-      throw clientsError;
+      throw new Error(`Failed to fetch clients: ${clientsError.message}`);
     }
     
     // Fetch prestations and paiements for each facture
@@ -44,7 +44,7 @@ export const getFactures = async () => {
           
         if (prestationsError) {
           console.error(`Error fetching prestations for facture ${facture.id}:`, prestationsError);
-          return null;
+          throw new Error(`Failed to fetch services for invoice ${facture.id}: ${prestationsError.message}`);
         }
         
         // Fetch paiements
@@ -55,7 +55,7 @@ export const getFactures = async () => {
           
         if (paiementsError) {
           console.error(`Error fetching paiements for facture ${facture.id}:`, paiementsError);
-          return null;
+          throw new Error(`Failed to fetch payments for invoice ${facture.id}: ${paiementsError.message}`);
         }
         
         // Safely extract address and contact information with proper type checking
@@ -101,7 +101,12 @@ export const getFactures = async () => {
     return validFactures;
   } catch (error) {
     console.error("Error in getFactures:", error);
-    throw error;
+    // Provide a more user-friendly error message
+    if (error instanceof Error) {
+      throw new Error(`Failed to retrieve invoices: ${error.message}`);
+    } else {
+      throw new Error("An unexpected error occurred while retrieving invoices");
+    }
   }
 };
 
@@ -160,7 +165,6 @@ export const addFactureToDatabase = async (facture: Facture) => {
     const { data: factureData, error: factureError } = await supabase
       .from("factures")
       .insert({
-        id: facture.id,
         client_id: facture.client_id,
         date: dateISO,
         echeance: echeanceISO,
@@ -175,13 +179,13 @@ export const addFactureToDatabase = async (facture: Facture) => {
       
     if (factureError) {
       console.error("Error inserting facture:", factureError);
-      throw factureError;
+      throw new Error(`Failed to create invoice: ${factureError.message}`);
     }
     
     // Add prestations
     if (facture.prestations && facture.prestations.length > 0) {
       const prestationsToInsert = facture.prestations.map(prestation => ({
-        facture_id: facture.id,
+        facture_id: factureData.id,
         description: prestation.description,
         quantite: prestation.quantite || 1,
         montant: prestation.montant,
@@ -194,13 +198,24 @@ export const addFactureToDatabase = async (facture: Facture) => {
         
       if (prestationsError) {
         console.error("Error inserting prestations:", prestationsError);
-        throw prestationsError;
+        throw new Error(`Failed to add services to invoice: ${prestationsError.message}`);
       }
     }
     
     return factureData;
   } catch (error) {
     console.error("Error in addFactureToDatabase:", error);
-    throw error;
+    // Provide more specific error messages based on the error type
+    if (error instanceof Error) {
+      if (error.message.includes("duplicate key")) {
+        throw new Error("This invoice ID already exists. Please try again with a different ID.");
+      } else if (error.message.includes("foreign key constraint")) {
+        throw new Error("The client referenced in this invoice doesn't exist.");
+      } else {
+        throw new Error(`Failed to save invoice: ${error.message}`);
+      }
+    } else {
+      throw new Error("An unexpected error occurred while saving the invoice");
+    }
   }
 };
