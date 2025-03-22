@@ -11,9 +11,11 @@ export const useFactureSendCancelActions = (
   // Fonction pour envoyer une facture (changement de statut de brouillon à envoyée)
   const sendFacture = async (facture: Facture) => {
     try {
+      console.log("Envoi de la facture:", facture.id);
+      
       const updatedFacture: Facture = {
         ...facture,
-        status: "envoyée" as const,
+        status: "envoyée",
         updated_at: new Date().toISOString()
       };
       
@@ -40,9 +42,11 @@ export const useFactureSendCancelActions = (
   // Fonction pour annuler une facture
   const cancelFacture = async (facture: Facture) => {
     try {
+      console.log("Annulation de la facture:", facture.id);
+      
       const updatedFacture: Facture = {
         ...facture,
-        status: "annulée" as const,
+        status: "annulée",
         updated_at: new Date().toISOString()
       };
       
