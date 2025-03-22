@@ -4,6 +4,7 @@ import { useFactureViewActions } from "./factureActions/useFactureViewActions";
 import { useFactureCreateActions } from "./factureActions/useFactureCreateActions";
 import { useFactureUpdateActions } from "./factureActions/useFactureUpdateActions";
 import { useFactureDeleteActions } from "./factureActions/useFactureDeleteActions";
+import { useFactureSendCancelActions } from "./factureActions/useFactureSendCancelActions";
 
 export const useFactureActions = (
   toast: any,
@@ -15,13 +16,16 @@ export const useFactureActions = (
   const { addFacture } = useFactureCreateActions(toast, setFactures);
   const { updateFacture } = useFactureUpdateActions(toast, setFactures);
   const { deleteFacture } = useFactureDeleteActions(toast, setFactures);
+  const { sendFacture, cancelFacture } = useFactureSendCancelActions(toast, factures, setFactures);
   
   return {
     handleVoirFacture,
     handleTelechargerFacture,
     addFacture,
     updateFacture,
-    deleteFacture
+    deleteFacture,
+    sendFacture,
+    cancelFacture
   };
 };
 

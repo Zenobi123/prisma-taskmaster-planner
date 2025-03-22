@@ -18,6 +18,8 @@ const Factures = () => {
     handleTelechargerFacture,
     handleEditFacture,
     deleteFacture,
+    sendFacture,
+    cancelFacture,
     statusFilter,
     setStatusFilter,
     statusPaiementFilter,
@@ -81,6 +83,8 @@ const Factures = () => {
             onDownloadFacture={handleTelechargerFacture}
             onDeleteFacture={deleteFacture}
             onEditFacture={handleEditFacture}
+            onSendFacture={sendFacture}
+            onCancelFacture={cancelFacture}
           />
         </div>
         

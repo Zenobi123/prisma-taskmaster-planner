@@ -37,13 +37,15 @@ export const useFactures = () => {
     setSortDirection
   } = useFactureSorting();
   
-  // Facture actions (view, download, edit, delete)
+  // Facture actions (view, download, edit, delete, send, cancel)
   const { 
     handleVoirFacture, 
     handleTelechargerFacture,
     addFacture,
     updateFacture,
-    deleteFacture
+    deleteFacture,
+    sendFacture,
+    cancelFacture
   } = useFactureActions(toast, factures, setFactures);
   
   // Edit dialog state and handlers
@@ -100,6 +102,8 @@ export const useFactures = () => {
     addFacture,
     updateFacture,
     deleteFacture,
+    sendFacture,
+    cancelFacture,
     // Filters
     statusFilter,
     setStatusFilter,
