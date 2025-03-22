@@ -202,33 +202,61 @@ export type Database = {
       }
       paiements: {
         Row: {
+          client_id: string | null
           created_at: string | null
           date: string
+          elements_specifiques: Json | null
+          est_credit: boolean | null
+          est_verifie: boolean | null
           facture_id: string
           id: string
           mode: string
           montant: number
           notes: string | null
+          reference: string | null
+          reference_transaction: string | null
+          solde_restant: number | null
         }
         Insert: {
+          client_id?: string | null
           created_at?: string | null
           date?: string
+          elements_specifiques?: Json | null
+          est_credit?: boolean | null
+          est_verifie?: boolean | null
           facture_id: string
           id?: string
           mode: string
           montant: number
           notes?: string | null
+          reference?: string | null
+          reference_transaction?: string | null
+          solde_restant?: number | null
         }
         Update: {
+          client_id?: string | null
           created_at?: string | null
           date?: string
+          elements_specifiques?: Json | null
+          est_credit?: boolean | null
+          est_verifie?: boolean | null
           facture_id?: string
           id?: string
           mode?: string
           montant?: number
           notes?: string | null
+          reference?: string | null
+          reference_transaction?: string | null
+          solde_restant?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "paiements_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "paiements_facture_id_fkey"
             columns: ["facture_id"]

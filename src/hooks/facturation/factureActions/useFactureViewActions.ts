@@ -1,5 +1,6 @@
 
 import { Facture } from "@/types/facture";
+import { Paiement } from "@/types/paiement";
 import { generatePDF } from "@/utils/pdfUtils";
 
 export const useFactureViewActions = () => {
@@ -13,9 +14,16 @@ export const useFactureViewActions = () => {
     generatePDF(facture, true);
   };
   
+  const handleVoirRecu = (paiement: Paiement) => {
+    console.log("Aperçu du reçu de paiement:", paiement.id);
+    // Ici, nous pourrions appeler une fonction similaire à generatePDF mais pour les reçus
+    // generateRecuPDF(paiement);
+  };
+  
   return {
     handleVoirFacture,
-    handleTelechargerFacture
+    handleTelechargerFacture,
+    handleVoirRecu
   };
 };
 

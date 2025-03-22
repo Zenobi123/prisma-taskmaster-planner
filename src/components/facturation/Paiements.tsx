@@ -5,9 +5,18 @@ import { Wallet, Plus } from "lucide-react";
 import { usePaiements } from "@/hooks/usePaiements";
 import PaiementSearchBar from "./paiements/PaiementSearchBar";
 import PaiementTable from "./paiements/PaiementTable";
+import PaiementDialog from "./paiements/PaiementDialog";
 
 const Paiements = () => {
-  const { searchTerm, setSearchTerm, filteredPaiements } = usePaiements();
+  const { 
+    searchTerm, 
+    setSearchTerm, 
+    filteredPaiements, 
+    loading, 
+    addPaiement, 
+    dialogOpen, 
+    setDialogOpen 
+  } = usePaiements();
   
   return (
     <Card>
@@ -18,13 +27,21 @@ const Paiements = () => {
         </CardTitle>
         <div className="flex items-center gap-2">
           <PaiementSearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-          <Button>
+          <Button onClick={() => setDialogOpen(true)}>
             <Plus className="mr-2 h-4 w-4" /> Nouveau paiement
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <PaiementTable paiements={filteredPaiements} />
+        <PaiementTable 
+          paiements={filteredPaiements} 
+          loading={loading} 
+        />
+        <PaiementDialog 
+          open={dialogOpen} 
+          onOpenChange={setDialogOpen} 
+          onSubmit={addPaiement} 
+        />
       </CardContent>
     </Card>
   );
