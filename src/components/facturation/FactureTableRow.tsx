@@ -97,25 +97,25 @@ const FactureTableRow = ({
               Télécharger
             </DropdownMenuItem>
             
-            {/* Nouvelle action: Envoyer la facture (seulement pour les brouillons) */}
+            {/* Action: Envoyer (seulement pour les brouillons) */}
             {onSendFacture && isFactureDraft && (
               <DropdownMenuItem 
                 onClick={() => onSendFacture(facture)}
                 className="flex items-center gap-2 cursor-pointer"
               >
                 <Send className="h-4 w-4 text-blue-500" />
-                Envoyer la facture
+                Envoyer
               </DropdownMenuItem>
             )}
             
-            {/* Nouvelle action: Annuler la facture (pas pour les annulées) */}
+            {/* Action: Annuler (pas pour les annulées) */}
             {onCancelFacture && !isFactureCancelled && (
               <DropdownMenuItem 
                 onClick={() => onCancelFacture(facture)}
                 className="flex items-center gap-2 cursor-pointer"
               >
                 <Ban className="h-4 w-4 text-red-500" />
-                Annuler la facture
+                Annuler
               </DropdownMenuItem>
             )}
             

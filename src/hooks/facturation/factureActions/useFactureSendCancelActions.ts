@@ -11,9 +11,9 @@ export const useFactureSendCancelActions = (
   // Fonction pour envoyer une facture (changement de statut de brouillon à envoyée)
   const sendFacture = async (facture: Facture) => {
     try {
-      const updatedFacture = {
+      const updatedFacture: Facture = {
         ...facture,
-        status: 'envoyée',
+        status: "envoyée" as const,
         updated_at: new Date().toISOString()
       };
       
@@ -23,14 +23,13 @@ export const useFactureSendCancelActions = (
       // Mettre à jour l'état local
       setFactures(factures.map(f => f.id === facture.id ? updatedFacture : f));
       
-      toast.toast({
+      toast({
         title: "Facture envoyée",
         description: `La facture ${facture.id} a été marquée comme envoyée.`,
-        variant: "success",
       });
     } catch (error) {
       console.error("Erreur lors de l'envoi de la facture:", error);
-      toast.toast({
+      toast({
         title: "Erreur",
         description: "Impossible d'envoyer la facture. Veuillez réessayer.",
         variant: "destructive",
@@ -41,9 +40,9 @@ export const useFactureSendCancelActions = (
   // Fonction pour annuler une facture
   const cancelFacture = async (facture: Facture) => {
     try {
-      const updatedFacture = {
+      const updatedFacture: Facture = {
         ...facture,
-        status: 'annulée',
+        status: "annulée" as const,
         updated_at: new Date().toISOString()
       };
       
@@ -53,14 +52,13 @@ export const useFactureSendCancelActions = (
       // Mettre à jour l'état local
       setFactures(factures.map(f => f.id === facture.id ? updatedFacture : f));
       
-      toast.toast({
+      toast({
         title: "Facture annulée",
         description: `La facture ${facture.id} a été annulée.`,
-        variant: "success",
       });
     } catch (error) {
       console.error("Erreur lors de l'annulation de la facture:", error);
-      toast.toast({
+      toast({
         title: "Erreur",
         description: "Impossible d'annuler la facture. Veuillez réessayer.",
         variant: "destructive",
