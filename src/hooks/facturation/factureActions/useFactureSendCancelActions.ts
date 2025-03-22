@@ -4,7 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { updateFactureInDatabase } from "@/services/factureService";
 
 export const useFactureSendCancelActions = (
-  toast: ReturnType<typeof useToast>,
+  { toast }: ReturnType<typeof useToast>,
   factures: Facture[],
   setFactures: React.Dispatch<React.SetStateAction<Facture[]>>
 ) => {

@@ -87,7 +87,7 @@ const FactureTableRow = ({
               className="flex items-center gap-2 cursor-pointer"
             >
               <Eye className="h-4 w-4 text-blue-500" />
-              Voir la facture
+              Aperçu
             </DropdownMenuItem>
             <DropdownMenuItem 
               onClick={() => onDownloadFacture(facture)}
