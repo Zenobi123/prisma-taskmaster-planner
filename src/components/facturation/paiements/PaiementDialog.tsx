@@ -43,69 +43,77 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md sm:max-w-lg md:max-w-xl">
-        <DialogHeader>
+      <DialogContent className="max-w-2xl w-full">
+        <DialogHeader className="pb-2">
           <DialogTitle>Nouveau Paiement</DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
             Enregistrer un nouveau paiement
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="max-h-[70vh]">
+        <ScrollArea className="max-h-[60vh]">
           <form onSubmit={handleSubmit(onFormSubmit)}>
-            <div className="grid gap-2 py-2 px-1">
-              {/* Client and Credit Selection */}
-              <PaiementClientSection
-                selectedClientId={selectedClientId}
-                estCredit={estCredit}
-                onClientChange={handleClientChange}
-                onCreditChange={handleCreditChange}
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 px-1">
+              {/* Left Column */}
+              <div className="space-y-2">
+                {/* Client and Credit Selection */}
+                <PaiementClientSection
+                  selectedClientId={selectedClientId}
+                  estCredit={estCredit}
+                  onClientChange={handleClientChange}
+                  onCreditChange={handleCreditChange}
+                />
 
-              {/* Facture Selection and Payment Type */}
-              <PaiementFactureSection
-                selectedClientId={selectedClientId}
-                estCredit={estCredit}
-                selectedFactureId={selectedFactureId}
-                typePaiement={typePaiement}
-                onFactureChange={handleFactureChange}
-                onTypePaiementChange={handleTypePaiementChange}
-              />
+                {/* Facture Selection and Payment Type */}
+                <PaiementFactureSection
+                  selectedClientId={selectedClientId}
+                  estCredit={estCredit}
+                  selectedFactureId={selectedFactureId}
+                  typePaiement={typePaiement}
+                  onFactureChange={handleFactureChange}
+                  onTypePaiementChange={handleTypePaiementChange}
+                />
 
-              {/* Prestations Selection */}
-              <PaiementPrestationSection
-                selectedFactureId={selectedFactureId}
-                estCredit={estCredit}
-                typePaiement={typePaiement}
-                selectedPrestations={selectedPrestations}
-                onPrestationChange={handlePrestationChange}
-              />
+                {/* Date Selection */}
+                <PaiementDateSection
+                  date={date}
+                  onDateChange={handleDateChange}
+                />
 
-              {/* Date Selection */}
-              <PaiementDateSection
-                date={date}
-                onDateChange={handleDateChange}
-              />
+                {/* Amount Input */}
+                <PaiementAmountSection
+                  register={register}
+                  errors={errors}
+                />
+              </div>
 
-              {/* Amount Input */}
-              <PaiementAmountSection
-                register={register}
-                errors={errors}
-              />
+              {/* Right Column */}
+              <div className="space-y-2">
+                {/* Payment Mode */}
+                <PaiementModeSection
+                  selectedMode={selectedMode}
+                  onModeChange={handleModeChange}
+                  register={register}
+                />
 
-              {/* Payment Mode */}
-              <PaiementModeSection
-                selectedMode={selectedMode}
-                onModeChange={handleModeChange}
-                register={register}
-              />
+                {/* Notes */}
+                <PaiementNotesSection
+                  register={register}
+                />
 
-              {/* Notes */}
-              <PaiementNotesSection
-                register={register}
-              />
+                {/* Prestations Selection - Full width at the bottom */}
+                <div className="md:col-span-2">
+                  <PaiementPrestationSection
+                    selectedFactureId={selectedFactureId}
+                    estCredit={estCredit}
+                    typePaiement={typePaiement}
+                    selectedPrestations={selectedPrestations}
+                    onPrestationChange={handlePrestationChange}
+                  />
+                </div>
+              </div>
             </div>
-            <DialogFooter className="mt-4 pb-2">
+            <DialogFooter className="mt-4 pb-0 pt-2 border-t">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-8 text-xs">
                 Annuler
               </Button>

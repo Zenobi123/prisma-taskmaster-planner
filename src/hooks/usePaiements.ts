@@ -33,24 +33,30 @@ export const usePaiements = () => {
       }
 
       // Format data to match Paiement type
-      const formattedPaiements = data.map(p => ({
-        id: p.id,
-        facture: p.facture_id || "",
-        client: p.clients ? (p.clients.nom || p.clients.raisonsociale) : "",
-        client_id: p.client_id,
-        date: p.date,
-        montant: p.montant,
-        mode: p.mode as "espèces" | "virement" | "orange_money" | "mtn_money",
-        solde_restant: p.solde_restant || 0,
-        est_credit: p.est_credit || false,
-        est_verifie: p.est_verifie || false,
-        reference: p.reference || "",
-        notes: p.notes || "",
-        reference_transaction: p.reference_transaction || "",
-        // Handle potentially missing fields with default values
-        type_paiement: p.type_paiement as "total" | "partiel" || "total",
-        prestations_payees: p.prestations_payees as string[] || []
-      }));
+      const formattedPaiements = data.map(p => {
+        // Parse elements_specifiques for type_paiement and prestations_payees
+        const elementsSpecifiques = p.elements_specifiques || {};
+        const typePaiement = elementsSpecifiques.type_paiement || "total";
+        const prestationsPayees = elementsSpecifiques.prestations_payees || [];
+        
+        return {
+          id: p.id,
+          facture: p.facture_id || "",
+          client: p.clients ? (p.clients.nom || p.clients.raisonsociale) : "",
+          client_id: p.client_id,
+          date: p.date,
+          montant: p.montant,
+          mode: p.mode as "espèces" | "virement" | "orange_money" | "mtn_money",
+          solde_restant: p.solde_restant || 0,
+          est_credit: p.est_credit || false,
+          est_verifie: p.est_verifie || false,
+          reference: p.reference || "",
+          notes: p.notes || "",
+          reference_transaction: p.reference_transaction || "",
+          type_paiement: typePaiement as "total" | "partiel",
+          prestations_payees: prestationsPayees as string[]
+        };
+      });
       
       setPaiements(formattedPaiements);
     } catch (error) {
