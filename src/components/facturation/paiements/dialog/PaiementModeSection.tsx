@@ -15,7 +15,7 @@ export const PaiementModeSection = ({
   register
 }: PaiementModeSectionProps) => {
   return (
-    <>
+    <div className="space-y-2">
       {/* Payment mode */}
       <div className="grid gap-1">
         <Label htmlFor="mode" className="text-xs font-medium">Mode de paiement</Label>
@@ -37,18 +37,18 @@ export const PaiementModeSection = ({
       </div>
 
       {/* Transaction reference */}
-      {["orange_money", "mtn_money"].includes(selectedMode) && (
+      {selectedMode !== "espèces" && (
         <div className="grid gap-1">
           <Label htmlFor="reference_transaction" className="text-xs font-medium">Référence transaction</Label>
           <Input
             id="reference_transaction"
             type="text"
-            placeholder="Ex: OM-123456789"
+            placeholder={selectedMode === "virement" ? "Réf. virement" : "Ex: OM-123456789"}
             {...register("reference_transaction")}
             className="h-8 text-xs"
           />
         </div>
       )}
-    </>
+    </div>
   );
 };
