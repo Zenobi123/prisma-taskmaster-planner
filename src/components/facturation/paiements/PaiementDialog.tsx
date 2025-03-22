@@ -1,7 +1,6 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Paiement } from "@/types/paiement";
 import { PaiementClientSection } from "./dialog/PaiementClientSection";
 import { PaiementFactureSection } from "./dialog/PaiementFactureSection";
@@ -51,61 +50,59 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onFormSubmit)}>
-          <ScrollArea className="h-[60vh] pr-4">
-            <div className="grid gap-2 py-2">
-              {/* Client and Credit Selection */}
-              <PaiementClientSection
-                selectedClientId={selectedClientId}
-                estCredit={estCredit}
-                onClientChange={handleClientChange}
-                onCreditChange={handleCreditChange}
-              />
+          <div className="grid gap-2 py-2">
+            {/* Client and Credit Selection */}
+            <PaiementClientSection
+              selectedClientId={selectedClientId}
+              estCredit={estCredit}
+              onClientChange={handleClientChange}
+              onCreditChange={handleCreditChange}
+            />
 
-              {/* Facture Selection and Payment Type */}
-              <PaiementFactureSection
-                selectedClientId={selectedClientId}
-                estCredit={estCredit}
-                selectedFactureId={selectedFactureId}
-                typePaiement={typePaiement}
-                onFactureChange={handleFactureChange}
-                onTypePaiementChange={handleTypePaiementChange}
-              />
+            {/* Facture Selection and Payment Type */}
+            <PaiementFactureSection
+              selectedClientId={selectedClientId}
+              estCredit={estCredit}
+              selectedFactureId={selectedFactureId}
+              typePaiement={typePaiement}
+              onFactureChange={handleFactureChange}
+              onTypePaiementChange={handleTypePaiementChange}
+            />
 
-              {/* Prestations Selection */}
-              <PaiementPrestationSection
-                selectedFactureId={selectedFactureId}
-                estCredit={estCredit}
-                typePaiement={typePaiement}
-                selectedPrestations={selectedPrestations}
-                onPrestationChange={handlePrestationChange}
-              />
+            {/* Prestations Selection */}
+            <PaiementPrestationSection
+              selectedFactureId={selectedFactureId}
+              estCredit={estCredit}
+              typePaiement={typePaiement}
+              selectedPrestations={selectedPrestations}
+              onPrestationChange={handlePrestationChange}
+            />
 
-              {/* Date Selection */}
-              <PaiementDateSection
-                date={date}
-                onDateChange={handleDateChange}
-              />
+            {/* Date Selection */}
+            <PaiementDateSection
+              date={date}
+              onDateChange={handleDateChange}
+            />
 
-              {/* Amount Input */}
-              <PaiementAmountSection
-                register={register}
-                errors={errors}
-              />
+            {/* Amount Input */}
+            <PaiementAmountSection
+              register={register}
+              errors={errors}
+            />
 
-              {/* Payment Mode */}
-              <PaiementModeSection
-                selectedMode={selectedMode}
-                onModeChange={handleModeChange}
-                register={register}
-              />
+            {/* Payment Mode */}
+            <PaiementModeSection
+              selectedMode={selectedMode}
+              onModeChange={handleModeChange}
+              register={register}
+            />
 
-              {/* Notes */}
-              <PaiementNotesSection
-                register={register}
-              />
-            </div>
-          </ScrollArea>
-          <DialogFooter className="mt-4">
+            {/* Notes */}
+            <PaiementNotesSection
+              register={register}
+            />
+          </div>
+          <DialogFooter className="mt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-8 text-xs">
               Annuler
             </Button>
