@@ -22,7 +22,7 @@ const FactureTable = ({
   onEditFacture
 }: FactureTableProps) => {
   return (
-    <div className="overflow-x-auto">
+    <div className="rounded-md border overflow-hidden">
       <Table>
         <FactureTableHeader />
         <TableBody>
@@ -40,7 +40,7 @@ const FactureTable = ({
             ))
           ) : (
             <tr>
-              <td colSpan={6} className="text-center py-10 text-gray-500">
+              <td colSpan={8} className="text-center py-10 text-gray-500">
                 Aucune facture trouvée
               </td>
             </tr>

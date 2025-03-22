@@ -1,10 +1,17 @@
 
-import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Download, Edit, Eye, Trash } from "lucide-react";
 import StatusBadge from "./StatusBadge";
 import { Facture } from "@/types/facture";
 import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Eye, Download, Edit, Trash } from "lucide-react";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -41,18 +48,6 @@ const FactureTableRow = ({
     setIsDeleteDialogOpen(false);
   };
 
-  const handleViewClick = () => {
-    onViewFacture(facture);
-  };
-
-  const handleDownloadClick = () => {
-    onDownloadFacture(facture);
-  };
-
-  const handleEditClick = () => {
-    onEditFacture(facture);
-  };
-
   // Display the formatted facture ID (FP XXXX-YYYY)
   const factureId = facture.id && typeof facture.id === 'string' ? facture.id : 'ID inconnu';
 
@@ -70,66 +65,67 @@ const FactureTableRow = ({
         <StatusBadge status={facture.status_paiement} type="paiement" />
       </TableCell>
       <TableCell className="text-right">
-        <div className="flex justify-end space-x-2">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-blue-500 hover:text-blue-700 hover:bg-blue-50" 
-            onClick={handleViewClick}
-            title="Voir la facture"
-          >
-            <Eye className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-green-500 hover:text-green-700 hover:bg-green-50" 
-            onClick={handleDownloadClick}
-            title="Télécharger la facture"
-          >
-            <Download className="h-4 w-4" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-amber-500 hover:text-amber-700 hover:bg-amber-50"
-            onClick={handleEditClick}
-            title="Modifier la facture"
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          
-          <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-            <AlertDialogTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                title="Supprimer la facture"
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Êtes-vous sûr de vouloir supprimer la facture {factureId} ?
-                  Cette action est irréversible.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Annuler</AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={handleDelete}
-                  className="bg-red-600 hover:bg-red-700"
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Options</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem 
+              onClick={() => onViewFacture(facture)}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Eye className="h-4 w-4 text-blue-500" />
+              Voir la facture
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => onDownloadFacture(facture)}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Download className="h-4 w-4 text-green-500" />
+              Télécharger
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={() => onEditFacture(facture)}
+              className="flex items-center gap-2 cursor-pointer"
+            >
+              <Edit className="h-4 w-4 text-amber-500" />
+              Modifier
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem 
+                  className="flex items-center gap-2 text-red-600 cursor-pointer"
+                  onSelect={(e) => e.preventDefault()}
                 >
+                  <Trash className="h-4 w-4" />
                   Supprimer
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Êtes-vous sûr de vouloir supprimer la facture {factureId} ?
+                    Cette action est irréversible.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleDelete}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Supprimer
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </TableCell>
     </TableRow>
   );
