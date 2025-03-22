@@ -24,7 +24,9 @@ export const usePaiementActions = () => {
         reference: paiement.reference,
         reference_transaction: paiement.reference_transaction,
         notes: paiement.notes,
-        solde_restant: paiement.solde_restant
+        solde_restant: paiement.solde_restant,
+        type_paiement: paiement.type_paiement || "total",
+        prestations_payees: paiement.prestations_payees || []
       };
 
       const { data, error } = await supabase

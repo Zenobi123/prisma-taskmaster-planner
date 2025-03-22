@@ -13,4 +13,6 @@ export interface Paiement {
   est_verifie?: boolean;
   reference_transaction?: string;
   notes?: string;
+  type_paiement?: "total" | "partiel";
+  prestations_payees?: string[];
 }

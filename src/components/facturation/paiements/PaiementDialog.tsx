@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement } from "@/types/paiement";
 import { CalendarIcon } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface PaiementDialogProps {
   open: boolean;
@@ -32,13 +33,17 @@ type PaiementFormData = {
   est_credit: boolean;
   reference_transaction: string;
   notes: string;
+  type_paiement: "total" | "partiel";
+  prestations_payees: string[];
 };
 
 const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) => {
   const { toast } = useToast();
   const [clients, setClients] = useState<any[]>([]);
   const [factures, setFactures] = useState<any[]>([]);
+  const [prestations, setPrestations] = useState<any[]>([]);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [selectedFactureId, setSelectedFactureId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [date, setDate] = useState<Date>(new Date());
 
@@ -51,12 +56,16 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
       mode: "espèces",
       est_credit: false,
       reference_transaction: "",
-      notes: ""
+      notes: "",
+      type_paiement: "total",
+      prestations_payees: []
     }
   });
 
   const estCredit = watch("est_credit");
   const selectedMode = watch("mode");
+  const typePaiement = watch("type_paiement");
+  const selectedPrestations = watch("prestations_payees");
 
   useEffect(() => {
     if (open) {
@@ -70,6 +79,21 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
       fetchFacturesForClient(selectedClientId);
     }
   }, [selectedClientId]);
+
+  useEffect(() => {
+    if (selectedFactureId && !estCredit) {
+      fetchPrestationsForFacture(selectedFactureId);
+    } else {
+      setPrestations([]);
+    }
+  }, [selectedFactureId, estCredit]);
+
+  useEffect(() => {
+    // Si on passe de partiel à total, on vide les prestations sélectionnées
+    if (typePaiement === "total") {
+      setValue("prestations_payees", []);
+    }
+  }, [typePaiement, setValue]);
 
   const fetchClients = async () => {
     try {
@@ -109,16 +133,68 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
     }
   };
 
+  const fetchPrestationsForFacture = async (factureId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("prestations")
+        .select("*")
+        .eq("facture_id", factureId);
+
+      if (error) throw error;
+      setPrestations(data || []);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des prestations:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de récupérer les prestations de la facture."
+      });
+    }
+  };
+
   const handleClientChange = (clientId: string) => {
     setValue("client_id", clientId);
     setSelectedClientId(clientId);
-    setValue("facture_id", ""); // Reset selected facture when client changes
+    setValue("facture_id", "");
+    setSelectedFactureId(null);
+  };
+
+  const handleFactureChange = (factureId: string) => {
+    setValue("facture_id", factureId);
+    setSelectedFactureId(factureId);
+    // Calcul automatique du montant total de la facture
+    const selectedFacture = factures.find(f => f.id === factureId);
+    if (selectedFacture) {
+      const montantRestant = selectedFacture.montant - (selectedFacture.montant_paye || 0);
+      setValue("montant", montantRestant);
+    }
   };
 
   const handleDateChange = (date: Date | undefined) => {
     if (date) {
       setDate(date);
       setValue("date", date);
+    }
+  };
+
+  const handlePrestationChange = (id: string, checked: boolean) => {
+    let updatedPrestations = [...selectedPrestations];
+    
+    if (checked) {
+      updatedPrestations.push(id);
+    } else {
+      updatedPrestations = updatedPrestations.filter(p => p !== id);
+    }
+    
+    setValue("prestations_payees", updatedPrestations);
+    
+    // Si on a sélectionné des prestations, on ajuste le montant
+    if (updatedPrestations.length > 0 && typePaiement === "partiel") {
+      const montantTotal = prestations
+        .filter(p => updatedPrestations.includes(p.id))
+        .reduce((sum, p) => sum + Number(p.montant), 0);
+      
+      setValue("montant", montantTotal);
     }
   };
 
@@ -136,7 +212,9 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
         reference: `PAY-${Date.now().toString(36)}`,
         reference_transaction: data.reference_transaction,
         notes: data.notes,
-        solde_restant: 0 // Sera calculé côté serveur
+        solde_restant: 0, // Sera calculé côté serveur
+        type_paiement: data.type_paiement,
+        prestations_payees: data.type_paiement === "partiel" ? data.prestations_payees : []
       };
 
       await onSubmit(paiementData);
@@ -159,11 +237,14 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
       <DialogContent className="max-w-sm">
         <DialogHeader>
           <DialogTitle>Nouveau Paiement</DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground">
+            Enregistrer un nouveau paiement
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onFormSubmit)}>
-          <div className="grid gap-3 py-3">
+          <div className="grid gap-2 py-2">
             {/* Client selection */}
-            <div className="grid gap-1.5">
+            <div className="grid gap-1">
               <Label htmlFor="client_id" className="text-xs font-medium">Client</Label>
               <Select onValueChange={handleClientChange}>
                 <SelectTrigger className="h-8 text-xs">
@@ -180,7 +261,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
             </div>
 
             {/* Credit checkbox */}
-            <div className="flex items-center space-x-2 mb-1">
+            <div className="flex items-center space-x-2 mb-0">
               <Checkbox 
                 id="est_credit" 
                 checked={estCredit} 
@@ -191,9 +272,9 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
 
             {/* Facture selection */}
             {!estCredit && selectedClientId && (
-              <div className="grid gap-1.5">
+              <div className="grid gap-1">
                 <Label htmlFor="facture_id" className="text-xs font-medium">Facture</Label>
-                <Select onValueChange={(value) => setValue("facture_id", value)}>
+                <Select onValueChange={handleFactureChange}>
                   <SelectTrigger className="h-8 text-xs">
                     <SelectValue placeholder="Sélectionner une facture" />
                   </SelectTrigger>
@@ -208,8 +289,52 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
               </div>
             )}
 
+            {/* Type de paiement options - seulement visible si une facture est sélectionnée */}
+            {!estCredit && selectedFactureId && (
+              <div className="grid gap-1">
+                <Label className="text-xs font-medium">Type de paiement</Label>
+                <RadioGroup 
+                  defaultValue="total" 
+                  value={typePaiement}
+                  onValueChange={(value: "total" | "partiel") => setValue("type_paiement", value)}
+                  className="flex gap-4"
+                >
+                  <div className="flex items-center space-x-1">
+                    <RadioGroupItem value="total" id="total" className="h-3 w-3" />
+                    <Label htmlFor="total" className="text-xs">Paiement total</Label>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <RadioGroupItem value="partiel" id="partiel" className="h-3 w-3" />
+                    <Label htmlFor="partiel" className="text-xs">Paiement partiel</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            )}
+
+            {/* Prestations selection - seulement visible si paiement partiel */}
+            {!estCredit && selectedFactureId && typePaiement === "partiel" && prestations.length > 0 && (
+              <div className="grid gap-1">
+                <Label className="text-xs font-medium">Prestations à payer</Label>
+                <div className="max-h-28 overflow-y-auto border rounded p-1">
+                  {prestations.map((prestation) => (
+                    <div key={prestation.id} className="flex items-center space-x-2 mb-1">
+                      <Checkbox 
+                        id={`prestation-${prestation.id}`} 
+                        checked={selectedPrestations?.includes(prestation.id)}
+                        onCheckedChange={(checked) => handlePrestationChange(prestation.id, checked === true)}
+                        className="h-3 w-3"
+                      />
+                      <Label htmlFor={`prestation-${prestation.id}`} className="text-xs">
+                        {prestation.description} - {prestation.montant} FCFA
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Date picker */}
-            <div className="grid gap-1.5">
+            <div className="grid gap-1">
               <Label htmlFor="date" className="text-xs font-medium">Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
@@ -233,7 +358,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
             </div>
 
             {/* Amount */}
-            <div className="grid gap-1.5">
+            <div className="grid gap-1">
               <Label htmlFor="montant" className="text-xs font-medium">Montant (FCFA)</Label>
               <Input
                 id="montant"
@@ -247,7 +372,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
             </div>
 
             {/* Payment mode */}
-            <div className="grid gap-1.5">
+            <div className="grid gap-1">
               <Label htmlFor="mode" className="text-xs font-medium">Mode de paiement</Label>
               <Select 
                 onValueChange={(value: "espèces" | "virement" | "orange_money" | "mtn_money") => setValue("mode", value)} 
@@ -267,7 +392,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
 
             {/* Transaction reference */}
             {["orange_money", "mtn_money"].includes(selectedMode) && (
-              <div className="grid gap-1.5">
+              <div className="grid gap-1">
                 <Label htmlFor="reference_transaction" className="text-xs font-medium">Référence transaction</Label>
                 <Input
                   id="reference_transaction"
@@ -280,7 +405,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
             )}
 
             {/* Notes */}
-            <div className="grid gap-1.5">
+            <div className="grid gap-1">
               <Label htmlFor="notes" className="text-xs font-medium">Notes</Label>
               <Textarea
                 id="notes"

@@ -46,7 +46,9 @@ export const usePaiements = () => {
         est_verifie: p.est_verifie || false,
         reference: p.reference || "",
         notes: p.notes || "",
-        reference_transaction: p.reference_transaction || ""
+        reference_transaction: p.reference_transaction || "",
+        type_paiement: p.type_paiement || "total",
+        prestations_payees: p.prestations_payees || []
       }));
       
       setPaiements(formattedPaiements);
