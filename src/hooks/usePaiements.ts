@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,8 +47,9 @@ export const usePaiements = () => {
         reference: p.reference || "",
         notes: p.notes || "",
         reference_transaction: p.reference_transaction || "",
-        type_paiement: p.type_paiement || "total",
-        prestations_payees: p.prestations_payees || []
+        // Handle potentially missing fields with default values
+        type_paiement: p.type_paiement as "total" | "partiel" || "total",
+        prestations_payees: p.prestations_payees as string[] || []
       }));
       
       setPaiements(formattedPaiements);
