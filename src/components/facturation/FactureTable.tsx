@@ -11,6 +11,8 @@ interface FactureTableProps {
   onDownloadFacture: (facture: Facture) => void;
   onDeleteFacture: (factureId: string) => void;
   onEditFacture: (facture: Facture) => void;
+  onSendFacture?: (facture: Facture) => void;
+  onCancelFacture?: (facture: Facture) => void;
 }
 
 const FactureTable = ({ 
@@ -19,7 +21,9 @@ const FactureTable = ({
   onViewFacture,
   onDownloadFacture,
   onDeleteFacture,
-  onEditFacture
+  onEditFacture,
+  onSendFacture,
+  onCancelFacture
 }: FactureTableProps) => {
   return (
     <div className="rounded-md border overflow-hidden">
@@ -36,6 +40,8 @@ const FactureTable = ({
                 onDownloadFacture={onDownloadFacture}
                 onDeleteFacture={onDeleteFacture}
                 onEditFacture={onEditFacture}
+                onSendFacture={onSendFacture}
+                onCancelFacture={onCancelFacture}
               />
             ))
           ) : (

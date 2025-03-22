@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Eye, Download, Edit, Trash } from "lucide-react";
+import { MoreHorizontal, Eye, Download, Edit, Trash, Send, Ban } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +31,8 @@ interface FactureTableRowProps {
   onDownloadFacture: (facture: Facture) => void;
   onDeleteFacture: (factureId: string) => void;
   onEditFacture: (facture: Facture) => void;
+  onSendFacture?: (facture: Facture) => void;
+  onCancelFacture?: (facture: Facture) => void;
 }
 
 const FactureTableRow = ({ 
@@ -39,7 +41,9 @@ const FactureTableRow = ({
   onViewFacture, 
   onDownloadFacture,
   onDeleteFacture,
-  onEditFacture
+  onEditFacture,
+  onSendFacture,
+  onCancelFacture
 }: FactureTableRowProps) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
@@ -50,6 +54,11 @@ const FactureTableRow = ({
 
   // Display the formatted facture ID (FP XXXX-YYYY)
   const factureId = facture.id && typeof facture.id === 'string' ? facture.id : 'ID inconnu';
+  
+  // Determine if certain actions should be disabled based on facture status
+  const isFactureCancelled = facture.status === 'annulée';
+  const isFactureSent = facture.status === 'envoyée';
+  const isFactureDraft = facture.status === 'brouillon';
 
   return (
     <TableRow className="hover:bg-gray-50">
@@ -87,13 +96,40 @@ const FactureTableRow = ({
               <Download className="h-4 w-4 text-green-500" />
               Télécharger
             </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => onEditFacture(facture)}
-              className="flex items-center gap-2 cursor-pointer"
-            >
-              <Edit className="h-4 w-4 text-amber-500" />
-              Modifier
-            </DropdownMenuItem>
+            
+            {/* Nouvelle action: Envoyer la facture (seulement pour les brouillons) */}
+            {onSendFacture && isFactureDraft && (
+              <DropdownMenuItem 
+                onClick={() => onSendFacture(facture)}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <Send className="h-4 w-4 text-blue-500" />
+                Envoyer la facture
+              </DropdownMenuItem>
+            )}
+            
+            {/* Nouvelle action: Annuler la facture (pas pour les annulées) */}
+            {onCancelFacture && !isFactureCancelled && (
+              <DropdownMenuItem 
+                onClick={() => onCancelFacture(facture)}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <Ban className="h-4 w-4 text-red-500" />
+                Annuler la facture
+              </DropdownMenuItem>
+            )}
+            
+            {/* On ne permet d'éditer que les brouillons */}
+            {isFactureDraft && (
+              <DropdownMenuItem 
+                onClick={() => onEditFacture(facture)}
+                className="flex items-center gap-2 cursor-pointer"
+              >
+                <Edit className="h-4 w-4 text-amber-500" />
+                Modifier
+              </DropdownMenuItem>
+            )}
+            
             <DropdownMenuSeparator />
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
               <AlertDialogTrigger asChild>
