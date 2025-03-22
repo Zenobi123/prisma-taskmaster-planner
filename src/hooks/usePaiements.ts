@@ -40,12 +40,13 @@ export const usePaiements = () => {
         client_id: p.client_id,
         date: p.date,
         montant: p.montant,
-        mode: p.mode,
+        mode: p.mode as "espèces" | "virement" | "orange_money" | "mtn_money",
         solde_restant: p.solde_restant || 0,
         est_credit: p.est_credit || false,
         est_verifie: p.est_verifie || false,
         reference: p.reference || "",
-        notes: p.notes || ""
+        notes: p.notes || "",
+        reference_transaction: p.reference_transaction || ""
       }));
       
       setPaiements(formattedPaiements);

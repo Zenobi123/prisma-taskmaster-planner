@@ -6,6 +6,7 @@ import { usePaiements } from "@/hooks/usePaiements";
 import PaiementSearchBar from "./paiements/PaiementSearchBar";
 import PaiementTable from "./paiements/PaiementTable";
 import PaiementDialog from "./paiements/PaiementDialog";
+import useFactureViewActions from "@/hooks/facturation/factureActions/useFactureViewActions";
 
 const Paiements = () => {
   const { 
@@ -14,9 +15,12 @@ const Paiements = () => {
     filteredPaiements, 
     loading, 
     addPaiement, 
+    deletePaiement,
     dialogOpen, 
     setDialogOpen 
   } = usePaiements();
+  
+  const { handleVoirRecu } = useFactureViewActions();
   
   return (
     <Card>
@@ -36,6 +40,8 @@ const Paiements = () => {
         <PaiementTable 
           paiements={filteredPaiements} 
           loading={loading} 
+          onDelete={deletePaiement}
+          onViewReceipt={handleVoirRecu}
         />
         <PaiementDialog 
           open={dialogOpen} 

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement } from "@/types/paiement";
-import { Facture } from "@/types/facture";
 import { generatePDF } from "@/utils/pdfUtils";
 
 export const usePaiementActions = () => {
@@ -13,9 +12,24 @@ export const usePaiementActions = () => {
   const addPaiement = async (paiement: Omit<Paiement, "id">) => {
     setIsLoading(true);
     try {
+      // Adapter les données du formulaire au format de la table
+      const paiementData = {
+        client_id: paiement.client_id,
+        facture_id: paiement.est_credit ? null : paiement.facture, // Utiliser null si c'est un crédit
+        date: paiement.date,
+        montant: paiement.montant,
+        mode: paiement.mode,
+        est_credit: paiement.est_credit || false,
+        est_verifie: ["orange_money", "mtn_money"].includes(paiement.mode) ? false : true,
+        reference: paiement.reference,
+        reference_transaction: paiement.reference_transaction,
+        notes: paiement.notes,
+        solde_restant: paiement.solde_restant
+      };
+
       const { data, error } = await supabase
         .from("paiements")
-        .insert([paiement])
+        .insert(paiementData)
         .select()
         .single();
 
@@ -29,7 +43,7 @@ export const usePaiementActions = () => {
       });
 
       // Générer le reçu PDF
-      generatePaiementReceipt(data);
+      generatePaiementReceipt(data as unknown as Paiement);
 
       return data;
     } catch (error) {
