@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,9 +63,29 @@ export const usePaiements = () => {
   const addPaiement = async (paiement: Omit<Paiement, "id">) => {
     setLoading(true);
     try {
+      // Transform the frontend Paiement type to match what Supabase expects
+      // The key issue is handling facture_id which is required in the DB
+      const paiementData = {
+        client_id: paiement.client_id,
+        facture_id: paiement.est_credit ? '' : paiement.facture, // Use empty string if it's a credit
+        date: paiement.date,
+        montant: paiement.montant,
+        mode: paiement.mode,
+        est_credit: paiement.est_credit || false,
+        est_verifie: ["orange_money", "mtn_money"].includes(paiement.mode) ? false : true,
+        reference: paiement.reference,
+        reference_transaction: paiement.reference_transaction,
+        notes: paiement.notes,
+        solde_restant: paiement.solde_restant || 0,
+        elements_specifiques: {
+          type_paiement: paiement.type_paiement || "total",
+          prestations_payees: paiement.prestations_payees || []
+        }
+      };
+
       const { data, error } = await supabase
         .from("paiements")
-        .insert([paiement])
+        .insert(paiementData)
         .select()
         .single();
 
@@ -94,9 +115,37 @@ export const usePaiements = () => {
   const updatePaiement = async (id: string, updates: Partial<Paiement>) => {
     setLoading(true);
     try {
+      // Transform the frontend Paiement type to match what Supabase expects
+      const updateData: Record<string, any> = {
+        client_id: updates.client_id,
+        date: updates.date,
+        montant: updates.montant,
+        mode: updates.mode,
+        reference_transaction: updates.reference_transaction,
+        notes: updates.notes
+      };
+
+      // Handle facture_id appropriately
+      if ('facture' in updates) {
+        updateData.facture_id = updates.est_credit ? '' : updates.facture;
+      }
+
+      // Handle est_credit
+      if ('est_credit' in updates) {
+        updateData.est_credit = updates.est_credit;
+      }
+
+      // Handle type_paiement and prestations_payees as elements_specifiques
+      if (updates.type_paiement || updates.prestations_payees) {
+        updateData.elements_specifiques = {
+          type_paiement: updates.type_paiement || "total",
+          prestations_payees: updates.prestations_payees || []
+        };
+      }
+
       const { data, error } = await supabase
         .from("paiements")
-        .update(updates)
+        .update(updateData)
         .eq("id", id)
         .select()
         .single();
