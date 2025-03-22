@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -106,9 +105,9 @@ export const usePaiements = () => {
     setSearchTerm,
     filteredPaiements,
     loading,
-    addPaiement,
-    updatePaiement,
-    deletePaiement,
+    addPaiement: paiementActions.addPaiement,
+    updatePaiement: paiementActions.updatePaiement,
+    deletePaiement: paiementActions.deletePaiement,
     dialogOpen,
     setDialogOpen,
     refreshPaiements: fetchPaiements
