@@ -43,7 +43,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl w-full">
+      <DialogContent className="max-w-3xl w-full max-h-[90vh] flex flex-col">
         <DialogHeader className="pb-2">
           <DialogTitle>Nouveau Paiement</DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
@@ -51,8 +51,8 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
           </DialogDescription>
         </DialogHeader>
         
-        <ScrollArea className="max-h-[60vh]">
-          <form onSubmit={handleSubmit(onFormSubmit)}>
+        <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col flex-1 overflow-hidden">
+          <ScrollArea className="flex-1 pr-2 pb-2 -mr-2">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 px-1">
               {/* Left Column */}
               <div className="space-y-2">
@@ -100,29 +100,33 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
                 <PaiementNotesSection
                   register={register}
                 />
-
-                {/* Prestations Selection - Full width at the bottom */}
-                <div className="md:col-span-2">
-                  <PaiementPrestationSection
-                    selectedFactureId={selectedFactureId}
-                    estCredit={estCredit}
-                    typePaiement={typePaiement}
-                    selectedPrestations={selectedPrestations}
-                    onPrestationChange={handlePrestationChange}
-                  />
-                </div>
               </div>
             </div>
-            <DialogFooter className="mt-4 pb-0 pt-2 border-t">
-              <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-8 text-xs">
-                Annuler
-              </Button>
-              <Button type="submit" disabled={isSubmitting} className="h-8 text-xs">
-                {isSubmitting ? "Enregistrement..." : "Enregistrer"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </ScrollArea>
+            
+            {/* Prestations Selection - Full width at the bottom */}
+            <div className="mt-4">
+              <PaiementPrestationSection
+                selectedFactureId={selectedFactureId}
+                estCredit={estCredit}
+                typePaiement={typePaiement}
+                selectedPrestations={selectedPrestations}
+                onPrestationChange={handlePrestationChange}
+              />
+            </div>
+            
+            {/* Add some space after content to ensure scrolling works properly */}
+            <div className="h-4"></div>
+          </ScrollArea>
+          
+          <DialogFooter className="mt-4 pt-2 border-t sticky bottom-0 bg-background">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-8 text-xs">
+              Annuler
+            </Button>
+            <Button type="submit" disabled={isSubmitting} className="h-8 text-xs">
+              {isSubmitting ? "Enregistrement..." : "Enregistrer"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

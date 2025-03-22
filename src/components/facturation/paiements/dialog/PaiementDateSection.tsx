@@ -6,6 +6,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useRef } from "react";
 
 interface PaiementDateSectionProps {
   date: Date;
@@ -16,12 +17,27 @@ export const PaiementDateSection = ({
   date,
   onDateChange
 }: PaiementDateSectionProps) => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    if (selectedDate) {
+      onDateChange(selectedDate);
+      // Close the popover after selection by simulating a click on the trigger button
+      setTimeout(() => {
+        if (buttonRef.current) {
+          buttonRef.current.click();
+        }
+      }, 100);
+    }
+  };
+  
   return (
     <div className="grid gap-1">
       <Label htmlFor="date" className="text-xs font-medium">Date</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
+            ref={buttonRef}
             variant="outline"
             className="h-8 w-full justify-start text-left font-normal text-xs"
           >
@@ -33,8 +49,9 @@ export const PaiementDateSection = ({
           <Calendar
             mode="single"
             selected={date}
-            onSelect={onDateChange}
+            onSelect={handleDateSelect}
             initialFocus
+            className="pointer-events-auto"
           />
         </PopoverContent>
       </Popover>

@@ -36,8 +36,20 @@ export const usePaiements = () => {
       const formattedPaiements = data.map(p => {
         // Parse elements_specifiques for type_paiement and prestations_payees
         const elementsSpecifiques = p.elements_specifiques || {};
-        const typePaiement = elementsSpecifiques.type_paiement || "total";
-        const prestationsPayees = elementsSpecifiques.prestations_payees || [];
+        
+        // Safe access to properties using type checking
+        let typePaiement = "total";
+        let prestationsPayees: string[] = [];
+        
+        if (elementsSpecifiques && typeof elementsSpecifiques === 'object') {
+          if ('type_paiement' in elementsSpecifiques) {
+            typePaiement = elementsSpecifiques.type_paiement as string;
+          }
+          
+          if ('prestations_payees' in elementsSpecifiques && Array.isArray(elementsSpecifiques.prestations_payees)) {
+            prestationsPayees = elementsSpecifiques.prestations_payees as string[];
+          }
+        }
         
         return {
           id: p.id,
@@ -54,7 +66,7 @@ export const usePaiements = () => {
           notes: p.notes || "",
           reference_transaction: p.reference_transaction || "",
           type_paiement: typePaiement as "total" | "partiel",
-          prestations_payees: prestationsPayees as string[]
+          prestations_payees: prestationsPayees
         };
       });
       
