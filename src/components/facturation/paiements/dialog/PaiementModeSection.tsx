@@ -36,14 +36,16 @@ export const PaiementModeSection = ({
         </Select>
       </div>
 
-      {/* Transaction reference */}
-      {["orange_money", "mtn_money"].includes(selectedMode) && (
+      {/* Transaction reference fields for all non-cash payment methods */}
+      {selectedMode !== "espèces" && (
         <div className="grid gap-1">
-          <Label htmlFor="reference_transaction" className="text-xs font-medium">Référence transaction</Label>
+          <Label htmlFor="reference_transaction" className="text-xs font-medium">
+            {selectedMode === "virement" ? "Référence virement" : "Référence transaction"}
+          </Label>
           <Input
             id="reference_transaction"
             type="text"
-            placeholder="Ex: OM-123456789"
+            placeholder={selectedMode === "virement" ? "Ex: VIR-123456" : `Ex: ${selectedMode === "orange_money" ? "OM" : "MTN"}-123456789`}
             {...register("reference_transaction")}
             className="h-8 text-xs"
           />

@@ -1,17 +1,33 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement } from "@/types/paiement";
-import { usePaiementActions } from "./facturation/paiementActions/usePaiementActions";
 
 export const usePaiements = () => {
-  const [searchTerm, setSearchTerm] = useState("");
   const [paiements, setPaiements] = useState<Paiement[]>([]);
-  const [loading, setLoading] = useState(true);
-  const { toast } = useToast();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const paiementActions = usePaiementActions();
+  const { toast } = useToast();
+
+  const transformPaiementFromDb = (paiement: any): Paiement => {
+    return {
+      id: paiement.id,
+      client: paiement.client,
+      client_id: paiement.client_id,
+      facture: paiement.facture || "",
+      date: paiement.date,
+      montant: paiement.montant,
+      mode: paiement.mode,
+      reference: paiement.reference,
+      reference_transaction: paiement.reference_transaction || "",
+      solde_restant: paiement.solde_restant || 0,
+      est_credit: paiement.est_credit || false,
+      notes: paiement.notes || "",
+      type_paiement: paiement.type_paiement || "total",
+      prestations_payees: paiement.prestations_payees || []
+    };
+  };
 
   useEffect(() => {
     fetchPaiements();
@@ -24,96 +40,138 @@ export const usePaiements = () => {
         .from("paiements")
         .select(`
           *,
-          clients:client_id (nom, raisonsociale)
+          clients(
+            nom,
+            raisonsociale
+          )
         `)
         .order('date', { ascending: false });
 
-      if (error) {
-        throw error;
-      }
+      if (error) throw error;
 
-      // Format data to match Paiement type
-      const formattedPaiements = data.map(p => ({
-        id: p.id,
-        facture: p.facture_id || "",
-        client: p.clients ? (p.clients.nom || p.clients.raisonsociale) : "",
-        client_id: p.client_id,
-        date: p.date,
-        montant: p.montant,
-        mode: p.mode as "espèces" | "virement" | "orange_money" | "mtn_money",
-        solde_restant: p.solde_restant || 0,
-        est_credit: p.est_credit || false,
-        est_verifie: p.est_verifie || false,
-        reference: p.reference || "",
-        notes: p.notes || "",
-        reference_transaction: p.reference_transaction || "",
-        // Handle potentially missing fields with default values
-        type_paiement: p.type_paiement as "total" | "partiel" || "total",
-        prestations_payees: p.prestations_payees as string[] || []
-      }));
-      
-      setPaiements(formattedPaiements);
+      // Transform the data to ensure all required fields are present
+      const transformedData = data.map(transformPaiementFromDb);
+      setPaiements(transformedData);
+      setLoading(false);
     } catch (error) {
-      console.error("Erreur lors de la récupération des paiements:", error);
+      console.error("Error fetching paiements:", error);
+      setLoading(false);
+    }
+  };
+
+  const addPaiement = async (paiement: Omit<Paiement, "id">) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("paiements")
+        .insert([paiement])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      fetchPaiements();
+
+      toast({
+        title: "Paiement ajouté",
+        description: `Le paiement pour ${paiement.client} a été ajouté avec succès.`,
+      });
+
+      return data;
+    } catch (error) {
+      console.error("Error adding paiement:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
-        description: "Impossible de récupérer les paiements."
+        description: "Impossible d'ajouter le paiement. Veuillez réessayer.",
       });
+      return null;
     } finally {
       setLoading(false);
     }
   };
 
-  const addPaiement = async (newPaiement: Omit<Paiement, "id">) => {
-    const result = await paiementActions.addPaiement(newPaiement);
-    if (result) {
-      fetchPaiements(); // Refresh the list
-    }
-    return result;
-  };
-
   const updatePaiement = async (id: string, updates: Partial<Paiement>) => {
-    const result = await paiementActions.updatePaiement(id, updates);
-    if (result) {
-      fetchPaiements(); // Refresh the list
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("paiements")
+        .update(updates)
+        .eq("id", id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      fetchPaiements();
+
+      toast({
+        title: "Paiement mis à jour",
+        description: `Le paiement a été mis à jour avec succès.`,
+      });
+
+      return data;
+    } catch (error) {
+      console.error("Error updating paiement:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de mettre à jour le paiement. Veuillez réessayer.",
+      });
+      return null;
+    } finally {
+      setLoading(false);
     }
-    return result;
   };
 
   const deletePaiement = async (id: string) => {
-    const success = await paiementActions.deletePaiement(id);
-    if (success) {
-      fetchPaiements(); // Refresh the list
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from("paiements")
+        .delete()
+        .eq("id", id);
+
+      if (error) {
+        throw error;
+      }
+
+      fetchPaiements();
+
+      toast({
+        title: "Paiement supprimé",
+        description: `Le paiement a été supprimé avec succès.`,
+      });
+
+      return true;
+    } catch (error) {
+      console.error("Error deleting paiement:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de supprimer le paiement. Veuillez réessayer.",
+      });
+      return false;
+    } finally {
+      setLoading(false);
     }
-    return success;
   };
 
-  // Filter paiements based on search term
-  const filteredPaiements = paiements.filter(paiement => {
-    if (!searchTerm) return true;
-    
-    const searchTermLower = searchTerm.toLowerCase();
-    return (
-      paiement.client.toLowerCase().includes(searchTermLower) ||
-      paiement.id.toLowerCase().includes(searchTermLower) ||
-      paiement.facture.toLowerCase().includes(searchTermLower) ||
-      paiement.reference.toLowerCase().includes(searchTermLower)
-    );
-  });
+  const filteredPaiements = paiements.filter(paiement =>
+    paiement.client.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    paiement.reference.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return {
+    paiements,
     searchTerm,
     setSearchTerm,
     filteredPaiements,
     loading,
-    addPaiement: paiementActions.addPaiement,
-    updatePaiement: paiementActions.updatePaiement,
-    deletePaiement: paiementActions.deletePaiement,
+    addPaiement,
+    updatePaiement,
+    deletePaiement,
     dialogOpen,
-    setDialogOpen,
-    refreshPaiements: fetchPaiements
+    setDialogOpen
   };
 };
-
-export default usePaiements;
