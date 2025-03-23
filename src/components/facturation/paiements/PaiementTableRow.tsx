@@ -66,7 +66,7 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent align="end" side="top" className="w-56 bg-white">
               {onViewReceipt && (
                 <DropdownMenuItem onClick={() => onViewReceipt(paiement)}>
                   <FileText className="h-4 w-4 mr-2" />
