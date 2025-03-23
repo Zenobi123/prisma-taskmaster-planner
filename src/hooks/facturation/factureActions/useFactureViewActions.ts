@@ -2,8 +2,11 @@
 import { Facture } from "@/types/facture";
 import { Paiement } from "@/types/paiement";
 import { generatePDF } from "@/utils/pdfUtils";
+import { useToast } from "@/components/ui/use-toast";
 
 export const useFactureViewActions = () => {
+  const { toast } = useToast();
+  
   const handleVoirFacture = (facture: Facture) => {
     console.log("Aperçu de la facture:", facture.id);
     generatePDF(facture);
@@ -16,8 +19,35 @@ export const useFactureViewActions = () => {
   
   const handleVoirRecu = (paiement: Paiement) => {
     console.log("Aperçu du reçu de paiement:", paiement.id);
-    // Ici, nous pourrions appeler une fonction similaire à generatePDF mais pour les reçus
-    // generateRecuPDF(paiement);
+    // Pour l'instant, on affiche un toast puisque la fonction generateRecuPDF n'est pas encore implémentée
+    toast({
+      title: "Reçu de paiement",
+      description: `Visualisation du reçu pour le paiement ${paiement.reference}`,
+    });
+    
+    // Simulation d'un PDF de reçu en utilisant la fonction generatePDF existante
+    // Note: Dans une implémentation réelle, on utiliserait une fonction spécifique aux reçus
+    const factureSimuleeData = {
+      id: paiement.reference,
+      client: {
+        nom: paiement.client,
+        adresse: "",
+        telephone: "",
+        email: ""
+      },
+      date: paiement.date,
+      echeance: paiement.date,
+      montant: paiement.montant,
+      status: "payée",
+      prestations: [{
+        description: `Paiement par ${paiement.mode}`,
+        montant: paiement.montant,
+        quantite: 1
+      }],
+      notes: paiement.notes || `Reçu de paiement ${paiement.reference}`
+    } as Facture;
+    
+    generatePDF(factureSimuleeData);
   };
   
   return {

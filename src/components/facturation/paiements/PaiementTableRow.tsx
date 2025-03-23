@@ -10,6 +10,7 @@ import { fr } from "date-fns/locale";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import useFactureViewActions from "@/hooks/facturation/factureActions/useFactureViewActions";
 
 interface PaiementTableRowProps {
   paiement: Paiement;
@@ -20,6 +21,7 @@ interface PaiementTableRowProps {
 const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRowProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { handleVoirRecu } = useFactureViewActions();
 
   const handleDelete = async () => {
     if (!onDelete) return;
@@ -47,6 +49,21 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
     }
   };
 
+  const handleViewDetails = () => {
+    console.log("Viewing details for payment:", paiement.id);
+    // This would typically open a modal or navigate to a details page
+    alert(`Détails du paiement ${paiement.reference}`);
+  };
+
+  const handleViewReceipt = () => {
+    if (onViewReceipt) {
+      onViewReceipt(paiement);
+    } else {
+      // Use the fallback view receipt handler
+      handleVoirRecu(paiement);
+    }
+  };
+
   return (
     <>
       <TableRow key={paiement.id}>
@@ -67,25 +84,31 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" side="top" className="w-56 bg-white">
-              {onViewReceipt && (
-                <DropdownMenuItem onClick={() => onViewReceipt(paiement)}>
-                  <FileText className="h-4 w-4 mr-2" />
-                  Voir le reçu
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={handleViewReceipt}
+                className="cursor-pointer flex items-center hover:bg-gray-100"
+              >
+                <FileText className="h-4 w-4 mr-2" />
+                Voir le reçu
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={handleViewDetails}
+                className="cursor-pointer flex items-center hover:bg-gray-100"
+              >
                 <Eye className="h-4 w-4 mr-2" />
                 Détails
               </DropdownMenuItem>
               {paiement.est_credit && (
-                <DropdownMenuItem>
+                <DropdownMenuItem 
+                  className="cursor-pointer flex items-center hover:bg-gray-100"
+                >
                   <CreditCard className="h-4 w-4 mr-2" />
                   Associer à une facture
                 </DropdownMenuItem>
               )}
               {onDelete && (
                 <DropdownMenuItem 
-                  className="text-red-500"
+                  className="text-red-500 cursor-pointer flex items-center hover:bg-gray-100"
                   onClick={() => setDeleteDialogOpen(true)}
                 >
                   <Trash className="h-4 w-4 mr-2" />
