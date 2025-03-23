@@ -18,10 +18,14 @@ export const usePaiementCreate = () => {
         prestations_payees: paiement.prestations_payees || []
       };
 
-      // Générer une référence au format PAY-XXX 2025
+      // Générer une référence au format PAY-XXX YYYY
       const currentYear = new Date().getFullYear();
-      const randomString = Math.random().toString(36).substring(2, 5).toUpperCase();
-      const paymentReference = `PAY-${randomString} ${currentYear}`;
+      
+      // Générer un nombre entre 001 et 999
+      const randomNumber = Math.floor(Math.random() * 999) + 1;
+      const formattedNumber = randomNumber.toString().padStart(3, '0');
+      
+      const paymentReference = `PAY-${formattedNumber} ${currentYear}`;
 
       // Adapter les données du formulaire au format de la table
       const paiementData = {
