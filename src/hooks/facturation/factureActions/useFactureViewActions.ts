@@ -19,7 +19,6 @@ export const useFactureViewActions = () => {
   
   const handleVoirRecu = (paiement: Paiement) => {
     console.log("Aperçu du reçu de paiement:", paiement.id);
-    // Pour l'instant, on affiche un toast puisque la fonction generateRecuPDF n'est pas encore implémentée
     toast({
       title: "Reçu de paiement",
       description: `Visualisation du reçu pour le paiement ${paiement.reference}`,
@@ -29,7 +28,9 @@ export const useFactureViewActions = () => {
     // Note: Dans une implémentation réelle, on utiliserait une fonction spécifique aux reçus
     const factureSimuleeData = {
       id: paiement.reference,
+      client_id: paiement.client_id,
       client: {
+        id: paiement.client_id,
         nom: paiement.client,
         adresse: "",
         telephone: "",
@@ -38,7 +39,8 @@ export const useFactureViewActions = () => {
       date: paiement.date,
       echeance: paiement.date,
       montant: paiement.montant,
-      status: "payée",
+      status: "envoyée",
+      status_paiement: "payée",
       prestations: [{
         description: `Paiement par ${paiement.mode}`,
         montant: paiement.montant,
