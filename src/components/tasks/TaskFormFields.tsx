@@ -20,6 +20,7 @@ import { CalendarIcon, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useRef } from "react";
 
 interface TaskFormFieldsProps {
   clients: any[];
@@ -31,6 +32,29 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
   const activeCollaborateurs = collaborateurs.filter(
     (collab) => collab.statut === "actif"
   );
+  
+  const startDateButtonRef = useRef<HTMLButtonElement>(null);
+  const endDateButtonRef = useRef<HTMLButtonElement>(null);
+  
+  const handleStartDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setTimeout(() => {
+        if (startDateButtonRef.current) {
+          startDateButtonRef.current.click();
+        }
+      }, 100);
+    }
+  };
+  
+  const handleEndDateSelect = (date: Date | undefined) => {
+    if (date) {
+      setTimeout(() => {
+        if (endDateButtonRef.current) {
+          endDateButtonRef.current.click();
+        }
+      }, 100);
+    }
+  };
 
   return (
     <>
@@ -89,6 +113,7 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
           <Popover>
             <PopoverTrigger asChild>
               <Button
+                ref={startDateButtonRef}
                 variant={"outline"}
                 className={cn(
                   "w-full justify-start text-left font-normal bg-background border-input",
@@ -105,7 +130,8 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
                 required
                 locale={fr}
                 initialFocus
-                className="pointer-events-auto"
+                onSelect={handleStartDateSelect}
+                className="pointer-events-auto scale-90 origin-top"
               />
             </PopoverContent>
           </Popover>
@@ -122,6 +148,7 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
           <Popover>
             <PopoverTrigger asChild>
               <Button
+                ref={endDateButtonRef}
                 variant={"outline"}
                 className={cn(
                   "w-full justify-start text-left font-normal bg-background border-input",
@@ -138,7 +165,8 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
                 required
                 locale={fr}
                 initialFocus
-                className="pointer-events-auto"
+                onSelect={handleEndDateSelect}
+                className="pointer-events-auto scale-90 origin-top"
               />
             </PopoverContent>
           </Popover>

@@ -53,7 +53,7 @@ const DatePickerField = ({ label, date, onSelect }: DatePickerFieldProps) => {
             selected={date}
             onSelect={handleDateSelect}
             initialFocus
-            className="pointer-events-auto"
+            className="pointer-events-auto scale-90 origin-top"
             locale={fr}
             weekStartsOn={1}
           />

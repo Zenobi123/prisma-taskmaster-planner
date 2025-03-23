@@ -1,3 +1,4 @@
+
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -64,7 +65,7 @@ export const MissionFormFields = ({
           mode="single"
           selected={selectedDate}
           onSelect={onDateChange}
-          className="rounded-md border"
+          className="rounded-md border scale-90 origin-top"
         />
       </div>
     </div>
