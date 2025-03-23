@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Paiement } from "@/types/paiement";
@@ -9,7 +8,7 @@ import { PaiementDateSection } from "./dialog/PaiementDateSection";
 import { PaiementAmountSection } from "./dialog/PaiementAmountSection";
 import { PaiementModeSection } from "./dialog/PaiementModeSection";
 import { PaiementNotesSection } from "./dialog/PaiementNotesSection";
-import { usePaiementDialogForm } from "./dialog/usePaiementDialogForm";
+import { usePaiementForm } from "./dialog/hooks";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PaiementDialogProps {
@@ -39,7 +38,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
     handleModeChange,
     handleTypePaiementChange,
     handlePrestationChange
-  } = usePaiementDialogForm({ onSubmit, onOpenChange });
+  } = usePaiementForm({ onSubmit, onOpenChange });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

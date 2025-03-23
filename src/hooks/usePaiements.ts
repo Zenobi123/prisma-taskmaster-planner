@@ -48,9 +48,10 @@ export const usePaiements = () => {
               console.error("Error parsing elements_specifiques:", e);
             }
           } else if (typeof p.elements_specifiques === 'object') {
-            // It's already an object, just extract the values
-            typePaiement = p.elements_specifiques.type_paiement || "total";
-            prestationsPayees = p.elements_specifiques.prestations_payees || [];
+            // It's already an object, just extract the values - typed correctly for TypeScript
+            const elemSpecObj = p.elements_specifiques as Record<string, any>;
+            typePaiement = elemSpecObj.type_paiement || "total";
+            prestationsPayees = elemSpecObj.prestations_payees || [];
           }
         }
         
