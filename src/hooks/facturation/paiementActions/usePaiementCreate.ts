@@ -12,6 +12,12 @@ export const usePaiementCreate = () => {
   const addPaiement = async (paiement: Omit<Paiement, "id">) => {
     setIsLoading(true);
     try {
+      // Format the elements_specifiques field for proper storage
+      const elements_specifiques = {
+        type_paiement: paiement.type_paiement || "total",
+        prestations_payees: paiement.prestations_payees || []
+      };
+
       // Adapter les données du formulaire au format de la table
       const paiementData = {
         client_id: paiement.client_id,
@@ -25,9 +31,10 @@ export const usePaiementCreate = () => {
         reference_transaction: paiement.reference_transaction,
         notes: paiement.notes,
         solde_restant: paiement.solde_restant,
-        type_paiement: paiement.type_paiement || "total",
-        prestations_payees: paiement.prestations_payees || []
+        elements_specifiques: elements_specifiques
       };
+
+      console.log("Sending payment data:", paiementData);
 
       const { data, error } = await supabase
         .from("paiements")
@@ -36,8 +43,11 @@ export const usePaiementCreate = () => {
         .single();
 
       if (error) {
+        console.error("Supabase insert error:", error);
         throw error;
       }
+
+      console.log("Payment saved successfully:", data);
 
       toast({
         title: "Paiement enregistré",

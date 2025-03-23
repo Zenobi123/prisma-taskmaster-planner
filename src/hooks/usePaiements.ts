@@ -35,19 +35,22 @@ export const usePaiements = () => {
       // Format data to match Paiement type
       const formattedPaiements = data.map(p => {
         // Parse elements_specifiques for type_paiement and prestations_payees
-        const elementsSpecifiques = p.elements_specifiques || {};
-        
-        // Safe access to properties using type checking
         let typePaiement = "total";
         let prestationsPayees: string[] = [];
         
-        if (elementsSpecifiques && typeof elementsSpecifiques === 'object') {
-          if ('type_paiement' in elementsSpecifiques) {
-            typePaiement = elementsSpecifiques.type_paiement as string;
-          }
-          
-          if ('prestations_payees' in elementsSpecifiques && Array.isArray(elementsSpecifiques.prestations_payees)) {
-            prestationsPayees = elementsSpecifiques.prestations_payees as string[];
+        if (p.elements_specifiques) {
+          if (typeof p.elements_specifiques === 'string') {
+            try {
+              const parsed = JSON.parse(p.elements_specifiques);
+              typePaiement = parsed.type_paiement || "total";
+              prestationsPayees = parsed.prestations_payees || [];
+            } catch (e) {
+              console.error("Error parsing elements_specifiques:", e);
+            }
+          } else if (typeof p.elements_specifiques === 'object') {
+            // It's already an object, just extract the values
+            typePaiement = p.elements_specifiques.type_paiement || "total";
+            prestationsPayees = p.elements_specifiques.prestations_payees || [];
           }
         }
         
@@ -125,9 +128,9 @@ export const usePaiements = () => {
     setSearchTerm,
     filteredPaiements,
     loading,
-    addPaiement: paiementActions.addPaiement,
-    updatePaiement: paiementActions.updatePaiement,
-    deletePaiement: paiementActions.deletePaiement,
+    addPaiement,
+    updatePaiement,
+    deletePaiement,
     dialogOpen,
     setDialogOpen,
     refreshPaiements: fetchPaiements
