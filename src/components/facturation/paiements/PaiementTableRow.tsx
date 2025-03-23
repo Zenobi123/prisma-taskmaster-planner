@@ -1,7 +1,7 @@
 
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, FileText, Trash, CreditCard } from "lucide-react";
+import { Eye, FileText, Trash, CreditCard, MoreHorizontal } from "lucide-react";
 import { Paiement } from "@/types/paiement";
 import ModePaiementBadge from "./ModePaiementBadge";
 import { formatMontant } from "@/utils/formatUtils";
@@ -9,6 +9,7 @@ import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface PaiementTableRowProps {
   paiement: Paiement;
@@ -38,7 +39,7 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
         typeof dateString === 'string' && dateString.includes('-') 
           ? parseISO(dateString) 
           : new Date(dateString), 
-        'dd MMM yyyy', 
+        'dd/MM/yyyy', 
         { locale: fr }
       );
     } catch (error) {
@@ -59,44 +60,40 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
         </TableCell>
         <TableCell>{formatMontant(paiement.solde_restant)}</TableCell>
         <TableCell className="text-right">
-          <div className="flex justify-end space-x-2">
-            {onViewReceipt && (
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={() => onViewReceipt(paiement)}
-                title="Voir le reçu"
-              >
-                <FileText className="h-4 w-4" />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                <MoreHorizontal className="h-4 w-4" />
               </Button>
-            )}
-            <Button 
-              variant="outline" 
-              size="icon"
-              title="Détails du paiement"
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-            {paiement.est_credit && (
-              <Button 
-                variant="outline" 
-                size="icon"
-                title="Associer à une facture"
-              >
-                <CreditCard className="h-4 w-4" />
-              </Button>
-            )}
-            {onDelete && (
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={() => setDeleteDialogOpen(true)}
-                title="Supprimer"
-              >
-                <Trash className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {onViewReceipt && (
+                <DropdownMenuItem onClick={() => onViewReceipt(paiement)}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Voir le reçu
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem>
+                <Eye className="h-4 w-4 mr-2" />
+                Détails
+              </DropdownMenuItem>
+              {paiement.est_credit && (
+                <DropdownMenuItem>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Associer à une facture
+                </DropdownMenuItem>
+              )}
+              {onDelete && (
+                <DropdownMenuItem 
+                  className="text-red-500"
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
+                  <Trash className="h-4 w-4 mr-2" />
+                  Supprimer
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </TableCell>
       </TableRow>
 

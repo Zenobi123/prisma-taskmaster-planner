@@ -42,7 +42,7 @@ export const PaiementDateSection = ({
             className="h-8 w-full justify-start text-left font-normal text-xs"
           >
             <CalendarIcon className="mr-2 h-3 w-3" />
-            {date ? format(date, "P", { locale: fr }) : "Sélectionner une date"}
+            {date ? format(date, "dd/MM/yyyy", { locale: fr }) : "Sélectionner une date"}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0">

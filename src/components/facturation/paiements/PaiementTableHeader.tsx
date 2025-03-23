@@ -11,6 +11,7 @@ const PaiementTableHeader = () => {
         <TableHead>Date</TableHead>
         <TableHead>Montant</TableHead>
         <TableHead>Mode</TableHead>
+        <TableHead>Solde restant</TableHead>
         <TableHead className="text-right">Actions</TableHead>
       </TableRow>
     </TableHeader>

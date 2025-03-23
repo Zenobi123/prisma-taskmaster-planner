@@ -18,6 +18,11 @@ export const usePaiementCreate = () => {
         prestations_payees: paiement.prestations_payees || []
       };
 
+      // Générer une référence au format PAY-XXX 2025
+      const currentYear = new Date().getFullYear();
+      const randomString = Math.random().toString(36).substring(2, 5).toUpperCase();
+      const paymentReference = `PAY-${randomString} ${currentYear}`;
+
       // Adapter les données du formulaire au format de la table
       const paiementData = {
         client_id: paiement.client_id,
@@ -27,7 +32,7 @@ export const usePaiementCreate = () => {
         mode: paiement.mode,
         est_credit: paiement.est_credit || false,
         est_verifie: ["orange_money", "mtn_money"].includes(paiement.mode) ? false : true,
-        reference: paiement.reference,
+        reference: paymentReference,
         reference_transaction: paiement.reference_transaction,
         notes: paiement.notes,
         solde_restant: paiement.solde_restant,
