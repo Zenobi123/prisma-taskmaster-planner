@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { ClientFinancialSummary, ClientFinancialDetails } from "@/types/clientFinancial";
+import { isOverdue } from "@/services/factureServices/factureStatusService";
 
 export const useClientFinancial = () => {
   const { toast } = useToast();
@@ -12,13 +12,11 @@ export const useClientFinancial = () => {
   const [clientDetails, setClientDetails] = useState<ClientFinancialDetails | null>(null);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
 
-  // Fonction pour récupérer la liste des clients avec leur situation financière
   const fetchClientsFinancialData = async () => {
     try {
       setIsLoading(true);
       console.log("Récupération des données financières des clients...");
       
-      // Requête pour récupérer tous les clients
       const { data: clients, error: clientsError } = await supabase
         .from('clients')
         .select('*');
@@ -27,14 +25,12 @@ export const useClientFinancial = () => {
         throw new Error(clientsError.message);
       }
       
-      // Résultats pour le graphique
       const statusGroups: Record<string, number> = {
         "À jour": 0,
         "Partiellement payé": 0,
         "En retard": 0
       };
 
-      // Récupérer toutes les données des factures ENVOYÉES
       const { data: factures, error: facturesError } = await supabase
         .from('factures')
         .select('*')
@@ -44,7 +40,6 @@ export const useClientFinancial = () => {
         throw new Error(facturesError.message);
       }
       
-      // Récupérer tous les paiements
       const { data: paiements, error: paiementsError } = await supabase
         .from('paiements')
         .select('*');
@@ -53,7 +48,6 @@ export const useClientFinancial = () => {
         throw new Error(paiementsError.message);
       }
 
-      // Organiser les factures et paiements par client
       const clientsData: Record<string, {
         factures: any[];
         paiements: any[];
@@ -61,7 +55,6 @@ export const useClientFinancial = () => {
         paiementsMontant: number;
       }> = {};
 
-      // Initialiser les données des clients
       clients.forEach((client) => {
         clientsData[client.id] = {
           factures: [],
@@ -71,7 +64,6 @@ export const useClientFinancial = () => {
         };
       });
 
-      // Ajouter les factures aux clients
       factures.forEach((facture) => {
         if (clientsData[facture.client_id]) {
           clientsData[facture.client_id].factures.push(facture);
@@ -79,9 +71,7 @@ export const useClientFinancial = () => {
         }
       });
 
-      // Ajouter les paiements aux clients
       paiements.forEach((paiement) => {
-        // Trouver à quel client appartient ce paiement
         const factureClientId = factures.find((f) => f.id === paiement.facture_id)?.client_id;
         
         if (factureClientId && clientsData[factureClientId]) {
@@ -90,11 +80,9 @@ export const useClientFinancial = () => {
         }
       });
 
-      // Préparer les données de résumé financier pour chaque client
       const summaryData: ClientFinancialSummary[] = clients.map((client) => {
         const clientData = clientsData[client.id] || { facturesMontant: 0, paiementsMontant: 0, factures: [] };
         
-        // Ne considérer que les clients ayant des factures
         if (clientData.factures.length === 0) {
           return {
             id: client.id,
@@ -109,12 +97,9 @@ export const useClientFinancial = () => {
         const solde = clientData.paiementsMontant - clientData.facturesMontant;
         let status: "àjour" | "partiel" | "retard" = "àjour";
         
-        // Déterminer le statut financier du client
         if (solde < 0) {
-          // Vérifier s'il y a des factures en retard
           const unpaidInvoices = clientData.factures.filter(
-            (f) => new Date(f.echeance) < new Date() && 
-                  (f.montant_paye === 0 || f.montant_paye < f.montant)
+            (f) => isOverdue(f.echeance, f.montant_paye || 0, f.montant)
           );
           
           if (unpaidInvoices.length > 0) {
@@ -139,9 +124,8 @@ export const useClientFinancial = () => {
           solde,
           status
         };
-      }).filter(client => client.facturesMontant > 0); // Ne conserver que les clients ayant des factures
+      }).filter(client => client.facturesMontant > 0);
 
-      // Préparer les données pour le graphique
       const chartData = Object.entries(statusGroups).map(([name, total]) => ({
         name,
         total
@@ -166,13 +150,11 @@ export const useClientFinancial = () => {
     }
   };
 
-  // Fetch client financial details
   const fetchClientDetails = async (clientId: string) => {
     try {
       setIsLoading(true);
       console.log("Récupération des détails financiers du client:", clientId);
       
-      // Récupérer toutes les factures du client
       const { data: factures, error: facturesError } = await supabase
         .from('factures')
         .select('*')
@@ -183,7 +165,6 @@ export const useClientFinancial = () => {
         throw new Error(facturesError.message);
       }
       
-      // Récupérer tous les paiements liés aux factures du client
       const factureIds = factures.map(f => f.id);
       
       const { data: paiements, error: paiementsError } = await supabase
@@ -195,7 +176,6 @@ export const useClientFinancial = () => {
         throw new Error(paiementsError.message);
       }
       
-      // Récupérer les crédits (paiements en avance) du client
       const { data: credits, error: creditsError } = await supabase
         .from('paiements')
         .select('*')
@@ -206,25 +186,27 @@ export const useClientFinancial = () => {
         throw new Error(creditsError.message);
       }
       
-      // Combiner tous les paiements (factures et crédits)
       const allPaiements = [...paiements, ...(credits || [])];
       
-      // Calculer le montant restant pour chaque facture
       const facturesWithRemaining = factures.map(facture => {
         const facturePayments = paiements.filter(p => p.facture_id === facture.id);
         const totalPaye = facturePayments.reduce((sum, p) => sum + parseFloat(String(p.montant)), 0);
         const montantRestant = parseFloat(String(facture.montant)) - totalPaye;
         
+        const isPastDue = isOverdue(facture.echeance, totalPaye, parseFloat(String(facture.montant)));
+        const statusPaiement = isPastDue && totalPaye < parseFloat(String(facture.montant)) 
+          ? "en_retard" 
+          : facture.status_paiement;
+        
         return {
           ...facture,
           montant_paye: totalPaye,
-          montant_restant: montantRestant
+          montant_restant: montantRestant,
+          status_paiement: statusPaiement
         };
       });
       
-      // Calculer le solde disponible (crédits non utilisés)
       const soldeDisponible = credits?.reduce((sum, credit) => {
-        // N'inclure que les crédits qui ne sont pas liés à une facture
         if (!credit.facture_id) {
           return sum + parseFloat(String(credit.montant));
         }
@@ -251,7 +233,6 @@ export const useClientFinancial = () => {
     }
   };
 
-  // Fonction pour appliquer un crédit à une facture
   const handleApplyCreditToInvoice = async (invoiceId: string, creditId: string, amount: number) => {
     try {
       console.log("Application d'un crédit à une facture:", { invoiceId, creditId, amount });
@@ -275,7 +256,6 @@ export const useClientFinancial = () => {
         description: "Le crédit a été appliqué à la facture",
       });
       
-      // Rafraîchir les données
       if (selectedClientId) {
         await fetchClientDetails(selectedClientId);
       }
@@ -293,7 +273,6 @@ export const useClientFinancial = () => {
     }
   };
 
-  // Fonction pour créer un rappel de paiement
   const handleCreateReminder = async (invoiceId: string, method: 'email' | 'sms' | 'both') => {
     try {
       console.log("Création d'un rappel de paiement:", { invoiceId, method });
@@ -328,7 +307,6 @@ export const useClientFinancial = () => {
     }
   };
 
-  // Charger les données au montage du composant
   useEffect(() => {
     fetchClientsFinancialData();
   }, []);
