@@ -37,7 +37,11 @@ const AnalyseParFacture = () => {
       startDate.setFullYear(now.getFullYear() - 1);
     }
     
-    let filtered = factures.filter(facture => {
+    // First filter by status = "envoyée"
+    let filtered = factures.filter(facture => facture.status === "envoyée");
+    
+    // Then apply date filter
+    filtered = filtered.filter(facture => {
       // Convert DD/MM/YYYY to Date object
       const parts = facture.date.split('/');
       const factureDate = new Date(
