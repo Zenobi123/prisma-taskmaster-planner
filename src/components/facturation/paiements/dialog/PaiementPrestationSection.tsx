@@ -88,7 +88,9 @@ export const PaiementPrestationSection = ({
                 <Checkbox
                   id={`prestation-${prestation.id}`}
                   checked={isChecked}
-                  onCheckedChange={(checked) => onPrestationChange(prestation.id, checked === true)}
+                  onCheckedChange={(checked) => {
+                    onPrestationChange(prestation.id, checked === true);
+                  }}
                   className="mt-1"
                 />
                 <div className="flex-1">
@@ -112,7 +114,12 @@ export const PaiementPrestationSection = ({
                           id={`montant-${prestation.id}`}
                           type="number"
                           value={montantActuel}
-                          onChange={(e) => onPrestationAmountChange(prestation.id, Number(e.target.value))}
+                          onChange={(e) => {
+                            const newAmount = Number(e.target.value);
+                            if (!isNaN(newAmount) && newAmount >= 0) {
+                              onPrestationAmountChange(prestation.id, newAmount);
+                            }
+                          }}
                           className="h-8 text-xs"
                         />
                         <span className="text-xs text-gray-500">FCFA</span>

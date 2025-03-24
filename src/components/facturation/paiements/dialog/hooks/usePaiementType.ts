@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
@@ -73,15 +74,20 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
     
     setValue("prestations_payees", updatedPrestations);
     
-    updateTotalAmount(updatedPrestations);
+    // Use setTimeout to allow React to update the state before calculation
+    setTimeout(() => {
+      updateTotalAmount(updatedPrestations);
+    }, 0);
   };
 
   const handlePrestationAmountChange = (id: string, amount: number) => {
     const newAmounts = { ...prestationAmounts, [id]: amount };
     setPrestationAmounts(newAmounts);
     
-    // Update total amount when a prestation amount changes
-    updateTotalAmount(selectedPrestations, newAmounts);
+    // Use setTimeout to allow React to update the state before calculation
+    setTimeout(() => {
+      updateTotalAmount(selectedPrestations, newAmounts);
+    }, 0);
   };
   
   const loadPrestationData = async (prestationIds: string[]) => {
@@ -113,6 +119,9 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
           }
         });
         setPrestationAmounts(newPrestationAmounts);
+        
+        // Update total amount now that we have the data
+        updateTotalAmount(prestationIds, newPrestationAmounts);
       }
     } catch (error) {
       console.error("Erreur lors du chargement des données de prestation:", error);
@@ -152,6 +161,9 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
       
       if (missingPrestations.length > 0) {
         loadPrestationData(missingPrestations);
+      } else {
+        // Update total even if we have all data
+        updateTotalAmount(selectedPrestations);
       }
     }
   }, [selectedPrestations]);

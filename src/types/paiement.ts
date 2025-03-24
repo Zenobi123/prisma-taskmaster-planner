@@ -1,4 +1,9 @@
 
+export interface PrestationPayee {
+  id: string;
+  montant_modifie: number | null;
+}
+
 export interface Paiement {
   id: string;
   facture: string;
@@ -14,5 +19,5 @@ export interface Paiement {
   reference_transaction?: string;
   notes?: string;
   type_paiement?: "total" | "partiel";
-  prestations_payees?: string[];
+  prestations_payees?: PrestationPayee[];
 }

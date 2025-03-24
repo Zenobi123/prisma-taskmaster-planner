@@ -1,5 +1,4 @@
 
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -68,8 +67,6 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
               <PaiementClientSection
                 selectedClientId={selectedClientId}
                 onClientChange={handleClientChange}
-                register={register}
-                errors={errors}
               />
               
               <PaiementDateSection 
@@ -87,7 +84,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
               />
               
               <PaiementModeSection
-                estCredit={estCredit}
+                est_credit={estCredit}
                 selectedMode={selectedMode}
                 onCreditChange={handleCreditChange}
                 onModeChange={handleModeChange}

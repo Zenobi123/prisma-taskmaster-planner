@@ -31,7 +31,7 @@ export const usePaiementFormSubmit = ({
       const clientInfo = clients.find(c => c.id === data.client_id);
       const clientName = clientInfo ? (clientInfo.nom || clientInfo.raisonsociale) : "";
       
-      // Add any additional information about selected prestations including modified amounts
+      // Create array of prestations with modified amounts
       const prestationsPayees = data.prestations_payees.map(id => {
         return { 
           id,
@@ -52,7 +52,7 @@ export const usePaiementFormSubmit = ({
         notes: data.notes,
         solde_restant: 0, // Sera calculé côté serveur
         type_paiement: data.type_paiement,
-        prestations_payees: data.type_paiement === "partiel" ? prestationsPayees : []
+        prestations_payees: prestationsPayees
       };
 
       await onSubmit(paiementData);

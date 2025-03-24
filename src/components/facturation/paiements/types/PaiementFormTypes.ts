@@ -1,4 +1,9 @@
 
+export type PrestationPayee = {
+  id: string;
+  montant_modifie: number;
+};
+
 export type PaiementFormData = {
   client_id: string;
   facture_id: string;
@@ -10,4 +15,5 @@ export type PaiementFormData = {
   notes: string;
   type_paiement: "total" | "partiel";
   prestations_payees: string[];
+  prestations_montants: Record<string, number>;
 };
