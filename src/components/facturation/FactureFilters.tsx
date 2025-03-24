@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import FilterExpandButton from "./filters/FilterExpandButton";
 import FilterSearchInput from "./filters/FilterSearchInput";
@@ -43,6 +42,15 @@ const FactureFilters = ({
 }: FactureFiltersProps) => {
   const [expanded, setExpanded] = useState(false);
   
+  useEffect(() => {
+    const sentInvoicesCount = clients.reduce((count, client) => {
+      const sentInvoices = client.factures?.filter(f => f.status === 'envoyée') || [];
+      return count + sentInvoices.length;
+    }, 0);
+    
+    console.log("Nombre total de factures envoyées:", sentInvoicesCount);
+  }, [clients]);
+
   const toggleSort = (key: string) => {
     if (sortKey === key) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
