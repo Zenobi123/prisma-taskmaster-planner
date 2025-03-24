@@ -17,7 +17,7 @@ import { PaiementModeSection } from "./dialog/PaiementModeSection";
 import { PaiementNotesSection } from "./dialog/PaiementNotesSection";
 import { PaiementAmountSection } from "./dialog/PaiementAmountSection";
 import { PaiementPrestationSection } from "./dialog/PaiementPrestationSection";
-import { Loader2 } from "lucide-react";
+import { Loader2, Receipt } from "lucide-react";
 
 interface PaiementDialogProps {
   open: boolean;
@@ -54,16 +54,21 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl overflow-y-auto max-h-[90vh]">
-        <DialogHeader>
-          <DialogTitle>Nouveau paiement</DialogTitle>
-          <DialogDescription>
+        <DialogHeader className="pb-4 border-b border-gray-100">
+          <DialogTitle className="flex items-center gap-2 text-primary">
+            <Receipt size={20} className="text-primary" />
+            Nouveau paiement
+          </DialogTitle>
+          <DialogDescription className="text-gray-500">
             Enregistrez un nouveau paiement client ou un crédit
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6 mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6 bg-gray-50 p-4 rounded-lg shadow-sm">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Informations principales</h3>
+              
               <PaiementClientSection
                 selectedClientId={selectedClientId}
                 estCredit={estCredit}
@@ -71,10 +76,17 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
                 onCreditChange={handleCreditChange}
               />
               
-              <PaiementDateSection 
-                date={date} 
-                onDateChange={handleDateChange} 
-              />
+              <div className="grid grid-cols-2 gap-4">
+                <PaiementDateSection 
+                  date={date} 
+                  onDateChange={handleDateChange} 
+                />
+                
+                <PaiementAmountSection
+                  register={register}
+                  errors={errors}
+                />
+              </div>
               
               <PaiementFactureSection
                 selectedClientId={selectedClientId}
@@ -94,17 +106,13 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
                 errors={errors}
               />
               
-              <PaiementAmountSection
-                register={register}
-                errors={errors}
-              />
-              
               <PaiementNotesSection
                 register={register}
               />
             </div>
             
-            <div>
+            <div className="bg-white border border-gray-100 rounded-lg p-4 shadow-sm">
+              <h3 className="text-sm font-medium text-gray-700 mb-4">Détails du paiement</h3>
               <PaiementPrestationSection
                 selectedFactureId={selectedFactureId}
                 typePaiement={typePaiement}
@@ -117,18 +125,20 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="pt-4 border-t border-gray-100 mt-6">
             <Button 
               type="button" 
               variant="outline" 
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
+              className="border-gray-300 text-gray-700"
             >
               Annuler
             </Button>
             <Button 
               type="submit"
               disabled={isSubmitting}
+              className="bg-primary hover:bg-primary-hover transition-colors"
             >
               {isSubmitting ? (
                 <>

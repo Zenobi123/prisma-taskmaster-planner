@@ -32,26 +32,29 @@ export const PaiementDateSection = ({
   };
   
   return (
-    <div className="grid gap-1">
-      <Label htmlFor="date" className="text-xs font-medium">Date</Label>
+    <div className="grid gap-1.5">
+      <Label htmlFor="date" className="text-xs font-medium flex items-center gap-1.5">
+        <CalendarIcon size={14} className="text-gray-500" />
+        Date
+      </Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button
             ref={buttonRef}
             variant="outline"
-            className="h-8 w-full justify-start text-left font-normal text-xs"
+            className="h-9 w-full justify-start text-left font-normal text-sm bg-white border-gray-300 hover:bg-gray-50"
           >
-            <CalendarIcon className="mr-2 h-3 w-3" />
+            <CalendarIcon className="mr-2 h-3.5 w-3.5 text-gray-500" />
             {date ? format(date, "dd/MM/yyyy", { locale: fr }) : "Sélectionner une date"}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
+        <PopoverContent className="w-auto p-0" align="start">
           <Calendar
             mode="single"
             selected={date}
             onSelect={handleDateSelect}
             initialFocus
-            className="pointer-events-auto scale-90 origin-top"
+            className="rounded-md border border-gray-200 shadow-md"
             locale={fr}
             weekStartsOn={1}
           />

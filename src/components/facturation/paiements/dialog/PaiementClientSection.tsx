@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { User, Users } from "lucide-react";
 
 interface PaiementClientSectionProps {
   selectedClientId: string | null;
@@ -45,17 +46,20 @@ export const PaiementClientSection = ({
   };
 
   return (
-    <>
+    <div className="space-y-3">
       {/* Client selection */}
-      <div className="grid gap-1">
-        <Label htmlFor="client_id" className="text-xs font-medium">Client</Label>
+      <div className="grid gap-1.5">
+        <Label htmlFor="client_id" className="text-xs font-medium flex items-center gap-1.5">
+          <Users size={14} className="text-gray-500" />
+          Client
+        </Label>
         <Select onValueChange={onClientChange} value={selectedClientId || undefined}>
-          <SelectTrigger className="h-8 text-xs">
+          <SelectTrigger className="h-9 text-sm bg-white border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary/20">
             <SelectValue placeholder="Sélectionner un client" />
           </SelectTrigger>
           <SelectContent>
             {clients.map((client) => (
-              <SelectItem key={client.id} value={client.id} className="text-xs">
+              <SelectItem key={client.id} value={client.id} className="text-sm">
                 {client.type === "physique" ? client.nom : client.raisonsociale}
               </SelectItem>
             ))}
@@ -64,14 +68,17 @@ export const PaiementClientSection = ({
       </div>
 
       {/* Credit checkbox */}
-      <div className="flex items-center space-x-2 mb-0">
+      <div className="flex items-center space-x-2 py-1">
         <Checkbox 
           id="est_credit" 
           checked={estCredit} 
+          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
           onCheckedChange={(checked) => onCreditChange(checked === true)}
         />
-        <Label htmlFor="est_credit" className="text-xs">Paiement en avance (crédit client)</Label>
+        <Label htmlFor="est_credit" className="text-sm text-gray-700 cursor-pointer">
+          Paiement en avance (crédit client)
+        </Label>
       </div>
-    </>
+    </div>
   );
 };
