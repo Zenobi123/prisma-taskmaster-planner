@@ -83,11 +83,11 @@ export const usePaiementCreate = () => {
   const generatePaiementReceipt = (paiement: Paiement) => {
     // Création d'un objet facture simulée pour générer le reçu de paiement
     const factureSimuleeData = {
-      id: paiement.reference,
+      id: paiement.reference || "",
       client_id: paiement.client_id,
       client: {
         id: paiement.client_id,
-        nom: paiement.client,
+        nom: paiement.client || "Client",
         adresse: "Adresse du client",
         telephone: "",
         email: ""
@@ -106,7 +106,9 @@ export const usePaiementCreate = () => {
     };
     
     // Générer le PDF avec l'option de téléchargement
-    generatePDF(factureSimuleeData, true);
+    setTimeout(() => {
+      generatePDF(factureSimuleeData, true);
+    }, 100);
   };
 
   return {

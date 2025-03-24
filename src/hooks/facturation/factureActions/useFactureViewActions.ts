@@ -26,11 +26,11 @@ export const useFactureViewActions = () => {
     
     // Création d'un objet facture simulée pour générer le reçu de paiement
     const factureSimuleeData: Facture = {
-      id: paiement.reference,
+      id: paiement.reference || "",
       client_id: paiement.client_id,
       client: {
         id: paiement.client_id,
-        nom: paiement.client,
+        nom: paiement.client || "Client",
         adresse: "Adresse du client",
         telephone: "",
         email: ""
@@ -38,8 +38,8 @@ export const useFactureViewActions = () => {
       date: paiement.date,
       echeance: paiement.date,
       montant: paiement.montant,
-      status: "envoyée",
-      status_paiement: "payée",
+      status: "envoyée", // Changed from "payée" to "envoyée" to match the expected enum values
+      status_paiement: "payée", // Added the missing status_paiement property
       prestations: [{
         description: `Paiement par ${paiement.mode}`,
         montant: paiement.montant,
