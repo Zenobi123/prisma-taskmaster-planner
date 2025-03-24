@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement } from "@/types/paiement";
 import { generatePDF } from "@/utils/pdfUtils";
+import { Facture } from "@/types/facture";
 
 export const usePaiementCreate = () => {
   const { toast } = useToast();
@@ -63,6 +64,12 @@ export const usePaiementCreate = () => {
         description: `Le paiement a été enregistré avec succès.`,
       });
 
+      // Générer le reçu PDF automatiquement
+      toast({
+        title: "Génération du reçu",
+        description: `Le reçu de paiement est en cours de génération...`,
+      });
+
       // Générer le reçu PDF
       generatePaiementReceipt(data as unknown as Paiement);
 
@@ -82,7 +89,7 @@ export const usePaiementCreate = () => {
 
   const generatePaiementReceipt = (paiement: Paiement) => {
     // Création d'un objet facture simulée pour générer le reçu de paiement
-    const factureSimuleeData = {
+    const factureSimuleeData: Facture = {
       id: paiement.reference || "",
       client_id: paiement.client_id,
       client: {
@@ -105,7 +112,7 @@ export const usePaiementCreate = () => {
       notes: paiement.notes || `Reçu de paiement ${paiement.reference}`
     };
     
-    // Générer le PDF avec l'option de téléchargement
+    // Générer le PDF avec l'option de téléchargement automatique
     setTimeout(() => {
       generatePDF(factureSimuleeData, true);
     }, 100);
