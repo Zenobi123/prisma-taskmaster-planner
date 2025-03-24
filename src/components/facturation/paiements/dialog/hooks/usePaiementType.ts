@@ -2,6 +2,12 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 
+interface PrestationWithAmount {
+  id: string;
+  montant: number;
+  montant_modifie?: number;
+}
+
 interface UsePaiementTypeProps {
   setValue: any;
   selectedPrestations: string[];
@@ -10,6 +16,8 @@ interface UsePaiementTypeProps {
 
 export const usePaiementType = ({ setValue, selectedPrestations, selectedFactureId }: UsePaiementTypeProps) => {
   const { toast } = useToast();
+  // Store prestation amounts in memory to avoid multiple DB calls
+  const prestationAmounts: Record<string, PrestationWithAmount> = {};
 
   const handleTypePaiementChange = (value: "total" | "partiel") => {
     setValue("type_paiement", value);
@@ -44,13 +52,27 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
     }
   };
 
-  const handlePrestationChange = (id: string, checked: boolean) => {
+  const handlePrestationChange = (id: string, checked: boolean, montantModifie?: number) => {
     let updatedPrestations = [...selectedPrestations];
     
     if (checked) {
-      updatedPrestations.push(id);
+      if (!updatedPrestations.includes(id)) {
+        updatedPrestations.push(id);
+      }
+      
+      // Store the modified amount if provided
+      if (montantModifie !== undefined) {
+        prestationAmounts[id] = {
+          ...prestationAmounts[id],
+          montant_modifie: montantModifie
+        };
+      }
     } else {
       updatedPrestations = updatedPrestations.filter(p => p !== id);
+      // Remove from prestationAmounts if unchecked
+      if (prestationAmounts[id]) {
+        delete prestationAmounts[id].montant_modifie;
+      }
     }
     
     setValue("prestations_payees", updatedPrestations);
@@ -73,7 +95,17 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
           }
           
           if (data) {
-            const montantTotal = data.reduce((sum, p) => sum + Number(p.montant), 0);
+            // Use modified amounts when available
+            const montantTotal = data.reduce((sum, p) => {
+              // If this prestation has a modified amount, use it
+              if (prestationAmounts[p.id]?.montant_modifie !== undefined) {
+                return sum + prestationAmounts[p.id].montant_modifie!;
+              }
+              // Store original amount for future reference
+              prestationAmounts[p.id] = { id: p.id, montant: Number(p.montant) };
+              return sum + Number(p.montant);
+            }, 0);
+            
             setValue("montant", montantTotal);
             console.log("Montant total calculé:", montantTotal, "pour", data.length, "prestations");
           }

@@ -29,6 +29,13 @@ export const usePaiementFormSubmit = ({
       const clientInfo = clients.find(c => c.id === data.client_id);
       const clientName = clientInfo ? (clientInfo.nom || clientInfo.raisonsociale) : "";
       
+      // Add any additional information about selected prestations if needed
+      // This can include modified amounts
+      const prestationsPayees = data.prestations_payees.map(id => {
+        // Here we could add the modified amounts if they were stored in a ref or state
+        return { id };
+      });
+      
       const paiementData: Omit<Paiement, "id"> = {
         client: clientName,
         client_id: data.client_id,
