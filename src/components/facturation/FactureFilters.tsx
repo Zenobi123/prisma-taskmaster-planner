@@ -1,9 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import FilterExpandButton from "./filters/FilterExpandButton";
 import FilterSearchInput from "./filters/FilterSearchInput";
 import FilterActions from "./filters/FilterActions";
 import ExpandedFilters from "./filters/ExpandedFilters";
+import { useInvoiceData } from "@/hooks/facturation/clientFinancial/summary/useInvoiceData";
 
 interface FactureFiltersProps {
   searchTerm: string;
@@ -41,15 +43,14 @@ const FactureFilters = ({
   clients,
 }: FactureFiltersProps) => {
   const [expanded, setExpanded] = useState(false);
+  const { invoices } = useInvoiceData();
   
   useEffect(() => {
-    const sentInvoicesCount = clients.reduce((count, client) => {
-      const sentInvoices = client.factures?.filter(f => f.status === 'envoyée') || [];
-      return count + sentInvoices.length;
-    }, 0);
-    
-    console.log("Nombre total de factures envoyées:", sentInvoicesCount);
-  }, [clients]);
+    if (invoices && invoices.length > 0) {
+      const sentInvoicesCount = invoices.filter(invoice => invoice.status === 'envoyée').length;
+      console.log("Nombre total de factures envoyées:", sentInvoicesCount);
+    }
+  }, [invoices]);
 
   const toggleSort = (key: string) => {
     if (sortKey === key) {
