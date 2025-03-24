@@ -66,27 +66,38 @@ const mapClientToFactureClient = (client: any) => {
   };
 };
 
+const isPastDue = (dueDate: string, paidAmount: number, totalAmount: number): boolean => {
+  if (!dueDate) return false;
+  
+  const today = new Date();
+  const dueDateParts = dueDate.split('-');
+  const dueDateTime = new Date(
+    parseInt(dueDateParts[0]), // year
+    parseInt(dueDateParts[1]) - 1, // month (0-based)
+    parseInt(dueDateParts[2]) // day
+  );
+  
+  return today > dueDateTime && paidAmount < totalAmount;
+};
+
 // Build a complete facture object with all related data
 const buildCompleteFacture = (facture: any, client: any, prestationsData: any[], paiementsData: any[]): Facture => {
-  const isPastDue = (dueDate: string): boolean => {
-    if (!dueDate) return false;
-    const today = new Date();
-    const dueDateParts = dueDate.split('-');
-    const dueDateTime = new Date(
-      parseInt(dueDateParts[0]), // year
-      parseInt(dueDateParts[1]) - 1, // month (0-based)
-      parseInt(dueDateParts[2]) // day
-    );
-    return today > dueDateTime;
-  };
-
   const status_paiement = (() => {
-    // Check if invoice is past due
-    if (facture.status === "envoyée" && 
-        (facture.status_paiement === "non_payée" || facture.status_paiement === "partiellement_payée") &&
-        isPastDue(facture.echeance)) {
+    // Check if invoice is past due and not fully paid
+    const isPastDueInvoice = isPastDue(
+      facture.echeance, 
+      facture.montant_paye || 0, 
+      facture.montant
+    );
+    
+    if (
+      facture.status === "envoyée" && 
+      (facture.status_paiement === "non_payée" || facture.status_paiement === "partiellement_payée") &&
+      isPastDueInvoice
+    ) {
       return "en_retard";
     }
+    
     return facture.status_paiement;
   })();
 

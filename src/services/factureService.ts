@@ -106,7 +106,7 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
 };
 
 // Add this utility function to check if a date is past due
-const isOverdue = (dueDate: string): boolean => {
+const isOverdue = (dueDate: string, paidAmount: number, totalAmount: number): boolean => {
   const today = new Date();
   const dueDateParts = dueDate.split('/');
   const dueDateTime = new Date(
@@ -114,7 +114,7 @@ const isOverdue = (dueDate: string): boolean => {
     parseInt(dueDateParts[1]) - 1, // month (0-based)
     parseInt(dueDateParts[0]) // day
   );
-  return today > dueDateTime;
+  return today > dueDateTime && paidAmount < totalAmount;
 };
 
 // Update this function to handle overdue status
@@ -123,7 +123,12 @@ export const updateFactureInDatabase = async (facture: Facture): Promise<boolean
     console.log("Updating facture:", facture.id);
     
     // Check if invoice is overdue
-    const isPastDue = isOverdue(facture.echeance);
+    const isPastDue = isOverdue(
+      facture.echeance, 
+      facture.montant_paye || 0, 
+      facture.montant
+    );
+    
     const shouldBeOverdue = isPastDue && 
       facture.status === "envoyée" && 
       (facture.status_paiement === "non_payée" || facture.status_paiement === "partiellement_payée");
