@@ -2,7 +2,7 @@
 import { format } from "date-fns";
 import { useToast } from "@/components/ui/use-toast";
 import { PaiementFormData } from "../../types/PaiementFormTypes";
-import { Paiement } from "@/types/paiement";
+import { Paiement, PrestationPayee } from "@/types/paiement";
 
 interface UsePaiementFormSubmitProps {
   clients: any[];
@@ -32,7 +32,7 @@ export const usePaiementFormSubmit = ({
       const clientName = clientInfo ? (clientInfo.nom || clientInfo.raisonsociale) : "";
       
       // Create array of prestations with modified amounts
-      const prestationsPayees = data.prestations_payees.map(id => {
+      const prestationsPayees: PrestationPayee[] = data.prestations_payees.map(id => {
         return { 
           id,
           montant_modifie: prestationAmounts[id] || null

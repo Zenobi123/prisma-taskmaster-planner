@@ -1,7 +1,7 @@
 
 export type PrestationPayee = {
   id: string;
-  montant_modifie: number;
+  montant_modifie: number | null;
 };
 
 export type PaiementFormData = {

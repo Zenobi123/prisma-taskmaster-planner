@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Paiement } from "@/types/paiement";
+import { Paiement, PrestationPayee } from "@/types/paiement";
 import { generatePDF } from "@/utils/pdfUtils";
 import { Facture } from "@/types/facture";
 
@@ -13,10 +13,17 @@ export const usePaiementCreate = () => {
   const addPaiement = async (paiement: Omit<Paiement, "id">) => {
     setIsLoading(true);
     try {
+      // Format prestations_payees for proper JSON storage
+      const prestationsPayeesFormatted = paiement.prestations_payees ? 
+        paiement.prestations_payees.map(p => ({
+          id: p.id,
+          montant_modifie: p.montant_modifie
+        })) : [];
+
       // Format the elements_specifiques field for proper storage
       const elements_specifiques = {
         type_paiement: paiement.type_paiement || "total",
-        prestations_payees: paiement.prestations_payees || []
+        prestations_payees: prestationsPayeesFormatted
       };
 
       // Générer une référence au format PAY-XXX YYYY
@@ -41,7 +48,7 @@ export const usePaiementCreate = () => {
         reference_transaction: paiement.reference_transaction,
         notes: paiement.notes,
         solde_restant: paiement.solde_restant,
-        elements_specifiques: elements_specifiques
+        elements_specifiques // This will be automatically stringified by Supabase
       };
 
       console.log("Sending payment data:", paiementData);

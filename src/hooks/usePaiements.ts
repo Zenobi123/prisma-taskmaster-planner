@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Paiement } from "@/types/paiement";
+import { Paiement, PrestationPayee } from "@/types/paiement";
 import { usePaiementActions } from "./facturation/paiementActions/usePaiementActions";
 
 export const usePaiements = () => {
@@ -33,10 +33,10 @@ export const usePaiements = () => {
       }
 
       // Format data to match Paiement type
-      const formattedPaiements = data.map(p => {
+      const formattedPaiements: Paiement[] = data.map(p => {
         // Parse elements_specifiques for type_paiement and prestations_payees
         let typePaiement = "total";
-        let prestationsPayees: string[] = [];
+        let prestationsPayees: PrestationPayee[] = [];
         
         if (p.elements_specifiques) {
           if (typeof p.elements_specifiques === 'string') {
@@ -51,7 +51,10 @@ export const usePaiements = () => {
             // It's already an object, just extract the values - typed correctly for TypeScript
             const elemSpecObj = p.elements_specifiques as Record<string, any>;
             typePaiement = elemSpecObj.type_paiement || "total";
-            prestationsPayees = elemSpecObj.prestations_payees || [];
+            prestationsPayees = (elemSpecObj.prestations_payees || []).map((pp: any) => ({
+              id: pp.id,
+              montant_modifie: pp.montant_modifie
+            }));
           }
         }
         

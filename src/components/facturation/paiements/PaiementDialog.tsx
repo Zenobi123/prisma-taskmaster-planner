@@ -66,7 +66,9 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
             <div className="space-y-4">
               <PaiementClientSection
                 selectedClientId={selectedClientId}
+                estCredit={estCredit}
                 onClientChange={handleClientChange}
+                onCreditChange={handleCreditChange}
               />
               
               <PaiementDateSection 
