@@ -44,6 +44,8 @@ const CreateFactureForm = ({
     selectedStatusPaiement,
     selectedModePaiement,
     allClients,
+    isLoadingClients,
+    clientsError,
     onSubmit,
     initializeFormForEdit
   } = useFactureForm(onSuccess, editMode);
@@ -64,6 +66,8 @@ const CreateFactureForm = ({
               value={selectedClientId} 
               onChange={(value) => setValue("client_id", value)}
               disabled={editMode}
+              isLoading={isLoadingClients}
+              error={clientsError}
             />
 
             <ClientInfoDisplay client={selectedClient} />

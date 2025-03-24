@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
 
 interface ClientSelectorProps {
   clients: Client[];
@@ -15,6 +16,8 @@ interface ClientSelectorProps {
   onChange: (value: string) => void;
   includeEmpty?: boolean;
   disabled?: boolean;
+  isLoading?: boolean;
+  error?: any;
 }
 
 const ClientSelector = ({ 
@@ -22,27 +25,42 @@ const ClientSelector = ({
   value, 
   onChange, 
   includeEmpty = false,
-  disabled = false 
+  disabled = false,
+  isLoading = false,
+  error = null
 }: ClientSelectorProps) => {
   return (
     <div className="space-y-1">
       <Label htmlFor="client" className="text-sm">Client</Label>
-      <Select value={value} onValueChange={onChange} disabled={disabled}>
+      <Select value={value} onValueChange={onChange} disabled={disabled || isLoading}>
         <SelectTrigger className="w-full h-8 text-sm">
-          <SelectValue placeholder="Sélectionner un client" />
+          {isLoading ? (
+            <div className="flex items-center gap-2">
+              <Loader2 size={14} className="animate-spin text-gray-400" />
+              <span>Chargement des clients...</span>
+            </div>
+          ) : (
+            <SelectValue placeholder="Sélectionner un client" />
+          )}
         </SelectTrigger>
         <SelectContent>
-          {includeEmpty && (
-            <SelectItem value="all">Tous les clients</SelectItem>
-          )}
-          {clients.length === 0 ? (
-            <SelectItem value="no-clients" disabled>Aucun client disponible</SelectItem>
+          {error ? (
+            <SelectItem value="error" disabled>Erreur lors du chargement des clients</SelectItem>
           ) : (
-            clients.map((client) => (
-              <SelectItem key={client.id} value={client.id}>
-                {client.nom}
-              </SelectItem>
-            ))
+            <>
+              {includeEmpty && (
+                <SelectItem value="all">Tous les clients</SelectItem>
+              )}
+              {clients.length === 0 ? (
+                <SelectItem value="no-clients" disabled>Aucun client disponible</SelectItem>
+              ) : (
+                clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    {client.nom || client.raisonsociale}
+                  </SelectItem>
+                ))
+              )}
+            </>
           )}
         </SelectContent>
       </Select>

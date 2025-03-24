@@ -26,7 +26,9 @@ export function useFactureForm(onSuccess: () => void, editMode: boolean = false)
   // Client data
   const { 
     allClients, 
-    getSelectedClient 
+    getSelectedClient,
+    isLoadingClients,
+    clientsError
   } = useFactureClients();
   
   // Form validation
@@ -81,6 +83,8 @@ export function useFactureForm(onSuccess: () => void, editMode: boolean = false)
     totalAmount,
     selectedClient,
     allClients,
+    isLoadingClients,
+    clientsError,
     onSubmit,
     initializeFormForEdit
   };
