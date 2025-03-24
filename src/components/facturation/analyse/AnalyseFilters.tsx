@@ -101,7 +101,7 @@ const AnalyseFilters = () => {
               onValueChange={(value) => setFilters({ statusFilter: value === "all" ? null : value })}
             >
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Tous les statuts" />
+                <SelectValue placeholder="Statut paiement" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les statuts</SelectItem>
