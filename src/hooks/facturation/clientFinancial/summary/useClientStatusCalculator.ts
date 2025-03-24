@@ -79,6 +79,7 @@ export const useClientStatusCalculator = (
       let status: "àjour" | "partiel" | "retard" = "àjour";
       
       if (solde < 0) {
+        // Vérifier si des factures sont en retard (après date d'échéance et pas complètement payées)
         const unpaidInvoices = clientData.factures.filter(
           (f) => isOverdue(f.echeance, f.montant_paye || 0, f.montant)
         );

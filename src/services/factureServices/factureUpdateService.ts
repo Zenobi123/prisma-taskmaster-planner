@@ -8,7 +8,8 @@ export const updateFactureInDatabase = async (facture: Facture): Promise<boolean
   try {
     console.log("Updating facture:", facture.id);
     
-    // Check if invoice is overdue
+    // Check if invoice is overdue using our rule:
+    // Une facture est considérée en retard uniquement lorsqu'elle n'est pas complètement payée après sa date d'échéance
     const isPastDue = isOverdue(
       facture.echeance, 
       facture.montant_paye || 0, 

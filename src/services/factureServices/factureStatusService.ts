@@ -29,6 +29,8 @@ export const isOverdue = (dueDate: string, paidAmount: number, totalAmount: numb
     return false;
   }
   
+  // Une facture est considérée en retard uniquement lorsqu'elle 
+  // n'est pas complètement payée après sa date d'échéance
   return today > dueDateObj && paidAmount < totalAmount;
 };
 
