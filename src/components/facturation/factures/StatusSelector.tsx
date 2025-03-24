@@ -34,7 +34,7 @@ const StatusSelector = ({
         </SelectTrigger>
         <SelectContent>
           {includeEmpty && (
-            <SelectItem value="">Tous les statuts</SelectItem>
+            <SelectItem value="all">Tous les statuts</SelectItem>
           )}
           
           {type === "document" ? (

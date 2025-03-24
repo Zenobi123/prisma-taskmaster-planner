@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -149,14 +150,14 @@ const FactureFilters = ({
           <div className="space-y-1">
             <Label htmlFor="status" className="text-xs">Statut document</Label>
             <Select 
-              value={statusFilter || ""} 
-              onValueChange={(value) => setStatusFilter(value || null)}
+              value={statusFilter || "all"} 
+              onValueChange={(value) => setStatusFilter(value === "all" ? null : value)}
             >
               <SelectTrigger className="h-8 text-sm">
                 <SelectValue placeholder="Tous les statuts" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les statuts</SelectItem>
+                <SelectItem value="all">Tous les statuts</SelectItem>
                 <SelectItem value="brouillon">Brouillon</SelectItem>
                 <SelectItem value="envoyée">Envoyée</SelectItem>
                 <SelectItem value="annulée">Annulée</SelectItem>
@@ -167,14 +168,14 @@ const FactureFilters = ({
           <div className="space-y-1">
             <Label htmlFor="statusPaiement" className="text-xs">Statut paiement</Label>
             <Select 
-              value={statusPaiementFilter || ""} 
-              onValueChange={(value) => setStatusPaiementFilter(value || null)}
+              value={statusPaiementFilter || "all"} 
+              onValueChange={(value) => setStatusPaiementFilter(value === "all" ? null : value)}
             >
               <SelectTrigger className="h-8 text-sm">
                 <SelectValue placeholder="Tous les statuts" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les statuts</SelectItem>
+                <SelectItem value="all">Tous les statuts</SelectItem>
                 <SelectItem value="non_payée">Non payée</SelectItem>
                 <SelectItem value="partiellement_payée">Partiellement payée</SelectItem>
                 <SelectItem value="payée">Payée</SelectItem>
@@ -184,8 +185,8 @@ const FactureFilters = ({
           
           <ClientSelector 
             clients={clients}
-            value={clientFilter || ""}
-            onChange={(value) => setClientFilter(value || null)}
+            value={clientFilter || "all"}
+            onChange={(value) => setClientFilter(value === "all" ? null : value)}
             includeEmpty={true}
           />
           

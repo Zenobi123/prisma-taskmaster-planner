@@ -23,7 +23,7 @@ const ModePaiementSelector = ({ value, onChange, includeEmpty = false, label = "
         </SelectTrigger>
         <SelectContent>
           {includeEmpty && (
-            <SelectItem value="">Tous les modes</SelectItem>
+            <SelectItem value="all">Tous les modes</SelectItem>
           )}
           <SelectItem value="espèces">
             <div className="flex items-center">

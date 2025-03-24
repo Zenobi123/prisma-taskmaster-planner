@@ -77,14 +77,14 @@ const AnalyseFilters = () => {
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-gray-500" />
             <Select 
-              value={clientFilter || ""} 
-              onValueChange={(value) => setFilters({ clientFilter: value || null })}
+              value={clientFilter || "all"} 
+              onValueChange={(value) => setFilters({ clientFilter: value === "all" ? null : value })}
             >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Tous les clients" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les clients</SelectItem>
+                <SelectItem value="all">Tous les clients</SelectItem>
                 {!isLoading && clients.map((client) => (
                   <SelectItem key={client.id} value={client.id}>
                     {client.type === 'physique' ? client.nom : client.raisonsociale}
@@ -97,14 +97,14 @@ const AnalyseFilters = () => {
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-gray-500" />
             <Select 
-              value={statusFilter || ""} 
-              onValueChange={(value) => setFilters({ statusFilter: value || null })}
+              value={statusFilter || "all"} 
+              onValueChange={(value) => setFilters({ statusFilter: value === "all" ? null : value })}
             >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Tous les statuts" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les statuts</SelectItem>
+                <SelectItem value="all">Tous les statuts</SelectItem>
                 <SelectItem value="payée">Payée</SelectItem>
                 <SelectItem value="partiellement_payée">Partiellement payée</SelectItem>
                 <SelectItem value="non_payée">Non payée</SelectItem>
