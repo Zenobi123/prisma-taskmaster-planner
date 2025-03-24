@@ -12,7 +12,17 @@ export const getClientsFinancialSummary = async (): Promise<ClientFinancialSumma
       throw new Error(`Failed to fetch clients financial data: ${error.message}`);
     }
     
-    return data || [];
+    // Map the data to match our type definition
+    const mappedData: ClientFinancialSummary[] = (data || []).map((item: any) => ({
+      id: item.id,
+      nom: item.nom,
+      facturesMontant: item.facturesmontant,
+      paiementsMontant: item.paiementsmontant,
+      solde: item.solde,
+      status: item.status
+    }));
+    
+    return mappedData;
   } catch (error) {
     console.error("Error in getClientsFinancialSummary:", error);
     throw error;
@@ -31,7 +41,17 @@ export const getClientFinancialDetails = async (clientId: string): Promise<Clien
       throw new Error(`Failed to fetch client financial details: ${error.message}`);
     }
     
-    return data || { factures: [], paiements: [], solde_disponible: 0 };
+    // Convert JSON data to our expected types
+    if (!data || !data[0]) {
+      return { factures: [], paiements: [], solde_disponible: 0 };
+    }
+    
+    const details = data[0];
+    return {
+      factures: Array.isArray(details.factures) ? details.factures : [],
+      paiements: Array.isArray(details.paiements) ? details.paiements : [],
+      solde_disponible: details.solde_disponible || 0
+    };
   } catch (error) {
     console.error("Error in getClientFinancialDetails:", error);
     throw error;
