@@ -24,21 +24,26 @@ export const PaiementFactureSection = ({
   onTypePaiementChange
 }: PaiementFactureSectionProps) => {
   const [factures, setFactures] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    if (selectedClientId) {
+    if (selectedClientId && !estCredit) {
       fetchFacturesForClient(selectedClientId);
+    } else {
+      setFactures([]);
     }
-  }, [selectedClientId]);
+  }, [selectedClientId, estCredit]);
 
   const fetchFacturesForClient = async (clientId: string) => {
     try {
+      setIsLoading(true);
       const { data, error } = await supabase
         .from("factures")
         .select("*")
         .eq("client_id", clientId)
-        .or("status_paiement.eq.non_payée,status_paiement.eq.partiellement_payée");
+        .or("status_paiement.eq.non_payée,status_paiement.eq.partiellement_payée,status_paiement.eq.en_retard")
+        .eq("status", "envoyée");
 
       if (error) throw error;
       setFactures(data || []);
@@ -49,6 +54,8 @@ export const PaiementFactureSection = ({
         title: "Erreur",
         description: "Impossible de récupérer les factures du client."
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -62,15 +69,21 @@ export const PaiementFactureSection = ({
       <div className="grid gap-1">
         <Label htmlFor="facture_id" className="text-xs font-medium">Facture</Label>
         <Select onValueChange={onFactureChange} value={selectedFactureId || undefined}>
-          <SelectTrigger className="h-8 text-xs">
-            <SelectValue placeholder="Sélectionner une facture" />
+          <SelectTrigger className="h-8 text-xs" disabled={isLoading}>
+            <SelectValue placeholder={isLoading ? "Chargement..." : "Sélectionner une facture"} />
           </SelectTrigger>
           <SelectContent>
-            {factures.map((facture) => (
-              <SelectItem key={facture.id} value={facture.id} className="text-xs">
-                {facture.id} - {facture.montant - (facture.montant_paye || 0)} FCFA
+            {factures.length > 0 ? (
+              factures.map((facture) => (
+                <SelectItem key={facture.id} value={facture.id} className="text-xs">
+                  {facture.id} - {(facture.montant - (facture.montant_paye || 0)).toLocaleString()} FCFA
+                </SelectItem>
+              ))
+            ) : (
+              <SelectItem value="no-factures" disabled className="text-xs text-gray-500">
+                Aucune facture non payée
               </SelectItem>
-            ))}
+            )}
           </SelectContent>
         </Select>
       </div>
@@ -80,18 +93,17 @@ export const PaiementFactureSection = ({
         <div className="grid gap-1">
           <Label className="text-xs font-medium">Type de paiement</Label>
           <RadioGroup 
-            defaultValue="total" 
             value={typePaiement}
             onValueChange={(value: "total" | "partiel") => onTypePaiementChange(value)}
             className="flex gap-4"
           >
             <div className="flex items-center space-x-1">
-              <RadioGroupItem value="total" id="total" className="h-3 w-3" />
-              <Label htmlFor="total" className="text-xs">Paiement total</Label>
+              <RadioGroupItem value="total" id="total" className="h-4 w-4" />
+              <Label htmlFor="total" className="text-xs cursor-pointer">Paiement total</Label>
             </div>
             <div className="flex items-center space-x-1">
-              <RadioGroupItem value="partiel" id="partiel" className="h-3 w-3" />
-              <Label htmlFor="partiel" className="text-xs">Paiement partiel</Label>
+              <RadioGroupItem value="partiel" id="partiel" className="h-4 w-4" />
+              <Label htmlFor="partiel" className="text-xs cursor-pointer">Paiement partiel</Label>
             </div>
           </RadioGroup>
         </div>
@@ -99,3 +111,4 @@ export const PaiementFactureSection = ({
     </>
   );
 };
+
