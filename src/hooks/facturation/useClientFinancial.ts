@@ -75,7 +75,7 @@ export const useClientFinancial = () => {
       factures.forEach((facture) => {
         if (clientsData[facture.client_id]) {
           clientsData[facture.client_id].factures.push(facture);
-          clientsData[facture.client_id].facturesMontant += parseFloat(facture.montant);
+          clientsData[facture.client_id].facturesMontant += parseFloat(String(facture.montant));
         }
       });
 
@@ -86,7 +86,7 @@ export const useClientFinancial = () => {
         
         if (factureClientId && clientsData[factureClientId]) {
           clientsData[factureClientId].paiements.push(paiement);
-          clientsData[factureClientId].paiementsMontant += parseFloat(paiement.montant);
+          clientsData[factureClientId].paiementsMontant += parseFloat(String(paiement.montant));
         }
       });
 
@@ -102,12 +102,12 @@ export const useClientFinancial = () => {
             facturesMontant: 0,
             paiementsMontant: 0,
             solde: 0,
-            status: "àjour"
+            status: "àjour" as const
           };
         }
         
         const solde = clientData.paiementsMontant - clientData.facturesMontant;
-        let status = "àjour";
+        let status: "àjour" | "partiel" | "retard" = "àjour";
         
         // Déterminer le statut financier du client
         if (solde < 0) {
@@ -212,8 +212,8 @@ export const useClientFinancial = () => {
       // Calculer le montant restant pour chaque facture
       const facturesWithRemaining = factures.map(facture => {
         const facturePayments = paiements.filter(p => p.facture_id === facture.id);
-        const totalPaye = facturePayments.reduce((sum, p) => sum + parseFloat(p.montant), 0);
-        const montantRestant = parseFloat(facture.montant) - totalPaye;
+        const totalPaye = facturePayments.reduce((sum, p) => sum + parseFloat(String(p.montant)), 0);
+        const montantRestant = parseFloat(String(facture.montant)) - totalPaye;
         
         return {
           ...facture,
@@ -226,20 +226,19 @@ export const useClientFinancial = () => {
       const soldeDisponible = credits?.reduce((sum, credit) => {
         // N'inclure que les crédits qui ne sont pas liés à une facture
         if (!credit.facture_id) {
-          return sum + parseFloat(credit.montant);
+          return sum + parseFloat(String(credit.montant));
         }
         return sum;
       }, 0) || 0;
       
-      const clientDetails: ClientFinancialDetails = {
-        id: clientId,
+      const details: ClientFinancialDetails = {
         factures: facturesWithRemaining,
         paiements: allPaiements,
         solde_disponible: soldeDisponible
       };
       
-      console.log("Détails financiers récupérés avec succès", clientDetails);
-      setClientDetails(clientDetails);
+      console.log("Détails financiers récupérés avec succès", details);
+      setClientDetails(details);
     } catch (error) {
       console.error("Erreur lors de la récupération des détails financiers du client:", error);
       toast({
