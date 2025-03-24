@@ -10,7 +10,7 @@ interface StatsSummaryCardsProps {
 }
 
 export const StatsSummaryCards = ({ stats }: StatsSummaryCardsProps) => {
-  const { sentInvoicesCount } = useInvoiceData();
+  const { sentInvoicesCount, totalInvoiceAmount } = useInvoiceData();
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -19,7 +19,7 @@ export const StatsSummaryCards = ({ stats }: StatsSummaryCardsProps) => {
           <FileText className="h-10 w-10 mr-4 text-[#84A98C]" />
           <div>
             <p className="text-sm text-gray-500">Total facturé</p>
-            <p className="text-xl font-bold">{formatMontant(stats.totalFactures)}</p>
+            <p className="text-xl font-bold">{formatMontant(totalInvoiceAmount)}</p>
           </div>
         </CardContent>
       </Card>

@@ -13,7 +13,7 @@ export const useAnalyseGlobale = (
   clientFilter: string | null,
   statusFilter: string | null
 ) => {
-  const { invoices, sentInvoicesCount } = useInvoiceData();
+  const { invoices, sentInvoicesCount, totalInvoiceAmount } = useInvoiceData();
   const { payments } = usePaymentData();
   const [stats, setStats] = useState<SummaryStats>({
     totalFactures: 0,
@@ -73,17 +73,21 @@ export const useAnalyseGlobale = (
           enRetard: filteredFactures.filter(f => f.status_paiement === 'en_retard').length
         };
         
-        // Calculate total amounts
-        const totalFactures = filteredFactures.reduce(
+        // Calculate total amounts - make sure these are accurate
+        const totalFacturesInPeriod = filteredFactures.reduce(
           (sum, f) => sum + parseFloat(f.montant.toString()), 0
         );
+        
         const totalPaiements = filteredFactures.reduce(
           (sum, f) => sum + parseFloat((f.montant_paye || 0).toString()), 0
         );
         
+        console.log("Analysis period total invoiced:", totalFacturesInPeriod);
+        console.log("Analysis period total paid:", totalPaiements);
+        
         // Calculate taux de recouvrement
-        const tauxRecouvrement = totalFactures > 0 
-          ? (totalPaiements / totalFactures) * 100 
+        const tauxRecouvrement = totalFacturesInPeriod > 0 
+          ? (totalPaiements / totalFacturesInPeriod) * 100 
           : 0;
         
         // Prepare chart data
@@ -92,7 +96,7 @@ export const useAnalyseGlobale = (
         
         // Update state
         setStats({
-          totalFactures,
+          totalFactures: totalFacturesInPeriod,
           totalPaiements,
           totalImpots: prestationTotals.totalImpots,
           totalHonoraires: prestationTotals.totalHonoraires,

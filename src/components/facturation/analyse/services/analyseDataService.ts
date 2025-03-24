@@ -11,6 +11,9 @@ export const fetchFacturesForAnalysis = async () => {
     
   if (facturesError) throw facturesError;
   
+  console.log("Analysis fetched invoices:", facturesData?.length || 0);
+  console.log("Analysis total invoiced amount:", facturesData?.reduce((sum, f) => sum + Number(f.montant), 0) || 0);
+  
   return facturesData || [];
 };
 

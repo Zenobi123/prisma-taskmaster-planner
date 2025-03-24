@@ -9,6 +9,7 @@ export const useInvoiceData = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [sentInvoicesCount, setSentInvoicesCount] = useState(0);
+  const [totalInvoiceAmount, setTotalInvoiceAmount] = useState(0);
 
   const fetchInvoices = async () => {
     try {
@@ -28,8 +29,12 @@ export const useInvoiceData = () => {
       setInvoices(sentInvoices);
       setSentInvoicesCount(sentInvoices.length);
       
+      // Calculate the total amount of sent invoices
+      const total = sentInvoices.reduce((sum, invoice) => sum + Number(invoice.montant), 0);
+      setTotalInvoiceAmount(total);
+      
       console.log("Factures fetched:", sentInvoices.length);
-      console.log("All fetched invoices have 'envoyée' status");
+      console.log("Total amount of sent invoices:", total);
     } catch (err) {
       console.error("Error fetching invoices:", err);
       setError(err instanceof Error ? err : new Error('Failed to fetch invoices'));
@@ -52,6 +57,7 @@ export const useInvoiceData = () => {
     isLoading,
     error,
     fetchInvoices,
-    sentInvoicesCount
+    sentInvoicesCount,
+    totalInvoiceAmount
   };
 };
