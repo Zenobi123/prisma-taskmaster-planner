@@ -5,7 +5,8 @@ import PageLayout from "@/components/layout/PageLayout";
 import Factures from "@/components/facturation/Factures";
 import Paiements from "@/components/facturation/Paiements";
 import SituationClients from "@/components/facturation/SituationClients";
-import { ArrowLeft } from "lucide-react";
+import AnalyseFacturesPaiements from "@/components/facturation/analyse/AnalyseFacturesPaiements";
+import { ArrowLeft, FileText, CreditCard, Users, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 
@@ -41,21 +42,27 @@ const Facturation = () => {
             <TabsList className="bg-transparent h-auto p-0">
               <TabsTrigger 
                 value="factures" 
-                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all"
+                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all flex items-center gap-2"
               >
-                Factures
+                <FileText className="h-4 w-4" /> Factures
               </TabsTrigger>
               <TabsTrigger 
                 value="paiements" 
-                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all"
+                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all flex items-center gap-2"
               >
-                Paiements
+                <CreditCard className="h-4 w-4" /> Paiements
               </TabsTrigger>
               <TabsTrigger 
                 value="situation" 
-                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all"
+                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all flex items-center gap-2"
               >
-                Situation clients
+                <Users className="h-4 w-4" /> Situation clients
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analyse" 
+                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all flex items-center gap-2"
+              >
+                <BarChart className="h-4 w-4" /> Analyse
               </TabsTrigger>
             </TabsList>
           </div>
@@ -70,6 +77,10 @@ const Facturation = () => {
           
           <TabsContent value="situation" className="mt-6 animate-fade-in">
             <SituationClients />
+          </TabsContent>
+          
+          <TabsContent value="analyse" className="mt-6 animate-fade-in">
+            <AnalyseFacturesPaiements />
           </TabsContent>
         </Tabs>
       </div>
