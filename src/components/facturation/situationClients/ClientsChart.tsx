@@ -13,13 +13,30 @@ interface ClientsChartProps {
 }
 
 const ClientsChart = ({ chartData }: ClientsChartProps) => {
+  // Define a proper config object for the chart
+  const chartConfig = {
+    // Define colors for each status
+    ajour: {
+      label: "À jour",
+      color: "#84A98C" // Green
+    },
+    partiel: {
+      label: "Partiellement payé",
+      color: "#F9CB40" // Amber
+    },
+    retard: {
+      label: "En retard",
+      color: "#E3625F" // Red
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Répartition des paiements</CardTitle>
       </CardHeader>
       <CardContent>
-        <ChartContainer className="h-[300px]" config={{}}>
+        <ChartContainer className="h-[300px]" config={chartConfig}>
           {chartData.length > 0 ? (
             <BarChart
               data={chartData}
@@ -32,7 +49,7 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
               <Bar 
                 dataKey="total" 
                 fill="#84A98C"
-                // Use a custom function to determine color based on status
+                // Determine color based on status
                 fillOpacity={0.8}
               />
             </BarChart>

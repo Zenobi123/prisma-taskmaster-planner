@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { ClientFinancialSummary, ClientFinancialDetails } from "@/types/clientFinancial";
+import { ClientFinancialSummary, ClientFinancialDetails, ClientInvoice, ClientPayment } from "@/types/clientFinancial";
 
 export const getClientsFinancialSummary = async (): Promise<ClientFinancialSummary[]> => {
   try {
@@ -48,8 +48,8 @@ export const getClientFinancialDetails = async (clientId: string): Promise<Clien
     
     const details = data[0];
     return {
-      factures: Array.isArray(details.factures) ? details.factures : [],
-      paiements: Array.isArray(details.paiements) ? details.paiements : [],
+      factures: Array.isArray(details.factures) ? details.factures as ClientInvoice[] : [],
+      paiements: Array.isArray(details.paiements) ? details.paiements as ClientPayment[] : [],
       solde_disponible: details.solde_disponible || 0
     };
   } catch (error) {
