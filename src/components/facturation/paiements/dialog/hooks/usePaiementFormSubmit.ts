@@ -55,9 +55,16 @@ export const usePaiementFormSubmit = ({
         prestations_payees: prestationsPayees
       };
 
-      await onSubmit(paiementData);
-      reset();
-      onOpenChange(false);
+      const result = await onSubmit(paiementData);
+      if (result) {
+        reset();
+        onOpenChange(false);
+        toast({
+          title: "Succès",
+          description: "Le paiement a été enregistré avec succès.",
+          variant: "default"
+        });
+      }
     } catch (error) {
       console.error("Erreur lors de la soumission du formulaire:", error);
       toast({

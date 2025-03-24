@@ -69,12 +69,14 @@ export const usePaiementCreate = () => {
       toast({
         title: "Paiement enregistré",
         description: `Le paiement a été enregistré avec succès.`,
+        variant: "default"
       });
 
       // Générer le reçu PDF automatiquement
       toast({
         title: "Génération du reçu",
         description: `Le reçu de paiement est en cours de génération...`,
+        variant: "default"
       });
 
       // Générer le reçu PDF

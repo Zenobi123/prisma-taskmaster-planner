@@ -39,22 +39,21 @@ export const usePaiements = () => {
         let prestationsPayees: PrestationPayee[] = [];
         
         if (p.elements_specifiques) {
-          if (typeof p.elements_specifiques === 'string') {
-            try {
-              const parsed = JSON.parse(p.elements_specifiques);
-              typePaiement = parsed.type_paiement || "total";
-              prestationsPayees = parsed.prestations_payees || [];
-            } catch (e) {
-              console.error("Error parsing elements_specifiques:", e);
-            }
-          } else if (typeof p.elements_specifiques === 'object') {
-            // It's already an object, just extract the values - typed correctly for TypeScript
-            const elemSpecObj = p.elements_specifiques as Record<string, any>;
-            typePaiement = elemSpecObj.type_paiement || "total";
-            prestationsPayees = (elemSpecObj.prestations_payees || []).map((pp: any) => ({
-              id: pp.id,
-              montant_modifie: pp.montant_modifie
-            }));
+          try {
+            const parsedElemSpec = typeof p.elements_specifiques === 'string' 
+              ? JSON.parse(p.elements_specifiques) 
+              : p.elements_specifiques;
+              
+            typePaiement = parsedElemSpec.type_paiement || "total";
+            
+            prestationsPayees = Array.isArray(parsedElemSpec.prestations_payees) 
+              ? parsedElemSpec.prestations_payees.map((pp: any) => ({
+                  id: pp.id,
+                  montant_modifie: pp.montant_modifie
+                }))
+              : [];
+          } catch (e) {
+            console.error("Error parsing elements_specifiques:", e, p.elements_specifiques);
           }
         }
         
