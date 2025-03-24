@@ -63,7 +63,7 @@ const SituationClients = () => {
   const availableCredits = clientDetails?.paiements.filter(p => p.est_credit && !p.facture_id) || [];
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="flex flex-col gap-6">
       <ClientsList 
         clientsSummary={clientsSummary} 
         isLoading={isLoading} 

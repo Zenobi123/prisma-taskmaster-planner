@@ -20,6 +20,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatMontant } from "@/utils/formatUtils";
 import { ClientFinancialSummary } from "@/types/clientFinancial";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 interface ClientsListProps {
   clientsSummary: ClientFinancialSummary[];
@@ -31,6 +39,8 @@ const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListPr
   const [searchTerm, setSearchTerm] = useState("");
   const [sortColumn, setSortColumn] = useState("nom");
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleSort = (column: string) => {
     if (sortColumn === column) {
@@ -43,8 +53,7 @@ const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListPr
   
   const filteredClients = clientsSummary
     .filter(client => 
-      client.nom?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.id?.toLowerCase().includes(searchTerm.toLowerCase())
+      client.nom?.toLowerCase().includes(searchTerm.toLowerCase())
     )
     .sort((a, b) => {
       const aValue = a[sortColumn as keyof typeof a];
@@ -63,6 +72,13 @@ const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListPr
       return 0;
     });
   
+  // Pagination logic
+  const totalPages = Math.ceil(filteredClients.length / itemsPerPage);
+  const paginatedClients = filteredClients.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "àjour":
@@ -77,7 +93,7 @@ const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListPr
   };
 
   return (
-    <Card className="lg:col-span-2">
+    <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-xl flex items-center gap-2">
           <Users className="h-5 w-5" /> 
@@ -98,7 +114,6 @@ const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListPr
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">ID</TableHead>
               <TableHead>
                 <Button variant="ghost" className="p-0 font-semibold flex items-center gap-1"
                   onClick={() => handleSort('nom')}>
@@ -134,14 +149,13 @@ const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListPr
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                   Chargement des données...
                 </TableCell>
               </TableRow>
-            ) : filteredClients.length > 0 ? (
-              filteredClients.map((client) => (
+            ) : paginatedClients.length > 0 ? (
+              paginatedClients.map((client) => (
                 <TableRow key={client.id}>
-                  <TableCell className="font-medium">{client.id.slice(0, 8)}</TableCell>
                   <TableCell>{client.nom}</TableCell>
                   <TableCell>{formatMontant(client.facturesMontant)}</TableCell>
                   <TableCell>{formatMontant(client.paiementsMontant)}</TableCell>
@@ -162,13 +176,44 @@ const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListPr
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={6} className="text-center py-8 text-gray-500">
                   Aucun client trouvé
                 </TableCell>
               </TableRow>
             )}
           </TableBody>
         </Table>
+        
+        {totalPages > 1 && (
+          <Pagination className="mt-4">
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))} 
+                  className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+              
+              {[...Array(totalPages)].map((_, index) => (
+                <PaginationItem key={index}>
+                  <PaginationLink 
+                    isActive={currentPage === index + 1}
+                    onClick={() => setCurrentPage(index + 1)}
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              
+              <PaginationItem>
+                <PaginationNext 
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))} 
+                  className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        )}
       </CardContent>
     </Card>
   );

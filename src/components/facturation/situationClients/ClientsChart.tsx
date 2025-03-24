@@ -30,6 +30,13 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
     }
   };
 
+  const getBarColor = (entry: any) => {
+    if (entry.name === "À jour") return "#84A98C";
+    if (entry.name === "Partiellement payé") return "#F9CB40";
+    if (entry.name === "En retard") return "#E3625F";
+    return "#84A98C";
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -50,6 +57,9 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
                 dataKey="total" 
                 fill="#84A98C"
                 fillOpacity={0.8}
+                // Use a function that returns a string for the fill property
+                // instead of directly using a function for fill
+                fill={getBarColor}
               />
             </BarChart>
           ) : (
