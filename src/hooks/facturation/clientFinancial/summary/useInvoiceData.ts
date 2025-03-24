@@ -25,7 +25,7 @@ export const useInvoiceData = () => {
       
       setInvoices(invoicesData || []);
       console.log("Factures fetched:", invoicesData?.length);
-      console.log("Valid factures processed:", invoicesData?.filter(f => f.status === 'envoyée').length);
+      console.log("Factures with 'envoyée' status:", invoicesData?.filter(f => f.status === 'envoyée').length);
     } catch (err) {
       console.error("Error fetching invoices:", err);
       setError(err instanceof Error ? err : new Error('Failed to fetch invoices'));

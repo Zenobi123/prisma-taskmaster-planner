@@ -47,7 +47,7 @@ const FactureFilters = ({
   
   useEffect(() => {
     if (invoices && invoices.length > 0) {
-      const sentInvoicesCount = invoices.filter(invoice => invoice.status === 'envoyée').length;
+      const sentInvoicesCount = invoices.length; // All invoices are already filtered to 'envoyée' status in the hook
       console.log("Nombre total de factures envoyées:", sentInvoicesCount);
     }
   }, [invoices]);
