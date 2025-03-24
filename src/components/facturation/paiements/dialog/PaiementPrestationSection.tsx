@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PaiementPrestationSectionProps {
   selectedFactureId: string | null;
@@ -63,15 +64,14 @@ export const PaiementPrestationSection = ({
     }
   };
 
-  // Rendre visible la section même lorsque selectedFactureId n'est pas encore défini
+  // Si c'est un crédit ou pas un paiement partiel, on ne montre pas cette section
   if (estCredit || typePaiement !== "partiel") {
     return null;
   }
 
   return (
-    <div className="grid gap-1">
-      <Label className="text-xs font-medium">Prestations à payer</Label>
-      <div className="max-h-40 overflow-y-auto border rounded p-2 bg-white">
+    <ScrollArea className="flex-1 h-full pr-1">
+      <div className="space-y-2">
         {isLoading ? (
           <div className="flex items-center justify-center py-4">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -79,20 +79,26 @@ export const PaiementPrestationSection = ({
           </div>
         ) : selectedFactureId ? (
           prestations.length > 0 ? (
-            prestations.map((prestation) => (
-              <div key={prestation.id} className="flex items-center space-x-2 mb-2 py-1 px-1 hover:bg-gray-50 rounded-sm">
-                <Checkbox 
-                  id={`prestation-${prestation.id}`} 
-                  checked={selectedPrestations?.includes(prestation.id)}
-                  onCheckedChange={(checked) => onPrestationChange(prestation.id, checked === true)}
-                  className="h-4 w-4"
-                />
-                <Label htmlFor={`prestation-${prestation.id}`} className="text-xs cursor-pointer flex-1 flex justify-between">
-                  <span className="font-medium">{prestation.description}</span>
-                  <span className="ml-2 text-gray-600">{prestation.montant.toLocaleString()} FCFA</span>
-                </Label>
-              </div>
-            ))
+            <div className="space-y-1">
+              {prestations.map((prestation) => (
+                <div 
+                  key={prestation.id} 
+                  className="flex items-center gap-2 p-2 bg-white border rounded-md hover:bg-gray-50 cursor-pointer"
+                  onClick={() => onPrestationChange(prestation.id, !selectedPrestations?.includes(prestation.id))}
+                >
+                  <Checkbox 
+                    id={`prestation-${prestation.id}`} 
+                    checked={selectedPrestations?.includes(prestation.id)}
+                    onCheckedChange={(checked) => onPrestationChange(prestation.id, checked === true)}
+                    className="h-4 w-4"
+                  />
+                  <div className="flex-1 text-xs">
+                    <div className="font-medium">{prestation.description}</div>
+                    <div className="text-gray-600">{prestation.montant.toLocaleString()} FCFA</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : (
             <div className="text-xs text-center py-4 text-gray-500">
               Aucune prestation trouvée pour cette facture
@@ -104,6 +110,6 @@ export const PaiementPrestationSection = ({
           </div>
         )}
       </div>
-    </div>
+    </ScrollArea>
   );
 };

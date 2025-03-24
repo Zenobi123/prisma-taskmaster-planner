@@ -1,3 +1,4 @@
+
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Paiement } from "@/types/paiement";
@@ -42,7 +43,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl w-full max-h-[90vh] flex flex-col">
+      <DialogContent className="max-w-5xl w-full max-h-[90vh] flex flex-col">
         <DialogHeader className="pb-2">
           <DialogTitle>Nouveau Paiement</DialogTitle>
           <DialogDescription className="text-xs text-muted-foreground">
@@ -51,71 +52,79 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col flex-1 overflow-hidden">
-          <ScrollArea className="flex-1 pr-2 pb-2 -mr-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 px-1">
-              {/* Left Column */}
-              <div className="space-y-2">
-                {/* Client and Credit Selection */}
-                <PaiementClientSection
-                  selectedClientId={selectedClientId}
-                  estCredit={estCredit}
-                  onClientChange={handleClientChange}
-                  onCreditChange={handleCreditChange}
-                />
+          <div className="flex flex-1 overflow-hidden gap-4">
+            {/* Left Column - Form Fields */}
+            <ScrollArea className="flex-1 pr-2 -mr-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 px-1">
+                {/* Left Column */}
+                <div className="space-y-2">
+                  {/* Client and Credit Selection */}
+                  <PaiementClientSection
+                    selectedClientId={selectedClientId}
+                    estCredit={estCredit}
+                    onClientChange={handleClientChange}
+                    onCreditChange={handleCreditChange}
+                  />
 
-                {/* Facture Selection and Payment Type */}
-                <PaiementFactureSection
-                  selectedClientId={selectedClientId}
-                  estCredit={estCredit}
-                  selectedFactureId={selectedFactureId}
-                  typePaiement={typePaiement}
-                  onFactureChange={handleFactureChange}
-                  onTypePaiementChange={handleTypePaiementChange}
-                />
+                  {/* Facture Selection and Payment Type */}
+                  <PaiementFactureSection
+                    selectedClientId={selectedClientId}
+                    estCredit={estCredit}
+                    selectedFactureId={selectedFactureId}
+                    typePaiement={typePaiement}
+                    onFactureChange={handleFactureChange}
+                    onTypePaiementChange={handleTypePaiementChange}
+                  />
 
-                {/* Date Selection */}
-                <PaiementDateSection
-                  date={date}
-                  onDateChange={handleDateChange}
-                />
+                  {/* Date Selection */}
+                  <PaiementDateSection
+                    date={date}
+                    onDateChange={handleDateChange}
+                  />
 
-                {/* Amount Input */}
-                <PaiementAmountSection
-                  register={register}
-                  errors={errors}
-                />
+                  {/* Amount Input */}
+                  <PaiementAmountSection
+                    register={register}
+                    errors={errors}
+                  />
+                </div>
+
+                {/* Right Column */}
+                <div className="space-y-2">
+                  {/* Payment Mode */}
+                  <PaiementModeSection
+                    selectedMode={selectedMode}
+                    onModeChange={handleModeChange}
+                    register={register}
+                  />
+
+                  {/* Notes */}
+                  <PaiementNotesSection
+                    register={register}
+                  />
+                </div>
               </div>
-
-              {/* Right Column */}
-              <div className="space-y-2">
-                {/* Payment Mode */}
-                <PaiementModeSection
-                  selectedMode={selectedMode}
-                  onModeChange={handleModeChange}
-                  register={register}
-                />
-
-                {/* Notes */}
-                <PaiementNotesSection
-                  register={register}
-                />
+              
+              {/* Add some space after content to ensure scrolling works properly */}
+              <div className="h-4"></div>
+            </ScrollArea>
+            
+            {/* Right Column - Prestations Selection */}
+            {!estCredit && typePaiement === "partiel" && selectedFactureId && (
+              <div className="w-[300px] border-l pl-4 flex flex-col">
+                <h3 className="text-sm font-medium mb-2">Prestations à payer</h3>
+                <div className="flex-1 overflow-hidden">
+                  <PaiementPrestationSection
+                    selectedFactureId={selectedFactureId}
+                    estCredit={estCredit}
+                    typePaiement={typePaiement}
+                    selectedPrestations={selectedPrestations}
+                    onPrestationChange={handlePrestationChange}
+                  />
+                </div>
               </div>
-            </div>
-            
-            {/* Prestations Selection - Full width at the bottom */}
-            <div className="mt-4">
-              <PaiementPrestationSection
-                selectedFactureId={selectedFactureId}
-                estCredit={estCredit}
-                typePaiement={typePaiement}
-                selectedPrestations={selectedPrestations}
-                onPrestationChange={handlePrestationChange}
-              />
-            </div>
-            
-            {/* Add some space after content to ensure scrolling works properly */}
-            <div className="h-4"></div>
-          </ScrollArea>
+            )}
+          </div>
           
           <DialogFooter className="mt-4 pt-2 border-t sticky bottom-0 bg-background">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-8 text-xs">
