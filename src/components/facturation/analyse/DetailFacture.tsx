@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { PieChart as RechartsDonut, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
 import { ChartContainer, ChartTooltipContent } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface DetailFactureProps {
   factureId: string;
@@ -381,3 +381,4 @@ const DetailFacture = ({ factureId }: DetailFactureProps) => {
 };
 
 export default DetailFacture;
+

@@ -353,10 +353,10 @@ const AnalyseGlobale = ({ period, clientFilter, statusFilter }: AnalyseGlobalePr
                       new Intl.NumberFormat('fr-FR', { 
                         notation: 'compact',
                         compactDisplay: 'short'
-                      }).format(value)
+                      }).format(Number(value))
                     } 
                   />
-                  <Tooltip content={<ChartTooltipContent formatter={(value) => formatMontant(value)} />} />
+                  <Tooltip content={<ChartTooltipContent formatter={(value) => formatMontant(Number(value))} />} />
                   <Legend />
                   <Bar dataKey="facturé" fill="#84A98C" />
                   <Bar dataKey="encaissé" fill="#60A5FA" />
