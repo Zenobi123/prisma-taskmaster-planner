@@ -3,12 +3,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { FileText, DollarSign, BarChart2, PieChart } from "lucide-react";
 import { formatMontant } from "@/utils/formatUtils";
 import { SummaryStats } from "../types/AnalyseTypes";
+import { useInvoiceData } from "@/hooks/facturation/clientFinancial/summary/useInvoiceData";
 
 interface StatsSummaryCardsProps {
   stats: SummaryStats;
 }
 
 export const StatsSummaryCards = ({ stats }: StatsSummaryCardsProps) => {
+  const { sentInvoicesCount, totalInvoiceAmount } = useInvoiceData();
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <Card>
@@ -16,7 +19,7 @@ export const StatsSummaryCards = ({ stats }: StatsSummaryCardsProps) => {
           <FileText className="h-10 w-10 mr-4 text-[#84A98C]" />
           <div>
             <p className="text-sm text-gray-500">Total facturé</p>
-            <p className="text-xl font-bold">{formatMontant(stats.totalFactures)}</p>
+            <p className="text-xl font-bold">{formatMontant(totalInvoiceAmount)}</p>
           </div>
         </CardContent>
       </Card>
@@ -46,7 +49,7 @@ export const StatsSummaryCards = ({ stats }: StatsSummaryCardsProps) => {
           <PieChart className="h-10 w-10 mr-4 text-purple-500" />
           <div>
             <p className="text-sm text-gray-500">Factures émises</p>
-            <p className="text-xl font-bold">{stats.totalFacturesEmises}</p>
+            <p className="text-xl font-bold">{sentInvoicesCount}</p>
           </div>
         </CardContent>
       </Card>

@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FileText, Search } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { formatMontant } from "@/utils/formatUtils";
 import { useFactures } from "@/hooks/facturation/useFactures";
@@ -19,7 +19,7 @@ const AnalyseParFacture = () => {
   const [filteredFactures, setFilteredFactures] = useState(factures);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Use the BillingStats context
+  // Use the context
   const { filters } = useBillingStats();
   const { period, clientFilter, statusFilter } = filters;
 

@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { 
   BillingStatsContextData, 
   PeriodFilter, 
@@ -26,8 +26,7 @@ const defaultStats: SummaryStats = {
     partiellementPayées: 0,
     nonPayées: 0,
     enRetard: 0
-  },
-  totalFacturesEmises: 0
+  }
 };
 
 export interface BillingStatsProviderProps {
