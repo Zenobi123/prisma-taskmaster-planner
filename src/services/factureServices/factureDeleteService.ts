@@ -6,6 +6,23 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
   try {
     console.log("Deleting facture:", factureId);
     
+    // Vérifier si la facture est envoyée et payée
+    const { data: factureData, error: fetchError } = await supabase
+      .from("factures")
+      .select("status, status_paiement")
+      .eq("id", factureId)
+      .single();
+      
+    if (fetchError) {
+      console.error("Error fetching facture:", fetchError);
+      throw new Error(`Failed to fetch invoice: ${fetchError.message}`);
+    }
+    
+    // Empêcher la suppression des factures envoyées et payées
+    if (factureData.status === "envoyée" && factureData.status_paiement === "payée") {
+      throw new Error("Impossible de supprimer une facture envoyée et payée.");
+    }
+    
     // First delete associated prestations
     const { error: prestationsError } = await supabase
       .from("prestations")

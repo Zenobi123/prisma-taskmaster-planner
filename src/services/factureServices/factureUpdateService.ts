@@ -8,6 +8,11 @@ export const updateFactureInDatabase = async (facture: Facture): Promise<boolean
   try {
     console.log("Updating facture:", facture.id);
     
+    // Vérifier si la facture est déjà payée et si on essaie de l'annuler
+    if (facture.status === "annulée" && facture.status_paiement === "payée") {
+      throw new Error("Impossible d'annuler une facture qui est déjà payée.");
+    }
+    
     // Check if invoice is overdue using our rule:
     // Une facture est considérée en retard uniquement lorsqu'elle n'est pas complètement payée après sa date d'échéance
     const isPastDue = isOverdue(

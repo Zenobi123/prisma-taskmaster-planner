@@ -59,6 +59,12 @@ const FactureTableRow = ({
   const isFactureCancelled = facture.status === 'annulée';
   const isFactureSent = facture.status === 'envoyée';
   const isFactureDraft = facture.status === 'brouillon';
+  const isFacturePaid = facture.status_paiement === 'payée';
+  
+  // Déterminer si la facture peut être annulée ou supprimée
+  // Une facture envoyée et payée ne peut pas être annulée ou supprimée
+  const canCancel = !isFactureCancelled && !(isFactureSent && isFacturePaid);
+  const canDelete = !(isFactureSent && isFacturePaid);
 
   return (
     <TableRow className="hover:bg-gray-50">
@@ -108,8 +114,8 @@ const FactureTableRow = ({
               </DropdownMenuItem>
             )}
             
-            {/* Action: Annuler (pas pour les annulées) */}
-            {onCancelFacture && !isFactureCancelled && (
+            {/* Action: Annuler (pas pour les annulées, ni les envoyées et payées) */}
+            {onCancelFacture && canCancel && (
               <DropdownMenuItem 
                 onClick={() => onCancelFacture(facture)}
                 className="flex items-center gap-2 cursor-pointer"
@@ -131,35 +137,47 @@ const FactureTableRow = ({
             )}
             
             <DropdownMenuSeparator />
-            <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-              <AlertDialogTrigger asChild>
-                <DropdownMenuItem 
-                  className="flex items-center gap-2 text-red-600 cursor-pointer"
-                  onSelect={(e) => e.preventDefault()}
-                >
-                  <Trash className="h-4 w-4" />
-                  Supprimer
-                </DropdownMenuItem>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Êtes-vous sûr de vouloir supprimer la facture {factureId} ?
-                    Cette action est irréversible.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Annuler</AlertDialogCancel>
-                  <AlertDialogAction 
-                    onClick={handleDelete}
-                    className="bg-red-600 hover:bg-red-700"
+            
+            {/* Supprimer seulement si ce n'est pas une facture envoyée et payée */}
+            {canDelete ? (
+              <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem 
+                    className="flex items-center gap-2 text-red-600 cursor-pointer"
+                    onSelect={(e) => e.preventDefault()}
                   >
+                    <Trash className="h-4 w-4" />
                     Supprimer
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Êtes-vous sûr de vouloir supprimer la facture {factureId} ?
+                      Cette action est irréversible.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Annuler</AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleDelete}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Supprimer
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            ) : (
+              <DropdownMenuItem 
+                className="flex items-center gap-2 text-red-300 cursor-not-allowed opacity-50"
+                disabled
+              >
+                <Trash className="h-4 w-4" />
+                Supprimer
+              </DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </TableCell>
