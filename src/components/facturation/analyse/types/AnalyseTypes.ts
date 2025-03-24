@@ -21,6 +21,7 @@ export interface SummaryStats {
     nonPayées: number;
     enRetard: number;
   };
+  totalFacturesEmises?: number;
 }
 
 export interface ChartDataItem {
@@ -52,4 +53,3 @@ export interface BillingStatsContextData {
   }) => void;
   refreshData: () => void;
 }
-

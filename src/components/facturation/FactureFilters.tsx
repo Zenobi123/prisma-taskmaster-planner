@@ -43,14 +43,11 @@ const FactureFilters = ({
   clients,
 }: FactureFiltersProps) => {
   const [expanded, setExpanded] = useState(false);
-  const { invoices } = useInvoiceData();
+  const { sentInvoicesCount } = useInvoiceData();
   
   useEffect(() => {
-    if (invoices && invoices.length > 0) {
-      const sentInvoicesCount = invoices.length; // All invoices are already filtered to 'envoyée' status in the hook
-      console.log("Nombre total de factures envoyées:", sentInvoicesCount);
-    }
-  }, [invoices]);
+    console.log("Nombre total de factures envoyées:", sentInvoicesCount);
+  }, [sentInvoicesCount]);
 
   const toggleSort = (key: string) => {
     if (sortKey === key) {

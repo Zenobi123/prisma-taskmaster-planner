@@ -8,6 +8,7 @@ export const useInvoiceData = () => {
   const [invoices, setInvoices] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [sentInvoicesCount, setSentInvoicesCount] = useState(0);
 
   const fetchInvoices = async () => {
     try {
@@ -23,9 +24,12 @@ export const useInvoiceData = () => {
         throw new Error(invoicesError.message);
       }
       
-      setInvoices(invoicesData || []);
-      console.log("Factures fetched:", invoicesData?.length);
-      console.log("Factures with 'envoyée' status:", invoicesData?.filter(f => f.status === 'envoyée').length);
+      const sentInvoices = invoicesData || [];
+      setInvoices(sentInvoices);
+      setSentInvoicesCount(sentInvoices.length);
+      
+      console.log("Factures fetched:", sentInvoices.length);
+      console.log("All fetched invoices have 'envoyée' status");
     } catch (err) {
       console.error("Error fetching invoices:", err);
       setError(err instanceof Error ? err : new Error('Failed to fetch invoices'));
@@ -47,6 +51,7 @@ export const useInvoiceData = () => {
     invoices,
     isLoading,
     error,
-    fetchInvoices
+    fetchInvoices,
+    sentInvoicesCount
   };
 };

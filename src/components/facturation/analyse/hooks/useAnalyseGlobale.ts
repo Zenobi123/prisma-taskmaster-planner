@@ -13,7 +13,7 @@ export const useAnalyseGlobale = (
   clientFilter: string | null,
   statusFilter: string | null
 ) => {
-  const { invoices } = useInvoiceData();
+  const { invoices, sentInvoicesCount } = useInvoiceData();
   const { payments } = usePaymentData();
   const [stats, setStats] = useState<SummaryStats>({
     totalFactures: 0,
@@ -28,7 +28,8 @@ export const useAnalyseGlobale = (
       partiellementPayées: 0,
       nonPayées: 0,
       enRetard: 0
-    }
+    },
+    totalFacturesEmises: 0
   });
   const [isLoading, setIsLoading] = useState(true);
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
@@ -98,7 +99,8 @@ export const useAnalyseGlobale = (
           impotsPendant: prestationTotals.impotsPendant,
           honorairesPendant: prestationTotals.honorairesPendant,
           tauxRecouvrement,
-          facturesParStatut
+          facturesParStatut,
+          totalFacturesEmises: sentInvoicesCount
         });
         
         setChartData(statusChartData);
@@ -111,7 +113,7 @@ export const useAnalyseGlobale = (
     };
     
     fetchAnalysisData();
-  }, [period, clientFilter, statusFilter, invoices, payments]);
+  }, [period, clientFilter, statusFilter, invoices, payments, sentInvoicesCount]);
 
   return {
     stats,
