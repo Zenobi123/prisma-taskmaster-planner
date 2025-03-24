@@ -1,7 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
 
 interface ChartDataItem {
   name: string;
@@ -55,12 +55,12 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
               <Tooltip formatter={(value) => [`${value} clients`, '']} />
               <Bar 
                 dataKey="total" 
-                fill="#84A98C"
                 fillOpacity={0.8}
-                // Use a function that returns a string for the fill property
-                // instead of directly using a function for fill
-                fill={getBarColor}
-              />
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={getBarColor(entry)} />
+                ))}
+              </Bar>
             </BarChart>
           ) : (
             <div className="flex items-center justify-center h-full">
