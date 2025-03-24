@@ -48,11 +48,13 @@ export const useAnalyseGlobale = (
         }
         
         // Fetch all factures with prestations to calculate impots/honoraires
+        // Only consider factures with status "envoyée"
         const { data: facturesData, error: facturesError } = await supabase
           .from("factures")
           .select(`
-            id, date, montant, montant_paye, status_paiement, client_id
-          `);
+            id, date, montant, montant_paye, status_paiement, client_id, status
+          `)
+          .eq("status", "envoyée");
           
         if (facturesError) throw facturesError;
         
@@ -63,7 +65,7 @@ export const useAnalyseGlobale = (
           
         if (prestationsError) throw prestationsError;
         
-        // Filter factures by period
+        // Filter factures by period - only include status "envoyée"
         const filteredFactures = facturesData.filter(facture => {
           // Convert YYYY-MM-DD to Date object
           const factureDate = new Date(facture.date);

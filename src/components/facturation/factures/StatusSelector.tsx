@@ -50,6 +50,7 @@ const StatusSelector = ({
               <SelectItem value="non_payée">Non payé</SelectItem>
               <SelectItem value="partiellement_payée">Partiellement payé</SelectItem>
               <SelectItem value="payée">Payé</SelectItem>
+              <SelectItem value="en_retard">En retard</SelectItem>
             </>
           )}
         </SelectContent>
