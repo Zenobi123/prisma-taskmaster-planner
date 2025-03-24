@@ -266,6 +266,54 @@ export type Database = {
           },
         ]
       }
+      payment_reminders: {
+        Row: {
+          client_id: string
+          created_at: string | null
+          facture_id: string
+          id: string
+          is_active: boolean | null
+          last_sent: string | null
+          method: string
+          send_frequency: number | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string | null
+          facture_id: string
+          id?: string
+          is_active?: boolean | null
+          last_sent?: string | null
+          method: string
+          send_frequency?: number | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string | null
+          facture_id?: string
+          id?: string
+          is_active?: boolean | null
+          last_sent?: string | null
+          method?: string
+          send_frequency?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_reminders_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_reminders_facture_id_fkey"
+            columns: ["facture_id"]
+            isOneToOne: false
+            referencedRelation: "factures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       prestations: {
         Row: {
           created_at: string | null
@@ -422,7 +470,38 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_client_financial_details: {
+        Args: {
+          client_id: string
+        }
+        Returns: {
+          factures: Json
+          paiements: Json
+          solde_disponible: number
+        }[]
+      }
+      get_client_financial_summary: {
+        Args: {
+          client_id: string
+        }
+        Returns: {
+          total_facture: number
+          total_paye: number
+          solde_disponible: number
+          statut: string
+        }[]
+      }
+      get_clients_with_financial_status: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          nom: string
+          facturesmontant: number
+          paiementsmontant: number
+          solde: number
+          status: string
+        }[]
+      }
     }
     Enums: {
       user_role: "admin" | "comptable" | "assistant"
