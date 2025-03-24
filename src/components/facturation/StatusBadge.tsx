@@ -1,4 +1,3 @@
-
 import { Badge } from "@/components/ui/badge";
 
 interface StatusBadgeProps {
@@ -12,7 +11,7 @@ const StatusBadge = ({ status, type = "document" }: StatusBadgeProps) => {
       case "brouillon":
         return <Badge variant="outline" className="text-neutral-600 border-neutral-400">Brouillon</Badge>;
       case "envoyée":
-        return <Badge className="bg-blue-500 hover:bg-blue-600">Envoyée</Badge>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600 rounded-full px-3">Envoyée</Badge>;
       case "annulée":
         return <Badge className="bg-red-500 hover:bg-red-600">Annulée</Badge>;
       default:
