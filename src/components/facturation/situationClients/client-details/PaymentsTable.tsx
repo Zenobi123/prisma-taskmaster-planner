@@ -49,26 +49,21 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
       <TableBody>
         {payments && payments.length > 0 ? (
           payments.map((paiement) => (
-            <TableRow key={paiement.id} className="hover:bg-gray-50">
-              <TableCell className="font-medium text-gray-700">{paiement.reference}</TableCell>
+            <TableRow key={paiement.id}>
+              <TableCell className="font-medium">{paiement.reference}</TableCell>
               <TableCell>{formatDate(paiement.date)}</TableCell>
-              <TableCell className={paiement.est_credit ? "font-medium text-blue-600" : "font-medium text-green-600"}>
-                {formatMontant(paiement.montant)}
-              </TableCell>
+              <TableCell>{formatMontant(paiement.montant)}</TableCell>
               <TableCell>
                 <ModePaiementBadge mode={paiement.mode} />
               </TableCell>
               <TableCell>
-                {paiement.facture_id || (paiement.est_credit ? 
-                  <Badge className="bg-blue-500">Crédit</Badge> : 
-                  <span className="text-gray-500">N/A</span>
-                )}
+                {paiement.facture_id || (paiement.est_credit ? "Crédit" : "N/A")}
               </TableCell>
               <TableCell>
                 {paiement.est_credit ? (
-                  <Badge className="bg-blue-500 hover:bg-blue-600">Avance</Badge>
+                  <Badge className="bg-blue-500">Avance</Badge>
                 ) : (
-                  <Badge variant="outline" className="text-gray-600 border-gray-300">Standard</Badge>
+                  <Badge variant="outline">Standard</Badge>
                 )}
               </TableCell>
             </TableRow>
