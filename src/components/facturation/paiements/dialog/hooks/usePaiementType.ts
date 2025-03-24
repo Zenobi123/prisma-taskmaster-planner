@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
@@ -57,6 +58,7 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
   const handlePrestationChange = (id: string, checked: boolean) => {
     console.log(`Prestation ${id} ${checked ? 'selected' : 'unselected'}`);
     
+    // Immédiatement mettre à jour les prestations sélectionnées
     let updatedPrestations = [...selectedPrestations];
     
     if (checked) {
@@ -71,12 +73,35 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
       setPrestationAmounts(newPrestationAmounts);
     }
     
+    // Mettre à jour le formulaire immédiatement
     setValue("prestations_payees", updatedPrestations);
     
-    // Use setTimeout to allow React to update the state before calculation
-    setTimeout(() => {
-      updateTotalAmount(updatedPrestations);
-    }, 0);
+    // Mettre à jour immédiatement le montant total
+    if (checked) {
+      // Si on a déjà le montant dans originalPrestationAmounts, l'utiliser immédiatement
+      if (id in originalPrestationAmounts) {
+        const newAmounts = { 
+          ...prestationAmounts, 
+          [id]: originalPrestationAmounts[id] 
+        };
+        setPrestationAmounts(newAmounts);
+        
+        // Calculer le nouveau montant total
+        const newTotal = Object.values(newAmounts).reduce((sum, amount) => sum + amount, 0);
+        setValue("montant", newTotal);
+      } else {
+        // Sinon, charger les données nécessaires
+        loadPrestationData([id]).then(() => {
+          updateTotalAmount(updatedPrestations);
+        });
+      }
+    } else {
+      // Si on déselectionne, recalculer le total immédiatement
+      const newTotal = updatedPrestations
+        .filter(pId => pId in prestationAmounts)
+        .reduce((sum, pId) => sum + prestationAmounts[pId], 0);
+      setValue("montant", newTotal);
+    }
   };
 
   const handlePrestationAmountChange = (id: string, amount: number) => {
@@ -84,10 +109,11 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
     const newAmounts = { ...prestationAmounts, [id]: amount };
     setPrestationAmounts(newAmounts);
     
-    // Use setTimeout to allow React to update the state before calculation
-    setTimeout(() => {
-      updateTotalAmount(selectedPrestations, newAmounts);
-    }, 0);
+    // Mettre à jour immédiatement le montant total
+    const newTotal = selectedPrestations
+      .filter(pId => pId in newAmounts)
+      .reduce((sum, pId) => sum + newAmounts[pId], 0);
+    setValue("montant", newTotal);
   };
   
   const loadPrestationData = async (prestationIds: string[]) => {
@@ -110,7 +136,7 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
         });
         
         console.log("Original prestation amounts loaded:", amounts);
-        setOriginalPrestationAmounts(amounts);
+        setOriginalPrestationAmounts(prev => ({...prev, ...amounts}));
         
         // Initialize prestationAmounts with original amounts if not already set
         const newPrestationAmounts = { ...prestationAmounts };
@@ -121,8 +147,13 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
         });
         setPrestationAmounts(newPrestationAmounts);
         
-        // Update total amount now that we have the data
-        updateTotalAmount(prestationIds, newPrestationAmounts);
+        // Mettre à jour immédiatement le montant total
+        const newTotal = selectedPrestations
+          .filter(pId => pId in newPrestationAmounts)
+          .reduce((sum, pId) => sum + newPrestationAmounts[pId], 0);
+        setValue("montant", newTotal);
+        
+        return amounts;
       }
     } catch (error) {
       console.error("Erreur lors du chargement des données de prestation:", error);
@@ -158,7 +189,7 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
     }
   };
 
-  // When selectedPrestations changes, ensure we have all the needed amount data
+  // Quand selectedPrestations change, assurez-vous d'avoir toutes les données nécessaires
   useEffect(() => {
     if (selectedPrestations.length > 0) {
       const missingPrestations = selectedPrestations.filter(
@@ -167,9 +198,6 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
       
       if (missingPrestations.length > 0) {
         loadPrestationData(missingPrestations);
-      } else {
-        // Update total even if we have all data
-        updateTotalAmount(selectedPrestations);
       }
     }
   }, [selectedPrestations]);

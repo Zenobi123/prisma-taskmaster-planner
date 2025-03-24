@@ -61,6 +61,18 @@ export const PaiementPrestationSection = ({
     }
   };
 
+  // Optimiser le rendu des prestations en utilisant un callback mémorisé pour les changements
+  const handleCheckChange = (id: string) => (checked: boolean) => {
+    onPrestationChange(id, checked === true);
+  };
+
+  const handleAmountChange = (id: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newAmount = Number(e.target.value);
+    if (!isNaN(newAmount) && newAmount >= 0) {
+      onPrestationAmountChange(id, newAmount);
+    }
+  };
+
   // Si aucune facture n'est sélectionnée ou si c'est un paiement total, ne rien afficher
   if (!selectedFactureId || typePaiement !== "partiel") {
     return (
@@ -115,9 +127,7 @@ export const PaiementPrestationSection = ({
                 <Checkbox
                   id={`prestation-${prestation.id}`}
                   checked={isChecked}
-                  onCheckedChange={(checked) => {
-                    onPrestationChange(prestation.id, checked === true);
-                  }}
+                  onCheckedChange={handleCheckChange(prestation.id)}
                   className="mt-1 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
                 <div className="flex-1">
@@ -143,12 +153,7 @@ export const PaiementPrestationSection = ({
                             id={`montant-${prestation.id}`}
                             type="number"
                             value={montantActuel}
-                            onChange={(e) => {
-                              const newAmount = Number(e.target.value);
-                              if (!isNaN(newAmount) && newAmount >= 0) {
-                                onPrestationAmountChange(prestation.id, newAmount);
-                              }
-                            }}
+                            onChange={handleAmountChange(prestation.id)}
                             className="h-8 pr-14 text-sm border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary/20"
                           />
                           <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-xs font-medium text-gray-500 bg-gray-50 border-l border-gray-300 rounded-r-md">
