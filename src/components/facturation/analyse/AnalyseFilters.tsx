@@ -8,27 +8,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useClientData } from "@/hooks/facturation/clientFinancial/summary/useClientData";
 import { exportToExcel, exportToPdf } from "@/utils/exportUtils";
+import { useBillingStats } from "./context/BillingStatsContext";
 
-interface AnalyseFiltersProps {
-  period: "month" | "quarter" | "year";
-  setPeriod: (period: "month" | "quarter" | "year") => void;
-  clientFilter: string | null;
-  setClientFilter: (clientId: string | null) => void;
-  statusFilter: string | null;
-  setStatusFilter: (status: string | null) => void;
-}
-
-const AnalyseFilters = ({
-  period,
-  setPeriod,
-  clientFilter,
-  setClientFilter,
-  statusFilter,
-  setStatusFilter
-}: AnalyseFiltersProps) => {
+const AnalyseFilters = () => {
   const { toast } = useToast();
   const { clients, isLoading } = useClientData();
   const [exportOpen, setExportOpen] = useState(false);
+  
+  // Use the context
+  const { filters, setFilters } = useBillingStats();
+  const { period, clientFilter, statusFilter } = filters;
 
   const handleExportExcel = () => {
     try {
@@ -70,7 +59,10 @@ const AnalyseFilters = ({
         <div className="flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-2">
             <CalendarIcon className="h-4 w-4 text-gray-500" />
-            <Select value={period} onValueChange={(value) => setPeriod(value as "month" | "quarter" | "year")}>
+            <Select 
+              value={period} 
+              onValueChange={(value) => setFilters({ period: value as "month" | "quarter" | "year" })}
+            >
               <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Période" />
               </SelectTrigger>
@@ -84,7 +76,10 @@ const AnalyseFilters = ({
           
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-gray-500" />
-            <Select value={clientFilter || ""} onValueChange={(value) => setClientFilter(value || null)}>
+            <Select 
+              value={clientFilter || ""} 
+              onValueChange={(value) => setFilters({ clientFilter: value || null })}
+            >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Tous les clients" />
               </SelectTrigger>
@@ -101,7 +96,10 @@ const AnalyseFilters = ({
           
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-gray-500" />
-            <Select value={statusFilter || ""} onValueChange={(value) => setStatusFilter(value || null)}>
+            <Select 
+              value={statusFilter || ""} 
+              onValueChange={(value) => setFilters({ statusFilter: value || null })}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Tous les statuts" />
               </SelectTrigger>

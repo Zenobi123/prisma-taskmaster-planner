@@ -1,18 +1,13 @@
 
-import { useAnalyseGlobale } from "./hooks/useAnalyseGlobale";
-import { AnalyseGlobaleProps } from "./types/AnalyseTypes";
+import { useBillingStats } from "./context/BillingStatsContext";
 import { AnalyseGlobaleSkeleton } from "./components/AnalyseGlobaleSkeleton";
 import { StatsSummaryCards } from "./components/StatsSummaryCards";
 import { StatusDistributionChart } from "./components/StatusDistributionChart";
 import { MonthlyTrendsChart } from "./components/MonthlyTrendsChart";
 import { TaxDistributionCards } from "./components/TaxDistributionCards";
 
-const AnalyseGlobale = ({ period, clientFilter, statusFilter }: AnalyseGlobaleProps) => {
-  const { stats, isLoading, chartData, monthlyData } = useAnalyseGlobale(
-    period,
-    clientFilter,
-    statusFilter
-  );
+const AnalyseGlobale = () => {
+  const { stats, isLoading, chartData, monthlyData } = useBillingStats();
 
   if (isLoading) {
     return <AnalyseGlobaleSkeleton />;

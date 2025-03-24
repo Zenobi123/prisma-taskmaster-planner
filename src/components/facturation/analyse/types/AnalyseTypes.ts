@@ -33,3 +33,23 @@ export interface MonthlyChartItem {
   facturé: number;
   encaissé: number;
 }
+
+// New interfaces for BillingStatsContext
+export interface BillingStatsContextData {
+  stats: SummaryStats;
+  chartData: ChartDataItem[];
+  monthlyData: MonthlyChartItem[];
+  isLoading: boolean;
+  filters: {
+    period: PeriodFilter;
+    clientFilter: string | null;
+    statusFilter: string | null;
+  };
+  setFilters: (filters: {
+    period?: PeriodFilter;
+    clientFilter?: string | null;
+    statusFilter?: string | null;
+  }) => void;
+  refreshData: () => void;
+}
+

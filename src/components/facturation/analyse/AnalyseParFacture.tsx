@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FileText, Search } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -11,20 +10,19 @@ import { useFactures } from "@/hooks/facturation/useFactures";
 import { useFactureViewActions } from "@/hooks/facturation/factureActions/useFactureViewActions";
 import DetailFacture from "./DetailFacture";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBillingStats } from "./context/BillingStatsContext";
 
-interface AnalyseParFactureProps {
-  period: "month" | "quarter" | "year";
-  clientFilter: string | null;
-  statusFilter: string | null;
-}
-
-const AnalyseParFacture = ({ period, clientFilter, statusFilter }: AnalyseParFactureProps) => {
+const AnalyseParFacture = () => {
   const { factures } = useFactures();
   const { handleVoirFacture } = useFactureViewActions();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFacture, setSelectedFacture] = useState<string | null>(null);
   const [filteredFactures, setFilteredFactures] = useState(factures);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Use the context
+  const { filters } = useBillingStats();
+  const { period, clientFilter, statusFilter } = filters;
 
   useEffect(() => {
     // Apply period filter
