@@ -20,7 +20,7 @@ export const usePaiementCreate = () => {
           montant_modifie: p.montant_modifie
         })) : [];
 
-      // Format the elements_specifiques field for proper storage
+      // Créer un objet éléments spécifiques correctement formaté pour JSON
       const elements_specifiques = {
         type_paiement: paiement.type_paiement || "total",
         prestations_payees: prestationsPayeesFormatted
@@ -48,7 +48,7 @@ export const usePaiementCreate = () => {
         reference_transaction: paiement.reference_transaction,
         notes: paiement.notes,
         solde_restant: paiement.solde_restant,
-        elements_specifiques // This will be automatically stringified by Supabase
+        elements_specifiques: JSON.stringify(elements_specifiques) // Stringification explicite pour éviter les problèmes de type
       };
 
       console.log("Sending payment data:", paiementData);
