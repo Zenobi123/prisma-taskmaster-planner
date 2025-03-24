@@ -52,10 +52,22 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
   const handleViewDetails = () => {
     console.log("Viewing details for payment:", paiement.id);
     // This would typically open a modal or navigate to a details page
-    alert(`Détails du paiement ${paiement.reference}`);
+    alert(`Détails du paiement ${paiement.reference}
+    - Montant: ${formatMontant(paiement.montant)}
+    - Mode: ${paiement.mode}
+    - Date: ${formatDate(paiement.date)}
+    - Client: ${paiement.client}
+    - Référence: ${paiement.reference}
+    ${paiement.notes ? `- Notes: ${paiement.notes}` : ''}
+    `);
   };
 
-  const handleViewReceipt = () => {
+  const handleViewReceipt = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log("View receipt clicked for payment:", paiement.id);
+    
     if (onViewReceipt) {
       onViewReceipt(paiement);
     } else {

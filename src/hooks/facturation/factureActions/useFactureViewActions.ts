@@ -24,15 +24,14 @@ export const useFactureViewActions = () => {
       description: `Visualisation du reçu pour le paiement ${paiement.reference}`,
     });
     
-    // Simulation d'un PDF de reçu en utilisant la fonction generatePDF existante
-    // Note: Dans une implémentation réelle, on utiliserait une fonction spécifique aux reçus
-    const factureSimuleeData = {
+    // Création d'un objet facture simulée pour générer le reçu de paiement
+    const factureSimuleeData: Facture = {
       id: paiement.reference,
       client_id: paiement.client_id,
       client: {
         id: paiement.client_id,
         nom: paiement.client,
-        adresse: "",
+        adresse: "Adresse du client",
         telephone: "",
         email: ""
       },
@@ -47,9 +46,12 @@ export const useFactureViewActions = () => {
         quantite: 1
       }],
       notes: paiement.notes || `Reçu de paiement ${paiement.reference}`
-    } as Facture;
+    };
     
-    generatePDF(factureSimuleeData);
+    // Afficher le PDF immédiatement
+    setTimeout(() => {
+      generatePDF(factureSimuleeData);
+    }, 100);
   };
   
   return {

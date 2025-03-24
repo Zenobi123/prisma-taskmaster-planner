@@ -81,9 +81,32 @@ export const usePaiementCreate = () => {
   };
 
   const generatePaiementReceipt = (paiement: Paiement) => {
-    // Cette fonction sera implémentée plus tard pour générer un reçu PDF
-    console.log("Génération du reçu pour le paiement:", paiement.id);
-    // Ici nous appellerons une fonction de génération de PDF
+    // Création d'un objet facture simulée pour générer le reçu de paiement
+    const factureSimuleeData = {
+      id: paiement.reference,
+      client_id: paiement.client_id,
+      client: {
+        id: paiement.client_id,
+        nom: paiement.client,
+        adresse: "Adresse du client",
+        telephone: "",
+        email: ""
+      },
+      date: paiement.date,
+      echeance: paiement.date,
+      montant: paiement.montant,
+      status: "envoyée",
+      status_paiement: "payée",
+      prestations: [{
+        description: `Paiement par ${paiement.mode}`,
+        montant: paiement.montant,
+        quantite: 1
+      }],
+      notes: paiement.notes || `Reçu de paiement ${paiement.reference}`
+    };
+    
+    // Générer le PDF avec l'option de téléchargement
+    generatePDF(factureSimuleeData, true);
   };
 
   return {
