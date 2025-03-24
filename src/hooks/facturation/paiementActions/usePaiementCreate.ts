@@ -37,6 +37,33 @@ export const usePaiementCreate = () => {
       
       const paymentReference = `PAY-${formattedNumber} ${currentYear}`;
 
+      // Calculate solde_restant for the payment
+      let soldeRestant = 0;
+      
+      if (!paiement.est_credit && paiement.facture) {
+        // Get the invoice details
+        const { data: factureData, error: factureError } = await supabase
+          .from("factures")
+          .select("montant, montant_paye")
+          .eq("id", paiement.facture)
+          .single();
+          
+        if (!factureError && factureData) {
+          // Calculate remaining balance after this payment
+          const factureMontant = parseFloat(factureData.montant);
+          const montantPayeAvant = parseFloat(factureData.montant_paye) || 0;
+          const montantPayeApres = montantPayeAvant + parseFloat(paiement.montant.toString());
+          
+          soldeRestant = Math.max(0, factureMontant - montantPayeApres);
+          console.log("Calculated solde_restant:", {
+            factureMontant,
+            montantPayeAvant,
+            montantPayeApres,
+            soldeRestant
+          });
+        }
+      }
+
       // Adapter les données du formulaire au format de la table
       const paiementData = {
         client_id: paiement.client_id,
@@ -49,7 +76,7 @@ export const usePaiementCreate = () => {
         reference: paymentReference,
         reference_transaction: paiement.reference_transaction,
         notes: paiement.notes,
-        solde_restant: paiement.solde_restant,
+        solde_restant: soldeRestant,
         elements_specifiques: JSON.stringify(elements_specifiques) // Ensure we stringify the object for proper storage
       };
 

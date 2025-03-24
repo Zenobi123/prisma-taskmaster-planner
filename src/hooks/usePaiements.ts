@@ -24,7 +24,8 @@ export const usePaiements = () => {
         .from("paiements")
         .select(`
           *,
-          clients:client_id (nom, raisonsociale)
+          clients:client_id (nom, raisonsociale),
+          factures:facture_id (montant)
         `)
         .order('date', { ascending: false });
 
@@ -67,6 +68,41 @@ export const usePaiements = () => {
           }
         }
         
+        // Calculate solde_restant more accurately
+        let soldeRestant = p.solde_restant || 0;
+        
+        // If this payment is associated with a facture, recalculate the solde_restant
+        if (p.factures && !p.est_credit) {
+          const factureMontant = parseFloat(p.factures.montant) || 0;
+          
+          // Get all payments for this invoice
+          supabase
+            .from("paiements")
+            .select("montant")
+            .eq("facture_id", p.facture_id)
+            .then(({ data: paiementsData, error: paiementsError }) => {
+              if (!paiementsError && paiementsData) {
+                // Sum all payments for this invoice
+                const totalPaiements = paiementsData.reduce(
+                  (sum, payment) => sum + parseFloat(payment.montant), 
+                  0
+                );
+                
+                // Update the remaining balance
+                soldeRestant = Math.max(0, factureMontant - totalPaiements);
+                
+                // Update this specific payment in the state
+                setPaiements(currentPaiements => 
+                  currentPaiements.map(currentP => 
+                    currentP.id === p.id 
+                      ? { ...currentP, solde_restant: soldeRestant } 
+                      : currentP
+                  )
+                );
+              }
+            });
+        }
+        
         // Create the paiement object with all correctly parsed data
         const paiement = {
           id: p.id,
@@ -76,7 +112,7 @@ export const usePaiements = () => {
           date: p.date,
           montant: p.montant,
           mode: p.mode as "espèces" | "virement" | "orange_money" | "mtn_money",
-          solde_restant: p.solde_restant || 0,
+          solde_restant: soldeRestant,
           est_credit: p.est_credit || false,
           est_verifie: p.est_verifie || false,
           reference: p.reference || "",
@@ -89,7 +125,7 @@ export const usePaiements = () => {
         return paiement;
       });
       
-      console.log("Formatted paiements with partial payment info:", formattedPaiements);
+      console.log("Formatted paiements with calculated remaining balances:", formattedPaiements);
       setPaiements(formattedPaiements);
     } catch (error) {
       console.error("Erreur lors de la récupération des paiements:", error);
