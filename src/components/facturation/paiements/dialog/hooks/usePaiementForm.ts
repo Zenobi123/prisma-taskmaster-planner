@@ -57,7 +57,8 @@ export const usePaiementForm = ({ onSubmit, onOpenChange }: UsePaiementFormProps
   
   const { handleTypePaiementChange, handlePrestationChange } = usePaiementType({
     setValue,
-    selectedPrestations
+    selectedPrestations,
+    selectedFactureId
   });
   
   const { onFormSubmit } = usePaiementFormSubmit({

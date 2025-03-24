@@ -5,16 +5,42 @@ import { useToast } from "@/components/ui/use-toast";
 interface UsePaiementTypeProps {
   setValue: any;
   selectedPrestations: string[];
+  selectedFactureId: string | null;
 }
 
-export const usePaiementType = ({ setValue, selectedPrestations }: UsePaiementTypeProps) => {
+export const usePaiementType = ({ setValue, selectedPrestations, selectedFactureId }: UsePaiementTypeProps) => {
   const { toast } = useToast();
 
   const handleTypePaiementChange = (value: "total" | "partiel") => {
     setValue("type_paiement", value);
+    
     // Si on passe de partiel à total, on vide les prestations sélectionnées
     if (value === "total") {
       setValue("prestations_payees", []);
+      
+      // Pour un paiement total, on utilise le montant de la facture complète
+      if (selectedFactureId) {
+        supabase
+          .from("factures")
+          .select("montant, montant_paye")
+          .eq("id", selectedFactureId)
+          .single()
+          .then(({ data, error }) => {
+            if (error) {
+              console.error("Erreur lors de la récupération du montant total:", error);
+              return;
+            }
+            
+            if (data) {
+              const montantRestant = Number(data.montant) - Number(data.montant_paye || 0);
+              setValue("montant", montantRestant);
+              console.log("Montant total de la facture:", montantRestant);
+            }
+          });
+      }
+    } else if (value === "partiel") {
+      // Réinitialiser le montant à 0 pour le paiement partiel initialement
+      setValue("montant", 0);
     }
   };
 
@@ -63,4 +89,3 @@ export const usePaiementType = ({ setValue, selectedPrestations }: UsePaiementTy
     handlePrestationChange
   };
 };
-
