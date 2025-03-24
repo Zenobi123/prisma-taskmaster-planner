@@ -10,6 +10,7 @@ import { fr } from "date-fns/locale";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import useFactureViewActions from "@/hooks/facturation/factureActions/useFactureViewActions";
 
 interface PaiementTableRowProps {
@@ -76,18 +77,47 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
     }
   };
 
+  // Déterminer le style du montant en fonction du montant et type de paiement
+  const getMontantStyle = () => {
+    if (paiement.est_credit) {
+      return "font-medium text-blue-600";
+    }
+    if (paiement.type_paiement === "partiel") {
+      return "font-medium text-amber-600";
+    }
+    return "font-medium text-green-600";
+  };
+
+  // Déterminer le style de la référence facture
+  const getFactureStyle = () => {
+    if (paiement.est_credit) {
+      return "flex items-center";
+    }
+    return "";
+  };
+
   return (
     <>
-      <TableRow key={paiement.id}>
+      <TableRow key={paiement.id} className="hover:bg-gray-50">
         <TableCell className="font-medium">{paiement.reference}</TableCell>
-        <TableCell>{paiement.facture || (paiement.est_credit ? "Crédit" : "N/A")}</TableCell>
+        <TableCell className={getFactureStyle()}>
+          {paiement.facture || (
+            paiement.est_credit ? (
+              <Badge className="bg-blue-500">Crédit</Badge>
+            ) : "N/A"
+          )}
+        </TableCell>
         <TableCell>{paiement.client}</TableCell>
         <TableCell>{formatDate(paiement.date)}</TableCell>
-        <TableCell>{formatMontant(paiement.montant)}</TableCell>
+        <TableCell className={getMontantStyle()}>
+          {formatMontant(paiement.montant)}
+        </TableCell>
         <TableCell>
           <ModePaiementBadge mode={paiement.mode} />
         </TableCell>
-        <TableCell>{formatMontant(paiement.solde_restant)}</TableCell>
+        <TableCell className={paiement.solde_restant > 0 ? "font-medium text-red-500" : "text-gray-500"}>
+          {formatMontant(paiement.solde_restant)}
+        </TableCell>
         <TableCell className="text-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -100,21 +130,21 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
                 onClick={handleViewReceipt}
                 className="cursor-pointer flex items-center hover:bg-gray-100"
               >
-                <FileText className="h-4 w-4 mr-2" />
+                <FileText className="h-4 w-4 mr-2 text-blue-500" />
                 Voir le reçu
               </DropdownMenuItem>
               <DropdownMenuItem 
                 onClick={handleViewDetails}
                 className="cursor-pointer flex items-center hover:bg-gray-100"
               >
-                <Eye className="h-4 w-4 mr-2" />
+                <Eye className="h-4 w-4 mr-2 text-gray-500" />
                 Détails
               </DropdownMenuItem>
               {paiement.est_credit && (
                 <DropdownMenuItem 
                   className="cursor-pointer flex items-center hover:bg-gray-100"
                 >
-                  <CreditCard className="h-4 w-4 mr-2" />
+                  <CreditCard className="h-4 w-4 mr-2 text-green-500" />
                   Associer à une facture
                 </DropdownMenuItem>
               )}
