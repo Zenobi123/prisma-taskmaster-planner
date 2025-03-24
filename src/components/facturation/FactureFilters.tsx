@@ -65,13 +65,13 @@ const FactureFilters = ({
   const hasActiveFilters = !!searchTerm || !!statusFilter || !!statusPaiementFilter || !!clientFilter || !!dateFilter;
   
   return (
-    <div className="space-y-4">
+    <div className="space-y-5 bg-white rounded-lg shadow-sm border border-neutral-200 p-4">
       <FilterSearchInput 
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
       />
       
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <FilterExpandButton 
           expanded={expanded}
           setExpanded={setExpanded}
@@ -87,17 +87,19 @@ const FactureFilters = ({
       </div>
       
       {expanded && (
-        <ExpandedFilters
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          statusPaiementFilter={statusPaiementFilter}
-          setStatusPaiementFilter={setStatusPaiementFilter}
-          clientFilter={clientFilter}
-          setClientFilter={setClientFilter}
-          dateFilter={dateFilter}
-          setDateFilter={setDateFilter}
-          clients={clients}
-        />
+        <div className="pt-2 border-t border-neutral-200 mt-2">
+          <ExpandedFilters
+            statusFilter={statusFilter}
+            setStatusFilter={setStatusFilter}
+            statusPaiementFilter={statusPaiementFilter}
+            setStatusPaiementFilter={setStatusPaiementFilter}
+            clientFilter={clientFilter}
+            setClientFilter={setClientFilter}
+            dateFilter={dateFilter}
+            setDateFilter={setDateFilter}
+            clients={clients}
+          />
+        </div>
       )}
     </div>
   );

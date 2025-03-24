@@ -13,12 +13,12 @@ const FilterExpandButton = ({ expanded, setExpanded }: FilterExpandButtonProps) 
       variant="outline" 
       size="sm"
       onClick={() => setExpanded(!expanded)}
-      className="text-xs flex items-center gap-1 h-8"
+      className="text-sm flex items-center gap-2 h-9 border-neutral-300 bg-white hover:bg-neutral-100 hover:text-neutral-800 transition-all"
     >
       {expanded ? (
-        <>Masquer les filtres <ChevronUp className="ml-1 h-3 w-3" /></>
+        <>Masquer les filtres <ChevronUp className="h-4 w-4" /></>
       ) : (
-        <>Afficher les filtres <ChevronDown className="ml-1 h-3 w-3" /></>
+        <>Afficher les filtres <ChevronDown className="h-4 w-4" /></>
       )}
     </Button>
   );

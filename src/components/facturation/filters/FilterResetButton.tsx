@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface FilterResetButtonProps {
   hasActiveFilters: boolean;
@@ -14,9 +15,9 @@ const FilterResetButton = ({ hasActiveFilters, clearFilters }: FilterResetButton
       variant="ghost" 
       size="sm" 
       onClick={clearFilters}
-      className="text-xs h-8"
+      className="text-sm flex items-center gap-1 h-9 text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100"
     >
-      Réinitialiser
+      <X className="h-3.5 w-3.5" /> Réinitialiser
     </Button>
   );
 };
