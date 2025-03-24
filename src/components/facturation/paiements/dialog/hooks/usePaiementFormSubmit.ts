@@ -11,6 +11,7 @@ interface UsePaiementFormSubmitProps {
   onOpenChange: (open: boolean) => void;
   reset: any;
   setIsSubmitting: (isSubmitting: boolean) => void;
+  prestationAmounts: Record<string, number>;
 }
 
 export const usePaiementFormSubmit = ({
@@ -19,7 +20,8 @@ export const usePaiementFormSubmit = ({
   onSubmit,
   onOpenChange,
   reset,
-  setIsSubmitting
+  setIsSubmitting,
+  prestationAmounts
 }: UsePaiementFormSubmitProps) => {
   const { toast } = useToast();
 
@@ -29,11 +31,12 @@ export const usePaiementFormSubmit = ({
       const clientInfo = clients.find(c => c.id === data.client_id);
       const clientName = clientInfo ? (clientInfo.nom || clientInfo.raisonsociale) : "";
       
-      // Add any additional information about selected prestations if needed
-      // This can include modified amounts
+      // Add any additional information about selected prestations including modified amounts
       const prestationsPayees = data.prestations_payees.map(id => {
-        // Here we could add the modified amounts if they were stored in a ref or state
-        return { id };
+        return { 
+          id,
+          montant_modifie: prestationAmounts[id] || null
+        };
       });
       
       const paiementData: Omit<Paiement, "id"> = {
@@ -49,7 +52,7 @@ export const usePaiementFormSubmit = ({
         notes: data.notes,
         solde_restant: 0, // Sera calculé côté serveur
         type_paiement: data.type_paiement,
-        prestations_payees: data.type_paiement === "partiel" ? data.prestations_payees : []
+        prestations_payees: data.type_paiement === "partiel" ? prestationsPayees : []
       };
 
       await onSubmit(paiementData);

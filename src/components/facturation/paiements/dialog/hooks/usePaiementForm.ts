@@ -55,7 +55,13 @@ export const usePaiementForm = ({ onSubmit, onOpenChange }: UsePaiementFormProps
   
   const { handleCreditChange, handleModeChange } = usePaiementMode({ setValue });
   
-  const { handleTypePaiementChange, handlePrestationChange } = usePaiementType({
+  const { 
+    handleTypePaiementChange, 
+    handlePrestationChange, 
+    handlePrestationAmountChange,
+    prestationAmounts,
+    originalPrestationAmounts
+  } = usePaiementType({
     setValue,
     selectedPrestations,
     selectedFactureId
@@ -67,7 +73,8 @@ export const usePaiementForm = ({ onSubmit, onOpenChange }: UsePaiementFormProps
     onSubmit,
     onOpenChange,
     reset,
-    setIsSubmitting
+    setIsSubmitting,
+    prestationAmounts
   });
 
   return {
@@ -89,6 +96,9 @@ export const usePaiementForm = ({ onSubmit, onOpenChange }: UsePaiementFormProps
     handleCreditChange,
     handleModeChange,
     handleTypePaiementChange,
-    handlePrestationChange
+    handlePrestationChange,
+    handlePrestationAmountChange,
+    prestationAmounts,
+    originalPrestationAmounts
   };
 };

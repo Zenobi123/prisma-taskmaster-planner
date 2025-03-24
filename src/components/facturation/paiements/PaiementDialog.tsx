@@ -1,16 +1,24 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { usePaiementForm } from "./dialog/hooks/usePaiementForm";
 import { Paiement } from "@/types/paiement";
 import { PaiementClientSection } from "./dialog/PaiementClientSection";
-import { PaiementFactureSection } from "./dialog/PaiementFactureSection";
-import { PaiementPrestationSection } from "./dialog/PaiementPrestationSection";
 import { PaiementDateSection } from "./dialog/PaiementDateSection";
-import { PaiementAmountSection } from "./dialog/PaiementAmountSection";
+import { PaiementFactureSection } from "./dialog/PaiementFactureSection";
 import { PaiementModeSection } from "./dialog/PaiementModeSection";
 import { PaiementNotesSection } from "./dialog/PaiementNotesSection";
-import { usePaiementForm } from "./dialog/hooks";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { PaiementAmountSection } from "./dialog/PaiementAmountSection";
+import { PaiementPrestationSection } from "./dialog/PaiementPrestationSection";
+import { Loader2 } from "lucide-react";
 
 interface PaiementDialogProps {
   open: boolean;
@@ -38,100 +46,99 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
     handleCreditChange,
     handleModeChange,
     handleTypePaiementChange,
-    handlePrestationChange
+    handlePrestationChange,
+    handlePrestationAmountChange,
+    prestationAmounts,
+    originalPrestationAmounts
   } = usePaiementForm({ onSubmit, onOpenChange });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl w-full max-h-[90vh] flex flex-col">
-        <DialogHeader className="pb-2">
-          <DialogTitle>Nouveau Paiement</DialogTitle>
-          <DialogDescription className="text-xs text-muted-foreground">
-            Enregistrer un nouveau paiement
+      <DialogContent className="max-w-4xl overflow-y-auto max-h-[90vh]">
+        <DialogHeader>
+          <DialogTitle>Nouveau paiement</DialogTitle>
+          <DialogDescription>
+            Enregistrez un nouveau paiement client ou un crédit
           </DialogDescription>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit(onFormSubmit)} className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex flex-1 overflow-hidden gap-4">
-            {/* Left Column - Form Fields */}
-            <ScrollArea className="flex-1 pr-2 -mr-2">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2 px-1">
-                {/* Left Column */}
-                <div className="space-y-2">
-                  {/* Client and Credit Selection */}
-                  <PaiementClientSection
-                    selectedClientId={selectedClientId}
-                    estCredit={estCredit}
-                    onClientChange={handleClientChange}
-                    onCreditChange={handleCreditChange}
-                  />
 
-                  {/* Facture Selection and Payment Type */}
-                  <PaiementFactureSection
-                    selectedClientId={selectedClientId}
-                    estCredit={estCredit}
-                    selectedFactureId={selectedFactureId}
-                    typePaiement={typePaiement}
-                    onFactureChange={handleFactureChange}
-                    onTypePaiementChange={handleTypePaiementChange}
-                  />
-
-                  {/* Date Selection */}
-                  <PaiementDateSection
-                    date={date}
-                    onDateChange={handleDateChange}
-                  />
-
-                  {/* Amount Input */}
-                  <PaiementAmountSection
-                    register={register}
-                    errors={errors}
-                  />
-                </div>
-
-                {/* Right Column */}
-                <div className="space-y-2">
-                  {/* Payment Mode */}
-                  <PaiementModeSection
-                    selectedMode={selectedMode}
-                    onModeChange={handleModeChange}
-                    register={register}
-                  />
-
-                  {/* Notes */}
-                  <PaiementNotesSection
-                    register={register}
-                  />
-                </div>
-              </div>
+        <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <PaiementClientSection
+                selectedClientId={selectedClientId}
+                onClientChange={handleClientChange}
+                register={register}
+                errors={errors}
+              />
               
-              {/* Add some space after content to ensure scrolling works properly */}
-              <div className="h-4"></div>
-            </ScrollArea>
+              <PaiementDateSection 
+                date={date} 
+                onDateChange={handleDateChange} 
+              />
+              
+              <PaiementFactureSection
+                selectedClientId={selectedClientId}
+                estCredit={estCredit}
+                selectedFactureId={selectedFactureId}
+                typePaiement={typePaiement}
+                onFactureChange={handleFactureChange}
+                onTypePaiementChange={handleTypePaiementChange}
+              />
+              
+              <PaiementModeSection
+                estCredit={estCredit}
+                selectedMode={selectedMode}
+                onCreditChange={handleCreditChange}
+                onModeChange={handleModeChange}
+                register={register}
+                errors={errors}
+              />
+              
+              <PaiementAmountSection
+                register={register}
+                errors={errors}
+              />
+              
+              <PaiementNotesSection
+                register={register}
+              />
+            </div>
             
-            {/* Right Column - Prestations Selection */}
-            {!estCredit && typePaiement === "partiel" && selectedFactureId && (
-              <div className="w-[300px] border-l pl-4 flex flex-col">
-                <h3 className="text-sm font-medium mb-2">Prestations à payer</h3>
-                <div className="flex-1 overflow-hidden">
-                  <PaiementPrestationSection
-                    selectedFactureId={selectedFactureId}
-                    estCredit={estCredit}
-                    typePaiement={typePaiement}
-                    selectedPrestations={selectedPrestations}
-                    onPrestationChange={handlePrestationChange}
-                  />
-                </div>
-              </div>
-            )}
+            <div>
+              <PaiementPrestationSection
+                selectedFactureId={selectedFactureId}
+                typePaiement={typePaiement}
+                selectedPrestations={selectedPrestations}
+                onPrestationChange={handlePrestationChange}
+                onPrestationAmountChange={handlePrestationAmountChange}
+                prestationAmounts={prestationAmounts}
+                originalPrestationAmounts={originalPrestationAmounts}
+              />
+            </div>
           </div>
-          
-          <DialogFooter className="mt-4 pt-2 border-t sticky bottom-0 bg-background">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="h-8 text-xs">
+
+          <DialogFooter>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
               Annuler
             </Button>
-            <Button type="submit" disabled={isSubmitting} className="h-8 text-xs">
-              {isSubmitting ? "Enregistrement..." : "Enregistrer"}
+            <Button 
+              type="submit"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Enregistrement...
+                </>
+              ) : (
+                'Enregistrer le paiement'
+              )}
             </Button>
           </DialogFooter>
         </form>

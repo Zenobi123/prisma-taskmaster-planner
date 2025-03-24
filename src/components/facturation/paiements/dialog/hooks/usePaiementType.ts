@@ -1,12 +1,6 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-
-interface PrestationWithAmount {
-  id: string;
-  montant: number;
-  montant_modifie?: number;
-}
+import { useState, useEffect } from "react";
 
 interface UsePaiementTypeProps {
   setValue: any;
@@ -16,8 +10,14 @@ interface UsePaiementTypeProps {
 
 export const usePaiementType = ({ setValue, selectedPrestations, selectedFactureId }: UsePaiementTypeProps) => {
   const { toast } = useToast();
-  // Store prestation amounts in memory to avoid multiple DB calls
-  const prestationAmounts: Record<string, PrestationWithAmount> = {};
+  const [prestationAmounts, setPrestationAmounts] = useState<Record<string, number>>({});
+  const [originalPrestationAmounts, setOriginalPrestationAmounts] = useState<Record<string, number>>({});
+  
+  // When the selected facture changes, reset the prestation amounts
+  useEffect(() => {
+    setPrestationAmounts({});
+    setOriginalPrestationAmounts({});
+  }, [selectedFactureId]);
 
   const handleTypePaiementChange = (value: "total" | "partiel") => {
     setValue("type_paiement", value);
@@ -49,75 +49,118 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
     } else if (value === "partiel") {
       // Réinitialiser le montant à 0 pour le paiement partiel initialement
       setValue("montant", 0);
+      setValue("prestations_payees", []);
+      setPrestationAmounts({});
     }
   };
 
-  const handlePrestationChange = (id: string, checked: boolean, montantModifie?: number) => {
+  const handlePrestationChange = (id: string, checked: boolean) => {
+    console.log(`Prestation ${id} ${checked ? 'selected' : 'unselected'}`);
+    
     let updatedPrestations = [...selectedPrestations];
     
     if (checked) {
       if (!updatedPrestations.includes(id)) {
         updatedPrestations.push(id);
       }
-      
-      // Store the modified amount if provided
-      if (montantModifie !== undefined) {
-        prestationAmounts[id] = {
-          ...prestationAmounts[id],
-          montant_modifie: montantModifie
-        };
-      }
     } else {
       updatedPrestations = updatedPrestations.filter(p => p !== id);
       // Remove from prestationAmounts if unchecked
-      if (prestationAmounts[id]) {
-        delete prestationAmounts[id].montant_modifie;
-      }
+      const newPrestationAmounts = { ...prestationAmounts };
+      delete newPrestationAmounts[id];
+      setPrestationAmounts(newPrestationAmounts);
     }
     
     setValue("prestations_payees", updatedPrestations);
     
-    // Si on a sélectionné des prestations, on ajuste le montant
-    if (updatedPrestations.length > 0) {
-      supabase
+    updateTotalAmount(updatedPrestations);
+  };
+
+  const handlePrestationAmountChange = (id: string, amount: number) => {
+    const newAmounts = { ...prestationAmounts, [id]: amount };
+    setPrestationAmounts(newAmounts);
+    
+    // Update total amount when a prestation amount changes
+    updateTotalAmount(selectedPrestations, newAmounts);
+  };
+  
+  const loadPrestationData = async (prestationIds: string[]) => {
+    if (prestationIds.length === 0) return;
+    
+    try {
+      const { data, error } = await supabase
         .from("prestations")
         .select("*")
-        .in("id", updatedPrestations)
-        .then(({ data, error }) => {
-          if (error) {
-            console.error("Erreur lors du calcul du montant:", error);
-            toast({
-              variant: "destructive",
-              title: "Erreur",
-              description: "Impossible de calculer le montant des prestations sélectionnées"
-            });
-            return;
-          }
-          
-          if (data) {
-            // Use modified amounts when available
-            const montantTotal = data.reduce((sum, p) => {
-              // If this prestation has a modified amount, use it
-              if (prestationAmounts[p.id]?.montant_modifie !== undefined) {
-                return sum + prestationAmounts[p.id].montant_modifie!;
-              }
-              // Store original amount for future reference
-              prestationAmounts[p.id] = { id: p.id, montant: Number(p.montant) };
-              return sum + Number(p.montant);
-            }, 0);
-            
-            setValue("montant", montantTotal);
-            console.log("Montant total calculé:", montantTotal, "pour", data.length, "prestations");
+        .in("id", prestationIds);
+        
+      if (error) {
+        throw error;
+      }
+      
+      if (data) {
+        const amounts: Record<string, number> = {};
+        data.forEach(p => {
+          amounts[p.id] = Number(p.montant);
+        });
+        
+        setOriginalPrestationAmounts(amounts);
+        
+        // Initialize prestationAmounts with original amounts if not already set
+        const newPrestationAmounts = { ...prestationAmounts };
+        data.forEach(p => {
+          if (!newPrestationAmounts[p.id]) {
+            newPrestationAmounts[p.id] = Number(p.montant);
           }
         });
-    } else {
-      // Si aucune prestation n'est sélectionnée, on remet le montant à 0
+        setPrestationAmounts(newPrestationAmounts);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des données de prestation:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de charger les détails des prestations"
+      });
+    }
+  };
+  
+  const updateTotalAmount = (prestationIds: string[], customAmounts?: Record<string, number>) => {
+    if (prestationIds.length === 0) {
       setValue("montant", 0);
+      return;
+    }
+    
+    const amountsToUse = customAmounts || prestationAmounts;
+    
+    // If we have all the necessary prestation amounts
+    if (prestationIds.every(id => id in amountsToUse)) {
+      const total = prestationIds.reduce((sum, id) => sum + amountsToUse[id], 0);
+      setValue("montant", total);
+      console.log("Montant total calculé:", total, "pour", prestationIds.length, "prestations");
+    } else {
+      // Otherwise, fetch the missing data
+      loadPrestationData(prestationIds);
     }
   };
 
+  // When selectedPrestations changes, ensure we have all the needed amount data
+  useEffect(() => {
+    if (selectedPrestations.length > 0) {
+      const missingPrestations = selectedPrestations.filter(
+        id => !(id in originalPrestationAmounts)
+      );
+      
+      if (missingPrestations.length > 0) {
+        loadPrestationData(missingPrestations);
+      }
+    }
+  }, [selectedPrestations]);
+
   return {
     handleTypePaiementChange,
-    handlePrestationChange
+    handlePrestationChange,
+    handlePrestationAmountChange,
+    prestationAmounts,
+    originalPrestationAmounts
   };
 };
