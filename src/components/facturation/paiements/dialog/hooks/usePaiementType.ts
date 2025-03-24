@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useState, useEffect } from "react";
@@ -81,6 +80,7 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
   };
 
   const handlePrestationAmountChange = (id: string, amount: number) => {
+    console.log(`Changing amount for prestation ${id} to ${amount}`);
     const newAmounts = { ...prestationAmounts, [id]: amount };
     setPrestationAmounts(newAmounts);
     
@@ -109,6 +109,7 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
           amounts[p.id] = Number(p.montant);
         });
         
+        console.log("Original prestation amounts loaded:", amounts);
         setOriginalPrestationAmounts(amounts);
         
         // Initialize prestationAmounts with original amounts if not already set
@@ -141,13 +142,18 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
     
     const amountsToUse = customAmounts || prestationAmounts;
     
+    // Log for debugging
+    console.log("Updating total amount with prestations:", prestationIds);
+    console.log("Using amounts:", amountsToUse);
+    
     // If we have all the necessary prestation amounts
     if (prestationIds.every(id => id in amountsToUse)) {
       const total = prestationIds.reduce((sum, id) => sum + amountsToUse[id], 0);
+      console.log("Calculated total amount:", total);
       setValue("montant", total);
-      console.log("Montant total calculé:", total, "pour", prestationIds.length, "prestations");
     } else {
       // Otherwise, fetch the missing data
+      console.log("Missing prestation data, fetching...");
       loadPrestationData(prestationIds);
     }
   };

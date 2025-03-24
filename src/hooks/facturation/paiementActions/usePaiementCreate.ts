@@ -26,6 +26,8 @@ export const usePaiementCreate = () => {
         prestations_payees: prestationsPayeesFormatted
       };
 
+      console.log("Creating payment with elements_specifiques:", elements_specifiques);
+
       // Générer une référence au format PAY-XXX YYYY
       const currentYear = new Date().getFullYear();
       
@@ -48,7 +50,7 @@ export const usePaiementCreate = () => {
         reference_transaction: paiement.reference_transaction,
         notes: paiement.notes,
         solde_restant: paiement.solde_restant,
-        elements_specifiques: JSON.stringify(elements_specifiques) // Stringification explicite pour éviter les problèmes de type
+        elements_specifiques: JSON.stringify(elements_specifiques) // Ensure we stringify the object for proper storage
       };
 
       console.log("Sending payment data:", paiementData);

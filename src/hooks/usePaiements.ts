@@ -32,6 +32,8 @@ export const usePaiements = () => {
         throw error;
       }
 
+      console.log("Fetched paiements raw data:", data);
+
       // Format data to match Paiement type
       const formattedPaiements: Paiement[] = data.map(p => {
         // Parse elements_specifiques for type_paiement and prestations_payees
@@ -40,24 +42,33 @@ export const usePaiements = () => {
         
         if (p.elements_specifiques) {
           try {
+            // Ensure we properly parse if it's a string or handle if it's already an object
             const parsedElemSpec = typeof p.elements_specifiques === 'string' 
               ? JSON.parse(p.elements_specifiques) 
               : p.elements_specifiques;
               
+            // Get type_paiement with fallback to "total"
             typePaiement = parsedElemSpec.type_paiement || "total";
             
-            prestationsPayees = Array.isArray(parsedElemSpec.prestations_payees) 
-              ? parsedElemSpec.prestations_payees.map((pp: any) => ({
-                  id: pp.id,
-                  montant_modifie: pp.montant_modifie
-                }))
-              : [];
+            // Ensure prestations_payees is properly handled as an array with correct mapping
+            if (Array.isArray(parsedElemSpec.prestations_payees)) {
+              prestationsPayees = parsedElemSpec.prestations_payees.map((pp: any) => ({
+                id: pp.id,
+                montant_modifie: pp.montant_modifie !== undefined ? pp.montant_modifie : null
+              }));
+            }
+            
+            console.log("Processed elements_specifiques for payment", p.id, {
+              typePaiement,
+              prestationsPayees
+            });
           } catch (e) {
             console.error("Error parsing elements_specifiques:", e, p.elements_specifiques);
           }
         }
         
-        return {
+        // Create the paiement object with all correctly parsed data
+        const paiement = {
           id: p.id,
           facture: p.facture_id || "",
           client: p.clients ? (p.clients.nom || p.clients.raisonsociale) : "",
@@ -74,8 +85,11 @@ export const usePaiements = () => {
           type_paiement: typePaiement as "total" | "partiel",
           prestations_payees: prestationsPayees
         };
+        
+        return paiement;
       });
       
+      console.log("Formatted paiements with partial payment info:", formattedPaiements);
       setPaiements(formattedPaiements);
     } catch (error) {
       console.error("Erreur lors de la récupération des paiements:", error);
