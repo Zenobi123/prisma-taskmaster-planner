@@ -5,24 +5,77 @@ import { ClientFinancialSummary, ClientFinancialDetails, ClientInvoice, ClientPa
 export const getClientsFinancialSummary = async (): Promise<ClientFinancialSummary[]> => {
   try {
     console.log("Fetching clients financial summary...");
-    const { data, error } = await supabase.rpc('get_clients_with_financial_status');
     
-    if (error) {
-      console.error("Error fetching clients financial summary:", error);
-      throw new Error(`Failed to fetch clients financial data: ${error.message}`);
+    // Alternative approach - use direct queries instead of RPC function
+    // Get all clients
+    const { data: clients, error: clientsError } = await supabase
+      .from('clients')
+      .select('id, nom, raisonsociale')
+      .eq('statut', 'actif');
+      
+    if (clientsError) {
+      console.error("Error fetching clients:", clientsError);
+      throw new Error(`Failed to fetch clients: ${clientsError.message}`);
     }
     
-    // Map the data to match our type definition
-    const mappedData: ClientFinancialSummary[] = (data || []).map((item: any) => ({
-      id: item.id,
-      nom: item.nom,
-      facturesMontant: item.facturesmontant,
-      paiementsMontant: item.paiementsmontant,
-      solde: item.solde,
-      status: item.status
-    }));
+    if (!clients || clients.length === 0) {
+      return [];
+    }
     
-    return mappedData;
+    // Get all invoices
+    const { data: factures, error: facturesError } = await supabase
+      .from('factures')
+      .select('client_id, montant, montant_paye');
+      
+    if (facturesError) {
+      console.error("Error fetching factures:", facturesError);
+      throw new Error(`Failed to fetch invoices: ${facturesError.message}`);
+    }
+    
+    // Get all payments
+    const { data: paiements, error: paiementsError } = await supabase
+      .from('paiements')
+      .select('client_id, montant');
+      
+    if (paiementsError) {
+      console.error("Error fetching paiements:", paiementsError);
+      throw new Error(`Failed to fetch payments: ${paiementsError.message}`);
+    }
+    
+    // Calculate financial data for each client
+    const summaryData: ClientFinancialSummary[] = clients.map(client => {
+      // Calculate total invoice amount for this client
+      const clientFactures = factures?.filter(f => f.client_id === client.id) || [];
+      const facturesMontant = clientFactures.reduce((sum, facture) => sum + Number(facture.montant), 0);
+      
+      // Calculate total payment amount for this client
+      const clientPaiements = paiements?.filter(p => p.client_id === client.id) || [];
+      const paiementsMontant = clientPaiements.reduce((sum, paiement) => sum + Number(paiement.montant), 0);
+      
+      // Calculate balance
+      const solde = paiementsMontant - facturesMontant;
+      
+      // Determine status
+      let status: 'àjour' | 'partiel' | 'retard' = 'àjour';
+      if (facturesMontant > 0) {
+        if (paiementsMontant === 0) {
+          status = 'retard';
+        } else if (paiementsMontant < facturesMontant) {
+          status = 'partiel';
+        }
+      }
+      
+      return {
+        id: client.id,
+        nom: client.nom || client.raisonsociale || 'Client sans nom',
+        facturesMontant,
+        paiementsMontant,
+        solde,
+        status
+      };
+    });
+    
+    return summaryData;
   } catch (error) {
     console.error("Error in getClientsFinancialSummary:", error);
     throw error;
@@ -32,35 +85,60 @@ export const getClientsFinancialSummary = async (): Promise<ClientFinancialSumma
 export const getClientFinancialDetails = async (clientId: string): Promise<ClientFinancialDetails> => {
   try {
     console.log("Fetching client financial details for:", clientId);
-    const { data, error } = await supabase.rpc('get_client_financial_details', {
-      client_id: clientId
-    });
     
-    if (error) {
-      console.error("Error fetching client financial details:", error);
-      throw new Error(`Failed to fetch client financial details: ${error.message}`);
-    }
-    
-    // Convert JSON data to our expected types
-    if (!data || !data[0]) {
-      return { factures: [], paiements: [], solde_disponible: 0 };
-    }
-    
-    const details = data[0];
-    
-    // Properly cast the JSON data to our types
-    const factures = Array.isArray(details.factures) 
-      ? details.factures.map((f: any) => f as ClientInvoice) 
-      : [];
+    // Get client's invoices
+    const { data: factures, error: facturesError } = await supabase
+      .from('factures')
+      .select('*')
+      .eq('client_id', clientId);
       
-    const paiements = Array.isArray(details.paiements) 
-      ? details.paiements.map((p: any) => p as ClientPayment) 
-      : [];
+    if (facturesError) {
+      console.error("Error fetching client invoices:", facturesError);
+      throw new Error(`Failed to fetch client invoices: ${facturesError.message}`);
+    }
+    
+    // Get client's payments
+    const { data: paiements, error: paiementsError } = await supabase
+      .from('paiements')
+      .select('*')
+      .eq('client_id', clientId);
+      
+    if (paiementsError) {
+      console.error("Error fetching client payments:", paiementsError);
+      throw new Error(`Failed to fetch client payments: ${paiementsError.message}`);
+    }
+    
+    // Map the data to our expected types
+    const mappedFactures: ClientInvoice[] = (factures || []).map(f => ({
+      id: f.id,
+      date: f.date,
+      montant: f.montant,
+      montant_paye: f.montant_paye || 0,
+      montant_restant: f.montant - (f.montant_paye || 0),
+      status: f.status,
+      status_paiement: f.status_paiement,
+      echeance: f.echeance
+    }));
+    
+    const mappedPaiements: ClientPayment[] = (paiements || []).map(p => ({
+      id: p.id,
+      date: p.date,
+      montant: p.montant,
+      mode: p.mode,
+      reference: p.reference || '',
+      facture_id: p.facture_id,
+      est_credit: p.est_credit || false
+    }));
+    
+    // Calculate available balance (total payments - total invoices)
+    const totalFactures = mappedFactures.reduce((sum, f) => sum + Number(f.montant), 0);
+    const totalPaiements = mappedPaiements.reduce((sum, p) => sum + Number(p.montant), 0);
+    const soldeDisponible = totalPaiements - totalFactures;
     
     return {
-      factures,
-      paiements,
-      solde_disponible: details.solde_disponible || 0
+      factures: mappedFactures,
+      paiements: mappedPaiements,
+      solde_disponible: soldeDisponible
     };
   } catch (error) {
     console.error("Error in getClientFinancialDetails:", error);
