@@ -30,6 +30,14 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
     }
   };
 
+  // Helper function to get color based on status name
+  const getStatusColor = (name: string): string => {
+    if (name === "À jour") return chartConfig.ajour.color;
+    if (name === "Partiellement payé") return chartConfig.partiel.color;
+    if (name === "En retard") return chartConfig.retard.color;
+    return "#84A98C"; // Default color
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -49,7 +57,7 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
               <Bar 
                 dataKey="total" 
                 fill="#84A98C"
-                // Determine color based on status
+                // Use a string value for fill, not a function
                 fillOpacity={0.8}
               />
             </BarChart>

@@ -47,9 +47,19 @@ export const getClientFinancialDetails = async (clientId: string): Promise<Clien
     }
     
     const details = data[0];
+    
+    // Properly cast the JSON data to our types
+    const factures = Array.isArray(details.factures) 
+      ? details.factures.map((f: any) => f as ClientInvoice) 
+      : [];
+      
+    const paiements = Array.isArray(details.paiements) 
+      ? details.paiements.map((p: any) => p as ClientPayment) 
+      : [];
+    
     return {
-      factures: Array.isArray(details.factures) ? details.factures as ClientInvoice[] : [],
-      paiements: Array.isArray(details.paiements) ? details.paiements as ClientPayment[] : [],
+      factures,
+      paiements,
       solde_disponible: details.solde_disponible || 0
     };
   } catch (error) {
