@@ -1,4 +1,3 @@
-
 export interface Prestation {
   id?: string;
   description: string;
@@ -33,7 +32,7 @@ export interface Facture {
   montant: number;
   montant_paye?: number;
   status: "brouillon" | "envoyée" | "annulée";
-  status_paiement: "non_payée" | "partiellement_payée" | "payée";
+  status_paiement: "non_payée" | "partiellement_payée" | "payée" | "en_retard";
   mode_paiement?: string;
   prestations: Prestation[];
   paiements?: Paiement[];

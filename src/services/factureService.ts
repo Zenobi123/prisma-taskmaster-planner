@@ -1,4 +1,3 @@
-
 import { Facture } from "@/types/facture";
 import { Client } from "@/types/client";
 import { getFacturesData } from "./factureDataService";
@@ -106,12 +105,32 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
   }
 };
 
-// Update an existing facture in the database
+// Add this utility function to check if a date is past due
+const isOverdue = (dueDate: string): boolean => {
+  const today = new Date();
+  const dueDateParts = dueDate.split('/');
+  const dueDateTime = new Date(
+    parseInt(dueDateParts[2]), // year
+    parseInt(dueDateParts[1]) - 1, // month (0-based)
+    parseInt(dueDateParts[0]) // day
+  );
+  return today > dueDateTime;
+};
+
+// Update this function to handle overdue status
 export const updateFactureInDatabase = async (facture: Facture): Promise<boolean> => {
   try {
     console.log("Updating facture:", facture.id);
     
-    // Format dates for PostgreSQL
+    // Check if invoice is overdue
+    const isPastDue = isOverdue(facture.echeance);
+    const shouldBeOverdue = isPastDue && 
+      facture.status === "envoyée" && 
+      (facture.status_paiement === "non_payée" || facture.status_paiement === "partiellement_payée");
+    
+    // Update status_paiement if overdue
+    const updatedStatusPaiement = shouldBeOverdue ? "en_retard" : facture.status_paiement;
+    
     const formatDateForDatabase = (dateStr: string): string => {
       // If the date is in DD/MM/YYYY format, convert it to YYYY-MM-DD
       if (dateStr && dateStr.includes('/')) {
@@ -133,7 +152,7 @@ export const updateFactureInDatabase = async (facture: Facture): Promise<boolean
         montant: facture.montant,
         montant_paye: facture.montant_paye || 0,
         status: facture.status,
-        status_paiement: facture.status_paiement,
+        status_paiement: updatedStatusPaiement,
         mode_paiement: facture.mode_paiement,
         notes: facture.notes,
         updated_at: new Date().toISOString()

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Facture } from "@/types/facture";
 import { formatDate } from "@/utils/formatUtils";
@@ -69,6 +68,28 @@ const mapClientToFactureClient = (client: any) => {
 
 // Build a complete facture object with all related data
 const buildCompleteFacture = (facture: any, client: any, prestationsData: any[], paiementsData: any[]): Facture => {
+  const isPastDue = (dueDate: string): boolean => {
+    if (!dueDate) return false;
+    const today = new Date();
+    const dueDateParts = dueDate.split('-');
+    const dueDateTime = new Date(
+      parseInt(dueDateParts[0]), // year
+      parseInt(dueDateParts[1]) - 1, // month (0-based)
+      parseInt(dueDateParts[2]) // day
+    );
+    return today > dueDateTime;
+  };
+
+  const status_paiement = (() => {
+    // Check if invoice is past due
+    if (facture.status === "envoyée" && 
+        (facture.status_paiement === "non_payée" || facture.status_paiement === "partiellement_payée") &&
+        isPastDue(facture.echeance)) {
+      return "en_retard";
+    }
+    return facture.status_paiement;
+  })();
+
   return {
     id: facture.id,
     client_id: facture.client_id,
@@ -77,9 +98,9 @@ const buildCompleteFacture = (facture: any, client: any, prestationsData: any[],
     echeance: formatDate(facture.echeance),
     montant: facture.montant,
     montant_paye: facture.montant_paye || 0,
-    status: facture.status as "brouillon" | "envoyée" | "annulée",
-    status_paiement: facture.status_paiement as "non_payée" | "partiellement_payée" | "payée",
-    mode_paiement: facture.mode_paiement as string || "espèces",
+    status: facture.status,
+    status_paiement,
+    mode_paiement: facture.mode_paiement,
     prestations: prestationsData || [],
     paiements: paiementsData || [],
     notes: facture.notes,
