@@ -73,7 +73,7 @@ export const usePaiements = () => {
         
         // If this payment is associated with a facture, recalculate the solde_restant
         if (p.factures && !p.est_credit) {
-          const factureMontant = parseFloat(p.factures.montant) || 0;
+          const factureMontant = parseFloat(p.factures.montant.toString()) || 0;
           
           // Get all payments for this invoice
           supabase
@@ -84,7 +84,7 @@ export const usePaiements = () => {
               if (!paiementsError && paiementsData) {
                 // Sum all payments for this invoice
                 const totalPaiements = paiementsData.reduce(
-                  (sum, payment) => sum + parseFloat(payment.montant), 
+                  (sum, payment) => sum + parseFloat(payment.montant.toString()), 
                   0
                 );
                 

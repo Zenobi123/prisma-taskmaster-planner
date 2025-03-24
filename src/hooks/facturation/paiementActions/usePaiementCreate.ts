@@ -50,8 +50,8 @@ export const usePaiementCreate = () => {
           
         if (!factureError && factureData) {
           // Calculate remaining balance after this payment
-          const factureMontant = parseFloat(factureData.montant);
-          const montantPayeAvant = parseFloat(factureData.montant_paye) || 0;
+          const factureMontant = parseFloat(factureData.montant.toString());
+          const montantPayeAvant = parseFloat(factureData.montant_paye?.toString() || '0');
           const montantPayeApres = montantPayeAvant + parseFloat(paiement.montant.toString());
           
           soldeRestant = Math.max(0, factureMontant - montantPayeApres);
