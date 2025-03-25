@@ -3,66 +3,29 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { FileText, Search } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { formatMontant } from "@/utils/formatUtils";
+import { useFactures } from "@/hooks/facturation/useFactures";
+import { useFactureViewActions } from "@/hooks/facturation/factureActions/useFactureViewActions";
 import DetailFacture from "./DetailFacture";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBillingStats } from "./context/BillingStatsContext";
-import { supabase } from "@/integrations/supabase/client";
 
 const AnalyseParFacture = () => {
-  const [factures, setFactures] = useState<any[]>([]);
+  const { factures } = useFactures();
+  const { handleVoirFacture } = useFactureViewActions();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedFacture, setSelectedFacture] = useState<string | null>(null);
-  const [filteredFactures, setFilteredFactures] = useState<any[]>([]);
+  const [filteredFactures, setFilteredFactures] = useState(factures);
   const [isLoading, setIsLoading] = useState(true);
   
-  // Utiliser le contexte
+  // Use the context
   const { filters } = useBillingStats();
   const { period, clientFilter, statusFilter } = filters;
 
-  // Récupérer les factures
   useEffect(() => {
-    const fetchFactures = async () => {
-      setIsLoading(true);
-      try {
-        let query = supabase
-          .from("factures")
-          .select(`
-            id, date, montant, montant_paye, status_paiement, client_id, status, echeance,
-            clients:client_id (nom, raisonsociale, type)
-          `)
-          .eq("status", "envoyée");
-        
-        const { data, error } = await query;
-        
-        if (error) throw error;
-        
-        // Formater les données pour l'affichage
-        const formattedData = data.map(facture => ({
-          ...facture,
-          client: {
-            id: facture.client_id,
-            nom: facture.clients?.type === 'physique' 
-              ? facture.clients.nom 
-              : facture.clients.raisonsociale
-          }
-        }));
-        
-        setFactures(formattedData);
-      } catch (error) {
-        console.error("Erreur lors de la récupération des factures:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchFactures();
-  }, []);
-
-  // Filtrer les factures
-  useEffect(() => {
-    // Appliquer le filtre de période
+    // Apply period filter
     const now = new Date();
     const startDate = new Date();
     
@@ -74,30 +37,33 @@ const AnalyseParFacture = () => {
       startDate.setFullYear(now.getFullYear() - 1);
     }
     
-    // Filtrer par date
-    let filtered = factures.filter(facture => {
-      // Convertir DD/MM/YYYY en objet Date
-      const dateParts = facture.date.split('-');
+    // First filter by status = "envoyée"
+    let filtered = factures.filter(facture => facture.status === "envoyée");
+    
+    // Then apply date filter
+    filtered = filtered.filter(facture => {
+      // Convert DD/MM/YYYY to Date object
+      const parts = facture.date.split('/');
       const factureDate = new Date(
-        parseInt(dateParts[0]), // année
-        parseInt(dateParts[1]) - 1, // mois (base 0)
-        parseInt(dateParts[2]) // jour
+        parseInt(parts[2]), // year
+        parseInt(parts[1]) - 1, // month (0-based)
+        parseInt(parts[0]) // day
       );
       
       return factureDate >= startDate && factureDate <= now;
     });
     
-    // Appliquer le filtre client
+    // Apply client filter
     if (clientFilter) {
       filtered = filtered.filter(facture => facture.client_id === clientFilter);
     }
     
-    // Appliquer le filtre de statut
+    // Apply status filter
     if (statusFilter) {
       filtered = filtered.filter(facture => facture.status_paiement === statusFilter);
     }
     
-    // Appliquer le filtre de recherche
+    // Apply search term
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
       filtered = filtered.filter(facture => 
@@ -107,6 +73,7 @@ const AnalyseParFacture = () => {
     }
     
     setFilteredFactures(filtered);
+    setIsLoading(false);
   }, [factures, period, clientFilter, statusFilter, searchTerm]);
 
   return (

@@ -21,7 +21,7 @@ export interface SummaryStats {
     nonPayées: number;
     enRetard: number;
   };
-  totalFacturesEmises: number;
+  totalFacturesEmises?: number;
 }
 
 export interface ChartDataItem {
@@ -35,7 +35,7 @@ export interface MonthlyChartItem {
   encaissé: number;
 }
 
-// Interfaces pour BillingStatsContext
+// New interfaces for BillingStatsContext
 export interface BillingStatsContextData {
   stats: SummaryStats;
   chartData: ChartDataItem[];
