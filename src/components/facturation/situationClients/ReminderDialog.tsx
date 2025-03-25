@@ -17,9 +17,10 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import { Mail, MessageSquare, Send } from "lucide-react";
+import { Mail, MessageSquare, Send, Copy } from "lucide-react";
 import { formatMontant, formatDate } from "@/utils/formatUtils";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/hooks/use-toast";
 
 interface ReminderDialogProps {
   isOpen: boolean;
@@ -84,9 +85,10 @@ const ReminderDialog = ({
           ? data.clients.nom 
           : data.clients.raisonsociale;
           
-        const contact = data.clients.contact || {};
-        const clientPhone = contact.telephone || 'N/A';
-        const clientEmail = contact.email || 'N/A';
+        const contact = data.clients.contact ? data.clients.contact : {};
+        // Safely access the contact properties
+        const clientPhone = typeof contact === 'object' && contact !== null ? contact.telephone || 'N/A' : 'N/A';
+        const clientEmail = typeof contact === 'object' && contact !== null ? contact.email || 'N/A' : 'N/A';
         
         // Calculate montant_restant
         const montantRestant = data.montant - (data.montant_paye || 0);
@@ -213,6 +215,29 @@ PRISMA GESTION`;
     both: getBothTemplate()
   };
 
+  // Copy to clipboard function
+  const copyToClipboard = () => {
+    const textToCopy = messageTemplates[selectedReminderMethod];
+    navigator.clipboard.writeText(textToCopy).then(
+      () => {
+        toast({
+          title: "Copié",
+          description: "Le message a été copié dans le presse-papiers",
+          duration: 3000,
+        });
+      },
+      (err) => {
+        console.error('Erreur lors de la copie :', err);
+        toast({
+          title: "Erreur",
+          description: "Impossible de copier le message",
+          variant: "destructive",
+          duration: 3000,
+        });
+      }
+    );
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -259,7 +284,18 @@ PRISMA GESTION`;
         
         {/* Message preview section with loading state */}
         <div className="mt-4">
-          <h4 className="text-sm font-medium mb-2">Aperçu du message</h4>
+          <div className="flex justify-between items-center mb-2">
+            <h4 className="text-sm font-medium">Aperçu du message</h4>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex gap-1 items-center" 
+              onClick={copyToClipboard}
+            >
+              <Copy className="h-3.5 w-3.5" />
+              <span>Copier</span>
+            </Button>
+          </div>
           <div className="bg-gray-50 border border-gray-200 rounded-md p-3 max-h-[250px] overflow-y-auto">
             {isLoading ? (
               <div className="flex justify-center items-center h-32">
