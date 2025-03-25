@@ -26,7 +26,8 @@ const defaultStats: SummaryStats = {
     partiellementPayées: 0,
     nonPayées: 0,
     enRetard: 0
-  }
+  },
+  totalFacturesEmises: 0  // Added the missing property
 };
 
 export interface BillingStatsProviderProps {
