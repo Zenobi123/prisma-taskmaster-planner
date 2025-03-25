@@ -1,19 +1,17 @@
 
 import { Wallet } from "lucide-react";
 import { formatMontant } from "@/utils/formatUtils";
-import { ClientFinancialDetails } from "@/types/clientFinancial";
 import { 
   DialogHeader, 
   DialogTitle, 
   DialogDescription 
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useClientDetails } from "./ClientDetailsContext";
 
-interface ClientDetailsHeaderProps {
-  clientDetails: ClientFinancialDetails | null;
-}
+const ClientDetailsHeader = () => {
+  const { clientDetails } = useClientDetails();
 
-const ClientDetailsHeader = ({ clientDetails }: ClientDetailsHeaderProps) => {
   return (
     <DialogHeader>
       <DialogTitle>Détails financiers du client</DialogTitle>

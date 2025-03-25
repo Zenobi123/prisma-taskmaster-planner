@@ -1,6 +1,5 @@
 
 import { FileText, CreditCard } from "lucide-react";
-import { ClientFinancialDetails } from "@/types/clientFinancial";
 import { 
   Tabs, 
   TabsContent, 
@@ -9,18 +8,11 @@ import {
 } from "@/components/ui/tabs";
 import InvoicesTable from "./InvoicesTable";
 import PaymentsTable from "./PaymentsTable";
+import { useClientDetails } from "./ClientDetailsContext";
 
-interface ClientDetailsTabsProps {
-  clientDetails: ClientFinancialDetails | null;
-  onOpenApplyCreditDialog: (invoiceId: string) => void;
-  onOpenReminderDialog: (invoiceId: string) => void;
-}
-
-const ClientDetailsTabs = ({ 
-  clientDetails, 
-  onOpenApplyCreditDialog, 
-  onOpenReminderDialog 
-}: ClientDetailsTabsProps) => {
+const ClientDetailsTabs = () => {
+  const { clientDetails, onOpenApplyCreditDialog, onOpenReminderDialog } = useClientDetails();
+  
   const availableCredits = clientDetails?.paiements.filter(p => p.est_credit && !p.facture_id) || [];
 
   return (

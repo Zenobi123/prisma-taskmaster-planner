@@ -49,7 +49,7 @@ export const useClientFinancial = () => {
     setIsReminderDialogOpen(true);
   };
 
-  const handleApplyCredit = async (creditId: string) => {
+  const handleApplyCredit = async (creditId: string): Promise<void> => {
     if (!selectedInvoiceId || !clientDetails) return;
     
     const creditPayment = clientDetails.paiements.find(p => p.id === creditId);
@@ -60,7 +60,7 @@ export const useClientFinancial = () => {
     setSelectedInvoiceId(null);
   };
 
-  const handleCreatePaymentReminder = async (method: 'email' | 'sms' | 'both') => {
+  const handleCreatePaymentReminder = async (method: 'email' | 'sms' | 'both'): Promise<void> => {
     if (!selectedInvoiceId) return;
     
     await handleCreateReminder(selectedInvoiceId, method);

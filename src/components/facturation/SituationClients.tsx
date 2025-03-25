@@ -20,10 +20,12 @@ const SituationClients = () => {
     setSelectedClientId,
     isLoading, 
     chartData, 
-    fetchClientDetails,
-    handleApplyCreditToInvoice,
-    handleCreateReminder
+    fetchClientDetails
   } = useClientFinancial();
+
+  const { handleApplyCreditToInvoice, handleCreateReminder } = useClientFinancial().useClientFinancialActions
+    ? useClientFinancial().useClientFinancialActions()
+    : { handleApplyCreditToInvoice: async () => {}, handleCreateReminder: async () => {} };
 
   const handleViewDetails = async (clientId: string) => {
     setSelectedClientId(clientId);

@@ -16,7 +16,7 @@ interface SituationClientsDialogsProps {
   onReminderOpenChange: (open: boolean) => void;
   onOpenApplyCreditDialog: (invoiceId: string) => void;
   onOpenReminderDialog: (invoiceId: string) => void;
-  onApplyCredit: (creditId: string) => void;
+  onApplyCredit: (creditId: string) => Promise<void>;
   onSendReminder: (method: 'email' | 'sms' | 'both') => Promise<void>;
 }
 
