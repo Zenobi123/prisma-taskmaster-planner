@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useClientFinancial } from "@/hooks/facturation/useClientFinancial";
+import { useClientFinancialActions } from "@/hooks/facturation/clientFinancial/useClientFinancialActions";
 import ClientsList from "./situationClients/ClientsList";
 import ClientsChart from "./situationClients/ClientsChart";
 import ClientDetailsDialog from "./situationClients/ClientDetailsDialog";
@@ -23,9 +24,7 @@ const SituationClients = () => {
     fetchClientDetails
   } = useClientFinancial();
 
-  const { handleApplyCreditToInvoice, handleCreateReminder } = useClientFinancial().useClientFinancialActions
-    ? useClientFinancial().useClientFinancialActions()
-    : { handleApplyCreditToInvoice: async () => {}, handleCreateReminder: async () => {} };
+  const { handleApplyCreditToInvoice, handleCreateReminder } = useClientFinancialActions();
 
   const handleViewDetails = async (clientId: string) => {
     setSelectedClientId(clientId);
