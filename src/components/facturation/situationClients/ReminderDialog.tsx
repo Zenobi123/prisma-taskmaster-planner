@@ -18,6 +18,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { Mail, MessageSquare, Send } from "lucide-react";
+import { formatMontant, formatDate } from "@/utils/formatUtils";
 
 interface ReminderDialogProps {
   isOpen: boolean;
@@ -40,14 +41,29 @@ const ReminderDialog = ({
 
   // Message templates for each reminder method
   const messageTemplates = {
-    email: `Cher client,
+    email: `Objet : Information sur votre facture N°${selectedInvoiceId || "XXXX"}
 
-Nous souhaitons vous rappeler que la facture n°${selectedInvoiceId || "XXXX"} est actuellement en attente de paiement.
+Cher(e) [Nom du client], 
 
-Nous vous remercions de bien vouloir procéder au règlement dans les meilleurs délais.
+Nous espérons que vous allez bien.  
+
+Nous souhaitons vous informer que votre facture N°${selectedInvoiceId || "XXXX"} d'un montant de [Montant total] F CFA est toujours en attente de règlement.  
+
+🔹 Montant restant à payer : [Montant restant] F CFA  
+🔹 Date d'échéance : [Date]  
+
+Nous vous invitons à effectuer votre règlement à votre convenance via :  
+✔ Orange Money : [Numéro de paiement]  
+✔ MTN Mobile Money : [Numéro de paiement]    
+
+Si votre paiement a déjà été effectué, merci de ne pas tenir compte de ce message.  
+
+N'hésitez pas à nous contacter au [Numéro support] ou à répondre à cet email si vous avez la moindre question.  
+
+Nous restons à votre disposition et vous remercions pour votre confiance.  
 
 Cordialement,
-L'équipe comptable`,
+PRISMA GESTION`,
 
     sms: `Rappel: Votre facture n°${selectedInvoiceId || "XXXX"} est en attente de paiement. Merci de régulariser votre situation dans les meilleurs délais.`,
 
@@ -101,7 +117,7 @@ L'équipe comptable`,
         {/* Message preview section */}
         <div className="mt-4">
           <h4 className="text-sm font-medium mb-2">Aperçu du message</h4>
-          <div className="bg-gray-50 border border-gray-200 rounded-md p-3 max-h-[150px] overflow-y-auto">
+          <div className="bg-gray-50 border border-gray-200 rounded-md p-3 max-h-[200px] overflow-y-auto">
             <pre className="text-xs text-gray-700 whitespace-pre-wrap">
               {messageTemplates[selectedReminderMethod]}
             </pre>
