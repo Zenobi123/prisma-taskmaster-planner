@@ -1,4 +1,3 @@
-
 import Sidebar from "@/components/dashboard/Sidebar";
 import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
 import QuickStats from "@/components/dashboard/QuickStats";
@@ -30,11 +29,11 @@ const Index = () => {
   const [isUnfiledDsfDialogOpen, setIsUnfiledDsfDialogOpen] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   
-  // États pour gérer la visibilité de chaque section
-  const [isTasksOpen, setIsTasksOpen] = useState(true);
-  const [isAttestationsOpen, setIsAttestationsOpen] = useState(true);
-  const [isPatenteOpen, setIsPatenteOpen] = useState(true);
-  const [isDsfOpen, setIsDsfOpen] = useState(true);
+  // États pour gérer la visibilité de chaque section - initialisés à false pour qu'elles soient fermées par défaut
+  const [isTasksOpen, setIsTasksOpen] = useState(false);
+  const [isAttestationsOpen, setIsAttestationsOpen] = useState(false);
+  const [isPatenteOpen, setIsPatenteOpen] = useState(false);
+  const [isDsfOpen, setIsDsfOpen] = useState(false);
 
   // Configuration de l'intervalle de rafraîchissement (toutes les 10 secondes)
   useEffect(() => {
