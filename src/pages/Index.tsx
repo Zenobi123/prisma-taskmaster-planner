@@ -15,6 +15,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { useState, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/use-toast";
+import { 
+  Collapsible, 
+  CollapsibleContent, 
+  CollapsibleTrigger 
+} from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 const Index = () => {
   const queryClient = useQueryClient();
@@ -22,6 +29,12 @@ const Index = () => {
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
   const [isUnfiledDsfDialogOpen, setIsUnfiledDsfDialogOpen] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  
+  // États pour gérer la visibilité de chaque section
+  const [isTasksOpen, setIsTasksOpen] = useState(true);
+  const [isAttestationsOpen, setIsAttestationsOpen] = useState(true);
+  const [isPatenteOpen, setIsPatenteOpen] = useState(true);
+  const [isDsfOpen, setIsDsfOpen] = useState(true);
 
   // Configuration de l'intervalle de rafraîchissement (toutes les 10 secondes)
   useEffect(() => {
@@ -85,35 +98,108 @@ const Index = () => {
         <div className="p-8 space-y-8">
           <QuickStats />
           
-          <RecentTasks />
+          {/* Section Tâches Récentes */}
+          <Collapsible open={isTasksOpen} onOpenChange={setIsTasksOpen} className="border rounded-lg overflow-hidden bg-white shadow-sm">
+            <div className="flex justify-between items-center p-4 border-b bg-white">
+              <h2 className="text-xl font-semibold text-neutral-800">
+                Tâches récentes
+              </h2>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  {isTasksOpen ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent>
+              <div className="p-2">
+                <RecentTasks />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
           
           {/* Section Attestations Fiscales */}
-          <ExpiringFiscalAttestations 
-            attestations={attestations} 
-            isLoading={isLoading} 
-          />
+          <Collapsible open={isAttestationsOpen} onOpenChange={setIsAttestationsOpen} className="border rounded-lg overflow-hidden bg-white shadow-sm">
+            <div className="flex justify-between items-center p-4 border-b bg-white">
+              <h2 className="text-xl font-semibold text-neutral-800">
+                Attestations de Conformité Fiscale
+              </h2>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  {isAttestationsOpen ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent>
+              <div className="p-2">
+                <ExpiringFiscalAttestations 
+                  attestations={attestations} 
+                  isLoading={isLoading} 
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Section Patente */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-neutral-800">Gestion des Patentes</h2>
-            
-            {/* Résumé des patentes impayées */}
-            <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
-            
-            {/* Liste des clients avec patente impayée */}
-            <UnpaidPatenteList />
-          </div>
+          <Collapsible open={isPatenteOpen} onOpenChange={setIsPatenteOpen} className="border rounded-lg overflow-hidden bg-white shadow-sm">
+            <div className="flex justify-between items-center p-4 border-b bg-white">
+              <h2 className="text-xl font-semibold text-neutral-800">
+                Gestion des Patentes
+              </h2>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  {isPatenteOpen ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent>
+              <div className="p-4 space-y-6">
+                {/* Résumé des patentes impayées */}
+                <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
+                
+                {/* Liste des clients avec patente impayée */}
+                <UnpaidPatenteList />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
           
-          {/* Section DSF - Nouvelle section ajoutée */}
-          <div className="space-y-6">
-            <h2 className="text-xl font-semibold text-neutral-800">Déclarations Statistiques et Fiscales</h2>
-            
-            {/* Résumé des DSF non déposées */}
-            <UnfiledDsfSummary onViewAllClick={() => setIsUnfiledDsfDialogOpen(true)} />
-            
-            {/* Liste des clients avec DSF non déposée */}
-            <UnfiledDsfList />
-          </div>
+          {/* Section DSF */}
+          <Collapsible open={isDsfOpen} onOpenChange={setIsDsfOpen} className="border rounded-lg overflow-hidden bg-white shadow-sm">
+            <div className="flex justify-between items-center p-4 border-b bg-white">
+              <h2 className="text-xl font-semibold text-neutral-800">
+                Déclarations Statistiques et Fiscales
+              </h2>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  {isDsfOpen ? (
+                    <ChevronUp className="h-5 w-5" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent>
+              <div className="p-4 space-y-6">
+                {/* Résumé des DSF non déposées */}
+                <UnfiledDsfSummary onViewAllClick={() => setIsUnfiledDsfDialogOpen(true)} />
+                
+                {/* Liste des clients avec DSF non déposée */}
+                <UnfiledDsfList />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
       </main>
       

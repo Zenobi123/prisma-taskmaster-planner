@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { getTasks } from "@/services/taskService";
 import { AlertTriangle, Clock, Flame } from "lucide-react";
@@ -71,15 +70,10 @@ const RecentTasks = () => {
 
   if (isLoading) {
     return (
-      <div className="card mt-8">
-        <h2 className="text-xl font-semibold text-neutral-800 mb-6">
-          Tâches récentes
-        </h2>
-        <div className="animate-pulse">
-          <div className="h-12 bg-neutral-100 rounded-md mb-2"></div>
-          <div className="h-12 bg-neutral-100 rounded-md mb-2"></div>
-          <div className="h-12 bg-neutral-100 rounded-md"></div>
-        </div>
+      <div className="animate-pulse">
+        <div className="h-12 bg-neutral-100 rounded-md mb-2"></div>
+        <div className="h-12 bg-neutral-100 rounded-md mb-2"></div>
+        <div className="h-12 bg-neutral-100 rounded-md"></div>
       </div>
     );
   }
@@ -87,89 +81,84 @@ const RecentTasks = () => {
   console.log("Recent tasks data (excluding completed):", activeTasks);
 
   return (
-    <div className="card mt-8">
-      <h2 className="text-xl font-semibold text-neutral-800 mb-6">
-        Tâches récentes
-      </h2>
-      <div className="table-container">
-        <table className="table">
-          <thead>
+    <div className="table-container">
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Tâche</th>
+            <th>Client</th>
+            <th>Assigné à</th>
+            <th>Statut</th>
+            <th>Échéance</th>
+          </tr>
+        </thead>
+        <tbody>
+          {activeTasks.length > 0 ? (
+            activeTasks.map((task: any) => {
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              
+              const taskEndDate = task.end_date ? new Date(task.end_date) : null;
+              if (taskEndDate) taskEndDate.setHours(0, 0, 0, 0);
+              
+              const isOverdue =
+                taskEndDate &&
+                taskEndDate < today &&
+                task.status !== "termine";
+
+              // Déterminer si la tâche est planifiée
+              const taskStartDate = task.start_date ? new Date(task.start_date) : null;
+              let isPlanned = false;
+              if (taskStartDate) {
+                taskStartDate.setHours(0, 0, 0, 0);
+                isPlanned = taskStartDate > today && task.status === "en_attente";
+              }
+
+              return (
+                <tr 
+                  key={task.id} 
+                  className={isOverdue 
+                    ? "bg-[#fff1f2] border-l-4 border-[#ea384c] text-[#ea384c] hover:bg-[#ffe6e8] transition-colors" 
+                    : isPlanned
+                      ? "bg-purple-50 border-l-4 border-purple-500 hover:bg-purple-100 transition-colors"
+                      : "hover:bg-neutral-50 transition-colors"
+                  }
+                >
+                  <td className="font-medium">{task.title}</td>
+                  <td>
+                    {task.clients && task.clients.type === "physique"
+                      ? task.clients.nom
+                      : task.clients?.raisonsociale || "Client inconnu"}
+                  </td>
+                  <td>
+                    {task.collaborateurs ? `${task.collaborateurs.prenom} ${task.collaborateurs.nom}` : "Non assigné"}
+                  </td>
+                  <td>{getStatusBadge(task.status, task.start_date, task.end_date)}</td>
+                  <td className="flex items-center gap-1">
+                    {task.end_date ? (
+                      <>
+                        <Clock 
+                          size={14} 
+                          className={isOverdue ? "text-[#ea384c] animate-pulse-slow" : ""} 
+                        />
+                        {new Date(task.end_date).toLocaleDateString()}
+                      </>
+                    ) : (
+                      "Non définie"
+                    )}
+                  </td>
+                </tr>
+              );
+            })
+          ) : (
             <tr>
-              <th>Tâche</th>
-              <th>Client</th>
-              <th>Assigné à</th>
-              <th>Statut</th>
-              <th>Échéance</th>
+              <td colSpan={5} className="text-center py-4 text-gray-500">
+                Aucune tâche active n'a été trouvée.
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {activeTasks.length > 0 ? (
-              activeTasks.map((task: any) => {
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-                
-                const taskEndDate = task.end_date ? new Date(task.end_date) : null;
-                if (taskEndDate) taskEndDate.setHours(0, 0, 0, 0);
-                
-                const isOverdue =
-                  taskEndDate &&
-                  taskEndDate < today &&
-                  task.status !== "termine";
-
-                // Déterminer si la tâche est planifiée
-                const taskStartDate = task.start_date ? new Date(task.start_date) : null;
-                let isPlanned = false;
-                if (taskStartDate) {
-                  taskStartDate.setHours(0, 0, 0, 0);
-                  isPlanned = taskStartDate > today && task.status === "en_attente";
-                }
-
-                return (
-                  <tr 
-                    key={task.id} 
-                    className={isOverdue 
-                      ? "bg-[#fff1f2] border-l-4 border-[#ea384c] text-[#ea384c] hover:bg-[#ffe6e8] transition-colors" 
-                      : isPlanned
-                        ? "bg-purple-50 border-l-4 border-purple-500 hover:bg-purple-100 transition-colors"
-                        : "hover:bg-neutral-50 transition-colors"
-                    }
-                  >
-                    <td className="font-medium">{task.title}</td>
-                    <td>
-                      {task.clients && task.clients.type === "physique"
-                        ? task.clients.nom
-                        : task.clients?.raisonsociale || "Client inconnu"}
-                    </td>
-                    <td>
-                      {task.collaborateurs ? `${task.collaborateurs.prenom} ${task.collaborateurs.nom}` : "Non assigné"}
-                    </td>
-                    <td>{getStatusBadge(task.status, task.start_date, task.end_date)}</td>
-                    <td className="flex items-center gap-1">
-                      {task.end_date ? (
-                        <>
-                          <Clock 
-                            size={14} 
-                            className={isOverdue ? "text-[#ea384c] animate-pulse-slow" : ""} 
-                          />
-                          {new Date(task.end_date).toLocaleDateString()}
-                        </>
-                      ) : (
-                        "Non définie"
-                      )}
-                    </td>
-                  </tr>
-                );
-              })
-            ) : (
-              <tr>
-                <td colSpan={5} className="text-center py-4 text-gray-500">
-                  Aucune tâche active n'a été trouvée.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 };
