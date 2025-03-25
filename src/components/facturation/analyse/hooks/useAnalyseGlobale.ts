@@ -3,7 +3,10 @@ import { useState, useEffect } from "react";
 import { SummaryStats, ChartDataItem, MonthlyChartItem, PeriodFilter } from "../types/AnalyseTypes";
 import { useInvoiceData } from "@/hooks/facturation/clientFinancial/summary/useInvoiceData";
 import { usePaymentData } from "@/hooks/facturation/clientFinancial/summary/usePaymentData";
-import { fetchFacturesForAnalysis, fetchPrestationsForAnalysis } from "../services/analyseDataService";
+import { 
+  fetchFacturesForAnalysis, 
+  fetchPrestationsForAnalysis 
+} from "../services/analyseDataService";
 import { filterFacturesByPeriod } from "../utils/factureFilterUtils";
 import { calculatePrestationTotals } from "../utils/prestationUtils";
 import { prepareStatusChartData, prepareMonthlyChartData } from "../utils/chartDataUtils";
@@ -13,7 +16,7 @@ export const useAnalyseGlobale = (
   clientFilter: string | null,
   statusFilter: string | null
 ) => {
-  const { invoices, sentInvoicesCount, totalInvoiceAmount } = useInvoiceData();
+  const { sentInvoicesCount, totalInvoiceAmount } = useInvoiceData();
   const { payments } = usePaymentData();
   const [stats, setStats] = useState<SummaryStats>({
     totalFactures: 0,
@@ -39,13 +42,13 @@ export const useAnalyseGlobale = (
     const fetchAnalysisData = async () => {
       setIsLoading(true);
       try {
-        // Fetch data from Supabase
+        // Récupérer les données depuis Supabase
         const [facturesData, prestationsData] = await Promise.all([
           fetchFacturesForAnalysis(),
           fetchPrestationsForAnalysis()
         ]);
         
-        // Filter factures by period, client, and status
+        // Filtrer les factures selon la période, le client et le statut
         const filteredFactures = filterFacturesByPeriod(
           facturesData,
           period,
@@ -53,19 +56,19 @@ export const useAnalyseGlobale = (
           statusFilter
         );
         
-        // Create a map for faster lookup
+        // Créer une map pour une recherche plus rapide
         const facturesMap = new Map(filteredFactures.map(f => [f.id, f]));
         
-        // Filter prestations that belong to filtered factures
+        // Filtrer les prestations qui appartiennent aux factures filtrées
         const filteredFactureIds = filteredFactures.map(f => f.id);
         const relevantPrestations = prestationsData.filter(p => 
           filteredFactureIds.includes(p.facture_id)
         );
         
-        // Calculate totals for prestations
+        // Calculer les totaux pour les prestations
         const prestationTotals = calculatePrestationTotals(relevantPrestations, facturesMap);
         
-        // Count factures by status
+        // Compter les factures par statut
         const facturesParStatut = {
           payées: filteredFactures.filter(f => f.status_paiement === 'payée').length,
           partiellementPayées: filteredFactures.filter(f => f.status_paiement === 'partiellement_payée').length,
@@ -73,7 +76,7 @@ export const useAnalyseGlobale = (
           enRetard: filteredFactures.filter(f => f.status_paiement === 'en_retard').length
         };
         
-        // Calculate total amounts - make sure these are accurate
+        // Calculer les montants totaux
         const totalFacturesInPeriod = filteredFactures.reduce(
           (sum, f) => sum + parseFloat(f.montant.toString()), 0
         );
@@ -82,19 +85,19 @@ export const useAnalyseGlobale = (
           (sum, f) => sum + parseFloat((f.montant_paye || 0).toString()), 0
         );
         
-        console.log("Analysis period total invoiced:", totalFacturesInPeriod);
-        console.log("Analysis period total paid:", totalPaiements);
+        console.log("Montant total facturé (période):", totalFacturesInPeriod);
+        console.log("Montant total payé (période):", totalPaiements);
         
-        // Calculate taux de recouvrement
+        // Calculer le taux de recouvrement
         const tauxRecouvrement = totalFacturesInPeriod > 0 
           ? (totalPaiements / totalFacturesInPeriod) * 100 
           : 0;
         
-        // Prepare chart data
+        // Préparer les données pour les graphiques
         const statusChartData = prepareStatusChartData(facturesParStatut);
         const monthlyChartData = prepareMonthlyChartData(filteredFactures);
         
-        // Update state
+        // Mettre à jour l'état
         setStats({
           totalFactures: totalFacturesInPeriod,
           totalPaiements,
@@ -110,14 +113,14 @@ export const useAnalyseGlobale = (
         setChartData(statusChartData);
         setMonthlyData(monthlyChartData);
       } catch (error) {
-        console.error("Error fetching analysis data:", error);
+        console.error("Erreur lors de la récupération des données d'analyse:", error);
       } finally {
         setIsLoading(false);
       }
     };
     
     fetchAnalysisData();
-  }, [period, clientFilter, statusFilter, invoices, payments, sentInvoicesCount]);
+  }, [period, clientFilter, statusFilter, sentInvoicesCount]);
 
   return {
     stats,
