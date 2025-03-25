@@ -78,7 +78,7 @@ const AnalyseParFacture = () => {
 
   return (
     <div className="flex flex-col space-y-4">
-      {/* Liste des factures */}
+      {/* Liste des factures - Increased height */}
       <Card className="border border-gray-200">
         <CardContent className="p-4">
           <div className="mb-4">
@@ -105,7 +105,7 @@ const AnalyseParFacture = () => {
               Aucune facture trouvée
             </div>
           ) : (
-            <div className="h-[calc(100vh-500px)] overflow-y-auto pr-2">
+            <div className="h-[calc(100vh-350px)] overflow-y-auto pr-2">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -145,13 +145,13 @@ const AnalyseParFacture = () => {
         </CardContent>
       </Card>
       
-      {/* Détail de la facture sélectionnée - maintenant affiché en dessous */}
+      {/* Détail de la facture sélectionnée - now takes less space */}
       <Card className="border border-gray-200">
         <CardContent className="p-4">
           {selectedFacture ? (
             <DetailFacture factureId={selectedFacture} />
           ) : (
-            <div className="flex flex-col items-center justify-center h-[calc(100vh-500px)] text-gray-500">
+            <div className="flex flex-col items-center justify-center h-[calc(100vh-650px)] text-gray-500">
               <FileText className="w-12 h-12 mb-4 opacity-30" />
               <p>Sélectionnez une facture pour voir son détail</p>
             </div>
