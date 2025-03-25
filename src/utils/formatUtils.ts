@@ -1,5 +1,8 @@
+
 export const formatMontant = (montant: number): string => {
-  return new Intl.NumberFormat('fr-FR').format(montant) + " XAF";
+  return new Intl.NumberFormat('fr-FR', {
+    maximumFractionDigits: 0
+  }).format(montant) + " XAF";
 };
 
 // Format a date string or Date object to a localized date string

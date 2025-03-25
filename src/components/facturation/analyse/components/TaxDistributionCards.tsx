@@ -21,7 +21,7 @@ export const TaxDistributionCards = ({ stats }: TaxDistributionCardsProps) => {
               <p className="text-2xl font-bold text-[#84A98C]">{formatMontant(stats.totalImpots)}</p>
               <p className="text-xs text-gray-500 mt-1">
                 {stats.totalFactures > 0 ? 
-                  `${((stats.totalImpots / stats.totalFactures) * 100).toFixed(1)}% du montant total facturé` : 
+                  `${Math.round((stats.totalImpots / stats.totalFactures) * 100)}% du montant total facturé` : 
                   'Aucune facture émise'}
               </p>
             </div>
@@ -31,7 +31,7 @@ export const TaxDistributionCards = ({ stats }: TaxDistributionCardsProps) => {
               <p className="text-2xl font-bold text-red-500">{formatMontant(stats.impotsPendant)}</p>
               <p className="text-xs text-gray-500 mt-1">
                 {stats.totalImpots > 0 ? 
-                  `${((stats.impotsPendant / stats.totalImpots) * 100).toFixed(1)}% des impôts à collecter` : 
+                  `${Math.round((stats.impotsPendant / stats.totalImpots) * 100)}% des impôts à collecter` : 
                   'Aucun impôt facturé'}
               </p>
             </div>
@@ -50,7 +50,7 @@ export const TaxDistributionCards = ({ stats }: TaxDistributionCardsProps) => {
               <p className="text-2xl font-bold text-[#2F3E46]">{formatMontant(stats.totalHonoraires)}</p>
               <p className="text-xs text-gray-500 mt-1">
                 {stats.totalFactures > 0 ? 
-                  `${((stats.totalHonoraires / stats.totalFactures) * 100).toFixed(1)}% du montant total facturé` : 
+                  `${Math.round((stats.totalHonoraires / stats.totalFactures) * 100)}% du montant total facturé` : 
                   'Aucune facture émise'}
               </p>
             </div>
@@ -60,7 +60,7 @@ export const TaxDistributionCards = ({ stats }: TaxDistributionCardsProps) => {
               <p className="text-2xl font-bold text-blue-500">{formatMontant(stats.honorairesPendant)}</p>
               <p className="text-xs text-gray-500 mt-1">
                 {stats.totalHonoraires > 0 ? 
-                  `${((stats.honorairesPendant / stats.totalHonoraires) * 100).toFixed(1)}% des honoraires à recevoir` : 
+                  `${Math.round((stats.honorairesPendant / stats.totalHonoraires) * 100)}% des honoraires à recevoir` : 
                   'Aucun honoraire facturé'}
               </p>
             </div>

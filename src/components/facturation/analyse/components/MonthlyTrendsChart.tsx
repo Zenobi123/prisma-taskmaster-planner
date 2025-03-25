@@ -34,7 +34,8 @@ export const MonthlyTrendsChart = ({ monthlyData }: MonthlyTrendsChartProps) => 
                 tickFormatter={(value) => 
                   new Intl.NumberFormat('fr-FR', { 
                     notation: 'compact',
-                    compactDisplay: 'short'
+                    compactDisplay: 'short',
+                    maximumFractionDigits: 0
                   }).format(Number(value))
                 } 
               />

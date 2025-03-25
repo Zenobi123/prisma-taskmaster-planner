@@ -67,12 +67,12 @@ export const RepartitionTabContent = ({
             <div className="text-center p-3 bg-gray-50 rounded-md">
               <p className="text-sm text-gray-500">Total impôts</p>
               <p className="text-xl font-bold text-[#84A98C]">{formatMontant(totalImpots)}</p>
-              <p className="text-xs text-gray-500">{((totalImpots / totalMontant) * 100).toFixed(0)}% du total</p>
+              <p className="text-xs text-gray-500">{Math.round((totalImpots / totalMontant) * 100)}% du total</p>
             </div>
             <div className="text-center p-3 bg-gray-50 rounded-md">
               <p className="text-sm text-gray-500">Total honoraires</p>
               <p className="text-xl font-bold text-[#2F3E46]">{formatMontant(totalHonoraires)}</p>
-              <p className="text-xs text-gray-500">{((totalHonoraires / totalMontant) * 100).toFixed(0)}% du total</p>
+              <p className="text-xs text-gray-500">{Math.round((totalHonoraires / totalMontant) * 100)}% du total</p>
             </div>
           </div>
         </CardContent>

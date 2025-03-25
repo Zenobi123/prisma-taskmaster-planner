@@ -39,7 +39,7 @@ export const StatsSummaryCards = ({ stats }: StatsSummaryCardsProps) => {
           <BarChart2 className="h-10 w-10 mr-4 text-orange-500" />
           <div>
             <p className="text-sm text-gray-500">Taux de recouvrement</p>
-            <p className="text-xl font-bold">{stats.tauxRecouvrement.toFixed(1)}%</p>
+            <p className="text-xl font-bold">{Math.round(stats.tauxRecouvrement)}%</p>
           </div>
         </CardContent>
       </Card>
