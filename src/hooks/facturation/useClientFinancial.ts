@@ -1,16 +1,24 @@
 
+import { useState } from "react";
 import { useClientFinancialSummary } from "./clientFinancial/useClientFinancialSummary";
 import { useClientFinancialDetails } from "./clientFinancial/useClientFinancialDetails";
 import { useClientFinancialActions } from "./clientFinancial/useClientFinancialActions";
 
 export const useClientFinancial = () => {
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+  const [isApplyCreditDialogOpen, setIsApplyCreditDialogOpen] = useState(false);
+  const [isReminderDialogOpen, setIsReminderDialogOpen] = useState(false);
+  
+  // Use the summary hook for client financial summary data
   const { 
     clientsSummary, 
-    isLoading: isSummaryLoading, 
+    isLoading, 
     chartData,
     fetchClientsFinancialData
   } = useClientFinancialSummary();
-
+  
+  // Use the details hook for specific client data
   const {
     clientDetails,
     selectedClientId,
@@ -18,41 +26,77 @@ export const useClientFinancial = () => {
     fetchClientDetails,
     isLoading: isDetailsLoading
   } = useClientFinancialDetails();
-
-  // Set up a refresh callback for actions
-  const refreshData = async () => {
-    if (selectedClientId) {
-      await fetchClientDetails(selectedClientId);
-    }
-    await fetchClientsFinancialData();
-  };
-
+  
+  // Use the actions hook for operations on client financial data
   const {
     handleApplyCreditToInvoice,
     handleCreateReminder
-  } = useClientFinancialActions(refreshData);
+  } = useClientFinancialActions();
 
-  // Combine loading states
-  const isLoading = isSummaryLoading || isDetailsLoading;
+  const handleViewDetails = async (clientId: string) => {
+    setSelectedClientId(clientId);
+    await fetchClientDetails(clientId);
+    setIsDetailsDialogOpen(true);
+  };
+
+  const handleOpenApplyCreditDialog = (invoiceId: string) => {
+    setSelectedInvoiceId(invoiceId);
+    setIsApplyCreditDialogOpen(true);
+  };
+
+  const handleOpenReminderDialog = (invoiceId: string) => {
+    setSelectedInvoiceId(invoiceId);
+    setIsReminderDialogOpen(true);
+  };
+
+  const handleApplyCredit = async (creditId: string) => {
+    if (!selectedInvoiceId || !clientDetails) return;
+    
+    const creditPayment = clientDetails.paiements.find(p => p.id === creditId);
+    if (!creditPayment) return;
+    
+    await handleApplyCreditToInvoice(selectedInvoiceId, creditId, creditPayment.montant);
+    setIsApplyCreditDialogOpen(false);
+    setSelectedInvoiceId(null);
+  };
+
+  const handleCreatePaymentReminder = async (method: 'email' | 'sms' | 'both') => {
+    if (!selectedInvoiceId) return;
+    
+    await handleCreateReminder(selectedInvoiceId, method);
+    setIsReminderDialogOpen(false);
+    setSelectedInvoiceId(null);
+  };
+
+  const availableCredits = clientDetails?.paiements.filter(p => p.est_credit && !p.facture_id) || [];
 
   return {
-    // Summary data
+    // State
     clientsSummary,
-    chartData,
-    
-    // Client details
     clientDetails,
     selectedClientId,
-    setSelectedClientId,
-    fetchClientDetails,
-    
-    // Loading state
+    selectedInvoiceId,
     isLoading,
+    isDetailsLoading,
+    chartData,
+    isDetailsDialogOpen,
+    isApplyCreditDialogOpen,
+    isReminderDialogOpen,
+    availableCredits,
     
-    // Actions
-    handleApplyCreditToInvoice,
-    handleCreateReminder
+    // Setters
+    setSelectedClientId,
+    setIsDetailsDialogOpen,
+    setIsApplyCreditDialogOpen,
+    setIsReminderDialogOpen,
+    
+    // Handlers
+    handleViewDetails,
+    handleOpenApplyCreditDialog,
+    handleOpenReminderDialog,
+    handleApplyCredit,
+    handleCreatePaymentReminder,
+    fetchClientDetails,
+    fetchClientsFinancialData
   };
 };
-
-export default useClientFinancial;
