@@ -65,7 +65,17 @@ Nous restons à votre disposition et vous remercions pour votre confiance.
 Cordialement,
 PRISMA GESTION`,
 
-    sms: `Rappel: Votre facture n°${selectedInvoiceId || "XXXX"} est en attente de paiement. Merci de régulariser votre situation dans les meilleurs délais.`,
+    sms: `Cher(e) [Nom du client], votre facture N°${selectedInvoiceId || "XXXX"} s'élève à [Montant total] FCFA.  
+✔ Solde réglé : [Montant payé] FCFA  
+✔ Solde restant : [Montant restant] FCFA  
+
+Vous pouvez payer via :  
+✔ Orange Money : [Numéro]  
+✔ MTN Mobile Money : [Numéro]  
+
+Besoin d'aide ? Contactez-nous au [Numéro support].  
+Merci pour votre confiance.  
+PRISMA GESTION`,
 
     both: `[Email & SMS] Rappel important concernant votre facture n°${selectedInvoiceId || "XXXX"} en attente de paiement. Merci de régulariser votre situation rapidement.`
   };
