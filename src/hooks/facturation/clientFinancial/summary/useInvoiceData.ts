@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { fetchSentInvoicesCount, fetchTotalInvoicedAmount } from "@/components/facturation/analyse/services/analyseDataService";
 
 export const useInvoiceData = () => {
   const { toast } = useToast();
@@ -17,7 +16,6 @@ export const useInvoiceData = () => {
       setIsLoading(true);
       setError(null);
       
-      // Récupérer uniquement les factures avec le statut "envoyée"
       const { data: invoicesData, error: invoicesError } = await supabase
         .from('factures')
         .select('*')
@@ -29,21 +27,17 @@ export const useInvoiceData = () => {
       
       const sentInvoices = invoicesData || [];
       setInvoices(sentInvoices);
+      setSentInvoicesCount(sentInvoices.length);
       
-      // Utiliser les fonctions dédiées pour récupérer le nombre et le montant total
-      const [count, totalAmount] = await Promise.all([
-        fetchSentInvoicesCount(),
-        fetchTotalInvoicedAmount()
-      ]);
+      // Calculate the total amount of sent invoices
+      const total = sentInvoices.reduce((sum, invoice) => sum + Number(invoice.montant), 0);
+      setTotalInvoiceAmount(total);
       
-      setSentInvoicesCount(count);
-      setTotalInvoiceAmount(totalAmount);
-      
-      console.log("Factures envoyées:", count);
-      console.log("Montant total des factures envoyées:", totalAmount);
+      console.log("Factures fetched:", sentInvoices.length);
+      console.log("Total amount of sent invoices:", total);
     } catch (err) {
-      console.error("Erreur lors de la récupération des factures:", err);
-      setError(err instanceof Error ? err : new Error('Impossible de récupérer les données des factures'));
+      console.error("Error fetching invoices:", err);
+      setError(err instanceof Error ? err : new Error('Failed to fetch invoices'));
       toast({
         title: "Erreur",
         description: "Impossible de récupérer les données des factures",

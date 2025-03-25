@@ -35,7 +35,7 @@ export interface MonthlyChartItem {
   encaissé: number;
 }
 
-// Interfaces pour BillingStatsContext
+// Context interfaces for BillingStatsContext
 export interface BillingStatsContextData {
   stats: SummaryStats;
   chartData: ChartDataItem[];
