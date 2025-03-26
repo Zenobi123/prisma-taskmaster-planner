@@ -21,7 +21,7 @@ interface PaymentReceiptDialogProps {
 }
 
 const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDialogProps) => {
-  const { handleVoirRecu, handleTelechargerFacture } = useFactureViewActions();
+  const { handleTelechargerRecu, handleVoirRecu } = useFactureViewActions();
   
   if (!paiement) return null;
   
@@ -40,33 +40,19 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
     }
   };
   
-  // Create a simulated invoice object to download the receipt
+  // Print the receipt
+  const handlePrintReceipt = () => {
+    window.print();
+  };
+  
+  // Handle download receipt
   const handleDownloadReceipt = () => {
-    // Créer une facture simulée pour le reçu
-    const factureSimulee = {
-      id: paiement.reference || "",
-      client_id: paiement.client_id,
-      client: {
-        id: paiement.client_id,
-        nom: paiement.client || "Client",
-        adresse: "Adresse du client",
-        telephone: "",
-        email: ""
-      },
-      date: paiement.date,
-      echeance: paiement.date,
-      montant: paiement.montant,
-      status: "envoyée", 
-      status_paiement: "payée",
-      prestations: [{
-        description: `Paiement par ${paiement.mode}`,
-        montant: paiement.montant,
-        quantite: 1
-      }],
-      notes: paiement.notes || `Reçu de paiement ${paiement.reference}`
-    };
-    
-    handleTelechargerFacture(factureSimulee as any);
+    handleTelechargerRecu(paiement);
+  };
+  
+  // Handle view receipt in a new tab
+  const handleViewReceipt = () => {
+    handleVoirRecu(paiement);
   };
   
   return (
@@ -157,10 +143,19 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => window.print()}
+              onClick={handlePrintReceipt}
               className="gap-2"
             >
               <Printer className="h-4 w-4" /> Imprimer
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleViewReceipt}
+              className="gap-2"
+            >
+              <Printer className="h-4 w-4" /> Aperçu
             </Button>
             <Button
               type="button"

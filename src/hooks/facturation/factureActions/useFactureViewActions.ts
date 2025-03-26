@@ -1,7 +1,7 @@
 
 import { Facture } from "@/types/facture";
 import { Paiement } from "@/types/paiement";
-import { generatePDF } from "@/utils/pdfUtils";
+import { generatePDF, generateReceiptPDF } from "@/utils/pdfUtils";
 import { useToast } from "@/components/ui/use-toast";
 
 export const useFactureViewActions = () => {
@@ -48,39 +48,14 @@ export const useFactureViewActions = () => {
   const handleVoirRecu = (paiement: Paiement) => {
     try {
       console.log("Aperçu du reçu de paiement:", paiement.id);
+      
+      // Utiliser directement la fonction generateReceiptPDF
+      generateReceiptPDF(paiement);
+      
       toast({
         title: "Reçu de paiement",
         description: `Visualisation du reçu pour le paiement ${paiement.reference}`,
       });
-      
-      // Création d'un objet facture simulée pour générer le reçu de paiement
-      const factureSimuleeData = {
-        id: paiement.reference || "",
-        client_id: paiement.client_id,
-        client: {
-          id: paiement.client_id,
-          nom: paiement.client || "Client",
-          adresse: "Adresse du client",
-          telephone: "",
-          email: ""
-        },
-        date: paiement.date,
-        echeance: paiement.date,
-        montant: paiement.montant,
-        status: "envoyée",
-        status_paiement: "payée",
-        prestations: [{
-          description: `Paiement par ${paiement.mode}`,
-          montant: paiement.montant,
-          quantite: 1
-        }],
-        notes: paiement.notes || `Reçu de paiement ${paiement.reference}`
-      };
-      
-      // Afficher le PDF immédiatement
-      setTimeout(() => {
-        generatePDF(factureSimuleeData);
-      }, 100);
     } catch (error) {
       console.error("Erreur lors de l'aperçu du reçu:", error);
       toast({
@@ -90,11 +65,33 @@ export const useFactureViewActions = () => {
       });
     }
   };
+
+  const handleTelechargerRecu = (paiement: Paiement) => {
+    try {
+      console.log("Téléchargement du reçu de paiement:", paiement.id);
+      
+      // Télécharger le reçu
+      generateReceiptPDF(paiement, true);
+      
+      toast({
+        title: "Reçu téléchargé",
+        description: `Le reçu pour le paiement ${paiement.reference} a été téléchargé.`,
+      });
+    } catch (error) {
+      console.error("Erreur lors du téléchargement du reçu:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de télécharger le reçu de paiement."
+      });
+    }
+  };
   
   return {
     handleVoirFacture,
     handleTelechargerFacture,
-    handleVoirRecu
+    handleVoirRecu,
+    handleTelechargerRecu
   };
 };
 
