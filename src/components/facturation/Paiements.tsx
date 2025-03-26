@@ -1,55 +1,73 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wallet, Plus } from "lucide-react";
-import { usePaiements } from "@/hooks/usePaiements";
-import PaiementSearchBar from "./paiements/PaiementSearchBar";
-import PaiementTable from "./paiements/PaiementTable";
-import PaiementDialog from "./paiements/PaiementDialog";
-import useFactureViewActions from "@/hooks/facturation/factureActions/useFactureViewActions";
+import { Input } from "@/components/ui/input";
+import { Plus, Search, RefreshCw } from "lucide-react";
+import usePaiements from "@/hooks/usePaiements";
+import PaiementDialog from "./paiements/dialog/PaiementDialog";
+import PaiementsList from "./paiements/PaiementsList";
 
 const Paiements = () => {
   const { 
     searchTerm, 
-    setSearchTerm, 
-    filteredPaiements, 
-    loading, 
-    addPaiement, 
+    setSearchTerm,
+    filteredPaiements,
+    loading,
+    addPaiement,
     deletePaiement,
-    dialogOpen, 
-    setDialogOpen 
+    dialogOpen,
+    setDialogOpen,
+    refreshPaiements
   } = usePaiements();
-  
-  const { handleVoirRecu } = useFactureViewActions();
-  
+
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl flex items-center gap-2">
-          <Wallet className="h-5 w-5" /> 
-          Gestion des paiements
-        </CardTitle>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+          <Input
+            type="search"
+            placeholder="Rechercher un paiement..."
+            className="pl-8"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <div className="flex items-center gap-2">
-          <PaiementSearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-          <Button onClick={() => setDialogOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" /> Nouveau paiement
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={refreshPaiements}
+            className="h-9 w-9"
+          >
+            <RefreshCw className="h-4 w-4" />
+            <span className="sr-only">Actualiser</span>
+          </Button>
+          <Button onClick={() => setDialogOpen(true)} className="gap-1">
+            <Plus size={16} />
+            Nouveau paiement
           </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        <PaiementTable 
+      </div>
+
+      {loading ? (
+        <div className="py-20 text-center">
+          <div className="animate-spin w-6 h-6 border-2 border-primary border-opacity-50 border-t-primary mx-auto mb-4 rounded-full"></div>
+          <p className="text-muted-foreground">Chargement des paiements...</p>
+        </div>
+      ) : (
+        <PaiementsList 
           paiements={filteredPaiements} 
-          loading={loading} 
           onDelete={deletePaiement}
-          onViewReceipt={handleVoirRecu}
         />
-        <PaiementDialog 
-          open={dialogOpen} 
-          onOpenChange={setDialogOpen} 
-          onSubmit={addPaiement} 
-        />
-      </CardContent>
-    </Card>
+      )}
+
+      <PaiementDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSubmit={addPaiement}
+      />
+    </div>
   );
 };
 

@@ -13,12 +13,15 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import ModePaiementBadge from "../../paiements/ModePaiementBadge";
+import { Button } from "@/components/ui/button";
+import { Eye, FileText } from "lucide-react";
 
 interface PaymentsTableProps {
   payments: ClientPayment[];
+  onViewReceipt?: (payment: ClientPayment) => void;
 }
 
-const PaymentsTable = ({ payments }: PaymentsTableProps) => {
+const PaymentsTable = ({ payments, onViewReceipt }: PaymentsTableProps) => {
   // Helper function to format dates
   const formatDate = (dateString: string) => {
     try {
@@ -44,6 +47,7 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
           <TableHead>Mode</TableHead>
           <TableHead>Facture</TableHead>
           <TableHead>Type</TableHead>
+          <TableHead className="text-right">Actions</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -66,11 +70,23 @@ const PaymentsTable = ({ payments }: PaymentsTableProps) => {
                   <Badge variant="outline">Standard</Badge>
                 )}
               </TableCell>
+              <TableCell className="text-right">
+                {onViewReceipt && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0"
+                    onClick={() => onViewReceipt(paiement)}
+                  >
+                    <FileText className="h-4 w-4" />
+                  </Button>
+                )}
+              </TableCell>
             </TableRow>
           ))
         ) : (
           <TableRow>
-            <TableCell colSpan={6} className="text-center py-6 text-gray-500">
+            <TableCell colSpan={7} className="text-center py-6 text-gray-500">
               Aucun paiement trouvé pour ce client
             </TableCell>
           </TableRow>

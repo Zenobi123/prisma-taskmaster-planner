@@ -10,18 +10,16 @@ import { fr } from "date-fns/locale";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import useFactureViewActions from "@/hooks/facturation/factureActions/useFactureViewActions";
 
 interface PaiementTableRowProps {
   paiement: Paiement;
   onDelete?: (id: string) => Promise<boolean>;
-  onViewReceipt?: (paiement: Paiement) => void;
+  onViewReceipt: (paiement: Paiement) => void;
 }
 
 const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRowProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { handleVoirRecu } = useFactureViewActions();
 
   const handleDelete = async () => {
     if (!onDelete) return;
@@ -67,13 +65,7 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
     e.stopPropagation();
     
     console.log("View receipt clicked for payment:", paiement.id);
-    
-    if (onViewReceipt) {
-      onViewReceipt(paiement);
-    } else {
-      // Use the fallback view receipt handler
-      handleVoirRecu(paiement);
-    }
+    onViewReceipt(paiement);
   };
 
   return (
