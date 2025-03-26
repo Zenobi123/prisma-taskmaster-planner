@@ -10,7 +10,12 @@ export const useFactureViewActions = () => {
   const handleVoirFacture = (facture: Facture) => {
     try {
       console.log("Aperçu de la facture:", facture.id);
-      generatePDF(facture);
+      // Convertir status à un type acceptable si nécessaire
+      const factureAjustee = {
+        ...facture,
+        status: facture.status as any
+      };
+      generatePDF(factureAjustee);
     } catch (error) {
       console.error("Erreur lors de l'aperçu de la facture:", error);
       toast({
@@ -24,7 +29,12 @@ export const useFactureViewActions = () => {
   const handleTelechargerFacture = (facture: Facture) => {
     try {
       console.log("Téléchargement de la facture:", facture.id);
-      generatePDF(facture, true);
+      // Convertir status à un type acceptable si nécessaire
+      const factureAjustee = {
+        ...facture,
+        status: facture.status as any
+      };
+      generatePDF(factureAjustee, true);
     } catch (error) {
       console.error("Erreur lors du téléchargement de la facture:", error);
       toast({
@@ -44,7 +54,7 @@ export const useFactureViewActions = () => {
       });
       
       // Création d'un objet facture simulée pour générer le reçu de paiement
-      const factureSimuleeData: Facture = {
+      const factureSimuleeData = {
         id: paiement.reference || "",
         client_id: paiement.client_id,
         client: {

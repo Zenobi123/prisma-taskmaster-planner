@@ -13,7 +13,6 @@ import { Paiement } from "@/types/paiement";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import useFactureViewActions from "@/hooks/facturation/factureActions/useFactureViewActions";
-import { Facture } from "@/types/facture";
 
 interface PaymentReceiptDialogProps {
   paiement: Paiement | null;
@@ -22,7 +21,7 @@ interface PaymentReceiptDialogProps {
 }
 
 const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDialogProps) => {
-  const { handleTelechargerFacture } = useFactureViewActions();
+  const { handleVoirRecu, handleTelechargerFacture } = useFactureViewActions();
   
   if (!paiement) return null;
   
@@ -44,7 +43,7 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   // Create a simulated invoice object to download the receipt
   const handleDownloadReceipt = () => {
     // Créer une facture simulée pour le reçu
-    const factureSimulee: Facture = {
+    const factureSimulee = {
       id: paiement.reference || "",
       client_id: paiement.client_id,
       client: {
@@ -67,7 +66,7 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
       notes: paiement.notes || `Reçu de paiement ${paiement.reference}`
     };
     
-    handleTelechargerFacture(factureSimulee);
+    handleTelechargerFacture(factureSimulee as any);
   };
   
   return (

@@ -1,7 +1,7 @@
 
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { jsPDF as jsPDFType } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface Prestation {
   description: string;
@@ -36,18 +36,10 @@ export interface Facture {
   notes?: string;
 }
 
-// Type augmentation for jsPDF with autoTable
-interface jsPDFWithAutoTable extends jsPDFType {
-  autoTable: (options: any) => void;
-  previousAutoTable: {
-    finalY: number;
-  };
-}
-
 // Function to generate the PDF document
 export const generatePDF = (facture: Facture, download?: boolean) => {
   try {
-    const doc = new jsPDF() as jsPDFWithAutoTable;
+    const doc = new jsPDF();
 
     // Set document properties
     doc.setProperties({
@@ -90,27 +82,28 @@ export const generatePDF = (facture: Facture, download?: boolean) => {
       tableRows.push(row);
     });
 
-    // Add table
-    doc.autoTable({
+    // Add table using the imported autoTable
+    autoTable(doc, {
       head: [tableColumn],
       body: tableRows,
       startY: 50,
     });
 
+    // Get the final Y position after table is drawn
+    const finalY = (doc as any).lastAutoTable.finalY || 50 + tableRows.length * 10;
+
     // Add notes if available
     if (facture.notes) {
       doc.setFontSize(10);
-      const tableHeight = doc.previousAutoTable.finalY;
-      doc.text(`Notes: ${facture.notes}`, 10, tableHeight + 10);
+      doc.text(`Notes: ${facture.notes}`, 10, finalY + 10);
     }
 
     // Add payment information if available
     if (facture.paiements && facture.paiements.length > 0) {
       doc.setFontSize(12);
-      const tableHeight = doc.previousAutoTable.finalY;
-      doc.text("Paiements:", 10, tableHeight + 20);
+      doc.text("Paiements:", 10, finalY + 20);
 
-      let paymentY = tableHeight + 26;
+      let paymentY = finalY + 26;
       facture.paiements.forEach(paiement => {
         doc.setFontSize(10);
         doc.text(`- Date: ${paiement.date}, Montant: ${paiement.montant} XAF, Mode: ${paiement.mode}`, 10, paymentY);
@@ -124,8 +117,7 @@ export const generatePDF = (facture: Facture, download?: boolean) => {
     } else {
       // If no payments, display the total amount due
       doc.setFontSize(12);
-      const tableHeight = doc.previousAutoTable.finalY;
-      doc.text(`Montant restant dû: ${facture.montant} XAF`, 140, tableHeight + 20);
+      doc.text(`Montant restant dû: ${facture.montant} XAF`, 140, finalY + 20);
     }
 
     // Set status text based on facture.status
@@ -141,11 +133,7 @@ export const generatePDF = (facture: Facture, download?: boolean) => {
     // Add status text to the PDF
     if (statusText) {
       doc.setFontSize(14);
-      // Get the Y position of the last content added to the document
-      const lastContentY = doc.previousAutoTable
-        ? doc.previousAutoTable.finalY + 30
-        : 50 + tableRows.length * 10 + 30; // Approximate position if no table
-
+      const lastContentY = finalY + 30;
       doc.text(statusText, 10, lastContentY);
     }
 
