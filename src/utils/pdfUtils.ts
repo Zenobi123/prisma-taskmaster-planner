@@ -1,6 +1,7 @@
 
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { jsPDF as jsPDFType } from 'jspdf';
 
 interface Prestation {
   description: string;
@@ -80,8 +81,8 @@ export const generatePDF = (facture: Facture, download?: boolean) => {
     tableRows.push(row);
   });
 
-  // Add table
-  (doc as any).autoTable({
+  // Add table - using the correct typecasting for jsPDF-autotable
+  (doc as unknown as jsPDFType & { autoTable: Function }).autoTable({
     head: [tableColumn],
     body: tableRows,
     startY: 50,
@@ -90,14 +91,14 @@ export const generatePDF = (facture: Facture, download?: boolean) => {
   // Add notes if available
   if (facture.notes) {
     doc.setFontSize(10);
-    const tableHeight = (doc as any).previousAutoTable.finalY;
+    const tableHeight = (doc as unknown as jsPDFType & { previousAutoTable: { finalY: number } }).previousAutoTable.finalY;
     doc.text(`Notes: ${facture.notes}`, 10, tableHeight + 10);
   }
 
   // Add payment information if available
   if (facture.paiements && facture.paiements.length > 0) {
     doc.setFontSize(12);
-    const tableHeight = (doc as any).previousAutoTable.finalY;
+    const tableHeight = (doc as unknown as jsPDFType & { previousAutoTable: { finalY: number } }).previousAutoTable.finalY;
     doc.text("Paiements:", 10, tableHeight + 20);
 
     let paymentY = tableHeight + 26;
@@ -114,7 +115,7 @@ export const generatePDF = (facture: Facture, download?: boolean) => {
   } else {
     // If no payments, display the total amount due
     doc.setFontSize(12);
-    const tableHeight = (doc as any).previousAutoTable.finalY;
+    const tableHeight = (doc as unknown as jsPDFType & { previousAutoTable: { finalY: number } }).previousAutoTable.finalY;
     doc.text(`Montant restant dû: ${facture.montant} XAF`, 140, tableHeight + 20);
   }
 
@@ -132,8 +133,8 @@ export const generatePDF = (facture: Facture, download?: boolean) => {
   if (statusText) {
     doc.setFontSize(14);
     // Get the Y position of the last content added to the document
-    const lastContentY = (doc as any).previousAutoTable
-      ? (doc as any).previousAutoTable.finalY + 30
+    const lastContentY = (doc as unknown as jsPDFType & { previousAutoTable: { finalY: number } }).previousAutoTable
+      ? (doc as unknown as jsPDFType & { previousAutoTable: { finalY: number } }).previousAutoTable.finalY + 30
       : 50 + tableRows.length * 10 + 30; // Approximate position if no table
 
     doc.text(statusText, 10, lastContentY);
