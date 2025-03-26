@@ -24,7 +24,7 @@ const ClientDetailsTabs = () => {
     setSelectedPayment({
       id: payment.id,
       facture: payment.facture_id || "",
-      client: clientDetails?.client.nom || "",
+      client: clientDetails?.id ? (clientDetails?.nom || "Client") : "Client",
       client_id: payment.client_id,
       date: payment.date,
       montant: payment.montant,

@@ -55,8 +55,8 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
       date: paiement.date,
       echeance: paiement.date,
       montant: paiement.montant,
-      status: "envoyée",
-      status_paiement: "payée",
+      status: "envoyée" as "envoyée" | "brouillon" | "annulée",
+      status_paiement: "payée" as "payée" | "non_payée" | "partiellement_payée" | "en_retard",
       prestations: [{
         description: `Paiement par ${paiement.mode}`,
         montant: paiement.montant,

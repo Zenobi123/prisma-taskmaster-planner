@@ -30,6 +30,8 @@ export interface ClientPayment {
 }
 
 export interface ClientFinancialDetails {
+  id?: string;
+  nom?: string;
   factures: ClientInvoice[];
   paiements: ClientPayment[];
   solde_disponible: number;

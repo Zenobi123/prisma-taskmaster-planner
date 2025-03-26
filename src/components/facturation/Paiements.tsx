@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, RefreshCw } from "lucide-react";
 import usePaiements from "@/hooks/usePaiements";
-import PaiementDialog from "./paiements/dialog/PaiementDialog";
+import PaiementDialog from "@/components/facturation/paiements/PaiementDialog";
 import PaiementsList from "./paiements/PaiementsList";
 
 const Paiements = () => {
