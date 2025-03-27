@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ClientSelectorProps {
   clients: Client[];
@@ -44,11 +43,11 @@ const ClientSelector = ({
             <SelectValue placeholder="Sélectionner un client" />
           )}
         </SelectTrigger>
-        <SelectContent className="max-h-[300px]">
+        <SelectContent>
           {error ? (
             <SelectItem value="error" disabled>Erreur lors du chargement des clients</SelectItem>
           ) : (
-            <ScrollArea className="h-[250px]">
+            <>
               {includeEmpty && (
                 <SelectItem value="all">Tous les clients</SelectItem>
               )}
@@ -61,7 +60,7 @@ const ClientSelector = ({
                   </SelectItem>
                 ))
               )}
-            </ScrollArea>
+            </>
           )}
         </SelectContent>
       </Select>
