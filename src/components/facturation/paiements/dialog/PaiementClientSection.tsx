@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { usePaiementClients } from "./hooks/usePaiementClients";
 import { User, Users, Loader2 } from "lucide-react";
 import { Client } from "@/types/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PaiementClientSectionProps {
   selectedClientId: string | null;
@@ -40,17 +41,19 @@ export const PaiementClientSection = ({
               <SelectValue placeholder="Sélectionner un client" />
             )}
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="max-h-[300px]">
             {error ? (
               <div className="p-2 text-sm text-red-500">Erreur lors du chargement des clients</div>
             ) : clients.length === 0 ? (
               <div className="p-2 text-sm text-gray-500">Aucun client disponible</div>
             ) : (
-              clients.map((client: Client) => (
-                <SelectItem key={client.id} value={client.id} className="text-sm">
-                  {client.type === "physique" ? client.nom : client.raisonsociale}
-                </SelectItem>
-              ))
+              <ScrollArea className="h-[250px]">
+                {clients.map((client: Client) => (
+                  <SelectItem key={client.id} value={client.id} className="text-sm">
+                    {client.type === "physique" ? client.nom : client.raisonsociale}
+                  </SelectItem>
+                ))}
+              </ScrollArea>
             )}
           </SelectContent>
         </Select>
