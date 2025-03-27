@@ -7,7 +7,7 @@ import {
   DialogFooter
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Printer, X } from "lucide-react";
+import { Download, Printer, X, Eye } from "lucide-react";
 import { formatMontant } from "@/utils/formatUtils";
 import { Paiement } from "@/types/paiement";
 import { format, parseISO } from "date-fns";
@@ -109,7 +109,7 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
           <div className="border-t border-b border-gray-200 py-4 mb-6">
             <div className="flex justify-between items-center">
               <span className="text-lg font-bold text-gray-800">Montant payé</span>
-              <span className="text-xl font-bold text-gray-800">
+              <span className="text-xl font-bold text-[#3C6255]">
                 {formatMontant(paiement.montant)}
               </span>
             </div>
@@ -155,14 +155,14 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
               onClick={handleViewReceipt}
               className="gap-2"
             >
-              <Printer className="h-4 w-4" /> Aperçu
+              <Eye className="h-4 w-4" /> Aperçu
             </Button>
             <Button
               type="button"
               variant="default"
               size="sm"
               onClick={handleDownloadReceipt}
-              className="gap-2"
+              className="gap-2 bg-[#3C6255] hover:bg-[#2B4B3E]"
             >
               <Download className="h-4 w-4" /> Télécharger
             </Button>

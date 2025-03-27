@@ -3,8 +3,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement, PrestationPayee } from "@/types/paiement";
-import { generatePDF } from "@/utils/pdfUtils";
-import { Facture } from "@/types/facture";
+import { generateReceiptPDF, formatClientForReceipt } from "@/utils/pdfUtils";
 
 export const usePaiementCreate = () => {
   const { toast } = useToast();
@@ -108,8 +107,21 @@ export const usePaiementCreate = () => {
         variant: "default"
       });
 
+      // Fetch client details for receipt generation
+      const { data: clientData } = await supabase
+        .from("clients")
+        .select("id, nom, raisonsociale, type, niu, adresse, contact")
+        .eq("id", paiement.client_id)
+        .single();
+
+      // Create a payment object with client details for the receipt
+      const paiementWithClient = {
+        ...data,
+        client: clientData || paiement.client
+      };
+
       // Générer le reçu PDF
-      generatePaiementReceipt(data as unknown as Paiement);
+      generateReceiptFromPaiement(paiementWithClient as unknown as Paiement);
 
       return data;
     } catch (error) {
@@ -125,40 +137,36 @@ export const usePaiementCreate = () => {
     }
   };
 
-  const generatePaiementReceipt = (paiement: Paiement) => {
-    // Création d'un objet facture simulée pour générer le reçu de paiement
-    const factureSimuleeData: Facture = {
-      id: paiement.reference || "",
-      client_id: paiement.client_id,
-      client: {
-        id: paiement.client_id,
-        nom: paiement.client || "Client",
-        adresse: "Adresse du client",
-        telephone: "",
-        email: ""
-      },
-      date: paiement.date,
-      echeance: paiement.date,
-      montant: paiement.montant,
-      status: "envoyée",
-      status_paiement: "payée",
-      prestations: [{
-        description: `Paiement par ${paiement.mode}`,
-        montant: paiement.montant,
-        quantite: 1
-      }],
-      notes: paiement.notes || `Reçu de paiement ${paiement.reference}`
-    };
-    
-    // Générer le PDF avec l'option de téléchargement automatique
-    setTimeout(() => {
-      generatePDF(factureSimuleeData, true);
-    }, 100);
+  const generateReceiptFromPaiement = (paiement: Paiement) => {
+    try {
+      console.log("Generating receipt for payment:", paiement);
+      
+      // Format the client information for the receipt
+      const formattedClient = formatClientForReceipt(paiement.client);
+      
+      // Create a payment object with properly formatted client
+      const paiementForReceipt = {
+        ...paiement,
+        client: formattedClient
+      };
+      
+      // Generate the PDF with automatic download option
+      setTimeout(() => {
+        generateReceiptPDF(paiementForReceipt, true);
+      }, 500);
+    } catch (error) {
+      console.error("Error generating receipt:", error);
+      toast({
+        variant: "destructive",
+        title: "Erreur",
+        description: "Impossible de générer le reçu de paiement."
+      });
+    }
   };
 
   return {
     addPaiement,
-    generatePaiementReceipt,
+    generateReceiptFromPaiement,
     isLoading
   };
 };

@@ -1,7 +1,7 @@
 
 import { Facture } from "@/types/facture";
 import { Paiement } from "@/types/paiement";
-import { generatePDF, generateReceiptPDF } from "@/utils/pdfUtils";
+import { generatePDF, generateReceiptPDF, formatClientForReceipt } from "@/utils/pdfUtils";
 import { useToast } from "@/components/ui/use-toast";
 
 export const useFactureViewActions = () => {
@@ -49,8 +49,14 @@ export const useFactureViewActions = () => {
     try {
       console.log("Aperçu du reçu de paiement:", paiement.id);
       
+      // Format client if needed
+      const paiementWithFormattedClient = {
+        ...paiement,
+        client: formatClientForReceipt(paiement.client)
+      };
+      
       // Utiliser directement la fonction generateReceiptPDF
-      generateReceiptPDF(paiement);
+      generateReceiptPDF(paiementWithFormattedClient);
       
       toast({
         title: "Reçu de paiement",
@@ -70,8 +76,14 @@ export const useFactureViewActions = () => {
     try {
       console.log("Téléchargement du reçu de paiement:", paiement.id);
       
+      // Format client if needed
+      const paiementWithFormattedClient = {
+        ...paiement,
+        client: formatClientForReceipt(paiement.client)
+      };
+      
       // Télécharger le reçu
-      generateReceiptPDF(paiement, true);
+      generateReceiptPDF(paiementWithFormattedClient, true);
       
       toast({
         title: "Reçu téléchargé",
