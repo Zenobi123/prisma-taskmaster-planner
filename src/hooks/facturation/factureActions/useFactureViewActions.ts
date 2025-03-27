@@ -3,6 +3,7 @@ import { Facture } from "@/types/facture";
 import { Paiement } from "@/types/paiement";
 import { generatePDF, generateReceiptPDF, formatClientForReceipt } from "@/utils/pdfUtils";
 import { useToast } from "@/components/ui/use-toast";
+import { PDFFacture } from "@/utils/pdf/types";
 
 export const useFactureViewActions = () => {
   const { toast } = useToast();
@@ -10,12 +11,23 @@ export const useFactureViewActions = () => {
   const handleVoirFacture = (facture: Facture) => {
     try {
       console.log("Aperçu de la facture:", facture.id);
-      // Convertir status à un type acceptable si nécessaire
-      const factureAjustee = {
-        ...facture,
-        status: facture.status as any
+      
+      // Convert facture to PDFFacture format
+      const pdfFacture: PDFFacture = {
+        id: facture.id,
+        client: facture.client,
+        date: facture.date,
+        echeance: facture.echeance,
+        montant: facture.montant,
+        montant_paye: facture.montant_paye,
+        status: facture.status,
+        status_paiement: facture.status_paiement,
+        prestations: facture.prestations,
+        paiements: facture.paiements,
+        notes: facture.notes
       };
-      generatePDF(factureAjustee);
+      
+      generatePDF(pdfFacture);
     } catch (error) {
       console.error("Erreur lors de l'aperçu de la facture:", error);
       toast({
@@ -29,12 +41,23 @@ export const useFactureViewActions = () => {
   const handleTelechargerFacture = (facture: Facture) => {
     try {
       console.log("Téléchargement de la facture:", facture.id);
-      // Convertir status à un type acceptable si nécessaire
-      const factureAjustee = {
-        ...facture,
-        status: facture.status as any
+      
+      // Convert facture to PDFFacture format
+      const pdfFacture: PDFFacture = {
+        id: facture.id,
+        client: facture.client,
+        date: facture.date,
+        echeance: facture.echeance,
+        montant: facture.montant,
+        montant_paye: facture.montant_paye,
+        status: facture.status,
+        status_paiement: facture.status_paiement,
+        prestations: facture.prestations,
+        paiements: facture.paiements,
+        notes: facture.notes
       };
-      generatePDF(factureAjustee, true);
+      
+      generatePDF(pdfFacture, true);
     } catch (error) {
       console.error("Erreur lors du téléchargement de la facture:", error);
       toast({
@@ -60,7 +83,7 @@ export const useFactureViewActions = () => {
       
       toast({
         title: "Reçu de paiement",
-        description: `Visualisation du reçu pour le paiement ${paiement.reference}`,
+        description: `Visualisation du reçu pour le paiement ${paiement.reference || paiement.id}`,
       });
     } catch (error) {
       console.error("Erreur lors de l'aperçu du reçu:", error);
@@ -87,7 +110,7 @@ export const useFactureViewActions = () => {
       
       toast({
         title: "Reçu téléchargé",
-        description: `Le reçu pour le paiement ${paiement.reference} a été téléchargé.`,
+        description: `Le reçu pour le paiement ${paiement.reference || paiement.id} a été téléchargé.`,
       });
     } catch (error) {
       console.error("Erreur lors du téléchargement du reçu:", error);

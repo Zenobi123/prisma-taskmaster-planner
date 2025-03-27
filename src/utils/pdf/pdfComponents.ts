@@ -2,7 +2,7 @@
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Client } from '@/types/facture';
+import { Client } from '@/types/client';
 
 // Function to format date from any string format to "dd/MM/yyyy"
 export const formatDateForDisplay = (dateString: string): string => {
@@ -71,27 +71,28 @@ export const addClientSection = (doc: jsPDF, client: Client) => {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(10);
   
-  // Company or person name based on client type
-  if (client.type === 'morale' && client.raisonsociale) {
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${client.raisonsociale}`, 20, 67);
-    doc.setFont('helvetica', 'normal');
-  } else {
-    doc.setFont('helvetica', 'bold');
-    doc.text(`${client.nom}`, 20, 67);
-    doc.setFont('helvetica', 'normal');
+  // Display client name - using company name or personal name as appropriate
+  doc.setFont('helvetica', 'bold');
+  doc.text(`${client.nom}`, 20, 67);
+  doc.setFont('helvetica', 'normal');
+  
+  // Additional client fields if available from the Client type
+  const additionalInfo: string[] = [];
+  
+  // Add any client-specific fields that may be available (handling safely)
+  if ('niu' in client && client.niu) {
+    additionalInfo.push(`NIU: ${client.niu}`);
   }
   
-  // NIU if available
-  if (client.niu) {
-    doc.text(`NIU: ${client.niu}`, 20, 74);
-  }
-  
-  // Address and contact info
   if (client.adresse) {
     doc.text(`${client.adresse}`, 20, 80);
   }
   
+  if (additionalInfo.length > 0) {
+    doc.text(additionalInfo.join(' | '), 20, 74);
+  }
+  
+  // Contact info
   if (client.telephone || client.email) {
     let contactInfo = '';
     if (client.telephone) contactInfo += `Tél: ${client.telephone}`;

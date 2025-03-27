@@ -180,12 +180,13 @@ export const generateReceiptPDF = (paiement: any, download?: boolean) => {
 export const formatClientForReceipt = (client: any): Client => {
   // If the client is already in the correct format, return it
   if (typeof client === 'object' && client.nom) {
-    return client;
+    return client as Client;
   }
   
   // If the client is just a string (name/ID), create a minimal client object
   if (typeof client === 'string') {
     return {
+      id: '',
       nom: client,
       adresse: '',
       telephone: '',
@@ -195,6 +196,7 @@ export const formatClientForReceipt = (client: any): Client => {
   
   // Default empty client
   return {
+    id: '',
     nom: 'Client',
     adresse: '',
     telephone: '',

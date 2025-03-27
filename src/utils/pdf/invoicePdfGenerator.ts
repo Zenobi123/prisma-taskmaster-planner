@@ -5,10 +5,11 @@ import autoTable from 'jspdf-autotable';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Facture } from '@/types/facture';
+import { PDFFacture } from './types';
 import { formatDateForDisplay, addCompanyLogo, addInvoiceInfoBox, addClientSection } from './pdfComponents';
 
 // Function to generate the PDF document for invoices
-export const generateInvoicePDF = (facture: Facture, download?: boolean) => {
+export const generateInvoicePDF = (facture: PDFFacture, download?: boolean) => {
   try {
     // Create new PDF document
     const doc = new jsPDF();
@@ -46,13 +47,16 @@ export const generateInvoicePDF = (facture: Facture, download?: boolean) => {
     let statusText = "";
     let statusColor = [0, 0, 0]; // Default: black
     
-    if (facture.status === 'payée' || facture.status === 'payee') {
+    // Determine status based on status_paiement if available, otherwise fall back to legacy behavior
+    const paymentStatus = facture.status_paiement || facture.status;
+    
+    if (paymentStatus === 'payée' || paymentStatus === 'payee') {
       statusText = "PAYÉE";
       statusColor = [0, 128, 0]; // Green
-    } else if (facture.status === 'partiellement_payée' || facture.status === 'partiellement_payee') {
+    } else if (paymentStatus === 'partiellement_payée' || paymentStatus === 'partiellement_payee') {
       statusText = "PARTIELLEMENT PAYÉE";
       statusColor = [255, 140, 0]; // Orange
-    } else if (facture.status === 'en_retard') {
+    } else if (paymentStatus === 'en_retard') {
       statusText = "EN RETARD";
       statusColor = [220, 20, 60]; // Crimson
     } else {

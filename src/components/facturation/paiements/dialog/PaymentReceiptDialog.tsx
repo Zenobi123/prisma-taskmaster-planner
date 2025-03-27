@@ -55,6 +55,9 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
     handleVoirRecu(paiement);
   };
   
+  // Safe reference display
+  const reference = paiement.reference || paiement.id;
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px]">
@@ -66,14 +69,14 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
           <div className="text-center mb-6">
             <h2 className="text-xl font-bold text-gray-800">REÇU DE PAIEMENT</h2>
             <p className="text-gray-500">
-              <span className="font-semibold">N° {paiement.reference}</span>
+              <span className="font-semibold">N° {reference}</span>
             </p>
           </div>
           
           <div className="flex justify-between mb-6">
             <div>
               <h3 className="font-semibold text-gray-800">Client</h3>
-              <p className="text-gray-600">{paiement.client}</p>
+              <p className="text-gray-600">{typeof paiement.client === 'object' ? paiement.client.nom : paiement.client}</p>
             </div>
             <div className="text-right">
               <h3 className="font-semibold text-gray-800">Date</h3>

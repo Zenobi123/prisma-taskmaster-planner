@@ -22,7 +22,8 @@ export interface PDFFacture {
   echeance: string;
   montant: number;
   montant_paye?: number;
-  status: string;
+  status: "brouillon" | "envoyée" | "annulée" | string;
+  status_paiement?: "non_payée" | "partiellement_payée" | "payée" | "en_retard" | string;
   prestations: Prestation[];
   paiements?: Paiement[];
   notes?: string;
