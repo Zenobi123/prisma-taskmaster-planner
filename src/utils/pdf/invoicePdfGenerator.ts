@@ -37,7 +37,7 @@ export const generateInvoicePDF = (facture: PDFFacture, download?: boolean) => {
     // Add notes if available
     addNotesSection(doc, facture, paymentsSectionY);
     
-    // Add footer with watermark
+    // Add footer with watermark - passing only the doc parameter
     addInvoiceFooter(doc);
     
     if (download) {

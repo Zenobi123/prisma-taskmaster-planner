@@ -28,13 +28,20 @@ export const addInvoiceFooter = (doc: jsPDF) => {
     // Add watermark diagonal text in very light color
     doc.saveGraphicsState();
     
-    // Fix TypeScript errors by using the proper method to access the internal methods
-    const docWithTransform = doc as any;
-    docWithTransform.translate(pageHeight/2, 100);
-    docWithTransform.rotate(-45);
-    
+    // Use different approach for watermark since rotate/translate methods 
+    // may not be available in the current jsPDF version
     doc.setTextColor(235, 235, 235);
-    doc.text('PRISMA GESTION', 0, 0, { align: 'center' });
+    
+    // Calculate center of page
+    const pageWidth = doc.internal.pageSize.width;
+    doc.setFontSize(30);
+    
+    // Instead of rotating, just place the watermark text
+    doc.text('PRISMA GESTION', pageWidth/2, pageHeight/2, { 
+      align: 'center',
+      angle: 45
+    });
+    
     doc.restoreGraphicsState();
   }
 };
