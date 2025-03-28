@@ -16,7 +16,7 @@ const PaiementTable = ({
   paiements, 
   loading = false, 
   onDelete, 
-  onViewReceipt 
+  onViewReceipt = () => {} 
 }: PaiementTableProps) => {
   if (loading) {
     return (

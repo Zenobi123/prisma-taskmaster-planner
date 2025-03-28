@@ -1,9 +1,10 @@
 
 import { Facture } from "@/types/facture";
 import { Paiement } from "@/types/paiement";
-import { generatePDF, generateReceiptPDF, formatClientForReceipt } from "@/utils/pdfUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { PDFFacture, SimplifiedClient } from "@/utils/pdf/types";
+import { generateInvoicePDF } from "@/utils/pdf/invoicePdfGenerator";
+import { generateReceiptPDF, formatClientForReceipt } from "@/utils/pdf/receiptPdfGenerator";
 
 export const useFactureViewActions = () => {
   const { toast } = useToast();
@@ -28,7 +29,7 @@ export const useFactureViewActions = () => {
         notes: facture.notes
       };
       
-      generatePDF(pdfFacture);
+      generateInvoicePDF(pdfFacture);
     } catch (error) {
       console.error("Erreur lors de l'aperçu de la facture:", error);
       toast({
@@ -59,7 +60,7 @@ export const useFactureViewActions = () => {
         notes: facture.notes
       };
       
-      generatePDF(pdfFacture, true);
+      generateInvoicePDF(pdfFacture, true);
     } catch (error) {
       console.error("Erreur lors du téléchargement de la facture:", error);
       toast({

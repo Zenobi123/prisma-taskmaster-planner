@@ -28,9 +28,10 @@ export const addInvoiceFooter = (doc: jsPDF) => {
     // Add watermark diagonal text in very light color
     doc.saveGraphicsState();
     
-    // Fix TypeScript errors with correct type casting
-    (doc as any).translate(pageHeight/2, 100);
-    (doc as any).rotate(-45);
+    // Fix TypeScript errors by using the proper method to access the internal methods
+    const docWithTransform = doc as any;
+    docWithTransform.translate(pageHeight/2, 100);
+    docWithTransform.rotate(-45);
     
     doc.setTextColor(235, 235, 235);
     doc.text('PRISMA GESTION', 0, 0, { align: 'center' });
