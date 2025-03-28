@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Paiement } from "@/types/paiement";
 import { usePaiementCreate } from "./usePaiementCreate";
@@ -6,7 +7,7 @@ import { usePaiementDelete } from "./usePaiementDelete";
 
 export const usePaiementActions = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { addPaiement, generatePaiementReceipt } = usePaiementCreate();
+  const { addPaiement, generateReceiptFromPaiement } = usePaiementCreate();
   const { updatePaiement } = usePaiementUpdate();
   const { deletePaiement } = usePaiementDelete();
 
@@ -20,7 +21,7 @@ export const usePaiementActions = () => {
     addPaiement,
     updatePaiement,
     deletePaiement,
-    generatePaiementReceipt,
+    generateReceiptFromPaiement,
     isLoading
   };
 };

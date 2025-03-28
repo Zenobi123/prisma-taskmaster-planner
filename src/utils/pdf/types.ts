@@ -31,3 +31,12 @@ export interface PDFFacture {
   paiements?: Paiement[];
   notes?: string;
 }
+
+// Simplified client interface for PDF generation
+export interface SimplifiedClient {
+  id: string;
+  nom: string;
+  adresse: string;
+  telephone: string;
+  email: string;
+}

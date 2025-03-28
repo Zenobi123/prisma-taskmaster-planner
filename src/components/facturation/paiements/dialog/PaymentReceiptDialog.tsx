@@ -1,4 +1,3 @@
-
 import { 
   Dialog, 
   DialogContent, 
@@ -61,8 +60,8 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   // Safely extract client name
   const clientName = paiement.client 
     ? typeof paiement.client === 'object' 
-      ? paiement.client.nom 
-      : paiement.client
+      ? paiement.client.nom || "Client" 
+      : String(paiement.client)
     : "Client inconnu";
   
   return (
