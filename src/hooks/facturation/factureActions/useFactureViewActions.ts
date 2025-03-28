@@ -4,7 +4,6 @@ import { Paiement } from "@/types/paiement";
 import { generatePDF, generateReceiptPDF, formatClientForReceipt } from "@/utils/pdfUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { PDFFacture, SimplifiedClient } from "@/utils/pdf/types";
-import { Client } from "@/types/client";
 
 export const useFactureViewActions = () => {
   const { toast } = useToast();
@@ -16,7 +15,8 @@ export const useFactureViewActions = () => {
       // Convert facture to PDFFacture format with proper client handling
       const pdfFacture: PDFFacture = {
         id: facture.id,
-        client: facture.client as Client,
+        // Cast to unknown first to avoid type error
+        client: facture.client as unknown as import('@/types/client').Client,
         date: facture.date,
         echeance: facture.echeance,
         montant: facture.montant,
@@ -46,7 +46,8 @@ export const useFactureViewActions = () => {
       // Convert facture to PDFFacture format with proper client handling
       const pdfFacture: PDFFacture = {
         id: facture.id,
-        client: facture.client as Client,
+        // Cast to unknown first to avoid type error
+        client: facture.client as unknown as import('@/types/client').Client,
         date: facture.date,
         echeance: facture.echeance,
         montant: facture.montant,

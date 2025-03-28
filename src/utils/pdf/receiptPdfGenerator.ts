@@ -2,13 +2,12 @@
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Paiement } from '@/types/paiement';
-import { Client } from '@/types/client';
+import { SimplifiedClient } from './types';
 import { addReceiptHeader } from './components/receiptHeader';
 import { addReceiptPaymentDetails } from './components/receiptPaymentDetails';
 import { addReceiptAmountSection } from './components/receiptAmountSection';
 import { addReceiptNotes } from './components/receiptNotes';
 import { addReceiptFooter } from './components/receiptFooter';
-import { SimplifiedClient } from './types';
 
 // Function to generate a payment receipt PDF
 export const generateReceiptPDF = (paiement: any, download?: boolean) => {

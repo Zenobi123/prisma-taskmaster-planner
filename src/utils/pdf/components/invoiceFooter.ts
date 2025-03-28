@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 // Add footer and watermark to all pages
-export const addInvoiceFooter = (doc: jsPDF, invoiceId: string) => {
+export const addInvoiceFooter = (doc: jsPDF) => {
   const pageCount = doc.getNumberOfPages();
   doc.setFontSize(8);
   doc.setTextColor(150, 150, 150);
@@ -18,7 +18,7 @@ export const addInvoiceFooter = (doc: jsPDF, invoiceId: string) => {
     doc.text('PRISMA GESTION - Gestion comptable et fiscale', 15, pageHeight - 15);
     
     // Right side footer with page numbers
-    doc.text(`Facture ${invoiceId} - Page ${i}/${pageCount}`, 170, pageHeight - 15);
+    doc.text(`Facture - Page ${i}/${pageCount}`, 170, pageHeight - 15);
     
     // Add date generated
     const today = new Date();
@@ -27,9 +27,11 @@ export const addInvoiceFooter = (doc: jsPDF, invoiceId: string) => {
     
     // Add watermark diagonal text in very light color
     doc.saveGraphicsState();
-    // Use rotate method with string coordinates
-    doc.translate(pageHeight/2, 100);
-    doc.rotate(-45);
+    
+    // Fix TypeScript errors with correct type casting
+    (doc as any).translate(pageHeight/2, 100);
+    (doc as any).rotate(-45);
+    
     doc.setTextColor(235, 235, 235);
     doc.text('PRISMA GESTION', 0, 0, { align: 'center' });
     doc.restoreGraphicsState();

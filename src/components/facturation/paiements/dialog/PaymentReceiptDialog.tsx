@@ -1,3 +1,4 @@
+
 import { 
   Dialog, 
   DialogContent, 
@@ -57,10 +58,10 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   // Safe reference display
   const reference = paiement.reference || paiement.id;
   
-  // Safely extract client name
+  // Safely extract client name with null checking
   const clientName = paiement.client 
     ? typeof paiement.client === 'object' 
-      ? paiement.client.nom || "Client" 
+      ? (paiement.client as any).nom || "Client" 
       : String(paiement.client)
     : "Client inconnu";
   

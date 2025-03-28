@@ -1,87 +1,118 @@
 
 import jsPDF from 'jspdf';
-import { formatDateForDisplay } from '../pdfComponents';
-import { PDFFacture, Paiement } from '../types';
+import { PDFFacture } from '../types';
+import { format, parseISO } from 'date-fns';
+import { fr } from 'date-fns/locale';
 
-// Add payments section if available
+// Function to add the payments section to the invoice
 export const addPaymentsSection = (doc: jsPDF, facture: PDFFacture, startY: number): number => {
-  // If no payments or empty payments array, return the same Y position
   if (!facture.paiements || facture.paiements.length === 0) {
-    return startY;
+    return startY; // No change in vertical position
   }
   
-  // Add a little space after the previous section
-  const sectionStartY = startY + 10;
-  
-  // Section title
+  // Add section header
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
   doc.setTextColor(60, 60, 60);
-  doc.text("Paiements reçus:", 15, sectionStartY);
   
-  // Draw a light background for the payments section
-  doc.setFillColor(250, 250, 250);
-  doc.roundedRect(15, sectionStartY + 5, 180, 10 + (facture.paiements.length * 8), 3, 3, 'F');
+  // Calculate remaining space on page
+  const currentY = startY + 10;
+  const pageHeight = doc.internal.pageSize.height;
+  const remainingSpace = pageHeight - currentY - 40; // 40px for footer
   
-  // Table headers
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.setTextColor(80, 80, 80);
-  
-  const headers = ['Date', 'Mode', 'Référence', 'Montant (XAF)'];
-  const colWidths = [40, 45, 45, 50];
-  let xPos = 20;
-  
-  // Add headers
-  for (let i = 0; i < headers.length; i++) {
-    doc.text(headers[i], xPos, sectionStartY + 12);
-    xPos += colWidths[i];
+  // If not enough space for payments section, create a new page
+  if (remainingSpace < 60) {
+    doc.addPage();
+    return addPaymentsSection(doc, facture, 20); // Start at top of new page
   }
   
-  // Add payments data
+  doc.text("Historique des paiements", 15, currentY);
+  
+  // Add payments table header
+  const tableTop = currentY + 10;
+  const leftMargin = 15;
+  const colWidths = [50, 45, 45, 45]; // Date, Mode, Référence, Montant
+  
+  // Create table header
+  doc.setFillColor(245, 245, 245);
+  doc.rect(leftMargin, tableTop, colWidths.reduce((a, b) => a + b, 0), 10, 'F');
+  
+  doc.setFontSize(10);
+  doc.setTextColor(80, 80, 80);
+  doc.text("Date", leftMargin + 5, tableTop + 7);
+  doc.text("Mode", leftMargin + colWidths[0] + 5, tableTop + 7);
+  doc.text("Référence", leftMargin + colWidths[0] + colWidths[1] + 5, tableTop + 7);
+  doc.text("Montant", leftMargin + colWidths[0] + colWidths[1] + colWidths[2] + 5, tableTop + 7);
+  
+  // Draw table rows for each payment
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(60, 60, 60);
+  let rowY = tableTop + 10;
   
-  let yPos = sectionStartY + 20;
-  
-  facture.paiements.forEach((paiement: Paiement) => {
-    xPos = 20;
+  facture.paiements.forEach((paiement, i) => {
+    // Check if we need a new page for this row
+    if (rowY + 10 > pageHeight - 40) {
+      doc.addPage();
+      rowY = 20; // Start at top of new page
+      
+      // Redraw the header on the new page
+      doc.setFillColor(245, 245, 245);
+      doc.rect(leftMargin, rowY, colWidths.reduce((a, b) => a + b, 0), 10, 'F');
+      
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      doc.text("Date", leftMargin + 5, rowY + 7);
+      doc.text("Mode", leftMargin + colWidths[0] + 5, rowY + 7);
+      doc.text("Référence", leftMargin + colWidths[0] + colWidths[1] + 5, rowY + 7);
+      doc.text("Montant", leftMargin + colWidths[0] + colWidths[1] + colWidths[2] + 5, rowY + 7);
+      
+      doc.setFont('helvetica', 'normal');
+      rowY += 10;
+    }
     
-    // Format date
-    const formattedDate = formatDateForDisplay(paiement.date);
-    doc.text(formattedDate, xPos, yPos);
-    xPos += colWidths[0];
+    // Add alternating row background
+    if (i % 2 === 0) {
+      doc.setFillColor(252, 252, 252);
+      doc.rect(leftMargin, rowY, colWidths.reduce((a, b) => a + b, 0), 10, 'F');
+    }
     
-    // Payment method 
-    doc.text(paiement.mode, xPos, yPos);
-    xPos += colWidths[1];
+    // Format the date
+    let formattedDate = paiement.date;
+    try {
+      formattedDate = format(parseISO(paiement.date), 'dd/MM/yyyy', { locale: fr });
+    } catch (e) {
+      console.error("Error formatting date", e);
+    }
     
-    // Reference (if available)
-    doc.text(paiement.reference || '-', xPos, yPos);
-    xPos += colWidths[2];
+    // Format the amount
+    const formattedAmount = new Intl.NumberFormat('fr-FR').format(paiement.montant);
     
-    // Format amount
-    const formattedAmount = paiement.montant.toLocaleString('fr-FR');
-    // Fix TypeScript error by converting formattedAmount to string
-    doc.text(formattedAmount, xPos, yPos);
+    // Write payment information
+    doc.text(formattedDate, leftMargin + 5, rowY + 7);
+    doc.text(paiement.mode, leftMargin + colWidths[0] + 5, rowY + 7);
+    doc.text(paiement.reference || "-", leftMargin + colWidths[0] + colWidths[1] + 5, rowY + 7);
     
-    yPos += 8;
+    // Fix type error by converting the array to string
+    const amountText = `${formattedAmount} XAF`;
+    doc.text(amountText, leftMargin + colWidths[0] + colWidths[1] + colWidths[2] + 5, rowY + 7);
+    
+    rowY += 10;
   });
   
-  // Add total row with light background
-  doc.setFillColor(240, 248, 245);
-  doc.rect(15, yPos, 180, 10, 'F');
+  // Draw table border
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.5);
+  const tableHeight = Math.min(10 + facture.paiements.length * 10, rowY - tableTop);
+  doc.rect(leftMargin, tableTop, colWidths.reduce((a, b) => a + b, 0), tableHeight);
   
-  doc.setFont('helvetica', 'bold');
-  doc.text('TOTAL PAYÉ:', 20, yPos + 7);
+  // Add lines between columns
+  for (let i = 1; i < colWidths.length; i++) {
+    const x = leftMargin + colWidths.slice(0, i).reduce((a, b) => a + b, 0);
+    doc.line(x, tableTop, x, tableTop + tableHeight);
+  }
   
-  // Calculate total paid
-  const totalPaid = facture.paiements.reduce((sum, p) => sum + p.montant, 0);
-  const formattedTotalPaid = totalPaid.toLocaleString('fr-FR');
-  // Fix the TypeScript error by converting to string
-  doc.text(formattedTotalPaid, 155, yPos + 7);
+  // Add horizontal line after header
+  doc.line(leftMargin, tableTop + 10, leftMargin + colWidths.reduce((a, b) => a + b, 0), tableTop + 10);
   
-  // Return the final Y position
-  return yPos + 15;
+  return rowY + 10; // Return the Y position for the next section
 };

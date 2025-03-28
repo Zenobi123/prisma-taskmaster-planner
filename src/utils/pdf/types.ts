@@ -40,3 +40,6 @@ export interface SimplifiedClient {
   telephone: string;
   email: string;
 }
+
+// Union type to handle both Client types
+export type ClientForPDF = Client | SimplifiedClient;
