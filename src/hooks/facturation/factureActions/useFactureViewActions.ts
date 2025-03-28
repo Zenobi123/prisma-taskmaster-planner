@@ -4,6 +4,29 @@ import { Paiement } from "@/types/paiement";
 import { generatePDF, generateReceiptPDF, formatClientForReceipt } from "@/utils/pdfUtils";
 import { useToast } from "@/components/ui/use-toast";
 import { PDFFacture } from "@/utils/pdf/types";
+import { Client } from "@/types/client";
+
+// Create a simplified client interface for PDFs
+interface SimplifiedClient {
+  id: string;
+  nom: string;
+  adresse: string;
+  telephone: string;
+  email: string;
+}
+
+// Helper to convert a complex Client to a simplified version
+const simplifyClient = (client: Client): SimplifiedClient => {
+  // Extract basic info from complex client object
+  return {
+    id: client.id,
+    nom: client.type === "physique" ? client.nom || "" : client.raisonsociale || "",
+    adresse: typeof client.adresse === 'object' && client.adresse ? 
+      `${client.adresse.ville || ''}, ${client.adresse.quartier || ''}` : "",
+    telephone: typeof client.contact === 'object' && client.contact ? client.contact.telephone || "" : "",
+    email: typeof client.contact === 'object' && client.contact ? client.contact.email || "" : ""
+  };
+};
 
 export const useFactureViewActions = () => {
   const { toast } = useToast();
@@ -12,7 +35,7 @@ export const useFactureViewActions = () => {
     try {
       console.log("Aperçu de la facture:", facture.id);
       
-      // Convert facture to PDFFacture format
+      // Convert facture to PDFFacture format with proper client handling
       const pdfFacture: PDFFacture = {
         id: facture.id,
         client: facture.client,
@@ -42,7 +65,7 @@ export const useFactureViewActions = () => {
     try {
       console.log("Téléchargement de la facture:", facture.id);
       
-      // Convert facture to PDFFacture format
+      // Convert facture to PDFFacture format with proper client handling
       const pdfFacture: PDFFacture = {
         id: facture.id,
         client: facture.client,
@@ -72,10 +95,13 @@ export const useFactureViewActions = () => {
     try {
       console.log("Aperçu du reçu de paiement:", paiement.id);
       
-      // Format client if needed
+      // Ensure client is properly formatted
+      const formattedClient = paiement.client ? formatClientForReceipt(paiement.client) : undefined;
+      
+      // Format paiement with client
       const paiementWithFormattedClient = {
         ...paiement,
-        client: formatClientForReceipt(paiement.client)
+        client: formattedClient
       };
       
       // Utiliser directement la fonction generateReceiptPDF
@@ -99,10 +125,13 @@ export const useFactureViewActions = () => {
     try {
       console.log("Téléchargement du reçu de paiement:", paiement.id);
       
-      // Format client if needed
+      // Ensure client is properly formatted
+      const formattedClient = paiement.client ? formatClientForReceipt(paiement.client) : undefined;
+      
+      // Format paiement with client
       const paiementWithFormattedClient = {
         ...paiement,
-        client: formatClientForReceipt(paiement.client)
+        client: formattedClient
       };
       
       // Télécharger le reçu

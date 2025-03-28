@@ -84,8 +84,11 @@ export const addClientSection = (doc: jsPDF, client: Client) => {
     additionalInfo.push(`NIU: ${client.niu}`);
   }
   
-  if (client.adresse) {
-    doc.text(`${client.adresse}`, 20, 80);
+  if ('adresse' in client) {
+    const clientAddress = typeof client.adresse === 'object' 
+      ? `${client.adresse.ville || ''}, ${client.adresse.quartier || ''}`
+      : client.adresse;
+    doc.text(`${clientAddress}`, 20, 80);
   }
   
   if (additionalInfo.length > 0) {
@@ -93,11 +96,11 @@ export const addClientSection = (doc: jsPDF, client: Client) => {
   }
   
   // Contact info
-  if (client.telephone || client.email) {
+  if ('contact' in client && client.contact) {
     let contactInfo = '';
-    if (client.telephone) contactInfo += `Tél: ${client.telephone}`;
-    if (client.telephone && client.email) contactInfo += ' | ';
-    if (client.email) contactInfo += `Email: ${client.email}`;
+    if (client.contact.telephone) contactInfo += `Tél: ${client.contact.telephone}`;
+    if (client.contact.telephone && client.contact.email) contactInfo += ' | ';
+    if (client.contact.email) contactInfo += `Email: ${client.contact.email}`;
     doc.text(contactInfo, 120, 74);
   }
 };

@@ -58,6 +58,13 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   // Safe reference display
   const reference = paiement.reference || paiement.id;
   
+  // Safely extract client name
+  const clientName = paiement.client 
+    ? typeof paiement.client === 'object' 
+      ? paiement.client.nom 
+      : paiement.client
+    : "Client inconnu";
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px]">
@@ -76,7 +83,7 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
           <div className="flex justify-between mb-6">
             <div>
               <h3 className="font-semibold text-gray-800">Client</h3>
-              <p className="text-gray-600">{typeof paiement.client === 'object' ? paiement.client.nom : paiement.client}</p>
+              <p className="text-gray-600">{clientName}</p>
             </div>
             <div className="text-right">
               <h3 className="font-semibold text-gray-800">Date</h3>

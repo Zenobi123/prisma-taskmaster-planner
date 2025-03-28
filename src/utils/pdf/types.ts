@@ -15,6 +15,9 @@ export interface Paiement {
   reference?: string;
 }
 
+export type FactureStatus = "brouillon" | "envoyée" | "annulée" | string;
+export type PaiementStatus = "non_payée" | "partiellement_payée" | "payée" | "en_retard" | string;
+
 export interface PDFFacture {
   id: string;
   client: Client;
@@ -22,8 +25,8 @@ export interface PDFFacture {
   echeance: string;
   montant: number;
   montant_paye?: number;
-  status: "brouillon" | "envoyée" | "annulée" | string;
-  status_paiement?: "non_payée" | "partiellement_payée" | "payée" | "en_retard" | string;
+  status: FactureStatus;
+  status_paiement?: PaiementStatus;
   prestations: Prestation[];
   paiements?: Paiement[];
   notes?: string;
