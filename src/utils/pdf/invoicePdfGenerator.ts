@@ -8,8 +8,13 @@ import { addPaymentsSection } from './components/invoicePayments';
 import { addNotesSection } from './components/invoiceNotes';
 import { addInvoiceFooter } from './components/invoiceFooter';
 
-// Function to generate the PDF document for invoices
-export const generateInvoicePDF = (facture: PDFFacture, download?: boolean) => {
+/**
+ * Function to generate the PDF document for invoices
+ * @param facture - Invoice data
+ * @param download - If true, download the PDF; if false, open in a new tab
+ * @returns Either a Blob (if download=true) or null (if download=false)
+ */
+export const generateInvoicePDF = (facture: PDFFacture, download: boolean = false) => {
   try {
     // Create new PDF document
     const doc = new jsPDF();
@@ -40,16 +45,17 @@ export const generateInvoicePDF = (facture: PDFFacture, download?: boolean) => {
     // Add footer with watermark - passing only the doc parameter
     addInvoiceFooter(doc);
     
+    // Generate output based on download parameter
     if (download) {
       // Download the PDF
       doc.save(`Facture_${facture.id}.pdf`);
       return doc.output('blob');
     } else {
-      // Open the PDF in a new tab
+      // Create blob and open in new tab
       const pdfBlob = doc.output('blob');
       const pdfUrl = URL.createObjectURL(pdfBlob);
       window.open(pdfUrl, '_blank');
-      return null;
+      return pdfBlob;
     }
   } catch (error) {
     console.error("Erreur lors de la génération du PDF:", error);

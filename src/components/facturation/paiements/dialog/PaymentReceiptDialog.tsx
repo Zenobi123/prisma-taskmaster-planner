@@ -47,12 +47,16 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   
   // Handle download receipt
   const handleDownloadReceipt = () => {
-    handleTelechargerRecu(paiement);
+    if (paiement) {
+      handleTelechargerRecu(paiement);
+    }
   };
   
   // Handle view receipt in a new tab
   const handleViewReceipt = () => {
-    handleVoirRecu(paiement);
+    if (paiement) {
+      handleVoirRecu(paiement);
+    }
   };
   
   // Safe reference display

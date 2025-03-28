@@ -29,7 +29,13 @@ export const useFactureViewActions = () => {
         notes: facture.notes
       };
       
-      generateInvoicePDF(pdfFacture);
+      // Générer et visualiser (ouvrir dans un nouvel onglet)
+      generateInvoicePDF(pdfFacture, false);
+      
+      toast({
+        title: "Facture visualisée",
+        description: `La facture ${facture.id} a été ouverte dans un nouvel onglet.`,
+      });
     } catch (error) {
       console.error("Erreur lors de l'aperçu de la facture:", error);
       toast({
@@ -60,7 +66,13 @@ export const useFactureViewActions = () => {
         notes: facture.notes
       };
       
+      // Générer et télécharger
       generateInvoicePDF(pdfFacture, true);
+      
+      toast({
+        title: "Facture téléchargée",
+        description: `La facture ${facture.id} a été téléchargée.`,
+      });
     } catch (error) {
       console.error("Erreur lors du téléchargement de la facture:", error);
       toast({
@@ -84,8 +96,8 @@ export const useFactureViewActions = () => {
         client: formattedClient
       };
       
-      // Utiliser directement la fonction generateReceiptPDF
-      generateReceiptPDF(paiementWithFormattedClient);
+      // Générer et visualiser (ouvrir dans un nouvel onglet)
+      generateReceiptPDF(paiementWithFormattedClient, false);
       
       toast({
         title: "Reçu de paiement",
@@ -114,7 +126,7 @@ export const useFactureViewActions = () => {
         client: formattedClient
       };
       
-      // Télécharger le reçu
+      // Générer et télécharger
       generateReceiptPDF(paiementWithFormattedClient, true);
       
       toast({

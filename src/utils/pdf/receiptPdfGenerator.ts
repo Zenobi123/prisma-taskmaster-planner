@@ -9,8 +9,13 @@ import { addReceiptAmountSection } from './components/receiptAmountSection';
 import { addReceiptNotes } from './components/receiptNotes';
 import { addReceiptFooter } from './components/receiptFooter';
 
-// Function to generate a payment receipt PDF
-export const generateReceiptPDF = (paiement: any, download?: boolean) => {
+/**
+ * Function to generate a payment receipt PDF
+ * @param paiement - Payment data
+ * @param download - If true, download the PDF; if false, open in a new tab
+ * @returns Either a Blob (if download=true) or null (if download=false)
+ */
+export const generateReceiptPDF = (paiement: any, download: boolean = false) => {
   try {
     const doc = new jsPDF();
     
@@ -37,16 +42,17 @@ export const generateReceiptPDF = (paiement: any, download?: boolean) => {
     // Add footer with watermark
     addReceiptFooter(doc, paiement.reference || paiement.id);
     
+    // Generate output based on download parameter
     if (download) {
       // Download the PDF
       doc.save(`Recu_${paiement.reference || paiement.id}.pdf`);
       return doc.output('blob');
     } else {
-      // Open the PDF in a new tab
+      // Create blob and open in new tab
       const pdfBlob = doc.output('blob');
       const pdfUrl = URL.createObjectURL(pdfBlob);
       window.open(pdfUrl, '_blank');
-      return null;
+      return pdfBlob;
     }
   } catch (error) {
     console.error("Erreur lors de la génération du reçu PDF:", error);
