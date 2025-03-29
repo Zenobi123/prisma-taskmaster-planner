@@ -29,8 +29,8 @@ const ClientDetailsTabs = () => {
       facture_id: payment.facture_id || "",
       client_id: clientId,
       client: {
-        nom: clientDetails?.nom || "Client",
-        id: clientId
+        id: clientId,
+        nom: clientDetails?.nom || "Client"
       },
       date: payment.date,
       montant: payment.montant,

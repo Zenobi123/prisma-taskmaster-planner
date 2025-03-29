@@ -13,6 +13,7 @@ import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Facture } from "@/types/facture";
 import useFactureViewActions from "@/hooks/facturation/factureActions/useFactureViewActions";
+import InvoiceStatusBadge from "../client-details/invoice-table/InvoiceStatusBadge";
 
 interface InvoicePreviewDialogProps {
   invoice: Facture | null;
@@ -62,16 +63,8 @@ const InvoicePreviewDialog = ({ invoice, open, onOpenChange }: InvoicePreviewDia
   // Calculate remaining amount
   const remainingAmount = Math.max(0, invoice.montant - (invoice.montant_paye || 0));
   
-  // Status text
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case "non_payée": return "Non payée";
-      case "partiellement_payée": return "Partiellement payée";
-      case "payée": return "Payée";
-      case "en_retard": return "En retard";
-      default: return status;
-    }
-  };
+  // Get client name safely
+  const clientName = invoice.client?.nom || "Client";
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -91,7 +84,7 @@ const InvoicePreviewDialog = ({ invoice, open, onOpenChange }: InvoicePreviewDia
           <div className="flex justify-between mb-6">
             <div>
               <h3 className="font-semibold text-gray-800">Client</h3>
-              <p className="text-gray-600">{invoice.client.nom}</p>
+              <p className="text-gray-600">{clientName}</p>
             </div>
             <div className="text-right">
               <h3 className="font-semibold text-gray-800">Date / Échéance</h3>
@@ -148,9 +141,9 @@ const InvoicePreviewDialog = ({ invoice, open, onOpenChange }: InvoicePreviewDia
           
           <div className="mb-4">
             <h3 className="font-semibold text-gray-800 mb-1">Statut</h3>
-            <p className="text-gray-600 bg-gray-50 p-2 rounded">
-              {getStatusText(invoice.status_paiement)}
-            </p>
+            <div className="text-gray-600 bg-gray-50 p-2 rounded flex items-center">
+              <InvoiceStatusBadge status={invoice.status_paiement} />
+            </div>
           </div>
           
           {invoice.notes && (
