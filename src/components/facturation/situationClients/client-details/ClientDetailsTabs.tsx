@@ -22,14 +22,16 @@ const ClientDetailsTabs = () => {
 
   const handleViewReceipt = (payment: any) => {
     // Créer un objet paiement correctement formaté avec le nom du client
+    const clientId = payment.client_id || clientDetails?.id || "";
+    
     setSelectedPayment({
       id: payment.id,
-      facture: payment.facture_id || "",
+      facture_id: payment.facture_id || "",
+      client_id: clientId,
       client: {
-        nom: clientDetails?.nom || "Client", // Objet client avec le nom du client
-        id: clientDetails?.id || ""
+        nom: clientDetails?.nom || "Client",
+        id: clientId
       },
-      client_id: payment.client_id || clientDetails?.id || "",
       date: payment.date,
       montant: payment.montant,
       mode: payment.mode,

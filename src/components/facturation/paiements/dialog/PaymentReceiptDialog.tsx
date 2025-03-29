@@ -66,7 +66,7 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   let clientName = "Client";
   if (paiement.client) {
     if (typeof paiement.client === 'object' && paiement.client !== null) {
-      clientName = paiement.client.nom || paiement.client.raisonsociale || "Client";
+      clientName = paiement.client.nom || "Client";
     } else if (typeof paiement.client === 'string') {
       clientName = paiement.client;
     }
