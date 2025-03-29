@@ -14,11 +14,19 @@ export const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
   doc.setFont('helvetica', 'normal');
   
   // Get client name - handle various possible formats
-  const clientName = paiement.client 
-    ? typeof paiement.client === 'object' 
-      ? paiement.client.nom || paiement.client.raisonsociale || "Client"
-      : paiement.client
-    : "Client";
+  let clientName = "Client";
+  
+  // Si client est un objet
+  if (paiement.client) {
+    if (typeof paiement.client === 'object') {
+      // Si l'objet a un champ nom ou raisonsociale
+      clientName = paiement.client.nom || paiement.client.raisonsociale || "Client";
+    } else {
+      // Si client est juste une chaîne de caractères
+      clientName = String(paiement.client);
+    }
+  }
+  
   doc.text(clientName, 60, 115);
   
   // Reference information

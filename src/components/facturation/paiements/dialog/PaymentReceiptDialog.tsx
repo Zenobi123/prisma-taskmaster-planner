@@ -62,12 +62,8 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   // Safe reference display
   const reference = paiement.reference || paiement.id;
   
-  // Safely extract client name with null checking
-  const clientName = paiement.client 
-    ? typeof paiement.client === 'object' 
-      ? (paiement.client as any).nom || "Client" 
-      : String(paiement.client)
-    : "Client inconnu";
+  // Ensure client name is displayed correctly
+  const clientName = typeof paiement.client === 'string' ? paiement.client : "Client";
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
