@@ -29,13 +29,15 @@ interface InvoicesTableProps {
   availableCredits: ClientPayment[];
   onOpenApplyCreditDialog: (invoiceId: string) => void;
   onOpenReminderDialog: (invoiceId: string) => void;
+  clientName: string;
 }
 
 const InvoicesTable = ({ 
   invoices, 
   availableCredits, 
   onOpenApplyCreditDialog,
-  onOpenReminderDialog
+  onOpenReminderDialog,
+  clientName
 }: InvoicesTableProps) => {
   const { handleVoirFacture, handleTelechargerFacture } = useFactureViewActions();
   const [previewInvoice, setPreviewInvoice] = useState<Facture | null>(null);
@@ -45,10 +47,10 @@ const InvoicesTable = ({
     // Convertir ClientInvoice en Facture pour l'aperçu
     const factureForPreview: Facture = {
       id: invoice.id,
-      client_id: invoice.client_id,
+      client_id: invoice.id.split('-')[0], // Estimation de l'ID client
       client: {
-        id: invoice.client_id,
-        nom: invoice.client_nom,
+        id: invoice.id.split('-')[0], // Estimation de l'ID client
+        nom: clientName,
         adresse: "",
         telephone: "",
         email: ""
@@ -57,9 +59,9 @@ const InvoicesTable = ({
       echeance: invoice.echeance,
       montant: invoice.montant,
       montant_paye: invoice.montant_paye,
-      status: invoice.status,
-      status_paiement: invoice.status_paiement,
-      prestations: invoice.prestations || []
+      status: invoice.status as "brouillon" | "envoyée" | "annulée",
+      status_paiement: invoice.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+      prestations: []
     };
     
     setPreviewInvoice(factureForPreview);
@@ -70,10 +72,10 @@ const InvoicesTable = ({
     // Convertir ClientInvoice en Facture pour le téléchargement
     const factureForDownload: Facture = {
       id: invoice.id,
-      client_id: invoice.client_id,
+      client_id: invoice.id.split('-')[0], // Estimation de l'ID client
       client: {
-        id: invoice.client_id,
-        nom: invoice.client_nom,
+        id: invoice.id.split('-')[0], // Estimation de l'ID client
+        nom: clientName,
         adresse: "",
         telephone: "",
         email: ""
@@ -82,12 +84,36 @@ const InvoicesTable = ({
       echeance: invoice.echeance,
       montant: invoice.montant,
       montant_paye: invoice.montant_paye,
-      status: invoice.status,
-      status_paiement: invoice.status_paiement,
-      prestations: invoice.prestations || []
+      status: invoice.status as "brouillon" | "envoyée" | "annulée",
+      status_paiement: invoice.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+      prestations: []
     };
     
     handleTelechargerFacture(factureForDownload);
+  };
+
+  const handleViewInvoiceInNewTab = (invoice: ClientInvoice) => {
+    // Convertir ClientInvoice en Facture pour l'aperçu dans un nouvel onglet
+    const factureForView: Facture = {
+      id: invoice.id,
+      client_id: invoice.id.split('-')[0], // Estimation de l'ID client
+      client: {
+        id: invoice.id.split('-')[0], // Estimation de l'ID client
+        nom: clientName,
+        adresse: "",
+        telephone: "",
+        email: ""
+      },
+      date: invoice.date,
+      echeance: invoice.echeance,
+      montant: invoice.montant,
+      montant_paye: invoice.montant_paye,
+      status: invoice.status as "brouillon" | "envoyée" | "annulée",
+      status_paiement: invoice.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+      prestations: []
+    };
+    
+    handleVoirFacture(factureForView);
   };
 
   const getStatusBadgeVariant = (status: string) => {
@@ -95,7 +121,7 @@ const InvoicesTable = ({
       case "payée":
         return "success";
       case "partiellement_payée":
-        return "warning";
+        return "secondary";
       case "en_retard":
         return "destructive";
       default:
@@ -155,6 +181,14 @@ const InvoicesTable = ({
                         onClick={() => handlePreviewClick(invoice)}
                       >
                         <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        title="Aperçu complet"
+                        onClick={() => handleViewInvoiceInNewTab(invoice)}
+                      >
+                        <Eye className="h-4 w-4 text-blue-500" />
                       </Button>
                       <Button
                         variant="outline"

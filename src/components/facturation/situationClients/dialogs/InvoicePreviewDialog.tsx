@@ -193,7 +193,7 @@ const InvoicePreviewDialog = ({ invoice, open, onOpenChange }: InvoicePreviewDia
               onClick={handleViewInvoiceInNewTab}
               className="gap-2"
             >
-              <Eye className="h-4 w-4" /> Aperçu complet
+              <Eye className="h-4 w-4" /> Aperçu
             </Button>
             <Button
               type="button"

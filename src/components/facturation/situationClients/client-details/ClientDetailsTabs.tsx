@@ -25,7 +25,10 @@ const ClientDetailsTabs = () => {
     setSelectedPayment({
       id: payment.id,
       facture: payment.facture_id || "",
-      client: clientDetails?.nom || "Client", // Utiliser le nom du client depuis les détails du client
+      client: {
+        nom: clientDetails?.nom || "Client", // Objet client avec le nom du client
+        id: clientDetails?.id || ""
+      },
       client_id: payment.client_id || clientDetails?.id || "",
       date: payment.date,
       montant: payment.montant,
@@ -59,6 +62,7 @@ const ClientDetailsTabs = () => {
             availableCredits={availableCredits}
             onOpenApplyCreditDialog={onOpenApplyCreditDialog}
             onOpenReminderDialog={onOpenReminderDialog}
+            clientName={clientDetails?.nom || "Client"}
           />
         </TabsContent>
 

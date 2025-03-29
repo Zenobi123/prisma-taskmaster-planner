@@ -16,16 +16,17 @@ export const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
   // Get client name - handle various possible formats
   let clientName = "Client";
   
-  // Si client est un objet
   if (paiement.client) {
     if (typeof paiement.client === 'object') {
-      // Si l'objet a un champ nom ou raisonsociale
+      // Si c'est un objet, chercher le nom ou la raison sociale
       clientName = paiement.client.nom || paiement.client.raisonsociale || "Client";
-    } else {
-      // Si client est juste une chaîne de caractères
-      clientName = String(paiement.client);
+    } else if (typeof paiement.client === 'string') {
+      // Si c'est une chaîne de caractères
+      clientName = paiement.client;
     }
   }
+  
+  console.log("Client name for receipt:", clientName, "Client object:", paiement.client);
   
   doc.text(clientName, 60, 115);
   

@@ -63,7 +63,14 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   const reference = paiement.reference || paiement.id;
   
   // Ensure client name is displayed correctly
-  const clientName = typeof paiement.client === 'string' ? paiement.client : "Client";
+  let clientName = "Client";
+  if (paiement.client) {
+    if (typeof paiement.client === 'object' && paiement.client !== null) {
+      clientName = paiement.client.nom || paiement.client.raisonsociale || "Client";
+    } else if (typeof paiement.client === 'string') {
+      clientName = paiement.client;
+    }
+  }
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
