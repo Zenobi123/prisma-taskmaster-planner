@@ -20,6 +20,10 @@ const ClientDetailsDialog = ({
   onOpenApplyCreditDialog, 
   onOpenReminderDialog 
 }: ClientDetailsDialogProps) => {
+  if (!clientDetails) {
+    return null;
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
@@ -29,7 +33,11 @@ const ClientDetailsDialog = ({
           onOpenReminderDialog={onOpenReminderDialog}
         >
           <ClientDetailsHeader />
-          <ClientDetailsTabs />
+          <ClientDetailsTabs 
+            client={clientDetails.client}
+            factures={clientDetails.factures}
+            paiements={clientDetails.paiements}
+          />
         </ClientDetailsProvider>
       </DialogContent>
     </Dialog>

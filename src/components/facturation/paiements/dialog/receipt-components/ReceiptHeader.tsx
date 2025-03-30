@@ -28,10 +28,13 @@ const ReceiptHeader = ({ paiement }: ReceiptHeaderProps) => {
   
   // Ensure client name is displayed correctly
   let clientName = "Client";
+  
   if (paiement.client) {
     if (typeof paiement.client === 'object' && paiement.client !== null) {
+      // Si c'est un objet, chercher le nom ou la raison sociale
       clientName = paiement.client.nom || "Client";
     } else if (typeof paiement.client === 'string') {
+      // Si c'est une chaîne de caractères
       clientName = paiement.client;
     }
   }
