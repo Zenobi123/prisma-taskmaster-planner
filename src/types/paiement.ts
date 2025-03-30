@@ -1,4 +1,6 @@
 
+import { Client } from "@/types/client";
+
 export interface PrestationPayee {
   id: string;
   montant_modifie: number | null;
@@ -7,7 +9,7 @@ export interface PrestationPayee {
 export interface Paiement {
   id: string;
   facture: string;
-  client: string;
+  client: string | Client | any; // Can be either a string ID or a Client object
   client_id: string;
   date: string;
   montant: number;

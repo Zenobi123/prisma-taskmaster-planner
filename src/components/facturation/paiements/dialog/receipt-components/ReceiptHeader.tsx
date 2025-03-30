@@ -1,6 +1,7 @@
 
 import { formatDate } from "@/utils/formatUtils";
 import { Paiement } from "@/types/paiement";
+import { Client } from "@/types/client";
 
 interface ReceiptHeaderProps {
   paiement: Paiement;
@@ -8,7 +9,26 @@ interface ReceiptHeaderProps {
 
 const ReceiptHeader = ({ paiement }: ReceiptHeaderProps) => {
   const formattedDate = formatDate(paiement.date);
-  const clientName = paiement.client?.nom || "Client";
+  
+  // Handle client as either a string or an object
+  const getClientName = () => {
+    if (typeof paiement.client === 'string') {
+      return paiement.client;
+    } else if (paiement.client && typeof paiement.client === 'object') {
+      return paiement.client.nom || paiement.client.raisonsociale || "Client";
+    }
+    return "Client";
+  };
+  
+  const getClientAddress = () => {
+    if (typeof paiement.client === 'object' && paiement.client && paiement.client.adresse) {
+      return paiement.client.adresse;
+    }
+    return null;
+  };
+  
+  const clientName = getClientName();
+  const clientAddress = getClientAddress();
   
   return (
     <div className="flex flex-col space-y-2 pb-4 border-b">
@@ -27,9 +47,9 @@ const ReceiptHeader = ({ paiement }: ReceiptHeaderProps) => {
         <div>
           <p className="font-semibold">Client</p>
           <p>{clientName}</p>
-          {paiement.client?.adresse && (
+          {clientAddress && typeof clientAddress === 'object' && (
             <p className="text-sm text-muted-foreground">
-              {paiement.client.adresse}
+              {clientAddress.ville || clientAddress.quartier || ''}
             </p>
           )}
         </div>
