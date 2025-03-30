@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useRef } from "react";
 import { parse, isValid, format, addMonths, differenceInDays } from "date-fns";
 import { toast } from "sonner";
 import { ObligationType, ObligationStatuses, ClientFiscalData } from "../types";
@@ -6,11 +7,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { Json } from "@/integrations/supabase/types";
 
+// Cache pour les données fiscales des clients
+const fiscalDataCache = new Map<string, {data: any, timestamp: number}>();
+// Durée de validité du cache en ms (1 minute)
+const CACHE_DURATION = 60000;
+
 export function useObligationsFiscales(client: Client) {
   const [creationDate, setCreationDate] = useState<string>("");
   const [validityEndDate, setValidityEndDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
+  const isMounted = useRef(true);
   
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
     patente: { assujetti: true, paye: false },
@@ -20,12 +27,49 @@ export function useObligationsFiscales(client: Client) {
     darp: { assujetti: false, depose: false }
   });
 
+  // Nettoyage lors du démontage
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
+
   // Load client's fiscal data from database
   useEffect(() => {
     async function loadFiscalData() {
+      if (!client || !client.id) return;
+      
       setIsLoading(true);
+      
+      // Vérifier le cache
+      const now = Date.now();
+      const cachedData = fiscalDataCache.get(client.id);
+      
+      if (cachedData && now - cachedData.timestamp < CACHE_DURATION) {
+        console.log(`Utilisation du cache pour les données fiscales du client ${client.id}`);
+        
+        const fiscalData = cachedData.data as ClientFiscalData;
+        
+        if (fiscalData.attestation) {
+          if (isMounted.current) {
+            setCreationDate(fiscalData.attestation.creationDate || "");
+            setValidityEndDate(fiscalData.attestation.validityEndDate || "");
+            setShowInAlert(fiscalData.attestation.showInAlert !== false);
+          }
+        }
+        
+        if (fiscalData.obligations && isMounted.current) {
+          setObligationStatuses(fiscalData.obligations);
+        }
+        
+        if (isMounted.current) {
+          setIsLoading(false);
+        }
+        return;
+      }
+      
       try {
-        console.log(`Loading fiscal data for client ID: ${client.id}`);
+        console.log(`Chargement des données fiscales pour le client ID: ${client.id}`);
         const { data: clientData, error } = await supabase
           .from("clients")
           .select("fiscal_data")
@@ -42,7 +86,13 @@ export function useObligationsFiscales(client: Client) {
           // Cast the JSON data to our ClientFiscalData type
           const fiscalData = clientData.fiscal_data as Json as unknown as ClientFiscalData;
           
-          if (fiscalData.attestation) {
+          // Mettre à jour le cache
+          fiscalDataCache.set(client.id, {
+            data: fiscalData,
+            timestamp: now
+          });
+          
+          if (fiscalData.attestation && isMounted.current) {
             console.log("Attestation data found:", fiscalData.attestation);
             setCreationDate(fiscalData.attestation.creationDate || "");
             setValidityEndDate(fiscalData.attestation.validityEndDate || "");
@@ -51,7 +101,7 @@ export function useObligationsFiscales(client: Client) {
             console.log("No attestation data found for client");
           }
           
-          if (fiscalData.obligations) {
+          if (fiscalData.obligations && isMounted.current) {
             setObligationStatuses(fiscalData.obligations);
           }
         } else {
@@ -60,7 +110,9 @@ export function useObligationsFiscales(client: Client) {
       } catch (error) {
         console.error("Error loading fiscal data:", error);
       } finally {
-        setIsLoading(false);
+        if (isMounted.current) {
+          setIsLoading(false);
+        }
       }
     }
 
@@ -141,6 +193,12 @@ export function useObligationsFiscales(client: Client) {
       };
 
       console.log("Fiscal data to save:", fiscalDataToSave);
+
+      // Mettre à jour le cache immédiatement pour une UX plus réactive
+      fiscalDataCache.set(client.id, {
+        data: fiscalDataToSave,
+        timestamp: Date.now()
+      });
 
       // Convert to Json type for database storage
       const { error } = await supabase

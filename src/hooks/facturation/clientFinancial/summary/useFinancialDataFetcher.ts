@@ -36,9 +36,13 @@ export const useFinancialDataFetcher = () => {
 
   const fetchClientsFinancialData = useCallback(async () => {
     try {
+      // Éviter de refetcher si déjà en cours
+      if (isRefetching) return;
+      
       setIsRefetching(true);
       console.log("Récupération des données financières des clients...");
       
+      // Utilisation de Promise.all pour paralléliser les requêtes
       await Promise.all([
         fetchClients(),
         fetchInvoices(),
@@ -54,7 +58,7 @@ export const useFinancialDataFetcher = () => {
     } finally {
       setIsRefetching(false);
     }
-  }, [fetchClients, fetchInvoices, fetchPayments, clientsSummary.length, chartData]);
+  }, [fetchClients, fetchInvoices, fetchPayments, clientsSummary.length, chartData, isRefetching]);
 
   return {
     clientsSummary,

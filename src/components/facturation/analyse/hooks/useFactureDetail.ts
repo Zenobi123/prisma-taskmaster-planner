@@ -1,16 +1,45 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { FactureDetail } from "../types/DetailFactureTypes";
+
+// Cache pour les détails des factures
+const factureDetailsCache = new Map<string, {data: FactureDetail, timestamp: number}>();
+// Durée de validité du cache en ms (1 minute)
+const CACHE_DURATION = 60000;
 
 export const useFactureDetail = (factureId: string) => {
   const [factureDetail, setFactureDetail] = useState<FactureDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const isMounted = useRef(true);
+
+  useEffect(() => {
+    // Nettoyer lors du démontage
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     const fetchFactureDetail = async () => {
+      if (!factureId) return;
+      
       setIsLoading(true);
+      
+      // Vérifier le cache
+      const now = Date.now();
+      const cachedDetail = factureDetailsCache.get(factureId);
+      
+      if (cachedDetail && now - cachedDetail.timestamp < CACHE_DURATION) {
+        console.log(`Utilisation du cache pour les détails de la facture ${factureId}`);
+        setFactureDetail(cachedDetail.data);
+        setIsLoading(false);
+        return;
+      }
+      
       try {
+        console.log(`Récupération des détails de la facture ${factureId} depuis la base de données`);
+        
         // Fetch facture
         const { data: factureData, error: factureError } = await supabase
           .from("factures")
@@ -61,7 +90,7 @@ export const useFactureDetail = (factureId: string) => {
           ? factureData.clients.nom
           : factureData.clients.raisonsociale;
         
-        setFactureDetail({
+        const detailData: FactureDetail = {
           id: factureData.id,
           date: factureData.date,
           client: clientName,
@@ -71,11 +100,24 @@ export const useFactureDetail = (factureId: string) => {
           status_paiement: factureData.status_paiement,
           echeance: factureData.echeance,
           prestations: prestationsWithType
+        };
+        
+        // Mettre à jour le cache
+        factureDetailsCache.set(factureId, {
+          data: detailData,
+          timestamp: now
         });
+        
+        // Mettre à jour l'état seulement si le composant est toujours monté
+        if (isMounted.current) {
+          setFactureDetail(detailData);
+        }
       } catch (error) {
         console.error("Error fetching facture details:", error);
       } finally {
-        setIsLoading(false);
+        if (isMounted.current) {
+          setIsLoading(false);
+        }
       }
     };
     

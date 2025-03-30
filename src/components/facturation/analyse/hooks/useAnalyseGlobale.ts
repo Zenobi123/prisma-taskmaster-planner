@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { SummaryStats, ChartDataItem, MonthlyChartItem, PeriodFilter } from "../types/AnalyseTypes";
 import { useInvoiceData } from "@/hooks/facturation/clientFinancial/summary/useInvoiceData";
 import { usePaymentData } from "@/hooks/facturation/clientFinancial/summary/usePaymentData";
@@ -34,16 +34,61 @@ export const useAnalyseGlobale = (
   const [isLoading, setIsLoading] = useState(true);
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
   const [monthlyData, setMonthlyData] = useState<MonthlyChartItem[]>([]);
+  
+  // Pour éviter de refaire des calculs inutiles
+  const lastParams = useRef({period, clientFilter, statusFilter});
+  const cachedData = useRef<{
+    facturesData: any[];
+    prestationsData: any[];
+    timestamp: number;
+  }>({
+    facturesData: [],
+    prestationsData: [],
+    timestamp: 0
+  });
+  
+  // Durée de validité du cache en ms (30 secondes)
+  const CACHE_DURATION = 30000;
+
+  // Création d'un memoized key pour déterminer si on doit recalculer
+  const paramKey = useMemo(() => {
+    return `${period}-${clientFilter || 'null'}-${statusFilter || 'null'}`;
+  }, [period, clientFilter, statusFilter]);
 
   useEffect(() => {
     const fetchAnalysisData = async () => {
       setIsLoading(true);
       try {
-        // Fetch data from Supabase
-        const [facturesData, prestationsData] = await Promise.all([
-          fetchFacturesForAnalysis(),
-          fetchPrestationsForAnalysis()
-        ]);
+        // Vérifier si les paramètres ont changé ou si le cache est périmé
+        const now = Date.now();
+        const shouldRefetch = 
+          paramKey !== `${lastParams.current.period}-${lastParams.current.clientFilter || 'null'}-${lastParams.current.statusFilter || 'null'}` ||
+          now - cachedData.current.timestamp > CACHE_DURATION;
+        
+        // Si on n'a pas besoin de refetcher, on utilise les données en cache
+        let facturesData = cachedData.current.facturesData;
+        let prestationsData = cachedData.current.prestationsData;
+        
+        if (shouldRefetch) {
+          console.log("Récupération des données d'analyse depuis la base de données");
+          // Fetch data from Supabase
+          [facturesData, prestationsData] = await Promise.all([
+            fetchFacturesForAnalysis(),
+            fetchPrestationsForAnalysis()
+          ]);
+          
+          // Mettre à jour le cache
+          cachedData.current = {
+            facturesData,
+            prestationsData,
+            timestamp: now
+          };
+          
+          // Mettre à jour les derniers paramètres
+          lastParams.current = {period, clientFilter, statusFilter};
+        } else {
+          console.log("Utilisation des données d'analyse en cache");
+        }
         
         // Filter factures by period, client, and status
         const filteredFactures = filterFacturesByPeriod(
@@ -82,9 +127,6 @@ export const useAnalyseGlobale = (
           (sum, f) => sum + parseFloat((f.montant_paye || 0).toString()), 0
         );
         
-        console.log("Analysis period total invoiced:", totalFacturesInPeriod);
-        console.log("Analysis period total paid:", totalPaiements);
-        
         // Calculate taux de recouvrement
         const tauxRecouvrement = totalFacturesInPeriod > 0 
           ? (totalPaiements / totalFacturesInPeriod) * 100 
@@ -117,7 +159,7 @@ export const useAnalyseGlobale = (
     };
     
     fetchAnalysisData();
-  }, [period, clientFilter, statusFilter, invoices, payments, sentInvoicesCount]);
+  }, [paramKey, period, clientFilter, statusFilter, invoices, payments, sentInvoicesCount]);
 
   return {
     stats,
