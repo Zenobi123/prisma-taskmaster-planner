@@ -9,7 +9,7 @@ import InvoicesTable from "../InvoicesTable";
 import InvoicePreviewDialog from "../../dialogs/InvoicePreviewDialog";
 
 const InvoicesTab = () => {
-  const { clientDetails } = useClientDetails();
+  const { clientDetails, onOpenApplyCreditDialog, onOpenReminderDialog } = useClientDetails();
   const [selectedInvoice, setSelectedInvoice] = useState<Facture | null>(null);
   const [isInvoicePreviewDialogOpen, setIsInvoicePreviewDialogOpen] = useState(false);
   
@@ -17,7 +17,7 @@ const InvoicesTab = () => {
 
   // Find any available credits (paiements that are est_credit and have no facture_id)
   const availableCredits = clientDetails.paiements.filter(p => p.est_credit && !p.facture_id) || [];
-  const clientName = clientDetails.id || "Client";
+  const clientName = clientDetails.nom || "Client";
 
   return (
     <div className="space-y-4">
@@ -31,8 +31,8 @@ const InvoicesTab = () => {
       <InvoicesTable 
         invoices={clientDetails.factures}
         availableCredits={availableCredits}
-        onOpenApplyCreditDialog={clientDetails.onOpenApplyCreditDialog}
-        onOpenReminderDialog={clientDetails.onOpenReminderDialog}
+        onOpenApplyCreditDialog={onOpenApplyCreditDialog}
+        onOpenReminderDialog={onOpenReminderDialog}
         clientName={clientName}
       />
 

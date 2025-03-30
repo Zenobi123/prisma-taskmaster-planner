@@ -1,7 +1,6 @@
 
 import { createContext, useContext } from "react";
 import { ClientFinancialDetails } from "@/types/clientFinancial";
-import { Client } from "@/types/client";
 
 interface ClientDetailsContextProps {
   clientDetails: ClientFinancialDetails | null;
@@ -20,8 +19,6 @@ export const ClientDetailsProvider = ({
   // Enhance the clientDetails with extra information needed by components
   const enhancedClientDetails = clientDetails ? {
     ...clientDetails,
-    onOpenApplyCreditDialog,
-    onOpenReminderDialog,
     // Add client property if not already present
     client: clientDetails.client || {}
   } : null;

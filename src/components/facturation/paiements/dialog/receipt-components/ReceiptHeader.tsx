@@ -1,64 +1,44 @@
 
+import { formatDate } from "@/utils/formatUtils";
 import { Paiement } from "@/types/paiement";
-import { format, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
 
 interface ReceiptHeaderProps {
   paiement: Paiement;
 }
 
 const ReceiptHeader = ({ paiement }: ReceiptHeaderProps) => {
-  // Format the date nicely
-  const formatDate = (dateString: string) => {
-    try {
-      return format(
-        typeof dateString === 'string' && dateString.includes('-') 
-          ? parseISO(dateString) 
-          : new Date(dateString), 
-        'dd MMMM yyyy', 
-        { locale: fr }
-      );
-    } catch (error) {
-      return dateString;
-    }
-  };
-
-  // Safe reference display
-  const reference = paiement.reference || paiement.id;
+  const formattedDate = formatDate(paiement.date);
+  const clientName = paiement.client?.nom || "Client";
   
-  // Ensure client name is displayed correctly
-  let clientName = "Client";
-  
-  if (paiement.client) {
-    if (typeof paiement.client === 'object' && paiement.client !== null) {
-      // Si c'est un objet, chercher le nom ou la raison sociale
-      clientName = paiement.client.nom || "Client";
-    } else if (typeof paiement.client === 'string') {
-      // Si c'est une chaîne de caractères
-      clientName = paiement.client;
-    }
-  }
-
   return (
-    <>
-      <div className="text-center mb-6">
-        <h2 className="text-xl font-bold text-gray-800">REÇU DE PAIEMENT</h2>
-        <p className="text-gray-500">
-          <span className="font-semibold">N° {reference}</span>
-        </p>
-      </div>
-      
-      <div className="flex justify-between mb-6">
+    <div className="flex flex-col space-y-2 pb-4 border-b">
+      <div className="flex justify-between">
         <div>
-          <h3 className="font-semibold text-gray-800">Client</h3>
-          <p className="text-gray-600">{clientName}</p>
+          <h2 className="font-bold text-xl">Reçu de Paiement</h2>
+          <p className="text-muted-foreground text-sm">{paiement.reference}</p>
         </div>
         <div className="text-right">
-          <h3 className="font-semibold text-gray-800">Date</h3>
-          <p className="text-gray-600">{formatDate(paiement.date)}</p>
+          <p className="font-semibold">Date</p>
+          <p>{formattedDate}</p>
         </div>
       </div>
-    </>
+      
+      <div className="flex justify-between pt-2">
+        <div>
+          <p className="font-semibold">Client</p>
+          <p>{clientName}</p>
+          {paiement.client?.adresse && (
+            <p className="text-sm text-muted-foreground">
+              {paiement.client.adresse}
+            </p>
+          )}
+        </div>
+        <div className="text-right">
+          <p className="font-semibold">Mode de paiement</p>
+          <p>{paiement.mode}</p>
+        </div>
+      </div>
+    </div>
   );
 };
 
