@@ -18,17 +18,36 @@
 
   body {
     @apply bg-neutral-100 text-neutral-900 font-['Inter'];
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Amélioration accessibilité (focus visible) */
+  *:focus-visible {
+    @apply outline-primary outline-2 outline-offset-2;
   }
   
   /* Smooth scrolling for entire page */
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%; /* Prévient l'agrandissement de texte sur iOS */
+  }
+  
+  /* Amélioration de la lisibilité sur mobile */
+  input, button, textarea, select {
+    font-size: 16px; /* Prévient le zoom automatique sur iOS */
+  }
+  
+  /* Améliore la lisibilité des titres */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
   }
 }
 
 @layer components {
   .sidebar-link {
     @apply flex items-center gap-3 px-4 py-2 text-neutral-600 hover:bg-neutral-200 rounded-md transition-all duration-300;
+    /* Améliore accessibilité sur mobile */
+    @apply min-h-[44px] md:min-h-[unset];
   }
 
   .sidebar-link.active {
@@ -37,10 +56,14 @@
 
   .btn-primary {
     @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-all duration-300 disabled:opacity-50;
+    /* Touch target size for mobile */
+    @apply min-h-[44px] md:min-h-[unset];
   }
 
   .btn-secondary {
     @apply px-4 py-2 bg-neutral-200 text-neutral-700 rounded-md hover:bg-neutral-300 transition-all duration-300;
+    /* Touch target size for mobile */
+    @apply min-h-[44px] md:min-h-[unset];
   }
 
   .card {
@@ -49,6 +72,8 @@
 
   .input-field {
     @apply w-full px-3 py-2 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300;
+    /* Prevent zoom on iOS */
+    @apply text-base md:text-sm;
   }
 
   .table-container {
@@ -60,11 +85,15 @@
   }
 
   .table th {
-    @apply px-4 sm:px-6 py-3 bg-neutral-100 text-neutral-600 font-semibold;
+    @apply px-3 sm:px-4 md:px-6 py-3 bg-neutral-100 text-neutral-600 font-semibold;
+    /* Amélioration lisibilité mobile */
+    @apply text-xs sm:text-sm whitespace-nowrap;
   }
 
   .table td {
-    @apply px-4 sm:px-6 py-4 border-t border-neutral-200;
+    @apply px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-t border-neutral-200;
+    /* Amélioration lisibilité mobile */
+    @apply text-xs sm:text-sm;
   }
 
   .badge {
@@ -106,11 +135,33 @@
   }
   
   .responsive-p {
-    @apply p-4 sm:p-6;
+    @apply p-3 sm:p-4 md:p-6;
   }
   
   .responsive-text {
     @apply text-sm sm:text-base;
+  }
+  
+  /* Responsive spacing classes */
+  .responsive-mt {
+    @apply mt-3 sm:mt-4 md:mt-6;
+  }
+  
+  .responsive-mb {
+    @apply mb-3 sm:mb-4 md:mb-6;
+  }
+  
+  .responsive-my {
+    @apply my-3 sm:my-4 md:my-6;
+  }
+  
+  .responsive-gap {
+    @apply gap-3 sm:gap-4 md:gap-6;
+  }
+  
+  /* Container pour les éléments tactiles */
+  .touch-container {
+    @apply min-h-[44px] flex items-center;
   }
 }
 
@@ -141,5 +192,41 @@
   
   .animate-pulse-slow {
     animation: pulse 3s infinite;
+  }
+  
+  /* Responsive text utilities */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-sm {
+    @apply text-sm md:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-sm md:text-base lg:text-lg;
+  }
+  
+  .text-responsive-title {
+    @apply text-lg sm:text-xl md:text-2xl;
+  }
+  
+  /* Safe area utilities for iOS */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }
