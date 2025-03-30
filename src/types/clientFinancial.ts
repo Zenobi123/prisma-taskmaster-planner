@@ -35,4 +35,5 @@ export interface ClientFinancialDetails {
   factures: ClientInvoice[];
   paiements: ClientPayment[];
   solde_disponible: number;
+  client?: any; // Add client property to store client details
 }

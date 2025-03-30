@@ -33,11 +33,7 @@ const ClientDetailsDialog = ({
           onOpenReminderDialog={onOpenReminderDialog}
         >
           <ClientDetailsHeader />
-          <ClientDetailsTabs 
-            client={clientDetails.client}
-            factures={clientDetails.factures}
-            paiements={clientDetails.paiements}
-          />
+          <ClientDetailsTabs />
         </ClientDetailsProvider>
       </DialogContent>
     </Dialog>
