@@ -8,11 +8,11 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, X, Eye } from "lucide-react";
-import { formatMontant } from "@/utils/formatUtils";
 import { Paiement } from "@/types/paiement";
-import { format, parseISO } from "date-fns";
-import { fr } from "date-fns/locale";
 import useFactureViewActions from "@/hooks/facturation/factureActions/useFactureViewActions";
+import ReceiptHeader from "./receipt-components/ReceiptHeader";
+import ReceiptContent from "./receipt-components/ReceiptContent";
+import ReceiptFooter from "./receipt-components/ReceiptFooter";
 
 interface PaymentReceiptDialogProps {
   paiement: Paiement | null;
@@ -25,21 +25,6 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   
   if (!paiement) return null;
   
-  // Format the date nicely
-  const formatDate = (dateString: string) => {
-    try {
-      return format(
-        typeof dateString === 'string' && dateString.includes('-') 
-          ? parseISO(dateString) 
-          : new Date(dateString), 
-        'dd MMMM yyyy', 
-        { locale: fr }
-      );
-    } catch (error) {
-      return dateString;
-    }
-  };
-  
   // Print the receipt
   const handlePrintReceipt = () => {
     window.print();
@@ -47,30 +32,13 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   
   // Handle download receipt
   const handleDownloadReceipt = () => {
-    if (paiement) {
-      handleTelechargerRecu(paiement);
-    }
+    handleTelechargerRecu(paiement);
   };
   
   // Handle view receipt in a new tab
   const handleViewReceipt = () => {
-    if (paiement) {
-      handleVoirRecu(paiement);
-    }
+    handleVoirRecu(paiement);
   };
-  
-  // Safe reference display
-  const reference = paiement.reference || paiement.id;
-  
-  // Ensure client name is displayed correctly
-  let clientName = "Client";
-  if (paiement.client) {
-    if (typeof paiement.client === 'object' && paiement.client !== null) {
-      clientName = paiement.client.nom || "Client";
-    } else if (typeof paiement.client === 'string') {
-      clientName = paiement.client;
-    }
-  }
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -80,68 +48,9 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
         </DialogHeader>
         
         <div className="mt-4 border rounded-md p-6 bg-white">
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-bold text-gray-800">REÇU DE PAIEMENT</h2>
-            <p className="text-gray-500">
-              <span className="font-semibold">N° {reference}</span>
-            </p>
-          </div>
-          
-          <div className="flex justify-between mb-6">
-            <div>
-              <h3 className="font-semibold text-gray-800">Client</h3>
-              <p className="text-gray-600">{clientName}</p>
-            </div>
-            <div className="text-right">
-              <h3 className="font-semibold text-gray-800">Date</h3>
-              <p className="text-gray-600">{formatDate(paiement.date)}</p>
-            </div>
-          </div>
-          
-          <div className="border-t border-gray-200 pt-4 mb-6">
-            <div className="flex justify-between mb-2">
-              <span className="font-semibold text-gray-700">Méthode de paiement</span>
-              <span className="text-gray-600">{paiement.mode}</span>
-            </div>
-            {paiement.reference_transaction && (
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold text-gray-700">Référence transaction</span>
-                <span className="text-gray-600">{paiement.reference_transaction}</span>
-              </div>
-            )}
-            {paiement.facture && (
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold text-gray-700">Facture associée</span>
-                <span className="text-gray-600">{paiement.facture}</span>
-              </div>
-            )}
-            {paiement.est_credit && (
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold text-gray-700">Type</span>
-                <span className="text-gray-600">Crédit (Avance)</span>
-              </div>
-            )}
-          </div>
-          
-          <div className="border-t border-b border-gray-200 py-4 mb-6">
-            <div className="flex justify-between items-center">
-              <span className="text-lg font-bold text-gray-800">Montant payé</span>
-              <span className="text-xl font-bold text-[#3C6255]">
-                {formatMontant(paiement.montant)}
-              </span>
-            </div>
-          </div>
-          
-          {paiement.notes && (
-            <div className="mb-4">
-              <h3 className="font-semibold text-gray-800 mb-1">Notes</h3>
-              <p className="text-gray-600 bg-gray-50 p-2 rounded">{paiement.notes}</p>
-            </div>
-          )}
-          
-          <div className="text-center text-sm text-gray-500 mt-6">
-            Ce reçu confirme le traitement de votre paiement.
-          </div>
+          <ReceiptHeader paiement={paiement} />
+          <ReceiptContent paiement={paiement} />
+          <ReceiptFooter paiement={paiement} />
         </div>
         
         <DialogFooter className="flex gap-2 justify-between">
