@@ -16,6 +16,7 @@ import Planning from "./pages/Planning";
 import Facturation from "./pages/Facturation";
 import Depenses from "./pages/Depenses";
 import Rapports from "./pages/Rapports";
+import Parametres from "./pages/Parametres";
 
 // Configuration optimisée de React Query
 const queryClient = new QueryClient({
@@ -128,6 +129,14 @@ const App = () => (
               element={
                 <PrivateRoute>
                   <Rapports />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/parametres"
+              element={
+                <PrivateRoute>
+                  <Parametres />
                 </PrivateRoute>
               }
             />

@@ -11,7 +11,8 @@ import {
   Wallet,
   ChevronRight,
   FolderOpen,
-  Receipt
+  Receipt,
+  Settings
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -24,7 +25,8 @@ const menuItems = [
   { path: "/planning", icon: Calendar, label: "Planning" },
   { path: "/facturation", icon: Receipt, label: "Facturation" },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
-  { path: "/rapports", icon: FileText, label: "Rapports" }
+  { path: "/rapports", icon: FileText, label: "Rapports" },
+  { path: "/parametres", icon: Settings, label: "Paramètres" }
 ];
 
 const Sidebar = () => {
