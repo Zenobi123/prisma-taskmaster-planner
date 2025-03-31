@@ -7,7 +7,7 @@ import { CollaborateurHeader } from "@/components/collaborateurs/CollaborateurHe
 import { CollaborateurSearch } from "@/components/collaborateurs/CollaborateurSearch";
 import { CollaborateurDialog } from "@/components/collaborateurs/CollaborateurDialog";
 import { Collaborateur, CollaborateurPermissions } from "@/types/collaborateur";
-import { getCollaborateurs, addCollaborateur, deleteCollaborateur } from "@/services/collaborateurService";
+import { getCollaborateurs, addCollaborateur, deleteCollaborateur, updateCollaborateur } from "@/services/collaborateurService";
 
 export default function Collaborateurs() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -91,6 +91,27 @@ export default function Collaborateurs() {
     },
   });
 
+  const statusMutation = useMutation({
+    mutationFn: ({ id, newStatus }: { id: string; newStatus: "actif" | "inactif" }) => 
+      updateCollaborateur(id, { statut: newStatus }),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["collaborateurs"] });
+      const statusText = data.statut === "actif" ? "activé" : "désactivé";
+      toast({
+        title: `Collaborateur ${statusText}`,
+        description: `Le collaborateur a été ${statusText} avec succès.`,
+      });
+    },
+    onError: (error) => {
+      console.error("Erreur lors de la modification du statut:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la modification du statut.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const postes = Array.from(
     new Set(collaborateurs.map((collab) => collab.poste))
   );
@@ -120,6 +141,10 @@ export default function Collaborateurs() {
       ...prev,
       [field]: value,
     }));
+  };
+
+  const handleStatusChange = (id: string, newStatus: "actif" | "inactif") => {
+    statusMutation.mutate({ id, newStatus });
   };
 
   if (isLoading) {
@@ -152,7 +177,8 @@ export default function Collaborateurs() {
 
         <CollaborateurList 
           collaborateurs={filteredCollaborateurs}
-          onDelete={(id) => deleteMutation.mutate(id)} 
+          onDelete={(id) => deleteMutation.mutate(id)}
+          onStatusChange={handleStatusChange}
         />
       </div>
 

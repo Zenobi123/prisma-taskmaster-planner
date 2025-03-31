@@ -1,5 +1,5 @@
 
-import { CheckCircle2, ListChecks, MoreVertical, Eye, Edit, Trash } from "lucide-react";
+import { CheckCircle2, ListChecks, MoreVertical, Eye, Edit, Trash, UserCheck, UserX } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -12,6 +12,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
@@ -32,9 +33,10 @@ import { Collaborateur } from "@/types/collaborateur";
 interface CollaborateurListProps {
   collaborateurs: Collaborateur[];
   onDelete: (id: string) => void;
+  onStatusChange?: (id: string, newStatus: "actif" | "inactif") => void;
 }
 
-export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurListProps) {
+export function CollaborateurList({ collaborateurs, onDelete, onStatusChange }: CollaborateurListProps) {
   const navigate = useNavigate();
 
   return (
@@ -110,6 +112,31 @@ export function CollaborateurList({ collaborateurs, onDelete }: CollaborateurLis
                       <Edit className="h-4 w-4" />
                       Modifier
                     </DropdownMenuItem>
+                    
+                    {onStatusChange && (
+                      <>
+                        <DropdownMenuSeparator />
+                        {collaborateur.statut === "actif" ? (
+                          <DropdownMenuItem 
+                            onClick={() => onStatusChange(collaborateur.id, "inactif")}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <UserX className="h-4 w-4" />
+                            Désactiver
+                          </DropdownMenuItem>
+                        ) : (
+                          <DropdownMenuItem 
+                            onClick={() => onStatusChange(collaborateur.id, "actif")}
+                            className="flex items-center gap-2 cursor-pointer"
+                          >
+                            <UserCheck className="h-4 w-4" />
+                            Activer
+                          </DropdownMenuItem>
+                        )}
+                      </>
+                    )}
+                    
+                    <DropdownMenuSeparator />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <DropdownMenuItem 
