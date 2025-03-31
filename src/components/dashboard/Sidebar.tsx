@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -21,6 +20,7 @@ type MenuItem = {
   icon: React.ElementType;
   label: string;
   adminOnly?: boolean;
+  allowedRoles?: string[];
 };
 
 const menuItems: MenuItem[] = [
@@ -33,7 +33,7 @@ const menuItems: MenuItem[] = [
   { path: "/facturation", icon: Receipt, label: "Facturation" },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
   { path: "/rapports", icon: FileText, label: "Rapports" },
-  { path: "/parametres", icon: Settings, label: "Paramètres", adminOnly: true }
+  { path: "/parametres", icon: Settings, label: "Paramètres", allowedRoles: ["admin", "comptable"] }
 ];
 
 const Sidebar = () => {
@@ -41,15 +41,13 @@ const Sidebar = () => {
   const location = useLocation();
   const userRole = localStorage.getItem("userRole");
   
-  const isAdmin = userRole === "admin";
-
   const isActiveRoute = (path: string) => {
     return location.pathname === path;
   };
 
   // Filter menu items based on user role
   const filteredMenuItems = menuItems.filter(item => 
-    !item.adminOnly || (item.adminOnly && isAdmin)
+    !item.allowedRoles || item.allowedRoles.includes(userRole || "")
   );
 
   return (

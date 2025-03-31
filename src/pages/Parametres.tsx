@@ -15,9 +15,12 @@ const Parametres = () => {
   const { toast } = useToast();
   const userRole = localStorage.getItem("userRole");
   
+  // Define allowed roles for the Settings page
+  const allowedRoles = ["admin", "comptable"];
+  
   useEffect(() => {
-    // Check if user is admin; if not, redirect to dashboard
-    if (userRole !== "admin") {
+    // Check if user has permission; if not, redirect to dashboard
+    if (!allowedRoles.includes(userRole || "")) {
       toast({
         variant: "destructive",
         title: "Accès non autorisé",
@@ -27,8 +30,8 @@ const Parametres = () => {
     }
   }, [navigate, toast, userRole]);
 
-  // If user is not admin, don't render the page content
-  if (userRole !== "admin") {
+  // If user doesn't have permission, don't render the page content
+  if (!allowedRoles.includes(userRole || "")) {
     return null;
   }
 
