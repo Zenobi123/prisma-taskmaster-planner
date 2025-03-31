@@ -1,6 +1,8 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getTasks } from "@/services/taskService";
+import { getCollaborateurs } from "@/services/collaborateurService";
 import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
@@ -16,10 +18,16 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
+  const { data: collaborateurs = [], isLoading: isCollaborateursLoading } = useQuery({
+    queryKey: ["collaborateurs"],
+    queryFn: getCollaborateurs,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
+
   const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientStats,
-    // Configurer le rafraîchissement automatique
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
@@ -45,15 +53,27 @@ const QuickStats = () => {
     return completedCount;
   };
   
-  // Count unique collaborators assigned to tasks
+  // Count active collaborators that are assigned to tasks
   const countActiveCollaborators = () => {
-    const collaborateurIds = new Set();
+    // Create a map to count tasks per collaborator
+    const collaborateurTaskCount = new Map();
+    
+    // Count active tasks per collaborator
     tasks.forEach((task: any) => {
-      if (task.collaborateur_id) {
-        collaborateurIds.add(task.collaborateur_id);
+      if (task.status === "en_cours" && task.collaborateur_id) {
+        const collaborateurId = task.collaborateur_id;
+        const currentCount = collaborateurTaskCount.get(collaborateurId) || 0;
+        collaborateurTaskCount.set(collaborateurId, currentCount + 1);
       }
     });
-    return collaborateurIds.size;
+    
+    // Filter collaborateurs with active status
+    const activeCollaborateurs = collaborateurs.filter(collab => collab.statut === "actif");
+    
+    // Return the count of collaborateurs that have active status and are assigned to at least one task
+    return activeCollaborateurs.filter(collab => 
+      collaborateurTaskCount.has(collab.id) && collaborateurTaskCount.get(collab.id) > 0
+    ).length;
   };
 
   const completedMissions = countCompletedMissions();
@@ -97,13 +117,13 @@ const QuickStats = () => {
           </h3>
           <div className="flex items-center">
             <div className="text-3xl font-bold text-primary mr-2">
-              {isTasksLoading ? (
+              {isTasksLoading || isCollaborateursLoading ? (
                 <span className="animate-pulse">--</span>
               ) : (
                 activeCollaborators
               )}
             </div>
-            {!isTasksLoading && (
+            {!isTasksLoading && !isCollaborateursLoading && (
               <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
                 Actifs
               </Badge>

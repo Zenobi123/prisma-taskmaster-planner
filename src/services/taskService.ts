@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Task {
@@ -12,6 +13,18 @@ export interface Task {
   end_date?: string;
   start_time?: string;
   end_time?: string;
+  // Relations
+  collaborateurs?: {
+    id: string;
+    nom: string;
+    prenom: string;
+  };
+  clients?: {
+    id: string;
+    nom: string;
+    raisonsociale: string;
+    type: string;
+  };
 }
 
 export const getTasks = async () => {
@@ -40,7 +53,57 @@ export const getTasks = async () => {
 
   // Mise à jour des statuts sans filtrage par date
   const updatedTasks = await updateTaskStatusesBasedOnDates(data);
+  
+  // Mettre à jour le nombre de tâches en cours pour chaque collaborateur
+  await updateCollaborateurTaskCounts(updatedTasks);
+  
   return updatedTasks;
+};
+
+// Update collaborateur task counts based on current tasks
+const updateCollaborateurTaskCounts = async (tasks: Task[]) => {
+  try {
+    // Group tasks by collaborateur and count active tasks
+    const collaborateurTaskCounts = new Map<string, number>();
+    
+    tasks.forEach(task => {
+      if (task.status === "en_cours" && task.collaborateur_id) {
+        const count = collaborateurTaskCounts.get(task.collaborateur_id) || 0;
+        collaborateurTaskCounts.set(task.collaborateur_id, count + 1);
+      }
+    });
+    
+    // Get all collaborateurs to update their tachesencours
+    const { data: collaborateurs, error: fetchError } = await supabase
+      .from("collaborateurs")
+      .select("id, tachesencours");
+      
+    if (fetchError) {
+      console.error("Erreur lors de la récupération des collaborateurs:", fetchError);
+      return;
+    }
+    
+    // Update each collaborateur's tachesencours count in the database
+    for (const collaborateur of collaborateurs) {
+      const taskCount = collaborateurTaskCounts.get(collaborateur.id) || 0;
+      
+      // Only update if the count has changed
+      if (taskCount !== collaborateur.tachesencours) {
+        const { error: updateError } = await supabase
+          .from("collaborateurs")
+          .update({ tachesencours: taskCount })
+          .eq("id", collaborateur.id);
+          
+        if (updateError) {
+          console.error(`Erreur lors de la mise à jour du nombre de tâches pour le collaborateur ${collaborateur.id}:`, updateError);
+        }
+      }
+    }
+    
+    console.log("Nombre de tâches en cours des collaborateurs mis à jour avec succès");
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour du nombre de tâches des collaborateurs:", error);
+  }
 };
 
 // Function to determine initial status based on start date
@@ -135,6 +198,12 @@ export const createTask = async (task: Omit<Task, "id" | "created_at" | "updated
     }
 
     console.log("Task created successfully:", data);
+    
+    // Update the collaborateur's task count after creating a new task
+    if (initialStatus === "en_cours") {
+      await incrementCollaborateurTaskCount(task.collaborateur_id);
+    }
+    
     return data;
   } catch (err) {
     console.error("Exception lors de la création de la tâche:", err);
@@ -146,6 +215,19 @@ export const updateTaskStatus = async (taskId: string, status: Task["status"]) =
   console.log(`Updating task ${taskId} status to ${status}`);
   
   try {
+    // Get the current task to compare statuses
+    const { data: currentTask, error: fetchError } = await supabase
+      .from("tasks")
+      .select("status, collaborateur_id")
+      .eq("id", taskId)
+      .single();
+      
+    if (fetchError) {
+      console.error("Erreur lors de la récupération de la tâche actuelle:", fetchError);
+      throw fetchError;
+    }
+    
+    // Update the task status
     const { data, error } = await supabase
       .from("tasks")
       .update({ status })
@@ -159,6 +241,18 @@ export const updateTaskStatus = async (taskId: string, status: Task["status"]) =
     }
 
     console.log("Task status updated successfully:", data);
+    
+    // Update the collaborateur's task count if the status changes between en_cours and something else
+    if (currentTask.collaborateur_id) {
+      if (currentTask.status !== "en_cours" && status === "en_cours") {
+        // Task is now in progress, increment counter
+        await incrementCollaborateurTaskCount(currentTask.collaborateur_id);
+      } else if (currentTask.status === "en_cours" && status !== "en_cours") {
+        // Task is no longer in progress, decrement counter
+        await decrementCollaborateurTaskCount(currentTask.collaborateur_id);
+      }
+    }
+    
     return data;
   } catch (err) {
     console.error("Exception lors de la mise à jour du statut de la tâche:", err);
@@ -170,6 +264,19 @@ export const deleteTask = async (taskId: string) => {
   console.log(`Deleting task ${taskId}`);
   
   try {
+    // Get the task to check status and collaborateur
+    const { data: taskToDelete, error: fetchError } = await supabase
+      .from("tasks")
+      .select("status, collaborateur_id")
+      .eq("id", taskId)
+      .single();
+      
+    if (fetchError) {
+      console.error("Erreur lors de la récupération de la tâche à supprimer:", fetchError);
+      throw fetchError;
+    }
+    
+    // Delete the task
     const { error } = await supabase
       .from("tasks")
       .delete()
@@ -181,9 +288,75 @@ export const deleteTask = async (taskId: string) => {
     }
 
     console.log("Task deleted successfully");
+    
+    // If the task was in progress, decrement the collaborateur's task count
+    if (taskToDelete.status === "en_cours" && taskToDelete.collaborateur_id) {
+      await decrementCollaborateurTaskCount(taskToDelete.collaborateur_id);
+    }
+    
     return true;
   } catch (err) {
     console.error("Exception lors de la suppression de la tâche:", err);
     throw err;
+  }
+};
+
+// Helper function to increment a collaborateur's task count
+const incrementCollaborateurTaskCount = async (collaborateurId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("collaborateurs")
+      .select("tachesencours")
+      .eq("id", collaborateurId)
+      .single();
+      
+    if (error) {
+      console.error("Erreur lors de la récupération du nombre de tâches du collaborateur:", error);
+      return;
+    }
+    
+    const currentCount = data.tachesencours || 0;
+    const newCount = currentCount + 1;
+    
+    const { error: updateError } = await supabase
+      .from("collaborateurs")
+      .update({ tachesencours: newCount })
+      .eq("id", collaborateurId);
+      
+    if (updateError) {
+      console.error("Erreur lors de l'incrémentation du nombre de tâches du collaborateur:", updateError);
+    }
+  } catch (err) {
+    console.error("Exception lors de l'incrémentation du nombre de tâches du collaborateur:", err);
+  }
+};
+
+// Helper function to decrement a collaborateur's task count
+const decrementCollaborateurTaskCount = async (collaborateurId: string) => {
+  try {
+    const { data, error } = await supabase
+      .from("collaborateurs")
+      .select("tachesencours")
+      .eq("id", collaborateurId)
+      .single();
+      
+    if (error) {
+      console.error("Erreur lors de la récupération du nombre de tâches du collaborateur:", error);
+      return;
+    }
+    
+    const currentCount = data.tachesencours || 0;
+    const newCount = Math.max(0, currentCount - 1); // Ensure count doesn't go below 0
+    
+    const { error: updateError } = await supabase
+      .from("collaborateurs")
+      .update({ tachesencours: newCount })
+      .eq("id", collaborateurId);
+      
+    if (updateError) {
+      console.error("Erreur lors de la décrémentation du nombre de tâches du collaborateur:", updateError);
+    }
+  } catch (err) {
+    console.error("Exception lors de la décrémentation du nombre de tâches du collaborateur:", err);
   }
 };
