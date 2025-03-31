@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Sidebar } from "@/components/dashboard/Sidebar";
+import Sidebar from "@/components/dashboard/Sidebar";
 import PageLayout from "@/components/layout/PageLayout";
 import ProfileSettings from "@/components/parametres/ProfileSettings";
 import AppSettings from "@/components/parametres/AppSettings";
