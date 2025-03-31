@@ -16,7 +16,14 @@ import {
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 
-const menuItems = [
+type MenuItem = {
+  path: string;
+  icon: React.ElementType;
+  label: string;
+  adminOnly?: boolean;
+};
+
+const menuItems: MenuItem[] = [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
   { path: "/collaborateurs", icon: Users, label: "Collaborateurs" },
   { path: "/clients", icon: Users, label: "Clients" },
@@ -26,16 +33,24 @@ const menuItems = [
   { path: "/facturation", icon: Receipt, label: "Facturation" },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
   { path: "/rapports", icon: FileText, label: "Rapports" },
-  { path: "/parametres", icon: Settings, label: "Paramètres" }
+  { path: "/parametres", icon: Settings, label: "Paramètres", adminOnly: true }
 ];
 
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
+  const userRole = localStorage.getItem("userRole");
+  
+  const isAdmin = userRole === "admin";
 
   const isActiveRoute = (path: string) => {
     return location.pathname === path;
   };
+
+  // Filter menu items based on user role
+  const filteredMenuItems = menuItems.filter(item => 
+    !item.adminOnly || (item.adminOnly && isAdmin)
+  );
 
   return (
     <aside
@@ -63,7 +78,7 @@ const Sidebar = () => {
       </div>
 
       <nav className="flex-1 py-4 px-2 space-y-1">
-        {menuItems.map((item) => (
+        {filteredMenuItems.map((item) => (
           <Link
             key={item.path}
             to={item.path}
