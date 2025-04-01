@@ -1,13 +1,18 @@
 
-import { useEffect } from "react";
 import { useCollaborateurs } from "@/hooks/useCollaborateurs";
-import { useToast } from "@/components/ui/use-toast";
 import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 import { CollaborateurLoading } from "@/components/collaborateurs/CollaborateurLoading";
 import { CollaborateurContent } from "@/components/collaborateurs/CollaborateurContent";
+import { useAuthorization } from "@/hooks/useAuthorization";
 
 export default function Collaborateurs() {
-  const { toast } = useToast();
+  // Vérifier les autorisations d'accès
+  const { isAuthorized } = useAuthorization(
+    ["admin"], 
+    "collaborateurs",
+    { showToast: true }
+  );
+
   const {
     searchTerm,
     setSearchTerm,
@@ -20,7 +25,6 @@ export default function Collaborateurs() {
     isDialogOpen,
     setIsDialogOpen,
     userRole,
-    navigate,
     newCollaborateur,
     isLoading,
     postes,
@@ -31,20 +35,8 @@ export default function Collaborateurs() {
     onDelete,
   } = useCollaborateurs();
 
-  // Vérifier les autorisations d'accès
-  useEffect(() => {
-    if (userRole !== "admin") {
-      toast({
-        variant: "destructive",
-        title: "Accès non autorisé",
-        description: "Seuls les administrateurs peuvent accéder à la gestion des collaborateurs."
-      });
-      navigate("/");
-    }
-  }, [userRole, navigate, toast]);
-
   // Si l'utilisateur n'est pas administrateur, ne pas rendre le contenu
-  if (userRole !== "admin") {
+  if (!isAuthorized) {
     return <CollaborateurUnauthorized />;
   }
 

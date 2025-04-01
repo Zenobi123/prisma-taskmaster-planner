@@ -70,14 +70,16 @@ const UserManagement = () => {
       />
 
       {/* Dialog de modification d'utilisateur */}
-      <EditUserDialog
-        isOpen={isEditUserOpen}
-        onOpenChange={setIsEditUserOpen}
-        userData={selectedUser}
-        onChange={handleUserChange}
-        onSubmit={handleEditUser}
-        roles={roles}
-      />
+      {selectedUser && (
+        <EditUserDialog
+          isOpen={isEditUserOpen}
+          onOpenChange={setIsEditUserOpen}
+          userData={selectedUser}
+          onChange={handleUserChange}
+          onSubmit={handleEditUser}
+          roles={roles}
+        />
+      )}
     </div>
   );
 };

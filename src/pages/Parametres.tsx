@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import Sidebar from "@/components/dashboard/Sidebar";
 import PageLayout from "@/components/layout/PageLayout";
@@ -8,48 +8,22 @@ import AppSettings from "@/components/parametres/AppSettings";
 import SecuritySettings from "@/components/parametres/SecuritySettings";
 import NotificationSettings from "@/components/parametres/NotificationSettings";
 import UserManagement from "@/components/parametres/user-management/UserManagement";
-import { useNavigate } from 'react-router-dom';
-import { useToast } from "@/components/ui/use-toast";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
+import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
+import { useAuthorization } from "@/hooks/useAuthorization";
 
 const Parametres = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const userRole = localStorage.getItem("userRole");
+  // Utilisation du hook d'autorisation
+  const { isAuthorized, userRole } = useAuthorization(
+    ["admin"], 
+    "parametres",
+    { showToast: true }
+  );
   
-  // Définir les rôles autorisés uniquement pour l'administrateur
-  const allowedRoles = ["admin"];
   const isAdmin = userRole === "admin";
   
-  useEffect(() => {
-    // Vérifier si l'utilisateur a l'autorisation, sinon rediriger vers le tableau de bord
-    if (!allowedRoles.includes(userRole || "")) {
-      toast({
-        variant: "destructive",
-        title: "Accès non autorisé",
-        description: "Seuls les administrateurs peuvent accéder aux paramètres du système."
-      });
-      navigate("/");
-    }
-  }, [navigate, toast, userRole]);
-
   // Si l'utilisateur n'a pas d'autorisation, ne pas rendre le contenu de la page
-  if (!allowedRoles.includes(userRole || "")) {
-    return (
-      <div className="flex h-screen">
-        <Sidebar />
-        <PageLayout>
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Accès non autorisé</AlertTitle>
-            <AlertDescription>
-              Seuls les administrateurs peuvent accéder aux paramètres du système.
-            </AlertDescription>
-          </Alert>
-        </PageLayout>
-      </div>
-    );
+  if (!isAuthorized) {
+    return <CollaborateurUnauthorized module="parametres" />;
   }
 
   return (
@@ -88,13 +62,7 @@ const Parametres = () => {
               {isAdmin ? (
                 <UserManagement />
               ) : (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Accès restreint</AlertTitle>
-                  <AlertDescription>
-                    Seuls les administrateurs peuvent gérer les utilisateurs et leurs privilèges.
-                  </AlertDescription>
-                </Alert>
+                <CollaborateurUnauthorized module="parametres" />
               )}
             </TabsContent>
           </Tabs>
