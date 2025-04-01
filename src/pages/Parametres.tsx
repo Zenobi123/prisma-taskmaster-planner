@@ -7,8 +7,11 @@ import ProfileSettings from "@/components/parametres/ProfileSettings";
 import AppSettings from "@/components/parametres/AppSettings";
 import SecuritySettings from "@/components/parametres/SecuritySettings";
 import NotificationSettings from "@/components/parametres/NotificationSettings";
+import UserManagement from "@/components/parametres/UserManagement";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const Parametres = () => {
   const navigate = useNavigate();
@@ -17,6 +20,7 @@ const Parametres = () => {
   
   // Define allowed roles for the Settings page
   const allowedRoles = ["admin", "comptable"];
+  const isAdmin = userRole === "admin";
   
   useEffect(() => {
     // Check if user has permission; if not, redirect to dashboard
@@ -48,6 +52,7 @@ const Parametres = () => {
               <TabsTrigger value="application">Application</TabsTrigger>
               <TabsTrigger value="security">Sécurité</TabsTrigger>
               <TabsTrigger value="notifications">Notifications</TabsTrigger>
+              {isAdmin && <TabsTrigger value="users">Utilisateurs</TabsTrigger>}
             </TabsList>
             
             <TabsContent value="profile">
@@ -64,6 +69,20 @@ const Parametres = () => {
             
             <TabsContent value="notifications">
               <NotificationSettings />
+            </TabsContent>
+            
+            <TabsContent value="users">
+              {isAdmin ? (
+                <UserManagement />
+              ) : (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Accès restreint</AlertTitle>
+                  <AlertDescription>
+                    Seuls les administrateurs peuvent gérer les utilisateurs et leurs privilèges.
+                  </AlertDescription>
+                </Alert>
+              )}
             </TabsContent>
           </Tabs>
         </div>

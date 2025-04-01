@@ -33,7 +33,7 @@ const menuItems: MenuItem[] = [
   { path: "/facturation", icon: Receipt, label: "Facturation" },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
   { path: "/rapports", icon: FileText, label: "Rapports" },
-  { path: "/parametres", icon: Settings, label: "Paramètres", allowedRoles: ["admin", "comptable"] }
+  { path: "/parametres", icon: Settings, label: "Paramètres", allowedRoles: ["admin"] }
 ];
 
 const Sidebar = () => {
