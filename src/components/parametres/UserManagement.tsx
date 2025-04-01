@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import { Shield, PlusCircle, Edit, Trash } from "lucide-react";
+import { PermissionsFields } from "@/components/collaborateurs/form/PermissionsFields";
+import { CollaborateurPermissions } from "@/types/collaborateur";
 
 const UserManagement = () => {
   const { toast } = useToast();
@@ -22,18 +24,19 @@ const UserManagement = () => {
   const [isEditUserOpen, setIsEditUserOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<any>(null);
 
-  // Liste exemple d'utilisateurs
+  // Liste mise à jour des utilisateurs avec des données réelles correspondant à l'application
   const [users, setUsers] = useState([
-    { id: 1, name: "Jean Dupont", email: "jean@prisma.com", role: "admin" },
-    { id: 2, name: "Marie Martin", email: "marie@prisma.com", role: "comptable" },
-    { id: 3, name: "Paul Durand", email: "paul@prisma.com", role: "assistant" }
+    { id: 1, name: "Principal Admin", email: "admin@example.com", role: "admin" },
+    { id: 2, name: "Joel Hervé TCHOMKAM", email: "joelhervetckomkam@gmail.com", role: "comptable" },
+    { id: 3, name: "Fransnelle FANKAM FOSSO", email: "fankam.prisma@gmail.com", role: "assistant" }
   ]);
 
   const [newUser, setNewUser] = useState({
     name: "",
     email: "",
     password: "",
-    role: "comptable"
+    role: "comptable",
+    permissions: [] as CollaborateurPermissions[]
   });
 
   const roles = [
@@ -41,7 +44,8 @@ const UserManagement = () => {
     { value: "comptable", label: "Comptable" },
     { value: "assistant", label: "Assistant" },
     { value: "fiscaliste", label: "Fiscaliste" },
-    { value: "gestionnaire", label: "Gestionnaire" }
+    { value: "gestionnaire", label: "Gestionnaire" },
+    { value: "expert-comptable", label: "Expert-Comptable" }
   ];
 
   const handleAddUser = () => {
@@ -56,7 +60,8 @@ const UserManagement = () => {
       name: "",
       email: "",
       password: "",
-      role: "comptable"
+      role: "comptable",
+      permissions: []
     });
   };
 
@@ -88,8 +93,16 @@ const UserManagement = () => {
   };
 
   const openEditModal = (user: any) => {
-    setSelectedUser({ ...user });
+    setSelectedUser({ ...user, permissions: user.permissions || [] });
     setIsEditUserOpen(true);
+  };
+
+  const handlePermissionChange = (field: string, value: CollaborateurPermissions[]) => {
+    if (selectedUser) {
+      setSelectedUser({...selectedUser, permissions: value});
+    } else {
+      setNewUser({...newUser, permissions: value});
+    }
   };
 
   return (
@@ -149,7 +162,7 @@ const UserManagement = () => {
 
       {/* Dialog d'ajout d'utilisateur */}
       <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Ajouter un nouvel utilisateur</DialogTitle>
           </DialogHeader>
@@ -198,6 +211,12 @@ const UserManagement = () => {
                 </SelectContent>
               </Select>
             </div>
+            
+            {/* Champs de permissions */}
+            <PermissionsFields 
+              permissions={newUser.permissions} 
+              onChange={handlePermissionChange} 
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>Annuler</Button>
@@ -208,7 +227,7 @@ const UserManagement = () => {
 
       {/* Dialog de modification d'utilisateur */}
       <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
-        <DialogContent>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Modifier l'utilisateur</DialogTitle>
           </DialogHeader>
@@ -259,6 +278,12 @@ const UserManagement = () => {
                   onChange={(e) => setSelectedUser({...selectedUser, password: e.target.value})} 
                 />
               </div>
+              
+              {/* Champs de permissions */}
+              <PermissionsFields 
+                permissions={selectedUser.permissions || []} 
+                onChange={handlePermissionChange} 
+              />
             </div>
           )}
           <DialogFooter>

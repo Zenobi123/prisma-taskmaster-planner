@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { 
@@ -25,7 +26,7 @@ type MenuItem = {
 
 const menuItems: MenuItem[] = [
   { path: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { path: "/collaborateurs", icon: Users, label: "Collaborateurs" },
+  { path: "/collaborateurs", icon: Users, label: "Collaborateurs", allowedRoles: ["admin"] },
   { path: "/clients", icon: Users, label: "Clients" },
   { path: "/gestion", icon: FolderOpen, label: "Gestion" },
   { path: "/missions", icon: Briefcase, label: "Mission" },

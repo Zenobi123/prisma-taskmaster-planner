@@ -18,25 +18,38 @@ const Parametres = () => {
   const { toast } = useToast();
   const userRole = localStorage.getItem("userRole");
   
-  // Define allowed roles for the Settings page
-  const allowedRoles = ["admin", "comptable"];
+  // Définir les rôles autorisés uniquement pour l'administrateur
+  const allowedRoles = ["admin"];
   const isAdmin = userRole === "admin";
   
   useEffect(() => {
-    // Check if user has permission; if not, redirect to dashboard
+    // Vérifier si l'utilisateur a l'autorisation, sinon rediriger vers le tableau de bord
     if (!allowedRoles.includes(userRole || "")) {
       toast({
         variant: "destructive",
         title: "Accès non autorisé",
-        description: "Vous n'avez pas les droits nécessaires pour accéder à cette page."
+        description: "Seuls les administrateurs peuvent accéder aux paramètres du système."
       });
       navigate("/");
     }
   }, [navigate, toast, userRole]);
 
-  // If user doesn't have permission, don't render the page content
+  // Si l'utilisateur n'a pas d'autorisation, ne pas rendre le contenu de la page
   if (!allowedRoles.includes(userRole || "")) {
-    return null;
+    return (
+      <div className="flex h-screen">
+        <Sidebar />
+        <PageLayout>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Accès non autorisé</AlertTitle>
+            <AlertDescription>
+              Seuls les administrateurs peuvent accéder aux paramètres du système.
+            </AlertDescription>
+          </Alert>
+        </PageLayout>
+      </div>
+    );
   }
 
   return (
