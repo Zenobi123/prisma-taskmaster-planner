@@ -7,7 +7,7 @@ import ProfileSettings from "@/components/parametres/ProfileSettings";
 import AppSettings from "@/components/parametres/AppSettings";
 import SecuritySettings from "@/components/parametres/SecuritySettings";
 import NotificationSettings from "@/components/parametres/NotificationSettings";
-import UserManagement from "@/components/parametres/UserManagement";
+import UserManagement from "@/components/parametres/user-management/UserManagement";
 import { useNavigate } from 'react-router-dom';
 import { useToast } from "@/components/ui/use-toast";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
