@@ -7,41 +7,26 @@ import {
   CollapsibleTrigger 
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
 // Components
 import Sidebar from "@/components/dashboard/Sidebar";
-import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import DashboardCollapsible from "@/components/dashboard/DashboardCollapsible";
 import QuickStats from "@/components/dashboard/QuickStats";
-import RecentTasks from "@/components/dashboard/RecentTasks";
-import UnpaidPatenteList from "@/components/dashboard/UnpaidPatenteList";
-import UnpaidPatenteSummary from "@/components/dashboard/UnpaidPatenteSummary";
-import UnpaidPatenteDialog from "@/components/dashboard/UnpaidPatenteDialog";
-import ExpiringFiscalAttestations from "@/components/dashboard/ExpiringFiscalAttestations";
-import UnfiledDsfList from "@/components/dashboard/UnfiledDsfList";
-import UnfiledDsfSummary from "@/components/dashboard/UnfiledDsfSummary";
-import UnfiledDsfDialog from "@/components/dashboard/UnfiledDsfDialog";
-
-// Hooks
-import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
+import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
+import { UnfiledDsfDialog } from "@/components/dashboard/UnfiledDsfDialog";
 
 const Index = () => {
   const queryClient = useQueryClient();
-  const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   
   // États pour les dialogues
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
   const [isUnfiledDsfDialogOpen, setIsUnfiledDsfDialogOpen] = useState(false);
-  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   
-  // États pour gérer la visibilité des sections
-  const [isTasksOpen, setIsTasksOpen] = useState(false);
-  const [isAttestationsOpen, setIsAttestationsOpen] = useState(false);
-  const [isPatenteOpen, setIsPatenteOpen] = useState(false);
-  const [isDsfOpen, setIsDsfOpen] = useState(false);
-
   // Mémoisation de la fonction de rafraîchissement pour éviter les re-créations inutiles
   const refreshDashboard = useCallback(() => {
     try {
@@ -103,138 +88,33 @@ const Index = () => {
       <Sidebar />
 
       <main className="flex-1 bg-neutral-100">
-        <header className="bg-white border-b border-neutral-200 px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-semibold text-neutral-800">
-                Tableau de bord
-              </h1>
-              <p className="text-neutral-600 mt-1">
-                Bienvenue sur votre espace de gestion
-                <span className="text-xs ml-2 text-neutral-400">
-                  Actualisé à {lastRefresh.toLocaleTimeString()}
-                </span>
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={refreshDashboard}
-                className="flex items-center gap-1"
-              >
-                Actualiser
-              </Button>
-              <NewTaskDialog />
-            </div>
-          </div>
-        </header>
+        <DashboardHeader 
+          lastRefresh={lastRefresh} 
+          onRefresh={refreshDashboard} 
+        />
 
         <div className="p-8 space-y-8">
           <QuickStats />
           
-          {/* Section Tâches Récentes */}
-          <Collapsible open={isTasksOpen} onOpenChange={setIsTasksOpen} className="border rounded-lg overflow-hidden bg-white shadow-sm">
-            <div className="flex justify-between items-center p-4 border-b bg-white">
-              <h2 className="text-xl font-semibold text-neutral-800">
-                Tâches récentes
-              </h2>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  {isTasksOpen ? (
-                    <ChevronUp className="h-5 w-5" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent>
-              <div className="p-2">
-                <RecentTasks />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+          <DashboardCollapsible 
+            title="Tâches récentes"
+            componentName="RecentTasks"
+          />
           
-          {/* Section Attestations Fiscales */}
-          <Collapsible open={isAttestationsOpen} onOpenChange={setIsAttestationsOpen} className="border rounded-lg overflow-hidden bg-white shadow-sm">
-            <div className="flex justify-between items-center p-4 border-b bg-white">
-              <h2 className="text-xl font-semibold text-neutral-800">
-                Attestations de Conformité Fiscale
-              </h2>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  {isAttestationsOpen ? (
-                    <ChevronUp className="h-5 w-5" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent>
-              <div className="p-2">
-                <ExpiringFiscalAttestations 
-                  attestations={attestations} 
-                  isLoading={isLoading} 
-                />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+          <DashboardCollapsible 
+            title="Attestations de Conformité Fiscale"
+            componentName="ExpiringFiscalAttestations"
+          />
 
-          {/* Section Patente */}
-          <Collapsible open={isPatenteOpen} onOpenChange={setIsPatenteOpen} className="border rounded-lg overflow-hidden bg-white shadow-sm">
-            <div className="flex justify-between items-center p-4 border-b bg-white">
-              <h2 className="text-xl font-semibold text-neutral-800">
-                Gestion des Patentes
-              </h2>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  {isPatenteOpen ? (
-                    <ChevronUp className="h-5 w-5" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent>
-              <div className="p-4 space-y-6">
-                {/* Résumé des patentes impayées */}
-                <UnpaidPatenteSummary onViewAllClick={() => setIsUnpaidPatenteDialogOpen(true)} />
-                
-                {/* Liste des clients avec patente impayée */}
-                <UnpaidPatenteList />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+          <DashboardCollapsible 
+            title="Gestion des Patentes"
+            componentName="PatenteSection"
+          />
           
-          {/* Section DSF */}
-          <Collapsible open={isDsfOpen} onOpenChange={setIsDsfOpen} className="border rounded-lg overflow-hidden bg-white shadow-sm">
-            <div className="flex justify-between items-center p-4 border-b bg-white">
-              <h2 className="text-xl font-semibold text-neutral-800">
-                Déclarations Statistiques et Fiscales
-              </h2>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                  {isDsfOpen ? (
-                    <ChevronUp className="h-5 w-5" />
-                  ) : (
-                    <ChevronDown className="h-5 w-5" />
-                  )}
-                </Button>
-              </CollapsibleTrigger>
-            </div>
-            <CollapsibleContent>
-              <div className="p-4 space-y-6">
-                {/* Résumé des DSF non déposées */}
-                <UnfiledDsfSummary onViewAllClick={() => setIsUnfiledDsfDialogOpen(true)} />
-                
-                {/* Liste des clients avec DSF non déposée */}
-                <UnfiledDsfList />
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+          <DashboardCollapsible 
+            title="Déclarations Statistiques et Fiscales"
+            componentName="DsfSection"
+          />
         </div>
       </main>
       
