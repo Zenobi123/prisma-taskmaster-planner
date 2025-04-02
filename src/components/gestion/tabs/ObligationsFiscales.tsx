@@ -3,12 +3,12 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
-import { useObligationsFiscales } from "./fiscal/hooks/useObligationsFiscales";
+import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
 import { Loader2 } from "lucide-react";
 
 // Properly re-export types with 'export type' syntax to fix the TS1205 error
-export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "./fiscal/types";
+export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "@/hooks/fiscal/types";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
