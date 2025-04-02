@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { CollaborateurPermissions } from "@/types/collaborateur";
@@ -20,7 +21,7 @@ export const useUserManagement = () => {
   const [users, setUsers] = useState<User[]>([
     { id: 1, name: "Principal Admin", email: "admin@example.com", role: "admin", permissions: [] },
     { id: 2, name: "Joel Hervé TCHOMKAM", email: "joelhervetckomkam@gmail.com", role: "comptable", permissions: [] },
-    { id: 3, name: "Fransnelle FANKAM FOSSO", email: "fankam.prisma@gmail.com", role: "assistant", permissions: [] }
+    { id: 3, name: "Fransnelle FANKAM FOSSO", email: "fankam.prisca@gmail.com", role: "assistant", permissions: [] }
   ]);
 
   const [newUser, setNewUser] = useState<UserFormData>({
@@ -41,7 +42,7 @@ export const useUserManagement = () => {
   ];
 
   const handleAddUser = () => {
-    setUsers([...users, { id: Date.now(), ...newUser }]);
+    setUsers(prev => [...prev, { id: Date.now(), ...newUser }]);
     toast({
       title: "Utilisateur ajouté",
       description: `${newUser.name} a été ajouté avec le rôle ${newUser.role}.`
@@ -58,7 +59,7 @@ export const useUserManagement = () => {
 
   const handleDeleteUser = (id: number) => {
     if (window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
-      setUsers(users.filter(user => user.id !== id));
+      setUsers(prev => prev.filter(user => user.id !== id));
       toast({
         title: "Utilisateur supprimé",
         description: "L'utilisateur a été supprimé avec succès."
@@ -69,7 +70,7 @@ export const useUserManagement = () => {
   const handleEditUser = () => {
     if (!selectedUser) return;
     
-    setUsers(users.map(user => 
+    setUsers(prev => prev.map(user => 
       user.id === selectedUser.id ? selectedUser : user
     ));
     

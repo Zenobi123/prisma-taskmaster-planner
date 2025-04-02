@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { memo } from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash } from "lucide-react";
@@ -11,7 +12,7 @@ type UserManagementTableProps = {
   roles: { value: string; label: string }[];
 };
 
-const UserManagementTable = ({ users, openEditModal, handleDeleteUser, roles }: UserManagementTableProps) => {
+const UserManagementTable = memo(({ users, openEditModal, handleDeleteUser, roles }: UserManagementTableProps) => {
   return (
     <Table>
       <TableHeader>
@@ -33,11 +34,19 @@ const UserManagementTable = ({ users, openEditModal, handleDeleteUser, roles }: 
               }</span>
             </TableCell>
             <TableCell className="text-right">
-              <Button variant="ghost" size="icon" onClick={() => openEditModal(user)}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => openEditModal(user)}
+              >
                 <Edit className="h-4 w-4" />
                 <span className="sr-only">Modifier</span>
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => handleDeleteUser(user.id)}>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => handleDeleteUser(user.id)}
+              >
                 <Trash className="h-4 w-4" />
                 <span className="sr-only">Supprimer</span>
               </Button>
@@ -47,6 +56,9 @@ const UserManagementTable = ({ users, openEditModal, handleDeleteUser, roles }: 
       </TableBody>
     </Table>
   );
-};
+});
+
+// Ajout du displayName pour faciliter le debugging
+UserManagementTable.displayName = 'UserManagementTable';
 
 export default UserManagementTable;

@@ -1,19 +1,6 @@
-import Sidebar from "@/components/dashboard/Sidebar";
-import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
-import QuickStats from "@/components/dashboard/QuickStats";
-import RecentTasks from "@/components/dashboard/RecentTasks";
-import UnpaidPatenteList from "@/components/dashboard/UnpaidPatenteList";
-import UnpaidPatenteSummary from "@/components/dashboard/UnpaidPatenteSummary";
-import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
-import ExpiringFiscalAttestations from "@/components/dashboard/ExpiringFiscalAttestations";
-import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
-import UnfiledDsfList from "@/components/dashboard/UnfiledDsfList";
-import UnfiledDsfSummary from "@/components/dashboard/UnfiledDsfSummary";
-import { UnfiledDsfDialog } from "@/components/dashboard/UnfiledDsfDialog";
-import { Toaster } from "@/components/ui/toaster";
-import { useState, useEffect } from "react";
+
+import { useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { toast } from "@/components/ui/use-toast";
 import { 
   Collapsible, 
   CollapsibleContent, 
@@ -21,54 +8,93 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
+import { Toaster } from "@/components/ui/toaster";
+
+// Components
+import Sidebar from "@/components/dashboard/Sidebar";
+import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
+import QuickStats from "@/components/dashboard/QuickStats";
+import RecentTasks from "@/components/dashboard/RecentTasks";
+import UnpaidPatenteList from "@/components/dashboard/UnpaidPatenteList";
+import UnpaidPatenteSummary from "@/components/dashboard/UnpaidPatenteSummary";
+import UnpaidPatenteDialog from "@/components/dashboard/UnpaidPatenteDialog";
+import ExpiringFiscalAttestations from "@/components/dashboard/ExpiringFiscalAttestations";
+import UnfiledDsfList from "@/components/dashboard/UnfiledDsfList";
+import UnfiledDsfSummary from "@/components/dashboard/UnfiledDsfSummary";
+import UnfiledDsfDialog from "@/components/dashboard/UnfiledDsfDialog";
+
+// Hooks
+import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 
 const Index = () => {
   const queryClient = useQueryClient();
   const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
+  
+  // États pour les dialogues
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
   const [isUnfiledDsfDialogOpen, setIsUnfiledDsfDialogOpen] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   
-  // États pour gérer la visibilité de chaque section - initialisés à false pour qu'elles soient fermées par défaut
+  // États pour gérer la visibilité des sections
   const [isTasksOpen, setIsTasksOpen] = useState(false);
   const [isAttestationsOpen, setIsAttestationsOpen] = useState(false);
   const [isPatenteOpen, setIsPatenteOpen] = useState(false);
   const [isDsfOpen, setIsDsfOpen] = useState(false);
 
-  // Configuration de l'intervalle de rafraîchissement (toutes les 10 secondes)
+  // Mémoisation de la fonction de rafraîchissement pour éviter les re-créations inutiles
+  const refreshDashboard = useCallback(() => {
+    try {
+      // Rafraîchir les requêtes React Query principales
+      queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["client-stats"] });
+      
+      // Mettre à jour le timestamp de dernière actualisation
+      setLastRefresh(new Date());
+      
+      console.log("Actualisation manuelle du tableau de bord effectuée à", new Date().toLocaleTimeString());
+    } catch (error) {
+      console.error("Erreur lors de l'actualisation:", error);
+      toast({
+        title: "Erreur d'actualisation",
+        description: "Impossible d'actualiser les données. Veuillez réessayer.",
+        variant: "destructive"
+      });
+    }
+  }, [queryClient]);
+
+  // Configuration de l'intervalle de rafraîchissement (toutes les 30 secondes)
   useEffect(() => {
     console.log("Mise en place de l'actualisation automatique du tableau de bord");
     
-    // Fonction pour rafraîchir toutes les données du tableau de bord
-    const refreshDashboard = () => {
-      try {
-        // Rafraîchir les requêtes React Query principales
-        queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
-        queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
-        queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
-        queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
-        queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
-        queryClient.invalidateQueries({ queryKey: ["tasks"] });
-        queryClient.invalidateQueries({ queryKey: ["client-stats"] });
-        
-        // Mettre à jour le timestamp de dernière actualisation
-        setLastRefresh(new Date());
-        
-        console.log("Actualisation automatique du tableau de bord effectuée à", new Date().toLocaleTimeString());
-      } catch (error) {
-        console.error("Erreur lors de l'actualisation automatique:", error);
-      }
-    };
-
     // Configurer l'intervalle d'actualisation
-    const refreshInterval = setInterval(refreshDashboard, 10000); // 10 secondes
+    const refreshInterval = setInterval(refreshDashboard, 30000); // 30 secondes
 
     // Nettoyer l'intervalle lors du démontage du composant
     return () => {
       clearInterval(refreshInterval);
       console.log("Nettoyage de l'intervalle d'actualisation");
     };
-  }, [queryClient]);
+  }, [refreshDashboard]);
+
+  // Rafraîchir au focus de la fenêtre
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log("Fenêtre a reçu le focus, actualisation des données");
+      refreshDashboard();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [refreshDashboard]);
 
   console.log("Index - Rendering dashboard components, last refresh:", lastRefresh.toLocaleTimeString());
 
@@ -90,7 +116,17 @@ const Index = () => {
                 </span>
               </p>
             </div>
-            <NewTaskDialog />
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={refreshDashboard}
+                className="flex items-center gap-1"
+              >
+                Actualiser
+              </Button>
+              <NewTaskDialog />
+            </div>
           </div>
         </header>
 
