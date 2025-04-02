@@ -1,16 +1,8 @@
-
 import React from 'react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash } from "lucide-react";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-  permissions?: any[];
-};
+import { User } from './hooks/useUserManagement';
 
 type UserManagementTableProps = {
   users: User[];
