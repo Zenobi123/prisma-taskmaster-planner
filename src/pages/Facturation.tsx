@@ -9,10 +9,24 @@ import AnalyseFacturesPaiements from "@/components/facturation/analyse/AnalyseFa
 import { ArrowLeft, FileText, CreditCard, Users, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useAuthorization } from "@/hooks/useAuthorization";
+import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 
 const Facturation = () => {
   const [activeTab, setActiveTab] = useState("factures");
   const navigate = useNavigate();
+  
+  // Vérifier les autorisations d'accès
+  const { isAuthorized } = useAuthorization(
+    ["admin"], 
+    "facturation",
+    { showToast: true }
+  );
+
+  // Si l'utilisateur n'est pas administrateur, afficher le message d'erreur
+  if (!isAuthorized) {
+    return <CollaborateurUnauthorized module="facturation" />;
+  }
 
   return (
     <PageLayout>

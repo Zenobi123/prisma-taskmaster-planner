@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 
-export type AuthorizedModule = "collaborateurs" | "parametres";
+export type AuthorizedModule = "collaborateurs" | "parametres" | "facturation";
 
 interface UseAuthorizationOptions {
   redirectTo?: string;
@@ -34,7 +34,8 @@ export const useAuthorization = (
       if (showToast) {
         const moduleNames = {
           collaborateurs: "la gestion des collaborateurs",
-          parametres: "la gestion des paramètres du système"
+          parametres: "la gestion des paramètres du système",
+          facturation: "la gestion de la facturation"
         };
         
         toast({

@@ -13,9 +13,16 @@ interface CollaborateurUnauthorizedProps {
 export const CollaborateurUnauthorized = ({ 
   module = "collaborateurs" 
 }: CollaborateurUnauthorizedProps) => {
-  const moduleText = module === "parametres" 
-    ? "aux paramètres du système" 
-    : "à la gestion des collaborateurs";
+  const moduleText = (() => {
+    switch(module) {
+      case "parametres":
+        return "aux paramètres du système";
+      case "facturation":
+        return "à la gestion de la facturation";
+      default:
+        return "à la gestion des collaborateurs";
+    }
+  })();
 
   return (
     <div className="flex h-screen">

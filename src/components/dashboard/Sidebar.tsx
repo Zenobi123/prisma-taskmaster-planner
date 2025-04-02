@@ -31,7 +31,7 @@ const menuItems: MenuItem[] = [
   { path: "/gestion", icon: FolderOpen, label: "Gestion" },
   { path: "/missions", icon: Briefcase, label: "Mission" },
   { path: "/planning", icon: Calendar, label: "Planning" },
-  { path: "/facturation", icon: Receipt, label: "Facturation" },
+  { path: "/facturation", icon: Receipt, label: "Facturation", allowedRoles: ["admin"] },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
   { path: "/rapports", icon: FileText, label: "Rapports" },
   { path: "/parametres", icon: Settings, label: "Paramètres", allowedRoles: ["admin"] }
