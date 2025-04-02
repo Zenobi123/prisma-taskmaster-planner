@@ -1,103 +1,152 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
-import { ObligationType, ObligationStatuses, ClientFiscalData } from "./types";
-import { loadFiscalData, saveFiscalData } from "./services/fiscalDataService";
+import { ObligationStatuses, ClientFiscalData } from "./types";
 import { calculateValidityEndDate, checkAttestationExpiration } from "./utils/dateUtils";
+import { getFromCache, updateCache } from "./services/fiscalDataCache";
+import { saveFiscalData, fetchFiscalData } from "./services/fiscalDataService";
+import { toast } from "sonner";
 
-export function useObligationsFiscales(client: Client) {
+export const useObligationsFiscales = (selectedClient: Client) => {
   const [creationDate, setCreationDate] = useState<string>("");
   const [validityEndDate, setValidityEndDate] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [showInAlert, setShowInAlert] = useState<boolean>(true);
-  const isMounted = useRef(true);
-  
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
-    patente: { assujetti: true, paye: false },
+    patente: { assujetti: false, paye: false },
     bail: { assujetti: false, paye: false },
     taxeFonciere: { assujetti: false, paye: false },
-    dsf: { assujetti: true, depose: false },
+    dsf: { assujetti: false, depose: false },
     darp: { assujetti: false, depose: false }
   });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [showInAlert, setShowInAlert] = useState<boolean>(true);
+  const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
 
-  // Clean up on unmount
+  // Fetch fiscal data when client changes
   useEffect(() => {
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
-
-  // Load client's fiscal data from database
-  useEffect(() => {
-    async function fetchFiscalData() {
-      if (!client || !client.id) return;
-      
-      setIsLoading(true);
-      
-      const fiscalData = await loadFiscalData(client);
-      
-      if (fiscalData && isMounted.current) {
-        if (fiscalData.attestation) {
-          setCreationDate(fiscalData.attestation.creationDate || "");
-          setValidityEndDate(fiscalData.attestation.validityEndDate || "");
-          setShowInAlert(fiscalData.attestation.showInAlert !== false);
-        }
-        
-        if (fiscalData.obligations) {
-          setObligationStatuses(fiscalData.obligations);
-        }
-      }
-      
-      if (isMounted.current) {
-        setIsLoading(false);
-      }
+    if (selectedClient?.id) {
+      loadFiscalData();
     }
+  }, [selectedClient?.id]);
 
-    if (client && client.id) {
-      fetchFiscalData();
-    }
-  }, [client]);
-
-  // Calculate end date when creation date changes
+  // Update validity end date when creation date changes
   useEffect(() => {
     if (creationDate) {
-      const newEndDate = calculateValidityEndDate(creationDate);
-      if (newEndDate) {
-        setValidityEndDate(newEndDate);
-        checkAttestationExpiration(creationDate, newEndDate);
-      }
+      const calculatedEndDate = calculateValidityEndDate(creationDate);
+      setValidityEndDate(calculatedEndDate);
     }
   }, [creationDate]);
 
+  // Show toast notifications for expiring attestations
+  useEffect(() => {
+    if (creationDate && validityEndDate) {
+      checkAttestationExpiration(creationDate, validityEndDate);
+    }
+  }, [creationDate, validityEndDate]);
+
+  const loadFiscalData = async () => {
+    setIsLoading(true);
+    try {
+      // Try to get data from cache first
+      const cachedData = getFromCache(selectedClient.id);
+      if (cachedData) {
+        setFiscalDataToState(cachedData);
+        setIsLoading(false);
+        return;
+      }
+
+      // If not in cache, fetch from database
+      const fiscalData = await fetchFiscalData(selectedClient.id);
+      
+      if (fiscalData) {
+        setFiscalDataToState(fiscalData);
+        
+        // Update cache
+        updateCache(selectedClient.id, fiscalData);
+      } else {
+        // Initialize default values if no data exists
+        resetToDefaults();
+      }
+    } catch (error) {
+      console.error("Error loading fiscal data:", error);
+      toast.error("Erreur lors du chargement des données fiscales");
+      resetToDefaults();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const setFiscalDataToState = (data: ClientFiscalData) => {
+    if (data.attestation) {
+      setCreationDate(data.attestation.creationDate || "");
+      setValidityEndDate(data.attestation.validityEndDate || "");
+      setShowInAlert(data.attestation.showInAlert !== false); // Default to true if undefined
+    }
+    
+    if (data.obligations) {
+      setObligationStatuses(data.obligations);
+    }
+
+    setHiddenFromDashboard(data.hiddenFromDashboard === true);
+  };
+
+  const resetToDefaults = () => {
+    setCreationDate("");
+    setValidityEndDate("");
+    setObligationStatuses({
+      patente: { assujetti: false, paye: false },
+      bail: { assujetti: false, paye: false },
+      taxeFonciere: { assujetti: false, paye: false },
+      dsf: { assujetti: false, depose: false },
+      darp: { assujetti: false, depose: false }
+    });
+    setShowInAlert(true);
+    setHiddenFromDashboard(false);
+  };
+
   const handleStatusChange = (
-    obligationType: ObligationType, 
-    statusType: "assujetti" | "paye" | "depose", 
+    type: keyof ObligationStatuses, 
+    field: "assujetti" | "paye" | "depose", 
     value: boolean
   ) => {
-    setObligationStatuses(prev => ({
+    setObligationStatuses((prev) => ({
       ...prev,
-      [obligationType]: {
-        ...prev[obligationType],
-        [statusType]: value
+      [type]: {
+        ...prev[type],
+        [field]: value
       }
     }));
   };
 
-  const handleToggleAlert = (value: boolean) => {
-    setShowInAlert(value);
+  const handleToggleAlert = () => {
+    setShowInAlert(prev => !prev);
+  };
+
+  const handleToggleDashboardVisibility = () => {
+    setHiddenFromDashboard(prev => !prev);
   };
 
   const handleSave = async () => {
-    const fiscalDataToSave: ClientFiscalData = {
+    const fiscalData: ClientFiscalData = {
       attestation: {
         creationDate,
         validityEndDate,
         showInAlert
       },
-      obligations: obligationStatuses
+      obligations: obligationStatuses,
+      hiddenFromDashboard
     };
 
-    await saveFiscalData(client, fiscalDataToSave);
+    try {
+      await saveFiscalData(selectedClient.id, fiscalData);
+      
+      // Update cache
+      updateCache(selectedClient.id, fiscalData);
+      
+      toast.success("Données fiscales enregistrées avec succès");
+    } catch (error) {
+      console.error("Error saving fiscal data:", error);
+      toast.error("Erreur lors de l'enregistrement des données fiscales");
+    }
   };
 
   return {
@@ -109,6 +158,8 @@ export function useObligationsFiscales(client: Client) {
     handleSave,
     isLoading,
     showInAlert,
-    handleToggleAlert
+    handleToggleAlert,
+    hiddenFromDashboard,
+    handleToggleDashboardVisibility
   };
-}
+};

@@ -24,7 +24,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     handleSave,
     isLoading,
     showInAlert,
-    handleToggleAlert
+    handleToggleAlert,
+    hiddenFromDashboard,
+    handleToggleDashboardVisibility
   } = useObligationsFiscales(selectedClient);
 
   if (isLoading) {
@@ -53,6 +55,8 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           handleSave={handleSave}
           showInAlert={showInAlert}
           onToggleAlert={handleToggleAlert}
+          hiddenFromDashboard={hiddenFromDashboard}
+          onToggleDashboardVisibility={handleToggleDashboardVisibility}
         />
         
         <AnnualObligationsSection 
