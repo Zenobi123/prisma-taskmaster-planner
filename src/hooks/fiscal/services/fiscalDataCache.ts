@@ -1,14 +1,14 @@
 
 import { ClientFiscalData } from "../types";
 
-// Cache for clients' fiscal data
-export const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
+// Cache pour les données fiscales des clients
+const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
 
-// Cache validity duration in ms (1 minute)
+// Durée de validité du cache en ms (1 minute)
 const CACHE_DURATION = 60000;
 
 /**
- * Get data from cache if valid
+ * Récupérer des données du cache si elles sont valides
  */
 export const getFromCache = (clientId: string): ClientFiscalData | null => {
   const now = Date.now();
@@ -23,7 +23,7 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
 };
 
 /**
- * Update cache with new data
+ * Mettre à jour le cache avec de nouvelles données
  */
 export const updateCache = (clientId: string, data: ClientFiscalData): void => {
   fiscalDataCache.set(clientId, {
@@ -31,3 +31,6 @@ export const updateCache = (clientId: string, data: ClientFiscalData): void => {
     timestamp: Date.now()
   });
 };
+
+// Exporter le cache pour permettre aux tests et autres services d'y accéder si nécessaire
+export { fiscalDataCache };

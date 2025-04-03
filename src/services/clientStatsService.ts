@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData, defaultClientFiscalData } from "@/hooks/fiscal/types";
 
@@ -9,6 +8,9 @@ export interface ClientStats {
   withExpiringAttestation: number;
   withUnfiledDsf: number;
   withUnpaidPatente: number;
+  managedClients: number;
+  unpaidPatenteClients: number;
+  unfiledDsfClients: number;
 }
 
 export const getClientStats = async (): Promise<ClientStats> => {
@@ -25,7 +27,10 @@ export const getClientStats = async (): Promise<ClientStats> => {
         archived: 0,
         withExpiringAttestation: 0,
         withUnfiledDsf: 0,
-        withUnpaidPatente: 0
+        withUnpaidPatente: 0,
+        managedClients: 0,
+        unpaidPatenteClients: 0,
+        unfiledDsfClients: 0
       };
     }
 
@@ -39,26 +44,25 @@ export const getClientStats = async (): Promise<ClientStats> => {
       archived: clients.filter(client => client.statut === 'archive').length,
       withExpiringAttestation: 0,
       withUnfiledDsf: 0,
-      withUnpaidPatente: 0
+      withUnpaidPatente: 0,
+      managedClients: clients.filter(client => client.statut === 'actif').length,
+      unpaidPatenteClients: 0,
+      unfiledDsfClients: 0
     };
 
     clients.forEach(client => {
-      // Ignorer les clients archivés pour les autres statistiques
       if (client.statut !== 'actif') return;
       
-      // Convertir les données fiscales
       const fiscalData = client.fiscal_data ? 
         (typeof client.fiscal_data === 'string' 
           ? JSON.parse(client.fiscal_data) 
           : client.fiscal_data as unknown as ClientFiscalData) 
         : defaultClientFiscalData;
         
-      // Vérifier si les données sont cachées du tableau de bord
       if (fiscalData.hiddenFromDashboard) {
         return;
       }
 
-      // Vérifier l'attestation fiscale expirante
       if (fiscalData.attestation && fiscalData.attestation.validityEndDate) {
         const endDate = new Date(fiscalData.attestation.validityEndDate);
         if (endDate <= thirtyDaysFromNow && endDate >= currentDate) {
@@ -66,20 +70,20 @@ export const getClientStats = async (): Promise<ClientStats> => {
         }
       }
 
-      // Vérifier la DSF non déposée
       if (fiscalData.obligations && 
           fiscalData.obligations.dsf && 
           fiscalData.obligations.dsf.assujetti && 
           !fiscalData.obligations.dsf.depose) {
         stats.withUnfiledDsf++;
+        stats.unfiledDsfClients++;
       }
 
-      // Vérifier la patente impayée
       if (fiscalData.obligations && 
           fiscalData.obligations.patente && 
           fiscalData.obligations.patente.assujetti && 
           !fiscalData.obligations.patente.paye) {
         stats.withUnpaidPatente++;
+        stats.unpaidPatenteClients++;
       }
     });
 
@@ -92,7 +96,10 @@ export const getClientStats = async (): Promise<ClientStats> => {
       archived: 0,
       withExpiringAttestation: 0,
       withUnfiledDsf: 0,
-      withUnpaidPatente: 0
+      withUnpaidPatente: 0,
+      managedClients: 0,
+      unpaidPatenteClients: 0,
+      unfiledDsfClients: 0
     };
   }
 };

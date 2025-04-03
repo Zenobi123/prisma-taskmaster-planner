@@ -3,16 +3,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData, defaultClientFiscalData } from "../types";
 import { getFromCache, updateCache } from "./fiscalDataCache";
 
-// Fetch fiscal data for a client
+// Récupérer les données fiscales d'un client
 export const getFiscalData = async (clientId: string): Promise<ClientFiscalData> => {
   try {
-    // Check if data is in cache
+    // Vérifier si les données sont dans le cache
     const cachedData = getFromCache(clientId);
     if (cachedData) {
       return cachedData;
     }
 
-    // Retrieve fiscal data from database
+    // Récupérer les données fiscales de la base de données
     const { data, error } = await supabase
       .from('clients')
       .select('fiscal_data')
@@ -24,14 +24,14 @@ export const getFiscalData = async (clientId: string): Promise<ClientFiscalData>
       return defaultClientFiscalData;
     }
 
-    // Parse and convert the data
+    // Analyser et convertir les données
     const fiscalData = data.fiscal_data ? 
       (typeof data.fiscal_data === 'string' 
         ? JSON.parse(data.fiscal_data) 
         : data.fiscal_data as unknown as ClientFiscalData) 
       : defaultClientFiscalData;
 
-    // Update cache
+    // Mettre à jour le cache
     updateCache(clientId, fiscalData);
 
     return fiscalData;
@@ -41,14 +41,15 @@ export const getFiscalData = async (clientId: string): Promise<ClientFiscalData>
   }
 };
 
-// Update fiscal data for a client
+// Mettre à jour les données fiscales d'un client
 export const updateFiscalData = async (clientId: string, fiscalData: ClientFiscalData): Promise<boolean> => {
   try {
-    // Update fiscal data in database
+    // Mettre à jour les données fiscales dans la base de données
+    // Conversion pour satisfaire les types Supabase
     const { error } = await supabase
       .from('clients')
       .update({ 
-        fiscal_data: fiscalData 
+        fiscal_data: fiscalData as any
       })
       .eq('id', clientId);
 
@@ -57,7 +58,7 @@ export const updateFiscalData = async (clientId: string, fiscalData: ClientFisca
       return false;
     }
 
-    // Update cache
+    // Mettre à jour le cache
     updateCache(clientId, fiscalData);
 
     return true;
@@ -67,8 +68,8 @@ export const updateFiscalData = async (clientId: string, fiscalData: ClientFisca
   }
 };
 
-// Alias for getFiscalData to maintain compatibility
+// Alias pour getFiscalData pour maintenir la compatibilité
 export const fetchFiscalData = getFiscalData;
 
-// Alias for updateFiscalData to maintain compatibility
+// Alias pour updateFiscalData pour maintenir la compatibilité
 export const saveFiscalData = updateFiscalData;

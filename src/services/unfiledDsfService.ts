@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client, ClientType } from "@/types/client";
+import { Client, ClientType, FormeJuridique } from "@/types/client";
 import { ClientFiscalData, defaultClientFiscalData } from "@/hooks/fiscal/types";
 
 // Get clients with unfiled DSF
@@ -44,7 +44,7 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
       return dsfObligation?.assujetti && !dsfObligation?.depose;
     });
 
-    // Format clients for return
+    // Format clients for return with proper type handling
     return clientsWithUnfiledDsf.map(client => ({
       id: client.id,
       type: client.type as ClientType,
@@ -54,7 +54,7 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
       datecreation: client.datecreation,
       lieucreation: client.lieucreation,
       nomdirigeant: client.nomdirigeant,
-      formejuridique: client.formejuridique,
+      formejuridique: client.formejuridique as FormeJuridique, // Cast to proper type
       niu: client.niu,
       centrerattachement: client.centrerattachement,
       statut: client.statut,
