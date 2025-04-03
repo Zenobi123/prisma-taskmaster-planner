@@ -45,38 +45,52 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
     });
 
     // Format clients for return with proper type handling
-    return clientsWithUnpaidPatente.map(client => ({
-      id: client.id,
-      type: client.type as ClientType,
-      nom: client.nom,
-      raisonsociale: client.raisonsociale,
-      sigle: client.sigle,
-      datecreation: client.datecreation,
-      lieucreation: client.lieucreation,
-      nomdirigeant: client.nomdirigeant,
-      formejuridique: client.formejuridique as FormeJuridique, // Cast to proper type
-      niu: client.niu,
-      centrerattachement: client.centrerattachement,
-      statut: client.statut,
-      secteuractivite: client.secteuractivite,
-      numerocnps: client.numerocnps,
-      gestionexternalisee: client.gestionexternalisee,
-      sexe: client.sexe,
-      etatcivil: client.etatcivil,
-      regimefiscal: client.regimefiscal,
-      adresse: typeof client.adresse === 'object' ? client.adresse : {
-        ville: '',
-        quartier: '',
-        lieuDit: ''
-      },
-      contact: typeof client.contact === 'object' ? client.contact : {
+    return clientsWithUnpaidPatente.map(client => {
+      // Ensure adresse and contact have the correct structure
+      const adresse = typeof client.adresse === 'object' ? client.adresse : { 
+        ville: '', 
+        quartier: '', 
+        lieuDit: '' 
+      };
+      
+      const contact = typeof client.contact === 'object' ? client.contact : {
         telephone: '',
         email: ''
-      },
-      interactions: client.interactions || [],
-      situationimmobiliere: client.situationimmobiliere,
-      created_at: client.created_at
-    }));
+      };
+      
+      return {
+        id: client.id,
+        type: client.type as ClientType,
+        nom: client.nom,
+        raisonsociale: client.raisonsociale,
+        sigle: client.sigle,
+        datecreation: client.datecreation,
+        lieucreation: client.lieucreation,
+        nomdirigeant: client.nomdirigeant,
+        formejuridique: client.formejuridique as FormeJuridique,
+        niu: client.niu,
+        centrerattachement: client.centrerattachement,
+        statut: client.statut,
+        secteuractivite: client.secteuractivite,
+        numerocnps: client.numerocnps,
+        gestionexternalisee: client.gestionexternalisee,
+        sexe: client.sexe,
+        etatcivil: client.etatcivil,
+        regimefiscal: client.regimefiscal,
+        adresse: {
+          ville: adresse.ville || '',
+          quartier: adresse.quartier || '',
+          lieuDit: adresse.lieuDit || ''
+        },
+        contact: {
+          telephone: contact.telephone || '',
+          email: contact.email || ''
+        },
+        interactions: client.interactions || [],
+        situationimmobiliere: client.situationimmobiliere,
+        created_at: client.created_at
+      };
+    });
   } catch (error) {
     console.error("Error retrieving clients with unpaid patente:", error);
     return [];

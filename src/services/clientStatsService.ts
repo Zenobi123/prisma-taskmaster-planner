@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData, defaultClientFiscalData } from "@/hooks/fiscal/types";
 
@@ -17,7 +18,7 @@ export const getClientStats = async (): Promise<ClientStats> => {
   try {
     const { data: clients, error } = await supabase
       .from('clients')
-      .select('*, fiscal_data:fiscal_data(*)');
+      .select('*, fiscal_data');
 
     if (error) {
       console.error("Erreur lors de la récupération des statistiques clients:", error);
@@ -45,7 +46,7 @@ export const getClientStats = async (): Promise<ClientStats> => {
       withExpiringAttestation: 0,
       withUnfiledDsf: 0,
       withUnpaidPatente: 0,
-      managedClients: clients.filter(client => client.statut === 'actif').length,
+      managedClients: clients.filter(client => client.statut === 'actif' && client.gestionexternalisee).length,
       unpaidPatenteClients: 0,
       unfiledDsfClients: 0
     };
