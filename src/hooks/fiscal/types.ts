@@ -32,3 +32,20 @@ export interface ClientFiscalData {
   obligations: ObligationStatuses;
   hiddenFromDashboard?: boolean; // Property to hide from dashboard
 }
+
+// Définir un type par défaut pour les données fiscales
+export const defaultClientFiscalData: ClientFiscalData = {
+  attestation: {
+    creationDate: "",
+    validityEndDate: "",
+    showInAlert: false
+  },
+  obligations: {
+    patente: { assujetti: false, paye: false },
+    bail: { assujetti: false, paye: false },
+    taxeFonciere: { assujetti: false, paye: false },
+    dsf: { assujetti: false, depose: false },
+    darp: { assujetti: false, depose: false }
+  },
+  hiddenFromDashboard: false
+};

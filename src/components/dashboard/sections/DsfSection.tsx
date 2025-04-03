@@ -13,7 +13,9 @@ const DsfSection = () => {
     queryKey: ["clients-unfiled-dsf-summary"],
     queryFn: getClientsWithUnfiledDsf,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1
   });
 
   return (

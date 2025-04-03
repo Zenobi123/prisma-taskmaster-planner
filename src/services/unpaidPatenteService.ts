@@ -1,56 +1,78 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client, ClientType } from "@/types/client";
-import { ClientFiscalData } from "@/hooks/fiscal/types";
+import { Client } from "@/types/client";
+import { ClientFiscalData, defaultClientFiscalData } from "@/hooks/fiscal/types";
 
+// Récupérer les clients avec patente impayée
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
-  console.log("Service: Récupération des clients avec patentes impayées...");
-  
-  // Récupérer tous les clients
-  const { data: allClients, error } = await supabase
-    .from("clients")
-    .select("*");
-  
-  if (error) {
-    console.error("Erreur lors de la récupération des clients:", error);
-    throw error;
-  }
+  try {
+    // Récupérer tous les clients actifs
+    const { data: clients, error } = await supabase
+      .from('clients')
+      .select('*, fiscal_data:fiscal_data(*)')
+      .eq('statut', 'actif')
+      .order('created_at', { ascending: false });
 
-  // Filtrer les clients avec patente impayée
-  const clientsWithUnpaidPatente = allClients.filter(client => {
-    // On vérifie si le client a des données fiscales
-    if (client.fiscal_data && 
-        typeof client.fiscal_data === 'object' && 
-        client.fiscal_data !== null) {
-      
-      const fiscalData = client.fiscal_data as ClientFiscalData;
-      
-      // Ne pas inclure si explicitement marqué comme caché du tableau de bord
-      if (fiscalData.hiddenFromDashboard === true) {
+    if (error) {
+      console.error("Erreur lors de la récupération des clients:", error);
+      return [];
+    }
+
+    // Filtrer les clients qui ont la patente comme obligation impayée
+    const clientsWithUnpaidPatente = clients.filter(client => {
+      // Convertir les données fiscales
+      const fiscalData = client.fiscal_data ? 
+        (typeof client.fiscal_data === 'string' 
+          ? JSON.parse(client.fiscal_data) 
+          : client.fiscal_data as unknown as ClientFiscalData) 
+        : defaultClientFiscalData;
+        
+      // Vérifier si les données sont cachées du tableau de bord
+      if (fiscalData.hiddenFromDashboard) {
         return false;
       }
-      
-      // Vérifier si obligations existe dans les données fiscales
-      if (fiscalData.obligations) {
-        // On cherche une obligation de type patente qui est assujetti mais non payée
-        return fiscalData.obligations.patente && 
-               fiscalData.obligations.patente.assujetti === true && 
-               fiscalData.obligations.patente.paye === false;
-      }
-    }
-    return false;
-  });
-  
-  console.log("Service: Clients avec patentes impayées:", clientsWithUnpaidPatente.length);
-  
-  // Convert to proper Client type
-  return clientsWithUnpaidPatente.map(client => ({
-    ...client,
-    type: client.type as ClientType,
-    adresse: client.adresse || { ville: "", quartier: "", lieuDit: "" },
-    contact: client.contact || { telephone: "", email: "" },
-    interactions: Array.isArray(client.interactions) ? client.interactions : [],
-    statut: client.statut || "actif",
-    gestionexternalisee: client.gestionexternalisee || false
-  }));
+
+      // Vérifier si le client est assujetti à la patente et si elle n'est pas payée
+      const patenteObligation = fiscalData?.obligations?.patente;
+      return patenteObligation?.assujetti && !patenteObligation?.paye;
+    });
+
+    // Formater les clients pour le retour
+    return clientsWithUnpaidPatente.map(client => ({
+      id: client.id,
+      type: client.type,
+      nom: client.nom,
+      raisonsociale: client.raisonsociale,
+      sigle: client.sigle,
+      datecreation: client.datecreation,
+      lieucreation: client.lieucreation,
+      nomdirigeant: client.nomdirigeant,
+      formejuridique: client.formejuridique,
+      niu: client.niu,
+      centrerattachement: client.centrerattachement,
+      statut: client.statut,
+      secteuractivite: client.secteuractivite,
+      numerocnps: client.numerocnps,
+      gestionexternalisee: client.gestionexternalisee,
+      sexe: client.sexe,
+      etatcivil: client.etatcivil,
+      regimefiscal: client.regimefiscal,
+      adresse: {
+        ville: client.ville || '',
+        quartier: client.quartier || '',
+        lieuDit: client.lieuDit || ''
+      },
+      contact: {
+        telephone: client.telephone || '',
+        email: client.email || ''
+      },
+      interactions: client.interactions || [],
+      situationimmobiliere: client.situationimmobiliere,
+      created_at: client.created_at,
+      updated_at: client.updated_at
+    }));
+  } catch (error) {
+    console.error("Erreur lors de la récupération des clients avec patente impayée:", error);
+    return [];
+  }
 };

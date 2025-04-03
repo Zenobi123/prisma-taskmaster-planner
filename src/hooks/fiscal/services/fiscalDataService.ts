@@ -1,80 +1,68 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { ClientFiscalData } from "../types";
-import { toast } from "sonner";
+import { ClientFiscalData, defaultClientFiscalData } from "../types";
+import { fiscalDataCache } from "./fiscalDataCache";
 
-/**
- * Fetch fiscal data from the database
- */
-export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalData | null> => {
+// Récupérer les données fiscales d'un client
+export const getFiscalData = async (clientId: string): Promise<ClientFiscalData> => {
   try {
-    console.log(`Fetching fiscal data for client ${clientId}`);
-    
+    // Vérifier si les données sont en cache
+    const cachedData = fiscalDataCache.get(clientId);
+    if (cachedData) {
+      return cachedData;
+    }
+
+    // Récupérer les données fiscales depuis la base de données
     const { data, error } = await supabase
-      .from('clients')
-      .select('fiscal_data')
-      .eq('id', clientId)
+      .from('fiscal_data')
+      .select('*')
+      .eq('client_id', clientId)
       .single();
-    
+
     if (error) {
-      console.error("Error fetching fiscal data:", error);
-      return null;
+      console.error("Erreur lors de la récupération des données fiscales:", error);
+      return defaultClientFiscalData;
     }
-    
-    if (data?.fiscal_data) {
-      console.log(`Fiscal data found for client ${clientId}`);
-      return data.fiscal_data as ClientFiscalData;
-    }
-    
-    console.log(`No fiscal data found for client ${clientId}`);
-    return null;
+
+    // Convertir les données
+    const fiscalData = data.data ? 
+      (typeof data.data === 'string' 
+        ? JSON.parse(data.data) 
+        : data.data as unknown as ClientFiscalData) 
+      : defaultClientFiscalData;
+
+    // Mettre en cache les données
+    fiscalDataCache.set(clientId, fiscalData);
+
+    return fiscalData;
   } catch (error) {
-    console.error("Exception fetching fiscal data:", error);
-    return null;
+    console.error("Erreur lors de la récupération des données fiscales:", error);
+    return defaultClientFiscalData;
   }
 };
 
-/**
- * Save fiscal data to the database
- */
-export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalData): Promise<void> => {
+// Mettre à jour les données fiscales d'un client
+export const updateFiscalData = async (clientId: string, fiscalData: ClientFiscalData): Promise<boolean> => {
   try {
-    console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
-    
+    // Mettre à jour les données fiscales dans la base de données
     const { error } = await supabase
-      .from('clients')
-      .update({ fiscal_data: fiscalData as any })
-      .eq('id', clientId);
-    
-    if (error) {
-      console.error("Error saving fiscal data:", error);
-      throw error;
-    }
-    
-    console.log(`Fiscal data saved for client ${clientId}`);
-    
-    // Invalidate related queries to refresh dashboard data
-    await invalidateRelatedQueries();
-    
-  } catch (error) {
-    console.error("Exception saving fiscal data:", error);
-    throw error;
-  }
-};
+      .from('fiscal_data')
+      .upsert({ 
+        client_id: clientId, 
+        data: fiscalData
+      });
 
-/**
- * Helper function to invalidate related queries when fiscal data changes
- */
-const invalidateRelatedQueries = async (): Promise<void> => {
-  try {
-    // This is just a placeholder since we can't directly access React Query's queryClient
-    // In a real app, we would need to somehow trigger a refresh of related queries
-    console.log("Related queries should be invalidated");
-    
-    // One option is to add a timestamp to a table that other components can watch
-    // Another option is to use a pub/sub mechanism or websockets
-    
+    if (error) {
+      console.error("Erreur lors de la mise à jour des données fiscales:", error);
+      return false;
+    }
+
+    // Mettre à jour le cache
+    fiscalDataCache.set(clientId, fiscalData);
+
+    return true;
   } catch (error) {
-    console.error("Error invalidating related queries:", error);
+    console.error("Erreur lors de la mise à jour des données fiscales:", error);
+    return false;
   }
 };

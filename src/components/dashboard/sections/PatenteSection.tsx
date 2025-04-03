@@ -13,7 +13,9 @@ const PatenteSection = () => {
     queryKey: ["clients-unpaid-patente-summary"],
     queryFn: getClientsWithUnpaidPatente,
     staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchOnWindowFocus: false
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    retry: 1
   });
 
   return (
