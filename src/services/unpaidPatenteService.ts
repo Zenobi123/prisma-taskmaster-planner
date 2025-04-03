@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client } from "@/types/client";
+import { Client, ClientType } from "@/types/client";
+import { ClientFiscalData } from "@/hooks/fiscal/types";
 
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   console.log("Service: Récupération des clients avec patentes impayées...");
@@ -22,13 +23,14 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
         typeof client.fiscal_data === 'object' && 
         client.fiscal_data !== null) {
       
+      const fiscalData = client.fiscal_data as ClientFiscalData;
+      
       // Ne pas inclure si explicitement marqué comme caché du tableau de bord
-      if (client.fiscal_data.hiddenFromDashboard === true) {
+      if (fiscalData.hiddenFromDashboard === true) {
         return false;
       }
       
       // Vérifier si obligations existe dans les données fiscales
-      const fiscalData = client.fiscal_data;
       if (fiscalData.obligations) {
         // On cherche une obligation de type patente qui est assujetti mais non payée
         return fiscalData.obligations.patente && 
@@ -41,5 +43,14 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   
   console.log("Service: Clients avec patentes impayées:", clientsWithUnpaidPatente.length);
   
-  return clientsWithUnpaidPatente;
+  // Convert to proper Client type
+  return clientsWithUnpaidPatente.map(client => ({
+    ...client,
+    type: client.type as ClientType,
+    adresse: client.adresse || { ville: "", quartier: "", lieuDit: "" },
+    contact: client.contact || { telephone: "", email: "" },
+    interactions: Array.isArray(client.interactions) ? client.interactions : [],
+    statut: client.statut || "actif",
+    gestionexternalisee: client.gestionexternalisee || false
+  }));
 };

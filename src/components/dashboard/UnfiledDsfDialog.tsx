@@ -2,7 +2,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { getClientsWithUnfiledDsf } from "@/services/unfiledDsfService";
-import { FileText, AlertTriangle, FileWarning, Phone, Building } from "lucide-react";
+import { FileText, FileWarning, Phone, Building } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -15,12 +15,12 @@ interface UnfiledDsfDialogProps {
 export const UnfiledDsfDialog = ({ open, onOpenChange }: UnfiledDsfDialogProps) => {
   const navigate = useNavigate();
   
+  // Only fetch when dialog is open to prevent unnecessary requests
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients-unfiled-dsf-dialog"],
     queryFn: getClientsWithUnfiledDsf,
-    // Configurer le rafraîchissement automatique
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
+    enabled: open,
+    staleTime: 1 * 60 * 1000 // 1 minute
   });
 
   const handleNavigateToClient = (clientId: string) => {

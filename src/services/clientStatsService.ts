@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { ClientFiscalData } from "@/hooks/fiscal/types";
 
 export const getClientStats = async () => {
   console.log("Récupération des statistiques clients...");
@@ -21,8 +22,14 @@ export const getClientStats = async () => {
   const unpaidPatenteClients = allClients.filter(client => {
     // On vérifie si le client a des données fiscales
     if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
+      const fiscalData = client.fiscal_data as ClientFiscalData;
+      
+      // Ne pas inclure si explicitement marqué comme caché du tableau de bord
+      if (fiscalData.hiddenFromDashboard === true) {
+        return false;
+      }
+      
       // Vérifier si obligations existe dans les données fiscales
-      const fiscalData = client.fiscal_data as { obligations?: any };
       if (fiscalData.obligations) {
         // On cherche une obligation de type patente qui est assujetti mais non payée
         return fiscalData.obligations.patente && 
@@ -37,8 +44,14 @@ export const getClientStats = async () => {
   const unfiledDsfClients = allClients.filter(client => {
     // On vérifie si le client a des données fiscales
     if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
+      const fiscalData = client.fiscal_data as ClientFiscalData;
+      
+      // Ne pas inclure si explicitement marqué comme caché du tableau de bord
+      if (fiscalData.hiddenFromDashboard === true) {
+        return false;
+      }
+      
       // Vérifier si obligations existe dans les données fiscales
-      const fiscalData = client.fiscal_data as { obligations?: any };
       if (fiscalData.obligations) {
         // On cherche une obligation de type dsf qui est assujetti mais non déposée
         return fiscalData.obligations.dsf && 

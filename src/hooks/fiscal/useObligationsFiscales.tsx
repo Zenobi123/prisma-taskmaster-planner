@@ -6,6 +6,7 @@ import { calculateValidityEndDate, checkAttestationExpiration } from "./utils/da
 import { getFromCache, updateCache } from "./services/fiscalDataCache";
 import { saveFiscalData, fetchFiscalData } from "./services/fiscalDataService";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useObligationsFiscales = (selectedClient: Client) => {
   const [creationDate, setCreationDate] = useState<string>("");
@@ -20,6 +21,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
+  const queryClient = useQueryClient();
 
   // Fetch fiscal data when client changes
   useEffect(() => {
@@ -141,6 +143,13 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       
       // Update cache
       updateCache(selectedClient.id, fiscalData);
+      
+      // Invalidate relevant queries to refresh dashboard
+      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-dialog"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
+      queryClient.invalidateQueries({ queryKey: ["client-stats"] });
       
       toast.success("Données fiscales enregistrées avec succès");
     } catch (error) {

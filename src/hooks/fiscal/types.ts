@@ -24,11 +24,11 @@ export type ObligationStatuses = {
 export interface FiscalAttestationData {
   creationDate: string;
   validityEndDate: string;
-  showInAlert?: boolean; // Add property to control alert visibility
+  showInAlert?: boolean; // Property to control alert visibility
 }
 
 export interface ClientFiscalData {
   attestation: FiscalAttestationData;
   obligations: ObligationStatuses;
-  hiddenFromDashboard?: boolean; // Add property to hide from dashboard
+  hiddenFromDashboard?: boolean; // Property to hide from dashboard
 }
