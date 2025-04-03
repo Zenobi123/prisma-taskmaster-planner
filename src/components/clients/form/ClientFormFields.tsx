@@ -1,5 +1,4 @@
 
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { ClientType } from "@/types/client";
 import { ClientIdentityFields } from "../ClientIdentityFields";
 import { ClientProfessionalFields } from "../ClientProfessionalFields";

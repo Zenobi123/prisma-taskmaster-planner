@@ -1,68 +1,74 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData, defaultClientFiscalData } from "../types";
-import { fiscalDataCache } from "./fiscalDataCache";
+import { getFromCache, updateCache } from "./fiscalDataCache";
 
-// Récupérer les données fiscales d'un client
+// Fetch fiscal data for a client
 export const getFiscalData = async (clientId: string): Promise<ClientFiscalData> => {
   try {
-    // Vérifier si les données sont en cache
-    const cachedData = fiscalDataCache.get(clientId);
+    // Check if data is in cache
+    const cachedData = getFromCache(clientId);
     if (cachedData) {
       return cachedData;
     }
 
-    // Récupérer les données fiscales depuis la base de données
+    // Retrieve fiscal data from database
     const { data, error } = await supabase
-      .from('fiscal_data')
-      .select('*')
-      .eq('client_id', clientId)
+      .from('clients')
+      .select('fiscal_data')
+      .eq('id', clientId)
       .single();
 
     if (error) {
-      console.error("Erreur lors de la récupération des données fiscales:", error);
+      console.error("Error retrieving fiscal data:", error);
       return defaultClientFiscalData;
     }
 
-    // Convertir les données
-    const fiscalData = data.data ? 
-      (typeof data.data === 'string' 
-        ? JSON.parse(data.data) 
-        : data.data as unknown as ClientFiscalData) 
+    // Parse and convert the data
+    const fiscalData = data.fiscal_data ? 
+      (typeof data.fiscal_data === 'string' 
+        ? JSON.parse(data.fiscal_data) 
+        : data.fiscal_data as unknown as ClientFiscalData) 
       : defaultClientFiscalData;
 
-    // Mettre en cache les données
-    fiscalDataCache.set(clientId, fiscalData);
+    // Update cache
+    updateCache(clientId, fiscalData);
 
     return fiscalData;
   } catch (error) {
-    console.error("Erreur lors de la récupération des données fiscales:", error);
+    console.error("Error retrieving fiscal data:", error);
     return defaultClientFiscalData;
   }
 };
 
-// Mettre à jour les données fiscales d'un client
+// Update fiscal data for a client
 export const updateFiscalData = async (clientId: string, fiscalData: ClientFiscalData): Promise<boolean> => {
   try {
-    // Mettre à jour les données fiscales dans la base de données
+    // Update fiscal data in database
     const { error } = await supabase
-      .from('fiscal_data')
-      .upsert({ 
-        client_id: clientId, 
-        data: fiscalData
-      });
+      .from('clients')
+      .update({ 
+        fiscal_data: fiscalData 
+      })
+      .eq('id', clientId);
 
     if (error) {
-      console.error("Erreur lors de la mise à jour des données fiscales:", error);
+      console.error("Error updating fiscal data:", error);
       return false;
     }
 
-    // Mettre à jour le cache
-    fiscalDataCache.set(clientId, fiscalData);
+    // Update cache
+    updateCache(clientId, fiscalData);
 
     return true;
   } catch (error) {
-    console.error("Erreur lors de la mise à jour des données fiscales:", error);
+    console.error("Error updating fiscal data:", error);
     return false;
   }
 };
+
+// Alias for getFiscalData to maintain compatibility
+export const fetchFiscalData = getFiscalData;
+
+// Alias for updateFiscalData to maintain compatibility
+export const saveFiscalData = updateFiscalData;

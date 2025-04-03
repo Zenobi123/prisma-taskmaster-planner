@@ -4,7 +4,7 @@ import { Client } from "@/types/client";
 import { ObligationStatuses, ClientFiscalData } from "./types";
 import { calculateValidityEndDate, checkAttestationExpiration } from "./utils/dateUtils";
 import { getFromCache, updateCache } from "./services/fiscalDataCache";
-import { saveFiscalData, fetchFiscalData } from "./services/fiscalDataService";
+import { getFiscalData as fetchFiscalData, updateFiscalData as saveFiscalData } from "./services/fiscalDataService";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 

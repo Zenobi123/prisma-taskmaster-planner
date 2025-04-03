@@ -1,46 +1,53 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client } from "@/types/client";
+import { Client, ClientType } from "@/types/client";
 import { ClientFiscalData, defaultClientFiscalData } from "@/hooks/fiscal/types";
 
-// Récupérer les clients avec patente impayée
+// Get clients with unpaid patente
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   try {
-    // Récupérer tous les clients actifs
+    // Get all active clients
     const { data: clients, error } = await supabase
       .from('clients')
-      .select('*, fiscal_data:fiscal_data(*)')
+      .select('*')
       .eq('statut', 'actif')
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error("Erreur lors de la récupération des clients:", error);
+      console.error("Error retrieving clients:", error);
       return [];
     }
 
-    // Filtrer les clients qui ont la patente comme obligation impayée
+    // Filter clients who have patente as an unpaid obligation
     const clientsWithUnpaidPatente = clients.filter(client => {
-      // Convertir les données fiscales
-      const fiscalData = client.fiscal_data ? 
-        (typeof client.fiscal_data === 'string' 
-          ? JSON.parse(client.fiscal_data) 
-          : client.fiscal_data as unknown as ClientFiscalData) 
-        : defaultClientFiscalData;
+      // Convert fiscal data
+      let fiscalData: ClientFiscalData;
+      
+      try {
+        fiscalData = client.fiscal_data ? 
+          (typeof client.fiscal_data === 'string' 
+            ? JSON.parse(client.fiscal_data) 
+            : client.fiscal_data as unknown as ClientFiscalData) 
+          : defaultClientFiscalData;
+      } catch (e) {
+        console.error("Error parsing fiscal data for client:", client.id, e);
+        return false;
+      }
         
-      // Vérifier si les données sont cachées du tableau de bord
+      // Check if data is hidden from dashboard
       if (fiscalData.hiddenFromDashboard) {
         return false;
       }
 
-      // Vérifier si le client est assujetti à la patente et si elle n'est pas payée
+      // Check if client is subject to patente and if it's not paid
       const patenteObligation = fiscalData?.obligations?.patente;
       return patenteObligation?.assujetti && !patenteObligation?.paye;
     });
 
-    // Formater les clients pour le retour
+    // Format clients for return
     return clientsWithUnpaidPatente.map(client => ({
       id: client.id,
-      type: client.type,
+      type: client.type as ClientType,
       nom: client.nom,
       raisonsociale: client.raisonsociale,
       sigle: client.sigle,
@@ -57,22 +64,21 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
       sexe: client.sexe,
       etatcivil: client.etatcivil,
       regimefiscal: client.regimefiscal,
-      adresse: {
-        ville: client.ville || '',
-        quartier: client.quartier || '',
-        lieuDit: client.lieuDit || ''
+      adresse: typeof client.adresse === 'object' ? client.adresse : {
+        ville: '',
+        quartier: '',
+        lieuDit: ''
       },
-      contact: {
-        telephone: client.telephone || '',
-        email: client.email || ''
+      contact: typeof client.contact === 'object' ? client.contact : {
+        telephone: '',
+        email: ''
       },
       interactions: client.interactions || [],
       situationimmobiliere: client.situationimmobiliere,
-      created_at: client.created_at,
-      updated_at: client.updated_at
+      created_at: client.created_at
     }));
   } catch (error) {
-    console.error("Erreur lors de la récupération des clients avec patente impayée:", error);
+    console.error("Error retrieving clients with unpaid patente:", error);
     return [];
   }
 };

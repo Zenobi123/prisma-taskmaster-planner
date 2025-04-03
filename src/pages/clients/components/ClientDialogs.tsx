@@ -43,39 +43,37 @@ export function ClientDialogs({
   return (
     <>
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-white max-h-[90vh] overflow-hidden">
+        <DialogContent className="bg-white overflow-hidden max-w-2xl max-h-[90vh] w-[90vw]">
           <DialogHeader>
             <DialogTitle>Ajouter un nouveau client</DialogTitle>
             <DialogDescription>
               Remplissez les informations du nouveau client ci-dessous.
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
-            <div className="p-1">
-              <ClientForm
-                type={newClientType}
-                onTypeChange={onNewClientTypeChange}
-                onSubmit={(clientData) => {
-                  console.log("Données du client à ajouter:", clientData);
-                  onAddClient(clientData);
-                }}
-              />
-            </div>
-          </ScrollArea>
+          <div className="mt-4">
+            <ClientForm
+              type={newClientType}
+              onTypeChange={onNewClientTypeChange}
+              onSubmit={(clientData) => {
+                console.log("Données du client à ajouter:", clientData);
+                onAddClient(clientData);
+              }}
+            />
+          </div>
         </DialogContent>
       </Dialog>
 
       {selectedClient && (
         <>
           <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-            <DialogContent className="bg-white max-h-[90vh] overflow-hidden">
+            <DialogContent className="bg-white overflow-hidden max-w-2xl max-h-[90vh] w-[90vw]">
               <DialogHeader>
                 <DialogTitle>Détails du client</DialogTitle>
                 <DialogDescription>
                   Informations détaillées sur le client
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
+              <ScrollArea className="h-[calc(90vh-120px)] pr-4 mt-4">
                 <div className="p-1">
                   <ClientView client={selectedClient} />
                 </div>
@@ -84,25 +82,23 @@ export function ClientDialogs({
           </Dialog>
 
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="bg-white max-h-[90vh] overflow-hidden">
+            <DialogContent className="bg-white overflow-hidden max-w-2xl max-h-[90vh] w-[90vw]">
               <DialogHeader>
                 <DialogTitle>Modifier le client</DialogTitle>
                 <DialogDescription>
                   Modifiez les informations du client ci-dessous.
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="max-h-[calc(90vh-120px)] pr-4">
-                <div className="p-1">
-                  <ClientForm
-                    type={selectedClient.type}
-                    initialData={selectedClient}
-                    onSubmit={(clientData) => {
-                      console.log("Données du client à mettre à jour:", clientData);
-                      onUpdateClient(clientData);
-                    }}
-                  />
-                </div>
-              </ScrollArea>
+              <div className="mt-4">
+                <ClientForm
+                  type={selectedClient.type}
+                  initialData={selectedClient}
+                  onSubmit={(clientData) => {
+                    console.log("Données du client à mettre à jour:", clientData);
+                    onUpdateClient(clientData);
+                  }}
+                />
+              </div>
             </DialogContent>
           </Dialog>
         </>

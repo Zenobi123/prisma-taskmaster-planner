@@ -1,46 +1,53 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client } from "@/types/client";
+import { Client, ClientType } from "@/types/client";
 import { ClientFiscalData, defaultClientFiscalData } from "@/hooks/fiscal/types";
 
-// Récupérer les clients avec la DSF non déposée
+// Get clients with unfiled DSF
 export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
   try {
-    // Récupérer tous les clients
+    // Get all clients
     const { data: clients, error } = await supabase
       .from('clients')
-      .select('*, fiscal_data:fiscal_data(*)')
+      .select('*')
       .eq('statut', 'actif')
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error("Erreur lors de la récupération des clients:", error);
+      console.error("Error retrieving clients:", error);
       return [];
     }
 
-    // Filtrer les clients qui ont la DSF comme obligation non déposée
+    // Filter clients who have DSF as an unfiled obligation
     const clientsWithUnfiledDsf = clients.filter(client => {
-      // Convertir les données fiscales
-      const fiscalData = client.fiscal_data ? 
-        (typeof client.fiscal_data === 'string' 
-          ? JSON.parse(client.fiscal_data) 
-          : client.fiscal_data as unknown as ClientFiscalData) 
-        : defaultClientFiscalData;
+      // Convert fiscal data
+      let fiscalData: ClientFiscalData;
+      
+      try {
+        fiscalData = client.fiscal_data ? 
+          (typeof client.fiscal_data === 'string' 
+            ? JSON.parse(client.fiscal_data) 
+            : client.fiscal_data as unknown as ClientFiscalData) 
+          : defaultClientFiscalData;
+      } catch (e) {
+        console.error("Error parsing fiscal data for client:", client.id, e);
+        return false;
+      }
         
-      // Vérifier si les données sont cachées du tableau de bord
+      // Check if data is hidden from dashboard
       if (fiscalData.hiddenFromDashboard) {
         return false;
       }
 
-      // Vérifier si le client est assujetti à la DSF et si elle n'est pas déposée
+      // Check if client is subject to DSF and if it's not filed
       const dsfObligation = fiscalData?.obligations?.dsf;
       return dsfObligation?.assujetti && !dsfObligation?.depose;
     });
 
-    // Formater les clients pour le retour
+    // Format clients for return
     return clientsWithUnfiledDsf.map(client => ({
       id: client.id,
-      type: client.type,
+      type: client.type as ClientType,
       nom: client.nom,
       raisonsociale: client.raisonsociale,
       sigle: client.sigle,
@@ -57,22 +64,21 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
       sexe: client.sexe,
       etatcivil: client.etatcivil,
       regimefiscal: client.regimefiscal,
-      adresse: {
-        ville: client.ville || '',
-        quartier: client.quartier || '',
-        lieuDit: client.lieuDit || ''
+      adresse: typeof client.adresse === 'object' ? client.adresse : {
+        ville: '',
+        quartier: '',
+        lieuDit: ''
       },
-      contact: {
-        telephone: client.telephone || '',
-        email: client.email || ''
+      contact: typeof client.contact === 'object' ? client.contact : {
+        telephone: '',
+        email: ''
       },
       interactions: client.interactions || [],
       situationimmobiliere: client.situationimmobiliere,
-      created_at: client.created_at,
-      updated_at: client.updated_at
+      created_at: client.created_at
     }));
   } catch (error) {
-    console.error("Erreur lors de la récupération des clients avec DSF non déposée:", error);
+    console.error("Error retrieving clients with unfiled DSF:", error);
     return [];
   }
 };

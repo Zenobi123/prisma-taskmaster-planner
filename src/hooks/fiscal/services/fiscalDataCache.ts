@@ -2,7 +2,7 @@
 import { ClientFiscalData } from "../types";
 
 // Cache for clients' fiscal data
-const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
+export const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
 
 // Cache validity duration in ms (1 minute)
 const CACHE_DURATION = 60000;
