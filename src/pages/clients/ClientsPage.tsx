@@ -1,5 +1,4 @@
 
-import { Dialog } from "@/components/ui/dialog";
 import { useClientsPage } from "./hooks/useClientsPage";
 import { ClientsHeader } from "./components/ClientsHeader";
 import { ClientsContent } from "./components/ClientsContent";
@@ -52,48 +51,46 @@ export default function ClientsPage() {
   }
 
   return (
-    <div className="p-8">
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <ClientsHeader onAddClientClick={() => setIsDialogOpen(true)} />
+    <div className="space-y-6">
+      <ClientsHeader onAddClientClick={() => setIsDialogOpen(true)} />
 
-        <ClientsContent
-          clients={clients}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          selectedType={selectedType}
-          onTypeChange={setSelectedType}
-          selectedSecteur={selectedSecteur}
-          onSecteurChange={setSelectedSecteur}
-          showArchived={showArchived}
-          onShowArchivedChange={setShowArchived}
-          onView={handleView}
-          onEdit={handleEdit}
-          onArchive={handleArchive}
-          onRestore={handleRestore}
-          onDelete={handleDelete}
-        />
+      <ClientsContent
+        clients={clients}
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        selectedType={selectedType}
+        onTypeChange={setSelectedType}
+        selectedSecteur={selectedSecteur}
+        onSecteurChange={setSelectedSecteur}
+        showArchived={showArchived}
+        onShowArchivedChange={setShowArchived}
+        onView={handleView}
+        onEdit={handleEdit}
+        onArchive={handleArchive}
+        onRestore={handleRestore}
+        onDelete={handleDelete}
+      />
 
-        <ClientDialogs
-          isAddDialogOpen={isDialogOpen}
-          setIsAddDialogOpen={setIsDialogOpen}
-          isEditDialogOpen={isEditDialogOpen}
-          setIsEditDialogOpen={setIsEditDialogOpen}
-          isViewDialogOpen={isViewDialogOpen}
-          setIsViewDialogOpen={setIsViewDialogOpen}
-          selectedClient={selectedClient}
-          newClientType={newClientType}
-          onNewClientTypeChange={setNewClientType}
-          onAddClient={(clientData) => addMutation.mutate(clientData)}
-          onUpdateClient={(clientData) => {
-            if (selectedClient) {
-              updateMutation.mutate({
-                id: selectedClient.id,
-                updates: clientData,
-              });
-            }
-          }}
-        />
-      </Dialog>
+      <ClientDialogs
+        isAddDialogOpen={isDialogOpen}
+        setIsAddDialogOpen={setIsDialogOpen}
+        isEditDialogOpen={isEditDialogOpen}
+        setIsEditDialogOpen={setIsEditDialogOpen}
+        isViewDialogOpen={isViewDialogOpen}
+        setIsViewDialogOpen={setIsViewDialogOpen}
+        selectedClient={selectedClient}
+        newClientType={newClientType}
+        onNewClientTypeChange={setNewClientType}
+        onAddClient={(clientData) => addMutation.mutate(clientData)}
+        onUpdateClient={(clientData) => {
+          if (selectedClient) {
+            updateMutation.mutate({
+              id: selectedClient.id,
+              updates: clientData,
+            });
+          }
+        }}
+      />
     </div>
   );
 }

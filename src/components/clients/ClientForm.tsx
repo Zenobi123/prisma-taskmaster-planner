@@ -22,7 +22,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6 pb-6">
       {onTypeChange && (
         <ClientTypeSelect type={type} onTypeChange={onTypeChange} />
       )}
