@@ -38,7 +38,7 @@ export const addInvoiceFooter = (doc: jsPDF) => {
     // Add watermark diagonal text in very light color with better positioning
     doc.saveGraphicsState();
     
-    // Use better watermark approach with rotation
+    // Use better watermark approach for jsPDF v2 compatibility
     doc.setTextColor(240, 240, 240);
     doc.setFontSize(30);
     
@@ -46,9 +46,14 @@ export const addInvoiceFooter = (doc: jsPDF) => {
     const watermarkX = pageWidth / 2;
     const watermarkY = pageHeight / 2;
     
-    // Apply rotation around center point
-    doc.translate(watermarkX, watermarkY);
-    doc.rotate(-45);
+    // Apply rotation - use matrix transformation instead
+    const angle = -45 * Math.PI / 180;
+    doc.setTransform(
+      Math.cos(angle), Math.sin(angle),
+      -Math.sin(angle), Math.cos(angle),
+      watermarkX, watermarkY
+    );
+    
     doc.text('PRISMA GESTION', 0, 0, { align: 'center' });
     
     doc.restoreGraphicsState();

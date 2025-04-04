@@ -42,9 +42,13 @@ export const addReceiptFooter = (doc: jsPDF, reference: string) => {
     const watermarkX = pageWidth / 2;
     const watermarkY = pageHeight / 2;
     
-    // Apply rotation around center point
-    doc.translate(watermarkX, watermarkY);
-    doc.rotate(-45);
+    // Apply rotation using matrix transformation for jsPDF v2 compatibility
+    const angle = -45 * Math.PI / 180;
+    doc.setTransform(
+      Math.cos(angle), Math.sin(angle),
+      -Math.sin(angle), Math.cos(angle),
+      watermarkX, watermarkY
+    );
     
     doc.setTextColor(240, 240, 240);
     doc.setFontSize(30);

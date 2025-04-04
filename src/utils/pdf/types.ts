@@ -1,23 +1,40 @@
 
-import { Client } from '@/types/client';
+import { Client } from "@/types/client";
 
-export interface Prestation {
-  description: string;
-  quantite?: number;
-  montant: number;
-  taux?: number;
+// Client object for PDF generation with simplified structure
+export interface SimplifiedClient {
+  nom: string;
+  adresse: string;
+  niu?: string;
+  email?: string;
+  telephone?: string;
 }
 
-export interface Paiement {
+// Payment record for PDF invoices
+export interface PdfPaiement {
+  id?: string;
+  reference?: string;
   date: string;
   montant: number;
   mode: string;
-  reference?: string;
+  notes?: string;
+  facture_id?: string;
+  client?: SimplifiedClient;
+  solde_restant?: number;
+  est_credit?: boolean;
 }
 
-export type FactureStatus = "brouillon" | "envoyée" | "annulée" | string;
-export type PaiementStatus = "non_payée" | "partiellement_payée" | "payée" | "en_retard" | string;
+// Service record for PDF invoices
+export interface PdfPrestation {
+  id?: string;
+  description: string;
+  quantite?: number;
+  taux?: number;
+  montant: number;
+  facture_id?: string;
+}
 
+// Complete invoice data for PDF generation
 export interface PDFFacture {
   id: string;
   client: Client;
@@ -25,21 +42,9 @@ export interface PDFFacture {
   echeance: string;
   montant: number;
   montant_paye?: number;
-  status: FactureStatus;
-  status_paiement?: PaiementStatus;
-  prestations: Prestation[];
-  paiements?: Paiement[];
+  status: "brouillon" | "envoyée" | "annulée";
+  status_paiement: "non_payée" | "partiellement_payée" | "payée" | "en_retard";
+  prestations: PdfPrestation[];
+  paiements?: PdfPaiement[];
   notes?: string;
 }
-
-// Simplified client interface for PDF generation
-export interface SimplifiedClient {
-  id: string;
-  nom: string;
-  adresse: string;
-  telephone: string;
-  email: string;
-}
-
-// Union type to handle both Client types
-export type ClientForPDF = Client | SimplifiedClient;
