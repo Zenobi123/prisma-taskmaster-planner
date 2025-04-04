@@ -1,10 +1,18 @@
 
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getClientsWithUnfiledDsf } from "@/services/unfiledDsfService";
 import UnfiledDsfSummary from "../UnfiledDsfSummary";
 import { UnfiledDsfDialog } from "../UnfiledDsfDialog";
 
 const DsfSection = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // Utiliser le service pour récupérer les données
+  const { data: clients = [] } = useQuery({
+    queryKey: ["clients-unfiled-dsf-section"],
+    queryFn: getClientsWithUnfiledDsf,
+  });
 
   return (
     <div className="p-4 space-y-6">
