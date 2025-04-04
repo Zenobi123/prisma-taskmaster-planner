@@ -1,3 +1,4 @@
+
 import { Event } from "@/types/event";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -55,16 +56,37 @@ export const exportToCSV = (events: Event[], date: Date | undefined): void => {
 };
 
 /**
- * Exports events to a PDF file
+ * Exports events to a PDF file with enhanced styling
  */
 export const exportToPDF = (events: Event[], date: Date | undefined): void => {
-  // Create a new PDF document
-  const doc = new jsPDF();
+  // Create a new PDF document with improved quality
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    compress: true
+  });
   
-  // Set title with the date
+  // Set document properties
+  doc.setProperties({
+    title: `Planning ${date ? formatDateToString(date) : 'Complet'}`,
+    subject: 'Planning d\'événements',
+    author: 'PRISMA GESTION',
+    keywords: 'planning, événements, pdf',
+    creator: 'PRISMA GESTION'
+  });
+  
+  // Set title with the date and enhanced styling
   const dateStr = formatDateToString(date);
   doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(50, 98, 85); // Dark green for consistency
   doc.text(`Planning du ${dateStr}`, 14, 20);
+  
+  // Add subtle title underline
+  doc.setDrawColor(200, 220, 200);
+  doc.setLineWidth(0.2);
+  doc.line(14, 22, 100, 22);
   
   // Prepare data for the table
   const tableData = events.map(event => [
@@ -80,18 +102,46 @@ export const exportToPDF = (events: Event[], date: Date | undefined): void => {
     ["Titre", "Client", "Collaborateur", "Horaire", "Type"]
   ];
   
-  // Add the table to the PDF
+  // Add the table to the PDF with enhanced styling
   autoTable(doc, {
     startY: 30,
     head: tableHeader,
     body: tableData,
     theme: 'grid',
-    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+    headStyles: { 
+      fillColor: [50, 98, 85],
+      textColor: 255,
+      fontStyle: 'bold',
+      halign: 'center'
+    },
     styles: {
       fontSize: 10,
-      cellPadding: 3,
+      cellPadding: 4,
+      lineColor: [220, 230, 220],
+      lineWidth: 0.2
     },
+    alternateRowStyles: {
+      fillColor: [248, 250, 248]
+    },
+    columnStyles: {
+      0: { cellWidth: 50 },
+      3: { cellWidth: 25, halign: 'center' },
+      4: { cellWidth: 25, halign: 'center' }
+    },
+    margin: { top: 30, right: 15, bottom: 20, left: 15 }
   });
+  
+  // Add footer
+  const pageCount = doc.getNumberOfPages();
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    const pageHeight = doc.internal.pageSize.height;
+    doc.text('PRISMA GESTION - Gestion comptable et fiscale', 15, pageHeight - 10);
+    doc.text(`Page ${i}/${pageCount}`, 170, pageHeight - 10);
+  }
   
   // Save the PDF
   doc.save(`events-${date ? date.toISOString().split('T')[0] : 'all'}.pdf`);
@@ -132,19 +182,42 @@ export const exportToExcel = (data: any[], filename: string): void => {
 };
 
 /**
- * Exports data to PDF format
+ * Exports data to PDF format with enhanced styling
  */
 export const exportToPdf = (title: string, data: any[], filename: string): void => {
-  // Create a new PDF document
-  const doc = new jsPDF();
+  // Create a new PDF document with improved quality
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    compress: true
+  });
   
-  // Set title
+  // Set document properties
+  doc.setProperties({
+    title: title,
+    subject: 'Export de données',
+    author: 'PRISMA GESTION',
+    keywords: 'export, données, pdf',
+    creator: 'PRISMA GESTION'
+  });
+  
+  // Set title with enhanced styling
   doc.setFontSize(16);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(50, 98, 85); // Dark green for consistency
   doc.text(title, 14, 20);
+  
+  // Add subtle title underline
+  doc.setDrawColor(200, 220, 200);
+  doc.setLineWidth(0.2);
+  doc.line(14, 22, 60, 22);
   
   // Check if data exists
   if (data.length === 0) {
     doc.setFontSize(12);
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(80, 80, 80);
     doc.text("Aucune donnée disponible", 14, 40);
     doc.save(`${filename}.pdf`);
     return;
@@ -156,18 +229,41 @@ export const exportToPdf = (title: string, data: any[], filename: string): void 
   // Define table header
   const tableHeader = [Object.keys(data[0])];
   
-  // Add the table to the PDF
+  // Add the table to the PDF with enhanced styling
   autoTable(doc, {
     startY: 30,
     head: tableHeader,
     body: tableData,
     theme: 'grid',
-    headStyles: { fillColor: [132, 169, 140], textColor: 255 },
+    headStyles: { 
+      fillColor: [132, 169, 140],
+      textColor: 255,
+      fontStyle: 'bold',
+      halign: 'center'
+    },
     styles: {
       fontSize: 10,
-      cellPadding: 3,
+      cellPadding: 4,
+      lineColor: [220, 230, 220],
+      lineWidth: 0.2
     },
+    alternateRowStyles: {
+      fillColor: [248, 250, 248]
+    },
+    margin: { top: 30, right: 15, bottom: 20, left: 15 }
   });
+  
+  // Add footer
+  const pageCount = doc.getNumberOfPages();
+  doc.setFontSize(8);
+  doc.setTextColor(100, 100, 100);
+  
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    const pageHeight = doc.internal.pageSize.height;
+    doc.text('PRISMA GESTION - Gestion comptable et fiscale', 15, pageHeight - 10);
+    doc.text(`Page ${i}/${pageCount}`, 170, pageHeight - 10);
+  }
   
   // Save the PDF
   doc.save(`${filename}.pdf`);

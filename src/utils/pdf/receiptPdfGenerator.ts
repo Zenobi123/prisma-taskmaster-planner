@@ -17,14 +17,23 @@ import { addReceiptFooter } from './components/receiptFooter';
  */
 export const generateReceiptPDF = (paiement: any, download: boolean = false) => {
   try {
-    const doc = new jsPDF();
+    // Create PDF document with improved quality
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true,
+      precision: 2,
+      hotfixes: ['px_scaling']
+    });
     
     // Set document properties
     doc.setProperties({
       title: `Reçu de paiement ${paiement.reference || paiement.id}`,
       subject: 'Reçu de paiement',
       author: 'PRISMA GESTION',
-      keywords: 'reçu, paiement, pdf'
+      keywords: 'reçu, paiement, pdf',
+      creator: 'PRISMA GESTION'
     });
     
     // Add receipt header (company logo + receipt info)
@@ -42,13 +51,17 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
     // Add footer with watermark
     addReceiptFooter(doc, paiement.reference || paiement.id);
     
+    // Apply PDF quality optimizations
+    doc.setTextColor(0, 0, 0);
+    doc.setLineWidth(0.1);
+    
     // Generate output based on download parameter
     if (download) {
-      // Download the PDF
+      // Download the PDF with high quality
       doc.save(`Recu_${paiement.reference || paiement.id}.pdf`);
       return doc.output('blob');
     } else {
-      // Create blob and open in new tab
+      // Create blob and open in new tab with high quality rendering
       const pdfBlob = doc.output('blob');
       const pdfUrl = URL.createObjectURL(pdfBlob);
       window.open(pdfUrl, '_blank');

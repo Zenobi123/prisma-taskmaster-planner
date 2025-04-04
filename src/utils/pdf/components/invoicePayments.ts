@@ -1,118 +1,93 @@
 
 import jsPDF from 'jspdf';
 import { PDFFacture } from '../types';
-import { format, parseISO } from 'date-fns';
-import { fr } from 'date-fns/locale';
+import { formatDateForDisplay } from '../pdfComponents';
 
-// Function to add the payments section to the invoice
+// Add payments section if available with improved styling
 export const addPaymentsSection = (doc: jsPDF, facture: PDFFacture, startY: number): number => {
+  // Skip if no payments
   if (!facture.paiements || facture.paiements.length === 0) {
-    return startY; // No change in vertical position
+    return startY;
   }
   
-  // Add section header
+  // Title for payments section with improved styling
+  doc.setFontSize(11);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
+  doc.setTextColor(50, 98, 85);
+  doc.text("PAIEMENTS REÇUS", 15, startY + 10);
+  
+  // Create a table-like structure with better styling for payments
+  doc.setFillColor(248, 250, 248);
+  doc.roundedRect(15, startY + 15, 180, 10 + (facture.paiements.length * 8), 3, 3, 'F');
+  
+  // Add column headers with improved styling
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'bold');
   doc.setTextColor(60, 60, 60);
+  doc.text("Date", 20, startY + 22);
+  doc.text("Référence", 60, startY + 22);
+  doc.text("Mode", 100, startY + 22);
+  doc.text("Montant", 165, startY + 22, { align: 'right' });
   
-  // Calculate remaining space on page
-  const currentY = startY + 10;
-  const pageHeight = doc.internal.pageSize.height;
-  const remainingSpace = pageHeight - currentY - 40; // 40px for footer
+  // Add subtle header underline for better separation
+  doc.setDrawColor(230, 240, 230);
+  doc.setLineWidth(0.2);
+  doc.line(20, startY + 24, 175, startY + 24);
   
-  // If not enough space for payments section, create a new page
-  if (remainingSpace < 60) {
-    doc.addPage();
-    return addPaymentsSection(doc, facture, 20); // Start at top of new page
-  }
-  
-  doc.text("Historique des paiements", 15, currentY);
-  
-  // Add payments table header
-  const tableTop = currentY + 10;
-  const leftMargin = 15;
-  const colWidths = [50, 45, 45, 45]; // Date, Mode, Référence, Montant
-  
-  // Create table header
-  doc.setFillColor(245, 245, 245);
-  doc.rect(leftMargin, tableTop, colWidths.reduce((a, b) => a + b, 0), 10, 'F');
-  
-  doc.setFontSize(10);
-  doc.setTextColor(80, 80, 80);
-  doc.text("Date", leftMargin + 5, tableTop + 7);
-  doc.text("Mode", leftMargin + colWidths[0] + 5, tableTop + 7);
-  doc.text("Référence", leftMargin + colWidths[0] + colWidths[1] + 5, tableTop + 7);
-  doc.text("Montant", leftMargin + colWidths[0] + colWidths[1] + colWidths[2] + 5, tableTop + 7);
-  
-  // Draw table rows for each payment
+  // List each payment with improved formatting
+  let currentY = startY + 30;
   doc.setFont('helvetica', 'normal');
-  let rowY = tableTop + 10;
   
-  facture.paiements.forEach((paiement, i) => {
-    // Check if we need a new page for this row
-    if (rowY + 10 > pageHeight - 40) {
-      doc.addPage();
-      rowY = 20; // Start at top of new page
-      
-      // Redraw the header on the new page
-      doc.setFillColor(245, 245, 245);
-      doc.rect(leftMargin, rowY, colWidths.reduce((a, b) => a + b, 0), 10, 'F');
-      
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.setTextColor(80, 80, 80);
-      doc.text("Date", leftMargin + 5, rowY + 7);
-      doc.text("Mode", leftMargin + colWidths[0] + 5, rowY + 7);
-      doc.text("Référence", leftMargin + colWidths[0] + colWidths[1] + 5, rowY + 7);
-      doc.text("Montant", leftMargin + colWidths[0] + colWidths[1] + colWidths[2] + 5, rowY + 7);
-      
-      doc.setFont('helvetica', 'normal');
-      rowY += 10;
+  facture.paiements.forEach((paiement, index) => {
+    // Format date for better readability
+    const dateStr = formatDateForDisplay(paiement.date);
+    
+    // Format mode with first letter capitalized
+    const mode = paiement.mode.charAt(0).toUpperCase() + paiement.mode.slice(1);
+    
+    // Add payment details with improved spacing and alignment
+    doc.text(dateStr, 20, currentY);
+    doc.text(paiement.id || "-", 60, currentY);
+    doc.text(mode, 100, currentY);
+    
+    // Format amount with thousand separator
+    const montantStr = paiement.montant.toLocaleString('fr-FR') + " XAF";
+    doc.text(montantStr, 175, currentY, { align: 'right' });
+    
+    // Add subtle row separator for better readability (except after last row)
+    if (index < facture.paiements.length - 1) {
+      doc.setDrawColor(240, 240, 240);
+      doc.setLineWidth(0.1);
+      doc.line(20, currentY + 3, 175, currentY + 3);
     }
     
-    // Add alternating row background
-    if (i % 2 === 0) {
-      doc.setFillColor(252, 252, 252);
-      doc.rect(leftMargin, rowY, colWidths.reduce((a, b) => a + b, 0), 10, 'F');
-    }
-    
-    // Format the date
-    let formattedDate = paiement.date;
-    try {
-      formattedDate = format(parseISO(paiement.date), 'dd/MM/yyyy', { locale: fr });
-    } catch (e) {
-      console.error("Error formatting date", e);
-    }
-    
-    // Format the amount
-    const formattedAmount = new Intl.NumberFormat('fr-FR').format(paiement.montant);
-    
-    // Write payment information
-    doc.text(formattedDate, leftMargin + 5, rowY + 7);
-    doc.text(paiement.mode, leftMargin + colWidths[0] + 5, rowY + 7);
-    doc.text(paiement.reference || "-", leftMargin + colWidths[0] + colWidths[1] + 5, rowY + 7);
-    
-    // Fix type error by converting the formatted amount to a string
-    const amountText = `${formattedAmount} XAF`;
-    doc.text(amountText, leftMargin + colWidths[0] + colWidths[1] + colWidths[2] + 5, rowY + 7);
-    
-    rowY += 10;
+    currentY += 8;
   });
   
-  // Draw table border
-  doc.setDrawColor(220, 220, 220);
-  doc.setLineWidth(0.5);
-  const tableHeight = Math.min(10 + facture.paiements.length * 10, rowY - tableTop);
-  doc.rect(leftMargin, tableTop, colWidths.reduce((a, b) => a + b, 0), tableHeight);
+  // Add total paid amount
+  currentY += 5;
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(50, 98, 85);
+  doc.text("Montant total payé:", 100, currentY);
   
-  // Add lines between columns
-  for (let i = 1; i < colWidths.length; i++) {
-    const x = leftMargin + colWidths.slice(0, i).reduce((a, b) => a + b, 0);
-    doc.line(x, tableTop, x, tableTop + tableHeight);
+  // Calculate total paid with better numeric handling
+  const totalPaid = facture.paiements.reduce((sum, payment) => sum + payment.montant, 0);
+  const totalPaidStr = totalPaid.toLocaleString('fr-FR') + " XAF";
+  doc.text(totalPaidStr, 175, currentY, { align: 'right' });
+  
+  // Add remaining amount if not fully paid
+  if (totalPaid < facture.montant) {
+    currentY += 8;
+    doc.text("Reste à payer:", 100, currentY);
+    
+    const remaining = facture.montant - totalPaid;
+    const remainingStr = remaining.toLocaleString('fr-FR') + " XAF";
+    
+    // Use red color for remaining amount
+    doc.setTextColor(200, 0, 0);
+    doc.text(remainingStr, 175, currentY, { align: 'right' });
+    doc.setTextColor(0, 0, 0); // Reset text color
   }
   
-  // Add horizontal line after header
-  doc.line(leftMargin, tableTop + 10, leftMargin + colWidths.reduce((a, b) => a + b, 0), tableTop + 10);
-  
-  return rowY + 10; // Return the Y position for the next section
+  return currentY + 10; // Return next Y position with spacing
 };

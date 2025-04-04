@@ -16,15 +16,23 @@ import { addInvoiceFooter } from './components/invoiceFooter';
  */
 export const generateInvoicePDF = (facture: PDFFacture, download: boolean = false) => {
   try {
-    // Create new PDF document
-    const doc = new jsPDF();
+    // Create new PDF document with improved quality
+    const doc = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+      compress: true,
+      precision: 2,
+      hotfixes: ['px_scaling']
+    });
     
     // Set document properties
     doc.setProperties({
       title: `Facture ${facture.id}`,
       subject: 'Facture',
       author: 'PRISMA GESTION',
-      keywords: 'facture, pdf, generate'
+      keywords: 'facture, pdf, generate',
+      creator: 'PRISMA GESTION'
     });
     
     // Add header section (company logo, invoice info, client info)
@@ -45,13 +53,17 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     // Add footer with watermark - passing only the doc parameter
     addInvoiceFooter(doc);
     
+    // Apply PDF quality optimizations
+    doc.setTextColor(0, 0, 0);
+    doc.setLineWidth(0.1);
+    
     // Generate output based on download parameter
     if (download) {
-      // Download the PDF
+      // Download the PDF with high quality
       doc.save(`Facture_${facture.id}.pdf`);
       return doc.output('blob');
     } else {
-      // Create blob and open in new tab
+      // Create blob and open in new tab with high quality rendering
       const pdfBlob = doc.output('blob');
       const pdfUrl = URL.createObjectURL(pdfBlob);
       window.open(pdfUrl, '_blank');
