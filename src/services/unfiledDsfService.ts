@@ -1,113 +1,114 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client, ClientType, FormeJuridique, Interaction } from "@/types/client";
-import { UnfiledDsfClient } from "@/types/fiscal";
-import { Json } from "@/types/supabase";
+import { Client, ClientType, ClientStatus, FormeJuridique, RegimeFiscal, Interaction, Sexe, EtatCivil, SituationImmobiliere } from "@/types/client";
 
-// Cache pour stocker les clients avec DSF non déposées
-const unfiledDsfClientCache: {
-  clients: UnfiledDsfClient[];
-  timestamp: number;
-} = {
-  clients: [],
-  timestamp: 0,
-};
-
-/**
- * Récupère la liste des clients qui n'ont pas déposé leur DSF
- * @returns Promise<Client[]> - Liste des clients concernés
- */
-export const getUnfiledDsfClients = async (): Promise<Client[]> => {
-  const now = Date.now();
-  const cacheValidity = 5 * 60 * 1000; // 5 minutes en millisecondes
-
-  // Si le cache est valide, retourner les données en cache
-  if (unfiledDsfClientCache.clients.length > 0 && now - unfiledDsfClientCache.timestamp < cacheValidity) {
-    console.log("Utilisation du cache pour les clients avec DSF non déposées");
-    return unfiledDsfClientCache.clients as unknown as Client[];
-  }
-
+export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
+  console.log("Service: Récupération des clients avec DSF non déposées...");
+  
   try {
-    const currentYear = new Date().getFullYear();
-    
-    // Récupérer les clients qui n'ont pas de DSF déposées pour l'année en cours
-    const { data: clientsData, error } = await supabase
+    // Récupérer tous les clients
+    const { data: allClients, error: clientsError } = await supabase
       .from("clients")
-      .select(`
-        id, type, nom, raisonsociale, sigle, datecreation, lieucreation,
-        nomdirigeant, formejuridique, niu, centrerattachement, registrecommerce,
-        adresse, contact, fiscal_data, interactions, status, created_at
-      `)
-      .eq("status", "actif");
-
-    if (error) {
-      throw new Error(`Erreur lors de la récupération des clients: ${error.message}`);
+      .select("*");
+    
+    if (clientsError) {
+      console.error("Erreur lors de la récupération des clients:", clientsError);
+      throw clientsError;
     }
 
-    // Filtrer les clients sans DSF pour l'année en cours
-    const clientsWithoutDsf = clientsData.filter((client) => {
-      if (!client.fiscal_data) return true;
-      
-      const fiscalData = client.fiscal_data as Record<string, any>;
-      return !fiscalData.dsf || !fiscalData.dsf[currentYear] || !fiscalData.dsf[currentYear].filed;
-    });
+    console.log("Service: Nombre total de clients récupérés:", allClients.length);
 
-    // Formatter les données client pour l'affichage
-    const formattedClients = clientsWithoutDsf.map((client) => {
-      // Cast des propriétés pour correspondre aux types attendus
-      const clientWithCorrectTypes = {
-        ...client,
-        formejuridique: client.formejuridique as FormeJuridique,
-        interactions: client.interactions ? client.interactions as unknown as Interaction[] : [],
-        fiscal_data: client.fiscal_data as Record<string, any>,
+    // Filtrer les clients qui ont une DSF non déposée
+    const clientsWithUnfiledDsf = allClients.filter(client => {
+      // On vérifie si le client a des données fiscales
+      if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
+        // Vérifier si obligations existe dans les données fiscales
+        const fiscalData = client.fiscal_data as { obligations?: any };
+        if (fiscalData.obligations) {
+          // On cherche une obligation de type dsf qui est assujetti mais non déposée
+          const isAssujetti = fiscalData.obligations.dsf && 
+                fiscalData.obligations.dsf.assujetti === true;
+          const isNotFiled = fiscalData.obligations.dsf && 
+                fiscalData.obligations.dsf.depose === false;
+          
+          return isAssujetti && isNotFiled;
+        }
+      }
+      return false;
+    });
+    
+    console.log("Service: Clients avec DSF non déposées:", clientsWithUnfiledDsf.length);
+    console.log("Service: Premier client avec DSF non déposée:", clientsWithUnfiledDsf[0] || "Aucun");
+    
+    // Convertir les données brutes en objets Client typés avec des conversions explicites
+    const typedClients: Client[] = clientsWithUnfiledDsf.map(client => {
+      // Transformer adresse JSON en structure typée
+      const adresseTyped = {
+        ville: typeof client.adresse === 'object' && client.adresse !== null ? 
+          (client.adresse as any).ville || "" : "",
+        quartier: typeof client.adresse === 'object' && client.adresse !== null ? 
+          (client.adresse as any).quartier || "" : "",
+        lieuDit: typeof client.adresse === 'object' && client.adresse !== null ? 
+          (client.adresse as any).lieuDit || "" : ""
       };
-
-      // Normaliser l'adresse et le contact qui peuvent être null ou de formats différents
-      let adresseObj = { ville: "", quartier: "", lieuDit: "" };
-      if (client.adresse && typeof client.adresse === 'object') {
-        const adresseTemp = client.adresse as Record<string, any>;
-        adresseObj = {
-          ville: adresseTemp.ville || "",
-          quartier: adresseTemp.quartier || "",
-          lieuDit: adresseTemp.lieuDit || ""
+      
+      // Transformer contact JSON en structure typée
+      const contactTyped = {
+        telephone: typeof client.contact === 'object' && client.contact !== null ? 
+          (client.contact as any).telephone || "" : "",
+        email: typeof client.contact === 'object' && client.contact !== null ? 
+          (client.contact as any).email || "" : ""
+      };
+      
+      // Transformer interactions JSON en array typé avec le bon format Interaction[]
+      const interactionsTyped: Interaction[] = Array.isArray(client.interactions) ? 
+        client.interactions.map((interaction: any) => ({
+          id: interaction.id || "",
+          date: interaction.date || "",
+          description: interaction.description || ""
+        })) : [];
+      
+      // Handle the 'sexe' field properly, ensuring it's cast to the Sexe type
+      const sexeTyped: Sexe | undefined = client.sexe as Sexe | undefined;
+      
+      // Handle the 'etatcivil' field properly, ensuring it's cast to the EtatCivil type
+      const etatcivilTyped: EtatCivil | undefined = client.etatcivil as EtatCivil | undefined;
+      
+      // Handle the situationimmobiliere field properly, transforming from JSON to typed object
+      let situationimmobiliereTyped: { type: SituationImmobiliere; valeur?: number; loyer?: number } | undefined;
+      
+      if (client.situationimmobiliere && typeof client.situationimmobiliere === 'object') {
+        situationimmobiliereTyped = {
+          type: (client.situationimmobiliere as any).type as SituationImmobiliere || "locataire",
+          valeur: (client.situationimmobiliere as any).valeur as number | undefined,
+          loyer: (client.situationimmobiliere as any).loyer as number | undefined,
         };
       }
-
-      let contactObj = { telephone: "", email: "" };
-      if (client.contact && typeof client.contact === 'object') {
-        const contactTemp = client.contact as Record<string, any>;
-        contactObj = {
-          telephone: contactTemp.telephone || "",
-          email: contactTemp.email || ""
-        };
-      }
-
-      // Retourner le client formaté avec les bonnes structures
+      
       return {
-        ...clientWithCorrectTypes,
-        adresse: adresseObj,
-        contact: contactObj
-      } as unknown as Client;
+        ...client,
+        type: client.type as ClientType,
+        adresse: adresseTyped,
+        contact: contactTyped,
+        interactions: interactionsTyped,
+        statut: client.statut as ClientStatus,
+        formejuridique: client.formejuridique as FormeJuridique || undefined,
+        regimefiscal: client.regimefiscal as RegimeFiscal || undefined,
+        datecreation: client.datecreation || undefined,
+        lieucreation: client.lieucreation || undefined,
+        nomdirigeant: client.nomdirigeant || undefined,
+        sigle: client.sigle || undefined,
+        nom: client.nom || undefined,
+        raisonsociale: client.raisonsociale || undefined,
+        situationimmobiliere: situationimmobiliereTyped,
+        sexe: sexeTyped,
+        etatcivil: etatcivilTyped
+      };
     });
-
-    // Mettre à jour le cache
-    unfiledDsfClientCache.clients = formattedClients as unknown as UnfiledDsfClient[];
-    unfiledDsfClientCache.timestamp = now;
-
-    return formattedClients;
+    
+    return typedClients;
   } catch (error) {
-    console.error("Erreur lors de la récupération des clients avec DSF non déposées:", error);
-    throw error;
-  }
-};
-
-// Fonction pour obtenir le nombre de clients avec DSF non déposées
-export const getUnfiledDsfClientsCount = async (): Promise<number> => {
-  try {
-    const clients = await getUnfiledDsfClients();
-    return clients.length;
-  } catch (error) {
-    console.error("Erreur lors du comptage des clients avec DSF non déposées:", error);
-    return 0;
+    console.error("Erreur dans getClientsWithUnfiledDsf:", error);
+    return [];
   }
 };

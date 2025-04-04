@@ -6,19 +6,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const UnfiledDsfList = () => {
   const navigate = useNavigate();
   
-  const { data: clients = [], isLoading } = useQuery({
+  const { data: clients = [], isLoading, isFetched, error } = useQuery({
     queryKey: ["clients-unfiled-dsf"],
     queryFn: getClientsWithUnfiledDsf,
     // Configurer le rafraîchissement automatique
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    refetchOnWindowFocus: true,
-    retry: 1
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
   });
+
+  console.log("UnfiledDsfList - Clients:", clients);
+  console.log("UnfiledDsfList - Clients length:", clients.length);
+  console.log("UnfiledDsfList - isLoading:", isLoading);
+  console.log("UnfiledDsfList - isFetched:", isFetched);
+  console.log("UnfiledDsfList - error:", error);
+  console.log("UnfiledDsfList - Le composant est bien rendu");
 
   const handleNavigateToClient = (clientId: string) => {
     navigate(`/gestion?client=${clientId}&tab=obligations-fiscales`);
@@ -50,53 +55,51 @@ const UnfiledDsfList = () => {
       </CardHeader>
       <CardContent className="p-4">
         {clients && clients.length > 0 ? (
-          <ScrollArea className="h-[350px]">
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Client</TableHead>
-                    <TableHead>NIU</TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <Building className="h-4 w-4" />
-                        <span>Centre des impôts</span>
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <Phone className="h-4 w-4" />
-                        <span>Contact</span>
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client</TableHead>
+                  <TableHead>NIU</TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      <Building className="h-4 w-4" />
+                      <span>Centre des impôts</span>
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      <Phone className="h-4 w-4" />
+                      <span>Contact</span>
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {clients.map((client) => (
+                  <TableRow key={client.id} className="hover:bg-blue-50">
+                    <TableCell className="font-medium">
+                      {client.type === "physique" ? client.nom : client.raisonsociale}
+                    </TableCell>
+                    <TableCell>{client.niu}</TableCell>
+                    <TableCell>{client.centrerattachement}</TableCell>
+                    <TableCell>{client.contact.telephone}</TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleNavigateToClient(client.id)}
+                        className="border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                      >
+                        Gérer
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {clients.map((client) => (
-                    <TableRow key={client.id} className="hover:bg-blue-50">
-                      <TableCell className="font-medium">
-                        {client.type === "physique" ? client.nom : client.raisonsociale}
-                      </TableCell>
-                      <TableCell>{client.niu}</TableCell>
-                      <TableCell>{client.centrerattachement}</TableCell>
-                      <TableCell>{client.contact.telephone}</TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleNavigateToClient(client.id)}
-                          className="border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-                        >
-                          Gérer
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </ScrollArea>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         ) : (
           <div className="py-8 text-center border-2 border-blue-200 rounded-md bg-blue-50">
             <FileWarning className="h-12 w-12 mx-auto text-blue-500 mb-3" />

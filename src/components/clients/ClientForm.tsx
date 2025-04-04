@@ -4,7 +4,6 @@ import { ClientType, Client } from "@/types/client";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientFormFields } from "./form/ClientFormFields";
 import { useClientForm } from "@/hooks/useClientForm";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ClientFormProps {
   onSubmit: (data: any) => void;
@@ -23,22 +22,20 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
   };
 
   return (
-    <ScrollArea className="h-[calc(100vh-200px)] pr-4">
-      <form onSubmit={handleSubmit} className="space-y-6 pb-6">
-        {onTypeChange && (
-          <ClientTypeSelect type={type} onTypeChange={onTypeChange} />
-        )}
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {onTypeChange && (
+        <ClientTypeSelect type={type} onTypeChange={onTypeChange} />
+      )}
 
-        <ClientFormFields 
-          type={type}
-          formData={formData}
-          onChange={handleChange}
-        />
+      <ClientFormFields 
+        type={type}
+        formData={formData}
+        onChange={handleChange}
+      />
 
-        <Button type="submit" className="w-full">
-          {initialData ? "Modifier le client" : "Ajouter le client"}
-        </Button>
-      </form>
-    </ScrollArea>
+      <Button type="submit" className="w-full">
+        {initialData ? "Modifier le client" : "Ajouter le client"}
+      </Button>
+    </form>
   );
 }

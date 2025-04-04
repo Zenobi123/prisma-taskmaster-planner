@@ -3,57 +3,37 @@ import jsPDF from 'jspdf';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
-// Add footer and watermark to all pages of the receipt with enhanced styling
+// Add footer and watermark to all pages of the receipt
 export const addReceiptFooter = (doc: jsPDF, reference: string) => {
   const pageCount = doc.getNumberOfPages();
+  doc.setFontSize(8);
+  doc.setTextColor(150, 150, 150);
   
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     const pageHeight = doc.internal.pageSize.height;
-    const pageWidth = doc.internal.pageSize.width;
     
-    // Add footer background for better visual separation
-    doc.setFillColor(250, 250, 250);
-    doc.rect(0, pageHeight - 25, pageWidth, 25, 'F');
-    
-    // Add subtle footer line
-    doc.setDrawColor(230, 240, 230);
-    doc.setLineWidth(0.2);
-    doc.line(15, pageHeight - 25, pageWidth - 15, pageHeight - 25);
-    
-    // Bottom footer with improved typography
-    doc.setFontSize(8);
+    // Bottom footer
     doc.setFont('helvetica', 'normal');
-    doc.setTextColor(100, 100, 100);
-    doc.text('PRISMA GESTION - Gestion comptable et fiscale', 15, pageHeight - 18);
+    doc.text('PRISMA GESTION - Gestion comptable et fiscale', 15, pageHeight - 15);
     
     // Right side footer with page numbers
-    doc.text(`Reçu ${reference} - Page ${i}/${pageCount}`, 170, pageHeight - 18);
+    doc.text(`Reçu ${reference} - Page ${i}/${pageCount}`, 170, pageHeight - 15);
     
-    // Add date generated with better formatting
+    // Add date generated
     const today = new Date();
     const generateDate = format(today, 'dd/MM/yyyy à HH:mm', { locale: fr });
-    doc.text(`Document généré le ${generateDate}`, 15, pageHeight - 12);
+    doc.text(`Document généré le ${generateDate}`, 15, pageHeight - 10);
     
-    // Add watermark diagonal text in very light color with better rendering
+    // Add watermark diagonal text in very light color
     doc.saveGraphicsState();
     
-    // Better watermark positioning
-    const watermarkX = pageWidth / 2;
-    const watermarkY = pageHeight / 2;
+    // Fix TypeScript errors with correct type casting
+    (doc as any).translate(pageHeight/2, 100);
+    (doc as any).rotate(-45);
     
-    // Apply rotation using matrix transformation for jsPDF v2 compatibility
-    const angle = -45 * Math.PI / 180;
-    doc.setTransform(
-      Math.cos(angle), Math.sin(angle),
-      -Math.sin(angle), Math.cos(angle),
-      watermarkX, watermarkY
-    );
-    
-    doc.setTextColor(240, 240, 240);
-    doc.setFontSize(30);
+    doc.setTextColor(235, 235, 235);
     doc.text('PRISMA GESTION', 0, 0, { align: 'center' });
-    
     doc.restoreGraphicsState();
   }
 };

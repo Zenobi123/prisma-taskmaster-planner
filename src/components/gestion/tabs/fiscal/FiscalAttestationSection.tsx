@@ -1,135 +1,165 @@
 
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import React, { useState } from "react";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "lucide-react";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle,
-  CardFooter
-} from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Save, AlertTriangle, CheckCircle, XCircle, FileCheck, Bell, BellOff } from "lucide-react";
+import { differenceInDays, isValid, parse } from "date-fns";
 
 interface FiscalAttestationSectionProps {
   creationDate: string;
   validityEndDate: string;
   setCreationDate: (date: string) => void;
-  handleSave: () => Promise<void>;
+  handleSave: () => void;
   showInAlert?: boolean;
-  onToggleAlert?: () => void;
-  hiddenFromDashboard?: boolean;
-  onToggleDashboardVisibility?: () => void;
+  onToggleAlert?: (showInAlert: boolean) => void;
 }
 
 export function FiscalAttestationSection({ 
   creationDate, 
   validityEndDate, 
-  setCreationDate, 
+  setCreationDate,
   handleSave,
   showInAlert = true,
-  onToggleAlert,
-  hiddenFromDashboard = false,
-  onToggleDashboardVisibility
+  onToggleAlert
 }: FiscalAttestationSectionProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isShowInAlert, setIsShowInAlert] = useState(showInAlert);
 
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
+  const getAttestationStatus = () => {
+    if (!creationDate || !validityEndDate) return null;
+    
     try {
-      await handleSave();
-    } finally {
-      setIsSubmitting(false);
+      const endDate = parse(validityEndDate, 'dd/MM/yyyy', new Date());
+      if (!isValid(endDate)) return null;
+      
+      const today = new Date();
+      const daysUntilExpiration = differenceInDays(endDate, today);
+      
+      if (daysUntilExpiration < 0) {
+        return { 
+          status: "expired", 
+          label: `Expirée depuis ${Math.abs(daysUntilExpiration)} jours`, 
+          icon: XCircle, 
+          variant: "destructive" 
+        };
+      } else if (daysUntilExpiration <= 5) {
+        return { 
+          status: "expiring-soon", 
+          label: `Expire dans ${daysUntilExpiration} jours`, 
+          icon: AlertTriangle, 
+          variant: "outline",
+          className: "bg-amber-50 text-amber-700 border-amber-200"
+        };
+      } else {
+        return { 
+          status: "valid", 
+          label: "Valide", 
+          icon: CheckCircle, 
+          variant: "outline",
+          className: "bg-green-50 text-green-700 border-green-200"
+        };
+      }
+    } catch (error) {
+      console.error("Error calculating attestation status:", error);
+      return null;
+    }
+  };
+  
+  const status = getAttestationStatus();
+
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only allow format dd/mm/yyyy
+    const value = e.target.value;
+    // Basic format validation (users can still enter invalid dates)
+    const dateRegex = /^(\d{0,2})(\/?)(\d{0,2})(\/?)(\d{0,4})$/;
+    const match = value.match(dateRegex);
+    
+    if (match) {
+      setCreationDate(value);
     }
   };
 
-  // Helper function to validate date format (DD/MM/YYYY)
-  const isValidDateFormat = (date: string): boolean => {
-    const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
-    return regex.test(date);
+  const handleToggleAlert = () => {
+    const newValue = !isShowInAlert;
+    setIsShowInAlert(newValue);
+    if (onToggleAlert) {
+      onToggleAlert(newValue);
+    }
   };
 
-  const isDateInvalid = creationDate && !isValidDateFormat(creationDate);
-
   return (
-    <Card className="border-[#E8FDF5] bg-[#F4FEFA]">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold text-[#336755]">
-          Attestation de Conformité Fiscale
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="creationDate" className="text-[#336755]">
-              Date de délivrance
-            </Label>
-            <div className="relative">
-              <Input
-                id="creationDate"
-                placeholder="JJ/MM/AAAA"
-                value={creationDate}
-                onChange={(e) => setCreationDate(e.target.value)}
-                className={`pl-10 ${isDateInvalid ? 'border-red-500' : 'border-[#A8C1AE]'}`}
-              />
-              <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-[#84A98C]" />
-            </div>
-            {isDateInvalid && (
-              <p className="text-red-500 text-xs mt-1">
-                Format invalide. Utilisez JJ/MM/AAAA
-              </p>
+    <div className="space-y-4">
+      <div className="flex justify-between items-start">
+        <div className="flex flex-col gap-2">
+          <h3 className="text-lg font-semibold">Attestation de Conformité Fiscale</h3>
+          <Button 
+            onClick={handleToggleAlert} 
+            variant={isShowInAlert ? "default" : "outline"} 
+            size="sm"
+            className={`w-fit ${isShowInAlert ? "bg-amber-500 hover:bg-amber-600" : "text-muted-foreground"}`}
+          >
+            {isShowInAlert ? (
+              <>
+                <Bell className="mr-1 h-4 w-4" />
+                <span>Alerte activée</span>
+                <Badge variant="outline" className="ml-2 bg-white text-amber-600 border-white">
+                  ON
+                </Badge>
+              </>
+            ) : (
+              <>
+                <BellOff className="mr-1 h-4 w-4" />
+                <span>Alerte désactivée</span>
+                <Badge variant="outline" className="ml-2 bg-transparent text-muted-foreground border-muted">
+                  OFF
+                </Badge>
+              </>
             )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="validityEndDate" className="text-[#336755]">
-              Date d'expiration
-            </Label>
-            <div className="relative">
-              <Input
-                id="validityEndDate"
-                placeholder="JJ/MM/AAAA"
-                value={validityEndDate}
-                readOnly
-                className="pl-10 bg-[#E8FDF5] border-[#A8C1AE]"
-              />
-              <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-[#84A98C]" />
-            </div>
-          </div>
+          </Button>
         </div>
-
-        <div className="flex items-center space-x-2 mt-4">
-          <Switch 
-            id="show-alerts" 
-            checked={showInAlert} 
-            onCheckedChange={onToggleAlert}
-          />
-          <Label htmlFor="show-alerts" className="text-[#336755]">
-            Afficher les alertes d'expiration
-          </Label>
-        </div>
-
-        <div className="flex items-center space-x-2 mt-2">
-          <Switch 
-            id="hide-dashboard" 
-            checked={hiddenFromDashboard} 
-            onCheckedChange={onToggleDashboardVisibility}
-          />
-          <Label htmlFor="hide-dashboard" className="text-[#336755]">
-            Masquer du tableau de bord
-          </Label>
-        </div>
-      </CardContent>
-      <CardFooter>
-        <Button 
-          onClick={handleSubmit} 
-          disabled={isSubmitting || isDateInvalid}
-          className="bg-[#84A98C] hover:bg-[#5E8C61] text-white"
-        >
-          {isSubmitting ? "Enregistrement..." : "Enregistrer"}
+        {status && (
+          <Badge 
+            variant={status.variant as any} 
+            className={`flex items-center gap-1 ${status.className || ""}`}
+          >
+            <status.icon className="h-3.5 w-3.5" />
+            <span>{status.label}</span>
+          </Badge>
+        )}
+        <Button onClick={handleSave} variant="outline" size="sm" className="bg-green-100 hover:bg-green-200 border-green-300">
+          <FileCheck className="mr-2 h-4 w-4" />
+          Enregistrer
         </Button>
-      </CardFooter>
-    </Card>
+      </div>
+      
+      <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-md ${status?.status === 'expired' ? 'bg-red-50 border border-red-200' : ''}`}>
+        <div className="space-y-2">
+          <Label htmlFor="creation-date">Date de création (JJ/MM/AAAA)</Label>
+          <Input
+            id="creation-date"
+            value={creationDate}
+            onChange={handleDateChange}
+            placeholder="JJ/MM/AAAA"
+          />
+          <p className="text-sm text-gray-500">
+            Date de délivrance de l'attestation
+          </p>
+        </div>
+        
+        <div className="space-y-2">
+          <Label htmlFor="validity-end-date">Date de fin de validité</Label>
+          <Input
+            id="validity-end-date"
+            value={validityEndDate}
+            readOnly
+            disabled
+          />
+          <p className="text-sm text-gray-500">
+            Validité de 3 mois à partir de la date de création
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

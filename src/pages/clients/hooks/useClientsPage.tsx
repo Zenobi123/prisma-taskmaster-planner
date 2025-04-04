@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Client, ClientType } from "@/types/client";
@@ -29,11 +28,6 @@ export function useClientsPage() {
     mutationFn: addClient,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
-      // Also invalidate dashboard queries
-      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["client-stats"] });
-      
       toast({
         title: "Client ajouté",
         description: "Le nouveau client a été ajouté avec succès.",
@@ -57,12 +51,7 @@ export function useClientsPage() {
       return updatedClient;
     },
     onSuccess: () => {
-      // Invalidate multiple query keys to ensure all data is fresh
       queryClient.invalidateQueries({ queryKey: ["clients"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["client-stats"] });
-      
       toast({
         title: "Client mis à jour",
         description: "Le client a été mis à jour avec succès.",

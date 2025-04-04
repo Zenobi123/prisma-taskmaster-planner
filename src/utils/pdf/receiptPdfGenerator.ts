@@ -1,137 +1,106 @@
 
 import jsPDF from 'jspdf';
-import { SimplifiedClient, PdfPaiement } from './types';
-import { addCompanyLogo, addInvoiceInfoBox } from './pdfComponents';
+import 'jspdf-autotable';
+import { Paiement } from '@/types/paiement';
+import { SimplifiedClient } from './types';
 import { addReceiptHeader } from './components/receiptHeader';
+import { addReceiptPaymentDetails } from './components/receiptPaymentDetails';
 import { addReceiptAmountSection } from './components/receiptAmountSection';
+import { addReceiptNotes } from './components/receiptNotes';
 import { addReceiptFooter } from './components/receiptFooter';
 
 /**
- * Format a client object for receipt PDF generation
+ * Function to generate a payment receipt PDF
+ * @param paiement - Payment data
+ * @param download - If true, download the PDF; if false, open in a new tab
+ * @returns Either a Blob (if download=true) or null (if download=false)
  */
-export const formatClientForReceipt = (client: any): SimplifiedClient => {
-  let clientName = "";
-  
-  // Handle different client structures
-  if (typeof client === 'string') {
-    clientName = client;
-  } else if (client && typeof client === 'object') {
-    if ('nom' in client) {
-      clientName = client.nom;
-    } else if ('raisonsociale' in client) {
-      clientName = client.raisonsociale;
-    }
-  }
-  
-  // Extract address if available
-  let adresse = "";
-  if (client && typeof client === 'object' && 'adresse' in client) {
-    if (typeof client.adresse === 'string') {
-      adresse = client.adresse;
-    } else if (client.adresse && typeof client.adresse === 'object') {
-      // Try to compose the address
-      const addrObj = client.adresse as Record<string, any>;
-      const ville = addrObj.ville || "";
-      const quartier = addrObj.quartier || "";
-      adresse = [ville, quartier].filter(Boolean).join(", ");
-    }
-  }
-  
-  // Extract contact info if available
-  let telephone = "";
-  let email = "";
-  
-  if (client && typeof client === 'object' && 'contact' in client) {
-    if (typeof client.contact === 'object' && client.contact) {
-      const contactObj = client.contact as Record<string, any>;
-      telephone = contactObj.telephone || "";
-      email = contactObj.email || "";
-    }
-  }
-  
-  return {
-    nom: clientName,
-    adresse,
-    telephone,
-    email,
-    niu: client && typeof client === 'object' && 'niu' in client ? client.niu : ""
-  };
-};
-
-/**
- * Generate PDF receipt for a payment
- * @param paiement Payment data
- * @param download Whether to download or open in a new tab
- * @returns PDF blob or nothing
- */
-export const generateReceiptPDF = (paiement: PdfPaiement, download: boolean = false) => {
+export const generateReceiptPDF = (paiement: any, download: boolean = false) => {
   try {
-    // Create PDF document with improved quality
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-      compress: true,
-      precision: 2,
-      hotfixes: ['px_scaling']
-    });
+    const doc = new jsPDF();
     
     // Set document properties
     doc.setProperties({
       title: `Reçu de paiement ${paiement.reference || paiement.id}`,
       subject: 'Reçu de paiement',
       author: 'PRISMA GESTION',
-      keywords: 'reçu, paiement, pdf, generate',
-      creator: 'PRISMA GESTION'
+      keywords: 'reçu, paiement, pdf'
     });
     
-    // Add header with enhanced design
+    // Add receipt header (company logo + receipt info)
     addReceiptHeader(doc, paiement);
     
-    // Calculate start position based on header
-    let currentY = 100;
+    // Add payment details section
+    const paymentDetailsY = addReceiptPaymentDetails(doc, paiement);
     
-    // Add amount section with enhanced styling
-    currentY = addReceiptAmountSection(doc, paiement, currentY);
+    // Add amount section with green background
+    const amountSectionY = addReceiptAmountSection(doc, paiement, paymentDetailsY);
     
     // Add notes if available
-    if (paiement.notes) {
-      doc.setFillColor(240, 250, 240);
-      doc.roundedRect(15, currentY + 10, 180, 30, 3, 3, 'F');
-      
-      doc.setDrawColor(200, 220, 200);
-      doc.setLineWidth(0.2);
-      doc.roundedRect(15, currentY + 10, 180, 30, 3, 3, 'S');
-      
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(50, 98, 85);
-      doc.text("Notes:", 25, currentY + 20);
-      
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(60, 60, 60);
-      
-      // Handle multiline notes
-      const splitNotes = doc.splitTextToSize(paiement.notes, 150);
-      doc.text(splitNotes, 25, currentY + 28);
-    }
+    const notesY = addReceiptNotes(doc, paiement, amountSectionY);
     
-    // Add receipt footer with reference
-    addReceiptFooter(doc, paiement.reference || String(paiement.id || ""));
+    // Add footer with watermark
+    addReceiptFooter(doc, paiement.reference || paiement.id);
     
     // Generate output based on download parameter
     if (download) {
-      doc.save(`Recu_paiement_${paiement.reference || paiement.id || "sans_reference"}.pdf`);
+      // Download the PDF
+      doc.save(`Recu_${paiement.reference || paiement.id}.pdf`);
       return doc.output('blob');
     } else {
+      // Create blob and open in new tab
       const pdfBlob = doc.output('blob');
       const pdfUrl = URL.createObjectURL(pdfBlob);
       window.open(pdfUrl, '_blank');
       return pdfBlob;
     }
   } catch (error) {
-    console.error("Erreur lors de la génération du reçu de paiement:", error);
+    console.error("Erreur lors de la génération du reçu PDF:", error);
     throw error;
   }
+};
+
+// Function to format client information for the receipt
+export const formatClientForReceipt = (client: any): SimplifiedClient => {
+  // If the client is already in the correct format, return it
+  if (typeof client === 'object' && client.nom) {
+    return createSimplifiedClient(client);
+  }
+  
+  // If the client is just a string (name/ID), create a minimal client object
+  if (typeof client === 'string') {
+    return {
+      id: '',
+      nom: client,
+      adresse: '',
+      telephone: '',
+      email: ''
+    };
+  }
+  
+  // Default empty client
+  return {
+    id: '',
+    nom: 'Client',
+    adresse: '',
+    telephone: '',
+    email: ''
+  };
+};
+
+// Helper function to create a simplified client from a complex client object
+const createSimplifiedClient = (client: any): SimplifiedClient => {
+  return {
+    id: client.id || '',
+    nom: client.nom || client.raisonsociale || 'Client',
+    adresse: typeof client.adresse === 'object' && client.adresse
+      ? `${client.adresse.ville || ''}, ${client.adresse.quartier || ''}`
+      : (client.adresse || ''),
+    telephone: typeof client.contact === 'object' && client.contact
+      ? client.contact.telephone || ''
+      : (client.telephone || ''),
+    email: typeof client.contact === 'object' && client.contact
+      ? client.contact.email || ''
+      : (client.email || '')
+  };
 };

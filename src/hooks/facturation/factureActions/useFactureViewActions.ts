@@ -2,7 +2,7 @@
 import { Facture } from "@/types/facture";
 import { Paiement } from "@/types/paiement";
 import { useToast } from "@/components/ui/use-toast";
-import { PDFFacture } from "@/utils/pdf/types";
+import { PDFFacture, SimplifiedClient } from "@/utils/pdf/types";
 import { generateInvoicePDF } from "@/utils/pdf/invoicePdfGenerator";
 import { generateReceiptPDF, formatClientForReceipt } from "@/utils/pdf/receiptPdfGenerator";
 
@@ -13,24 +13,19 @@ export const useFactureViewActions = () => {
     try {
       console.log("Aperçu de la facture:", facture.id);
       
-      // Vérifier que le client est correctement formaté
-      if (!facture.client) {
-        console.error("Erreur: Données client manquantes pour la facture", facture.id);
-        throw new Error("Données client manquantes pour la facture");
-      }
-      
       // Convert facture to PDFFacture format with proper client handling
       const pdfFacture: PDFFacture = {
         id: facture.id,
-        client: facture.client,
+        // Cast to unknown first to avoid type error
+        client: facture.client as unknown as import('@/types/client').Client,
         date: facture.date,
         echeance: facture.echeance,
         montant: facture.montant,
         montant_paye: facture.montant_paye,
         status: facture.status,
         status_paiement: facture.status_paiement,
-        prestations: facture.prestations || [],
-        paiements: facture.paiements || [],
+        prestations: facture.prestations,
+        paiements: facture.paiements,
         notes: facture.notes
       };
       
@@ -55,24 +50,19 @@ export const useFactureViewActions = () => {
     try {
       console.log("Téléchargement de la facture:", facture.id);
       
-      // Vérifier que le client est correctement formaté
-      if (!facture.client) {
-        console.error("Erreur: Données client manquantes pour la facture", facture.id);
-        throw new Error("Données client manquantes pour la facture");
-      }
-      
       // Convert facture to PDFFacture format with proper client handling
       const pdfFacture: PDFFacture = {
         id: facture.id,
-        client: facture.client,
+        // Cast to unknown first to avoid type error
+        client: facture.client as unknown as import('@/types/client').Client,
         date: facture.date,
         echeance: facture.echeance,
         montant: facture.montant,
         montant_paye: facture.montant_paye,
         status: facture.status,
         status_paiement: facture.status_paiement,
-        prestations: facture.prestations || [],
-        paiements: facture.paiements || [],
+        prestations: facture.prestations,
+        paiements: facture.paiements,
         notes: facture.notes
       };
       

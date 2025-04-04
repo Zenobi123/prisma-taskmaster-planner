@@ -17,117 +17,90 @@ export const formatDateForDisplay = (dateString: string): string => {
   }
 };
 
-// Add a company logo to the PDF with enhanced styling
+// Add a company logo to the PDF
 export const addCompanyLogo = (doc: jsPDF) => {
-  // Create a header background for better visual definition
-  doc.setFillColor(250, 250, 250);
-  doc.rect(0, 0, doc.internal.pageSize.width, 45, 'F');
-  
-  // Add subtle header bottom border
-  doc.setDrawColor(230, 240, 230);
-  doc.setLineWidth(0.3);
-  doc.line(10, 45, doc.internal.pageSize.width - 10, 45);
-  
-  // Company name with enhanced typography
+  // You can add a base64 encoded logo here
+  // For now we'll just add text for the company name with styling
   doc.setFontSize(24);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(50, 98, 85); // Dark green color for brand identity
+  doc.setTextColor(44, 62, 80);
   doc.text('PRISMA GESTION', 15, 20);
   
-  // Company details with improved formatting and spacing
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(80, 80, 80);
-  doc.text('Gestion comptable et fiscale', 15, 27);
-  doc.text('Yaoundé, Cameroun', 15, 32);
-  doc.text('Tel: +237 123 456 789', 15, 37);
-  doc.text('Email: contact@prismagestion.com', 15, 42);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Gestion comptable et fiscale', 15, 25);
+  doc.text('Yaoundé, Cameroun', 15, 30);
+  doc.text('Tel: +237 123 456 789', 15, 35);
+  doc.text('Email: contact@prismagestion.com', 15, 40);
 };
 
-// Add the invoice info box on the right side with enhanced styling
+// Add the invoice info box on the right side
 export const addInvoiceInfoBox = (doc: jsPDF, title: string, reference: string, date: string) => {
-  // Draw info box with enhanced green background
-  doc.setFillColor(240, 250, 240); // Light green background
+  // Draw info box with light green background
+  doc.setFillColor(240, 248, 240); // Light green background
   doc.roundedRect(120, 15, 75, 30, 3, 3, 'F');
   
-  // Add border for better definition
-  doc.setDrawColor(200, 220, 200);
-  doc.setLineWidth(0.2);
-  doc.roundedRect(120, 15, 75, 30, 3, 3, 'S');
-  
-  // Add title and details with improved typography
-  doc.setFontSize(16);
+  // Add title and details
+  doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(50, 98, 85); // Dark green
+  doc.setTextColor(44, 62, 80);
   doc.text(title, 130, 25);
   
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(80, 80, 80);
-  doc.text(`N° ${reference}`, 130, 33);
+  doc.text(`N° ${reference}`, 130, 32);
   
   doc.setFont('helvetica', 'normal');
-  doc.text(`Date: ${formatDateForDisplay(date)}`, 130, 39);
+  doc.text(`Date: ${formatDateForDisplay(date)}`, 130, 38);
 };
 
-// Add client information section with enhanced styling
+// Add client information section
 export const addClientSection = (doc: jsPDF, client: Client) => {
-  // Create a box for client info with better visual design
-  doc.setFillColor(248, 250, 248);
+  // Create a box for client info
+  doc.setFillColor(248, 248, 248);
   doc.roundedRect(15, 50, 180, 35, 3, 3, 'F');
   
-  // Add border for better definition
-  doc.setDrawColor(230, 240, 230);
-  doc.setLineWidth(0.2);
-  doc.roundedRect(15, 50, 180, 35, 3, 3, 'S');
-  
-  // Add client header with improved styling
+  // Add client header
   doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(50, 98, 85); // Dark green for consistency
+  doc.setTextColor(44, 62, 80);
   doc.text('CLIENT', 20, 60);
   
-  // Add client details with better typography and spacing
-  doc.setFontSize(11);
+  // Add client details
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
   
-  // Display client name with better emphasis
+  // Display client name - using company name or personal name as appropriate
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(60, 60, 60);
-  doc.text(`${client.nom}`, 20, 68);
+  doc.text(`${client.nom}`, 20, 67);
   doc.setFont('helvetica', 'normal');
   
-  // Additional client fields with improved formatting
+  // Additional client fields if available from the Client type
   const additionalInfo: string[] = [];
   
-  // Add any client-specific fields with better handling
+  // Add any client-specific fields that may be available (handling safely)
   if ('niu' in client && client.niu) {
     additionalInfo.push(`NIU: ${client.niu}`);
   }
   
-  if (additionalInfo.length > 0) {
-    doc.setFontSize(9);
-    doc.text(additionalInfo.join(' | '), 20, 75);
-  }
-  
-  // Address information with better positioning
   if ('adresse' in client) {
     const clientAddress = typeof client.adresse === 'object' 
       ? `${client.adresse.ville || ''}, ${client.adresse.quartier || ''}`
       : client.adresse;
-    
-    doc.setFontSize(9);
-    doc.text(`${clientAddress}`, 20, 81);
+    doc.text(`${clientAddress}`, 20, 80);
   }
   
-  // Contact info with better formatting and icons
+  if (additionalInfo.length > 0) {
+    doc.text(additionalInfo.join(' | '), 20, 74);
+  }
+  
+  // Contact info
   if ('contact' in client && client.contact) {
     let contactInfo = '';
-    
     if (client.contact.telephone) contactInfo += `Tél: ${client.contact.telephone}`;
     if (client.contact.telephone && client.contact.email) contactInfo += ' | ';
     if (client.contact.email) contactInfo += `Email: ${client.contact.email}`;
-    
-    doc.setFontSize(9);
-    doc.text(contactInfo, 120, 75);
+    doc.text(contactInfo, 120, 74);
   }
 };

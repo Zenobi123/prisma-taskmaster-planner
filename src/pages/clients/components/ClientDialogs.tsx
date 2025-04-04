@@ -43,14 +43,14 @@ export function ClientDialogs({
   return (
     <>
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-white overflow-hidden max-w-2xl max-h-[90vh] w-[90vw]">
+        <DialogContent className="bg-white max-h-[90vh]">
           <DialogHeader>
             <DialogTitle>Ajouter un nouveau client</DialogTitle>
             <DialogDescription>
               Remplissez les informations du nouveau client ci-dessous.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4">
+          <ScrollArea className="h-[70vh] pr-4">
             <ClientForm
               type={newClientType}
               onTypeChange={onNewClientTypeChange}
@@ -59,37 +59,33 @@ export function ClientDialogs({
                 onAddClient(clientData);
               }}
             />
-          </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
 
       {selectedClient && (
         <>
           <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-            <DialogContent className="bg-white overflow-hidden max-w-2xl max-h-[90vh] w-[90vw]">
+            <DialogContent className="bg-white max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>Détails du client</DialogTitle>
                 <DialogDescription>
                   Informations détaillées sur le client
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="h-[calc(90vh-120px)] pr-4 mt-4">
-                <div className="p-1">
-                  <ClientView client={selectedClient} />
-                </div>
-              </ScrollArea>
+              <ClientView client={selectedClient} />
             </DialogContent>
           </Dialog>
 
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="bg-white overflow-hidden max-w-2xl max-h-[90vh] w-[90vw]">
+            <DialogContent className="bg-white max-h-[90vh]">
               <DialogHeader>
                 <DialogTitle>Modifier le client</DialogTitle>
                 <DialogDescription>
                   Modifiez les informations du client ci-dessous.
                 </DialogDescription>
               </DialogHeader>
-              <div className="mt-4">
+              <ScrollArea className="h-[70vh] pr-4">
                 <ClientForm
                   type={selectedClient.type}
                   initialData={selectedClient}
@@ -98,7 +94,7 @@ export function ClientDialogs({
                     onUpdateClient(clientData);
                   }}
                 />
-              </div>
+              </ScrollArea>
             </DialogContent>
           </Dialog>
         </>
