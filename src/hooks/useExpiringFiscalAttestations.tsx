@@ -37,6 +37,11 @@ export const useExpiringFiscalAttestations = () => {
         try {
           const fiscalData = client.fiscal_data;
           
+          // Skip if hidden from dashboard
+          if (fiscalData.hiddenFromDashboard === true) {
+            return;
+          }
+          
           // Check if client has attestation data
           if (fiscalData && 
               fiscalData.attestation && 
