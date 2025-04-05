@@ -23,7 +23,8 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
         typeof client.fiscal_data === 'object' && 
         client.fiscal_data !== null) {
       
-      const fiscalData = client.fiscal_data as ClientFiscalData;
+      // Use type assertion to safely convert the fiscal_data to our expected type
+      const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
       
       // Ne pas inclure si explicitement marqué comme caché du tableau de bord
       if (fiscalData.hiddenFromDashboard === true) {
@@ -43,5 +44,6 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   
   console.log("Service: Clients avec patentes impayées:", clientsWithUnpaidPatente.length);
   
-  return clientsWithUnpaidPatente as Client[];
+  // Use type assertion to convert to Client[]
+  return clientsWithUnpaidPatente as unknown as Client[];
 };

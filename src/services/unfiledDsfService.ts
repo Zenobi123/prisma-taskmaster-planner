@@ -25,7 +25,8 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
         typeof client.fiscal_data === 'object' && 
         client.fiscal_data !== null) {
       
-      const fiscalData = client.fiscal_data as ClientFiscalData;
+      // Use type assertion to safely convert the fiscal_data to our expected type
+      const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
       
       // Ne pas inclure si explicitement marqué comme caché du tableau de bord
       if (fiscalData.hiddenFromDashboard === true) {
@@ -49,5 +50,6 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
     console.log("Service: Premier client avec DSF non déposée:", clientsWithUnfiledDsf[0]);
   }
   
-  return clientsWithUnfiledDsf as Client[];
+  // Use type assertion to convert to Client[]
+  return clientsWithUnfiledDsf as unknown as Client[];
 };

@@ -23,7 +23,8 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
     
     if (data?.fiscal_data) {
       console.log(`Fiscal data found for client ${clientId}`);
-      return data.fiscal_data as ClientFiscalData;
+      // Cast the data to ClientFiscalData type with proper type assertion
+      return data.fiscal_data as unknown as ClientFiscalData;
     }
     
     console.log(`No fiscal data found for client ${clientId}`);
@@ -43,7 +44,7 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     
     const { error } = await supabase
       .from('clients')
-      .update({ fiscal_data: fiscalData as any })
+      .update({ fiscal_data: fiscalData })
       .eq('id', clientId);
     
     if (error) {
