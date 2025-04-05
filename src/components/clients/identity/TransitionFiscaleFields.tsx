@@ -28,7 +28,12 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
 
   // Set initial states based on the provided data
   useEffect(() => {
-    const isAssujetti = transitionFiscale?.igsAssujetissement === true;
+    // Convert to boolean to ensure correct type
+    const isAssujetti = Boolean(transitionFiscale?.igsAssujetissement);
+    
+    console.log("Initial isAssujetti value:", isAssujetti);
+    console.log("Raw igsAssujetissement value:", transitionFiscale?.igsAssujetissement);
+    
     setShowCgaOptions(isAssujetti);
     setShowClasseOptions(isAssujetti);
     
@@ -36,7 +41,7 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
     if (isAssujetti && transitionFiscale?.classeIGS) {
       const amount = calculateIGSAmount(
         transitionFiscale.classeIGS,
-        transitionFiscale.cgaAdhesion
+        Boolean(transitionFiscale.cgaAdhesion)
       );
       setIgsAmount(amount);
     }
@@ -44,10 +49,10 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
 
   // Calculate IGS amount when classeIGS or cgaAdhesion changes
   useEffect(() => {
-    if (transitionFiscale?.igsAssujetissement === true) {
+    if (Boolean(transitionFiscale?.igsAssujetissement)) {
       const amount = calculateIGSAmount(
-        transitionFiscale.classeIGS,
-        transitionFiscale.cgaAdhesion
+        transitionFiscale?.classeIGS,
+        Boolean(transitionFiscale?.cgaAdhesion)
       );
       setIgsAmount(amount);
       onChange("transitionFiscale.montant", amount);
@@ -59,6 +64,9 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
 
   const handleIGSChange = (value: string) => {
     const isAssujetti = value === "true";
+    
+    console.log("Setting igsAssujetissement to:", isAssujetti);
+    
     onChange("transitionFiscale.igsAssujetissement", isAssujetti);
     
     setShowCgaOptions(isAssujetti);
@@ -73,8 +81,15 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
     }
   };
 
+  const handleCgaChange = (value: string) => {
+    const isMember = value === "true";
+    console.log("Setting cgaAdhesion to:", isMember);
+    onChange("transitionFiscale.cgaAdhesion", isMember);
+  };
+
   const handleClasseChange = (value: string) => {
     const classeValue = parseInt(value);
+    console.log("Setting classeIGS to:", classeValue);
     onChange("transitionFiscale.classeIGS", classeValue);
   };
 
@@ -88,6 +103,12 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
     showClasseOptions
   });
 
+  const igsValue = transitionFiscale?.igsAssujetissement === true ? "true" : 
+                   transitionFiscale?.igsAssujetissement === false ? "false" : undefined;
+                   
+  const cgaValue = transitionFiscale?.cgaAdhesion === true ? "true" : 
+                   transitionFiscale?.cgaAdhesion === false ? "false" : undefined;
+  
   return (
     <div className="space-y-4 border p-4 rounded-md">
       <div className="flex items-center gap-2 border-b pb-2 mb-4">
@@ -99,7 +120,7 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
         <div>
           <Label className="mb-2 block">Impôts Général Synthétique (IGS)</Label>
           <RadioGroup
-            value={transitionFiscale?.igsAssujetissement === true ? "true" : transitionFiscale?.igsAssujetissement === false ? "false" : undefined}
+            value={igsValue}
             onValueChange={handleIGSChange}
             className="flex gap-4"
           >
@@ -118,8 +139,8 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
           <div>
             <Label className="mb-2 block">Membre de CGA ?</Label>
             <RadioGroup
-              value={transitionFiscale?.cgaAdhesion === true ? "true" : transitionFiscale?.cgaAdhesion === false ? "false" : undefined}
-              onValueChange={(value) => onChange("transitionFiscale.cgaAdhesion", value === "true")}
+              value={cgaValue}
+              onValueChange={handleCgaChange}
               className="flex gap-4"
             >
               <div className="flex items-center space-x-2">
