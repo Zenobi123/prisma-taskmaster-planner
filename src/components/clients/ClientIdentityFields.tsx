@@ -3,7 +3,9 @@ import { ClientType, FormeJuridique, Sexe, EtatCivil, RegimeFiscalPhysique, Regi
 import { PersonalInfoFields } from "./identity/PersonalInfoFields";
 import { CompanyInfoFields } from "./identity/CompanyInfoFields";
 import { TaxRegimeFields } from "./identity/TaxRegimeFields";
+import { TransitionFiscaleFields } from "./identity/TransitionFiscaleFields";
 import { PropertyStatusFields } from "./identity/PropertyStatusFields";
+import { TransitionFiscaleData } from "@/hooks/fiscal/types";
 
 interface ClientIdentityFieldsProps {
   type: ClientType;
@@ -17,6 +19,7 @@ interface ClientIdentityFieldsProps {
   sexe?: Sexe;
   etatcivil?: EtatCivil;
   regimefiscal?: RegimeFiscalPhysique | RegimeFiscalMorale;
+  transitionFiscale?: TransitionFiscaleData;
   situationimmobiliere?: {
     type: SituationImmobiliere;
     valeur?: number;
@@ -37,6 +40,7 @@ export function ClientIdentityFields({
   sexe = "homme",
   etatcivil = "celibataire",
   regimefiscal,
+  transitionFiscale = { igsAssujetissement: false },
   situationimmobiliere = { type: "locataire" },
   onChange 
 }: ClientIdentityFieldsProps) {
@@ -64,6 +68,11 @@ export function ClientIdentityFields({
       <TaxRegimeFields
         type={type}
         regimefiscal={regimefiscal}
+        onChange={onChange}
+      />
+      
+      <TransitionFiscaleFields
+        transitionFiscale={transitionFiscale}
         onChange={onChange}
       />
 
