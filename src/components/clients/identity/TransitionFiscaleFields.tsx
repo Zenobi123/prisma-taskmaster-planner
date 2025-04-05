@@ -27,8 +27,8 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
   const classeOptions = Array.from({ length: 10 }, (_, i) => i + 1);
 
   useEffect(() => {
-    setShowCgaOptions(transitionFiscale?.igsAssujetissement || false);
-    setShowClasseOptions(transitionFiscale?.igsAssujetissement || false);
+    setShowCgaOptions(!!transitionFiscale?.igsAssujetissement);
+    setShowClasseOptions(!!transitionFiscale?.igsAssujetissement);
   }, [transitionFiscale?.igsAssujetissement]);
 
   // Calculate IGS amount when classeIGS or cgaAdhesion changes
@@ -44,7 +44,7 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
       setIgsAmount(undefined);
       onChange("transitionFiscale.montant", undefined);
     }
-  }, [transitionFiscale?.classeIGS, transitionFiscale?.cgaAdhesion, transitionFiscale?.igsAssujetissement]);
+  }, [transitionFiscale?.classeIGS, transitionFiscale?.cgaAdhesion, transitionFiscale?.igsAssujetissement, onChange]);
 
   const handleIGSChange = (value: string) => {
     const isAssujetti = value === "true";
@@ -77,7 +77,7 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
         <div>
           <Label className="mb-2 block">Impôts Général Synthétique (IGS)</Label>
           <RadioGroup
-            value={transitionFiscale?.igsAssujetissement?.toString()}
+            value={transitionFiscale?.igsAssujetissement === true ? "true" : transitionFiscale?.igsAssujetissement === false ? "false" : undefined}
             onValueChange={handleIGSChange}
             className="flex gap-4"
           >
@@ -96,7 +96,7 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
           <div>
             <Label className="mb-2 block">Membre de CGA ?</Label>
             <RadioGroup
-              value={transitionFiscale?.cgaAdhesion?.toString()}
+              value={transitionFiscale?.cgaAdhesion === true ? "true" : transitionFiscale?.cgaAdhesion === false ? "false" : undefined}
               onValueChange={(value) => onChange("transitionFiscale.cgaAdhesion", value === "true")}
               className="flex gap-4"
             >

@@ -42,9 +42,11 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
   try {
     console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
     
+    // Convert the strongly typed fiscalData to a more generic object type
+    // that Supabase will accept before updating
     const { error } = await supabase
       .from('clients')
-      .update({ fiscal_data: fiscalData })
+      .update({ fiscal_data: fiscalData as any })
       .eq('id', clientId);
     
     if (error) {
