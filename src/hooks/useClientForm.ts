@@ -75,6 +75,20 @@ export function useClientForm(initialData?: Client) {
 
   useEffect(() => {
     if (initialData) {
+      // Initialize with default transitionFiscale if not present
+      const transitionFiscale = initialData.fiscal_data?.transitionFiscale || {
+        igsAssujetissement: false
+      };
+      
+      // Ensure boolean values are properly set
+      if (transitionFiscale.igsAssujetissement !== undefined) {
+        transitionFiscale.igsAssujetissement = Boolean(transitionFiscale.igsAssujetissement);
+      }
+      
+      if (transitionFiscale.cgaAdhesion !== undefined) {
+        transitionFiscale.cgaAdhesion = Boolean(transitionFiscale.cgaAdhesion);
+      }
+      
       setFormData({
         nom: initialData.nom || "",
         raisonsociale: initialData.raisonsociale || "",
@@ -96,9 +110,7 @@ export function useClientForm(initialData?: Client) {
         sexe: initialData.sexe || "homme",
         etatcivil: initialData.etatcivil || "celibataire",
         regimefiscal: initialData.regimefiscal || "reel",
-        transitionFiscale: initialData.fiscal_data?.transitionFiscale || {
-          igsAssujetissement: false
-        },
+        transitionFiscale: transitionFiscale,
         situationimmobiliere: {
           type: initialData.situationimmobiliere?.type || "locataire",
           valeur: initialData.situationimmobiliere?.valeur,
@@ -127,11 +139,21 @@ export function useClientForm(initialData?: Client) {
         }
       }));
     } else if (name.startsWith("transitionFiscale.")) {
+      // Ensure proper type conversion for boolean values
+      let finalValue = value;
+      if (name === "transitionFiscale.igsAssujetissement" || name === "transitionFiscale.cgaAdhesion") {
+        finalValue = value === true || value === "true";
+      } else if (name === "transitionFiscale.classeIGS") {
+        finalValue = value !== undefined && value !== "" ? Number(value) : undefined;
+      }
+      
+      console.log(`Setting ${name} to:`, finalValue);
+      
       setFormData(prev => ({
         ...prev,
         transitionFiscale: {
           ...prev.transitionFiscale,
-          [name.split('.')[1]]: value
+          [name.split('.')[1]]: finalValue
         }
       }));
     } else {

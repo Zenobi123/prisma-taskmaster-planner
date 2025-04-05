@@ -19,21 +19,32 @@ interface TransitionFiscaleFieldsProps {
 }
 
 export function TransitionFiscaleFields({ transitionFiscale, onChange }: TransitionFiscaleFieldsProps) {
-  const [showCgaOptions, setShowCgaOptions] = useState(transitionFiscale?.igsAssujetissement || false);
-  const [showClasseOptions, setShowClasseOptions] = useState(transitionFiscale?.igsAssujetissement || false);
-  const [igsAmount, setIgsAmount] = useState<number | undefined>(transitionFiscale?.montant);
+  const [showCgaOptions, setShowCgaOptions] = useState<boolean>(false);
+  const [showClasseOptions, setShowClasseOptions] = useState<boolean>(false);
+  const [igsAmount, setIgsAmount] = useState<number | undefined>(undefined);
   
   // Generate class options 1-10
   const classeOptions = Array.from({ length: 10 }, (_, i) => i + 1);
 
+  // Set initial states based on the provided data
   useEffect(() => {
-    setShowCgaOptions(!!transitionFiscale?.igsAssujetissement);
-    setShowClasseOptions(!!transitionFiscale?.igsAssujetissement);
-  }, [transitionFiscale?.igsAssujetissement]);
+    const isAssujetti = transitionFiscale?.igsAssujetissement === true;
+    setShowCgaOptions(isAssujetti);
+    setShowClasseOptions(isAssujetti);
+    
+    // Initialize amount if we have all the necessary data
+    if (isAssujetti && transitionFiscale?.classeIGS) {
+      const amount = calculateIGSAmount(
+        transitionFiscale.classeIGS,
+        transitionFiscale.cgaAdhesion
+      );
+      setIgsAmount(amount);
+    }
+  }, [transitionFiscale]);
 
   // Calculate IGS amount when classeIGS or cgaAdhesion changes
   useEffect(() => {
-    if (transitionFiscale?.igsAssujetissement) {
+    if (transitionFiscale?.igsAssujetissement === true) {
       const amount = calculateIGSAmount(
         transitionFiscale.classeIGS,
         transitionFiscale.cgaAdhesion
@@ -58,6 +69,7 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
       onChange("transitionFiscale.cgaAdhesion", undefined);
       onChange("transitionFiscale.classeIGS", undefined);
       onChange("transitionFiscale.montant", undefined);
+      setIgsAmount(undefined);
     }
   };
 
@@ -65,6 +77,16 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
     const classeValue = parseInt(value);
     onChange("transitionFiscale.classeIGS", classeValue);
   };
+
+  // For debugging
+  console.log("TransitionFiscale state:", {
+    igsAssujetissement: transitionFiscale?.igsAssujetissement,
+    cgaAdhesion: transitionFiscale?.cgaAdhesion,
+    classeIGS: transitionFiscale?.classeIGS,
+    montant: igsAmount,
+    showCgaOptions,
+    showClasseOptions
+  });
 
   return (
     <div className="space-y-4 border p-4 rounded-md">

@@ -42,6 +42,17 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
   try {
     console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
     
+    // Process boolean values to ensure they are properly saved
+    if (fiscalData.transitionFiscale) {
+      fiscalData.transitionFiscale.igsAssujetissement = 
+        fiscalData.transitionFiscale.igsAssujetissement === true;
+      
+      if (fiscalData.transitionFiscale.cgaAdhesion !== undefined) {
+        fiscalData.transitionFiscale.cgaAdhesion = 
+          fiscalData.transitionFiscale.cgaAdhesion === true;
+      }
+    }
+    
     // Convert the strongly typed fiscalData to a more generic object type
     // that Supabase will accept before updating
     const { error } = await supabase
