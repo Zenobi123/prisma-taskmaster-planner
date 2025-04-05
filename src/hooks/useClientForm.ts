@@ -75,20 +75,6 @@ export function useClientForm(initialData?: Client) {
 
   useEffect(() => {
     if (initialData) {
-      // Initialize with default transitionFiscale if not present
-      const transitionFiscale = initialData.fiscal_data?.transitionFiscale || {
-        igsAssujetissement: false
-      };
-      
-      // Ensure boolean values are properly set by explicitly converting them
-      transitionFiscale.igsAssujetissement = Boolean(transitionFiscale.igsAssujetissement);
-      
-      if (transitionFiscale.cgaAdhesion !== undefined) {
-        transitionFiscale.cgaAdhesion = Boolean(transitionFiscale.cgaAdhesion);
-      }
-      
-      console.log("Initializing form with transitionFiscale:", transitionFiscale);
-      
       setFormData({
         nom: initialData.nom || "",
         raisonsociale: initialData.raisonsociale || "",
@@ -110,7 +96,9 @@ export function useClientForm(initialData?: Client) {
         sexe: initialData.sexe || "homme",
         etatcivil: initialData.etatcivil || "celibataire",
         regimefiscal: initialData.regimefiscal || "reel",
-        transitionFiscale: transitionFiscale,
+        transitionFiscale: initialData.fiscal_data?.transitionFiscale || {
+          igsAssujetissement: false
+        },
         situationimmobiliere: {
           type: initialData.situationimmobiliere?.type || "locataire",
           valeur: initialData.situationimmobiliere?.valeur,
@@ -139,31 +127,11 @@ export function useClientForm(initialData?: Client) {
         }
       }));
     } else if (name.startsWith("transitionFiscale.")) {
-      // Ensure proper type conversion for boolean values
-      let finalValue = value;
-      const property = name.split('.')[1];
-      
-      // Special handling for boolean properties
-      if (property === "igsAssujetissement" || property === "cgaAdhesion") {
-        // Convert string "true"/"false" to actual boolean
-        if (typeof value === "string") {
-          finalValue = value === "true";
-        } else {
-          // Ensure it's a proper boolean
-          finalValue = Boolean(value);
-        }
-      } else if (property === "classeIGS") {
-        // Convert to number
-        finalValue = value !== undefined && value !== "" ? Number(value) : undefined;
-      }
-      
-      console.log(`Setting ${name} to:`, finalValue, typeof finalValue);
-      
       setFormData(prev => ({
         ...prev,
         transitionFiscale: {
           ...prev.transitionFiscale,
-          [property]: finalValue
+          [name.split('.')[1]]: value
         }
       }));
     } else {
@@ -194,13 +162,7 @@ export function useClientForm(initialData?: Client) {
         loyer: formData.situationimmobiliere.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
       },
       fiscal_data: {
-        transitionFiscale: {
-          ...formData.transitionFiscale,
-          // Ensure boolean values are properly set
-          igsAssujetissement: Boolean(formData.transitionFiscale.igsAssujetissement),
-          cgaAdhesion: formData.transitionFiscale.cgaAdhesion !== undefined ? 
-            Boolean(formData.transitionFiscale.cgaAdhesion) : undefined
-        }
+        transitionFiscale: formData.transitionFiscale
       }
     };
 

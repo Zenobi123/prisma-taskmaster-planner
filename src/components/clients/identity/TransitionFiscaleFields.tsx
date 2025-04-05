@@ -10,8 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { TransitionFiscaleData } from "@/hooks/fiscal/types";
-import { FileText, CreditCard } from "lucide-react";
-import { calculateIGSAmount, formatAmount, getCAFourchette } from "@/utils/igsRatesUtil";
+import { FileText } from "lucide-react";
 
 interface TransitionFiscaleFieldsProps {
   transitionFiscale?: TransitionFiscaleData;
@@ -19,54 +18,19 @@ interface TransitionFiscaleFieldsProps {
 }
 
 export function TransitionFiscaleFields({ transitionFiscale, onChange }: TransitionFiscaleFieldsProps) {
-  const [showCgaOptions, setShowCgaOptions] = useState<boolean>(false);
-  const [showClasseOptions, setShowClasseOptions] = useState<boolean>(false);
-  const [igsAmount, setIgsAmount] = useState<number | undefined>(undefined);
+  const [showCgaOptions, setShowCgaOptions] = useState(transitionFiscale?.igsAssujetissement || false);
+  const [showClasseOptions, setShowClasseOptions] = useState(transitionFiscale?.igsAssujetissement || false);
   
   // Generate class options 1-10
   const classeOptions = Array.from({ length: 10 }, (_, i) => i + 1);
 
-  // Set initial states based on the provided data
   useEffect(() => {
-    // Convert to boolean to ensure correct type
-    const isAssujetti = Boolean(transitionFiscale?.igsAssujetissement);
-    
-    console.log("Initial isAssujetti value:", isAssujetti);
-    console.log("Raw igsAssujetissement value:", transitionFiscale?.igsAssujetissement);
-    
-    setShowCgaOptions(isAssujetti);
-    setShowClasseOptions(isAssujetti);
-    
-    // Initialize amount if we have all the necessary data
-    if (isAssujetti && transitionFiscale?.classeIGS) {
-      const amount = calculateIGSAmount(
-        transitionFiscale.classeIGS,
-        Boolean(transitionFiscale.cgaAdhesion)
-      );
-      setIgsAmount(amount);
-    }
-  }, [transitionFiscale]);
-
-  // Calculate IGS amount when classeIGS or cgaAdhesion changes
-  useEffect(() => {
-    if (Boolean(transitionFiscale?.igsAssujetissement)) {
-      const amount = calculateIGSAmount(
-        transitionFiscale?.classeIGS,
-        Boolean(transitionFiscale?.cgaAdhesion)
-      );
-      setIgsAmount(amount);
-      onChange("transitionFiscale.montant", amount);
-    } else {
-      setIgsAmount(undefined);
-      onChange("transitionFiscale.montant", undefined);
-    }
-  }, [transitionFiscale?.classeIGS, transitionFiscale?.cgaAdhesion, transitionFiscale?.igsAssujetissement, onChange]);
+    setShowCgaOptions(transitionFiscale?.igsAssujetissement || false);
+    setShowClasseOptions(transitionFiscale?.igsAssujetissement || false);
+  }, [transitionFiscale?.igsAssujetissement]);
 
   const handleIGSChange = (value: string) => {
     const isAssujetti = value === "true";
-    
-    console.log("Setting igsAssujetissement to:", isAssujetti);
-    
     onChange("transitionFiscale.igsAssujetissement", isAssujetti);
     
     setShowCgaOptions(isAssujetti);
@@ -76,39 +40,9 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
     if (!isAssujetti) {
       onChange("transitionFiscale.cgaAdhesion", undefined);
       onChange("transitionFiscale.classeIGS", undefined);
-      onChange("transitionFiscale.montant", undefined);
-      setIgsAmount(undefined);
     }
   };
 
-  const handleCgaChange = (value: string) => {
-    const isMember = value === "true";
-    console.log("Setting cgaAdhesion to:", isMember);
-    onChange("transitionFiscale.cgaAdhesion", isMember);
-  };
-
-  const handleClasseChange = (value: string) => {
-    const classeValue = parseInt(value);
-    console.log("Setting classeIGS to:", classeValue);
-    onChange("transitionFiscale.classeIGS", classeValue);
-  };
-
-  // For debugging
-  console.log("TransitionFiscale state:", {
-    igsAssujetissement: transitionFiscale?.igsAssujetissement,
-    cgaAdhesion: transitionFiscale?.cgaAdhesion,
-    classeIGS: transitionFiscale?.classeIGS,
-    montant: igsAmount,
-    showCgaOptions,
-    showClasseOptions
-  });
-
-  const igsValue = transitionFiscale?.igsAssujetissement === true ? "true" : 
-                   transitionFiscale?.igsAssujetissement === false ? "false" : undefined;
-                   
-  const cgaValue = transitionFiscale?.cgaAdhesion === true ? "true" : 
-                   transitionFiscale?.cgaAdhesion === false ? "false" : undefined;
-  
   return (
     <div className="space-y-4 border p-4 rounded-md">
       <div className="flex items-center gap-2 border-b pb-2 mb-4">
@@ -120,7 +54,7 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
         <div>
           <Label className="mb-2 block">Impôts Général Synthétique (IGS)</Label>
           <RadioGroup
-            value={igsValue}
+            value={transitionFiscale?.igsAssujetissement?.toString()}
             onValueChange={handleIGSChange}
             className="flex gap-4"
           >
@@ -139,8 +73,8 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
           <div>
             <Label className="mb-2 block">Membre de CGA ?</Label>
             <RadioGroup
-              value={cgaValue}
-              onValueChange={handleCgaChange}
+              value={transitionFiscale?.cgaAdhesion?.toString()}
+              onValueChange={(value) => onChange("transitionFiscale.cgaAdhesion", value === "true")}
               className="flex gap-4"
             >
               <div className="flex items-center space-x-2">
@@ -160,7 +94,7 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
             <Label htmlFor="classe-igs">Classe IGS (1-10)</Label>
             <Select
               value={transitionFiscale?.classeIGS?.toString()}
-              onValueChange={handleClasseChange}
+              onValueChange={(value) => onChange("transitionFiscale.classeIGS", parseInt(value))}
             >
               <SelectTrigger id="classe-igs" className="w-full">
                 <SelectValue placeholder="Sélectionner une classe" />
@@ -168,26 +102,11 @@ export function TransitionFiscaleFields({ transitionFiscale, onChange }: Transit
               <SelectContent>
                 {classeOptions.map((classe) => (
                   <SelectItem key={classe} value={classe.toString()}>
-                    Classe {classe} - {getCAFourchette(classe)}
+                    Classe {classe}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-          </div>
-        )}
-
-        {showClasseOptions && transitionFiscale?.classeIGS && (
-          <div className="rounded-md bg-slate-50 p-4 border border-slate-200">
-            <div className="flex items-center gap-2 mb-2">
-              <CreditCard size={16} className="text-primary" />
-              <h4 className="font-medium">Montant IGS</h4>
-            </div>
-            <div className="text-lg font-semibold text-primary">
-              {formatAmount(igsAmount)}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              {transitionFiscale?.cgaAdhesion ? "Montant réduit (membre CGA)" : "Montant standard (non-membre CGA)"}
-            </div>
           </div>
         )}
       </div>

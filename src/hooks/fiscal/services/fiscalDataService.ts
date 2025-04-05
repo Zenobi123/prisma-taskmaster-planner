@@ -23,21 +23,7 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
     
     if (data?.fiscal_data) {
       console.log(`Fiscal data found for client ${clientId}`);
-      
-      // Ensure boolean values are properly set
-      const fiscalData = data.fiscal_data as ClientFiscalData;
-      
-      if (fiscalData.transitionFiscale) {
-        fiscalData.transitionFiscale.igsAssujetissement = 
-          Boolean(fiscalData.transitionFiscale.igsAssujetissement);
-        
-        if (fiscalData.transitionFiscale.cgaAdhesion !== undefined) {
-          fiscalData.transitionFiscale.cgaAdhesion = 
-            Boolean(fiscalData.transitionFiscale.cgaAdhesion);
-        }
-      }
-      
-      return fiscalData;
+      return data.fiscal_data as ClientFiscalData;
     }
     
     console.log(`No fiscal data found for client ${clientId}`);
@@ -55,28 +41,6 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
   try {
     console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
     
-    // Process boolean values to ensure they are properly saved
-    if (fiscalData.transitionFiscale) {
-      // Convert to actual boolean values
-      fiscalData.transitionFiscale.igsAssujetissement = 
-        Boolean(fiscalData.transitionFiscale.igsAssujetissement);
-      
-      if (fiscalData.transitionFiscale.cgaAdhesion !== undefined) {
-        fiscalData.transitionFiscale.cgaAdhesion = 
-          Boolean(fiscalData.transitionFiscale.cgaAdhesion);
-      }
-      
-      // Log the processed values
-      console.log("Processed transitionFiscale values:", {
-        igsAssujetissement: fiscalData.transitionFiscale.igsAssujetissement,
-        cgaAdhesion: fiscalData.transitionFiscale.cgaAdhesion,
-        classeIGS: fiscalData.transitionFiscale.classeIGS,
-        montant: fiscalData.transitionFiscale.montant
-      });
-    }
-    
-    // Convert the strongly typed fiscalData to a more generic object type
-    // that Supabase will accept before updating
     const { error } = await supabase
       .from('clients')
       .update({ fiscal_data: fiscalData as any })

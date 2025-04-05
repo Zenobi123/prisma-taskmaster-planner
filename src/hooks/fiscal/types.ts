@@ -1,4 +1,5 @@
 
+
 export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp";
 
 export interface TaxObligationStatus {
@@ -25,7 +26,6 @@ export interface TransitionFiscaleData {
   igsAssujetissement: boolean;
   cgaAdhesion?: boolean;
   classeIGS?: number; // 1 à 10
-  montant?: number; // Montant calculé selon la classe et le statut CGA
 }
 
 export interface FiscalAttestationData {
@@ -40,3 +40,4 @@ export interface ClientFiscalData {
   transitionFiscale?: TransitionFiscaleData;
   hiddenFromDashboard?: boolean; // Add property to hide from dashboard
 }
+
