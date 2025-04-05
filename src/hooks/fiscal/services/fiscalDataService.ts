@@ -43,7 +43,7 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     
     const { error } = await supabase
       .from('clients')
-      .update({ fiscal_data: fiscalData as any })
+      .update({ fiscal_data: fiscalData })
       .eq('id', clientId);
     
     if (error) {

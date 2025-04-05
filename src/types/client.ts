@@ -65,5 +65,5 @@ export interface Client {
     valeur?: number;
     loyer?: number;
   };
-  fiscal_data?: any; // This will include transitionFiscale data
+  fiscal_data?: any; // Add this property to fix the TypeScript error
 }

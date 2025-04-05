@@ -10,7 +10,6 @@ import {
   SituationImmobiliere,
   FormeJuridique
 } from "@/types/client";
-import { TransitionFiscaleData } from "@/hooks/fiscal/types";
 
 interface ClientFormState {
   nom: string;
@@ -33,7 +32,6 @@ interface ClientFormState {
   sexe: Sexe;
   etatcivil: EtatCivil;
   regimefiscal: RegimeFiscalPhysique | RegimeFiscalMorale;
-  transitionFiscale: TransitionFiscaleData;
   situationimmobiliere: {
     type: SituationImmobiliere;
     valeur?: number;
@@ -63,9 +61,6 @@ export function useClientForm(initialData?: Client) {
     sexe: "homme",
     etatcivil: "celibataire",
     regimefiscal: "reel",
-    transitionFiscale: {
-      igsAssujetissement: false
-    },
     situationimmobiliere: {
       type: "locataire",
       valeur: undefined,
@@ -96,9 +91,6 @@ export function useClientForm(initialData?: Client) {
         sexe: initialData.sexe || "homme",
         etatcivil: initialData.etatcivil || "celibataire",
         regimefiscal: initialData.regimefiscal || "reel",
-        transitionFiscale: initialData.fiscal_data?.transitionFiscale || {
-          igsAssujetissement: false
-        },
         situationimmobiliere: {
           type: initialData.situationimmobiliere?.type || "locataire",
           valeur: initialData.situationimmobiliere?.valeur,
@@ -124,14 +116,6 @@ export function useClientForm(initialData?: Client) {
         situationimmobiliere: {
           ...prev.situationimmobiliere,
           [name.split('.')[1]]: value !== "" ? Number(value) : undefined
-        }
-      }));
-    } else if (name.startsWith("transitionFiscale.")) {
-      setFormData(prev => ({
-        ...prev,
-        transitionFiscale: {
-          ...prev.transitionFiscale,
-          [name.split('.')[1]]: value
         }
       }));
     } else {
@@ -160,9 +144,6 @@ export function useClientForm(initialData?: Client) {
         type: formData.situationimmobiliere.type,
         valeur: formData.situationimmobiliere.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
         loyer: formData.situationimmobiliere.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
-      },
-      fiscal_data: {
-        transitionFiscale: formData.transitionFiscale
       }
     };
 
