@@ -41,9 +41,22 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
   try {
     console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
     
+    // Ensure fiscalData has the required structure to match ClientFiscalData type
+    const validatedFiscalData: ClientFiscalData = {
+      attestation: fiscalData.attestation || { creationDate: "", validityEndDate: "" },
+      obligations: fiscalData.obligations || {
+        patente: { assujetti: false, paye: false },
+        bail: { assujetti: false, paye: false },
+        taxeFonciere: { assujetti: false, paye: false },
+        dsf: { assujetti: false, depose: false },
+        darp: { assujetti: false, depose: false }
+      },
+      hiddenFromDashboard: fiscalData.hiddenFromDashboard
+    };
+    
     const { error } = await supabase
       .from('clients')
-      .update({ fiscal_data: fiscalData })
+      .update({ fiscal_data: validatedFiscalData })
       .eq('id', clientId);
     
     if (error) {

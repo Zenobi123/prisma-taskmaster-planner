@@ -8,7 +8,9 @@ import {
   RegimeFiscalPhysique,
   RegimeFiscalMorale,
   SituationImmobiliere,
-  FormeJuridique
+  FormeJuridique,
+  IGSData,
+  CGAClasse
 } from "@/types/client";
 
 interface ClientFormState {
@@ -37,6 +39,7 @@ interface ClientFormState {
     valeur?: number;
     loyer?: number;
   };
+  igs: IGSData;
 }
 
 export function useClientForm(initialData?: Client) {
@@ -65,6 +68,11 @@ export function useClientForm(initialData?: Client) {
       type: "locataire",
       valeur: undefined,
       loyer: undefined
+    },
+    igs: {
+      soumisIGS: false,
+      adherentCGA: false,
+      classeIGS: undefined
     }
   });
 
@@ -95,6 +103,11 @@ export function useClientForm(initialData?: Client) {
           type: initialData.situationimmobiliere?.type || "locataire",
           valeur: initialData.situationimmobiliere?.valeur,
           loyer: initialData.situationimmobiliere?.loyer
+        },
+        igs: initialData.igs || {
+          soumisIGS: false,
+          adherentCGA: false,
+          classeIGS: undefined
         }
       });
     }
@@ -116,6 +129,16 @@ export function useClientForm(initialData?: Client) {
         situationimmobiliere: {
           ...prev.situationimmobiliere,
           [name.split('.')[1]]: value !== "" ? Number(value) : undefined
+        }
+      }));
+    } else if (name.startsWith("igs.")) {
+      // Gestion spéciale pour les champs IGS
+      const igsField = name.split('.')[1];
+      setFormData(prev => ({
+        ...prev,
+        igs: {
+          ...prev.igs,
+          [igsField]: value
         }
       }));
     } else {
@@ -144,7 +167,8 @@ export function useClientForm(initialData?: Client) {
         type: formData.situationimmobiliere.type,
         valeur: formData.situationimmobiliere.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
         loyer: formData.situationimmobiliere.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
-      }
+      },
+      igs: formData.igs // Ajout des données IGS
     };
 
     if (type === "physique") {

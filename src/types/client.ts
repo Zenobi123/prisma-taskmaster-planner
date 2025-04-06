@@ -24,6 +24,15 @@ export type ClientStatus = "actif" | "inactif" | "archive";
 // Ajout de l'export du type RegimeFiscal
 export type RegimeFiscal = RegimeFiscalPhysique | RegimeFiscalMorale;
 
+// Ajout des types pour l'IGS
+export type CGAClasse = "classe1" | "classe2" | "classe3" | "classe4";
+
+export interface IGSData {
+  soumisIGS: boolean;
+  adherentCGA: boolean;
+  classeIGS?: CGAClasse;
+}
+
 export interface Interaction {
   id: string;
   date: string;
@@ -65,5 +74,6 @@ export interface Client {
     valeur?: number;
     loyer?: number;
   };
-  fiscal_data?: any; // Add this property to fix the TypeScript error
+  fiscal_data?: any;
+  igs?: IGSData; // Nouvelle propriété pour les données IGS
 }

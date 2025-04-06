@@ -1,5 +1,5 @@
 
-import { ClientType, FormeJuridique, Sexe, EtatCivil, RegimeFiscalPhysique, RegimeFiscalMorale, SituationImmobiliere } from "@/types/client";
+import { ClientType, FormeJuridique, Sexe, EtatCivil, RegimeFiscalPhysique, RegimeFiscalMorale, SituationImmobiliere, IGSData } from "@/types/client";
 import { ClientIdentityFields } from "../ClientIdentityFields";
 import { ClientAddressFields } from "../ClientAddressFields";
 import { ClientContactFields } from "../ClientContactFields";
@@ -31,6 +31,7 @@ interface FormDataType {
     valeur?: number;
     loyer?: number;
   };
+  igs: IGSData;
 }
 
 interface ClientFormFieldsProps {
@@ -55,6 +56,7 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
         etatcivil={formData.etatcivil}
         regimefiscal={formData.regimefiscal}
         situationimmobiliere={formData.situationimmobiliere}
+        igs={formData.igs}
         onChange={onChange}
       />
 
