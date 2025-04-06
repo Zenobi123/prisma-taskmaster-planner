@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
+import { IGSStatusSection } from "./fiscal/IGSStatusSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
 import { Loader2 } from "lucide-react";
@@ -26,7 +27,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
-    handleToggleDashboardVisibility
+    handleToggleDashboardVisibility,
+    igsData,
+    handleIGSChange
   } = useObligationsFiscales(selectedClient);
 
   if (isLoading) {
@@ -57,6 +60,13 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           onToggleAlert={handleToggleAlert}
           hiddenFromDashboard={hiddenFromDashboard}
           onToggleDashboardVisibility={handleToggleDashboardVisibility}
+        />
+        
+        <IGSStatusSection 
+          soumisIGS={igsData?.soumisIGS || false}
+          adherentCGA={igsData?.adherentCGA || false}
+          classeIGS={igsData?.classeIGS}
+          onChange={handleIGSChange}
         />
         
         <AnnualObligationsSection 

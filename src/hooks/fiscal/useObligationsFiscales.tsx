@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Client } from "@/types/client";
+import { Client, IGSData } from "@/types/client";
 import { ObligationStatuses, ClientFiscalData } from "./types";
 import { calculateValidityEndDate, checkAttestationExpiration } from "./utils/dateUtils";
 import { getFromCache, updateCache } from "./services/fiscalDataCache";
@@ -16,6 +16,10 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     taxeFonciere: { assujetti: false, paye: false },
     dsf: { assujetti: false, depose: false },
     darp: { assujetti: false, depose: false }
+  });
+  const [igsData, setIGSData] = useState<IGSData>({
+    soumisIGS: false,
+    adherentCGA: false
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
@@ -86,6 +90,16 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       setObligationStatuses(data.obligations);
     }
 
+    // Set IGS data if available
+    if (data.igs) {
+      setIGSData(data.igs);
+    } else {
+      setIGSData({
+        soumisIGS: false,
+        adherentCGA: false
+      });
+    }
+
     setHiddenFromDashboard(data.hiddenFromDashboard === true);
   };
 
@@ -98,6 +112,10 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       taxeFonciere: { assujetti: false, paye: false },
       dsf: { assujetti: false, depose: false },
       darp: { assujetti: false, depose: false }
+    });
+    setIGSData({
+      soumisIGS: false,
+      adherentCGA: false
     });
     setShowInAlert(true);
     setHiddenFromDashboard(false);
@@ -117,6 +135,16 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     }));
   };
 
+  const handleIGSChange = (name: string, value: any) => {
+    if (name.startsWith('igs.')) {
+      const field = name.split('.')[1];
+      setIGSData(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    }
+  };
+
   const handleToggleAlert = () => {
     setShowInAlert(prev => !prev);
   };
@@ -133,7 +161,8 @@ export const useObligationsFiscales = (selectedClient: Client) => {
         showInAlert
       },
       obligations: obligationStatuses,
-      hiddenFromDashboard
+      hiddenFromDashboard,
+      igs: igsData
     };
 
     try {
@@ -160,6 +189,8 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
-    handleToggleDashboardVisibility
+    handleToggleDashboardVisibility,
+    igsData,
+    handleIGSChange
   };
 };

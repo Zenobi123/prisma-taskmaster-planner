@@ -3,6 +3,7 @@ export interface ClientFiscalData {
   attestation: {
     creationDate: string;
     validityEndDate: string;
+    showInAlert?: boolean;
   };
   obligations: {
     patente: { assujetti: boolean; paye: boolean };
@@ -12,4 +13,37 @@ export interface ClientFiscalData {
     darp: { assujetti: boolean; depose: boolean };
   };
   hiddenFromDashboard?: boolean;
+  igs?: {
+    soumisIGS: boolean;
+    adherentCGA: boolean;
+    classeIGS?: string;
+  };
+}
+
+export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp";
+
+export interface TaxObligationStatus {
+  assujetti: boolean;
+  paye: boolean;
+}
+
+export interface DeclarationObligationStatus {
+  assujetti: boolean;
+  depose: boolean;
+}
+
+export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
+
+export type ObligationStatuses = {
+  patente: TaxObligationStatus;
+  bail: TaxObligationStatus;
+  taxeFonciere: TaxObligationStatus;
+  dsf: DeclarationObligationStatus;
+  darp: DeclarationObligationStatus;
+};
+
+export interface FiscalAttestationData {
+  creationDate: string;
+  validityEndDate: string;
+  showInAlert?: boolean;
 }
