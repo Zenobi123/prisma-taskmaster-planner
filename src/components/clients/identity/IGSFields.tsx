@@ -11,18 +11,19 @@ interface IGSClasseInfo {
   montant: number;
 }
 
-// Tableau des informations pour chaque classe IGS
+// Tableau des informations pour chaque classe IGS avec les montants corrigés
 const igsClassesInfo: Record<string, IGSClasseInfo> = {
   "classe1": { tranche: "Moins de 500 000", montant: 20000 },
   "classe2": { tranche: "500 000 à 1 000 000", montant: 30000 },
   "classe3": { tranche: "1 000 000 à 1 500 000", montant: 40000 },
   "classe4": { tranche: "1 500 000 à 2 000 000", montant: 50000 },
   "classe5": { tranche: "2 000 000 à 2 500 000", montant: 60000 },
-  "classe6": { tranche: "2 500 000 à 3 000 000", montant: 70000 },
-  "classe7": { tranche: "3 000 000 à 3 500 000", montant: 80000 },
-  "classe8": { tranche: "3 500 000 à 4 000 000", montant: 90000 },
-  "classe9": { tranche: "4 000 000 à 4 500 000", montant: 100000 },
-  "classe10": { tranche: "4 500 000 à 5 000 000", montant: 110000 },
+  // Corrections pour les classes 6 à 10 selon l'image fournie
+  "classe6": { tranche: "2 500 000 à 4 999 999", montant: 150000 },
+  "classe7": { tranche: "5 000 000 à 9 999 999", montant: 300000 },
+  "classe8": { tranche: "10 000 000 à 19 999 999", montant: 500000 },
+  "classe9": { tranche: "20 000 000 à 29 999 999", montant: 1000000 },
+  "classe10": { tranche: "30 000 000 à 49 999 999", montant: 2000000 },
 };
 
 interface IGSFieldsProps {
@@ -116,7 +117,7 @@ export function IGSFields({
           </div>
 
           {montantIGS !== null && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-md">
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md mt-4">
               <p className="text-green-800 font-medium">
                 Montant IGS à payer: {montantIGS.toLocaleString()} FCFA
                 {adherentCGA && " (Réduction CGA de 50% appliquée)"}
