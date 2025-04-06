@@ -43,6 +43,8 @@ export function ClientIdentityFields({
   igs = { soumisIGS: false, adherentCGA: false },
   onChange 
 }: ClientIdentityFieldsProps) {
+  console.log("IGS data in ClientIdentityFields:", igs);
+  
   return (
     <div className="space-y-6">
       {type === "physique" ? (
@@ -71,8 +73,8 @@ export function ClientIdentityFields({
       />
 
       <IGSFields
-        soumisIGS={igs?.soumisIGS}
-        adherentCGA={igs?.adherentCGA}
+        soumisIGS={igs?.soumisIGS || false}
+        adherentCGA={igs?.adherentCGA || false}
         classeIGS={igs?.classeIGS}
         onChange={onChange}
       />

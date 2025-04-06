@@ -24,8 +24,9 @@ export type ClientStatus = "actif" | "inactif" | "archive";
 // Ajout de l'export du type RegimeFiscal
 export type RegimeFiscal = RegimeFiscalPhysique | RegimeFiscalMorale;
 
-// Ajout des types pour l'IGS
-export type CGAClasse = "classe1" | "classe2" | "classe3" | "classe4";
+// Mise à jour des classes de 1 à 10 pour l'IGS
+export type CGAClasse = "classe1" | "classe2" | "classe3" | "classe4" | "classe5" | 
+  "classe6" | "classe7" | "classe8" | "classe9" | "classe10";
 
 export interface IGSData {
   soumisIGS: boolean;
@@ -75,5 +76,5 @@ export interface Client {
     loyer?: number;
   };
   fiscal_data?: any;
-  igs?: IGSData; // Nouvelle propriété pour les données IGS
+  igs?: IGSData; // Propriété pour les données IGS
 }

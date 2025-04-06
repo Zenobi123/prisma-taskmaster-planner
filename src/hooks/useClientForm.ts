@@ -114,6 +114,8 @@ export function useClientForm(initialData?: Client) {
   }, [initialData]);
 
   const handleChange = (name: string, value: any) => {
+    console.log(`Handling change for ${name} with value:`, value);
+    
     if (name === "situationimmobiliere.type") {
       setFormData(prev => ({
         ...prev,
@@ -134,6 +136,8 @@ export function useClientForm(initialData?: Client) {
     } else if (name.startsWith("igs.")) {
       // Gestion spéciale pour les champs IGS
       const igsField = name.split('.')[1];
+      console.log(`Setting IGS field ${igsField} to:`, value);
+      
       setFormData(prev => ({
         ...prev,
         igs: {
@@ -141,6 +145,11 @@ export function useClientForm(initialData?: Client) {
           [igsField]: value
         }
       }));
+      
+      console.log("Updated IGS data:", {
+        ...formData.igs,
+        [igsField]: value
+      });
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }

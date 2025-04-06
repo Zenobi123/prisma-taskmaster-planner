@@ -23,7 +23,9 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
     
     if (data?.fiscal_data) {
       console.log(`Fiscal data found for client ${clientId}`);
-      return data.fiscal_data as ClientFiscalData;
+      // Convertir explicitement le Json à ClientFiscalData
+      const fiscalData = data.fiscal_data as unknown as ClientFiscalData;
+      return fiscalData;
     }
     
     console.log(`No fiscal data found for client ${clientId}`);
@@ -54,9 +56,12 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
       hiddenFromDashboard: fiscalData.hiddenFromDashboard
     };
     
+    // Cast to unknown then to Json for Supabase compatibility
+    const jsonData = validatedFiscalData as unknown as any;
+    
     const { error } = await supabase
       .from('clients')
-      .update({ fiscal_data: validatedFiscalData })
+      .update({ fiscal_data: jsonData })
       .eq('id', clientId);
     
     if (error) {

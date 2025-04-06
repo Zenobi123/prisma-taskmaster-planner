@@ -41,6 +41,9 @@ interface ClientFormFieldsProps {
 }
 
 export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsProps) {
+  console.log("Form data in ClientFormFields:", formData);
+  console.log("IGS data in ClientFormFields:", formData.igs);
+
   return (
     <div className="space-y-4">
       <ClientIdentityFields
