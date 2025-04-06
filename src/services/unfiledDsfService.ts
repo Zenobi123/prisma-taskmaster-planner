@@ -50,5 +50,5 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
     console.log("Service: Premier client avec DSF non déposée:", clientsWithUnfiledDsf[0]);
   }
   
-  return clientsWithUnfiledDsf as Client[];
+  return clientsWithUnfiledDsf as unknown as Client[];
 };

@@ -9,7 +9,7 @@ import { Client } from "@/types/client";
 import { Loader2 } from "lucide-react";
 
 // Properly re-export types with 'export type' syntax to fix the TS1205 error
-export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "@/hooks/fiscal/types";
+export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses, CGAClasse } from "@/hooks/fiscal/types";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;

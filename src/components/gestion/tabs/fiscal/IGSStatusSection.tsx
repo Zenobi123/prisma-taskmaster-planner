@@ -4,7 +4,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CGAClasse } from "@/types/client";
+import { CGAClasse } from "@/hooks/fiscal/types";
+import { BadgeEuro } from "lucide-react";
 
 interface IGSClasseInfo {
   tranche: string;
@@ -103,9 +104,10 @@ export function IGSStatusSection({
                 </div>
                 
                 {montantIGS !== null && (
-                  <div className="p-4 bg-green-50 border border-green-200 rounded-md mt-4">
-                    <p className="text-green-800 font-medium">
-                      Montant IGS à payer: {montantIGS.toLocaleString()} FCFA
+                  <div className="p-4 bg-green-50 border border-green-200 rounded-md mt-6">
+                    <p className="text-green-800 font-medium flex items-center">
+                      <BadgeEuro className="h-5 w-5 mr-2" />
+                      Montant de l'IGS à payer: {montantIGS.toLocaleString()} FCFA
                       {adherentCGA && " (Réduction CGA de 50% appliquée)"}
                     </p>
                   </div>

@@ -1,9 +1,10 @@
 
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { CGAClasse } from "@/types/client";
+import { CGAClasse } from "@/hooks/fiscal/types";
 import { useState, useEffect } from "react";
 import { FormItem, FormLabel } from "@/components/ui/form";
+import { BadgeEuro } from "lucide-react";
 
 // Interface pour la structure de données des classes IGS avec leurs tranches et montants
 interface IGSClasseInfo {
@@ -18,7 +19,6 @@ const igsClassesInfo: Record<string, IGSClasseInfo> = {
   "classe3": { tranche: "1 000 000 à 1 500 000", montant: 40000 },
   "classe4": { tranche: "1 500 000 à 2 000 000", montant: 50000 },
   "classe5": { tranche: "2 000 000 à 2 500 000", montant: 60000 },
-  // Corrections pour les classes 6 à 10 selon l'image fournie
   "classe6": { tranche: "2 500 000 à 4 999 999", montant: 150000 },
   "classe7": { tranche: "5 000 000 à 9 999 999", montant: 300000 },
   "classe8": { tranche: "10 000 000 à 19 999 999", montant: 500000 },
@@ -117,9 +117,10 @@ export function IGSFields({
           </div>
 
           {montantIGS !== null && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-md mt-4">
-              <p className="text-green-800 font-medium">
-                Montant IGS à payer: {montantIGS.toLocaleString()} FCFA
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md mt-6">
+              <p className="text-green-800 font-medium flex items-center">
+                <BadgeEuro className="h-5 w-5 mr-2" />
+                Montant de l'IGS à payer: {montantIGS.toLocaleString()} FCFA
                 {adherentCGA && " (Réduction CGA de 50% appliquée)"}
               </p>
             </div>

@@ -44,5 +44,5 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   
   console.log("Service: Clients avec patentes impayées:", clientsWithUnpaidPatente.length);
   
-  return clientsWithUnpaidPatente as Client[];
+  return clientsWithUnpaidPatente as unknown as Client[];
 };
