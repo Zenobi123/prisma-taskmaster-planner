@@ -35,7 +35,8 @@ export default function ClientsPage() {
     handleArchive,
     handleRestore,
     handleDelete,
-    toast
+    toast,
+    confirmationDialog
   } = useClientsPage();
 
   if (isLoading) {
@@ -53,6 +54,8 @@ export default function ClientsPage() {
 
   return (
     <div className="p-8">
+      {confirmationDialog}
+      
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <ClientsHeader 
           onAddClientClick={() => setIsDialogOpen(true)} 

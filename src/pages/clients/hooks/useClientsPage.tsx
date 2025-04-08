@@ -51,7 +51,8 @@ export function useClientsPage() {
     archiveMutation,
     restoreMutation,
     deleteMutation,
-    toast
+    toast,
+    confirmationDialog
   } = useClientsPageMutations();
 
   // Get action handlers
@@ -129,6 +130,7 @@ export function useClientsPage() {
     handleArchive,
     handleRestore,
     handleDelete,
-    toast
+    toast,
+    confirmationDialog
   };
 }

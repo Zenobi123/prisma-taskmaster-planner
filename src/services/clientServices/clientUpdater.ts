@@ -49,5 +49,7 @@ export async function updateClient(id: string, updates: Partial<Client>) {
     throw new Error(`Failed to update client: ${error.message}`);
   }
   
-  return data as Client;
+  // Convert the returned data to match our Client interface
+  const clientResult = data as unknown as Client;
+  return clientResult;
 }

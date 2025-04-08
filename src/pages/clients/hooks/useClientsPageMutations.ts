@@ -3,25 +3,62 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Client } from "@/types/client";
 import { addClient, archiveClient, updateClient, deleteClient } from "@/services/clientService";
 import { useToast } from "@/components/ui/use-toast";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useState } from "react";
+
+export interface ConfirmationDialogProps {
+  isOpen: boolean;
+  title: string;
+  description: string;
+  confirmText: string;
+  cancelText: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  variant?: "default" | "destructive";
+}
 
 export function useClientsPageMutations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmationDialogProps | null>(null);
+
+  // Helper to show confirmation dialog
+  const showConfirmation = (props: Omit<ConfirmationDialogProps, "isOpen" | "onCancel">) => {
+    return new Promise<boolean>((resolve) => {
+      setConfirmDialog({
+        ...props,
+        isOpen: true,
+        onCancel: () => {
+          setConfirmDialog(null);
+          resolve(false);
+        },
+        onConfirm: () => {
+          setConfirmDialog(null);
+          resolve(true);
+        }
+      });
+    });
+  };
 
   const addMutation = useMutation({
     mutationFn: addClient,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
+      
+      const clientName = data.type === "physique" 
+        ? data.nom 
+        : data.raisonsociale;
+        
       toast({
-        title: "Client ajouté",
-        description: "Le nouveau client a été ajouté avec succès.",
+        title: "Client ajouté avec succès",
+        description: `Le client "${clientName}" a été ajouté à votre base de données.`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Erreur lors de l'ajout du client:", error);
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'ajout du client.",
+        title: "Erreur lors de l'ajout",
+        description: error.message || "Une erreur est survenue lors de l'ajout du client. Veuillez réessayer.",
         variant: "destructive",
       });
     },
@@ -38,37 +75,65 @@ export function useClientsPageMutations() {
       const updatedClient = await updateClient(id, updates);
       return updatedClient;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
+      
+      const clientName = data.type === "physique" 
+        ? data.nom 
+        : data.raisonsociale;
+        
       toast({
-        title: "Client mis à jour",
-        description: "Le client a été mis à jour avec succès.",
+        title: "Client mis à jour avec succès",
+        description: `Les informations de "${clientName}" ont été mises à jour.`,
       });
     },
-    onError: (error) => {
+    onError: (error: any) => {
       console.error("Erreur lors de la mise à jour du client:", error);
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la mise à jour du client.",
+        title: "Erreur lors de la mise à jour",
+        description: error.message || "Une erreur est survenue lors de la mise à jour du client. Veuillez vérifier les données et réessayer.",
         variant: "destructive",
       });
     },
   });
 
   const archiveMutation = useMutation({
-    mutationFn: archiveClient,
-    onSuccess: () => {
+    mutationFn: async (id: string) => {
+      const confirmed = await showConfirmation({
+        title: "Archiver ce client ?",
+        description: "Cette action déplacera le client vers les archives. Vous pourrez le restaurer ultérieurement si nécessaire.",
+        confirmText: "Archiver",
+        cancelText: "Annuler",
+        variant: "destructive"
+      });
+
+      if (!confirmed) {
+        throw new Error("Operation cancelled by user");
+      }
+      
+      return await archiveClient(id);
+    },
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
+      
+      const clientName = data.type === "physique" 
+        ? data.nom 
+        : data.raisonsociale;
+        
       toast({
         title: "Client archivé",
-        description: "Le client a été archivé avec succès.",
+        description: `"${clientName}" a été archivé avec succès.`,
       });
     },
     onError: (error: any) => {
+      if (error.message === "Operation cancelled by user") {
+        return; // Silently handle user cancellation
+      }
+      
       console.error("Erreur lors de l'archivage du client:", error);
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de l'archivage du client.",
+        title: "Erreur lors de l'archivage",
+        description: error.message || "Une erreur est survenue lors de l'archivage du client.",
         variant: "destructive",
       });
     },
@@ -76,45 +141,111 @@ export function useClientsPageMutations() {
 
   const restoreMutation = useMutation({
     mutationFn: async (id: string) => {
+      const confirmed = await showConfirmation({
+        title: "Restaurer ce client ?",
+        description: "Cette action restaurera le client des archives vers les clients actifs.",
+        confirmText: "Restaurer",
+        cancelText: "Annuler"
+      });
+
+      if (!confirmed) {
+        throw new Error("Operation cancelled by user");
+      }
+      
       console.log("Restauration du client:", id);
       const restoredClient = await updateClient(id, { statut: "actif" });
       return restoredClient;
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
+      
+      const clientName = data.type === "physique" 
+        ? data.nom 
+        : data.raisonsociale;
+        
       toast({
         title: "Client restauré",
-        description: "Le client a été restauré avec succès.",
+        description: `"${clientName}" a été restauré avec succès et est à nouveau actif.`,
       });
     },
     onError: (error: any) => {
+      if (error.message === "Operation cancelled by user") {
+        return; // Silently handle user cancellation
+      }
+      
       console.error("Erreur lors de la restauration du client:", error);
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la restauration du client.",
+        title: "Erreur lors de la restauration",
+        description: error.message || "Une erreur est survenue lors de la restauration du client.",
         variant: "destructive",
       });
     },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: deleteClient,
-    onSuccess: () => {
+    mutationFn: async (id: string) => {
+      const confirmed = await showConfirmation({
+        title: "Supprimer définitivement ce client ?",
+        description: "Attention ! Cette action est irréversible et supprimera définitivement toutes les données associées à ce client.",
+        confirmText: "Supprimer définitivement",
+        cancelText: "Annuler",
+        variant: "destructive"
+      });
+
+      if (!confirmed) {
+        throw new Error("Operation cancelled by user");
+      }
+      
+      return await deleteClient(id);
+    },
+    onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       toast({
         title: "Client supprimé",
-        description: "Le client a été définitivement supprimé.",
+        description: "Le client a été définitivement supprimé de la base de données.",
       });
     },
     onError: (error: any) => {
+      if (error.message === "Operation cancelled by user") {
+        return; // Silently handle user cancellation
+      }
+      
       console.error("Erreur lors de la suppression du client:", error);
       toast({
-        title: "Erreur",
+        title: "Erreur lors de la suppression",
         description: error.message || "Une erreur est survenue lors de la suppression du client.",
         variant: "destructive",
       });
     },
   });
+
+  // Confirmation dialog component
+  const ConfirmationDialog = confirmDialog ? (
+    <AlertDialog 
+      open={confirmDialog.isOpen} 
+      onOpenChange={(open) => {
+        if (!open) confirmDialog.onCancel();
+      }}
+    >
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{confirmDialog.title}</AlertDialogTitle>
+          <AlertDialogDescription>{confirmDialog.description}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={confirmDialog.onCancel}>
+            {confirmDialog.cancelText}
+          </AlertDialogCancel>
+          <AlertDialogAction 
+            onClick={confirmDialog.onConfirm}
+            className={confirmDialog.variant === "destructive" ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : ""}
+          >
+            {confirmDialog.confirmText}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  ) : null;
 
   return {
     addMutation,
@@ -122,6 +253,8 @@ export function useClientsPageMutations() {
     archiveMutation,
     restoreMutation,
     deleteMutation,
-    toast
+    toast,
+    confirmationDialog: ConfirmationDialog,
+    showConfirmation
   };
 }
