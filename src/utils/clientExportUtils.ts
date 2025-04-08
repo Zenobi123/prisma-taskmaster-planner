@@ -48,8 +48,12 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     ? clients 
     : clients.filter(client => client.statut !== "archive");
   
-  // Create a new PDF document
-  const doc = new jsPDF();
+  // Create a new PDF document in landscape orientation
+  const doc = new jsPDF({
+    orientation: 'landscape',
+    unit: 'mm',
+    format: 'a4'
+  });
   
   // Add title
   doc.setFontSize(18);
@@ -91,7 +95,7 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     ]
   ];
   
-  // Add the table to the PDF
+  // Add the table to the PDF with adjusted column widths for landscape
   autoTable(doc, {
     startY: 40,
     head: tableHeader,
@@ -100,23 +104,23 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     headStyles: { 
       fillColor: [80, 120, 100], 
       textColor: 255,
-      fontSize: 8,
+      fontSize: 9,
     },
     styles: {
-      fontSize: 8,
+      fontSize: 9,
       cellPadding: 3,
       overflow: 'linebreak',
     },
     columnStyles: {
-      0: { cellWidth: 30 }, // Nom
-      1: { cellWidth: 20 }, // NIU
-      2: { cellWidth: 20 }, // Régime
-      3: { cellWidth: 15 }, // Soumis IGS
-      4: { cellWidth: 15 }, // Adhérent CGA
-      5: { cellWidth: 15 }, // Classe IGS
-      6: { cellWidth: 25 }, // Adresse
-      7: { cellWidth: 20 }, // Téléphone
-      8: { cellWidth: 15 }, // Statut
+      0: { cellWidth: 35 }, // Nom
+      1: { cellWidth: 25 }, // NIU
+      2: { cellWidth: 25 }, // Régime
+      3: { cellWidth: 20 }, // Soumis IGS
+      4: { cellWidth: 25 }, // Adhérent CGA
+      5: { cellWidth: 25 }, // Classe IGS
+      6: { cellWidth: 35 }, // Adresse
+      7: { cellWidth: 25 }, // Téléphone
+      8: { cellWidth: 20 }, // Statut
     }
   });
   
