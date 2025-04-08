@@ -17,13 +17,15 @@ export interface ConfirmationDialogProps {
   variant?: "default" | "destructive";
 }
 
+type ShowConfirmationProps = Omit<ConfirmationDialogProps, "isOpen" | "onCancel" | "onConfirm">;
+
 export function useClientsPageMutations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [confirmDialog, setConfirmDialog] = useState<ConfirmationDialogProps | null>(null);
 
   // Helper to show confirmation dialog
-  const showConfirmation = (props: Omit<ConfirmationDialogProps, "isOpen" | "onCancel">) => {
+  const showConfirmation = (props: ShowConfirmationProps) => {
     return new Promise<boolean>((resolve) => {
       setConfirmDialog({
         ...props,
