@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Client, ClientType } from "@/types/client";
+import { Client, ClientType, ClientStatus } from "@/types/client";
 
 export function useClientsPageState() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -12,6 +12,9 @@ export function useClientsPageState() {
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
   const [newClientType, setNewClientType] = useState<ClientType>("physique");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [createdAfterDate, setCreatedAfterDate] = useState<Date | null>(null);
+  const [createdBeforeDate, setCreatedBeforeDate] = useState<Date | null>(null);
+  const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = useState(false);
 
   return {
     searchTerm,
@@ -31,6 +34,12 @@ export function useClientsPageState() {
     newClientType,
     setNewClientType,
     selectedClient,
-    setSelectedClient
+    setSelectedClient,
+    createdAfterDate,
+    setCreatedAfterDate,
+    createdBeforeDate, 
+    setCreatedBeforeDate,
+    isAdvancedFiltersOpen,
+    setIsAdvancedFiltersOpen
   };
 }

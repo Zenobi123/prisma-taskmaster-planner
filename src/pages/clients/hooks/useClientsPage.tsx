@@ -1,7 +1,7 @@
 
 import { Client } from "@/types/client";
 import { useClientsPageState } from "./useClientsPageState";
-import { useClientsPageData } from "./useClientsPageData";
+import { useClientsPageData, ClientFilters } from "./useClientsPageData";
 import { useClientsPageMutations } from "./useClientsPageMutations";
 import { useClientsPageActions } from "./useClientsPageActions";
 
@@ -25,11 +25,24 @@ export function useClientsPage() {
     newClientType,
     setNewClientType,
     selectedClient,
-    setSelectedClient
+    setSelectedClient,
+    createdAfterDate,
+    setCreatedAfterDate,
+    createdBeforeDate, 
+    setCreatedBeforeDate,
+    isAdvancedFiltersOpen,
+    setIsAdvancedFiltersOpen
   } = useClientsPageState();
 
   // Get data and filtering
-  const { clients, isLoading, error, filterClients } = useClientsPageData();
+  const { 
+    clients, 
+    isLoading, 
+    error, 
+    filterClients, 
+    refreshClients,
+    getAvailableSectors 
+  } = useClientsPageData();
 
   // Get mutations
   const {
@@ -55,14 +68,28 @@ export function useClientsPage() {
     setIsEditDialogOpen(true);
   };
 
+  // Reset all filters
+  const resetFilters = () => {
+    setSearchTerm("");
+    setSelectedType("all");
+    setSelectedSecteur("all");
+    setShowArchived(false);
+    setCreatedAfterDate(null);
+    setCreatedBeforeDate(null);
+  };
+
   // Filter clients based on current filter state
-  const filteredClients = filterClients(
-    clients,
+  const filterConfig: ClientFilters = {
     searchTerm,
-    selectedType,
-    selectedSecteur,
-    showArchived
-  );
+    type: selectedType,
+    secteur: selectedSecteur,
+    showArchived,
+    createdAfter: createdAfterDate,
+    createdBefore: createdBeforeDate
+  };
+
+  const filteredClients = filterClients(clients, filterConfig);
+  const availableSectors = getAvailableSectors();
 
   return {
     clients: filteredClients,
@@ -86,6 +113,15 @@ export function useClientsPage() {
     setNewClientType,
     selectedClient,
     setSelectedClient,
+    createdAfterDate,
+    setCreatedAfterDate,
+    createdBeforeDate,
+    setCreatedBeforeDate,
+    isAdvancedFiltersOpen,
+    setIsAdvancedFiltersOpen,
+    resetFilters,
+    refreshClients,
+    availableSectors,
     addMutation,
     updateMutation,
     handleView,
