@@ -54,7 +54,11 @@ export default function ClientsPage() {
   return (
     <div className="p-8">
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <ClientsHeader onAddClientClick={() => setIsDialogOpen(true)} />
+        <ClientsHeader 
+          onAddClientClick={() => setIsDialogOpen(true)} 
+          clients={clients}
+          showArchived={showArchived}
+        />
 
         <ClientsContent
           clients={clients}

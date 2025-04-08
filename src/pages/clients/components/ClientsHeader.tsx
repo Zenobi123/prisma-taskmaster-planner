@@ -3,12 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Plus, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { DialogTrigger } from "@/components/ui/dialog";
+import { ExportClientsButton } from "@/components/clients/ExportClientsButton";
+import { Client } from "@/types/client";
 
 interface ClientsHeaderProps {
   onAddClientClick: () => void;
+  clients: Client[];
+  showArchived: boolean;
 }
 
-export function ClientsHeader({ onAddClientClick }: ClientsHeaderProps) {
+export function ClientsHeader({ onAddClientClick, clients, showArchived }: ClientsHeaderProps) {
   const navigate = useNavigate();
 
   return (
@@ -30,12 +34,18 @@ export function ClientsHeader({ onAddClientClick }: ClientsHeaderProps) {
             Gérez vos clients et leurs informations
           </p>
         </div>
-        <DialogTrigger asChild onClick={onAddClientClick}>
-          <Button className="flex items-center gap-2">
-            <Plus className="w-4 h-4" />
-            Nouveau client
-          </Button>
-        </DialogTrigger>
+        <div className="flex gap-2">
+          <ExportClientsButton 
+            clients={clients} 
+            showArchived={showArchived} 
+          />
+          <DialogTrigger asChild onClick={onAddClientClick}>
+            <Button className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Nouveau client
+            </Button>
+          </DialogTrigger>
+        </div>
       </div>
     </header>
   );

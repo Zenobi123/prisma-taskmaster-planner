@@ -21,47 +21,51 @@ export const getClients = async () => {
   console.log("Clients récupérés:", clients);
 
   if (clients) {
-    return clients.map((client: ClientRow) => ({
-      id: client.id,
-      type: client.type as "physique" | "morale",
-      nom: client.nom || null,
-      raisonsociale: client.raisonsociale || null,
-      sigle: client.sigle || null,
-      datecreation: client.datecreation || null,
-      lieucreation: client.lieucreation || null,
-      nomdirigeant: client.nomdirigeant || null,
-      formejuridique: client.formejuridique || null,
-      niu: client.niu,
-      centrerattachement: client.centrerattachement,
-      sexe: client.sexe || undefined,
-      etatcivil: client.etatcivil || undefined,
-      regimefiscal: client.regimefiscal || undefined,
-      situationimmobiliere: client.situationimmobiliere || { type: "locataire" },
-      adresse: {
-        ville: (client.adresse as any)?.ville || "",
-        quartier: (client.adresse as any)?.quartier || "",
-        lieuDit: (client.adresse as any)?.lieuDit || ""
-      },
-      contact: {
-        telephone: (client.contact as any)?.telephone || "",
-        email: (client.contact as any)?.email || ""
-      },
-      secteuractivite: client.secteuractivite,
-      numerocnps: client.numerocnps || null,
-      interactions: (Array.isArray(client.interactions) ? client.interactions : []).map((interaction: any) => ({
-        id: interaction.id || crypto.randomUUID(),
-        date: interaction.date || new Date().toISOString(),
-        description: interaction.description || ""
-      })),
-      statut: client.statut as "actif" | "inactif" | "archive",
-      gestionexternalisee: client.gestionexternalisee || false,
-      created_at: client.created_at,
-      igs: client.fiscal_data?.igs || {
-        soumisIGS: false,
-        adherentCGA: false,
-        classeIGS: undefined
-      }
-    })) as Client[];
+    return clients.map((client: ClientRow) => {
+      // Handle IGS data - either from fiscal_data.igs or directly in igs field
+      const igsData = client.fiscal_data && typeof client.fiscal_data === 'object' 
+        ? (client.fiscal_data as any).igs || { soumisIGS: false, adherentCGA: false }
+        : { soumisIGS: false, adherentCGA: false };
+
+      return {
+        id: client.id,
+        type: client.type as "physique" | "morale",
+        nom: client.nom || null,
+        raisonsociale: client.raisonsociale || null,
+        sigle: client.sigle || null,
+        datecreation: client.datecreation || null,
+        lieucreation: client.lieucreation || null,
+        nomdirigeant: client.nomdirigeant || null,
+        formejuridique: client.formejuridique || null,
+        niu: client.niu,
+        centrerattachement: client.centrerattachement,
+        sexe: client.sexe || undefined,
+        etatcivil: client.etatcivil || undefined,
+        regimefiscal: client.regimefiscal || undefined,
+        situationimmobiliere: client.situationimmobiliere || { type: "locataire" },
+        adresse: {
+          ville: (client.adresse as any)?.ville || "",
+          quartier: (client.adresse as any)?.quartier || "",
+          lieuDit: (client.adresse as any)?.lieuDit || ""
+        },
+        contact: {
+          telephone: (client.contact as any)?.telephone || "",
+          email: (client.contact as any)?.email || ""
+        },
+        secteuractivite: client.secteuractivite,
+        numerocnps: client.numerocnps || null,
+        interactions: (Array.isArray(client.interactions) ? client.interactions : []).map((interaction: any) => ({
+          id: interaction.id || crypto.randomUUID(),
+          date: interaction.date || new Date().toISOString(),
+          description: interaction.description || ""
+        })),
+        statut: client.statut as "actif" | "inactif" | "archive",
+        gestionexternalisee: client.gestionexternalisee || false,
+        created_at: client.created_at,
+        fiscal_data: client.fiscal_data,
+        igs: igsData
+      };
+    }) as Client[];
   }
 
   return [];
@@ -80,7 +84,7 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
   
   const { data, error } = await supabase
     .from("clients")
-    .insert([{
+    .insert({
       type: client.type,
       nom: client.nom,
       raisonsociale: client.raisonsociale,
@@ -103,7 +107,7 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
       statut: "actif",
       gestionexternalisee: client.gestionexternalisee || false,
       fiscal_data: fiscal_data
-    }])
+    })
     .select()
     .single();
 
@@ -210,8 +214,14 @@ export const updateClient = async (id: string, updates: Partial<Omit<Client, "id
     }
     
     // Prepare the updated fiscal_data object
-    const updatedFiscalData = {
-      ...(currentClient?.fiscal_data || {}),
+    let updatedFiscalData = currentClient?.fiscal_data || {};
+    if (typeof updatedFiscalData !== 'object') {
+      updatedFiscalData = {};
+    }
+    
+    // Update the igs field within fiscal_data
+    updatedFiscalData = {
+      ...updatedFiscalData,
       igs: updates.igs
     };
     
