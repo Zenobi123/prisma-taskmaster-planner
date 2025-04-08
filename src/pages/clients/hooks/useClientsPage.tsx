@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Client, ClientType } from "@/types/client";
@@ -47,6 +48,12 @@ export function useClientsPage() {
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Client> }) => {
       console.log("Mise à jour du client:", { id, updates });
+      
+      // Make sure the IGS data is properly formatted
+      if (updates.igs) {
+        console.log("Données IGS à mettre à jour:", updates.igs);
+      }
+      
       const updatedClient = await updateClient(id, updates);
       return updatedClient;
     },

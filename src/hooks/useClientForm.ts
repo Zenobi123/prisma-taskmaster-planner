@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { 
   Client, 
@@ -78,6 +77,20 @@ export function useClientForm(initialData?: Client) {
 
   useEffect(() => {
     if (initialData) {
+      let igsData: IGSData = {
+        soumisIGS: false,
+        adherentCGA: false,
+        classeIGS: undefined
+      };
+      
+      if (initialData.igs) {
+        igsData = initialData.igs;
+      } else if (initialData.fiscal_data?.igs) {
+        igsData = initialData.fiscal_data.igs;
+      }
+      
+      console.log("Initial IGS data:", igsData);
+      
       setFormData({
         nom: initialData.nom || "",
         raisonsociale: initialData.raisonsociale || "",
@@ -104,11 +117,7 @@ export function useClientForm(initialData?: Client) {
           valeur: initialData.situationimmobiliere?.valeur,
           loyer: initialData.situationimmobiliere?.loyer
         },
-        igs: initialData.igs || {
-          soumisIGS: false,
-          adherentCGA: false,
-          classeIGS: undefined
-        }
+        igs: igsData
       });
     }
   }, [initialData]);
@@ -134,7 +143,6 @@ export function useClientForm(initialData?: Client) {
         }
       }));
     } else if (name.startsWith("igs.")) {
-      // Gestion spéciale pour les champs IGS
       const igsField = name.split('.')[1];
       console.log(`Setting IGS field ${igsField} to:`, value);
       
@@ -177,8 +185,10 @@ export function useClientForm(initialData?: Client) {
         valeur: formData.situationimmobiliere.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
         loyer: formData.situationimmobiliere.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
       },
-      igs: formData.igs // Ajout des données IGS
+      igs: formData.igs
     };
+
+    console.log("Prepared IGS data:", formData.igs);
 
     if (type === "physique") {
       return {

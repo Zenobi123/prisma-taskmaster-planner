@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { Database } from "@/integrations/supabase/types";
@@ -54,7 +55,12 @@ export const getClients = async () => {
       })),
       statut: client.statut as "actif" | "inactif" | "archive",
       gestionexternalisee: client.gestionexternalisee || false,
-      created_at: client.created_at
+      created_at: client.created_at,
+      igs: client.fiscal_data?.igs || {
+        soumisIGS: false,
+        adherentCGA: false,
+        classeIGS: undefined
+      }
     })) as Client[];
   }
 
@@ -63,6 +69,15 @@ export const getClients = async () => {
 
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
   console.log("Données du client à ajouter:", client);
+  
+  // Initialize fiscal_data with IGS information if present
+  const fiscal_data = {
+    igs: client.igs || {
+      soumisIGS: false,
+      adherentCGA: false
+    }
+  };
+  
   const { data, error } = await supabase
     .from("clients")
     .insert([{
@@ -86,7 +101,8 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
       situationimmobiliere: client.situationimmobiliere,
       interactions: [],
       statut: "actif",
-      gestionexternalisee: client.gestionexternalisee || false
+      gestionexternalisee: client.gestionexternalisee || false,
+      fiscal_data: fiscal_data
     }])
     .select()
     .single();
@@ -165,17 +181,44 @@ export const deleteClient = async (id: string) => {
 export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
   console.log("Mise à jour du client:", { id, updates });
   
-  const updateData = {
+  // Prepare the update data
+  const updateData: any = {
     ...updates,
-    // Assurez-vous que les champs sont correctement formatés pour la base de données
+    // Make sure to format fields correctly for database update
     situationimmobiliere: updates.situationimmobiliere || undefined,
     adresse: updates.adresse || undefined,
     contact: updates.contact || undefined,
-    // Retirez les champs qui ne doivent pas être mis à jour
-    id: undefined,
-    created_at: undefined,
-    interactions: undefined
   };
+  
+  // Remove fields that should not be directly updated
+  delete updateData.id;
+  delete updateData.created_at;
+  delete updateData.interactions;
+  
+  // Handle IGS data by updating the fiscal_data object if IGS data is provided
+  if (updates.igs) {
+    // First, fetch the current fiscal_data
+    const { data: currentClient, error: fetchError } = await supabase
+      .from("clients")
+      .select("fiscal_data")
+      .eq("id", id)
+      .single();
+      
+    if (fetchError) {
+      console.error("Erreur lors de la récupération des données fiscales:", fetchError);
+      throw fetchError;
+    }
+    
+    // Prepare the updated fiscal_data object
+    const updatedFiscalData = {
+      ...(currentClient?.fiscal_data || {}),
+      igs: updates.igs
+    };
+    
+    // Add fiscal_data to update object and remove the standalone igs field
+    updateData.fiscal_data = updatedFiscalData;
+    delete updateData.igs;
+  }
 
   console.log("Données formatées pour la mise à jour:", updateData);
 
