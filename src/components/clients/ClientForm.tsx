@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ClientType, Client } from "@/types/client";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientFormFields } from "./form/ClientFormFields";
-import { useClientForm } from "@/hooks/useClientForm";
+import { useClientForm } from "@/hooks/clientForm";
 
 interface ClientFormProps {
   onSubmit: (data: any) => void;

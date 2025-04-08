@@ -1,5 +1,5 @@
 
-import { Client } from "@/types/client";
+import { Client, FormeJuridique, Sexe, EtatCivil, RegimeFiscal, SituationImmobiliere } from "@/types/client";
 import { Database } from "@/integrations/supabase/types";
 
 type ClientRow = Database['public']['Tables']['clients']['Row'];
@@ -22,13 +22,17 @@ export const formatClientFromDatabase = (client: ClientRow): Client => {
     datecreation: client.datecreation || null,
     lieucreation: client.lieucreation || null,
     nomdirigeant: client.nomdirigeant || null,
-    formejuridique: client.formejuridique || null,
+    formejuridique: client.formejuridique as FormeJuridique || null,
     niu: client.niu,
     centrerattachement: client.centrerattachement,
-    sexe: client.sexe || undefined,
-    etatcivil: client.etatcivil || undefined,
-    regimefiscal: client.regimefiscal || undefined,
-    situationimmobiliere: client.situationimmobiliere || { type: "locataire" },
+    sexe: client.sexe as Sexe || undefined,
+    etatcivil: client.etatcivil as EtatCivil || undefined,
+    regimefiscal: client.regimefiscal as RegimeFiscal || undefined,
+    situationimmobiliere: client.situationimmobiliere as { 
+      type: SituationImmobiliere; 
+      valeur?: number; 
+      loyer?: number; 
+    } || { type: "locataire" },
     adresse: {
       ville: (client.adresse as any)?.ville || "",
       quartier: (client.adresse as any)?.quartier || "",
