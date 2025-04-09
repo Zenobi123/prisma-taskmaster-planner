@@ -79,16 +79,16 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
   ];
   
   // Adjusted column widths to ensure all content fits within page margins
-  const columnWidths = {
-    0: { cellWidth: 4.2, overflow: 'linebreak' }, // Nom/Raison sociale - allow multiple lines
-    1: { cellWidth: 2.8, overflow: 'visible' },   // NIU
-    2: { cellWidth: 2.3, overflow: 'visible' },   // Centre
-    3: { cellWidth: 2.3, overflow: 'visible' },   // Régime fiscal
-    4: { cellWidth: 1.5, overflow: 'visible' },   // Soumis IGS
-    5: { cellWidth: 2.0, overflow: 'visible' },   // Adhérent CGA
-    6: { cellWidth: 1.8, overflow: 'visible' },   // Classe IGS
-    7: { cellWidth: 4.0, overflow: 'linebreak' }, // Adresse - allow multiple lines
-    8: { cellWidth: 2.5, overflow: 'visible' },   // Téléphone
+  const columnStyles = {
+    0: { cellWidth: 4.2 }, // Nom/Raison sociale
+    1: { cellWidth: 2.8 }, // NIU
+    2: { cellWidth: 2.3 }, // Centre
+    3: { cellWidth: 2.3 }, // Régime fiscal
+    4: { cellWidth: 1.5 }, // Soumis IGS
+    5: { cellWidth: 2.0 }, // Adhérent CGA
+    6: { cellWidth: 1.8 }, // Classe IGS
+    7: { cellWidth: 4.0 }, // Adresse
+    8: { cellWidth: 2.5 }, // Téléphone
   };
   
   // Add the table to the PDF
@@ -111,12 +111,12 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
       fontSize: 9, // Slightly increased font size for better readability
       cellPadding: 0.3,
       lineWidth: 0.1,
-      overflow: 'ellipsize', // Ensure text doesn't overflow
+      overflow: 'linebreak', // Using correct enum value instead of string
       cellWidth: 'wrap',
       halign: 'left', // Left align content for better readability
     },
     margin: margin,
-    columnStyles: columnWidths,
+    columnStyles: columnStyles,
     didParseCell: function(data) {
       // Customize header cells
       if (data.section === 'head') {
@@ -134,14 +134,17 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     },
     // Ensure header repeats on every page
     showHead: 'everyPage',
-    // Respect margins
+    // Apply specific overflow settings to each column
     willDrawCell: function(data) {
-      // Ensure we're drawing within the specified margins
-      if (data.cell.x < margin.left) {
-        data.cell.x = margin.left;
-      }
-      if (data.cell.x + data.cell.width > pageWidth - margin.right) {
-        data.cell.width = pageWidth - margin.right - data.cell.x;
+      // Apply column-specific overflow handling
+      if (data.section === 'body') {
+        // Apply linebreak for columns that might have lots of text
+        if (data.column.index === 0 || data.column.index === 7) {
+          data.cell.styles.overflow = 'linebreak';
+        } else {
+          // For other columns, use ellipsize to prevent overflow
+          data.cell.styles.overflow = 'ellipsize';
+        }
       }
     },
     // Add alternating row colors for better readability
