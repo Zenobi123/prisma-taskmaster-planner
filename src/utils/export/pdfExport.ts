@@ -20,12 +20,12 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     format: 'a4'
   });
   
-  // Set custom margins: top: 2.5cm, left/right: 1cm
+  // Set custom margins: top: 2.5cm, left/right: 1cm exactly
   const margin = {
     top: 2.5,
-    left: 1,
-    right: 1,
-    bottom: 2
+    left: 1.0,
+    right: 1.0,
+    bottom: 2.0
   };
   
   // Calculate available width considering margins
@@ -94,25 +94,35 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     styles: {
       fontSize: 8,
       cellPadding: 0.2,
-      overflow: 'ellipsize', // Default overflow setting
+      overflow: 'visible', // Change to visible to ensure all content is displayed
       lineWidth: 0.1,
     },
     margin: margin,
     columnStyles: {
       0: { cellWidth: 4.5, overflow: 'linebreak' }, // Nom - allow multiple lines
       1: { cellWidth: 3.0, overflow: 'visible' },   // NIU - show full content
-      2: { cellWidth: 2.5, overflow: 'ellipsize' }, // Centre
-      3: { cellWidth: 2.5, overflow: 'ellipsize' }, // Régime
-      4: { cellWidth: 1.6, overflow: 'ellipsize' }, // Soumis IGS
-      5: { cellWidth: 2.0, overflow: 'ellipsize' }, // Adhérent CGA
-      6: { cellWidth: 1.7, overflow: 'ellipsize' }, // Classe IGS
+      2: { cellWidth: 2.5, overflow: 'visible' },   // Centre - ensure all content is shown
+      3: { cellWidth: 2.5, overflow: 'visible' },   // Régime - ensure all content is shown
+      4: { cellWidth: 1.6, overflow: 'visible' },   // Soumis IGS - ensure all content is shown
+      5: { cellWidth: 2.0, overflow: 'visible' },   // Adhérent CGA - ensure all content is shown
+      6: { cellWidth: 1.7, overflow: 'visible' },   // Classe IGS - ensure all content is shown
       7: { cellWidth: 5.0, overflow: 'linebreak' }, // Adresse - allow multiple lines
-      8: { cellWidth: 2.8, overflow: 'ellipsize' }, // Téléphone
+      8: { cellWidth: 2.8, overflow: 'visible' },   // Téléphone - ensure all content is shown
     },
     didParseCell: function(data) {
       // For multi-line headers
       if (data.section === 'head') {
         data.cell.styles.valign = 'middle';
+      }
+    },
+    // Add willDrawCell hook to ensure margins are respected
+    willDrawCell: function(data) {
+      // Ensure we're drawing within the specified margins
+      if (data.cell.x < margin.left) {
+        data.cell.x = margin.left;
+      }
+      if (data.cell.x + data.cell.width > pageWidth - margin.right) {
+        data.cell.width = pageWidth - margin.right - data.cell.x;
       }
     }
   });
