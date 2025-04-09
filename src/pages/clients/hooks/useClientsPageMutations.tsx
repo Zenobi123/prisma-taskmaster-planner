@@ -7,7 +7,7 @@ import { useConfirmation } from "./confirmation/ConfirmationDialogContext";
 
 export function useClientsPageMutations() {
   const { toast } = useToast();
-  const { confirmationDialog, showConfirmation } = useConfirmation();
+  const { showConfirmation } = useConfirmation();
   
   const addMutation = useAddClientMutation();
   const updateMutation = useUpdateClientMutation();
@@ -22,7 +22,6 @@ export function useClientsPageMutations() {
     restoreMutation,
     deleteMutation,
     toast,
-    confirmationDialog,
     showConfirmation
   };
 }

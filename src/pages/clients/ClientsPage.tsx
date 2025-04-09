@@ -5,7 +5,6 @@ import { ClientsHeader } from "./components/ClientsHeader";
 import { ClientsContent } from "./components/ClientsContent";
 import { ClientDialogs } from "./components/ClientDialogs";
 import { LoadingState } from "./components/LoadingState";
-import { ConfirmationProvider } from "./hooks/confirmation/ConfirmationDialogContext";
 
 export default function ClientsPage() {
   const {
@@ -54,54 +53,53 @@ export default function ClientsPage() {
   }
 
   return (
-    <ConfirmationProvider>
-      <div className="p-8">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <ClientsHeader 
-            onAddClientClick={() => setIsDialogOpen(true)} 
-            clients={clients}
-            showArchived={showArchived}
-          />
+    <div className="p-8">
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <ClientsHeader 
+          onAddClientClick={() => setIsDialogOpen(true)} 
+          clients={clients}
+          showArchived={showArchived}
+        />
 
-          <ClientsContent
-            clients={clients}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedType={selectedType}
-            onTypeChange={setSelectedType}
-            selectedSecteur={selectedSecteur}
-            onSecteurChange={setSelectedSecteur}
-            showArchived={showArchived}
-            onShowArchivedChange={setShowArchived}
-            onView={handleView}
-            onEdit={handleEdit}
-            onArchive={handleArchive}
-            onRestore={handleRestore}
-            onDelete={handleDelete}
-          />
+        <ClientsContent
+          clients={clients}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedType={selectedType}
+          onTypeChange={setSelectedType}
+          selectedSecteur={selectedSecteur}
+          onSecteurChange={setSelectedSecteur}
+          showArchived={showArchived}
+          onShowArchivedChange={setShowArchived}
+          onView={handleView}
+          onEdit={handleEdit}
+          onArchive={handleArchive}
+          onRestore={handleRestore}
+          onDelete={handleDelete}
+        />
 
-          <ClientDialogs
-            isAddDialogOpen={isDialogOpen}
-            setIsAddDialogOpen={setIsDialogOpen}
-            isEditDialogOpen={isEditDialogOpen}
-            setIsEditDialogOpen={setIsEditDialogOpen}
-            isViewDialogOpen={isViewDialogOpen}
-            setIsViewDialogOpen={setIsViewDialogOpen}
-            selectedClient={selectedClient}
-            newClientType={newClientType}
-            onNewClientTypeChange={setNewClientType}
-            onAddClient={(clientData) => addMutation.mutate(clientData)}
-            onUpdateClient={(clientData) => {
-              if (selectedClient) {
-                updateMutation.mutate({
-                  id: selectedClient.id,
-                  updates: clientData,
-                });
-              }
-            }}
-          />
-        </Dialog>
-      </div>
-    </ConfirmationProvider>
+        <ClientDialogs
+          isAddDialogOpen={isDialogOpen}
+          setIsAddDialogOpen={setIsDialogOpen}
+          isEditDialogOpen={isEditDialogOpen}
+          setIsEditDialogOpen={setIsEditDialogOpen}
+          isViewDialogOpen={isViewDialogOpen}
+          setIsViewDialogOpen={setIsViewDialogOpen}
+          selectedClient={selectedClient}
+          newClientType={newClientType}
+          onNewClientTypeChange={setNewClientType}
+          onAddClient={(clientData) => addMutation.mutate(clientData)}
+          onUpdateClient={(clientData) => {
+            if (selectedClient) {
+              updateMutation.mutate({
+                id: selectedClient.id,
+                updates: clientData,
+              });
+            }
+          }}
+        />
+      </Dialog>
+      {confirmationDialog}
+    </div>
   );
 }

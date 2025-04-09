@@ -1,6 +1,11 @@
 
 import ClientsPage from "./clients/ClientsPage";
+import { ConfirmationProvider } from "./clients/hooks/confirmation/ConfirmationDialogContext";
 
 export default function Clients() {
-  return <ClientsPage />;
+  return (
+    <ConfirmationProvider>
+      <ClientsPage />
+    </ConfirmationProvider>
+  );
 }
