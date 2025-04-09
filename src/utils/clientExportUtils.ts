@@ -28,14 +28,14 @@ const formatClientForExport = (client: Client) => {
   return {
     nom: name || "",
     niu: client.niu,
+    centre: client.centrerattachement || "",
     regime: fiscalData.regimeFiscal,
     soumisIGS: fiscalData.soumisIGS,
     adherentCGA: fiscalData.adherentCGA,
     classeIGS: fiscalData.classeIGS,
     adresse: `${client.adresse.ville}, ${client.adresse.quartier}`,
     contact: client.contact.telephone,
-    email: client.contact.email,
-    statut: client.statut
+    email: client.contact.email
   };
 };
 
@@ -55,11 +55,11 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     format: 'a4'
   });
   
-  // Set custom margins: top: 2.5cm, left/right: 2cm
+  // Set custom margins: top: 2.5cm, left/right: 1cm
   const margin = {
     top: 2.5,
-    left: 2,
-    right: 2,
+    left: 1,
+    right: 1,
     bottom: 2
   };
   
@@ -68,14 +68,17 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
   const pageHeight = doc.internal.pageSize.getHeight();
   const availableWidth = pageWidth - margin.left - margin.right;
   
-  // Add title
-  doc.setFontSize(14);
-  doc.text("Liste des Clients avec Informations Fiscales", margin.left, margin.top);
+  // Add centered title
+  doc.setFontSize(16);
+  const title = "LISTE DES CLIENTS";
+  const titleWidth = doc.getStringUnitWidth(title) * doc.getFontSize() / doc.internal.scaleFactor;
+  const titleX = (pageWidth - titleWidth) / 2;
+  doc.text(title, titleX, margin.top - 0.5);
   
   // Add date
   doc.setFontSize(10);
   const today = new Date().toLocaleDateString("fr-FR");
-  doc.text(`Date d'impression: ${today}`, margin.left, margin.top + 0.7);
+  doc.text(`Date d'impression: ${today}`, margin.left, margin.top);
   
   // Prepare data for the table
   const tableData = filteredClients.map(client => {
@@ -83,35 +86,35 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     return [
       formattedClient.nom,
       formattedClient.niu,
+      formattedClient.centre,
       formattedClient.regime,
       formattedClient.soumisIGS,
       formattedClient.adherentCGA,
       formattedClient.classeIGS,
       formattedClient.adresse,
       formattedClient.contact,
-      formattedClient.statut,
     ];
   });
   
-  // Define table header
+  // Define table header with multi-line support
   const tableHeader = [
     [
-      "Nom/Raison sociale",
+      "Nom/Raison\nsociale",
       "NIU",
-      "Régime fiscal",
-      "Soumis IGS",
-      "Adhérent CGA",
-      "Classe IGS",
+      "Centre",
+      "Régime\nfiscal",
+      "Soumis\nIGS",
+      "Adhérent\nCGA",
+      "Classe\nIGS",
       "Adresse",
-      "Téléphone",
-      "Statut"
+      "Téléphone"
     ]
   ];
   
   // Add the table to the PDF with adjusted column widths for landscape
   // and ensure all data (except name and address) fits on one line
   autoTable(doc, {
-    startY: margin.top + 1.2,
+    startY: margin.top + 0.7,
     head: tableHeader,
     body: tableData,
     theme: 'grid',
@@ -120,6 +123,9 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
       textColor: 255,
       fontSize: 8,
       cellPadding: 0.2,
+      halign: 'center',
+      valign: 'middle',
+      lineHeight: 1.2
     },
     styles: {
       fontSize: 8,
@@ -135,19 +141,19 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     },
     columnStyles: {
       0: { cellWidth: 4.5, overflow: 'linebreak' }, // Nom - allow multiple lines
-      1: { cellWidth: 2.5, overflow: 'ellipsize' }, // NIU
-      2: { cellWidth: 2.5, overflow: 'ellipsize' }, // Régime
-      3: { cellWidth: 1.8, overflow: 'ellipsize' }, // Soumis IGS
-      4: { cellWidth: 2.3, overflow: 'ellipsize' }, // Adhérent CGA
-      5: { cellWidth: 2, overflow: 'ellipsize' }, // Classe IGS
-      6: { cellWidth: 5, overflow: 'linebreak' },  // Adresse - allow multiple lines
-      7: { cellWidth: 2.5, overflow: 'ellipsize' }, // Téléphone
-      8: { cellWidth: 2, overflow: 'ellipsize' }, // Statut
+      1: { cellWidth: 3.0, overflow: 'visible' },   // NIU - show full content
+      2: { cellWidth: 2.5, overflow: 'ellipsize' }, // Centre
+      3: { cellWidth: 2.5, overflow: 'ellipsize' }, // Régime
+      4: { cellWidth: 1.6, overflow: 'ellipsize' }, // Soumis IGS
+      5: { cellWidth: 2.0, overflow: 'ellipsize' }, // Adhérent CGA
+      6: { cellWidth: 1.7, overflow: 'ellipsize' }, // Classe IGS
+      7: { cellWidth: 5.0, overflow: 'linebreak' }, // Adresse - allow multiple lines
+      8: { cellWidth: 2.8, overflow: 'ellipsize' }, // Téléphone
     }
   });
   
   // Save the PDF
-  doc.save("liste-clients-fiscal.pdf");
+  doc.save("liste-clients.pdf");
 };
 
 /**
@@ -166,14 +172,14 @@ export const exportClientsToExcel = (clients: Client[], includeArchived: boolean
   const headers = [
     "Nom/Raison sociale",
     "NIU", 
+    "Centre",
     "Régime fiscal",
     "Soumis IGS",
     "Adhérent CGA",
     "Classe IGS",
     "Adresse",
     "Téléphone",
-    "Email",
-    "Statut"
+    "Email"
   ];
   
   // Convert to CSV format
@@ -181,14 +187,14 @@ export const exportClientsToExcel = (clients: Client[], includeArchived: boolean
   const csvRows = formattedClients.map(client => [
     `"${client.nom}"`,
     `"${client.niu}"`,
+    `"${client.centre}"`,
     `"${client.regime}"`,
     `"${client.soumisIGS}"`,
     `"${client.adherentCGA}"`,
     `"${client.classeIGS}"`,
     `"${client.adresse}"`,
     `"${client.contact}"`,
-    `"${client.email}"`,
-    `"${client.statut}"`
+    `"${client.email}"`
   ].join(","));
   
   // Combine header and rows
@@ -199,7 +205,7 @@ export const exportClientsToExcel = (clients: Client[], includeArchived: boolean
   const link = document.createElement("a");
   const url = URL.createObjectURL(blob);
   link.href = url;
-  link.setAttribute("download", "liste-clients-fiscal.csv");
+  link.setAttribute("download", "liste-clients.csv");
   link.style.visibility = "hidden";
   document.body.appendChild(link);
   link.click();
