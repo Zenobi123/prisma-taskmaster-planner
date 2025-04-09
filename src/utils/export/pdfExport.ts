@@ -20,12 +20,12 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     format: 'a4'
   });
   
-  // Set custom margins: 2cm for left/right, 1.5cm for top/bottom
+  // Set custom margins: top: 2.5cm, left/right: 1cm exactly
   const margin = {
-    top: 1.5,
-    left: 2.0,
-    right: 2.0,
-    bottom: 1.5
+    top: 2.5,
+    left: 1.0,
+    right: 1.0,
+    bottom: 2.0
   };
   
   // Calculate available width considering margins
@@ -33,19 +33,17 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
   const pageHeight = doc.internal.pageSize.getHeight();
   const availableWidth = pageWidth - margin.left - margin.right;
   
-  // Add centered title with improved styling
-  doc.setFontSize(14);
-  doc.setFont("helvetica", "bold");
+  // Add centered title
+  doc.setFontSize(16);
   const title = "LISTE DES CLIENTS";
   const titleWidth = doc.getStringUnitWidth(title) * doc.getFontSize() / doc.internal.scaleFactor;
   const titleX = (pageWidth - titleWidth) / 2;
-  doc.text(title, titleX, margin.top + 0.7);
+  doc.text(title, titleX, margin.top - 0.5);
   
-  // Add date with improved styling
+  // Add date
   doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
   const today = new Date().toLocaleDateString("fr-FR");
-  doc.text(`Date d'impression: ${today}`, margin.left, margin.top + 1.4);
+  doc.text(`Date d'impression: ${today}`, margin.left, margin.top);
   
   // Prepare data for the table
   const tableData = filteredClients.map(client => {
@@ -78,93 +76,57 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     ]
   ];
   
-  // Adjusted column widths to ensure all content fits within page margins
-  const columnStyles = {
-    0: { cellWidth: 4.2 }, // Nom/Raison sociale
-    1: { cellWidth: 2.8 }, // NIU
-    2: { cellWidth: 2.3 }, // Centre
-    3: { cellWidth: 2.3 }, // Régime fiscal
-    4: { cellWidth: 1.5 }, // Soumis IGS
-    5: { cellWidth: 2.0 }, // Adhérent CGA
-    6: { cellWidth: 1.8 }, // Classe IGS
-    7: { cellWidth: 4.0 }, // Adresse
-    8: { cellWidth: 2.5 }, // Téléphone
-  };
-  
-  // Add the table to the PDF
+  // Add the table to the PDF with adjusted column widths for landscape
   autoTable(doc, {
-    startY: margin.top + 2.0, // Start table below title and date
+    startY: margin.top + 0.7,
     head: tableHeader,
     body: tableData,
     theme: 'grid',
     headStyles: { 
-      fillColor: [80, 120, 100], // Keeping the existing header color
+      fillColor: [80, 120, 100], 
       textColor: 255,
-      fontSize: 10,
-      fontStyle: 'bold',
-      cellPadding: 0.4,
+      fontSize: 8,
+      cellPadding: 0.2,
       halign: 'center',
       valign: 'middle',
       lineWidth: 0.1,
     },
     styles: {
-      fontSize: 10, // Exactly 10pt as specified
-      cellPadding: 0.3,
+      fontSize: 8,
+      cellPadding: 0.2,
+      overflow: 'visible', // Change to visible to ensure all content is displayed
       lineWidth: 0.1,
-      overflow: 'linebreak',
-      cellWidth: 'wrap',
-      halign: 'left', // Left align content for better readability
-      font: 'helvetica', // Sans-serif font
     },
     margin: margin,
-    columnStyles: columnStyles,
+    columnStyles: {
+      0: { cellWidth: 4.5, overflow: 'linebreak' }, // Nom - allow multiple lines
+      1: { cellWidth: 3.0, overflow: 'visible' },   // NIU - show full content
+      2: { cellWidth: 2.5, overflow: 'visible' },   // Centre - ensure all content is shown
+      3: { cellWidth: 2.5, overflow: 'visible' },   // Régime - ensure all content is shown
+      4: { cellWidth: 1.6, overflow: 'visible' },   // Soumis IGS - ensure all content is shown
+      5: { cellWidth: 2.0, overflow: 'visible' },   // Adhérent CGA - ensure all content is shown
+      6: { cellWidth: 1.7, overflow: 'visible' },   // Classe IGS - ensure all content is shown
+      7: { cellWidth: 5.0, overflow: 'linebreak' }, // Adresse - allow multiple lines
+      8: { cellWidth: 2.8, overflow: 'visible' },   // Téléphone - ensure all content is shown
+    },
     didParseCell: function(data) {
-      // Customize header cells
+      // For multi-line headers
       if (data.section === 'head') {
         data.cell.styles.valign = 'middle';
-        data.cell.styles.halign = 'center';
-      }
-      
-      // Customize certain columns for better alignment
-      if (data.section === 'body') {
-        // Center align boolean columns (Soumis IGS, Adhérent CGA)
-        if (data.column.index === 4 || data.column.index === 5) {
-          data.cell.styles.halign = 'center';
-        }
       }
     },
-    // Ensure header repeats on every page
-    showHead: 'everyPage',
-    // Apply specific overflow settings to each column
+    // Add willDrawCell hook to ensure margins are respected
     willDrawCell: function(data) {
-      // Apply column-specific overflow handling
-      if (data.section === 'body') {
-        // Apply linebreak for columns that might have lots of text
-        if (data.column.index === 0 || data.column.index === 7) {
-          data.cell.styles.overflow = 'linebreak';
-        } else {
-          // For other columns, use ellipsize to prevent overflow
-          data.cell.styles.overflow = 'ellipsize';
-        }
+      // Ensure we're drawing within the specified margins
+      if (data.cell.x < margin.left) {
+        data.cell.x = margin.left;
       }
-    },
-    // Add alternating row colors for better readability (zébrage)
-    bodyStyles: {
-      lineColor: [200, 200, 200],
-    },
-    alternateRowStyles: {
-      fillColor: [240, 240, 240], // Slightly lighter for better contrast
-    },
-    // Make sure table fits into page width
-    tableWidth: 'auto',
-    // Ensure consistent line height and page breaks
-    rowPageBreak: 'auto',
-    // Add table borders
-    tableLineWidth: 0.2,
-    tableLineColor: [80, 80, 80],
+      if (data.cell.x + data.cell.width > pageWidth - margin.right) {
+        data.cell.width = pageWidth - margin.right - data.cell.x;
+      }
+    }
   });
   
-  // Save the PDF with descriptive filename including date
-  const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  doc.save(`liste-clients-${dateStr}.pdf`);
+  // Save the PDF
+  doc.save("liste-clients.pdf");
 };
