@@ -1,13 +1,12 @@
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { IGSStatusSection } from "./fiscal/IGSStatusSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
-import { Loader2, Save } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 // Properly re-export types with 'export type' syntax to fix the TS1205 error
 export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses, CGAClasse } from "@/hooks/fiscal/types";
@@ -75,12 +74,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           handleStatusChange={handleStatusChange}
         />
       </CardContent>
-      <CardFooter className="flex justify-end pt-4 border-t">
-        <Button onClick={handleSave} className="w-full md:w-auto">
-          <Save className="mr-2 h-4 w-4" />
-          Enregistrer les modifications
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
