@@ -5,11 +5,17 @@ import { CGAClasse } from "@/hooks/fiscal/types";
 import { useState, useEffect } from "react";
 import { FormItem, FormLabel } from "@/components/ui/form";
 import { BadgeEuro } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 // Interface pour la structure de données des classes IGS avec leurs tranches et montants
 interface IGSClasseInfo {
   tranche: string;
   montant: number;
+}
+
+interface IGSPayment {
+  montant: string;
+  quittance: string;
 }
 
 // Tableau des informations pour chaque classe IGS avec les montants corrigés
@@ -40,6 +46,10 @@ export function IGSFields({
   onChange 
 }: IGSFieldsProps) {
   const [montantIGS, setMontantIGS] = useState<number | null>(null);
+  const [patente, setPatente] = useState<IGSPayment>({ montant: '', quittance: '' });
+  const [acompteJanvier, setAcompteJanvier] = useState<IGSPayment>({ montant: '', quittance: '' });
+  const [acompteFevrier, setAcompteFevrier] = useState<IGSPayment>({ montant: '', quittance: '' });
+  const [reliquat, setReliquat] = useState<number | null>(null);
 
   // Calculer le montant IGS en fonction de la classe
   useEffect(() => {
@@ -56,6 +66,39 @@ export function IGSFields({
       setMontantIGS(null);
     }
   }, [soumisIGS, classeIGS, adherentCGA]);
+
+  // Calculer le reliquat IGS
+  useEffect(() => {
+    if (montantIGS !== null) {
+      const patenteValue = parseFloat(patente.montant) || 0;
+      const janvierValue = parseFloat(acompteJanvier.montant) || 0;
+      const fevrierValue = parseFloat(acompteFevrier.montant) || 0;
+      
+      const reliquatValue = montantIGS - patenteValue - janvierValue - fevrierValue;
+      setReliquat(reliquatValue > 0 ? reliquatValue : 0);
+    } else {
+      setReliquat(null);
+    }
+  }, [montantIGS, patente.montant, acompteJanvier.montant, acompteFevrier.montant]);
+
+  // Gérer les changements de valeurs pour les paiements
+  const handlePaymentChange = (
+    field: 'patente' | 'acompteJanvier' | 'acompteFevrier',
+    type: 'montant' | 'quittance',
+    value: string
+  ) => {
+    switch (field) {
+      case 'patente':
+        setPatente(prev => ({ ...prev, [type]: value }));
+        break;
+      case 'acompteJanvier':
+        setAcompteJanvier(prev => ({ ...prev, [type]: value }));
+        break;
+      case 'acompteFevrier':
+        setAcompteFevrier(prev => ({ ...prev, [type]: value }));
+        break;
+    }
+  };
 
   return (
     <div className="space-y-4 mt-6 border-t pt-4">
@@ -117,13 +160,92 @@ export function IGSFields({
           </div>
 
           {montantIGS !== null && (
-            <div className="p-4 bg-green-50 border border-green-200 rounded-md mt-6">
-              <p className="text-green-800 font-medium flex items-center">
-                <BadgeEuro className="h-5 w-5 mr-2" />
-                Montant de l'IGS à payer: {montantIGS.toLocaleString()} FCFA
-                {adherentCGA && " (Réduction CGA de 50% appliquée)"}
-              </p>
-            </div>
+            <>
+              <div className="p-4 bg-green-50 border border-green-200 rounded-md mt-6">
+                <p className="text-green-800 font-medium flex items-center">
+                  <BadgeEuro className="h-5 w-5 mr-2" />
+                  Montant de l'IGS à payer: {montantIGS.toLocaleString()} FCFA
+                  {adherentCGA && " (Réduction CGA de 50% appliquée)"}
+                </p>
+              </div>
+              
+              <div className="mt-6 space-y-4">
+                <h4 className="font-medium">Paiements et déductions</h4>
+                
+                {/* Patente */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormItem>
+                    <Label>Patente payée pour l'exercice (FCFA)</Label>
+                    <Input 
+                      type="number" 
+                      value={patente.montant}
+                      onChange={(e) => handlePaymentChange('patente', 'montant', e.target.value)}
+                      placeholder="Montant"
+                    />
+                  </FormItem>
+                  <FormItem>
+                    <Label>Numéro de quittance</Label>
+                    <Input 
+                      value={patente.quittance}
+                      onChange={(e) => handlePaymentChange('patente', 'quittance', e.target.value)}
+                      placeholder="Numéro de quittance"
+                    />
+                  </FormItem>
+                </div>
+                
+                {/* Acompte IR de janvier */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormItem>
+                    <Label>Acompte IR de janvier 2025 (FCFA)</Label>
+                    <Input 
+                      type="number" 
+                      value={acompteJanvier.montant}
+                      onChange={(e) => handlePaymentChange('acompteJanvier', 'montant', e.target.value)}
+                      placeholder="Montant"
+                    />
+                  </FormItem>
+                  <FormItem>
+                    <Label>Numéro de quittance</Label>
+                    <Input 
+                      value={acompteJanvier.quittance}
+                      onChange={(e) => handlePaymentChange('acompteJanvier', 'quittance', e.target.value)}
+                      placeholder="Numéro de quittance"
+                    />
+                  </FormItem>
+                </div>
+                
+                {/* Acompte IR de février */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <FormItem>
+                    <Label>Acompte IR de février 2025 (FCFA)</Label>
+                    <Input 
+                      type="number" 
+                      value={acompteFevrier.montant}
+                      onChange={(e) => handlePaymentChange('acompteFevrier', 'montant', e.target.value)}
+                      placeholder="Montant"
+                    />
+                  </FormItem>
+                  <FormItem>
+                    <Label>Numéro de quittance</Label>
+                    <Input 
+                      value={acompteFevrier.quittance}
+                      onChange={(e) => handlePaymentChange('acompteFevrier', 'quittance', e.target.value)}
+                      placeholder="Numéro de quittance"
+                    />
+                  </FormItem>
+                </div>
+                
+                {/* Reliquat */}
+                {reliquat !== null && (
+                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-blue-800 font-medium flex items-center">
+                      <BadgeEuro className="h-5 w-5 mr-2" />
+                      Reliquat IGS à payer: {reliquat.toLocaleString()} FCFA
+                    </p>
+                  </div>
+                )}
+              </div>
+            </>
           )}
         </>
       )}

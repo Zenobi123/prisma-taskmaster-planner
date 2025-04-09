@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Client, IGSData } from "@/types/client";
+import { Client, IGSData, IGSPayment } from "@/types/client";
 import { ObligationStatuses, ClientFiscalData } from "./types";
 import { calculateValidityEndDate, checkAttestationExpiration } from "./utils/dateUtils";
 import { getFromCache, updateCache } from "./services/fiscalDataCache";
@@ -19,7 +19,10 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   });
   const [igsData, setIGSData] = useState<IGSData>({
     soumisIGS: false,
-    adherentCGA: false
+    adherentCGA: false,
+    patente: { montant: '', quittance: '' },
+    acompteJanvier: { montant: '', quittance: '' },
+    acompteFevrier: { montant: '', quittance: '' }
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
@@ -92,11 +95,21 @@ export const useObligationsFiscales = (selectedClient: Client) => {
 
     // Set IGS data if available
     if (data.igs) {
-      setIGSData(data.igs);
+      setIGSData({
+        soumisIGS: data.igs.soumisIGS || false,
+        adherentCGA: data.igs.adherentCGA || false,
+        classeIGS: data.igs.classeIGS,
+        patente: data.igs.patente || { montant: '', quittance: '' },
+        acompteJanvier: data.igs.acompteJanvier || { montant: '', quittance: '' },
+        acompteFevrier: data.igs.acompteFevrier || { montant: '', quittance: '' }
+      });
     } else {
       setIGSData({
         soumisIGS: false,
-        adherentCGA: false
+        adherentCGA: false,
+        patente: { montant: '', quittance: '' },
+        acompteJanvier: { montant: '', quittance: '' },
+        acompteFevrier: { montant: '', quittance: '' }
       });
     }
 
@@ -115,7 +128,10 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     });
     setIGSData({
       soumisIGS: false,
-      adherentCGA: false
+      adherentCGA: false,
+      patente: { montant: '', quittance: '' },
+      acompteJanvier: { montant: '', quittance: '' },
+      acompteFevrier: { montant: '', quittance: '' }
     });
     setShowInAlert(true);
     setHiddenFromDashboard(false);
@@ -138,10 +154,24 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   const handleIGSChange = (name: string, value: any) => {
     if (name.startsWith('igs.')) {
       const field = name.split('.')[1];
-      setIGSData(prev => ({
-        ...prev,
-        [field]: value
-      }));
+      
+      // For nested payment fields
+      if (field === 'patente' || field === 'acompteJanvier' || field === 'acompteFevrier') {
+        const [fieldName, subField] = name.split('.').slice(1);
+        setIGSData(prev => ({
+          ...prev,
+          [fieldName]: {
+            ...prev[fieldName as keyof IGSData] as IGSPayment,
+            [subField]: value
+          }
+        }));
+      } else {
+        // For direct fields
+        setIGSData(prev => ({
+          ...prev,
+          [field]: value
+        }));
+      }
     }
   };
 
