@@ -10,10 +10,17 @@ import { formatMontant } from "./formatUtils";
 const extractFiscalData = (client: Client) => {
   const igsData = client.igs || client.fiscal_data?.igs;
   
+  let classeIGS = "Non définie";
+  if (igsData?.classeIGS) {
+    // Format class display as "Classe X" (e.g. "Classe 8" instead of "classe8")
+    const classNumber = igsData.classeIGS.replace("classe", "");
+    classeIGS = `Classe ${classNumber}`;
+  }
+  
   return {
     soumisIGS: igsData?.soumisIGS ? "Oui" : "Non",
     adherentCGA: igsData?.adherentCGA ? "Oui" : "Non",
-    classeIGS: igsData?.classeIGS || "Non définie",
+    classeIGS: classeIGS,
     regimeFiscal: client.regimefiscal || "Non défini"
   };
 };
@@ -112,7 +119,6 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
   ];
   
   // Add the table to the PDF with adjusted column widths for landscape
-  // and ensure all data (except name and address) fits on one line
   autoTable(doc, {
     startY: margin.top + 0.7,
     head: tableHeader,
@@ -125,20 +131,15 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
       cellPadding: 0.2,
       halign: 'center',
       valign: 'middle',
-      lineHeight: 1.2
+      lineWidth: 0.1,
     },
     styles: {
       fontSize: 8,
       cellPadding: 0.2,
-      overflow: 'ellipsize', // Truncate text with ... if it doesn't fit
+      overflow: 'ellipsize', // Default overflow setting
       lineWidth: 0.1,
     },
-    margin: {
-      top: margin.top,
-      left: margin.left,
-      right: margin.right,
-      bottom: margin.bottom
-    },
+    margin: margin,
     columnStyles: {
       0: { cellWidth: 4.5, overflow: 'linebreak' }, // Nom - allow multiple lines
       1: { cellWidth: 3.0, overflow: 'visible' },   // NIU - show full content
@@ -149,6 +150,12 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
       6: { cellWidth: 1.7, overflow: 'ellipsize' }, // Classe IGS
       7: { cellWidth: 5.0, overflow: 'linebreak' }, // Adresse - allow multiple lines
       8: { cellWidth: 2.8, overflow: 'ellipsize' }, // Téléphone
+    },
+    didParseCell: function(data) {
+      // For multi-line headers
+      if (data.section === 'head') {
+        data.cell.styles.valign = 'middle';
+      }
     }
   });
   
