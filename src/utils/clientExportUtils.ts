@@ -51,18 +51,31 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
   // Create a new PDF document in landscape orientation
   const doc = new jsPDF({
     orientation: 'landscape',
-    unit: 'mm',
+    unit: 'cm',
     format: 'a4'
   });
   
+  // Set custom margins: top: 2.5cm, left/right: 2cm
+  const margin = {
+    top: 2.5,
+    left: 2,
+    right: 2,
+    bottom: 2
+  };
+  
+  // Calculate available width considering margins
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const availableWidth = pageWidth - margin.left - margin.right;
+  
   // Add title
-  doc.setFontSize(18);
-  doc.text("Liste des Clients avec Informations Fiscales", 14, 20);
+  doc.setFontSize(14);
+  doc.text("Liste des Clients avec Informations Fiscales", margin.left, margin.top);
   
   // Add date
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   const today = new Date().toLocaleDateString("fr-FR");
-  doc.text(`Date d'impression: ${today}`, 14, 30);
+  doc.text(`Date d'impression: ${today}`, margin.left, margin.top + 0.7);
   
   // Prepare data for the table
   const tableData = filteredClients.map(client => {
@@ -96,31 +109,40 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
   ];
   
   // Add the table to the PDF with adjusted column widths for landscape
+  // and ensure all data (except name and address) fits on one line
   autoTable(doc, {
-    startY: 40,
+    startY: margin.top + 1.2,
     head: tableHeader,
     body: tableData,
     theme: 'grid',
     headStyles: { 
       fillColor: [80, 120, 100], 
       textColor: 255,
-      fontSize: 9,
+      fontSize: 8,
+      cellPadding: 0.2,
     },
     styles: {
-      fontSize: 9,
-      cellPadding: 3,
-      overflow: 'linebreak',
+      fontSize: 8,
+      cellPadding: 0.2,
+      overflow: 'ellipsize', // Truncate text with ... if it doesn't fit
+      lineWidth: 0.1,
+    },
+    margin: {
+      top: margin.top,
+      left: margin.left,
+      right: margin.right,
+      bottom: margin.bottom
     },
     columnStyles: {
-      0: { cellWidth: 35 }, // Nom
-      1: { cellWidth: 25 }, // NIU
-      2: { cellWidth: 25 }, // Régime
-      3: { cellWidth: 20 }, // Soumis IGS
-      4: { cellWidth: 25 }, // Adhérent CGA
-      5: { cellWidth: 25 }, // Classe IGS
-      6: { cellWidth: 35 }, // Adresse
-      7: { cellWidth: 25 }, // Téléphone
-      8: { cellWidth: 20 }, // Statut
+      0: { cellWidth: 4.5, overflow: 'linebreak' }, // Nom - allow multiple lines
+      1: { cellWidth: 2.5, overflow: 'ellipsize' }, // NIU
+      2: { cellWidth: 2.5, overflow: 'ellipsize' }, // Régime
+      3: { cellWidth: 1.8, overflow: 'ellipsize' }, // Soumis IGS
+      4: { cellWidth: 2.3, overflow: 'ellipsize' }, // Adhérent CGA
+      5: { cellWidth: 2, overflow: 'ellipsize' }, // Classe IGS
+      6: { cellWidth: 5, overflow: 'linebreak' },  // Adresse - allow multiple lines
+      7: { cellWidth: 2.5, overflow: 'ellipsize' }, // Téléphone
+      8: { cellWidth: 2, overflow: 'ellipsize' }, // Statut
     }
   });
   

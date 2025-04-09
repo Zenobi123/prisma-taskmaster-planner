@@ -4,6 +4,7 @@ import { useClientsPageState } from "./useClientsPageState";
 import { useClientsPageData, ClientFilters } from "./useClientsPageData";
 import { useClientsPageMutations } from "./useClientsPageMutations";
 import { useClientsPageActions } from "./useClientsPageActions";
+import { useConfirmation } from "./confirmation/ConfirmationDialogContext";
 
 export function useClientsPage() {
   // Get state management
@@ -52,8 +53,11 @@ export function useClientsPage() {
     restoreMutation,
     deleteMutation,
     toast,
-    confirmationDialog
+    showConfirmation
   } = useClientsPageMutations();
+  
+  // Get confirmation dialog
+  const { confirmationDialog } = useConfirmation();
 
   // Get action handlers
   const { handleArchive, handleRestore, handleDelete } = useClientsPageActions();
