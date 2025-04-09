@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Client } from "@/types/client";
-import { exportClientsToExcel, exportClientsToPDF } from "@/utils/clientExportUtils";
+import { exportClientsToPDF, exportClientsToExcel } from "@/utils/clientExportUtils";
 import { FileText, Download, FileSpreadsheet, Printer } from "lucide-react";
 
 interface ExportClientsButtonProps {
