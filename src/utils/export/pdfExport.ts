@@ -20,12 +20,12 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     format: 'a4'
   });
   
-  // Set custom margins: exactly 2cm for left/right as requested
+  // Set custom margins: 2cm for left/right, 1.5cm for top/bottom
   const margin = {
-    top: 2.0,
+    top: 1.5,
     left: 2.0,
     right: 2.0,
-    bottom: 2.0
+    bottom: 1.5
   };
   
   // Calculate available width considering margins
@@ -98,9 +98,9 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     body: tableData,
     theme: 'grid',
     headStyles: { 
-      fillColor: [80, 120, 100], // Keep existing header color
+      fillColor: [80, 120, 100], // Keeping the existing header color
       textColor: 255,
-      fontSize: 10, // Increased font size for better readability
+      fontSize: 10,
       fontStyle: 'bold',
       cellPadding: 0.4,
       halign: 'center',
@@ -108,12 +108,13 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
       lineWidth: 0.1,
     },
     styles: {
-      fontSize: 9, // Slightly increased font size for better readability
+      fontSize: 10, // Exactly 10pt as specified
       cellPadding: 0.3,
       lineWidth: 0.1,
-      overflow: 'linebreak', // Using correct enum value instead of string
+      overflow: 'linebreak',
       cellWidth: 'wrap',
       halign: 'left', // Left align content for better readability
+      font: 'helvetica', // Sans-serif font
     },
     margin: margin,
     columnStyles: columnStyles,
@@ -147,12 +148,12 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
         }
       }
     },
-    // Add alternating row colors for better readability
+    // Add alternating row colors for better readability (zébrage)
     bodyStyles: {
       lineColor: [200, 200, 200],
     },
     alternateRowStyles: {
-      fillColor: [245, 245, 245],
+      fillColor: [240, 240, 240], // Slightly lighter for better contrast
     },
     // Make sure table fits into page width
     tableWidth: 'auto',
