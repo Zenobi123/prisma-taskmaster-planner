@@ -20,11 +20,11 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     format: 'a4'
   });
   
-  // Set custom margins: top: 2.5cm, left/right: 1cm exactly
+  // Set custom margins: top: 2.5cm, left/right: 2cm exactly
   const margin = {
     top: 2.5,
-    left: 1.0,
-    right: 1.0,
+    left: 2.0,
+    right: 2.0,
     bottom: 2.0
   };
   
@@ -83,31 +83,31 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
     body: tableData,
     theme: 'grid',
     headStyles: { 
-      fillColor: [80, 120, 100], 
+      fillColor: [80, 120, 100], // Maintien de la couleur actuelle
       textColor: 255,
-      fontSize: 8,
-      cellPadding: 0.2,
+      fontSize: 9,
+      cellPadding: 0.3,
       halign: 'center',
       valign: 'middle',
       lineWidth: 0.1,
     },
     styles: {
       fontSize: 8,
-      cellPadding: 0.2,
-      overflow: 'visible', // Change to visible to ensure all content is displayed
+      cellPadding: 0.3,
+      overflow: 'visible', // Pour assurer que tout le contenu est visible
       lineWidth: 0.1,
     },
     margin: margin,
     columnStyles: {
-      0: { cellWidth: 4.5, overflow: 'linebreak' }, // Nom - allow multiple lines
-      1: { cellWidth: 3.0, overflow: 'visible' },   // NIU - show full content
-      2: { cellWidth: 2.5, overflow: 'visible' },   // Centre - ensure all content is shown
-      3: { cellWidth: 2.5, overflow: 'visible' },   // Régime - ensure all content is shown
-      4: { cellWidth: 1.6, overflow: 'visible' },   // Soumis IGS - ensure all content is shown
-      5: { cellWidth: 2.0, overflow: 'visible' },   // Adhérent CGA - ensure all content is shown
-      6: { cellWidth: 1.7, overflow: 'visible' },   // Classe IGS - ensure all content is shown
-      7: { cellWidth: 5.0, overflow: 'linebreak' }, // Adresse - allow multiple lines
-      8: { cellWidth: 2.8, overflow: 'visible' },   // Téléphone - ensure all content is shown
+      0: { cellWidth: 4.0, overflow: 'linebreak' }, // Nom - allow multiple lines
+      1: { cellWidth: 2.8, overflow: 'visible' },   // NIU
+      2: { cellWidth: 2.3, overflow: 'visible' },   // Centre
+      3: { cellWidth: 2.3, overflow: 'visible' },   // Régime
+      4: { cellWidth: 1.5, overflow: 'visible' },   // Soumis IGS
+      5: { cellWidth: 2.0, overflow: 'visible' },   // Adhérent CGA
+      6: { cellWidth: 1.7, overflow: 'visible' },   // Classe IGS
+      7: { cellWidth: 4.5, overflow: 'linebreak' }, // Adresse - allow multiple lines
+      8: { cellWidth: 2.5, overflow: 'visible' },   // Téléphone
     },
     didParseCell: function(data) {
       // For multi-line headers
@@ -115,7 +115,9 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
         data.cell.styles.valign = 'middle';
       }
     },
-    // Add willDrawCell hook to ensure margins are respected
+    // Répéter l'entête sur chaque page
+    showHead: 'everyPage',
+    // Assurer que les marges sont respectées
     willDrawCell: function(data) {
       // Ensure we're drawing within the specified margins
       if (data.cell.x < margin.left) {
@@ -124,9 +126,21 @@ export const exportClientsToPDF = (clients: Client[], includeArchived: boolean =
       if (data.cell.x + data.cell.width > pageWidth - margin.right) {
         data.cell.width = pageWidth - margin.right - data.cell.x;
       }
-    }
+    },
+    // Add alternating row colors for better readability
+    bodyStyles: {
+      lineColor: [200, 200, 200],
+    },
+    alternateRowStyles: {
+      fillColor: [245, 245, 245],
+    },
+    // Make sure table fits into page width
+    tableWidth: 'auto',
+    // Ensure consistent line height
+    rowPageBreak: 'auto',
   });
   
   // Save the PDF
   doc.save("liste-clients.pdf");
 };
+
