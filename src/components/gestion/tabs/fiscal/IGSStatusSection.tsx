@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -64,7 +64,7 @@ export function IGSStatusSection({
     setAcompteFevrierState(acompteFevrier);
   }, [patente, acompteJanvier, acompteFevrier]);
 
-  const montantIGS = React.useMemo(() => {
+  const montantIGS = useMemo(() => {
     if (soumisIGS && classeIGS && igsClassesInfo[classeIGS]) {
       let baseAmount = igsClassesInfo[classeIGS].montant;
       

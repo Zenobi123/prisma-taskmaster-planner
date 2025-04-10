@@ -1,8 +1,8 @@
 
+import { useState, useEffect, useMemo } from "react";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { CGAClasse } from "@/hooks/fiscal/types";
-import { useState, useEffect } from "react";
 import { FormItem, FormLabel } from "@/components/ui/form";
 import { BadgeEuro } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -64,7 +64,7 @@ export function IGSFields({
   }, [patente, acompteJanvier, acompteFevrier]);
 
   // Calculer le montant IGS en fonction de la classe
-  const montantIGS = React.useMemo(() => {
+  const montantIGS = useMemo(() => {
     if (soumisIGS && classeIGS && igsClassesInfo[classeIGS]) {
       let baseAmount = igsClassesInfo[classeIGS].montant;
       

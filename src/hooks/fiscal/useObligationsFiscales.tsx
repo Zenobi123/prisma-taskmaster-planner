@@ -73,18 +73,18 @@ export function useObligationsFiscales(selectedClient: Client) {
         console.log("Fiscal data found for client", selectedClient.id);
         
         // Initialiser les données fiscales si elles existent
-        if (data?.fiscal_data) {
+        if (data?.fiscal_data && typeof data.fiscal_data === 'object') {
           const fiscalData = data.fiscal_data;
           
           // Initialiser les dates d'attestation
-          if (fiscalData.attestation) {
+          if (fiscalData.attestation && typeof fiscalData.attestation === 'object') {
             setCreationDate(fiscalData.attestation.creationDate || "");
             setValidityEndDate(fiscalData.attestation.validityEndDate || "");
             setShowInAlert(!!fiscalData.attestation.showInAlert);
           }
           
           // Initialiser les obligations fiscales
-          if (fiscalData.obligations) {
+          if (fiscalData.obligations && typeof fiscalData.obligations === 'object') {
             setObligationStatuses(fiscalData.obligations);
           }
           
@@ -92,7 +92,7 @@ export function useObligationsFiscales(selectedClient: Client) {
           setHiddenFromDashboard(!!fiscalData.hiddenFromDashboard);
           
           // Initialiser les données IGS
-          if (fiscalData.igs) {
+          if (fiscalData.igs && typeof fiscalData.igs === 'object') {
             setIgsData({
               soumisIGS: fiscalData.igs.soumisIGS || false,
               adherentCGA: fiscalData.igs.adherentCGA || false,
