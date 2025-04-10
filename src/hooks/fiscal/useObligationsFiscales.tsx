@@ -73,8 +73,8 @@ export function useObligationsFiscales(selectedClient: Client) {
         console.log("Fiscal data found for client", selectedClient.id);
         
         // Initialiser les données fiscales si elles existent
-        if (data?.fiscal_data && typeof data.fiscal_data === 'object') {
-          const fiscalData = data.fiscal_data;
+        if (data?.fiscal_data && typeof data.fiscal_data === 'object' && !Array.isArray(data.fiscal_data)) {
+          const fiscalData = data.fiscal_data as Record<string, any>;
           
           // Initialiser les dates d'attestation
           if (fiscalData.attestation && typeof fiscalData.attestation === 'object') {

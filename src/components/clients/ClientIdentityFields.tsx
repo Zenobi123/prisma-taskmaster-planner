@@ -80,6 +80,7 @@ export function ClientIdentityFields({
         acompteJanvier={igs?.acompteJanvier}
         acompteFevrier={igs?.acompteFevrier}
         onChange={onChange}
+        hidePayments={true} // Masquer les paiements dans la section Clients
       />
 
       <PropertyStatusFields

@@ -40,6 +40,7 @@ interface IGSFieldsProps {
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
   onChange: (name: string, value: any) => void;
+  hidePayments?: boolean; // Nouvel prop pour masquer la section des paiements
 }
 
 export function IGSFields({ 
@@ -49,7 +50,8 @@ export function IGSFields({
   patente = { montant: '', quittance: '' },
   acompteJanvier = { montant: '', quittance: '' },
   acompteFevrier = { montant: '', quittance: '' },
-  onChange 
+  onChange,
+  hidePayments = false // Par défaut, montrer les paiements
 }: IGSFieldsProps) {
   const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
@@ -179,92 +181,93 @@ export function IGSFields({
           </div>
 
           {montantIGS !== null && (
-            <>
-              <div className="p-4 bg-green-50 border border-green-200 rounded-md mt-6">
-                <p className="text-green-800 font-medium flex items-center">
-                  <BadgeEuro className="h-5 w-5 mr-2" />
-                  Montant de l'IGS à payer: {montantIGS.toLocaleString()} FCFA
-                  {adherentCGA && " (Réduction CGA de 50% appliquée)"}
-                </p>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md mt-6">
+              <p className="text-green-800 font-medium flex items-center">
+                <BadgeEuro className="h-5 w-5 mr-2" />
+                Montant de l'IGS à payer: {montantIGS.toLocaleString()} FCFA
+                {adherentCGA && " (Réduction CGA de 50% appliquée)"}
+              </p>
+            </div>
+          )}
+          
+          {/* Afficher la section de paiements seulement si hidePayments est false */}
+          {!hidePayments && montantIGS !== null && (
+            <div className="mt-6 space-y-4">
+              <h4 className="font-medium">Paiements et déductions</h4>
+              
+              {/* Patente */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormItem>
+                  <Label>Patente payée pour l'exercice (FCFA)</Label>
+                  <Input 
+                    type="number" 
+                    value={patenteState.montant}
+                    onChange={(e) => handlePaymentChange('patente', 'montant', e.target.value)}
+                    placeholder="Montant"
+                  />
+                </FormItem>
+                <FormItem>
+                  <Label>Numéro de quittance</Label>
+                  <Input 
+                    value={patenteState.quittance}
+                    onChange={(e) => handlePaymentChange('patente', 'quittance', e.target.value)}
+                    placeholder="Numéro de quittance"
+                  />
+                </FormItem>
               </div>
               
-              <div className="mt-6 space-y-4">
-                <h4 className="font-medium">Paiements et déductions</h4>
-                
-                {/* Patente */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormItem>
-                    <Label>Patente payée pour l'exercice (FCFA)</Label>
-                    <Input 
-                      type="number" 
-                      value={patenteState.montant}
-                      onChange={(e) => handlePaymentChange('patente', 'montant', e.target.value)}
-                      placeholder="Montant"
-                    />
-                  </FormItem>
-                  <FormItem>
-                    <Label>Numéro de quittance</Label>
-                    <Input 
-                      value={patenteState.quittance}
-                      onChange={(e) => handlePaymentChange('patente', 'quittance', e.target.value)}
-                      placeholder="Numéro de quittance"
-                    />
-                  </FormItem>
-                </div>
-                
-                {/* Acompte IR de janvier */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormItem>
-                    <Label>Acompte IR de janvier 2025 (FCFA)</Label>
-                    <Input 
-                      type="number" 
-                      value={acompteJanvierState.montant}
-                      onChange={(e) => handlePaymentChange('acompteJanvier', 'montant', e.target.value)}
-                      placeholder="Montant"
-                    />
-                  </FormItem>
-                  <FormItem>
-                    <Label>Numéro de quittance</Label>
-                    <Input 
-                      value={acompteJanvierState.quittance}
-                      onChange={(e) => handlePaymentChange('acompteJanvier', 'quittance', e.target.value)}
-                      placeholder="Numéro de quittance"
-                    />
-                  </FormItem>
-                </div>
-                
-                {/* Acompte IR de février */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormItem>
-                    <Label>Acompte IR de février 2025 (FCFA)</Label>
-                    <Input 
-                      type="number" 
-                      value={acompteFevierState.montant}
-                      onChange={(e) => handlePaymentChange('acompteFevrier', 'montant', e.target.value)}
-                      placeholder="Montant"
-                    />
-                  </FormItem>
-                  <FormItem>
-                    <Label>Numéro de quittance</Label>
-                    <Input 
-                      value={acompteFevierState.quittance}
-                      onChange={(e) => handlePaymentChange('acompteFevrier', 'quittance', e.target.value)}
-                      placeholder="Numéro de quittance"
-                    />
-                  </FormItem>
-                </div>
-                
-                {/* Reliquat */}
-                {reliquat !== null && (
-                  <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-                    <p className="text-blue-800 font-medium flex items-center">
-                      <BadgeEuro className="h-5 w-5 mr-2" />
-                      Reliquat IGS à payer: {reliquat.toLocaleString()} FCFA
-                    </p>
-                  </div>
-                )}
+              {/* Acompte IR de janvier */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormItem>
+                  <Label>Acompte IR de janvier 2025 (FCFA)</Label>
+                  <Input 
+                    type="number" 
+                    value={acompteJanvierState.montant}
+                    onChange={(e) => handlePaymentChange('acompteJanvier', 'montant', e.target.value)}
+                    placeholder="Montant"
+                  />
+                </FormItem>
+                <FormItem>
+                  <Label>Numéro de quittance</Label>
+                  <Input 
+                    value={acompteJanvierState.quittance}
+                    onChange={(e) => handlePaymentChange('acompteJanvier', 'quittance', e.target.value)}
+                    placeholder="Numéro de quittance"
+                  />
+                </FormItem>
               </div>
-            </>
+              
+              {/* Acompte IR de février */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormItem>
+                  <Label>Acompte IR de février 2025 (FCFA)</Label>
+                  <Input 
+                    type="number" 
+                    value={acompteFevierState.montant}
+                    onChange={(e) => handlePaymentChange('acompteFevrier', 'montant', e.target.value)}
+                    placeholder="Montant"
+                  />
+                </FormItem>
+                <FormItem>
+                  <Label>Numéro de quittance</Label>
+                  <Input 
+                    value={acompteFevierState.quittance}
+                    onChange={(e) => handlePaymentChange('acompteFevrier', 'quittance', e.target.value)}
+                    placeholder="Numéro de quittance"
+                  />
+                </FormItem>
+              </div>
+              
+              {/* Reliquat */}
+              {reliquat !== null && (
+                <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
+                  <p className="text-blue-800 font-medium flex items-center">
+                    <BadgeEuro className="h-5 w-5 mr-2" />
+                    Reliquat IGS à payer: {reliquat.toLocaleString()} FCFA
+                  </p>
+                </div>
+              )}
+            </div>
           )}
         </>
       )}
