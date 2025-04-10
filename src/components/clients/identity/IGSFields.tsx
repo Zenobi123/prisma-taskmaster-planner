@@ -36,23 +36,35 @@ interface IGSFieldsProps {
   soumisIGS?: boolean;
   adherentCGA?: boolean;
   classeIGS?: CGAClasse;
+  patente?: IGSPayment;
+  acompteJanvier?: IGSPayment;
+  acompteFevrier?: IGSPayment;
   onChange: (name: string, value: any) => void;
 }
 
 export function IGSFields({ 
   soumisIGS = false, 
   adherentCGA = false, 
-  classeIGS, 
+  classeIGS,
+  patente = { montant: '', quittance: '' },
+  acompteJanvier = { montant: '', quittance: '' },
+  acompteFevrier = { montant: '', quittance: '' },
   onChange 
 }: IGSFieldsProps) {
-  const [montantIGS, setMontantIGS] = useState<number | null>(null);
-  const [patente, setPatente] = useState<IGSPayment>({ montant: '', quittance: '' });
-  const [acompteJanvier, setAcompteJanvier] = useState<IGSPayment>({ montant: '', quittance: '' });
-  const [acompteFevrier, setAcompteFevrier] = useState<IGSPayment>({ montant: '', quittance: '' });
+  const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
+  const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
+  const [acompteFevierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
   const [reliquat, setReliquat] = useState<number | null>(null);
 
-  // Calculer le montant IGS en fonction de la classe
+  // Initialiser les états avec les props quand elles changent
   useEffect(() => {
+    setPatenteState(patente);
+    setAcompteJanvierState(acompteJanvier);
+    setAcompteFevrierState(acompteFevrier);
+  }, [patente, acompteJanvier, acompteFevrier]);
+
+  // Calculer le montant IGS en fonction de la classe
+  const montantIGS = React.useMemo(() => {
     if (soumisIGS && classeIGS && igsClassesInfo[classeIGS]) {
       let baseAmount = igsClassesInfo[classeIGS].montant;
       
@@ -61,25 +73,24 @@ export function IGSFields({
         baseAmount = baseAmount * 0.5;
       }
       
-      setMontantIGS(baseAmount);
-    } else {
-      setMontantIGS(null);
+      return baseAmount;
     }
+    return null;
   }, [soumisIGS, classeIGS, adherentCGA]);
 
   // Calculer le reliquat IGS
   useEffect(() => {
     if (montantIGS !== null) {
-      const patenteValue = parseFloat(patente.montant) || 0;
-      const janvierValue = parseFloat(acompteJanvier.montant) || 0;
-      const fevrierValue = parseFloat(acompteFevrier.montant) || 0;
+      const patenteValue = parseFloat(patenteState.montant) || 0;
+      const janvierValue = parseFloat(acompteJanvierState.montant) || 0;
+      const fevrierValue = parseFloat(acompteFevierState.montant) || 0;
       
       const reliquatValue = montantIGS - patenteValue - janvierValue - fevrierValue;
       setReliquat(reliquatValue > 0 ? reliquatValue : 0);
     } else {
       setReliquat(null);
     }
-  }, [montantIGS, patente.montant, acompteJanvier.montant, acompteFevrier.montant]);
+  }, [montantIGS, patenteState.montant, acompteJanvierState.montant, acompteFevierState.montant]);
 
   // Gérer les changements de valeurs pour les paiements
   const handlePaymentChange = (
@@ -87,15 +98,23 @@ export function IGSFields({
     type: 'montant' | 'quittance',
     value: string
   ) => {
+    let updatedPayment: IGSPayment;
+    
     switch (field) {
       case 'patente':
-        setPatente(prev => ({ ...prev, [type]: value }));
+        updatedPayment = { ...patenteState, [type]: value };
+        setPatenteState(updatedPayment);
+        onChange("igs.patente", updatedPayment);
         break;
       case 'acompteJanvier':
-        setAcompteJanvier(prev => ({ ...prev, [type]: value }));
+        updatedPayment = { ...acompteJanvierState, [type]: value };
+        setAcompteJanvierState(updatedPayment);
+        onChange("igs.acompteJanvier", updatedPayment);
         break;
       case 'acompteFevrier':
-        setAcompteFevrier(prev => ({ ...prev, [type]: value }));
+        updatedPayment = { ...acompteFevierState, [type]: value };
+        setAcompteFevrierState(updatedPayment);
+        onChange("igs.acompteFevrier", updatedPayment);
         break;
     }
   };
@@ -178,7 +197,7 @@ export function IGSFields({
                     <Label>Patente payée pour l'exercice (FCFA)</Label>
                     <Input 
                       type="number" 
-                      value={patente.montant}
+                      value={patenteState.montant}
                       onChange={(e) => handlePaymentChange('patente', 'montant', e.target.value)}
                       placeholder="Montant"
                     />
@@ -186,7 +205,7 @@ export function IGSFields({
                   <FormItem>
                     <Label>Numéro de quittance</Label>
                     <Input 
-                      value={patente.quittance}
+                      value={patenteState.quittance}
                       onChange={(e) => handlePaymentChange('patente', 'quittance', e.target.value)}
                       placeholder="Numéro de quittance"
                     />
@@ -199,7 +218,7 @@ export function IGSFields({
                     <Label>Acompte IR de janvier 2025 (FCFA)</Label>
                     <Input 
                       type="number" 
-                      value={acompteJanvier.montant}
+                      value={acompteJanvierState.montant}
                       onChange={(e) => handlePaymentChange('acompteJanvier', 'montant', e.target.value)}
                       placeholder="Montant"
                     />
@@ -207,7 +226,7 @@ export function IGSFields({
                   <FormItem>
                     <Label>Numéro de quittance</Label>
                     <Input 
-                      value={acompteJanvier.quittance}
+                      value={acompteJanvierState.quittance}
                       onChange={(e) => handlePaymentChange('acompteJanvier', 'quittance', e.target.value)}
                       placeholder="Numéro de quittance"
                     />
@@ -220,7 +239,7 @@ export function IGSFields({
                     <Label>Acompte IR de février 2025 (FCFA)</Label>
                     <Input 
                       type="number" 
-                      value={acompteFevrier.montant}
+                      value={acompteFevierState.montant}
                       onChange={(e) => handlePaymentChange('acompteFevrier', 'montant', e.target.value)}
                       placeholder="Montant"
                     />
@@ -228,7 +247,7 @@ export function IGSFields({
                   <FormItem>
                     <Label>Numéro de quittance</Label>
                     <Input 
-                      value={acompteFevrier.quittance}
+                      value={acompteFevierState.quittance}
                       onChange={(e) => handlePaymentChange('acompteFevrier', 'quittance', e.target.value)}
                       placeholder="Numéro de quittance"
                     />

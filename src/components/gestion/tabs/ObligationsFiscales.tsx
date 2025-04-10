@@ -67,6 +67,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           soumisIGS={igsData?.soumisIGS || false}
           adherentCGA={igsData?.adherentCGA || false}
           classeIGS={igsData?.classeIGS}
+          patente={igsData?.patente}
+          acompteJanvier={igsData?.acompteJanvier}
+          acompteFevrier={igsData?.acompteFevrier}
           onChange={handleIGSChange}
         />
         

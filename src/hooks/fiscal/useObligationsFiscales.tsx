@@ -1,190 +1,179 @@
 
-import { useState, useEffect } from "react";
-import { Client, IGSData, IGSPayment } from "@/types/client";
-import { ObligationStatuses, ClientFiscalData } from "./types";
-import { calculateValidityEndDate, checkAttestationExpiration } from "./utils/dateUtils";
-import { getFromCache, updateCache } from "./services/fiscalDataCache";
-import { saveFiscalData, fetchFiscalData } from "./services/fiscalDataService";
-import { toast } from "sonner";
+import { useState, useEffect, useCallback } from "react";
+import { Client } from "@/types/client";
+import { supabase } from "@/integrations/supabase/client";
+import { useUpdateClientMutation } from "@/pages/clients/hooks/mutations/useUpdateClientMutation";
+import { ObligationStatuses, CGAClasse } from "./types";
 
-export const useObligationsFiscales = (selectedClient: Client) => {
-  const [creationDate, setCreationDate] = useState<string>("");
-  const [validityEndDate, setValidityEndDate] = useState<string>("");
+// Interface pour les valeurs de paiement IGS
+interface IGSPayment {
+  montant: string;
+  quittance: string;
+}
+
+// Interface pour les données IGS
+interface IGSData {
+  soumisIGS: boolean;
+  adherentCGA: boolean;
+  classeIGS?: CGAClasse;
+  patente?: IGSPayment;
+  acompteJanvier?: IGSPayment;
+  acompteFevrier?: IGSPayment;
+}
+
+export function useObligationsFiscales(selectedClient: Client) {
+  // États pour l'attestation fiscale
+  const [creationDate, setCreationDate] = useState("");
+  const [validityEndDate, setValidityEndDate] = useState("");
+  const [showInAlert, setShowInAlert] = useState(false);
+  const [hiddenFromDashboard, setHiddenFromDashboard] = useState(false);
+  
+  // État pour les obligations fiscales
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
     patente: { assujetti: false, paye: false },
     bail: { assujetti: false, paye: false },
     taxeFonciere: { assujetti: false, paye: false },
     dsf: { assujetti: false, depose: false },
-    darp: { assujetti: false, depose: false }
+    darp: { assujetti: false, depose: false },
   });
-  const [igsData, setIGSData] = useState<IGSData>({
+  
+  // État pour les données IGS
+  const [igsData, setIgsData] = useState<IGSData>({
     soumisIGS: false,
     adherentCGA: false,
-    patente: { montant: '', quittance: '' },
-    acompteJanvier: { montant: '', quittance: '' },
-    acompteFevrier: { montant: '', quittance: '' }
+    classeIGS: undefined,
+    patente: undefined,
+    acompteJanvier: undefined,
+    acompteFevrier: undefined
   });
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [showInAlert, setShowInAlert] = useState<boolean>(true);
-  const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const { mutateAsync } = useUpdateClientMutation();
 
-  // Fetch fiscal data when client changes
+  // Charger les données fiscales du client
   useEffect(() => {
-    if (selectedClient?.id) {
-      loadFiscalData();
-    }
-  }, [selectedClient?.id]);
-
-  // Update validity end date when creation date changes
-  useEffect(() => {
-    if (creationDate) {
-      const calculatedEndDate = calculateValidityEndDate(creationDate);
-      setValidityEndDate(calculatedEndDate);
-    }
-  }, [creationDate]);
-
-  // Show toast notifications for expiring attestations
-  useEffect(() => {
-    if (creationDate && validityEndDate) {
-      checkAttestationExpiration(creationDate, validityEndDate);
-    }
-  }, [creationDate, validityEndDate]);
-
-  const loadFiscalData = async () => {
-    setIsLoading(true);
-    try {
-      // Try to get data from cache first
-      const cachedData = getFromCache(selectedClient.id);
-      if (cachedData) {
-        setFiscalDataToState(cachedData);
-        setIsLoading(false);
-        return;
-      }
-
-      // If not in cache, fetch from database
-      const fiscalData = await fetchFiscalData(selectedClient.id);
+    const loadFiscalData = async () => {
+      if (!selectedClient?.id) return;
       
-      if (fiscalData) {
-        setFiscalDataToState(fiscalData);
+      setIsLoading(true);
+      console.log("Fetching fiscal data for client", selectedClient.id);
+      
+      try {
+        const { data, error } = await supabase
+          .from("clients")
+          .select("fiscal_data")
+          .eq("id", selectedClient.id)
+          .single();
         
-        // Update cache
-        updateCache(selectedClient.id, fiscalData);
-      } else {
-        // Initialize default values if no data exists
-        resetToDefaults();
+        if (error) {
+          console.error("Error fetching fiscal data:", error);
+          return;
+        }
+        
+        console.log("Fiscal data found for client", selectedClient.id);
+        
+        // Initialiser les données fiscales si elles existent
+        if (data?.fiscal_data) {
+          const fiscalData = data.fiscal_data;
+          
+          // Initialiser les dates d'attestation
+          if (fiscalData.attestation) {
+            setCreationDate(fiscalData.attestation.creationDate || "");
+            setValidityEndDate(fiscalData.attestation.validityEndDate || "");
+            setShowInAlert(!!fiscalData.attestation.showInAlert);
+          }
+          
+          // Initialiser les obligations fiscales
+          if (fiscalData.obligations) {
+            setObligationStatuses(fiscalData.obligations);
+          }
+          
+          // Initialiser la visibilité dans le tableau de bord
+          setHiddenFromDashboard(!!fiscalData.hiddenFromDashboard);
+          
+          // Initialiser les données IGS
+          if (fiscalData.igs) {
+            setIgsData({
+              soumisIGS: fiscalData.igs.soumisIGS || false,
+              adherentCGA: fiscalData.igs.adherentCGA || false,
+              classeIGS: fiscalData.igs.classeIGS,
+              patente: fiscalData.igs.patente,
+              acompteJanvier: fiscalData.igs.acompteJanvier,
+              acompteFevrier: fiscalData.igs.acompteFevrier
+            });
+          } else if (selectedClient.igs) {
+            // Fallback aux données IGS directement sur le client si nécessaire
+            setIgsData({
+              soumisIGS: selectedClient.igs.soumisIGS || false,
+              adherentCGA: selectedClient.igs.adherentCGA || false,
+              classeIGS: selectedClient.igs.classeIGS,
+              patente: selectedClient.igs.patente,
+              acompteJanvier: selectedClient.igs.acompteJanvier,
+              acompteFevrier: selectedClient.igs.acompteFevrier
+            });
+          }
+        } else if (selectedClient.igs) {
+          // Fallback si fiscal_data n'existe pas mais igs si
+          setIgsData({
+            soumisIGS: selectedClient.igs.soumisIGS || false,
+            adherentCGA: selectedClient.igs.adherentCGA || false,
+            classeIGS: selectedClient.igs.classeIGS,
+            patente: selectedClient.igs.patente,
+            acompteJanvier: selectedClient.igs.acompteJanvier,
+            acompteFevrier: selectedClient.igs.acompteFevrier
+          });
+        }
+      } catch (error) {
+        console.error("Error in loadFiscalData:", error);
+      } finally {
+        setIsLoading(false);
       }
-    } catch (error) {
-      console.error("Error loading fiscal data:", error);
-      toast.error("Erreur lors du chargement des données fiscales");
-      resetToDefaults();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const setFiscalDataToState = (data: ClientFiscalData) => {
-    if (data.attestation) {
-      setCreationDate(data.attestation.creationDate || "");
-      setValidityEndDate(data.attestation.validityEndDate || "");
-      setShowInAlert(data.attestation.showInAlert !== false); // Default to true if undefined
-    }
+    };
     
-    if (data.obligations) {
-      setObligationStatuses(data.obligations);
-    }
-
-    // Set IGS data if available
-    if (data.igs) {
-      setIGSData({
-        soumisIGS: data.igs.soumisIGS || false,
-        adherentCGA: data.igs.adherentCGA || false,
-        classeIGS: data.igs.classeIGS,
-        patente: data.igs.patente || { montant: '', quittance: '' },
-        acompteJanvier: data.igs.acompteJanvier || { montant: '', quittance: '' },
-        acompteFevrier: data.igs.acompteFevrier || { montant: '', quittance: '' }
-      });
-    } else {
-      setIGSData({
-        soumisIGS: false,
-        adherentCGA: false,
-        patente: { montant: '', quittance: '' },
-        acompteJanvier: { montant: '', quittance: '' },
-        acompteFevrier: { montant: '', quittance: '' }
-      });
-    }
-
-    setHiddenFromDashboard(data.hiddenFromDashboard === true);
-  };
-
-  const resetToDefaults = () => {
-    setCreationDate("");
-    setValidityEndDate("");
-    setObligationStatuses({
-      patente: { assujetti: false, paye: false },
-      bail: { assujetti: false, paye: false },
-      taxeFonciere: { assujetti: false, paye: false },
-      dsf: { assujetti: false, depose: false },
-      darp: { assujetti: false, depose: false }
-    });
-    setIGSData({
-      soumisIGS: false,
-      adherentCGA: false,
-      patente: { montant: '', quittance: '' },
-      acompteJanvier: { montant: '', quittance: '' },
-      acompteFevrier: { montant: '', quittance: '' }
-    });
-    setShowInAlert(true);
-    setHiddenFromDashboard(false);
-  };
-
+    loadFiscalData();
+  }, [selectedClient]);
+  
+  // Gérer les changements de statut des obligations
   const handleStatusChange = (
-    type: keyof ObligationStatuses, 
-    field: "assujetti" | "paye" | "depose", 
+    obligationType: keyof ObligationStatuses,
+    statusKey: string,
     value: boolean
   ) => {
-    setObligationStatuses((prev) => ({
+    setObligationStatuses(prev => ({
       ...prev,
-      [type]: {
-        ...prev[type],
-        [field]: value
+      [obligationType]: {
+        ...prev[obligationType],
+        [statusKey]: value
       }
     }));
   };
-
+  
+  // Gérer les changements dans les données IGS
   const handleIGSChange = (name: string, value: any) => {
-    if (name.startsWith('igs.')) {
-      const field = name.split('.')[1];
-      
-      // For nested payment fields
-      if (field === 'patente' || field === 'acompteJanvier' || field === 'acompteFevrier') {
-        const [fieldName, subField] = name.split('.').slice(1);
-        setIGSData(prev => ({
-          ...prev,
-          [fieldName]: {
-            ...prev[fieldName as keyof IGSData] as IGSPayment,
-            [subField]: value
-          }
-        }));
-      } else {
-        // For direct fields
-        setIGSData(prev => ({
-          ...prev,
-          [field]: value
-        }));
-      }
+    const parts = name.split('.');
+    if (parts[0] === 'igs') {
+      setIgsData(prev => ({
+        ...prev,
+        [parts[1]]: value
+      }));
     }
   };
-
-  const handleToggleAlert = () => {
-    setShowInAlert(prev => !prev);
+  
+  // Gérer la visibilité des alertes
+  const handleToggleAlert = (checked: boolean) => {
+    setShowInAlert(checked);
   };
-
-  const handleToggleDashboardVisibility = () => {
-    setHiddenFromDashboard(prev => !prev);
+  
+  // Gérer la visibilité dans le tableau de bord
+  const handleToggleDashboardVisibility = (checked: boolean) => {
+    setHiddenFromDashboard(checked);
   };
-
-  const handleSave = async () => {
-    const fiscalData: ClientFiscalData = {
+  
+  // Enregistrer les modifications
+  const handleSave = useCallback(async () => {
+    if (!selectedClient?.id) return;
+    
+    const fiscalData = {
       attestation: {
         creationDate,
         validityEndDate,
@@ -194,20 +183,39 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       hiddenFromDashboard,
       igs: igsData
     };
-
+    
     try {
-      await saveFiscalData(selectedClient.id, fiscalData);
+      await mutateAsync({
+        id: selectedClient.id,
+        updates: {
+          fiscal_data: fiscalData,
+          // Mettre à jour l'objet igs pour compatibilité rétroactive
+          igs: {
+            soumisIGS: igsData.soumisIGS,
+            adherentCGA: igsData.adherentCGA,
+            classeIGS: igsData.classeIGS,
+            patente: igsData.patente,
+            acompteJanvier: igsData.acompteJanvier,
+            acompteFevrier: igsData.acompteFevrier
+          }
+        }
+      });
       
-      // Update cache
-      updateCache(selectedClient.id, fiscalData);
-      
-      toast.success("Données fiscales enregistrées avec succès");
+      console.log("Fiscal data saved successfully");
     } catch (error) {
       console.error("Error saving fiscal data:", error);
-      toast.error("Erreur lors de l'enregistrement des données fiscales");
     }
-  };
-
+  }, [
+    selectedClient?.id,
+    creationDate,
+    validityEndDate,
+    showInAlert,
+    obligationStatuses,
+    hiddenFromDashboard,
+    igsData,
+    mutateAsync
+  ]);
+  
   return {
     creationDate,
     setCreationDate,
@@ -223,4 +231,4 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     igsData,
     handleIGSChange
   };
-};
+}

@@ -76,6 +76,9 @@ export function ClientIdentityFields({
         soumisIGS={igs?.soumisIGS || false}
         adherentCGA={igs?.adherentCGA || false}
         classeIGS={igs?.classeIGS}
+        patente={igs?.patente}
+        acompteJanvier={igs?.acompteJanvier}
+        acompteFevrier={igs?.acompteFevrier}
         onChange={onChange}
       />
 
