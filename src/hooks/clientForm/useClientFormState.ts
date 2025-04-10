@@ -38,6 +38,9 @@ export function useClientFormState(initialData?: Client) {
   let formData = { ...defaultFormData };
 
   if (initialData) {
+    // Récupérer les données IGS soit directement depuis igs soit depuis fiscal_data.igs
+    const igsData = initialData.igs || (initialData.fiscal_data?.igs ? initialData.fiscal_data.igs : undefined);
+    
     formData = {
       nom: initialData.nom || "",
       raisonsociale: initialData.raisonsociale || "",
@@ -60,7 +63,7 @@ export function useClientFormState(initialData?: Client) {
       etatcivil: initialData.etatcivil || "celibataire",
       regimefiscal: initialData.regimefiscal || "simplifie",
       situationimmobiliere: initialData.situationimmobiliere || { type: "locataire" },
-      igs: initialData.igs || { soumisIGS: false, adherentCGA: false }
+      igs: igsData || { soumisIGS: false, adherentCGA: false }
     };
   }
 

@@ -27,12 +27,18 @@ export async function updateClient(id: string, updates: Partial<Client>) {
     clientData.situationimmobiliere = updates.situationimmobiliere;
   }
   
-  // Handle IGS data specifically, ensuring it's compatible with Supabase JSON type
+  // Handle IGS data by storing it in the fiscal_data JSON field
   if (igs) {
-    clientData.igs = {
-      soumisIGS: igs.soumisIGS !== undefined ? igs.soumisIGS : false,
-      adherentCGA: igs.adherentCGA !== undefined ? igs.adherentCGA : false,
-      classeIGS: igs.classeIGS
+    clientData.fiscal_data = {
+      ...(otherUpdates.fiscal_data || {}),
+      igs: {
+        soumisIGS: igs.soumisIGS !== undefined ? igs.soumisIGS : false,
+        adherentCGA: igs.adherentCGA !== undefined ? igs.adherentCGA : false,
+        classeIGS: igs.classeIGS,
+        patente: igs.patente,
+        acompteJanvier: igs.acompteJanvier,
+        acompteFevrier: igs.acompteFevrier
+      }
     };
   }
   
