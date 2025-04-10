@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, FileText, Download } from "lucide-react";
+import { ArrowLeft, FileText, Download, Filter, Search, Calendar, FileBarChart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import {
   Select,
@@ -10,39 +11,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRapports } from "@/hooks/useRapports";
+import { exportToPdf, exportToExcel } from "@/utils/exportUtils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DatePicker } from "@/components/ui/datepicker";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { RapportsList } from "@/components/rapports/RapportsList";
+import { GenerateReportDialog } from "@/components/rapports/GenerateReportDialog";
 
 const Rapports = () => {
   const [typeFilter, setTypeFilter] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState("all");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const navigate = useNavigate();
 
-  // Données mockées pour l'exemple
-  const rapports = [
-    {
-      id: 1,
-      titre: "Rapport d'activité mensuel",
-      date: "Février 2024",
-      type: "activite",
-      taille: "2.4 MB",
-    },
-    {
-      id: 2,
-      titre: "Bilan financier trimestriel",
-      date: "Q4 2023",
-      type: "financier",
-      taille: "1.8 MB",
-    },
-    {
-      id: 3,
-      titre: "Analyse des temps par projet",
-      date: "Janvier 2024",
-      type: "temps",
-      taille: "1.2 MB",
-    },
-  ];
+  const { 
+    rapports, 
+    isLoading, 
+    generateReport 
+  } = useRapports(typeFilter, searchTerm, selectedPeriod, selectedDate);
 
-  const filteredRapports = rapports.filter((rapport) => {
-    return typeFilter === "all" || rapport.type === typeFilter;
-  });
+  const handleGenerate = (type: string, parameters: any) => {
+    generateReport(type, parameters);
+    setShowGenerateDialog(false);
+  };
+
+  const handleExport = (format: "pdf" | "excel") => {
+    if (format === "pdf") {
+      exportToPdf("Rapports", rapports, "rapports-export");
+    } else {
+      exportToExcel(rapports, "rapports-export");
+    }
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -64,46 +69,143 @@ const Rapports = () => {
             Consultez et générez des rapports
           </p>
         </div>
+        <Button onClick={() => setShowGenerateDialog(true)}>
+          Générer un rapport
+        </Button>
       </div>
 
-      <div className="flex gap-4 mb-6">
-        <Select value={typeFilter} onValueChange={setTypeFilter}>
-          <SelectTrigger className="w-[200px]">
-            <SelectValue placeholder="Type de rapport" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les types</SelectItem>
-            <SelectItem value="activite">Activité</SelectItem>
-            <SelectItem value="financier">Financier</SelectItem>
-            <SelectItem value="temps">Temps</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="grid gap-4">
-        {filteredRapports.map((rapport) => (
-          <div
-            key={rapport.id}
-            className="p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
-          >
-            <div className="flex justify-between items-center">
-              <div className="flex items-start gap-4">
-                <FileText className="w-8 h-8 text-gray-400" />
-                <div>
-                  <h3 className="font-semibold text-lg">{rapport.titre}</h3>
-                  <p className="text-sm text-gray-500">
-                    {rapport.date} - {rapport.taille}
-                  </p>
+      <Tabs defaultValue="rapports" className="mb-6">
+        <TabsList className="mb-4">
+          <TabsTrigger value="rapports">Rapports disponibles</TabsTrigger>
+          <TabsTrigger value="statistiques">Statistiques</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="rapports">
+          <Card className="mb-6">
+            <CardContent className="pt-6">
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="relative flex-1">
+                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Rechercher un rapport..."
+                    className="pl-8"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
                 </div>
+                
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="Type de rapport" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Tous les types</SelectItem>
+                    <SelectItem value="fiscal">Fiscal</SelectItem>
+                    <SelectItem value="client">Client</SelectItem>
+                    <SelectItem value="financier">Financier</SelectItem>
+                    <SelectItem value="activite">Activité</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
+                  <SelectTrigger className="w-full md:w-[200px]">
+                    <SelectValue placeholder="Période" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes périodes</SelectItem>
+                    <SelectItem value="this_month">Ce mois</SelectItem>
+                    <SelectItem value="this_year">Cette année</SelectItem>
+                    <SelectItem value="last_year">Année précédente</SelectItem>
+                    <SelectItem value="custom">Période personnalisée</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {selectedPeriod === "custom" && (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="w-full md:w-[200px]">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        {selectedDate ? selectedDate.toLocaleDateString() : "Choisir une date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <DatePicker
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={setSelectedDate}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
-              <Button variant="outline" size="sm">
-                <Download className="w-4 h-4 mr-2" />
-                Télécharger
-              </Button>
-            </div>
+            
+              <div className="flex gap-2 mb-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => handleExport("pdf")}
+                  className="flex items-center gap-1"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  Exporter en PDF
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => handleExport("excel")}
+                  className="flex items-center gap-1"
+                >
+                  <Download className="w-4 h-4 mr-1" />
+                  Exporter en Excel
+                </Button>
+              </div>
+              
+              <Separator className="my-4" />
+              
+              <RapportsList 
+                rapports={rapports} 
+                isLoading={isLoading} 
+              />
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="statistiques">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Répartition des rapports</CardTitle>
+                <CardDescription>Par type de document</CardDescription>
+              </CardHeader>
+              <CardContent className="h-80 flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <FileBarChart className="w-12 h-12 mx-auto mb-2" />
+                  <p>Statistiques disponibles prochainement</p>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Rapports par période</CardTitle>
+                <CardDescription>Évolution mensuelle</CardDescription>
+              </CardHeader>
+              <CardContent className="h-80 flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <FileBarChart className="w-12 h-12 mx-auto mb-2" />
+                  <p>Statistiques disponibles prochainement</p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        ))}
-      </div>
+        </TabsContent>
+      </Tabs>
+      
+      <GenerateReportDialog 
+        isOpen={showGenerateDialog} 
+        onClose={() => setShowGenerateDialog(false)}
+        onGenerate={handleGenerate}
+      />
     </div>
   );
 };

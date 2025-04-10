@@ -58,9 +58,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           setCreationDate={setCreationDate}
           handleSave={handleSave}
           showInAlert={showInAlert}
-          onToggleAlert={handleToggleAlert}
+          onToggleAlert={(checked: boolean) => handleToggleAlert(checked)}
           hiddenFromDashboard={hiddenFromDashboard}
-          onToggleDashboardVisibility={handleToggleDashboardVisibility}
+          onToggleDashboardVisibility={(checked: boolean) => handleToggleDashboardVisibility(checked)}
         />
         
         <IGSStatusSection 
