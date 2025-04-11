@@ -23,13 +23,25 @@ interface DatePickerRangeProps {
 type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps;
 
 export function DatePicker(props: DatePickerProps) {
-  return (
-    <Calendar
-      mode={props.mode}
-      selected={props.selected}
-      onSelect={props.onSelect as any}
-      disabled={props.disabled}
-      locale={fr}
-    />
-  );
+  if (props.mode === "single") {
+    return (
+      <Calendar
+        mode="single"
+        selected={props.selected as Date}
+        onSelect={props.onSelect as (date: Date | undefined) => void}
+        disabled={props.disabled}
+        locale={fr}
+      />
+    );
+  } else {
+    return (
+      <Calendar
+        mode="range"
+        selected={props.selected as DateRange}
+        onSelect={props.onSelect as (range: DateRange | undefined) => void}
+        disabled={props.disabled}
+        locale={fr}
+      />
+    );
+  }
 }
