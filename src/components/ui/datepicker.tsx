@@ -6,20 +6,29 @@ import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 
-interface DatePickerProps {
-  mode: "single" | "range";
-  selected?: Date | DateRange | undefined;
-  onSelect: (date: Date | DateRange | undefined) => void;
+interface DatePickerSingleProps {
+  mode: "single";
+  selected?: Date;
+  onSelect: (date: Date | undefined) => void;
   disabled?: (date: Date) => boolean;
 }
 
-export function DatePicker({ mode, selected, onSelect, disabled }: DatePickerProps) {
+interface DatePickerRangeProps {
+  mode: "range";
+  selected?: DateRange;
+  onSelect: (date: DateRange | undefined) => void;
+  disabled?: (date: Date) => boolean;
+}
+
+type DatePickerProps = DatePickerSingleProps | DatePickerRangeProps;
+
+export function DatePicker(props: DatePickerProps) {
   return (
     <Calendar
-      mode={mode}
-      selected={selected}
-      onSelect={onSelect}
-      disabled={disabled}
+      mode={props.mode}
+      selected={props.selected}
+      onSelect={props.onSelect as any}
+      disabled={props.disabled}
       locale={fr}
     />
   );
