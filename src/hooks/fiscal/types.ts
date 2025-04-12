@@ -1,30 +1,4 @@
 
-export interface ClientFiscalData {
-  attestation: {
-    creationDate: string;
-    validityEndDate: string;
-    showInAlert?: boolean;
-  };
-  obligations: {
-    patente: { assujetti: boolean; paye: boolean };
-    bail: { assujetti: boolean; paye: boolean };
-    taxeFonciere: { assujetti: boolean; paye: boolean };
-    dsf: { assujetti: boolean; depose: boolean };
-    darp: { assujetti: boolean; depose: boolean };
-    tva: { assujetti: boolean; paye: boolean };
-    cnps: { assujetti: boolean; paye: boolean };
-  };
-  hiddenFromDashboard?: boolean;
-  igs?: {
-    soumisIGS: boolean;
-    adherentCGA: boolean;
-    classeIGS?: CGAClasse;
-    patente?: IGSPayment;
-    acompteJanvier?: IGSPayment;
-    acompteFevrier?: IGSPayment;
-  };
-}
-
 export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp" | "tva" | "cnps";
 
 export interface TaxObligationStatus {
@@ -52,13 +26,12 @@ export type ObligationStatuses = {
 export interface FiscalAttestationData {
   creationDate: string;
   validityEndDate: string;
-  showInAlert?: boolean;
+  showInAlert?: boolean; // Add property to control alert visibility
 }
 
-export type CGAClasse = "classe1" | "classe2" | "classe3" | "classe4" | "classe5" | 
-  "classe6" | "classe7" | "classe8" | "classe9" | "classe10";
-
-export interface IGSPayment {
-  montant: string;
-  quittance: string;
+export interface ClientFiscalData {
+  attestation: FiscalAttestationData;
+  obligations: ObligationStatuses;
+  hiddenFromDashboard?: boolean;
+  igs?: any;
 }
