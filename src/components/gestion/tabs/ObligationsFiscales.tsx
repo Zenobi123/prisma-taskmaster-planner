@@ -1,85 +1,59 @@
 
 import React from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Separator } from "@/components/ui/separator";
 
-import { MonthlySummary } from "./fiscal/MonthlySummary";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { IGSStatusSection } from "./fiscal/IGSStatusSection";
-
-import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { DeclarationObligationItem } from "./fiscal/DeclarationObligationItem";
 import { TaxObligationItem } from "./fiscal/TaxObligationItem";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
+import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
+import { Client } from "@/types/client";
 
-const ObligationsFiscales = () => {
+interface ObligationsFiscalesProps {
+  selectedClient: Client;
+}
+
+export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps) => {
   const {
-    // IGS State
-    soumisIGS,
-    classeIGS,
-    adherentCGA,
-    setIfSoumisIGS,
-    setClasseIGS,
-    setIfAdherentCGA,
-    igsPayments,
-    setIGSPayment,
-    
-    // Fiscal attestations
-    fiscalAttestations,
-    setFiscalAttestationIssueDate,
-    setFiscalAttestationNumber,
-    
-    // Monthly obligations
-    tva,
-    tvaDate,
-    tvaNumber,
-    tvaQuittance,
-    setTVA,
-    setTVADate,
-    setTVANumber,
-    setTVAQuittance,
-    
-    patente,
-    patenteDate,
-    patenteNumber,
-    patenteQuittance,
-    setPatente,
-    setPatenteDate,
-    setPatenteNumber,
-    setPatenteQuittance,
-    
-    cnps,
-    cnpsDate,
-    cnpsNumber,
-    cnpsQuittance,
-    setCNPS,
-    setCNPSDate,
-    setCNPSNumber,
-    setCNPSQuittance,
-  } = useObligationsFiscales();
+    creationDate,
+    setCreationDate,
+    validityEndDate,
+    obligationStatuses,
+    handleStatusChange,
+    handleSave,
+    isLoading,
+    showInAlert,
+    handleToggleAlert,
+    hiddenFromDashboard,
+    handleToggleDashboardVisibility,
+    igsData,
+    handleIGSChange
+  } = useObligationsFiscales(selectedClient);
 
   return (
     <div className="space-y-6">
       <IGSStatusSection
-        soumisIGS={soumisIGS}
-        classeIGS={classeIGS}
-        adherentCGA={adherentCGA}
-        onChangeSoumisIGS={(checked: boolean) => setIfSoumisIGS(checked)}
-        onChangeClasseIGS={setClasseIGS}
-        onChangeAdherentCGA={(checked: boolean) => setIfAdherentCGA(checked)}
-        igsPayments={igsPayments}
-        onChangeIGSPayment={setIGSPayment}
+        soumisIGS={igsData.soumisIGS}
+        adherentCGA={igsData.adherentCGA}
+        classeIGS={igsData.classeIGS}
+        patente={igsData.patente}
+        acompteJanvier={igsData.acompteJanvier}
+        acompteFevrier={igsData.acompteFevrier}
+        onChange={handleIGSChange}
       />
 
       <FiscalAttestationSection
-        attestations={fiscalAttestations}
-        onChangeIssueDate={setFiscalAttestationIssueDate}
-        onChangeNumber={setFiscalAttestationNumber}
+        creationDate={creationDate}
+        validityEndDate={validityEndDate}
+        setCreationDate={setCreationDate}
+        handleSave={handleSave}
+        showInAlert={showInAlert}
+        onToggleAlert={handleToggleAlert}
+        hiddenFromDashboard={hiddenFromDashboard}
+        onToggleDashboardVisibility={handleToggleDashboardVisibility}
       />
 
       <Card>
@@ -88,54 +62,46 @@ const ObligationsFiscales = () => {
 
           <div className="space-y-4">
             <TaxObligationItem
-              label="TVA"
-              isActive={tva}
-              date={tvaDate}
-              number={tvaNumber}
-              quittance={tvaQuittance}
-              onChangeActive={setTVA}
-              onChangeDate={setTVADate}
-              onChangeNumber={setTVANumber}
-              onChangeQuittance={setTVAQuittance}
+              id="tva"
+              title="TVA"
+              status={obligationStatuses.tva}
+              onStatusChange={(status) => handleStatusChange('tva', status)}
             />
 
             <Separator />
 
             <TaxObligationItem
-              label="Patente"
-              isActive={patente}
-              date={patenteDate}
-              number={patenteNumber}
-              quittance={patenteQuittance}
-              onChangeActive={setPatente}
-              onChangeDate={setPatenteDate}
-              onChangeNumber={setPatenteNumber}
-              onChangeQuittance={setPatenteQuittance}
+              id="patente"
+              title="Patente"
+              status={obligationStatuses.patente}
+              onStatusChange={(status) => handleStatusChange('patente', status)}
             />
 
             <Separator />
 
             <TaxObligationItem
-              label="CNPS"
-              isActive={cnps}
-              date={cnpsDate}
-              number={cnpsNumber}
-              quittance={cnpsQuittance}
-              onChangeActive={setCNPS}
-              onChangeDate={setCNPSDate}
-              onChangeNumber={setCNPSNumber}
-              onChangeQuittance={setCNPSQuittance}
+              id="cnps"
+              title="CNPS"
+              status={obligationStatuses.cnps}
+              onStatusChange={(status) => handleStatusChange('cnps', status)}
             />
           </div>
         </CardContent>
         <CardFooter className="bg-gray-50">
-          <Button className="ml-auto">Enregistrer les modifications</Button>
+          <Button 
+            className="ml-auto" 
+            onClick={handleSave}
+            disabled={isLoading}
+          >
+            {isLoading ? "Enregistrement..." : "Enregistrer les modifications"}
+          </Button>
         </CardFooter>
       </Card>
 
-      <AnnualObligationsSection />
+      <AnnualObligationsSection 
+        obligationStatuses={obligationStatuses}
+        handleStatusChange={handleStatusChange}
+      />
     </div>
   );
 };
-
-export default ObligationsFiscales;

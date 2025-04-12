@@ -1,69 +1,67 @@
 
 import React from "react";
-import { ObligationType, TaxObligationStatus } from "../fiscal/types";
-import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { TaxObligationStatus } from "@/hooks/fiscal/types";
 
-interface TaxObligationItemProps {
+export interface TaxObligationItemProps {
+  id: string;
   title: string;
-  deadline: string;
-  obligationType: Extract<ObligationType, "patente" | "bail" | "taxeFonciere">;
   status: TaxObligationStatus;
-  onChange: (
-    obligationType: ObligationType,
-    statusType: "assujetti" | "paye" | "depose",
-    value: boolean
-  ) => void;
+  onStatusChange: (status: TaxObligationStatus) => void;
 }
 
-export function TaxObligationItem({
+export const TaxObligationItem = ({
+  id,
   title,
-  deadline,
-  obligationType,
   status,
-  onChange
-}: TaxObligationItemProps) {
+  onStatusChange
+}: TaxObligationItemProps) => {
   return (
-    <Card>
-      <CardContent className="pt-6">
-        <div className="flex flex-col space-y-3">
-          <div className="flex justify-between items-center">
-            <div>
-              <h5 className="font-medium">{title}</h5>
-              <p className="text-sm text-gray-500">
-                Date limite de paiement : {deadline}
-              </p>
-            </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+      <div className="flex flex-col">
+        <Label htmlFor={`${id}-assujetti`} className="mb-1">{title}</Label>
+        <div className="flex items-center space-x-2">
+          <Switch
+            id={`${id}-assujetti`}
+            checked={status.assujetti}
+            onCheckedChange={(checked) => onStatusChange({ ...status, assujetti: checked })}
+          />
+          <Label htmlFor={`${id}-assujetti`}>
+            {status.assujetti ? 'Assujetti' : 'Non assujetti'}
+          </Label>
+        </div>
+      </div>
+      
+      {status.assujetti && (
+        <>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id={`${id}-paye`}
+              checked={status.paye}
+              onCheckedChange={(checked) => onStatusChange({ ...status, paye: checked })}
+            />
+            <Label htmlFor={`${id}-paye`}>
+              {status.paye ? 'Payé' : 'Non payé'}
+            </Label>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-4 mt-2">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id={`${obligationType}-assujetti`}
-                checked={status.assujetti}
-                onCheckedChange={(checked) => onChange(obligationType, "assujetti", checked)}
-              />
-              <Label htmlFor={`${obligationType}-assujetti`}>
-                {status.assujetti ? "Assujetti" : "Non assujetti"}
-              </Label>
-            </div>
-            
-            {status.assujetti && (
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id={`${obligationType}-paye`}
-                  checked={status.paye}
-                  onCheckedChange={(checked) => onChange(obligationType, "paye", checked)}
-                />
-                <Label htmlFor={`${obligationType}-paye`}>
-                  {status.paye ? "Payé" : "Non payé"}
-                </Label>
-              </div>
-            )}
+          <div className="flex space-x-2">
+            <Input
+              type="date"
+              placeholder="Date de paiement"
+              className="flex-1"
+              disabled={!status.paye}
+            />
+            <Input
+              placeholder="Réf. quittance"
+              className="flex-1"
+              disabled={!status.paye}
+            />
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </>
+      )}
+    </div>
   );
-}
+};

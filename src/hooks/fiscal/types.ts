@@ -11,6 +11,8 @@ export interface ClientFiscalData {
     taxeFonciere: { assujetti: boolean; paye: boolean };
     dsf: { assujetti: boolean; depose: boolean };
     darp: { assujetti: boolean; depose: boolean };
+    tva: { assujetti: boolean; paye: boolean };
+    cnps: { assujetti: boolean; paye: boolean };
   };
   hiddenFromDashboard?: boolean;
   igs?: {
@@ -23,7 +25,7 @@ export interface ClientFiscalData {
   };
 }
 
-export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp";
+export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp" | "tva" | "cnps";
 
 export interface TaxObligationStatus {
   assujetti: boolean;
@@ -43,6 +45,8 @@ export type ObligationStatuses = {
   taxeFonciere: TaxObligationStatus;
   dsf: DeclarationObligationStatus;
   darp: DeclarationObligationStatus;
+  tva: TaxObligationStatus;
+  cnps: TaxObligationStatus;
 };
 
 export interface FiscalAttestationData {
