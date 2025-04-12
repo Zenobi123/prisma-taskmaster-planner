@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Client } from "@/types/client";
 import { useUpdateClientMutation } from "@/pages/clients/hooks/mutations/useUpdateClientMutation";
-import { ObligationStatuses } from "./types";
+import { ObligationStatuses, ClientFiscalData } from "./types";
 import { IGSData } from "./types/igsTypes";
 import { loadFiscalData, extractIGSData } from "./utils/loadFiscalData";
 import { prepareFiscalData, extractClientIGSData } from "./utils/saveFiscalData";
@@ -21,6 +21,8 @@ export function useObligationsFiscales(selectedClient: Client) {
     taxeFonciere: { assujetti: false, paye: false },
     dsf: { assujetti: false, depose: false },
     darp: { assujetti: false, depose: false },
+    tva: { assujetti: false, paye: false },
+    cnps: { assujetti: false, paye: false }
   });
   
   // State for IGS data
@@ -75,23 +77,19 @@ export function useObligationsFiscales(selectedClient: Client) {
     fetchFiscalData();
   }, [selectedClient]);
   
-  // Handle obligation status changes
-  const handleStatusChange = (
+  // Handle obligation status changes - fixing the parameter structure
+  const handleStatusChange = useCallback((
     obligationType: keyof ObligationStatuses,
-    statusKey: string,
-    value: boolean
+    status: any
   ) => {
     setObligationStatuses(prev => ({
       ...prev,
-      [obligationType]: {
-        ...prev[obligationType],
-        [statusKey]: value
-      }
+      [obligationType]: status
     }));
-  };
+  }, []);
   
   // Handle IGS data changes
-  const handleIGSChange = (name: string, value: any) => {
+  const handleIGSChange = useCallback((name: string, value: any) => {
     const parts = name.split('.');
     if (parts[0] === 'igs') {
       setIgsData(prev => ({
@@ -99,7 +97,7 @@ export function useObligationsFiscales(selectedClient: Client) {
         [parts[1]]: value
       }));
     }
-  };
+  }, []);
   
   // Handle alert visibility toggle
   const handleToggleAlert = useCallback((checked: boolean) => {

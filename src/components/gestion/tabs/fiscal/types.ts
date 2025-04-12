@@ -1,5 +1,5 @@
 
-export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp";
+export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp" | "tva" | "cnps";
 
 export interface TaxObligationStatus {
   assujetti: boolean;
@@ -19,6 +19,8 @@ export type ObligationStatuses = {
   taxeFonciere: TaxObligationStatus;
   dsf: DeclarationObligationStatus;
   darp: DeclarationObligationStatus;
+  tva: TaxObligationStatus;
+  cnps: TaxObligationStatus;
 };
 
 export interface FiscalAttestationData {
@@ -30,4 +32,6 @@ export interface FiscalAttestationData {
 export interface ClientFiscalData {
   attestation: FiscalAttestationData;
   obligations: ObligationStatuses;
+  hiddenFromDashboard?: boolean;
+  igs?: any;
 }

@@ -51,9 +51,12 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
         bail: { assujetti: false, paye: false },
         taxeFonciere: { assujetti: false, paye: false },
         dsf: { assujetti: false, depose: false },
-        darp: { assujetti: false, depose: false }
+        darp: { assujetti: false, depose: false },
+        tva: { assujetti: false, paye: false },
+        cnps: { assujetti: false, paye: false }
       },
-      hiddenFromDashboard: fiscalData.hiddenFromDashboard
+      hiddenFromDashboard: fiscalData.hiddenFromDashboard,
+      igs: fiscalData.igs
     };
     
     // Cast to unknown then to Json for Supabase compatibility
