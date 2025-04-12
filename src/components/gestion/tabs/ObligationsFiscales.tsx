@@ -79,15 +79,6 @@ export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps
             />
           </div>
         </CardContent>
-        <CardFooter className="bg-gray-50">
-          <Button 
-            className="ml-auto" 
-            onClick={handleSave}
-            disabled={isLoading}
-          >
-            {isLoading ? "Enregistrement..." : "Enregistrer les modifications"}
-          </Button>
-        </CardFooter>
       </Card>
 
       <AnnualObligationsSection 
@@ -95,6 +86,17 @@ export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps
         handleStatusChange={handleStatusChange}
         regimeFiscal={selectedClient.regimefiscal}
       />
+
+      {/* Bouton d'enregistrement repositionné à la fin de la page */}
+      <div className="flex justify-end mt-6">
+        <Button 
+          onClick={handleSave}
+          disabled={isLoading}
+          className="w-full md:w-auto"
+        >
+          {isLoading ? "Enregistrement..." : "Enregistrer toutes les modifications"}
+        </Button>
+      </div>
     </div>
   );
 };
