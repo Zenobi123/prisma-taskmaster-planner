@@ -14,7 +14,7 @@ export function useObligationsFiscales(selectedClient: Client) {
   const [showInAlert, setShowInAlert] = useState(false);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState(false);
   
-  // State for fiscal obligations
+  // State for fiscal obligations - ensure all properties are initialized
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
     patente: { assujetti: false, paye: false },
     bail: { assujetti: false, paye: false },
@@ -55,9 +55,23 @@ export function useObligationsFiscales(selectedClient: Client) {
           setShowInAlert(!!fiscalData.attestation.showInAlert);
         }
         
-        // Initialize obligations
+        // Initialize obligations with default values for any missing properties
         if (fiscalData?.obligations) {
-          setObligationStatuses(fiscalData.obligations);
+          const defaultObligations: ObligationStatuses = {
+            patente: { assujetti: false, paye: false },
+            bail: { assujetti: false, paye: false },
+            taxeFonciere: { assujetti: false, paye: false },
+            dsf: { assujetti: false, depose: false },
+            darp: { assujetti: false, depose: false },
+            tva: { assujetti: false, paye: false },
+            cnps: { assujetti: false, paye: false }
+          };
+          
+          // Merge existing obligations with defaults to ensure all properties exist
+          setObligationStatuses({
+            ...defaultObligations,
+            ...fiscalData.obligations
+          });
         }
         
         // Initialize dashboard visibility

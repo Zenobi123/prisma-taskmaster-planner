@@ -18,6 +18,9 @@ export const TaxObligationItem = ({
   status,
   onStatusChange
 }: TaxObligationItemProps) => {
+  // Create a default status if it's undefined
+  const safeStatus: TaxObligationStatus = status || { assujetti: false, paye: false };
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
       <div className="flex flex-col">
@@ -25,25 +28,25 @@ export const TaxObligationItem = ({
         <div className="flex items-center space-x-2">
           <Switch
             id={`${id}-assujetti`}
-            checked={status.assujetti}
-            onCheckedChange={(checked) => onStatusChange({ ...status, assujetti: checked })}
+            checked={safeStatus.assujetti}
+            onCheckedChange={(checked) => onStatusChange({ ...safeStatus, assujetti: checked })}
           />
           <Label htmlFor={`${id}-assujetti`}>
-            {status.assujetti ? 'Assujetti' : 'Non assujetti'}
+            {safeStatus.assujetti ? 'Assujetti' : 'Non assujetti'}
           </Label>
         </div>
       </div>
       
-      {status.assujetti && (
+      {safeStatus.assujetti && (
         <>
           <div className="flex items-center space-x-2">
             <Switch
               id={`${id}-paye`}
-              checked={status.paye}
-              onCheckedChange={(checked) => onStatusChange({ ...status, paye: checked })}
+              checked={safeStatus.paye}
+              onCheckedChange={(checked) => onStatusChange({ ...safeStatus, paye: checked })}
             />
             <Label htmlFor={`${id}-paye`}>
-              {status.paye ? 'Payé' : 'Non payé'}
+              {safeStatus.paye ? 'Payé' : 'Non payé'}
             </Label>
           </div>
           
@@ -52,12 +55,12 @@ export const TaxObligationItem = ({
               type="date"
               placeholder="Date de paiement"
               className="flex-1"
-              disabled={!status.paye}
+              disabled={!safeStatus.paye}
             />
             <Input
               placeholder="Réf. quittance"
               className="flex-1"
-              disabled={!status.paye}
+              disabled={!safeStatus.paye}
             />
           </div>
         </>

@@ -18,6 +18,9 @@ export const DeclarationObligationItem = ({
   status,
   onStatusChange
 }: DeclarationObligationItemProps) => {
+  // Create a default status if it's undefined
+  const safeStatus: DeclarationObligationStatus = status || { assujetti: false, depose: false };
+  
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
       <div className="flex flex-col">
@@ -25,25 +28,25 @@ export const DeclarationObligationItem = ({
         <div className="flex items-center space-x-2">
           <Switch
             id={`${id}-assujetti`}
-            checked={status.assujetti}
-            onCheckedChange={(checked) => onStatusChange({ ...status, assujetti: checked })}
+            checked={safeStatus.assujetti}
+            onCheckedChange={(checked) => onStatusChange({ ...safeStatus, assujetti: checked })}
           />
           <Label htmlFor={`${id}-assujetti`}>
-            {status.assujetti ? 'Assujetti' : 'Non assujetti'}
+            {safeStatus.assujetti ? 'Assujetti' : 'Non assujetti'}
           </Label>
         </div>
       </div>
       
-      {status.assujetti && (
+      {safeStatus.assujetti && (
         <>
           <div className="flex items-center space-x-2">
             <Switch
               id={`${id}-depose`}
-              checked={status.depose}
-              onCheckedChange={(checked) => onStatusChange({ ...status, depose: checked })}
+              checked={safeStatus.depose}
+              onCheckedChange={(checked) => onStatusChange({ ...safeStatus, depose: checked })}
             />
             <Label htmlFor={`${id}-depose`}>
-              {status.depose ? 'Déposé' : 'Non déposé'}
+              {safeStatus.depose ? 'Déposé' : 'Non déposé'}
             </Label>
           </div>
           
@@ -52,12 +55,12 @@ export const DeclarationObligationItem = ({
               type="date"
               placeholder="Date de dépôt"
               className="flex-1"
-              disabled={!status.depose}
+              disabled={!safeStatus.depose}
             />
             <Input
-              placeholder="Numéro d'accusé"
+              placeholder="Réf. dépôt"
               className="flex-1"
-              disabled={!status.depose}
+              disabled={!safeStatus.depose}
             />
           </div>
         </>

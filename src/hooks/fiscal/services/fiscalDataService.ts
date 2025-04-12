@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { ClientFiscalData } from "../types";
+import { ClientFiscalData, ObligationStatuses } from "../types";
 import { toast } from "sonner";
 
 /**
@@ -25,6 +25,25 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
       console.log(`Fiscal data found for client ${clientId}`);
       // Convertir explicitement le Json à ClientFiscalData
       const fiscalData = data.fiscal_data as unknown as ClientFiscalData;
+      
+      // Ensure all obligation types exist
+      if (fiscalData.obligations) {
+        const defaultObligations: ObligationStatuses = {
+          patente: { assujetti: false, paye: false },
+          bail: { assujetti: false, paye: false },
+          taxeFonciere: { assujetti: false, paye: false },
+          dsf: { assujetti: false, depose: false },
+          darp: { assujetti: false, depose: false },
+          tva: { assujetti: false, paye: false },
+          cnps: { assujetti: false, paye: false }
+        };
+        
+        fiscalData.obligations = {
+          ...defaultObligations,
+          ...fiscalData.obligations
+        };
+      }
+      
       return fiscalData;
     }
     
