@@ -12,12 +12,19 @@ export interface AnnualObligationsSectionProps {
     obligationType: keyof ObligationStatuses,
     status: any
   ) => void;
+  regimeFiscal?: string;
 }
 
 export const AnnualObligationsSection = ({
   obligationStatuses,
-  handleStatusChange
+  handleStatusChange,
+  regimeFiscal
 }: AnnualObligationsSectionProps) => {
+  // Determine if patente tooltip should be shown (for "réel" tax regime)
+  const patenteTooltip = regimeFiscal === "reel" 
+    ? "La patente est une obligation annuelle obligatoire pour les contribuables du régime du réel, car ils ne sont pas soumis à l'IGS."
+    : undefined;
+
   return (
     <Card>
       <CardHeader>
@@ -38,6 +45,16 @@ export const AnnualObligationsSection = ({
           title="Bail"
           status={obligationStatuses.bail}
           onStatusChange={(status) => handleStatusChange('bail', status)}
+        />
+
+        <Separator />
+
+        <TaxObligationItem
+          id="patente"
+          title="Patente"
+          status={obligationStatuses.patente}
+          onStatusChange={(status) => handleStatusChange('patente', status)}
+          tooltip={patenteTooltip}
         />
 
         <Separator />

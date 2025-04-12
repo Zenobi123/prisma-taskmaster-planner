@@ -66,15 +66,7 @@ export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps
               title="TVA"
               status={obligationStatuses.tva}
               onStatusChange={(status) => handleStatusChange('tva', status)}
-            />
-
-            <Separator />
-
-            <TaxObligationItem
-              id="patente"
-              title="Patente"
-              status={obligationStatuses.patente}
-              onStatusChange={(status) => handleStatusChange('patente', status)}
+              tooltip={selectedClient.regimefiscal === "reel" ? "Obligatoire pour les contribuables du régime du réel" : undefined}
             />
 
             <Separator />
@@ -101,6 +93,7 @@ export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps
       <AnnualObligationsSection 
         obligationStatuses={obligationStatuses}
         handleStatusChange={handleStatusChange}
+        regimeFiscal={selectedClient.regimefiscal}
       />
     </div>
   );
