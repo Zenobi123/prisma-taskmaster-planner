@@ -35,3 +35,7 @@ export interface ClientFiscalData {
   hiddenFromDashboard?: boolean;
   igs?: any;
 }
+
+// Export CGAClasse type directly from here
+export type CGAClasse = "classe1" | "classe2" | "classe3" | "classe4" | "classe5" | 
+  "classe6" | "classe7" | "classe8" | "classe9" | "classe10";
