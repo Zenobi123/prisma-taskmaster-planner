@@ -1,89 +1,141 @@
 
 import React from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
-import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
-import { IGSStatusSection } from "./fiscal/IGSStatusSection";
-import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
-import { Client } from "@/types/client";
-import { Loader2, Save } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
-// Properly re-export types with 'export type' syntax to fix the TS1205 error
-export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses, CGAClasse } from "@/hooks/fiscal/types";
+import { MonthlySummary } from "./fiscal/MonthlySummary";
+import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
+import { IGSStatusSection } from "./fiscal/IGSStatusSection";
 
-interface ObligationsFiscalesProps {
-  selectedClient: Client;
-}
+import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
+import { DeclarationObligationItem } from "./fiscal/DeclarationObligationItem";
+import { TaxObligationItem } from "./fiscal/TaxObligationItem";
+import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 
-export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps) {
+const ObligationsFiscales = () => {
   const {
-    creationDate,
-    setCreationDate,
-    validityEndDate,
-    obligationStatuses,
-    handleStatusChange,
-    handleSave,
-    isLoading,
-    showInAlert,
-    handleToggleAlert,
-    hiddenFromDashboard,
-    handleToggleDashboardVisibility,
-    igsData,
-    handleIGSChange
-  } = useObligationsFiscales(selectedClient);
-
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex items-center justify-center h-60">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </CardContent>
-      </Card>
-    );
-  }
+    // IGS State
+    soumisIGS,
+    classeIGS,
+    adherentCGA,
+    setIfSoumisIGS,
+    setClasseIGS,
+    setIfAdherentCGA,
+    igsPayments,
+    setIGSPayment,
+    
+    // Fiscal attestations
+    fiscalAttestations,
+    setFiscalAttestationIssueDate,
+    setFiscalAttestationNumber,
+    
+    // Monthly obligations
+    tva,
+    tvaDate,
+    tvaNumber,
+    tvaQuittance,
+    setTVA,
+    setTVADate,
+    setTVANumber,
+    setTVAQuittance,
+    
+    patente,
+    patenteDate,
+    patenteNumber,
+    patenteQuittance,
+    setPatente,
+    setPatenteDate,
+    setPatenteNumber,
+    setPatenteQuittance,
+    
+    cnps,
+    cnpsDate,
+    cnpsNumber,
+    cnpsQuittance,
+    setCNPS,
+    setCNPSDate,
+    setCNPSNumber,
+    setCNPSQuittance,
+  } = useObligationsFiscales();
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Obligations fiscales</CardTitle>
-        <CardDescription>
-          Suivi des obligations fiscales de l'entreprise
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        <FiscalAttestationSection 
-          creationDate={creationDate}
-          validityEndDate={validityEndDate}
-          setCreationDate={setCreationDate}
-          handleSave={handleSave}
-          showInAlert={showInAlert}
-          onToggleAlert={handleToggleAlert}
-          hiddenFromDashboard={hiddenFromDashboard}
-          onToggleDashboardVisibility={handleToggleDashboardVisibility}
-        />
-        
-        <IGSStatusSection 
-          soumisIGS={igsData?.soumisIGS || false}
-          adherentCGA={igsData?.adherentCGA || false}
-          classeIGS={igsData?.classeIGS}
-          patente={igsData?.patente}
-          acompteJanvier={igsData?.acompteJanvier}
-          acompteFevrier={igsData?.acompteFevrier}
-          onChange={handleIGSChange}
-        />
-        
-        <AnnualObligationsSection 
-          obligationStatuses={obligationStatuses}
-          handleStatusChange={handleStatusChange}
-        />
-      </CardContent>
-      <CardFooter className="flex justify-end pt-4 border-t">
-        <Button onClick={handleSave} className="w-full md:w-auto">
-          <Save className="mr-2 h-4 w-4" />
-          Enregistrer les modifications
-        </Button>
-      </CardFooter>
-    </Card>
+    <div className="space-y-6">
+      <IGSStatusSection
+        soumisIGS={soumisIGS}
+        classeIGS={classeIGS}
+        adherentCGA={adherentCGA}
+        onChangeSoumisIGS={(checked: boolean) => setIfSoumisIGS(checked)}
+        onChangeClasseIGS={setClasseIGS}
+        onChangeAdherentCGA={(checked: boolean) => setIfAdherentCGA(checked)}
+        igsPayments={igsPayments}
+        onChangeIGSPayment={setIGSPayment}
+      />
+
+      <FiscalAttestationSection
+        attestations={fiscalAttestations}
+        onChangeIssueDate={setFiscalAttestationIssueDate}
+        onChangeNumber={setFiscalAttestationNumber}
+      />
+
+      <Card>
+        <CardContent className="pt-6">
+          <h3 className="text-lg font-medium mb-4">Obligations mensuelles</h3>
+
+          <div className="space-y-4">
+            <TaxObligationItem
+              label="TVA"
+              isActive={tva}
+              date={tvaDate}
+              number={tvaNumber}
+              quittance={tvaQuittance}
+              onChangeActive={setTVA}
+              onChangeDate={setTVADate}
+              onChangeNumber={setTVANumber}
+              onChangeQuittance={setTVAQuittance}
+            />
+
+            <Separator />
+
+            <TaxObligationItem
+              label="Patente"
+              isActive={patente}
+              date={patenteDate}
+              number={patenteNumber}
+              quittance={patenteQuittance}
+              onChangeActive={setPatente}
+              onChangeDate={setPatenteDate}
+              onChangeNumber={setPatenteNumber}
+              onChangeQuittance={setPatenteQuittance}
+            />
+
+            <Separator />
+
+            <TaxObligationItem
+              label="CNPS"
+              isActive={cnps}
+              date={cnpsDate}
+              number={cnpsNumber}
+              quittance={cnpsQuittance}
+              onChangeActive={setCNPS}
+              onChangeDate={setCNPSDate}
+              onChangeNumber={setCNPSNumber}
+              onChangeQuittance={setCNPSQuittance}
+            />
+          </div>
+        </CardContent>
+        <CardFooter className="bg-gray-50">
+          <Button className="ml-auto">Enregistrer les modifications</Button>
+        </CardFooter>
+      </Card>
+
+      <AnnualObligationsSection />
+    </div>
   );
-}
+};
+
+export default ObligationsFiscales;
