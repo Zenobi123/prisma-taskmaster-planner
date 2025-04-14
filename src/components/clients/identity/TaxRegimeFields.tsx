@@ -24,20 +24,12 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
             <Label htmlFor="reel">Réel</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="simplifie" id="simplifie" />
-            <Label htmlFor="simplifie">Simplifié</Label>
+            <RadioGroupItem value="igs" id="igs" />
+            <Label htmlFor="igs">IGS</Label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="liberatoire" id="liberatoire" />
-            <Label htmlFor="liberatoire">Libératoire</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="non_professionnel_public" id="non_professionnel_public" />
-            <Label htmlFor="non_professionnel_public" className="text-sm">Non professionnel (Secteur public)</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="non_professionnel_prive" id="non_professionnel_prive" />
-            <Label htmlFor="non_professionnel_prive" className="text-sm">Non professionnel (Secteur privé)</Label>
+            <RadioGroupItem value="non_professionnel_salarie" id="non_professionnel_salarie" />
+            <Label htmlFor="non_professionnel_salarie">Non professionnel salarié</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="non_professionnel_autre" id="non_professionnel_autre" />

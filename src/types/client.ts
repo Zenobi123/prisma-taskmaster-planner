@@ -1,13 +1,10 @@
-
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
 export type RegimeFiscalPhysique = 
   | "reel" 
-  | "simplifie" 
-  | "liberatoire" 
-  | "non_professionnel_public" 
-  | "non_professionnel_prive" 
+  | "igs" 
+  | "non_professionnel_salarie" 
   | "non_professionnel_autre";
 export type RegimeFiscalMorale = "reel" | "simplifie" | "non_lucratif";
 export type SituationImmobiliere = "proprietaire" | "locataire";
