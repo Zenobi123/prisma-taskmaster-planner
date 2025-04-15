@@ -1,4 +1,3 @@
-
 import { Client } from "@/types/client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,9 +13,8 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
       // Régimes personnes physiques
       case "reel": return "Réel";
       case "simplifie": return "Simplifié";
-      case "liberatoire": return "Libératoire";
-      case "non_professionnel_public": return "Non professionnel (Secteur public)";
-      case "non_professionnel_prive": return "Non professionnel (Secteur privé)";
+      case "igs": return "IGS";
+      case "non_professionnel_salarie": return "Non professionnel salarié";
       case "non_professionnel_autre": return "Non professionnel (Autres)";
       // Régimes personnes morales
       case "non_lucratif": return "Organisme à but non lucratif";
