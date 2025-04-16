@@ -21,8 +21,22 @@ export function EtablissementsSection({
   // Met à jour l'état local quand les props changent
   useEffect(() => {
     console.log("EtablissementsSection - Props etablissements reçus:", etablissements);
-    // Garantir que etablissements est toujours un tableau, même s'il est null ou undefined
-    const safeEtablissements = Array.isArray(etablissements) ? [...etablissements] : [];
+    // Garantir que etablissements est toujours un tableau non vide
+    let safeEtablissements: Etablissement[] = [];
+    
+    if (Array.isArray(etablissements) && etablissements.length > 0) {
+      safeEtablissements = [...etablissements];
+    } else {
+      safeEtablissements = [{
+        nom: "Établissement principal",
+        activite: "",
+        ville: "",
+        departement: "",
+        quartier: "",
+        chiffreAffaires: 0
+      }];
+    }
+    
     console.log("EtablissementsSection - Établissements sécurisés:", safeEtablissements);
     setLocalEtablissements(safeEtablissements);
   }, [etablissements]);
@@ -89,6 +103,12 @@ export function EtablissementsSection({
       return;
     }
     
+    // Ne pas permettre la suppression si c'est le seul établissement
+    if (localEtablissements.length <= 1) {
+      console.log("Impossible de supprimer le seul établissement disponible");
+      return;
+    }
+    
     console.log(`Suppression de l'établissement à l'index ${index}`);
     const updatedEtablissements = localEtablissements.filter((_, i) => i !== index);
     
@@ -99,8 +119,8 @@ export function EtablissementsSection({
     onChange(updatedEtablissements);
   };
 
-  // Déterminer si la liste d'établissements est vide
-  const hasEtablissements = Array.isArray(localEtablissements) && localEtablissements.length > 0;
+  // On a toujours au moins un établissement maintenant
+  const hasEtablissements = true;
 
   return (
     <div className="space-y-4">
@@ -119,9 +139,10 @@ export function EtablissementsSection({
       </div>
 
       <div className="space-y-6">
-        {hasEtablissements ? (
-          localEtablissements.map((etablissement, index) => (
-            <div key={index} className="p-4 border rounded-lg space-y-4 relative">
+        {localEtablissements.map((etablissement, index) => (
+          <div key={index} className="p-4 border rounded-lg space-y-4 relative">
+            {/* Afficher le bouton de suppression seulement s'il y a plus d'un établissement */}
+            {localEtablissements.length > 1 && (
               <Button
                 type="button"
                 variant="ghost"
@@ -131,64 +152,60 @@ export function EtablissementsSection({
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
+            )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor={`nom-${index}`}>Nom Commercial</Label>
-                  <Input
-                    id={`nom-${index}`}
-                    value={etablissement.nom || ""}
-                    onChange={(e) => updateEtablissement(index, "nom", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor={`activite-${index}`}>Activité</Label>
-                  <Input
-                    id={`activite-${index}`}
-                    value={etablissement.activite || ""}
-                    onChange={(e) => updateEtablissement(index, "activite", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor={`ville-${index}`}>Ville</Label>
-                  <Input
-                    id={`ville-${index}`}
-                    value={etablissement.ville || ""}
-                    onChange={(e) => updateEtablissement(index, "ville", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor={`departement-${index}`}>Département</Label>
-                  <Input
-                    id={`departement-${index}`}
-                    value={etablissement.departement || ""}
-                    onChange={(e) => updateEtablissement(index, "departement", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor={`quartier-${index}`}>Quartier</Label>
-                  <Input
-                    id={`quartier-${index}`}
-                    value={etablissement.quartier || ""}
-                    onChange={(e) => updateEtablissement(index, "quartier", e.target.value)}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor={`ca-${index}`}>Chiffre d'affaires HT (FCFA)</Label>
-                  <Input
-                    id={`ca-${index}`}
-                    value={formatNumberWithSpaces(etablissement.chiffreAffaires || 0)}
-                    onChange={(e) => updateEtablissement(index, "chiffreAffaires", e.target.value)}
-                  />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor={`nom-${index}`}>Nom Commercial</Label>
+                <Input
+                  id={`nom-${index}`}
+                  value={etablissement.nom || ""}
+                  onChange={(e) => updateEtablissement(index, "nom", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor={`activite-${index}`}>Activité</Label>
+                <Input
+                  id={`activite-${index}`}
+                  value={etablissement.activite || ""}
+                  onChange={(e) => updateEtablissement(index, "activite", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor={`ville-${index}`}>Ville</Label>
+                <Input
+                  id={`ville-${index}`}
+                  value={etablissement.ville || ""}
+                  onChange={(e) => updateEtablissement(index, "ville", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor={`departement-${index}`}>Département</Label>
+                <Input
+                  id={`departement-${index}`}
+                  value={etablissement.departement || ""}
+                  onChange={(e) => updateEtablissement(index, "departement", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor={`quartier-${index}`}>Quartier</Label>
+                <Input
+                  id={`quartier-${index}`}
+                  value={etablissement.quartier || ""}
+                  onChange={(e) => updateEtablissement(index, "quartier", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor={`ca-${index}`}>Chiffre d'affaires HT (FCFA)</Label>
+                <Input
+                  id={`ca-${index}`}
+                  value={formatNumberWithSpaces(etablissement.chiffreAffaires || 0)}
+                  onChange={(e) => updateEtablissement(index, "chiffreAffaires", e.target.value)}
+                />
               </div>
             </div>
-          ))
-        ) : (
-          <div className="text-center py-4 text-gray-500">
-            Aucun établissement. Cliquez sur "Ajouter un établissement" pour en créer un.
           </div>
-        )}
+        ))}
       </div>
     </div>
   );

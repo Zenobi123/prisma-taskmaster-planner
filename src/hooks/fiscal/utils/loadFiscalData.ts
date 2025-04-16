@@ -4,6 +4,18 @@ import { Client } from "@/types/client";
 import { ClientFiscalData } from "../types";
 import { IGSData } from "../types/igsTypes";
 
+// Créer un établissement par défaut
+const createDefaultEtablissement = () => {
+  return {
+    nom: "Établissement principal",
+    activite: "",
+    ville: "",
+    departement: "",
+    quartier: "",
+    chiffreAffaires: 0
+  };
+};
+
 // Load fiscal data for a client
 export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData | null> => {
   try {
@@ -36,14 +48,14 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
         fiscalData.igs = {
           soumisIGS: false,
           adherentCGA: false,
-          etablissements: []
+          etablissements: [createDefaultEtablissement()]
         };
       } else {
-        // We have a valid igs object, ensure etablissements exists and is an array
+        // We have a valid igs object, ensure etablissements exists and is an array with at least one element
         const igsData = fiscalData.igs;
-        if (!Array.isArray(igsData.etablissements)) {
-          igsData.etablissements = [];
-          console.info("Correction des établissements: initialisé à un tableau vide");
+        if (!Array.isArray(igsData.etablissements) || igsData.etablissements.length === 0) {
+          igsData.etablissements = [createDefaultEtablissement()];
+          console.info("Correction des établissements: initialisé avec un établissement par défaut");
         }
       }
     }
@@ -67,12 +79,12 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
     acompteJanvier: { montant: '', quittance: '' },
     acompteFevrier: { montant: '', quittance: '' },
     chiffreAffairesAnnuel: 0,
-    etablissements: [] // Always initialize as an empty array
+    etablissements: [createDefaultEtablissement()] // Toujours initialiser avec un établissement par défaut
   };
 
   // If no fiscal data, return defaults
   if (!fiscalData || !fiscalData.igs) {
-    console.info("No IGS data found, returning defaults with empty etablissements array");
+    console.info("No IGS data found, returning defaults with a default etablissement");
     return defaultIGSData;
   }
 
@@ -83,13 +95,18 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
     ? fiscalData.igs 
     : {};
   
-  // Safely extract etablissements, ensuring it's always an array
-  const safeEtablissements = (igsData && 
-                             typeof igsData === 'object' && 
-                             !Array.isArray(igsData) &&
-                             Array.isArray(igsData.etablissements)) 
-    ? [...igsData.etablissements] 
-    : [];
+  // Safely extract etablissements, ensuring it's always an array with at least one element
+  let safeEtablissements = [];
+  
+  if (igsData && 
+      typeof igsData === 'object' && 
+      !Array.isArray(igsData) &&
+      Array.isArray(igsData.etablissements) &&
+      igsData.etablissements.length > 0) {
+    safeEtablissements = [...igsData.etablissements];
+  } else {
+    safeEtablissements = [createDefaultEtablissement()];
+  }
 
   console.info("Extracted etablissements:", safeEtablissements);
 

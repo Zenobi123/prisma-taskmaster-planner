@@ -7,11 +7,32 @@ export function useEtablissementsData(etablissements: Etablissement[] | undefine
   const { toast } = useToast();
   const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>([]);
 
+  // Créer un établissement par défaut
+  const createDefaultEtablissement = (): Etablissement => {
+    return {
+      nom: "Établissement principal",
+      activite: "",
+      ville: "",
+      departement: "",
+      quartier: "",
+      chiffreAffaires: 0
+    };
+  };
+
   // Initialize établissements data
   useEffect(() => {
     try {
-      // Make sure établissements is initialized as an array
-      const safeEtablissements = Array.isArray(etablissements) ? [...etablissements] : [];
+      // Make sure établissements is initialized as an array with at least one element
+      let safeEtablissements: Etablissement[] = [];
+      
+      if (Array.isArray(etablissements) && etablissements.length > 0) {
+        // Utiliser les établissements existants
+        safeEtablissements = [...etablissements];
+      } else {
+        // Créer un établissement par défaut si aucun n'existe
+        safeEtablissements = [createDefaultEtablissement()];
+      }
+      
       console.log("useEtablissementsData - Initializing établissements:", safeEtablissements);
       setLocalEtablissements(safeEtablissements);
     } catch (error) {
@@ -31,11 +52,13 @@ export function useEtablissementsData(etablissements: Etablissement[] | undefine
     // Ensure we're working with a valid array
     if (!Array.isArray(newEtablissements)) {
       console.warn("Attempted to set établissements with non-array value:", newEtablissements);
-      newEtablissements = [];
+      newEtablissements = [createDefaultEtablissement()];
     }
     
-    // Create a safe copy to avoid reference issues
-    const safeEtablissements = [...newEtablissements];
+    // S'assurer qu'il y a toujours au moins un établissement
+    const safeEtablissements = newEtablissements.length > 0 
+      ? [...newEtablissements] 
+      : [createDefaultEtablissement()];
     
     console.log("Setting établissements to:", safeEtablissements);
     setLocalEtablissements(safeEtablissements);

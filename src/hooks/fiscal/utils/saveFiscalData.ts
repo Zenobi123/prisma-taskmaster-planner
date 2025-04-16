@@ -2,6 +2,18 @@
 import { ObligationStatuses } from "../types";
 import { IGSData } from "../types/igsTypes";
 
+// Créer un établissement par défaut
+const createDefaultEtablissement = () => {
+  return {
+    nom: "Établissement principal",
+    activite: "",
+    ville: "",
+    departement: "",
+    quartier: "",
+    chiffreAffaires: 0
+  };
+};
+
 // Prepare fiscal data for saving to the database
 export const prepareFiscalData = (
   creationDate: string,
@@ -11,11 +23,14 @@ export const prepareFiscalData = (
   hiddenFromDashboard: boolean,
   igsData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] }
 ) => {
-  // S'assurer que etablissements est toujours un tableau
-  // Utiliser une vérification plus stricte pour garantir que nous avons un tableau
-  const safeEtablissements = Array.isArray(igsData.etablissements) 
-    ? [...igsData.etablissements] // Créer une copie pour éviter les mutations accidentelles
-    : [];
+  // S'assurer que etablissements est toujours un tableau avec au moins un élément
+  let safeEtablissements = [];
+  
+  if (Array.isArray(igsData.etablissements) && igsData.etablissements.length > 0) {
+    safeEtablissements = [...igsData.etablissements]; // Créer une copie pour éviter les mutations accidentelles
+  } else {
+    safeEtablissements = [createDefaultEtablissement()]; // Toujours avoir au moins un établissement
+  }
   
   console.log("Préparation des données fiscales pour enregistrement - etablissements:", safeEtablissements);
 
@@ -47,10 +62,14 @@ export const prepareFiscalData = (
 
 // Extract IGS data for client object
 export const extractClientIGSData = (igsData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] }) => {
-  // S'assurer que etablissements est toujours un tableau avec une copie pour éviter les mutations
-  const safeEtablissements = Array.isArray(igsData.etablissements) 
-    ? [...igsData.etablissements] 
-    : [];
+  // S'assurer que etablissements est toujours un tableau avec au moins un élément
+  let safeEtablissements = [];
+  
+  if (Array.isArray(igsData.etablissements) && igsData.etablissements.length > 0) {
+    safeEtablissements = [...igsData.etablissements]; 
+  } else {
+    safeEtablissements = [createDefaultEtablissement()]; // Toujours avoir au moins un établissement
+  }
   
   console.log("Extract client IGS data - etablissements:", safeEtablissements);
   
