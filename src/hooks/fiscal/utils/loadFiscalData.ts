@@ -32,7 +32,7 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
     
     // Vérifier et corriger les etablissements avant de retourner les données
     if (fiscalData && typeof fiscalData === 'object' && !Array.isArray(fiscalData) && fiscalData.igs) {
-      // Fixed: Type safety check for igs - make sure it's an object
+      // Type safety check for igs - make sure it's an object
       const igsData = fiscalData.igs;
       if (typeof igsData === 'object' && !Array.isArray(igsData)) {
         // Now check for etablissements within the object
@@ -73,7 +73,7 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
 
   console.info("Raw IGS data from fiscal_data:", fiscalData.igs);
 
-  // Fixed: Type safety check for igs object and etablissements property
+  // Type safety check for igs object and etablissements property
   const igsData = fiscalData.igs;
   const safeEtablissements = (typeof igsData === 'object' && 
                              !Array.isArray(igsData) && 
