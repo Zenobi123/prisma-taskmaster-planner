@@ -36,12 +36,16 @@ export function IGSStatusSection({
   const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
   const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
+  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(etablissements || []);
+  const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel || 0);
 
   useEffect(() => {
     setPatenteState(patente);
     setAcompteJanvierState(acompteJanvier);
     setAcompteFevrierState(acompteFevrier);
-  }, [patente, acompteJanvier, acompteFevrier]);
+    setLocalEtablissements(etablissements || []);
+    setLocalChiffreAffaires(chiffreAffairesAnnuel || 0);
+  }, [patente, acompteJanvier, acompteFevrier, etablissements, chiffreAffairesAnnuel]);
 
   const handlePatenteChange = (payment: IGSPayment) => {
     setPatenteState(payment);
@@ -56,6 +60,16 @@ export function IGSStatusSection({
   const handleAcompteFevierChange = (payment: IGSPayment) => {
     setAcompteFevrierState(payment);
     onChange("igs.acompteFevrier", payment);
+  };
+
+  const handleChiffreAffairesChange = (value: number) => {
+    setLocalChiffreAffaires(value);
+    onChange("igs.chiffreAffairesAnnuel", value);
+  };
+
+  const handleEtablissementsChange = (newEtablissements: Etablissement[]) => {
+    setLocalEtablissements(newEtablissements);
+    onChange("igs.etablissements", newEtablissements);
   };
 
   return (
@@ -75,14 +89,14 @@ export function IGSStatusSection({
             {soumisIGS && (
               <>
                 <ChiffreAffairesSection
-                  chiffreAffaires={chiffreAffairesAnnuel}
-                  onChange={(value) => onChange("igs.chiffreAffairesAnnuel", value)}
+                  chiffreAffaires={localChiffreAffaires}
+                  onChange={handleChiffreAffairesChange}
                   onClasseChange={(value) => onChange("igs.classeIGS", value)}
                 />
                 
                 <EtablissementsSection
-                  etablissements={etablissements || []}
-                  onChange={(value) => onChange("igs.etablissements", value)}
+                  etablissements={localEtablissements}
+                  onChange={handleEtablissementsChange}
                 />
                 
                 <IGSClassesSelector 
