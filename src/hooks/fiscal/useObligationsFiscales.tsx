@@ -49,6 +49,7 @@ export function useObligationsFiscales(selectedClient: Client) {
       
       try {
         const fiscalData = await loadFiscalData(selectedClient.id);
+        console.log("Fiscal data loaded:", fiscalData);
         
         // Initialize attestation data
         if (fiscalData?.attestation) {
@@ -81,6 +82,7 @@ export function useObligationsFiscales(selectedClient: Client) {
         
         // Initialize IGS data
         const extractedIGSData = extractIGSData(fiscalData, selectedClient);
+        console.log("Extracted IGS data:", extractedIGSData);
         
         // Make sure etablissements is initialized as an array
         if (!extractedIGSData.etablissements) {
@@ -117,6 +119,7 @@ export function useObligationsFiscales(selectedClient: Client) {
   
   // Handle IGS data changes
   const handleIGSChange = useCallback((name: string, value: any) => {
+    console.log("IGS change:", name, value);
     const parts = name.split('.');
     if (parts[0] === 'igs') {
       setIgsData(prev => ({
@@ -148,6 +151,8 @@ export function useObligationsFiscales(selectedClient: Client) {
       hiddenFromDashboard,
       igsData
     );
+    
+    console.log("Saving fiscal data:", fiscalData);
     
     try {
       await mutateAsync({

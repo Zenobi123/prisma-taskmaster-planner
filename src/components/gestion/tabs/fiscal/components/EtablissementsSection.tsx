@@ -16,36 +16,40 @@ export function EtablissementsSection({
   etablissements = [],
   onChange
 }: EtablissementsSectionProps) {
-  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(etablissements);
+  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(etablissements || []);
 
   useEffect(() => {
-    setLocalEtablissements(etablissements);
+    setLocalEtablissements(etablissements || []);
   }, [etablissements]);
 
   const addEtablissement = () => {
-    const newEtablissements = [
-      ...localEtablissements,
-      {
-        nom: "",
-        activite: "",
-        ville: "",
-        departement: "",
-        quartier: "",
-        chiffreAffaires: 0
-      }
-    ];
+    console.log("Ajout d'un nouvel établissement");
+    const newEtablissement: Etablissement = {
+      nom: "",
+      activite: "",
+      ville: "",
+      departement: "",
+      quartier: "",
+      chiffreAffaires: 0
+    };
+    
+    const newEtablissements = [...localEtablissements, newEtablissement];
     setLocalEtablissements(newEtablissements);
     onChange(newEtablissements);
   };
 
   const updateEtablissement = (index: number, field: keyof Etablissement, value: string | number) => {
     const newEtablissements = [...localEtablissements];
-    newEtablissements[index] = {
-      ...newEtablissements[index],
-      [field]: field === "chiffreAffaires" ? Number(value.toString().replace(/\s/g, "")) || 0 : value
-    };
-    setLocalEtablissements(newEtablissements);
-    onChange(newEtablissements);
+    
+    if (newEtablissements[index]) {
+      newEtablissements[index] = {
+        ...newEtablissements[index],
+        [field]: field === "chiffreAffaires" ? Number(value.toString().replace(/\s/g, "")) || 0 : value
+      };
+      
+      setLocalEtablissements(newEtablissements);
+      onChange(newEtablissements);
+    }
   };
 
   const removeEtablissement = (index: number) => {
@@ -71,70 +75,76 @@ export function EtablissementsSection({
       </div>
 
       <div className="space-y-6">
-        {localEtablissements.map((etablissement, index) => (
-          <div key={index} className="p-4 border rounded-lg space-y-4 relative">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => removeEtablissement(index)}
-              className="absolute top-2 right-2"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+        {localEtablissements && localEtablissements.length > 0 ? (
+          localEtablissements.map((etablissement, index) => (
+            <div key={index} className="p-4 border rounded-lg space-y-4 relative">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removeEtablissement(index)}
+                className="absolute top-2 right-2"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor={`nom-${index}`}>Nom Commercial</Label>
-                <Input
-                  id={`nom-${index}`}
-                  value={etablissement.nom || ""}
-                  onChange={(e) => updateEtablissement(index, "nom", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor={`activite-${index}`}>Activité</Label>
-                <Input
-                  id={`activite-${index}`}
-                  value={etablissement.activite || ""}
-                  onChange={(e) => updateEtablissement(index, "activite", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor={`ville-${index}`}>Ville</Label>
-                <Input
-                  id={`ville-${index}`}
-                  value={etablissement.ville || ""}
-                  onChange={(e) => updateEtablissement(index, "ville", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor={`departement-${index}`}>Département</Label>
-                <Input
-                  id={`departement-${index}`}
-                  value={etablissement.departement || ""}
-                  onChange={(e) => updateEtablissement(index, "departement", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor={`quartier-${index}`}>Quartier</Label>
-                <Input
-                  id={`quartier-${index}`}
-                  value={etablissement.quartier || ""}
-                  onChange={(e) => updateEtablissement(index, "quartier", e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor={`ca-${index}`}>Chiffre d'affaires HT (FCFA)</Label>
-                <Input
-                  id={`ca-${index}`}
-                  value={formatNumberWithSpaces(etablissement.chiffreAffaires || 0)}
-                  onChange={(e) => updateEtablissement(index, "chiffreAffaires", e.target.value)}
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor={`nom-${index}`}>Nom Commercial</Label>
+                  <Input
+                    id={`nom-${index}`}
+                    value={etablissement.nom || ""}
+                    onChange={(e) => updateEtablissement(index, "nom", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`activite-${index}`}>Activité</Label>
+                  <Input
+                    id={`activite-${index}`}
+                    value={etablissement.activite || ""}
+                    onChange={(e) => updateEtablissement(index, "activite", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`ville-${index}`}>Ville</Label>
+                  <Input
+                    id={`ville-${index}`}
+                    value={etablissement.ville || ""}
+                    onChange={(e) => updateEtablissement(index, "ville", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`departement-${index}`}>Département</Label>
+                  <Input
+                    id={`departement-${index}`}
+                    value={etablissement.departement || ""}
+                    onChange={(e) => updateEtablissement(index, "departement", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`quartier-${index}`}>Quartier</Label>
+                  <Input
+                    id={`quartier-${index}`}
+                    value={etablissement.quartier || ""}
+                    onChange={(e) => updateEtablissement(index, "quartier", e.target.value)}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor={`ca-${index}`}>Chiffre d'affaires HT (FCFA)</Label>
+                  <Input
+                    id={`ca-${index}`}
+                    value={formatNumberWithSpaces(etablissement.chiffreAffaires || 0)}
+                    onChange={(e) => updateEtablissement(index, "chiffreAffaires", e.target.value)}
+                  />
+                </div>
               </div>
             </div>
+          ))
+        ) : (
+          <div className="text-center py-4 text-gray-500">
+            Aucun établissement. Cliquez sur "Ajouter un établissement" pour en créer un.
           </div>
-        ))}
+        )}
       </div>
     </div>
   );

@@ -68,6 +68,7 @@ export function IGSStatusSection({
   };
 
   const handleEtablissementsChange = (newEtablissements: Etablissement[]) => {
+    console.log("Mise à jour des établissements:", newEtablissements);
     setLocalEtablissements(newEtablissements);
     onChange("igs.etablissements", newEtablissements);
   };
@@ -95,7 +96,7 @@ export function IGSStatusSection({
                 />
                 
                 <EtablissementsSection
-                  etablissements={localEtablissements}
+                  etablissements={localEtablissements || []}
                   onChange={handleEtablissementsChange}
                 />
                 

@@ -25,7 +25,7 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
       return null;
     }
 
-    console.info(`Fiscal data found for client ${clientId}`);
+    console.info(`Fiscal data found for client ${clientId}`, data.fiscal_data);
     // Cast to unknown first, then to ClientFiscalData to satisfy TypeScript
     return data.fiscal_data as unknown as ClientFiscalData;
   } catch (error) {
@@ -50,8 +50,11 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
 
   // If no fiscal data, return defaults
   if (!fiscalData || !fiscalData.igs) {
+    console.info("No IGS data found, returning defaults");
     return defaultIGSData;
   }
+
+  console.info("Extracted IGS data from fiscal_data:", fiscalData.igs);
 
   // Extract IGS data from fiscal_data
   return {
@@ -59,6 +62,6 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
     ...fiscalData.igs,
     // Ensure these fields are initialized if they don't exist
     chiffreAffairesAnnuel: fiscalData.igs.chiffreAffairesAnnuel || 0,
-    etablissements: fiscalData.igs.etablissements || []
+    etablissements: Array.isArray(fiscalData.igs.etablissements) ? fiscalData.igs.etablissements : []
   };
 };
