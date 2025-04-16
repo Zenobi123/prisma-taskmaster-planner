@@ -1,14 +1,14 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChiffreAffairesSection } from "./components/ChiffreAffairesSection";
-import { EtablissementsSection } from "./components/EtablissementsSection";
+import { EtablissementsSection } from "./components/etablissements";
 import { IGSClassesSelector } from "./components/IGSClassesSelector";
 import { IGSAmountDisplay } from "./components/IGSAmountDisplay";
 import { IGSPaymentsSection } from "./components/IGSPaymentsSection";
 import { IGSToggleSection } from "./components/IGSToggleSection";
 import { CGAClasse, Etablissement } from "@/types/client";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
+import { createDefaultEtablissement } from "./components/etablissements/utils";
 
 interface IGSStatusSectionProps {
   soumisIGS: boolean;
