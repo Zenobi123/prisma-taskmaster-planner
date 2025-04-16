@@ -31,6 +31,12 @@ export function useIGSData(
     igsData.etablissements
   );
 
+  // Calculate total turnover from all establishments
+  const calculateTotalTurnover = useCallback((etablissements) => {
+    if (!Array.isArray(etablissements) || etablissements.length === 0) return 0;
+    return etablissements.reduce((sum, etab) => sum + (Number(etab.chiffreAffaires) || 0), 0);
+  }, []);
+
   // Load IGS data when client or fiscal data changes
   useEffect(() => {
     if (isLoading || !selectedClient?.id) return;
@@ -42,7 +48,9 @@ export function useIGSData(
       
       // Set defaults for any missing data
       if (extractedIGSData.chiffreAffairesAnnuel === undefined) {
-        extractedIGSData.chiffreAffairesAnnuel = 0;
+        // If no annual turnover is set, calculate it from establishments
+        const calculatedTotal = calculateTotalTurnover(extractedIGSData.etablissements);
+        extractedIGSData.chiffreAffairesAnnuel = calculatedTotal;
       }
       
       setIgsData(extractedIGSData);
@@ -54,7 +62,7 @@ export function useIGSData(
         variant: "destructive"
       });
     }
-  }, [selectedClient, fiscalData, isLoading, toast]);
+  }, [selectedClient, fiscalData, isLoading, toast, calculateTotalTurnover]);
   
   // Handle updates to IGS data
   const handleIGSChange = useCallback((name: string, value: any) => {
@@ -66,11 +74,26 @@ export function useIGSData(
         // Use the specialized handler for établissements
         const safeEtablissements = handleEtablissementsChange(value);
         
-        // Update the main IGS data with the new établissements
+        // Calculate the new total turnover from all establishments
+        const newTotalTurnover = calculateTotalTurnover(safeEtablissements);
+        
+        // Update both the establishments and the annual turnover
         setIgsData(prev => ({
           ...prev,
-          etablissements: safeEtablissements
+          etablissements: safeEtablissements,
+          chiffreAffairesAnnuel: newTotalTurnover
         }));
+      } else if (parts[1] === 'chiffreAffairesAnnuel') {
+        // If manually updating annual turnover, just update that field
+        setIgsData(prev => {
+          const newData = {
+            ...prev,
+            [parts[1]]: value
+          };
+          
+          console.log("New IGS state after update:", newData);
+          return newData;
+        });
       } else {
         // Handle all other IGS data changes
         setIgsData(prev => {
@@ -84,7 +107,7 @@ export function useIGSData(
         });
       }
     }
-  }, [handleEtablissementsChange]);
+  }, [handleEtablissementsChange, calculateTotalTurnover]);
 
   // Combine the IGS data with the établissements for the complete data object
   const completeIGSData = {

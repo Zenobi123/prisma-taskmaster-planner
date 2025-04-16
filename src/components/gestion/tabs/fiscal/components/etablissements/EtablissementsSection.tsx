@@ -35,14 +35,7 @@ export function EtablissementsSection({
 
   const addEtablissement = () => {
     // Créer un nouvel établissement avec des valeurs par défaut
-    const newEtablissement: Etablissement = {
-      nom: "",
-      activite: "",
-      ville: "",
-      departement: "",
-      quartier: "",
-      chiffreAffaires: 0
-    };
+    const newEtablissement = createDefaultEtablissement();
     
     // Créer une copie du tableau existant et vérifier qu'il est bien un tableau
     const currentEtablissements = Array.isArray(localEtablissements) 
@@ -69,16 +62,21 @@ export function EtablissementsSection({
     }
     
     // Créer une copie complète pour éviter les problèmes de référence
-    const updatedEtablissements = localEtablissements.map((etab, i) => 
-      i === index 
-        ? { 
-            ...etab, 
-            [field]: field === "chiffreAffaires" 
-                    ? Number(String(value).replace(/\s/g, "")) || 0 
-                    : value 
-          }
-        : etab
-    );
+    const updatedEtablissements = localEtablissements.map((etab, i) => {
+      if (i !== index) return etab;
+      
+      // Pour le champ chiffreAffaires, s'assurer que c'est bien un nombre
+      if (field === "chiffreAffaires") {
+        const numValue = typeof value === 'string' 
+          ? Number(value.replace(/\s/g, "")) || 0
+          : Number(value) || 0;
+          
+        return { ...etab, [field]: numValue };
+      }
+      
+      // Pour les autres champs
+      return { ...etab, [field]: value };
+    });
     
     console.log(`Mise à jour de l'établissement ${index}, champ ${field}:`, updatedEtablissements[index]);
     

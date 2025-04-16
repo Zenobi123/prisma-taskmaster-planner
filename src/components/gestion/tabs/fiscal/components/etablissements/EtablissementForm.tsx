@@ -15,6 +15,16 @@ export function EtablissementForm({
   index, 
   updateEtablissement 
 }: EtablissementFormProps) {
+  // Function to handle turnover input, properly parsing the number
+  const handleChiffreAffairesChange = (value: string) => {
+    // Remove spaces and parse as number
+    const numericValue = value.replace(/\s/g, "");
+    const parsedValue = Number(numericValue) || 0;
+    
+    // Update with the numeric value, not the formatted string
+    updateEtablissement(index, "chiffreAffaires", parsedValue);
+  };
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
@@ -62,7 +72,7 @@ export function EtablissementForm({
         <Input
           id={`ca-${index}`}
           value={formatNumberWithSpaces(etablissement.chiffreAffaires || 0)}
-          onChange={(e) => updateEtablissement(index, "chiffreAffaires", e.target.value)}
+          onChange={(e) => handleChiffreAffairesChange(e.target.value)}
         />
       </div>
     </div>
