@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Etablissement } from "@/types/client";
 import { formatNumberWithSpaces } from "@/utils/formatUtils";
+import { useState, useEffect } from "react";
 
 interface EtablissementFormProps {
   etablissement: Etablissement;
@@ -15,13 +16,26 @@ export function EtablissementForm({
   index, 
   updateEtablissement 
 }: EtablissementFormProps) {
-  // Function to handle turnover input, properly parsing the number
+  // Utiliser un état local pour gérer la valeur affichée du chiffre d'affaires
+  const [caDisplayValue, setCaDisplayValue] = useState(
+    formatNumberWithSpaces(etablissement.chiffreAffaires || 0)
+  );
+  
+  // Mettre à jour l'état local lorsque la prop change
+  useEffect(() => {
+    setCaDisplayValue(formatNumberWithSpaces(etablissement.chiffreAffaires || 0));
+  }, [etablissement.chiffreAffaires]);
+  
+  // Fonction pour gérer la saisie du chiffre d'affaires
   const handleChiffreAffairesChange = (value: string) => {
-    // Remove spaces and parse as number
+    // Mettre à jour l'affichage local
+    setCaDisplayValue(value);
+    
+    // Nettoyer la valeur et la convertir en nombre pour l'état parent
     const numericValue = value.replace(/\s/g, "");
     const parsedValue = Number(numericValue) || 0;
     
-    // Update with the numeric value, not the formatted string
+    // Mettre à jour l'état parent avec la valeur numérique
     updateEtablissement(index, "chiffreAffaires", parsedValue);
   };
 
@@ -71,7 +85,7 @@ export function EtablissementForm({
         <Label htmlFor={`ca-${index}`}>Chiffre d'affaires HT (FCFA)</Label>
         <Input
           id={`ca-${index}`}
-          value={formatNumberWithSpaces(etablissement.chiffreAffaires || 0)}
+          value={caDisplayValue}
           onChange={(e) => handleChiffreAffairesChange(e.target.value)}
         />
       </div>

@@ -16,11 +16,12 @@ export function ChiffreAffairesSection({
   onChange,
   onClasseChange
 }: ChiffreAffairesSectionProps) {
-  const [localValue, setLocalValue] = useState(chiffreAffaires ? formatNumberWithSpaces(chiffreAffaires) : "0");
+  // État local pour gérer la valeur affichée
+  const [displayValue, setDisplayValue] = useState(formatNumberWithSpaces(chiffreAffaires));
 
-  // Update the local state when the prop changes
+  // Mettre à jour l'état local quand la prop change
   useEffect(() => {
-    setLocalValue(chiffreAffaires ? formatNumberWithSpaces(chiffreAffaires) : "0");
+    setDisplayValue(formatNumberWithSpaces(chiffreAffaires));
   }, [chiffreAffaires]);
 
   const determineClasse = (ca: number): CGAClasse => {
@@ -37,16 +38,18 @@ export function ChiffreAffairesSection({
   };
 
   const handleChiffreAffairesChange = (value: string) => {
-    setLocalValue(value);
+    // Mettre à jour l'affichage local
+    setDisplayValue(value);
     
-    // Parse the value as a number (removing any spaces)
-    const numValue = Number(value.replace(/\s/g, "")) || 0;
+    // Nettoyer la valeur et la convertir en nombre
+    const numericValue = value.replace(/\s/g, "");
+    const parsedValue = Number(numericValue) || 0;
     
-    // Update with the numeric value
-    onChange(numValue);
+    // Mettre à jour avec la valeur numérique
+    onChange(parsedValue);
     
-    // Determine the class based on the new value
-    onClasseChange(determineClasse(numValue));
+    // Déterminer la classe basée sur la nouvelle valeur
+    onClasseChange(determineClasse(parsedValue));
   };
 
   return (
@@ -58,7 +61,7 @@ export function ChiffreAffairesSection({
         <Input
           id="chiffreAffaires"
           type="text"
-          value={localValue}
+          value={displayValue}
           onChange={(e) => handleChiffreAffairesChange(e.target.value)}
           placeholder="0"
           className="mt-1"

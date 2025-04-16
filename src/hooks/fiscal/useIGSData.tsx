@@ -44,7 +44,6 @@ export function useIGSData(
     try {
       // Extract IGS data from fiscal data
       const extractedIGSData = extractIGSData(fiscalData, selectedClient);
-      console.log("Extracted IGS data:", extractedIGSData);
       
       // Set defaults for any missing data
       if (extractedIGSData.chiffreAffairesAnnuel === undefined) {
@@ -66,8 +65,6 @@ export function useIGSData(
   
   // Handle updates to IGS data
   const handleIGSChange = useCallback((name: string, value: any) => {
-    console.log("IGS change:", name, value);
-    
     const parts = name.split('.');
     if (parts[0] === 'igs') {
       if (parts[1] === 'etablissements') {
@@ -84,27 +81,18 @@ export function useIGSData(
           chiffreAffairesAnnuel: newTotalTurnover
         }));
       } else if (parts[1] === 'chiffreAffairesAnnuel') {
-        // If manually updating annual turnover, just update that field
-        setIgsData(prev => {
-          const newData = {
-            ...prev,
-            [parts[1]]: value
-          };
-          
-          console.log("New IGS state after update:", newData);
-          return newData;
-        });
+        // If manually updating annual turnover, update that field
+        // but don't recalculate from establishments
+        setIgsData(prev => ({
+          ...prev,
+          [parts[1]]: value
+        }));
       } else {
         // Handle all other IGS data changes
-        setIgsData(prev => {
-          const newData = {
-            ...prev,
-            [parts[1]]: value
-          };
-          
-          console.log("New IGS state after update:", newData);
-          return newData;
-        });
+        setIgsData(prev => ({
+          ...prev,
+          [parts[1]]: value
+        }));
       }
     }
   }, [handleEtablissementsChange, calculateTotalTurnover]);
