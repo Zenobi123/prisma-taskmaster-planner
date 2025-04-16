@@ -24,7 +24,7 @@ export function useEtablissementsData(etablissements: Etablissement[] | undefine
     }
   }, [etablissements, toast]);
 
-  // Handle établissements changes
+  // Handle établissements changes - completely replace the array when updated
   const handleEtablissementsChange = useCallback((newEtablissements: Etablissement[]) => {
     console.log("handleEtablissementsChange called with:", newEtablissements);
     

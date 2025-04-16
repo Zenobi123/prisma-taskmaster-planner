@@ -22,12 +22,13 @@ export function useIGSData(
     patente: { montant: '', quittance: '' },
     acompteJanvier: { montant: '', quittance: '' },
     acompteFevrier: { montant: '', quittance: '' },
-    chiffreAffairesAnnuel: 0
+    chiffreAffairesAnnuel: 0,
+    etablissements: [] // Initialize with empty array
   });
 
   // Extract établissements handling to the separate hook
   const { localEtablissements, handleEtablissementsChange } = useEtablissementsData(
-    fiscalData?.igs?.etablissements
+    igsData.etablissements
   );
 
   // Load IGS data when client or fiscal data changes
@@ -42,6 +43,11 @@ export function useIGSData(
       // Make sure chiffreAffairesAnnuel is initialized
       if (extractedIGSData.chiffreAffairesAnnuel === undefined) {
         extractedIGSData.chiffreAffairesAnnuel = 0;
+      }
+      
+      // Make sure etablissements is always initialized as an array
+      if (!Array.isArray(extractedIGSData.etablissements)) {
+        extractedIGSData.etablissements = [];
       }
       
       setIgsData(extractedIGSData);

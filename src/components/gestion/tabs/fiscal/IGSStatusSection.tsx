@@ -44,10 +44,6 @@ export function IGSStatusSection({
   const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier || defaultAcompteFevrier);
   
   // Initialiser les établissements comme un NOUVEAU tableau toujours
-  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(
-    Array.isArray(etablissements) ? [...etablissements] : []
-  );
-  
   const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel || 0);
 
   useEffect(() => {
@@ -55,15 +51,8 @@ export function IGSStatusSection({
     setPatenteState(patente || defaultPatente);
     setAcompteJanvierState(acompteJanvier || defaultAcompteJanvier);
     setAcompteFevrierState(acompteFevrier || defaultAcompteFevrier);
-    
-    // S'assurer que etablissements est toujours un tableau et en faire une copie
-    const safeEtablissements = Array.isArray(etablissements) ? [...etablissements] : [];
-    console.log("IGSStatusSection - Mise à jour des établissements depuis les props:", etablissements);
-    console.log("IGSStatusSection - Établissements sécurisés:", safeEtablissements);
-    setLocalEtablissements(safeEtablissements);
-    
     setLocalChiffreAffaires(chiffreAffairesAnnuel || 0);
-  }, [patente, acompteJanvier, acompteFevrier, etablissements, chiffreAffairesAnnuel]);
+  }, [patente, acompteJanvier, acompteFevrier, chiffreAffairesAnnuel]);
 
   const handlePatenteChange = (payment: IGSPayment) => {
     setPatenteState(payment);
@@ -91,13 +80,10 @@ export function IGSStatusSection({
     // S'assurer que newEtablissements est toujours un tableau et en faire une copie
     const safeEtablissements = Array.isArray(newEtablissements) ? [...newEtablissements] : [];
     
-    // Mettre à jour l'état local
-    setLocalEtablissements(safeEtablissements);
-    
     // Propager le changement au parent avec une copie pour éviter les problèmes de référence
-    onChange("igs.etablissements", [...safeEtablissements]);
+    onChange("igs.etablissements", safeEtablissements);
     
-    console.log("IGSStatusSection - État local mis à jour et changement propagé au parent");
+    console.log("IGSStatusSection - Changement propagé au parent");
   };
 
   return (
@@ -123,7 +109,7 @@ export function IGSStatusSection({
                 />
                 
                 <EtablissementsSection
-                  etablissements={localEtablissements}
+                  etablissements={etablissements || []}
                   onChange={handleEtablissementsChange}
                 />
                 

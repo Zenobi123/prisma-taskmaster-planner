@@ -30,11 +30,17 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
     const fiscalData = typeof data.fiscal_data === 'object' ? data.fiscal_data : null;
     
     // Vérifier et corriger les etablissements avant de retourner les données
-    if (fiscalData && typeof fiscalData === 'object' && !Array.isArray(fiscalData) && fiscalData.igs) {
-      // Type safety check for igs - make sure it's an object
-      const igsData = fiscalData.igs;
-      if (typeof igsData === 'object' && !Array.isArray(igsData)) {
-        // Now check for etablissements within the object
+    if (fiscalData && typeof fiscalData === 'object' && !Array.isArray(fiscalData)) {
+      // Ensure we have the igs property as an object
+      if (!fiscalData.igs || typeof fiscalData.igs !== 'object' || Array.isArray(fiscalData.igs)) {
+        fiscalData.igs = {
+          soumisIGS: false,
+          adherentCGA: false,
+          etablissements: []
+        };
+      } else {
+        // We have a valid igs object, ensure etablissements exists and is an array
+        const igsData = fiscalData.igs;
         if (!Array.isArray(igsData.etablissements)) {
           igsData.etablissements = [];
           console.info("Correction des établissements: initialisé à un tableau vide");
@@ -61,7 +67,7 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
     acompteJanvier: { montant: '', quittance: '' },
     acompteFevrier: { montant: '', quittance: '' },
     chiffreAffairesAnnuel: 0,
-    etablissements: []
+    etablissements: [] // Always initialize as an empty array
   };
 
   // If no fiscal data, return defaults
@@ -72,19 +78,25 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
 
   console.info("Raw IGS data from fiscal_data:", fiscalData.igs);
 
-  // Type safety check for igs object and etablissements property
-  const igsData = fiscalData.igs;
-  const safeEtablissements = (typeof igsData === 'object' && 
-                             !Array.isArray(igsData) && 
-                             igsData && 
+  // Type safety check for the igs object - ensure it's an object and not an array
+  const igsData = (fiscalData.igs && typeof fiscalData.igs === 'object' && !Array.isArray(fiscalData.igs)) 
+    ? fiscalData.igs 
+    : {};
+  
+  // Safely extract etablissements, ensuring it's always an array
+  const safeEtablissements = (igsData && 
+                             typeof igsData === 'object' && 
+                             !Array.isArray(igsData) &&
                              Array.isArray(igsData.etablissements)) 
     ? [...igsData.etablissements] 
     : [];
 
+  console.info("Extracted etablissements:", safeEtablissements);
+
   // Ensure we have all required properties with defaults
   const resultIgsData = {
     ...defaultIGSData,
-    ...fiscalData.igs,
+    ...igsData,
     // Always use the safely extracted etablissements array
     etablissements: safeEtablissements
   };

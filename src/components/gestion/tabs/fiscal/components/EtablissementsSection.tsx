@@ -52,7 +52,7 @@ export function EtablissementsSection({
     // Mettre à jour l'état local
     setLocalEtablissements(newEtablissements);
     
-    // Propager le changement au parent - CRUCIAL
+    // IMPORTANT - Propager immédiatement le changement au parent
     onChange(newEtablissements);
   };
 
@@ -79,7 +79,7 @@ export function EtablissementsSection({
     // Mettre à jour l'état local
     setLocalEtablissements(updatedEtablissements);
     
-    // Propager le changement au parent
+    // Propager le changement au parent - immédiatement
     onChange(updatedEtablissements);
   };
 
@@ -95,7 +95,7 @@ export function EtablissementsSection({
     // Mettre à jour l'état local
     setLocalEtablissements(updatedEtablissements);
     
-    // Propager le changement au parent
+    // Propager le changement au parent - immédiatement
     onChange(updatedEtablissements);
   };
 
