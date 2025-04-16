@@ -1,13 +1,14 @@
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { CGAClasse } from "@/hooks/fiscal/types";
-import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
+import { ChiffreAffairesSection } from "./components/ChiffreAffairesSection";
+import { EtablissementsSection } from "./components/EtablissementsSection";
 import { IGSClassesSelector } from "./components/IGSClassesSelector";
 import { IGSAmountDisplay } from "./components/IGSAmountDisplay";
-import { IGSPaymentsSection, calculateIGSAmount } from "./components/IGSPaymentsSection";
+import { IGSPaymentsSection } from "./components/IGSPaymentsSection";
+import { CGAClasse, Etablissement } from "@/types/client";
+import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 
 interface IGSStatusSectionProps {
   soumisIGS: boolean;
@@ -16,6 +17,8 @@ interface IGSStatusSectionProps {
   patente?: IGSPayment;
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
+  chiffreAffairesAnnuel?: number;
+  etablissements?: Etablissement[];
   onChange: (name: string, value: any) => void;
 }
 
@@ -26,21 +29,26 @@ export function IGSStatusSection({
   patente = { montant: '', quittance: '' },
   acompteJanvier = { montant: '', quittance: '' },
   acompteFevrier = { montant: '', quittance: '' },
+  chiffreAffairesAnnuel = 0,
+  etablissements = [],
   onChange
 }: IGSStatusSectionProps) {
   const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
-  const [acompteFevierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
+  const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
+  const [classeIGSState, setClasseIGSState] = useState<CGAClasse | undefined>(classeIGS);
+  const [chiffreAffairesAnnuelState, setChiffreAffairesAnnuelState] = useState<number>(chiffreAffairesAnnuel);
+  const [etablissementsState, setEtablissementsState] = useState<Etablissement[]>(etablissements);
 
   // Initialize state with props when they change
   useEffect(() => {
     setPatenteState(patente);
     setAcompteJanvierState(acompteJanvier);
     setAcompteFevrierState(acompteFevrier);
-  }, [patente, acompteJanvier, acompteFevrier]);
-
-  // Calculate the IGS amount based on class and CGA status
-  const montantIGS = calculateIGSAmount(soumisIGS, classeIGS, adherentCGA);
+    setClasseIGSState(classeIGS);
+    setChiffreAffairesAnnuelState(chiffreAffairesAnnuel);
+    setEtablissementsState(etablissements);
+  }, [patente, acompteJanvier, acompteFevrier, classeIGS, chiffreAffairesAnnuel, etablissements]);
 
   // Handler functions for payment updates
   const handlePatenteChange = (payment: IGSPayment) => {
@@ -57,6 +65,21 @@ export function IGSStatusSection({
     setAcompteFevrierState(payment);
     onChange("igs.acompteFevrier", payment);
   };
+
+  const handleChiffreAffairesChange = useCallback((value: number) => {
+    setChiffreAffairesAnnuelState(value);
+    onChange("igs.chiffreAffairesAnnuel", value);
+  }, [onChange]);
+
+  const handleEtablissementsChange = useCallback((value: Etablissement[]) => {
+    setEtablissementsState(value);
+    onChange("igs.etablissements", value);
+  }, [onChange]);
+
+  const handleClasseIGSChange = useCallback((value: CGAClasse) => {
+    setClasseIGSState(value);
+    onChange("igs.classeIGS", value);
+  }, [onChange]);
 
   return (
     <div className="space-y-4 mb-6">
@@ -90,26 +113,38 @@ export function IGSStatusSection({
                     {adherentCGA ? "Adhérent CGA" : "Non adhérent CGA"}
                   </Label>
                 </div>
+
+                {/* Chiffre d'affaires Section */}
+                <ChiffreAffairesSection
+                  chiffreAffaires={chiffreAffairesAnnuelState}
+                  onChange={handleChiffreAffairesChange}
+                  onClasseChange={handleClasseIGSChange}
+                />
+                
+                {/* Établissements Section */}
+                <EtablissementsSection
+                  etablissements={etablissementsState}
+                  onChange={handleEtablissementsChange}
+                />
                 
                 {/* IGS Classes Selector */}
                 <IGSClassesSelector 
-                  classeIGS={classeIGS} 
-                  onChange={(value) => onChange("igs.classeIGS", value)} 
+                  classeIGS={classeIGSState} 
+                  onChange={handleClasseIGSChange} 
                 />
                 
                 {/* IGS Amount Display */}
                 <IGSAmountDisplay 
                   soumisIGS={soumisIGS} 
-                  classeIGS={classeIGS} 
+                  classeIGS={classeIGSState} 
                   adherentCGA={adherentCGA} 
                 />
                 
                 {/* IGS Payments Section */}
                 <IGSPaymentsSection 
-                  montantIGS={montantIGS}
                   patente={patenteState}
                   acompteJanvier={acompteJanvierState}
-                  acompteFevrier={acompteFevierState}
+                  acompteFevrier={acompteFevrierState}
                   onPatenteChange={handlePatenteChange}
                   onAcompteJanvierChange={handleAcompteJanvierChange}
                   onAcompteFevierChange={handleAcompteFevierChange}

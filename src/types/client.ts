@@ -83,3 +83,23 @@ export interface Client {
   fiscal_data?: any;
   igs?: IGSData; // Propriété pour les données IGS
 }
+
+export type Etablissement = {
+  nom: string;
+  activite: string;
+  ville: string;
+  departement: string;
+  quartier: string;
+  chiffreAffaires: number;
+};
+
+export interface IGSData {
+  soumisIGS: boolean;
+  adherentCGA: boolean;
+  classeIGS?: CGAClasse;
+  patente?: IGSPayment;
+  acompteJanvier?: IGSPayment;
+  acompteFevrier?: IGSPayment;
+  chiffreAffairesAnnuel?: number;
+  etablissements?: Etablissement[];
+}

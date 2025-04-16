@@ -1,8 +1,11 @@
-
 export const formatMontant = (montant: number): string => {
   return new Intl.NumberFormat('fr-FR', {
     maximumFractionDigits: 0
   }).format(Math.round(montant)) + " XAF";
+};
+
+export const formatNumberWithSpaces = (num: number): string => {
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 };
 
 // Format a date string or Date object to a localized date string
