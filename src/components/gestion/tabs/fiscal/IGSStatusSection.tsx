@@ -22,6 +22,18 @@ interface IGSStatusSectionProps {
   onChange: (name: string, value: any) => void;
 }
 
+// Créer un établissement par défaut
+const createDefaultEtablissement = (): Etablissement => {
+  return {
+    nom: "Établissement principal",
+    activite: "",
+    ville: "",
+    departement: "",
+    quartier: "",
+    chiffreAffaires: 0
+  };
+};
+
 export function IGSStatusSection({
   soumisIGS = false,
   adherentCGA = false,
@@ -43,7 +55,11 @@ export function IGSStatusSection({
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier || defaultAcompteJanvier);
   const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier || defaultAcompteFevrier);
   
-  // Initialiser les établissements comme un NOUVEAU tableau toujours
+  // Initialiser les établissements comme un NOUVEAU tableau et s'assurer qu'il y a au moins un établissement
+  const safeEtablissements = Array.isArray(etablissements) && etablissements.length > 0 
+    ? etablissements 
+    : [createDefaultEtablissement()];
+    
   const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel || 0);
 
   useEffect(() => {
@@ -77,13 +93,20 @@ export function IGSStatusSection({
   const handleEtablissementsChange = (newEtablissements: Etablissement[]) => {
     console.log("IGSStatusSection - handleEtablissementsChange appelé avec:", newEtablissements);
     
-    // S'assurer que newEtablissements est toujours un tableau et en faire une copie
-    const safeEtablissements = Array.isArray(newEtablissements) ? [...newEtablissements] : [];
+    // S'assurer que newEtablissements est toujours un tableau non vide
+    let safeNewEtablissements = [];
+    
+    if (Array.isArray(newEtablissements) && newEtablissements.length > 0) {
+      safeNewEtablissements = [...newEtablissements];
+    } else {
+      safeNewEtablissements = [createDefaultEtablissement()];
+      console.log("Correction d'une liste d'établissements vide avec un établissement par défaut");
+    }
     
     // Propager le changement au parent avec une copie pour éviter les problèmes de référence
-    onChange("igs.etablissements", safeEtablissements);
+    onChange("igs.etablissements", safeNewEtablissements);
     
-    console.log("IGSStatusSection - Changement propagé au parent");
+    console.log("IGSStatusSection - Changement propagé au parent:", safeNewEtablissements);
   };
 
   return (
@@ -109,7 +132,7 @@ export function IGSStatusSection({
                 />
                 
                 <EtablissementsSection
-                  etablissements={etablissements || []}
+                  etablissements={safeEtablissements}
                   onChange={handleEtablissementsChange}
                 />
                 

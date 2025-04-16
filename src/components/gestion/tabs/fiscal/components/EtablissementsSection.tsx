@@ -16,6 +16,18 @@ export function EtablissementsSection({
   etablissements = [],
   onChange
 }: EtablissementsSectionProps) {
+  // Créer un établissement par défaut
+  const createDefaultEtablissement = (): Etablissement => {
+    return {
+      nom: "Établissement principal",
+      activite: "",
+      ville: "",
+      departement: "",
+      quartier: "",
+      chiffreAffaires: 0
+    };
+  };
+
   const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>([]);
 
   // Met à jour l'état local quand les props changent
@@ -27,14 +39,7 @@ export function EtablissementsSection({
     if (Array.isArray(etablissements) && etablissements.length > 0) {
       safeEtablissements = [...etablissements];
     } else {
-      safeEtablissements = [{
-        nom: "Établissement principal",
-        activite: "",
-        ville: "",
-        departement: "",
-        quartier: "",
-        chiffreAffaires: 0
-      }];
+      safeEtablissements = [createDefaultEtablissement()];
     }
     
     console.log("EtablissementsSection - Établissements sécurisés:", safeEtablissements);
@@ -52,10 +57,10 @@ export function EtablissementsSection({
       chiffreAffaires: 0
     };
     
-    // Créer une copie du tableau existant
+    // Créer une copie du tableau existant et vérifier qu'il est bien un tableau
     const currentEtablissements = Array.isArray(localEtablissements) 
       ? [...localEtablissements] 
-      : [];
+      : [createDefaultEtablissement()];
     
     // Ajouter le nouvel établissement à la liste existante
     const newEtablissements = [...currentEtablissements, newEtablissement];
@@ -118,9 +123,6 @@ export function EtablissementsSection({
     // Propager le changement au parent - immédiatement
     onChange(updatedEtablissements);
   };
-
-  // On a toujours au moins un établissement maintenant
-  const hasEtablissements = true;
 
   return (
     <div className="space-y-4">

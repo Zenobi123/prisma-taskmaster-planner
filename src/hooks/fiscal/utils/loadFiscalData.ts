@@ -70,7 +70,7 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
 
 // Extract IGS data from fiscal data
 export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Client): IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] } => {
-  // Default IGS data
+  // Default IGS data with an établissement principal by default
   const defaultIGSData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] } = {
     soumisIGS: false,
     adherentCGA: false,

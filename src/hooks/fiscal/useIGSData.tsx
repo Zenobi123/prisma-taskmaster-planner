@@ -23,7 +23,7 @@ export function useIGSData(
     acompteJanvier: { montant: '', quittance: '' },
     acompteFevrier: { montant: '', quittance: '' },
     chiffreAffairesAnnuel: 0,
-    etablissements: [] // Initialize with empty array
+    etablissements: [] // Initialize with empty array, we'll fill this properly below
   });
 
   // Extract établissements handling to the separate hook
@@ -45,9 +45,16 @@ export function useIGSData(
         extractedIGSData.chiffreAffairesAnnuel = 0;
       }
       
-      // Make sure etablissements is always initialized as an array
-      if (!Array.isArray(extractedIGSData.etablissements)) {
-        extractedIGSData.etablissements = [];
+      // Make sure etablissements is always initialized as a non-empty array
+      if (!Array.isArray(extractedIGSData.etablissements) || extractedIGSData.etablissements.length === 0) {
+        extractedIGSData.etablissements = [{
+          nom: "Établissement principal",
+          activite: "",
+          ville: "",
+          departement: "",
+          quartier: "",
+          chiffreAffaires: 0
+        }];
       }
       
       setIgsData(extractedIGSData);
@@ -69,8 +76,23 @@ export function useIGSData(
     const parts = name.split('.');
     if (parts[0] === 'igs') {
       if (parts[1] === 'etablissements') {
+        // Make sure value is an array with at least one element
+        let safeValue = value;
+        if (!Array.isArray(value) || value.length === 0) {
+          safeValue = [{
+            nom: "Établissement principal",
+            activite: "",
+            ville: "",
+            departement: "",
+            quartier: "",
+            chiffreAffaires: 0
+          }];
+        }
+        
+        console.log("Handling etablissements change:", safeValue);
+        
         // Use the specialized établissements handler
-        const safeEtablissements = handleEtablissementsChange(value);
+        const safeEtablissements = handleEtablissementsChange(safeValue);
         
         // Update the main IGS data with the new établissements
         setIgsData(prev => ({
@@ -95,7 +117,16 @@ export function useIGSData(
   // Combine the IGS data with the établissements for the complete data object
   const completeIGSData = {
     ...igsData,
-    etablissements: localEtablissements
+    etablissements: localEtablissements && localEtablissements.length > 0 
+      ? localEtablissements 
+      : [{
+          nom: "Établissement principal",
+          activite: "",
+          ville: "",
+          departement: "",
+          quartier: "",
+          chiffreAffaires: 0
+        }]
   };
 
   return { igsData: completeIGSData, handleIGSChange };

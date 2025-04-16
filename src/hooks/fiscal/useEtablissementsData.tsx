@@ -3,21 +3,21 @@ import { useState, useEffect, useCallback } from "react";
 import { Etablissement } from "@/types/client";
 import { useToast } from "@/components/ui/use-toast";
 
+// Créer un établissement par défaut
+const createDefaultEtablissement = (): Etablissement => {
+  return {
+    nom: "Établissement principal",
+    activite: "",
+    ville: "",
+    departement: "",
+    quartier: "",
+    chiffreAffaires: 0
+  };
+};
+
 export function useEtablissementsData(etablissements: Etablissement[] | undefined) {
   const { toast } = useToast();
-  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>([]);
-
-  // Créer un établissement par défaut
-  const createDefaultEtablissement = (): Etablissement => {
-    return {
-      nom: "Établissement principal",
-      activite: "",
-      ville: "",
-      departement: "",
-      quartier: "",
-      chiffreAffaires: 0
-    };
-  };
+  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>([createDefaultEtablissement()]);
 
   // Initialize établissements data
   useEffect(() => {
@@ -49,16 +49,15 @@ export function useEtablissementsData(etablissements: Etablissement[] | undefine
   const handleEtablissementsChange = useCallback((newEtablissements: Etablissement[]) => {
     console.log("handleEtablissementsChange called with:", newEtablissements);
     
-    // Ensure we're working with a valid array
-    if (!Array.isArray(newEtablissements)) {
-      console.warn("Attempted to set établissements with non-array value:", newEtablissements);
-      newEtablissements = [createDefaultEtablissement()];
-    }
+    // Ensure we're working with a valid array and make a new copy to avoid reference problems
+    let safeEtablissements: Etablissement[];
     
-    // S'assurer qu'il y a toujours au moins un établissement
-    const safeEtablissements = newEtablissements.length > 0 
-      ? [...newEtablissements] 
-      : [createDefaultEtablissement()];
+    if (Array.isArray(newEtablissements) && newEtablissements.length > 0) {
+      safeEtablissements = [...newEtablissements];
+    } else {
+      console.warn("Attempted to set établissements with empty or invalid array:", newEtablissements);
+      safeEtablissements = [createDefaultEtablissement()];
+    }
     
     console.log("Setting établissements to:", safeEtablissements);
     setLocalEtablissements(safeEtablissements);
@@ -66,5 +65,5 @@ export function useEtablissementsData(etablissements: Etablissement[] | undefine
     return safeEtablissements;
   }, []);
 
-  return { localEtablissements, handleEtablissementsChange };
+  return { localEtablissements, handleEtablissementsChange, createDefaultEtablissement };
 }
