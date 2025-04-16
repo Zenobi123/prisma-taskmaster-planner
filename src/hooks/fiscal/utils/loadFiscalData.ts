@@ -1,64 +1,63 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
-import { FiscalData, IGSData } from "../types/igsTypes";
+import { ClientFiscalData } from "../types";
+import { IGSData } from "../types/igsTypes";
 
-/**
- * Loads fiscal data for a client from the database
- */
-export async function loadFiscalData(clientId: string): Promise<FiscalData | null> {
-  if (!clientId) return null;
-  
+// Load fiscal data for a client
+export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData | null> => {
   try {
-    console.log("Fetching fiscal data for client", clientId);
-    
+    console.info(`Fetching fiscal data for client ${clientId}`);
+
     const { data, error } = await supabase
-      .from("clients")
-      .select("fiscal_data")
-      .eq("id", clientId)
+      .from('clients')
+      .select('fiscal_data')
+      .eq('id', clientId)
       .single();
-    
+
     if (error) {
-      console.error("Error fetching fiscal data:", error);
+      console.error('Error loading fiscal data:', error);
       return null;
     }
-    
-    console.log("Fiscal data found for client", clientId);
-    
-    if (data?.fiscal_data && typeof data.fiscal_data === 'object' && !Array.isArray(data.fiscal_data)) {
-      return data.fiscal_data as FiscalData;
-    }
-    
-    return null;
-  } catch (error) {
-    console.error("Error in loadFiscalData:", error);
-    return null;
-  }
-}
 
-/**
- * Extract IGS data from either fiscal_data or direct client property
- */
-export function extractIGSData(fiscalData: FiscalData | null, client: Client): IGSData {
-  // Try to get IGS data from fiscal_data first
-  if (fiscalData?.igs) {
-    return fiscalData.igs;
-  } 
-  // Fallback to client's igs property
-  else if (client.igs) {
-    return {
-      soumisIGS: client.igs.soumisIGS || false,
-      adherentCGA: client.igs.adherentCGA || false,
-      classeIGS: client.igs.classeIGS,
-      patente: client.igs.patente,
-      acompteJanvier: client.igs.acompteJanvier,
-      acompteFevrier: client.igs.acompteFevrier
-    };
+    if (!data || !data.fiscal_data) {
+      console.info("No fiscal data found for client");
+      return null;
+    }
+
+    console.info(`Fiscal data found for client ${clientId}`);
+    return data.fiscal_data as ClientFiscalData;
+  } catch (error) {
+    console.error('Error in loadFiscalData:', error);
+    return null;
   }
-  
-  // Default empty IGS data
-  return {
+};
+
+// Extract IGS data from fiscal data
+export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Client): IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] } => {
+  // Default IGS data
+  const defaultIGSData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] } = {
     soumisIGS: false,
-    adherentCGA: false
+    adherentCGA: false,
+    classeIGS: undefined,
+    patente: { montant: '', quittance: '' },
+    acompteJanvier: { montant: '', quittance: '' },
+    acompteFevrier: { montant: '', quittance: '' },
+    chiffreAffairesAnnuel: 0,
+    etablissements: []
   };
-}
+
+  // If no fiscal data, return defaults
+  if (!fiscalData || !fiscalData.igs) {
+    return defaultIGSData;
+  }
+
+  // Extract IGS data from fiscal_data
+  return {
+    ...defaultIGSData,
+    ...fiscalData.igs,
+    // Ensure these fields are initialized if they don't exist
+    chiffreAffairesAnnuel: fiscalData.igs.chiffreAffairesAnnuel || 0,
+    etablissements: fiscalData.igs.etablissements || []
+  };
+};

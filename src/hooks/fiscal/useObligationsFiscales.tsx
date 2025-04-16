@@ -1,8 +1,8 @@
 
 import { useState, useEffect, useCallback } from "react";
-import { Client } from "@/types/client";
+import { Client, Etablissement } from "@/types/client";
 import { useUpdateClientMutation } from "@/pages/clients/hooks/mutations/useUpdateClientMutation";
-import { ObligationStatuses, ClientFiscalData } from "./types";
+import { ObligationStatuses, ClientFiscalData, CGAClasse } from "./types";
 import { IGSData } from "./types/igsTypes";
 import { loadFiscalData, extractIGSData } from "./utils/loadFiscalData";
 import { prepareFiscalData, extractClientIGSData } from "./utils/saveFiscalData";
@@ -25,14 +25,16 @@ export function useObligationsFiscales(selectedClient: Client) {
     cnps: { assujetti: false, paye: false }
   });
   
-  // State for IGS data
-  const [igsData, setIgsData] = useState<IGSData>({
+  // State for IGS data with default etablissements array
+  const [igsData, setIgsData] = useState<IGSData & { chiffreAffairesAnnuel?: number, etablissements?: Etablissement[] }>({
     soumisIGS: false,
     adherentCGA: false,
     classeIGS: undefined,
-    patente: undefined,
-    acompteJanvier: undefined,
-    acompteFevrier: undefined
+    patente: { montant: '', quittance: '' },
+    acompteJanvier: { montant: '', quittance: '' },
+    acompteFevrier: { montant: '', quittance: '' },
+    chiffreAffairesAnnuel: 0,
+    etablissements: []
   });
   
   const [isLoading, setIsLoading] = useState(true);
@@ -79,6 +81,17 @@ export function useObligationsFiscales(selectedClient: Client) {
         
         // Initialize IGS data
         const extractedIGSData = extractIGSData(fiscalData, selectedClient);
+        
+        // Make sure etablissements is initialized as an array
+        if (!extractedIGSData.etablissements) {
+          extractedIGSData.etablissements = [];
+        }
+        
+        // Make sure chiffreAffairesAnnuel is initialized
+        if (extractedIGSData.chiffreAffairesAnnuel === undefined) {
+          extractedIGSData.chiffreAffairesAnnuel = 0;
+        }
+        
         setIgsData(extractedIGSData);
         
       } catch (error) {

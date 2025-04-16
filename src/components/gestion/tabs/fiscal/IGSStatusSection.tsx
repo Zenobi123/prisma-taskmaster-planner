@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChiffreAffairesSection } from "./components/ChiffreAffairesSection";
@@ -80,7 +81,7 @@ export function IGSStatusSection({
                 />
                 
                 <EtablissementsSection
-                  etablissements={etablissements}
+                  etablissements={etablissements || []}
                   onChange={(value) => onChange("igs.etablissements", value)}
                 />
                 

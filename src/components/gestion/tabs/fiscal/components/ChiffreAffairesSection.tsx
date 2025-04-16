@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { CGAClasse } from "@/types/client";
+import { CGAClasse } from "@/hooks/fiscal/types";
 import { formatNumberWithSpaces } from "@/utils/formatUtils";
 
 interface ChiffreAffairesSectionProps {
@@ -12,10 +12,16 @@ interface ChiffreAffairesSectionProps {
 }
 
 export function ChiffreAffairesSection({ 
-  chiffreAffaires, 
+  chiffreAffaires = 0, 
   onChange,
   onClasseChange
 }: ChiffreAffairesSectionProps) {
+  const [localValue, setLocalValue] = useState(chiffreAffaires ? formatNumberWithSpaces(chiffreAffaires) : "0");
+
+  useEffect(() => {
+    setLocalValue(chiffreAffaires ? formatNumberWithSpaces(chiffreAffaires) : "0");
+  }, [chiffreAffaires]);
+
   const determineClasse = (ca: number): CGAClasse => {
     if (ca < 500000) return "classe1";
     if (ca < 1000000) return "classe2";
@@ -30,6 +36,7 @@ export function ChiffreAffairesSection({
   };
 
   const handleChiffreAffairesChange = (value: string) => {
+    setLocalValue(value);
     const numValue = Number(value.replace(/\s/g, "")) || 0;
     onChange(numValue);
     onClasseChange(determineClasse(numValue));
@@ -44,7 +51,7 @@ export function ChiffreAffairesSection({
         <Input
           id="chiffreAffaires"
           type="text"
-          value={chiffreAffaires ? formatNumberWithSpaces(chiffreAffaires) : ""}
+          value={localValue}
           onChange={(e) => handleChiffreAffairesChange(e.target.value)}
           placeholder="0"
           className="mt-1"

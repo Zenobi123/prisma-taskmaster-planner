@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,12 +13,18 @@ interface EtablissementsSectionProps {
 }
 
 export function EtablissementsSection({
-  etablissements,
+  etablissements = [],
   onChange
 }: EtablissementsSectionProps) {
+  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(etablissements);
+
+  useEffect(() => {
+    setLocalEtablissements(etablissements);
+  }, [etablissements]);
+
   const addEtablissement = () => {
-    onChange([
-      ...etablissements,
+    const newEtablissements = [
+      ...localEtablissements,
       {
         nom: "",
         activite: "",
@@ -27,20 +33,25 @@ export function EtablissementsSection({
         quartier: "",
         chiffreAffaires: 0
       }
-    ]);
+    ];
+    setLocalEtablissements(newEtablissements);
+    onChange(newEtablissements);
   };
 
   const updateEtablissement = (index: number, field: keyof Etablissement, value: string | number) => {
-    const newEtablissements = [...etablissements];
+    const newEtablissements = [...localEtablissements];
     newEtablissements[index] = {
       ...newEtablissements[index],
       [field]: field === "chiffreAffaires" ? Number(value.toString().replace(/\s/g, "")) || 0 : value
     };
+    setLocalEtablissements(newEtablissements);
     onChange(newEtablissements);
   };
 
   const removeEtablissement = (index: number) => {
-    onChange(etablissements.filter((_, i) => i !== index));
+    const newEtablissements = localEtablissements.filter((_, i) => i !== index);
+    setLocalEtablissements(newEtablissements);
+    onChange(newEtablissements);
   };
 
   return (
@@ -60,7 +71,7 @@ export function EtablissementsSection({
       </div>
 
       <div className="space-y-6">
-        {etablissements.map((etablissement, index) => (
+        {localEtablissements.map((etablissement, index) => (
           <div key={index} className="p-4 border rounded-lg space-y-4 relative">
             <Button
               type="button"
@@ -77,7 +88,7 @@ export function EtablissementsSection({
                 <Label htmlFor={`nom-${index}`}>Nom Commercial</Label>
                 <Input
                   id={`nom-${index}`}
-                  value={etablissement.nom}
+                  value={etablissement.nom || ""}
                   onChange={(e) => updateEtablissement(index, "nom", e.target.value)}
                 />
               </div>
@@ -85,7 +96,7 @@ export function EtablissementsSection({
                 <Label htmlFor={`activite-${index}`}>Activité</Label>
                 <Input
                   id={`activite-${index}`}
-                  value={etablissement.activite}
+                  value={etablissement.activite || ""}
                   onChange={(e) => updateEtablissement(index, "activite", e.target.value)}
                 />
               </div>
@@ -93,7 +104,7 @@ export function EtablissementsSection({
                 <Label htmlFor={`ville-${index}`}>Ville</Label>
                 <Input
                   id={`ville-${index}`}
-                  value={etablissement.ville}
+                  value={etablissement.ville || ""}
                   onChange={(e) => updateEtablissement(index, "ville", e.target.value)}
                 />
               </div>
@@ -101,7 +112,7 @@ export function EtablissementsSection({
                 <Label htmlFor={`departement-${index}`}>Département</Label>
                 <Input
                   id={`departement-${index}`}
-                  value={etablissement.departement}
+                  value={etablissement.departement || ""}
                   onChange={(e) => updateEtablissement(index, "departement", e.target.value)}
                 />
               </div>
@@ -109,7 +120,7 @@ export function EtablissementsSection({
                 <Label htmlFor={`quartier-${index}`}>Quartier</Label>
                 <Input
                   id={`quartier-${index}`}
-                  value={etablissement.quartier}
+                  value={etablissement.quartier || ""}
                   onChange={(e) => updateEtablissement(index, "quartier", e.target.value)}
                 />
               </div>
@@ -117,7 +128,7 @@ export function EtablissementsSection({
                 <Label htmlFor={`ca-${index}`}>Chiffre d'affaires HT (FCFA)</Label>
                 <Input
                   id={`ca-${index}`}
-                  value={formatNumberWithSpaces(etablissement.chiffreAffaires)}
+                  value={formatNumberWithSpaces(etablissement.chiffreAffaires || 0)}
                   onChange={(e) => updateEtablissement(index, "chiffreAffaires", e.target.value)}
                 />
               </div>

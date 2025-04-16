@@ -1,19 +1,16 @@
 
-import { Client } from "@/types/client";
-import { FiscalData, IGSData } from "../types/igsTypes";
 import { ObligationStatuses } from "../types";
+import { IGSData } from "../types/igsTypes";
 
-/**
- * Prepares fiscal data for saving
- */
-export function prepareFiscalData(
+// Prepare fiscal data for saving to the database
+export const prepareFiscalData = (
   creationDate: string,
   validityEndDate: string,
   showInAlert: boolean,
   obligationStatuses: ObligationStatuses,
   hiddenFromDashboard: boolean,
-  igsData: IGSData
-): FiscalData {
+  igsData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] }
+) => {
   return {
     attestation: {
       creationDate,
@@ -22,20 +19,29 @@ export function prepareFiscalData(
     },
     obligations: obligationStatuses,
     hiddenFromDashboard,
-    igs: igsData
+    igs: {
+      soumisIGS: igsData.soumisIGS,
+      adherentCGA: igsData.adherentCGA,
+      classeIGS: igsData.classeIGS,
+      patente: igsData.patente,
+      acompteJanvier: igsData.acompteJanvier,
+      acompteFevrier: igsData.acompteFevrier,
+      chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
+      etablissements: igsData.etablissements || []
+    }
   };
-}
+};
 
-/**
- * Returns the IGS data for direct client property update
- */
-export function extractClientIGSData(igsData: IGSData) {
+// Extract IGS data for client object
+export const extractClientIGSData = (igsData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] }) => {
   return {
     soumisIGS: igsData.soumisIGS,
     adherentCGA: igsData.adherentCGA,
     classeIGS: igsData.classeIGS,
     patente: igsData.patente,
     acompteJanvier: igsData.acompteJanvier,
-    acompteFevrier: igsData.acompteFevrier
+    acompteFevrier: igsData.acompteFevrier,
+    chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
+    etablissements: igsData.etablissements || []
   };
-}
+};
