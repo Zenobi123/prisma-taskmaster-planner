@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { Client } from "@/types/client";
 import { useUpdateClientMutation } from "@/pages/clients/hooks/mutations/useUpdateClientMutation";
@@ -39,7 +38,7 @@ export function useObligationsFiscales(selectedClient: Client) {
     };
     
     fetchFiscalData();
-  }, [selectedClient?.id, toast]); // Fixed: Changed useState to useEffect with proper dependencies
+  }, [selectedClient?.id, toast]);
 
   // Use our custom hooks
   const { 

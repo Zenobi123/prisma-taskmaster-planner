@@ -27,7 +27,6 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
 
     console.info(`Fiscal data found for client ${clientId}`, data.fiscal_data);
     
-    // Vérifier que fiscal_data est un objet et pas une chaîne de caractères
     const fiscalData = typeof data.fiscal_data === 'object' ? data.fiscal_data : null;
     
     // Vérifier et corriger les etablissements avant de retourner les données
