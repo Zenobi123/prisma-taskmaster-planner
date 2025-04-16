@@ -14,7 +14,7 @@ export function useIGSData(
 ) {
   const { toast } = useToast();
   
-  // State for IGS data with default values
+  // Initialize IGS data with default values
   const [igsData, setIgsData] = useState<IGSData & { chiffreAffairesAnnuel?: number }>({
     soumisIGS: false,
     adherentCGA: false,
@@ -23,10 +23,10 @@ export function useIGSData(
     acompteJanvier: { montant: '', quittance: '' },
     acompteFevrier: { montant: '', quittance: '' },
     chiffreAffairesAnnuel: 0,
-    etablissements: [] // Initialize with empty array, we'll fill this properly below
+    etablissements: []
   });
 
-  // Extract établissements handling to the separate hook
+  // Use the établissements data hook for handling that specific part of IGS data
   const { localEtablissements, handleEtablissementsChange } = useEtablissementsData(
     igsData.etablissements
   );
@@ -36,29 +36,16 @@ export function useIGSData(
     if (isLoading || !selectedClient?.id) return;
     
     try {
-      // Initialize IGS data
+      // Extract IGS data from fiscal data
       const extractedIGSData = extractIGSData(fiscalData, selectedClient);
       console.log("Extracted IGS data:", extractedIGSData);
       
-      // Make sure chiffreAffairesAnnuel is initialized
+      // Set defaults for any missing data
       if (extractedIGSData.chiffreAffairesAnnuel === undefined) {
         extractedIGSData.chiffreAffairesAnnuel = 0;
       }
       
-      // Make sure etablissements is always initialized as a non-empty array
-      if (!Array.isArray(extractedIGSData.etablissements) || extractedIGSData.etablissements.length === 0) {
-        extractedIGSData.etablissements = [{
-          nom: "Établissement principal",
-          activite: "",
-          ville: "",
-          departement: "",
-          quartier: "",
-          chiffreAffaires: 0
-        }];
-      }
-      
       setIgsData(extractedIGSData);
-      
     } catch (error) {
       console.error("Error initializing IGS data:", error);
       toast({
@@ -69,30 +56,15 @@ export function useIGSData(
     }
   }, [selectedClient, fiscalData, isLoading, toast]);
   
-  // Handle IGS data changes
+  // Handle updates to IGS data
   const handleIGSChange = useCallback((name: string, value: any) => {
     console.log("IGS change:", name, value);
     
     const parts = name.split('.');
     if (parts[0] === 'igs') {
       if (parts[1] === 'etablissements') {
-        // Make sure value is an array with at least one element
-        let safeValue = value;
-        if (!Array.isArray(value) || value.length === 0) {
-          safeValue = [{
-            nom: "Établissement principal",
-            activite: "",
-            ville: "",
-            departement: "",
-            quartier: "",
-            chiffreAffaires: 0
-          }];
-        }
-        
-        console.log("Handling etablissements change:", safeValue);
-        
-        // Use the specialized établissements handler
-        const safeEtablissements = handleEtablissementsChange(safeValue);
+        // Use the specialized handler for établissements
+        const safeEtablissements = handleEtablissementsChange(value);
         
         // Update the main IGS data with the new établissements
         setIgsData(prev => ({
@@ -117,16 +89,7 @@ export function useIGSData(
   // Combine the IGS data with the établissements for the complete data object
   const completeIGSData = {
     ...igsData,
-    etablissements: localEtablissements && localEtablissements.length > 0 
-      ? localEtablissements 
-      : [{
-          nom: "Établissement principal",
-          activite: "",
-          ville: "",
-          departement: "",
-          quartier: "",
-          chiffreAffaires: 0
-        }]
+    etablissements: localEtablissements
   };
 
   return { igsData: completeIGSData, handleIGSChange };
