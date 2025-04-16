@@ -34,7 +34,11 @@ export function useIGSData(
   // Calculate total turnover from all establishments
   const calculateTotalTurnover = useCallback((etablissements) => {
     if (!Array.isArray(etablissements) || etablissements.length === 0) return 0;
-    return etablissements.reduce((sum, etab) => sum + (Number(etab.chiffreAffaires) || 0), 0);
+    return etablissements.reduce((sum, etab) => {
+      // S'assurer que la valeur est bien un nombre
+      const caValue = typeof etab.chiffreAffaires === 'number' ? etab.chiffreAffaires : 0;
+      return sum + caValue;
+    }, 0);
   }, []);
 
   // Load IGS data when client or fiscal data changes
@@ -81,11 +85,13 @@ export function useIGSData(
           chiffreAffairesAnnuel: newTotalTurnover
         }));
       } else if (parts[1] === 'chiffreAffairesAnnuel') {
-        // If manually updating annual turnover, update that field
-        // but don't recalculate from establishments
+        // Si on met à jour directement le chiffre d'affaires annuel,
+        // conserver cette valeur
+        const caValue = typeof value === 'number' ? value : 0;
+
         setIgsData(prev => ({
           ...prev,
-          [parts[1]]: value
+          [parts[1]]: caValue
         }));
       } else {
         // Handle all other IGS data changes

@@ -17,11 +17,16 @@ export function ChiffreAffairesSection({
   onClasseChange
 }: ChiffreAffairesSectionProps) {
   // État local pour gérer la valeur affichée
-  const [displayValue, setDisplayValue] = useState(formatNumberWithSpaces(chiffreAffaires));
+  const [displayValue, setDisplayValue] = useState("");
 
   // Mettre à jour l'état local quand la prop change
   useEffect(() => {
-    setDisplayValue(formatNumberWithSpaces(chiffreAffaires));
+    // N'appliquer le formatage que si chiffreAffaires est défini et non nul
+    if (chiffreAffaires !== undefined && chiffreAffaires !== null) {
+      setDisplayValue(formatNumberWithSpaces(chiffreAffaires));
+    } else {
+      setDisplayValue("");
+    }
   }, [chiffreAffaires]);
 
   const determineClasse = (ca: number): CGAClasse => {
@@ -42,8 +47,9 @@ export function ChiffreAffairesSection({
     setDisplayValue(value);
     
     // Nettoyer la valeur et la convertir en nombre
-    const numericValue = value.replace(/\s/g, "");
-    const parsedValue = Number(numericValue) || 0;
+    // Supprimer tous les caractères non numériques
+    const numericValue = value.replace(/\D/g, "");
+    const parsedValue = numericValue ? Number(numericValue) : 0;
     
     // Mettre à jour avec la valeur numérique
     onChange(parsedValue);

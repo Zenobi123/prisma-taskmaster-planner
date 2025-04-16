@@ -17,13 +17,16 @@ export function EtablissementForm({
   updateEtablissement 
 }: EtablissementFormProps) {
   // Utiliser un état local pour gérer la valeur affichée du chiffre d'affaires
-  const [caDisplayValue, setCaDisplayValue] = useState(
-    formatNumberWithSpaces(etablissement.chiffreAffaires || 0)
-  );
+  const [caDisplayValue, setCaDisplayValue] = useState("");
   
   // Mettre à jour l'état local lorsque la prop change
   useEffect(() => {
-    setCaDisplayValue(formatNumberWithSpaces(etablissement.chiffreAffaires || 0));
+    // N'appliquer le formatage que si chiffreAffaires est défini et non nul
+    if (etablissement.chiffreAffaires !== undefined && etablissement.chiffreAffaires !== null) {
+      setCaDisplayValue(formatNumberWithSpaces(etablissement.chiffreAffaires));
+    } else {
+      setCaDisplayValue("");
+    }
   }, [etablissement.chiffreAffaires]);
   
   // Fonction pour gérer la saisie du chiffre d'affaires
@@ -31,9 +34,10 @@ export function EtablissementForm({
     // Mettre à jour l'affichage local
     setCaDisplayValue(value);
     
-    // Nettoyer la valeur et la convertir en nombre pour l'état parent
-    const numericValue = value.replace(/\s/g, "");
-    const parsedValue = Number(numericValue) || 0;
+    // Nettoyer la valeur et la convertir en nombre
+    // Supprimer tous les caractères non numériques
+    const numericValue = value.replace(/\D/g, "");
+    const parsedValue = numericValue ? Number(numericValue) : 0;
     
     // Mettre à jour l'état parent avec la valeur numérique
     updateEtablissement(index, "chiffreAffaires", parsedValue);
