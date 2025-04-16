@@ -12,12 +12,12 @@ export const prepareFiscalData = (
   igsData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] }
 ) => {
   // S'assurer que etablissements est toujours un tableau
-  const safeEtablissements = Array.isArray(igsData.etablissements) ? igsData.etablissements : [];
+  // Utiliser une vérification plus stricte pour garantir que nous avons un tableau
+  const safeEtablissements = Array.isArray(igsData.etablissements) 
+    ? [...igsData.etablissements] // Créer une copie pour éviter les mutations accidentelles
+    : [];
   
-  console.log("Préparation des données fiscales pour enregistrement:", {
-    ...igsData,
-    etablissements: safeEtablissements
-  });
+  console.log("Préparation des données fiscales pour enregistrement - etablissements:", safeEtablissements);
 
   // Garantir que les objets de paiement sont bien définis
   const safePatente = igsData.patente || { montant: '', quittance: '' };
@@ -47,8 +47,12 @@ export const prepareFiscalData = (
 
 // Extract IGS data for client object
 export const extractClientIGSData = (igsData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] }) => {
-  // S'assurer que etablissements est toujours un tableau
-  const safeEtablissements = Array.isArray(igsData.etablissements) ? igsData.etablissements : [];
+  // S'assurer que etablissements est toujours un tableau avec une copie pour éviter les mutations
+  const safeEtablissements = Array.isArray(igsData.etablissements) 
+    ? [...igsData.etablissements] 
+    : [];
+  
+  console.log("Extract client IGS data - etablissements:", safeEtablissements);
   
   // Garantir que les objets de paiement sont bien définis
   const safePatente = igsData.patente || { montant: '', quittance: '' };

@@ -26,6 +26,13 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
     }
 
     console.info(`Fiscal data found for client ${clientId}`, data.fiscal_data);
+    
+    // Vérifier et corriger les etablissements avant de retourner les données
+    if (data.fiscal_data.igs && !Array.isArray(data.fiscal_data.igs.etablissements)) {
+      data.fiscal_data.igs.etablissements = [];
+      console.info("Correction des établissements: initialisé à un tableau vide");
+    }
+    
     // Cast to unknown first, then to ClientFiscalData to satisfy TypeScript
     return data.fiscal_data as unknown as ClientFiscalData;
   } catch (error) {
@@ -56,20 +63,24 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
 
   console.info("Raw IGS data from fiscal_data:", fiscalData.igs);
 
+  // S'assurer que établissements est un tableau valide dans les données fiscales
+  if (!Array.isArray(fiscalData.igs.etablissements)) {
+    console.info("Établissements dans fiscal_data n'est pas un tableau, initialisation...");
+    fiscalData.igs.etablissements = [];
+  }
+
   // Ensure we have all required properties with defaults
   const igsData = {
     ...defaultIGSData,
     ...fiscalData.igs,
+    // Toujours remplacer établissements par une copie du tableau pour éviter les références
+    etablissements: Array.isArray(fiscalData.igs.etablissements) 
+      ? [...fiscalData.igs.etablissements] 
+      : []
   };
 
   // Ensure these fields are initialized properly
   igsData.chiffreAffairesAnnuel = igsData.chiffreAffairesAnnuel || 0;
-  
-  // Important: Ensure etablissements is ALWAYS an array
-  if (!Array.isArray(igsData.etablissements)) {
-    console.info("Établissements is not an array, initializing to empty array");
-    igsData.etablissements = [];
-  }
 
   console.info("Final IGS data after extraction and validation:", igsData);
   return igsData;

@@ -22,7 +22,7 @@ export function EtablissementsSection({
   useEffect(() => {
     console.log("EtablissementsSection - Props etablissements reçus:", etablissements);
     // Garantir que etablissements est toujours un tableau, même s'il est null ou undefined
-    const safeEtablissements = Array.isArray(etablissements) ? etablissements : [];
+    const safeEtablissements = Array.isArray(etablissements) ? [...etablissements] : [];
     console.log("EtablissementsSection - Établissements sécurisés:", safeEtablissements);
     setLocalEtablissements(safeEtablissements);
   }, [etablissements]);
@@ -38,8 +38,10 @@ export function EtablissementsSection({
       chiffreAffaires: 0
     };
     
-    // Garantir que localEtablissements est toujours un tableau
-    const currentEtablissements = Array.isArray(localEtablissements) ? localEtablissements : [];
+    // Créer une copie du tableau existant
+    const currentEtablissements = Array.isArray(localEtablissements) 
+      ? [...localEtablissements] 
+      : [];
     
     // Ajouter le nouvel établissement à la liste existante
     const newEtablissements = [...currentEtablissements, newEtablissement];
@@ -50,24 +52,27 @@ export function EtablissementsSection({
     // Mettre à jour l'état local
     setLocalEtablissements(newEtablissements);
     
-    // Propager le changement au parent
+    // Propager le changement au parent - CRUCIAL
     onChange(newEtablissements);
   };
 
   const updateEtablissement = (index: number, field: keyof Etablissement, value: string | number) => {
-    const currentEtablissements = Array.isArray(localEtablissements) ? [...localEtablissements] : [];
-    
-    if (index < 0 || index >= currentEtablissements.length) {
+    if (index < 0 || !Array.isArray(localEtablissements) || index >= localEtablissements.length) {
       console.error("Index d'établissement invalide:", index);
       return;
     }
     
-    const updatedEtablissements = [...currentEtablissements];
-    
-    updatedEtablissements[index] = {
-      ...updatedEtablissements[index],
-      [field]: field === "chiffreAffaires" ? Number(value.toString().replace(/\s/g, "")) || 0 : value
-    };
+    // Créer une copie complète pour éviter les problèmes de référence
+    const updatedEtablissements = localEtablissements.map((etab, i) => 
+      i === index 
+        ? { 
+            ...etab, 
+            [field]: field === "chiffreAffaires" 
+                    ? Number(String(value).replace(/\s/g, "")) || 0 
+                    : value 
+          }
+        : etab
+    );
     
     console.log(`Mise à jour de l'établissement ${index}, champ ${field}:`, updatedEtablissements[index]);
     
@@ -79,15 +84,13 @@ export function EtablissementsSection({
   };
 
   const removeEtablissement = (index: number) => {
-    const currentEtablissements = Array.isArray(localEtablissements) ? [...localEtablissements] : [];
-    
-    if (index < 0 || index >= currentEtablissements.length) {
+    if (index < 0 || !Array.isArray(localEtablissements) || index >= localEtablissements.length) {
       console.error("Index d'établissement invalide pour la suppression:", index);
       return;
     }
     
     console.log(`Suppression de l'établissement à l'index ${index}`);
-    const updatedEtablissements = currentEtablissements.filter((_, i) => i !== index);
+    const updatedEtablissements = localEtablissements.filter((_, i) => i !== index);
     
     // Mettre à jour l'état local
     setLocalEtablissements(updatedEtablissements);

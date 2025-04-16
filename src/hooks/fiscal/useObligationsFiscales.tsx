@@ -6,8 +6,11 @@ import { ObligationStatuses, ClientFiscalData, CGAClasse } from "./types";
 import { IGSData } from "./types/igsTypes";
 import { loadFiscalData, extractIGSData } from "./utils/loadFiscalData";
 import { prepareFiscalData, extractClientIGSData } from "./utils/saveFiscalData";
+import { useToast } from "@/components/ui/use-toast";
 
 export function useObligationsFiscales(selectedClient: Client) {
+  const { toast } = useToast();
+  
   // States for fiscal attestation
   const [creationDate, setCreationDate] = useState("");
   const [validityEndDate, setValidityEndDate] = useState("");
@@ -99,13 +102,18 @@ export function useObligationsFiscales(selectedClient: Client) {
         
       } catch (error) {
         console.error("Error fetching fiscal data:", error);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les données fiscales",
+          variant: "destructive"
+        });
       } finally {
         setIsLoading(false);
       }
     };
     
     fetchFiscalData();
-  }, [selectedClient]);
+  }, [selectedClient, toast]);
   
   // Handle obligation status changes - fixing the parameter structure
   const handleStatusChange = useCallback((
@@ -126,9 +134,13 @@ export function useObligationsFiscales(selectedClient: Client) {
     if (parts[0] === 'igs') {
       setIgsData(prev => {
         // Pour le cas spécifique des établissements, s'assurer que c'est toujours un tableau
-        if (parts[1] === 'etablissements' && !Array.isArray(value)) {
-          console.warn("Tentative de définir etablissements avec une valeur non-tableau:", value);
-          value = Array.isArray(value) ? value : [];
+        if (parts[1] === 'etablissements') {
+          console.log("Mise à jour des établissements:", value);
+          
+          if (!Array.isArray(value)) {
+            console.warn("Tentative de définir etablissements avec une valeur non-tableau:", value);
+            value = [];
+          }
         }
         
         const newData = {
@@ -159,8 +171,10 @@ export function useObligationsFiscales(selectedClient: Client) {
     // S'assurer que etablissements est toujours un tableau avant l'enregistrement
     const safeIgsData = {
       ...igsData,
-      etablissements: Array.isArray(igsData.etablissements) ? igsData.etablissements : []
+      etablissements: Array.isArray(igsData.etablissements) ? [...igsData.etablissements] : []
     };
+    
+    console.log("Saving safe IGS data with etablissements:", safeIgsData.etablissements);
     
     const fiscalData = prepareFiscalData(
       creationDate,
@@ -184,8 +198,17 @@ export function useObligationsFiscales(selectedClient: Client) {
       });
       
       console.log("Fiscal data saved successfully");
+      toast({
+        title: "Succès",
+        description: "Données fiscales enregistrées avec succès",
+      });
     } catch (error) {
       console.error("Error saving fiscal data:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'enregistrer les données fiscales",
+        variant: "destructive"
+      });
     }
   }, [
     selectedClient?.id,
@@ -195,7 +218,8 @@ export function useObligationsFiscales(selectedClient: Client) {
     obligationStatuses,
     hiddenFromDashboard,
     igsData,
-    mutateAsync
+    mutateAsync,
+    toast
   ]);
   
   return {
