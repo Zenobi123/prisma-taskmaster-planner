@@ -18,6 +18,11 @@ export const prepareFiscalData = (
     ...igsData,
     etablissements: safeEtablissements
   });
+
+  // Garantir que les objets de paiement sont bien définis
+  const safePatente = igsData.patente || { montant: '', quittance: '' };
+  const safeAcompteJanvier = igsData.acompteJanvier || { montant: '', quittance: '' };
+  const safeAcompteFevrier = igsData.acompteFevrier || { montant: '', quittance: '' };
   
   return {
     attestation: {
@@ -31,9 +36,9 @@ export const prepareFiscalData = (
       soumisIGS: igsData.soumisIGS,
       adherentCGA: igsData.adherentCGA,
       classeIGS: igsData.classeIGS,
-      patente: igsData.patente,
-      acompteJanvier: igsData.acompteJanvier,
-      acompteFevrier: igsData.acompteFevrier,
+      patente: safePatente,
+      acompteJanvier: safeAcompteJanvier,
+      acompteFevrier: safeAcompteFevrier,
       chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
       etablissements: safeEtablissements
     }
@@ -45,13 +50,18 @@ export const extractClientIGSData = (igsData: IGSData & { chiffreAffairesAnnuel?
   // S'assurer que etablissements est toujours un tableau
   const safeEtablissements = Array.isArray(igsData.etablissements) ? igsData.etablissements : [];
   
+  // Garantir que les objets de paiement sont bien définis
+  const safePatente = igsData.patente || { montant: '', quittance: '' };
+  const safeAcompteJanvier = igsData.acompteJanvier || { montant: '', quittance: '' };
+  const safeAcompteFevrier = igsData.acompteFevrier || { montant: '', quittance: '' };
+  
   return {
     soumisIGS: igsData.soumisIGS,
     adherentCGA: igsData.adherentCGA,
     classeIGS: igsData.classeIGS,
-    patente: igsData.patente,
-    acompteJanvier: igsData.acompteJanvier,
-    acompteFevrier: igsData.acompteFevrier,
+    patente: safePatente,
+    acompteJanvier: safeAcompteJanvier,
+    acompteFevrier: safeAcompteFevrier,
     chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
     etablissements: safeEtablissements
   };

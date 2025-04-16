@@ -50,11 +50,11 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
 
   // If no fiscal data, return defaults
   if (!fiscalData || !fiscalData.igs) {
-    console.info("No IGS data found, returning defaults");
+    console.info("No IGS data found, returning defaults with empty etablissements array");
     return defaultIGSData;
   }
 
-  console.info("Extracted IGS data from fiscal_data:", fiscalData.igs);
+  console.info("Raw IGS data from fiscal_data:", fiscalData.igs);
 
   // Ensure we have all required properties with defaults
   const igsData = {
@@ -67,7 +67,7 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
   
   // Important: Ensure etablissements is ALWAYS an array
   if (!Array.isArray(igsData.etablissements)) {
-    console.info("Etablissements is not an array, initializing to empty array");
+    console.info("Établissements is not an array, initializing to empty array");
     igsData.etablissements = [];
   }
 

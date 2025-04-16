@@ -16,16 +16,19 @@ export function EtablissementsSection({
   etablissements = [],
   onChange
 }: EtablissementsSectionProps) {
-  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(etablissements || []);
+  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>([]);
 
   // Met à jour l'état local quand les props changent
   useEffect(() => {
     console.log("EtablissementsSection - Props etablissements reçus:", etablissements);
-    setLocalEtablissements(Array.isArray(etablissements) ? etablissements : []);
+    // Garantir que etablissements est toujours un tableau, même s'il est null ou undefined
+    const safeEtablissements = Array.isArray(etablissements) ? etablissements : [];
+    console.log("EtablissementsSection - Établissements sécurisés:", safeEtablissements);
+    setLocalEtablissements(safeEtablissements);
   }, [etablissements]);
 
   const addEtablissement = () => {
-    console.log("Ajout d'un nouvel établissement");
+    // Créer un nouvel établissement avec des valeurs par défaut
     const newEtablissement: Etablissement = {
       nom: "",
       activite: "",
@@ -35,36 +38,66 @@ export function EtablissementsSection({
       chiffreAffaires: 0
     };
     
-    const newEtablissements = [...localEtablissements, newEtablissement];
-    console.log("Mise à jour des établissements:", newEtablissements);
+    // Garantir que localEtablissements est toujours un tableau
+    const currentEtablissements = Array.isArray(localEtablissements) ? localEtablissements : [];
+    
+    // Ajouter le nouvel établissement à la liste existante
+    const newEtablissements = [...currentEtablissements, newEtablissement];
+    
+    console.log("Ajout d'un nouvel établissement:", newEtablissement);
+    console.log("Nouvelle liste d'établissements:", newEtablissements);
+    
+    // Mettre à jour l'état local
     setLocalEtablissements(newEtablissements);
+    
+    // Propager le changement au parent
     onChange(newEtablissements);
   };
 
   const updateEtablissement = (index: number, field: keyof Etablissement, value: string | number) => {
-    if (index < 0 || index >= localEtablissements.length) {
+    const currentEtablissements = Array.isArray(localEtablissements) ? [...localEtablissements] : [];
+    
+    if (index < 0 || index >= currentEtablissements.length) {
       console.error("Index d'établissement invalide:", index);
       return;
     }
     
-    const newEtablissements = [...localEtablissements];
+    const updatedEtablissements = [...currentEtablissements];
     
-    newEtablissements[index] = {
-      ...newEtablissements[index],
+    updatedEtablissements[index] = {
+      ...updatedEtablissements[index],
       [field]: field === "chiffreAffaires" ? Number(value.toString().replace(/\s/g, "")) || 0 : value
     };
     
-    console.log(`Mise à jour de l'établissement ${index}, champ ${field}:`, newEtablissements[index]);
-    setLocalEtablissements(newEtablissements);
-    onChange(newEtablissements);
+    console.log(`Mise à jour de l'établissement ${index}, champ ${field}:`, updatedEtablissements[index]);
+    
+    // Mettre à jour l'état local
+    setLocalEtablissements(updatedEtablissements);
+    
+    // Propager le changement au parent
+    onChange(updatedEtablissements);
   };
 
   const removeEtablissement = (index: number) => {
+    const currentEtablissements = Array.isArray(localEtablissements) ? [...localEtablissements] : [];
+    
+    if (index < 0 || index >= currentEtablissements.length) {
+      console.error("Index d'établissement invalide pour la suppression:", index);
+      return;
+    }
+    
     console.log(`Suppression de l'établissement à l'index ${index}`);
-    const newEtablissements = localEtablissements.filter((_, i) => i !== index);
-    setLocalEtablissements(newEtablissements);
-    onChange(newEtablissements);
+    const updatedEtablissements = currentEtablissements.filter((_, i) => i !== index);
+    
+    // Mettre à jour l'état local
+    setLocalEtablissements(updatedEtablissements);
+    
+    // Propager le changement au parent
+    onChange(updatedEtablissements);
   };
+
+  // Déterminer si la liste d'établissements est vide
+  const hasEtablissements = Array.isArray(localEtablissements) && localEtablissements.length > 0;
 
   return (
     <div className="space-y-4">
@@ -83,7 +116,7 @@ export function EtablissementsSection({
       </div>
 
       <div className="space-y-6">
-        {Array.isArray(localEtablissements) && localEtablissements.length > 0 ? (
+        {hasEtablissements ? (
           localEtablissements.map((etablissement, index) => (
             <div key={index} className="p-4 border rounded-lg space-y-4 relative">
               <Button

@@ -33,23 +33,29 @@ export function IGSStatusSection({
   etablissements = [],
   onChange
 }: IGSStatusSectionProps) {
+  // S'assurer que les valeurs par défaut sont correctement initialisées
+  const defaultPatente = { montant: '', quittance: '' };
+  const defaultAcompteJanvier = { montant: '', quittance: '' };
+  const defaultAcompteFevrier = { montant: '', quittance: '' };
+  
   // Initialiser les états avec des valeurs par défaut appropriées
-  const [patenteState, setPatenteState] = useState<IGSPayment>(patente || { montant: '', quittance: '' });
-  const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier || { montant: '', quittance: '' });
-  const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier || { montant: '', quittance: '' });
-  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(
-    Array.isArray(etablissements) ? etablissements : []
-  );
+  const [patenteState, setPatenteState] = useState<IGSPayment>(patente || defaultPatente);
+  const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier || defaultAcompteJanvier);
+  const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier || defaultAcompteFevrier);
+  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>([]);
   const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel || 0);
 
   useEffect(() => {
-    setPatenteState(patente || { montant: '', quittance: '' });
-    setAcompteJanvierState(acompteJanvier || { montant: '', quittance: '' });
-    setAcompteFevrierState(acompteFevrier || { montant: '', quittance: '' });
+    console.log("IGSStatusSection - Initialisation des états avec les props");
+    setPatenteState(patente || defaultPatente);
+    setAcompteJanvierState(acompteJanvier || defaultAcompteJanvier);
+    setAcompteFevrierState(acompteFevrier || defaultAcompteFevrier);
     
     // S'assurer que etablissements est toujours un tableau
+    const safeEtablissements = Array.isArray(etablissements) ? etablissements : [];
     console.log("IGSStatusSection - Mise à jour des établissements depuis les props:", etablissements);
-    setLocalEtablissements(Array.isArray(etablissements) ? etablissements : []);
+    console.log("IGSStatusSection - Établissements sécurisés:", safeEtablissements);
+    setLocalEtablissements(safeEtablissements);
     
     setLocalChiffreAffaires(chiffreAffairesAnnuel || 0);
   }, [patente, acompteJanvier, acompteFevrier, etablissements, chiffreAffairesAnnuel]);
@@ -75,9 +81,18 @@ export function IGSStatusSection({
   };
 
   const handleEtablissementsChange = (newEtablissements: Etablissement[]) => {
-    console.log("IGSStatusSection - Mise à jour des établissements:", newEtablissements);
-    setLocalEtablissements(newEtablissements);
-    onChange("igs.etablissements", newEtablissements);
+    console.log("IGSStatusSection - handleEtablissementsChange appelé avec:", newEtablissements);
+    
+    // S'assurer que newEtablissements est toujours un tableau
+    const safeEtablissements = Array.isArray(newEtablissements) ? newEtablissements : [];
+    
+    // Mettre à jour l'état local
+    setLocalEtablissements(safeEtablissements);
+    
+    // Propager le changement au parent
+    onChange("igs.etablissements", safeEtablissements);
+    
+    console.log("IGSStatusSection - État local mis à jour et changement propagé au parent");
   };
 
   return (
