@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -36,19 +37,13 @@ export function IGSStatusSection({
   const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
   const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
-  const [classeIGSState, setClasseIGSState] = useState<CGAClasse | undefined>(classeIGS);
-  const [chiffreAffairesAnnuelState, setChiffreAffairesAnnuelState] = useState<number>(chiffreAffairesAnnuel);
-  const [etablissementsState, setEtablissementsState] = useState<Etablissement[]>(etablissements);
 
   // Initialize state with props when they change
   useEffect(() => {
     setPatenteState(patente);
     setAcompteJanvierState(acompteJanvier);
     setAcompteFevrierState(acompteFevrier);
-    setClasseIGSState(classeIGS);
-    setChiffreAffairesAnnuelState(chiffreAffairesAnnuel);
-    setEtablissementsState(etablissements);
-  }, [patente, acompteJanvier, acompteFevrier, classeIGS, chiffreAffairesAnnuel, etablissements]);
+  }, [patente, acompteJanvier, acompteFevrier]);
 
   // Handler functions for payment updates
   const handlePatenteChange = (payment: IGSPayment) => {
@@ -65,21 +60,6 @@ export function IGSStatusSection({
     setAcompteFevrierState(payment);
     onChange("igs.acompteFevrier", payment);
   };
-
-  const handleChiffreAffairesChange = useCallback((value: number) => {
-    setChiffreAffairesAnnuelState(value);
-    onChange("igs.chiffreAffairesAnnuel", value);
-  }, [onChange]);
-
-  const handleEtablissementsChange = useCallback((value: Etablissement[]) => {
-    setEtablissementsState(value);
-    onChange("igs.etablissements", value);
-  }, [onChange]);
-
-  const handleClasseIGSChange = useCallback((value: CGAClasse) => {
-    setClasseIGSState(value);
-    onChange("igs.classeIGS", value);
-  }, [onChange]);
 
   return (
     <div className="space-y-4 mb-6">
@@ -116,27 +96,27 @@ export function IGSStatusSection({
 
                 {/* Chiffre d'affaires Section */}
                 <ChiffreAffairesSection
-                  chiffreAffaires={chiffreAffairesAnnuelState}
-                  onChange={handleChiffreAffairesChange}
-                  onClasseChange={handleClasseIGSChange}
+                  chiffreAffaires={chiffreAffairesAnnuel}
+                  onChange={(value) => onChange("igs.chiffreAffairesAnnuel", value)}
+                  onClasseChange={(value) => onChange("igs.classeIGS", value)}
                 />
                 
                 {/* Établissements Section */}
                 <EtablissementsSection
-                  etablissements={etablissementsState}
-                  onChange={handleEtablissementsChange}
+                  etablissements={etablissements}
+                  onChange={(value) => onChange("igs.etablissements", value)}
                 />
                 
                 {/* IGS Classes Selector */}
                 <IGSClassesSelector 
-                  classeIGS={classeIGSState} 
-                  onChange={handleClasseIGSChange} 
+                  classeIGS={classeIGS} 
+                  onChange={(value) => onChange("igs.classeIGS", value)} 
                 />
                 
                 {/* IGS Amount Display */}
                 <IGSAmountDisplay 
                   soumisIGS={soumisIGS} 
-                  classeIGS={classeIGSState} 
+                  classeIGS={classeIGS} 
                   adherentCGA={adherentCGA} 
                 />
                 
@@ -148,6 +128,9 @@ export function IGSStatusSection({
                   onPatenteChange={handlePatenteChange}
                   onAcompteJanvierChange={handleAcompteJanvierChange}
                   onAcompteFevierChange={handleAcompteFevierChange}
+                  soumisIGS={soumisIGS}
+                  classeIGS={classeIGS}
+                  adherentCGA={adherentCGA}
                 />
               </>
             )}

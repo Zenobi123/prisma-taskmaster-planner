@@ -3,31 +3,36 @@ import { useState, useEffect } from "react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { IGSPaymentField } from "./IGSPaymentField";
 import { BadgeEuro } from "lucide-react";
+import { calculateIGSAmount } from "@/components/gestion/tabs/fiscal/components/IGSClassesSelector";
 import { CGAClasse } from "@/hooks/fiscal/types";
-import { igsClassesInfo } from "./IGSClassesSelector";
 
 interface IGSPaymentsSectionProps {
-  montantIGS: number | null;
   patente: IGSPayment;
   acompteJanvier: IGSPayment;
   acompteFevrier: IGSPayment;
   onPatenteChange: (payment: IGSPayment) => void;
   onAcompteJanvierChange: (payment: IGSPayment) => void;
   onAcompteFevierChange: (payment: IGSPayment) => void;
+  soumisIGS: boolean;
+  classeIGS?: CGAClasse;
+  adherentCGA: boolean;
 }
 
 export function IGSPaymentsSection({
-  montantIGS,
   patente,
   acompteJanvier,
   acompteFevrier,
   onPatenteChange,
   onAcompteJanvierChange,
-  onAcompteFevierChange
+  onAcompteFevierChange,
+  soumisIGS,
+  classeIGS,
+  adherentCGA
 }: IGSPaymentsSectionProps) {
   const [reliquat, setReliquat] = useState<number | null>(null);
+  const montantIGS = calculateIGSAmount(soumisIGS, classeIGS, adherentCGA);
 
-  // Calculer le reliquat IGS
+  // Calculate reliquat
   useEffect(() => {
     if (montantIGS !== null) {
       const patenteValue = parseFloat(patente.montant) || 0;
@@ -41,15 +46,14 @@ export function IGSPaymentsSection({
     }
   }, [montantIGS, patente.montant, acompteJanvier.montant, acompteFevrier.montant]);
 
-  if (montantIGS === null) {
+  if (!soumisIGS || montantIGS === null) {
     return null;
   }
 
   return (
-    <div className="mt-6 space-y-4 border-t pt-4">
+    <div className="mt-6 space-y-4">
       <h4 className="font-medium">Paiements et déductions</h4>
       
-      {/* Patente */}
       <IGSPaymentField
         label="Patente payée pour l'exercice (FCFA)"
         payment={patente}
@@ -57,7 +61,6 @@ export function IGSPaymentsSection({
           onPatenteChange({ montant, quittance })}
       />
       
-      {/* Acompte IR de janvier */}
       <IGSPaymentField
         label="Acompte IR de janvier 2025 (FCFA)"
         payment={acompteJanvier}
@@ -65,7 +68,6 @@ export function IGSPaymentsSection({
           onAcompteJanvierChange({ montant, quittance })}
       />
       
-      {/* Acompte IR de février */}
       <IGSPaymentField
         label="Acompte IR de février 2025 (FCFA)"
         payment={acompteFevrier}
@@ -73,7 +75,6 @@ export function IGSPaymentsSection({
           onAcompteFevierChange({ montant, quittance })}
       />
       
-      {/* Reliquat */}
       {reliquat !== null && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
           <p className="text-blue-800 font-medium flex items-center">
@@ -84,19 +85,4 @@ export function IGSPaymentsSection({
       )}
     </div>
   );
-}
-
-// Helper function to calculate IGS amount
-export function calculateIGSAmount(soumisIGS: boolean, classeIGS?: CGAClasse, adherentCGA?: boolean): number | null {
-  if (soumisIGS && classeIGS && igsClassesInfo[classeIGS]) {
-    let baseAmount = igsClassesInfo[classeIGS].montant;
-    
-    // Appliquer une réduction de 50% si adhérent CGA
-    if (adherentCGA) {
-      baseAmount = baseAmount * 0.5;
-    }
-    
-    return baseAmount;
-  }
-  return null;
 }
