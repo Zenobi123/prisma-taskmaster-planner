@@ -22,18 +22,6 @@ interface IGSStatusSectionProps {
   onChange: (name: string, value: any) => void;
 }
 
-// Créer un établissement par défaut
-const createDefaultEtablissement = (): Etablissement => {
-  return {
-    nom: "Établissement principal",
-    activite: "",
-    ville: "",
-    departement: "",
-    quartier: "",
-    chiffreAffaires: 0
-  };
-};
-
 export function IGSStatusSection({
   soumisIGS = false,
   adherentCGA = false,
