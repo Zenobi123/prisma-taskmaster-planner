@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { IGSPaymentField } from "./IGSPaymentField";
 import { BadgeEuro } from "lucide-react";
-import { calculateIGSAmount } from "@/components/gestion/tabs/fiscal/components/IGSClassesSelector";
+import { igsClassesInfo } from "./IGSClassesSelector";
 import { CGAClasse } from "@/hooks/fiscal/types";
 
 interface IGSPaymentsSectionProps {
@@ -17,6 +17,22 @@ interface IGSPaymentsSectionProps {
   classeIGS?: CGAClasse;
   adherentCGA: boolean;
 }
+
+// Calculate IGS amount based on class and CGA status
+const calculateIGSAmount = (soumisIGS: boolean, classeIGS?: CGAClasse, adherentCGA?: boolean): number | null => {
+  if (!soumisIGS || !classeIGS || !igsClassesInfo[classeIGS]) {
+    return null;
+  }
+  
+  let montantIGS = igsClassesInfo[classeIGS].montant;
+  
+  // Apply 50% reduction for CGA members
+  if (adherentCGA) {
+    montantIGS = montantIGS * 0.5;
+  }
+  
+  return montantIGS;
+};
 
 export function IGSPaymentsSection({
   patente,

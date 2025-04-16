@@ -1,13 +1,11 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { ChiffreAffairesSection } from "./components/ChiffreAffairesSection";
 import { EtablissementsSection } from "./components/EtablissementsSection";
 import { IGSClassesSelector } from "./components/IGSClassesSelector";
 import { IGSAmountDisplay } from "./components/IGSAmountDisplay";
 import { IGSPaymentsSection } from "./components/IGSPaymentsSection";
+import { IGSToggleSection } from "./components/IGSToggleSection";
 import { CGAClasse, Etablissement } from "@/types/client";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 
@@ -38,14 +36,12 @@ export function IGSStatusSection({
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
   const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
 
-  // Initialize state with props when they change
   useEffect(() => {
     setPatenteState(patente);
     setAcompteJanvierState(acompteJanvier);
     setAcompteFevrierState(acompteFevrier);
   }, [patente, acompteJanvier, acompteFevrier]);
 
-  // Handler functions for payment updates
   const handlePatenteChange = (payment: IGSPayment) => {
     setPatenteState(payment);
     onChange("igs.patente", payment);
@@ -68,59 +64,37 @@ export function IGSStatusSection({
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col space-y-4">
-            {/* IGS Status Toggle */}
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="soumis-igs"
-                checked={soumisIGS}
-                onCheckedChange={(checked) => onChange("igs.soumisIGS", checked)}
-              />
-              <Label htmlFor="soumis-igs">
-                {soumisIGS ? "Soumis à l'IGS" : "Non soumis à l'IGS"}
-              </Label>
-            </div>
+            <IGSToggleSection
+              soumisIGS={soumisIGS}
+              adherentCGA={adherentCGA}
+              onSoumisIGSChange={(checked) => onChange("igs.soumisIGS", checked)}
+              onAdherentCGAChange={(checked) => onChange("igs.adherentCGA", checked)}
+            />
             
             {soumisIGS && (
               <>
-                {/* CGA Status Toggle */}
-                <div className="flex items-center space-x-2 mt-2">
-                  <Switch
-                    id="adherent-cga"
-                    checked={adherentCGA}
-                    onCheckedChange={(checked) => onChange("igs.adherentCGA", checked)}
-                  />
-                  <Label htmlFor="adherent-cga">
-                    {adherentCGA ? "Adhérent CGA" : "Non adhérent CGA"}
-                  </Label>
-                </div>
-
-                {/* Chiffre d'affaires Section */}
                 <ChiffreAffairesSection
                   chiffreAffaires={chiffreAffairesAnnuel}
                   onChange={(value) => onChange("igs.chiffreAffairesAnnuel", value)}
                   onClasseChange={(value) => onChange("igs.classeIGS", value)}
                 />
                 
-                {/* Établissements Section */}
                 <EtablissementsSection
                   etablissements={etablissements}
                   onChange={(value) => onChange("igs.etablissements", value)}
                 />
                 
-                {/* IGS Classes Selector */}
                 <IGSClassesSelector 
                   classeIGS={classeIGS} 
                   onChange={(value) => onChange("igs.classeIGS", value)} 
                 />
                 
-                {/* IGS Amount Display */}
                 <IGSAmountDisplay 
                   soumisIGS={soumisIGS} 
                   classeIGS={classeIGS} 
                   adherentCGA={adherentCGA} 
                 />
                 
-                {/* IGS Payments Section */}
                 <IGSPaymentsSection 
                   patente={patenteState}
                   acompteJanvier={acompteJanvierState}
