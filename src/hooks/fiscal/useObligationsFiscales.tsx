@@ -41,7 +41,7 @@ export function useObligationsFiscales(selectedClient: Client) {
     fetchFiscalData();
   }, [selectedClient, toast]);
 
-  // Use our new custom hooks
+  // Use our custom hooks
   const { 
     creationDate, 
     setCreationDate,

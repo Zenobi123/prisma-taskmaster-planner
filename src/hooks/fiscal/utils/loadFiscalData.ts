@@ -31,9 +31,11 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
     const fiscalData = typeof data.fiscal_data === 'object' ? data.fiscal_data : null;
     
     // Vérifier et corriger les etablissements avant de retourner les données
-    if (fiscalData && fiscalData.igs && !Array.isArray(fiscalData.igs.etablissements)) {
-      fiscalData.igs.etablissements = [];
-      console.info("Correction des établissements: initialisé à un tableau vide");
+    if (fiscalData && typeof fiscalData === 'object' && !Array.isArray(fiscalData) && fiscalData.igs) {
+      if (!Array.isArray(fiscalData.igs.etablissements)) {
+        fiscalData.igs.etablissements = [];
+        console.info("Correction des établissements: initialisé à un tableau vide");
+      }
     }
     
     // Cast to unknown first, then to ClientFiscalData to satisfy TypeScript
