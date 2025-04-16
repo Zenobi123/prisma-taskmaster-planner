@@ -33,17 +33,24 @@ export function IGSStatusSection({
   etablissements = [],
   onChange
 }: IGSStatusSectionProps) {
-  const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
-  const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
-  const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
-  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(etablissements || []);
+  // Initialiser les états avec des valeurs par défaut appropriées
+  const [patenteState, setPatenteState] = useState<IGSPayment>(patente || { montant: '', quittance: '' });
+  const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier || { montant: '', quittance: '' });
+  const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier || { montant: '', quittance: '' });
+  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(
+    Array.isArray(etablissements) ? etablissements : []
+  );
   const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel || 0);
 
   useEffect(() => {
-    setPatenteState(patente);
-    setAcompteJanvierState(acompteJanvier);
-    setAcompteFevrierState(acompteFevrier);
-    setLocalEtablissements(etablissements || []);
+    setPatenteState(patente || { montant: '', quittance: '' });
+    setAcompteJanvierState(acompteJanvier || { montant: '', quittance: '' });
+    setAcompteFevrierState(acompteFevrier || { montant: '', quittance: '' });
+    
+    // S'assurer que etablissements est toujours un tableau
+    console.log("IGSStatusSection - Mise à jour des établissements depuis les props:", etablissements);
+    setLocalEtablissements(Array.isArray(etablissements) ? etablissements : []);
+    
     setLocalChiffreAffaires(chiffreAffairesAnnuel || 0);
   }, [patente, acompteJanvier, acompteFevrier, etablissements, chiffreAffairesAnnuel]);
 
@@ -68,7 +75,7 @@ export function IGSStatusSection({
   };
 
   const handleEtablissementsChange = (newEtablissements: Etablissement[]) => {
-    console.log("Mise à jour des établissements:", newEtablissements);
+    console.log("IGSStatusSection - Mise à jour des établissements:", newEtablissements);
     setLocalEtablissements(newEtablissements);
     onChange("igs.etablissements", newEtablissements);
   };
@@ -96,7 +103,7 @@ export function IGSStatusSection({
                 />
                 
                 <EtablissementsSection
-                  etablissements={localEtablissements || []}
+                  etablissements={localEtablissements}
                   onChange={handleEtablissementsChange}
                 />
                 

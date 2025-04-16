@@ -11,6 +11,14 @@ export const prepareFiscalData = (
   hiddenFromDashboard: boolean,
   igsData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] }
 ) => {
+  // S'assurer que etablissements est toujours un tableau
+  const safeEtablissements = Array.isArray(igsData.etablissements) ? igsData.etablissements : [];
+  
+  console.log("Préparation des données fiscales pour enregistrement:", {
+    ...igsData,
+    etablissements: safeEtablissements
+  });
+  
   return {
     attestation: {
       creationDate,
@@ -27,13 +35,16 @@ export const prepareFiscalData = (
       acompteJanvier: igsData.acompteJanvier,
       acompteFevrier: igsData.acompteFevrier,
       chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
-      etablissements: igsData.etablissements || []
+      etablissements: safeEtablissements
     }
   };
 };
 
 // Extract IGS data for client object
 export const extractClientIGSData = (igsData: IGSData & { chiffreAffairesAnnuel?: number, etablissements?: any[] }) => {
+  // S'assurer que etablissements est toujours un tableau
+  const safeEtablissements = Array.isArray(igsData.etablissements) ? igsData.etablissements : [];
+  
   return {
     soumisIGS: igsData.soumisIGS,
     adherentCGA: igsData.adherentCGA,
@@ -42,6 +53,6 @@ export const extractClientIGSData = (igsData: IGSData & { chiffreAffairesAnnuel?
     acompteJanvier: igsData.acompteJanvier,
     acompteFevrier: igsData.acompteFevrier,
     chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
-    etablissements: igsData.etablissements || []
+    etablissements: safeEtablissements
   };
 };

@@ -18,8 +18,10 @@ export function EtablissementsSection({
 }: EtablissementsSectionProps) {
   const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(etablissements || []);
 
+  // Met à jour l'état local quand les props changent
   useEffect(() => {
-    setLocalEtablissements(etablissements || []);
+    console.log("EtablissementsSection - Props etablissements reçus:", etablissements);
+    setLocalEtablissements(Array.isArray(etablissements) ? etablissements : []);
   }, [etablissements]);
 
   const addEtablissement = () => {
@@ -34,25 +36,31 @@ export function EtablissementsSection({
     };
     
     const newEtablissements = [...localEtablissements, newEtablissement];
+    console.log("Mise à jour des établissements:", newEtablissements);
     setLocalEtablissements(newEtablissements);
     onChange(newEtablissements);
   };
 
   const updateEtablissement = (index: number, field: keyof Etablissement, value: string | number) => {
+    if (index < 0 || index >= localEtablissements.length) {
+      console.error("Index d'établissement invalide:", index);
+      return;
+    }
+    
     const newEtablissements = [...localEtablissements];
     
-    if (newEtablissements[index]) {
-      newEtablissements[index] = {
-        ...newEtablissements[index],
-        [field]: field === "chiffreAffaires" ? Number(value.toString().replace(/\s/g, "")) || 0 : value
-      };
-      
-      setLocalEtablissements(newEtablissements);
-      onChange(newEtablissements);
-    }
+    newEtablissements[index] = {
+      ...newEtablissements[index],
+      [field]: field === "chiffreAffaires" ? Number(value.toString().replace(/\s/g, "")) || 0 : value
+    };
+    
+    console.log(`Mise à jour de l'établissement ${index}, champ ${field}:`, newEtablissements[index]);
+    setLocalEtablissements(newEtablissements);
+    onChange(newEtablissements);
   };
 
   const removeEtablissement = (index: number) => {
+    console.log(`Suppression de l'établissement à l'index ${index}`);
     const newEtablissements = localEtablissements.filter((_, i) => i !== index);
     setLocalEtablissements(newEtablissements);
     onChange(newEtablissements);
@@ -75,7 +83,7 @@ export function EtablissementsSection({
       </div>
 
       <div className="space-y-6">
-        {localEtablissements && localEtablissements.length > 0 ? (
+        {Array.isArray(localEtablissements) && localEtablissements.length > 0 ? (
           localEtablissements.map((etablissement, index) => (
             <div key={index} className="p-4 border rounded-lg space-y-4 relative">
               <Button

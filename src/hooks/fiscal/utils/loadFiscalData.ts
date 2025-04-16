@@ -56,12 +56,21 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
 
   console.info("Extracted IGS data from fiscal_data:", fiscalData.igs);
 
-  // Extract IGS data from fiscal_data
-  return {
+  // Ensure we have all required properties with defaults
+  const igsData = {
     ...defaultIGSData,
     ...fiscalData.igs,
-    // Ensure these fields are initialized if they don't exist
-    chiffreAffairesAnnuel: fiscalData.igs.chiffreAffairesAnnuel || 0,
-    etablissements: Array.isArray(fiscalData.igs.etablissements) ? fiscalData.igs.etablissements : []
   };
+
+  // Ensure these fields are initialized properly
+  igsData.chiffreAffairesAnnuel = igsData.chiffreAffairesAnnuel || 0;
+  
+  // Important: Ensure etablissements is ALWAYS an array
+  if (!Array.isArray(igsData.etablissements)) {
+    console.info("Etablissements is not an array, initializing to empty array");
+    igsData.etablissements = [];
+  }
+
+  console.info("Final IGS data after extraction and validation:", igsData);
+  return igsData;
 };
