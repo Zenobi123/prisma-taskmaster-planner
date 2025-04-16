@@ -32,9 +32,14 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
     
     // Vérifier et corriger les etablissements avant de retourner les données
     if (fiscalData && typeof fiscalData === 'object' && !Array.isArray(fiscalData) && fiscalData.igs) {
-      if (!Array.isArray(fiscalData.igs.etablissements)) {
-        fiscalData.igs.etablissements = [];
-        console.info("Correction des établissements: initialisé à un tableau vide");
+      // Fixed: Type safety check for igs - make sure it's an object
+      const igsData = fiscalData.igs;
+      if (typeof igsData === 'object' && !Array.isArray(igsData)) {
+        // Now check for etablissements within the object
+        if (!Array.isArray(igsData.etablissements)) {
+          igsData.etablissements = [];
+          console.info("Correction des établissements: initialisé à un tableau vide");
+        }
       }
     }
     
@@ -68,25 +73,26 @@ export const extractIGSData = (fiscalData: ClientFiscalData | null, client: Clie
 
   console.info("Raw IGS data from fiscal_data:", fiscalData.igs);
 
-  // S'assurer que établissements est un tableau valide dans les données fiscales
-  if (!Array.isArray(fiscalData.igs.etablissements)) {
-    console.info("Établissements dans fiscal_data n'est pas un tableau, initialisation...");
-    fiscalData.igs.etablissements = [];
-  }
+  // Fixed: Type safety check for igs object and etablissements property
+  const igsData = fiscalData.igs;
+  const safeEtablissements = (typeof igsData === 'object' && 
+                             !Array.isArray(igsData) && 
+                             igsData && 
+                             Array.isArray(igsData.etablissements)) 
+    ? [...igsData.etablissements] 
+    : [];
 
   // Ensure we have all required properties with defaults
-  const igsData = {
+  const resultIgsData = {
     ...defaultIGSData,
     ...fiscalData.igs,
-    // Toujours remplacer établissements par une copie du tableau pour éviter les références
-    etablissements: Array.isArray(fiscalData.igs.etablissements) 
-      ? [...fiscalData.igs.etablissements] 
-      : []
+    // Always use the safely extracted etablissements array
+    etablissements: safeEtablissements
   };
 
   // Ensure these fields are initialized properly
-  igsData.chiffreAffairesAnnuel = igsData.chiffreAffairesAnnuel || 0;
+  resultIgsData.chiffreAffairesAnnuel = resultIgsData.chiffreAffairesAnnuel || 0;
 
-  console.info("Final IGS data after extraction and validation:", igsData);
-  return igsData;
+  console.info("Final IGS data after extraction and validation:", resultIgsData);
+  return resultIgsData;
 };

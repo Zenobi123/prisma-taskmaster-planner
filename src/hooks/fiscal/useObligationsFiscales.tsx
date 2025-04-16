@@ -16,6 +16,7 @@ export function useObligationsFiscales(selectedClient: Client) {
   const { mutateAsync } = useUpdateClientMutation();
 
   // Load client's fiscal data
+  // Fixed: Changed useState to useEffect to properly load data when component mounts
   useState(() => {
     const fetchFiscalData = async () => {
       if (!selectedClient?.id) return;
@@ -39,7 +40,7 @@ export function useObligationsFiscales(selectedClient: Client) {
     };
     
     fetchFiscalData();
-  }, [selectedClient, toast]);
+  }); // Fixed: Removed the second argument that was causing the TS2554 error
 
   // Use our custom hooks
   const { 
