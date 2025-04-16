@@ -1,10 +1,9 @@
 
-import { useState, useEffect } from "react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { IGSPaymentField } from "./IGSPaymentField";
 import { BadgeEuro } from "lucide-react";
-import { igsClassesInfo } from "./IGSClassesSelector";
 import { CGAClasse } from "@/hooks/fiscal/types";
+import { useIGSReliquat } from "@/hooks/fiscal/useIGSReliquat";
 
 interface IGSPaymentsSectionProps {
   patente: IGSPayment;
@@ -18,22 +17,6 @@ interface IGSPaymentsSectionProps {
   adherentCGA: boolean;
 }
 
-// Calculate IGS amount based on class and CGA status
-const calculateIGSAmount = (soumisIGS: boolean, classeIGS?: CGAClasse, adherentCGA?: boolean): number | null => {
-  if (!soumisIGS || !classeIGS || !igsClassesInfo[classeIGS]) {
-    return null;
-  }
-  
-  let montantIGS = igsClassesInfo[classeIGS].montant;
-  
-  // Apply 50% reduction for CGA members
-  if (adherentCGA) {
-    montantIGS = montantIGS * 0.5;
-  }
-  
-  return montantIGS;
-};
-
 export function IGSPaymentsSection({
   patente,
   acompteJanvier,
@@ -45,24 +28,16 @@ export function IGSPaymentsSection({
   classeIGS,
   adherentCGA
 }: IGSPaymentsSectionProps) {
-  const [reliquat, setReliquat] = useState<number | null>(null);
-  const montantIGS = calculateIGSAmount(soumisIGS, classeIGS, adherentCGA);
+  const reliquat = useIGSReliquat(
+    soumisIGS,
+    classeIGS,
+    adherentCGA,
+    patente,
+    acompteJanvier,
+    acompteFevrier
+  );
 
-  // Calculate reliquat
-  useEffect(() => {
-    if (montantIGS !== null) {
-      const patenteValue = parseFloat(patente.montant) || 0;
-      const janvierValue = parseFloat(acompteJanvier.montant) || 0;
-      const fevrierValue = parseFloat(acompteFevrier.montant) || 0;
-      
-      const reliquatValue = montantIGS - patenteValue - janvierValue - fevrierValue;
-      setReliquat(reliquatValue > 0 ? reliquatValue : 0);
-    } else {
-      setReliquat(null);
-    }
-  }, [montantIGS, patente.montant, acompteJanvier.montant, acompteFevrier.montant]);
-
-  if (!soumisIGS || montantIGS === null) {
+  if (!soumisIGS) {
     return null;
   }
 
