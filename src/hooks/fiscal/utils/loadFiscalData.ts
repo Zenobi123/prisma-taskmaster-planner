@@ -26,7 +26,8 @@ export const loadFiscalData = async (clientId: string): Promise<ClientFiscalData
     }
 
     console.info(`Fiscal data found for client ${clientId}`);
-    return data.fiscal_data as ClientFiscalData;
+    // Cast to unknown first, then to ClientFiscalData to satisfy TypeScript
+    return data.fiscal_data as unknown as ClientFiscalData;
   } catch (error) {
     console.error('Error in loadFiscalData:', error);
     return null;
