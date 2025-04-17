@@ -70,6 +70,39 @@ const QuickStats = () => {
           <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
         </div>
       </div>
+
+      {/* Nouvelles sections vides */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Section 1
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            --
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Description</p>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Section 2
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            --
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Description</p>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Section 3
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            --
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Description</p>
+        </div>
+      </div>
       
       <UnpaidPatenteDialog 
         open={showUnpaidPatenteDialog} 
