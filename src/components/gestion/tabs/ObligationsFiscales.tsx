@@ -6,6 +6,7 @@ import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
 import { Loader2 } from "lucide-react";
+import { IGSData } from "./fiscal/types";
 
 // Properly re-export types with 'export type' syntax to fix the TS1205 error
 export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "@/hooks/fiscal/types";
@@ -26,7 +27,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
-    handleToggleDashboardVisibility
+    handleToggleDashboardVisibility,
+    igsData,
+    handleIGSDataChange
   } = useObligationsFiscales(selectedClient);
 
   if (isLoading) {
@@ -62,6 +65,8 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         <AnnualObligationsSection 
           obligationStatuses={obligationStatuses}
           handleStatusChange={handleStatusChange}
+          igsData={igsData}
+          onIGSDataChange={handleIGSDataChange}
         />
       </CardContent>
     </Card>

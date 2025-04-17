@@ -2,10 +2,12 @@
 import React from "react";
 import { 
   ObligationStatuses, 
-  ObligationType, 
+  ObligationType,
+  IGSData
 } from "../fiscal/types";
 import { TaxObligationItem } from "./TaxObligationItem";
 import { DeclarationObligationItem } from "./DeclarationObligationItem";
+import { IGSEstablishmentsSection } from "./IGSEstablishmentsSection";
 
 interface AnnualObligationsSectionProps {
   obligationStatuses: ObligationStatuses;
@@ -14,11 +16,15 @@ interface AnnualObligationsSectionProps {
     statusType: "assujetti" | "paye" | "depose",
     value: boolean
   ) => void;
+  igsData?: IGSData;
+  onIGSDataChange: (data: IGSData) => void;
 }
 
 export function AnnualObligationsSection({
   obligationStatuses,
-  handleStatusChange
+  handleStatusChange,
+  igsData,
+  onIGSDataChange
 }: AnnualObligationsSectionProps) {
   return (
     <div className="space-y-4">
@@ -42,6 +48,12 @@ export function AnnualObligationsSection({
               obligationType="igs"
               status={obligationStatuses.igs}
               onChange={handleStatusChange}
+            />
+
+            <IGSEstablishmentsSection 
+              igsData={igsData}
+              onIGSDataChange={onIGSDataChange}
+              assujetti={obligationStatuses.igs.assujetti}
             />
             
             <TaxObligationItem

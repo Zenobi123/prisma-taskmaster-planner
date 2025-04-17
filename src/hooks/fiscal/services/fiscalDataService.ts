@@ -24,7 +24,7 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
     
     if (data?.fiscal_data) {
       console.log(`Fiscal data found for client ${clientId}`);
-      // Cast the data to the correct type
+      // Cast the data to the correct type with an intermediate unknown cast for safety
       return data.fiscal_data as unknown as ClientFiscalData;
     }
     

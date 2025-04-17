@@ -28,8 +28,27 @@ export interface FiscalAttestationData {
   showInAlert?: boolean; // Add property to control alert visibility
 }
 
+export interface Establishment {
+  id: string;
+  name: string;
+  activity: string;
+  city: string;
+  department: string;
+  district: string; // quartier
+  revenue: number; // chiffre d'affaires HT
+}
+
+export interface IGSData {
+  establishments: Establishment[];
+  previousYearRevenue?: number;
+  igsClass?: number;
+  igsAmount?: number;
+  cgaReduction?: boolean;
+}
+
 export interface ClientFiscalData {
   attestation: FiscalAttestationData;
   obligations: ObligationStatuses;
   hiddenFromDashboard?: boolean; // Add property to hide from dashboard
+  igs?: IGSData; // Add IGS data
 }

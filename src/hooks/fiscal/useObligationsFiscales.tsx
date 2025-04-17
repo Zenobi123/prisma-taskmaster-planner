@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
-import { ObligationStatuses, ClientFiscalData, ObligationType } from "./types";
+import { ObligationStatuses, ClientFiscalData, ObligationType, IGSData, Establishment } from "./types";
 import { calculateValidityEndDate, checkAttestationExpiration } from "./utils/dateUtils";
 import { getFromCache, updateCache } from "./services/fiscalDataCache";
 import { saveFiscalData, fetchFiscalData } from "./services/fiscalDataService";
 import { toast } from "sonner";
+import { v4 as uuidv4 } from "uuid";
 
 export const useObligationsFiscales = (selectedClient: Client) => {
   const [creationDate, setCreationDate] = useState<string>("");
@@ -21,6 +22,23 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
+  const [igsData, setIgsData] = useState<IGSData>({
+    establishments: [
+      {
+        id: uuidv4(),
+        name: "Établissement principal",
+        activity: "",
+        city: "",
+        department: "",
+        district: "",
+        revenue: 0
+      }
+    ],
+    previousYearRevenue: 0,
+    igsClass: 1,
+    igsAmount: 20000,
+    cgaReduction: false
+  });
 
   // Fetch fiscal data when client changes
   useEffect(() => {
@@ -87,6 +105,10 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       setObligationStatuses(data.obligations);
     }
 
+    if (data.igs) {
+      setIgsData(data.igs);
+    }
+
     setHiddenFromDashboard(data.hiddenFromDashboard === true);
   };
 
@@ -100,6 +122,23 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       taxeFonciere: { assujetti: false, paye: false },
       dsf: { assujetti: false, depose: false },
       darp: { assujetti: false, depose: false }
+    });
+    setIgsData({
+      establishments: [
+        {
+          id: uuidv4(),
+          name: "Établissement principal",
+          activity: "",
+          city: "",
+          department: "",
+          district: "",
+          revenue: 0
+        }
+      ],
+      previousYearRevenue: 0,
+      igsClass: 1,
+      igsAmount: 20000,
+      cgaReduction: false
     });
     setShowInAlert(true);
     setHiddenFromDashboard(false);
@@ -119,6 +158,10 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     }));
   };
 
+  const handleIGSDataChange = (data: IGSData) => {
+    setIgsData(data);
+  };
+
   const handleToggleAlert = () => {
     setShowInAlert(prev => !prev);
   };
@@ -135,7 +178,8 @@ export const useObligationsFiscales = (selectedClient: Client) => {
         showInAlert
       },
       obligations: obligationStatuses,
-      hiddenFromDashboard
+      hiddenFromDashboard,
+      igs: igsData
     };
 
     try {
@@ -162,6 +206,8 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
-    handleToggleDashboardVisibility
+    handleToggleDashboardVisibility,
+    igsData,
+    handleIGSDataChange
   };
 };
