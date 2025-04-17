@@ -1,5 +1,7 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
+import { Json } from "@/integrations/supabase/types";
 
 /**
  * Verify that fiscal data was saved correctly
