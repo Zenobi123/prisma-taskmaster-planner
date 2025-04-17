@@ -34,11 +34,15 @@ export function useIGSData(
   // Calculate total turnover from all establishments
   const calculateTotalTurnover = useCallback((etablissements) => {
     if (!Array.isArray(etablissements) || etablissements.length === 0) return 0;
-    return etablissements.reduce((sum, etab) => {
+    
+    const total = etablissements.reduce((sum, etab) => {
       // S'assurer que la valeur est bien un nombre
       const caValue = typeof etab.chiffreAffaires === 'number' ? etab.chiffreAffaires : 0;
       return sum + caValue;
     }, 0);
+    
+    console.log("Calculated total turnover:", total);
+    return total;
   }, []);
 
   // Load IGS data when client or fiscal data changes
@@ -69,28 +73,34 @@ export function useIGSData(
   
   // Handle updates to IGS data
   const handleIGSChange = useCallback((name: string, value: any) => {
+    console.log(`handleIGSChange called with: ${name} = `, value);
+    
     const parts = name.split('.');
     
     if (parts[0] === 'igs') {
       if (parts[1] === 'etablissements') {
-        // Convertir en tableau si ce n'est pas déjà le cas
-        const safeEtablissements = Array.isArray(value) ? value : [];
-        
-        // Utiliser le gestionnaire spécialisé pour les établissements
-        const updatedEtablissements = handleEtablissementsChange(safeEtablissements);
-        
-        // Calculer le nouveau chiffre d'affaires total à partir de tous les établissements
-        const newTotalTurnover = calculateTotalTurnover(updatedEtablissements);
-        
-        console.log("Mise à jour des établissements:", updatedEtablissements);
-        console.log("Nouveau chiffre d'affaires total calculé:", newTotalTurnover);
-        
-        // Mettre à jour à la fois les établissements et le chiffre d'affaires annuel
-        setIgsData(prev => ({
-          ...prev,
-          etablissements: updatedEtablissements,
-          chiffreAffairesAnnuel: newTotalTurnover
-        }));
+        try {
+          // Garantir que la valeur est un tableau
+          const safeEtablissements = Array.isArray(value) ? value : [];
+          
+          // Utiliser le gestionnaire spécialisé pour les établissements
+          const updatedEtablissements = handleEtablissementsChange(safeEtablissements);
+          
+          // Calculer le nouveau chiffre d'affaires total à partir de tous les établissements
+          const newTotalTurnover = calculateTotalTurnover(updatedEtablissements);
+          
+          console.log("Mise à jour des établissements:", updatedEtablissements);
+          console.log("Nouveau chiffre d'affaires total calculé:", newTotalTurnover);
+          
+          // Mettre à jour à la fois les établissements et le chiffre d'affaires annuel
+          setIgsData(prev => ({
+            ...prev,
+            etablissements: updatedEtablissements,
+            chiffreAffairesAnnuel: newTotalTurnover
+          }));
+        } catch (error) {
+          console.error("Erreur lors de la mise à jour des établissements:", error);
+        }
       } else if (parts[1] === 'chiffreAffairesAnnuel') {
         // Si on met à jour directement le chiffre d'affaires annuel,
         // convertir la valeur en nombre si nécessaire

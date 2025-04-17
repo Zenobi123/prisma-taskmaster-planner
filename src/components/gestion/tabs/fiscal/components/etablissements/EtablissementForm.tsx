@@ -2,7 +2,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Etablissement } from "@/types/client";
-import { formatNumberWithSpaces } from "@/utils/formatUtils";
+import { formatNumberWithSpaces, parseFormattedNumber } from "@/utils/formatUtils";
 import { useState, useEffect, ChangeEvent } from "react";
 
 interface EtablissementFormProps {
@@ -16,15 +16,13 @@ export function EtablissementForm({
   index, 
   updateEtablissement 
 }: EtablissementFormProps) {
-  // Utiliser un état local pour gérer la valeur affichée du chiffre d'affaires
-  const [caDisplayValue, setCaDisplayValue] = useState("");
-  
   // États locaux pour chaque champ texte pour une réactivité immédiate
   const [nomValue, setNomValue] = useState(etablissement.nom || "");
   const [activiteValue, setActiviteValue] = useState(etablissement.activite || "");
   const [villeValue, setVilleValue] = useState(etablissement.ville || "");
   const [departementValue, setDepartementValue] = useState(etablissement.departement || "");
   const [quartierValue, setQuartierValue] = useState(etablissement.quartier || "");
+  const [caDisplayValue, setCaDisplayValue] = useState("");
   
   // Mettre à jour les états locaux lorsque les props changent
   useEffect(() => {
@@ -34,8 +32,8 @@ export function EtablissementForm({
     setDepartementValue(etablissement.departement || "");
     setQuartierValue(etablissement.quartier || "");
     
-    // N'appliquer le formatage que si chiffreAffaires est défini et non nul
-    if (etablissement.chiffreAffaires !== undefined && etablissement.chiffreAffaires !== null) {
+    // Appliquer le formatage seulement si nécessaire
+    if (etablissement.chiffreAffaires > 0) {
       setCaDisplayValue(formatNumberWithSpaces(etablissement.chiffreAffaires));
     } else {
       setCaDisplayValue("");
@@ -46,16 +44,14 @@ export function EtablissementForm({
   const handleChiffreAffairesChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     
-    // Mettre à jour l'affichage local immédiatement
+    // Permettre la saisie directe sans interférence de formatage
     setCaDisplayValue(value);
     
-    // Nettoyer la valeur et la convertir en nombre
-    // Supprimer tous les caractères non numériques
-    const numericValue = value.replace(/\D/g, "");
-    const parsedValue = numericValue ? Number(numericValue) : 0;
+    // Convertir la valeur en nombre uniquement lorsqu'on met à jour les données parent
+    const numericValue = parseFormattedNumber(value);
     
     // Mettre à jour l'état parent avec la valeur numérique
-    updateEtablissement(index, "chiffreAffaires", parsedValue);
+    updateEtablissement(index, "chiffreAffaires", numericValue);
   };
 
   // Gérer les changements pour les champs texte avec mise à jour immédiate de l'interface
@@ -116,6 +112,7 @@ export function EtablissementForm({
           value={caDisplayValue}
           onChange={handleChiffreAffairesChange}
           placeholder="0"
+          type="text"
         />
       </div>
     </div>

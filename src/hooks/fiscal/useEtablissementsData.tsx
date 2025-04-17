@@ -42,19 +42,33 @@ export function useEtablissementsData(etablissements: Etablissement[] | undefine
   const handleEtablissementsChange = useCallback((newEtablissements: Etablissement[]) => {
     console.log("handleEtablissementsChange called with:", newEtablissements);
     
-    // Ensure we're working with a valid array with proper structure
-    const validEtablissements = Array.isArray(newEtablissements) && newEtablissements.length > 0
-      ? newEtablissements.map(etab => ({
-          ...createDefaultEtablissement(),
-          ...etab,
-          chiffreAffaires: typeof etab.chiffreAffaires === 'number' ? etab.chiffreAffaires : 0
-        }))
-      : [createDefaultEtablissement()];
-    
-    console.log("Setting établissements to:", validEtablissements);
-    setLocalEtablissements(validEtablissements);
-    
-    return validEtablissements;
+    try {
+      // Ensure we're working with a valid array with proper structure
+      const validEtablissements = Array.isArray(newEtablissements) && newEtablissements.length > 0
+        ? newEtablissements.map(etab => {
+            // Créer une copie propre de l'établissement pour éviter les références circulaires
+            const cleanEtab = {
+              nom: etab.nom || '',
+              activite: etab.activite || '',
+              ville: etab.ville || '',
+              departement: etab.departement || '',
+              quartier: etab.quartier || '',
+              chiffreAffaires: typeof etab.chiffreAffaires === 'number' ? etab.chiffreAffaires : 0
+            };
+            return cleanEtab;
+          })
+        : [createDefaultEtablissement()];
+      
+      console.log("Setting établissements to:", validEtablissements);
+      setLocalEtablissements(validEtablissements);
+      
+      return validEtablissements;
+    } catch (error) {
+      console.error("Error in handleEtablissementsChange:", error);
+      const fallbackEtabs = [createDefaultEtablissement()];
+      setLocalEtablissements(fallbackEtabs);
+      return fallbackEtabs;
+    }
   }, []);
 
   return { 

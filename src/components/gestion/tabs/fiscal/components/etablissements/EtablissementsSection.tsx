@@ -25,7 +25,15 @@ export function EtablissementsSection({
     let safeEtablissements: Etablissement[] = [];
     
     if (Array.isArray(etablissements) && etablissements.length > 0) {
-      safeEtablissements = [...etablissements];
+      // Créer une copie profonde pour éviter les problèmes de référence
+      safeEtablissements = etablissements.map(etab => ({
+        nom: etab.nom || '',
+        activite: etab.activite || '',
+        ville: etab.ville || '',
+        departement: etab.departement || '',
+        quartier: etab.quartier || '',
+        chiffreAffaires: typeof etab.chiffreAffaires === 'number' ? etab.chiffreAffaires : 0
+      }));
     } else {
       safeEtablissements = [createDefaultEtablissement()];
     }
@@ -62,21 +70,17 @@ export function EtablissementsSection({
       return;
     }
     
-    // Créer une copie complète pour éviter les problèmes de référence
+    // Créer une copie complète du tableau pour éviter les problèmes de référence
     const updatedEtablissements = localEtablissements.map((etab, i) => {
-      if (i !== index) return etab;
+      if (i !== index) return {...etab};
       
-      // Pour le champ chiffreAffaires, s'assurer que c'est bien un nombre
-      if (field === "chiffreAffaires") {
-        const numValue = typeof value === 'string' 
-          ? Number(value.replace(/\s/g, "")) || 0
-          : Number(value) || 0;
-          
-        return { ...etab, [field]: numValue };
-      }
+      // Créer une copie de l'établissement à modifier
+      const updatedEtab = {...etab};
       
-      // Pour les autres champs
-      return { ...etab, [field]: value };
+      // Mettre à jour le champ spécifique
+      updatedEtab[field] = value;
+      
+      return updatedEtab;
     });
     
     console.log(`Mise à jour de l'établissement ${index}, champ ${field}:`, updatedEtablissements[index]);

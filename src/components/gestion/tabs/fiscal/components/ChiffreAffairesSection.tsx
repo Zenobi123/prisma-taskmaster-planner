@@ -3,7 +3,7 @@ import { useState, useEffect, ChangeEvent } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { CGAClasse } from "@/hooks/fiscal/types";
-import { formatNumberWithSpaces } from "@/utils/formatUtils";
+import { formatNumberWithSpaces, parseFormattedNumber } from "@/utils/formatUtils";
 
 interface ChiffreAffairesSectionProps {
   chiffreAffaires?: number;
@@ -22,7 +22,7 @@ export function ChiffreAffairesSection({
   // Mettre à jour l'état local quand la prop change
   useEffect(() => {
     // N'appliquer le formatage que si chiffreAffaires est défini et non nul
-    if (chiffreAffaires !== undefined && chiffreAffaires !== null && chiffreAffaires !== 0) {
+    if (chiffreAffaires > 0) {
       setDisplayValue(formatNumberWithSpaces(chiffreAffaires));
     } else {
       setDisplayValue("");
@@ -48,10 +48,8 @@ export function ChiffreAffairesSection({
     // Mettre à jour l'affichage local immédiatement
     setDisplayValue(value);
     
-    // Nettoyer la valeur et la convertir en nombre
-    // Supprimer tous les caractères non numériques
-    const numericValue = value.replace(/\D/g, "");
-    const parsedValue = numericValue ? Number(numericValue) : 0;
+    // Convertir la valeur en nombre
+    const parsedValue = parseFormattedNumber(value);
     
     // Mettre à jour avec la valeur numérique
     onChange(parsedValue);
