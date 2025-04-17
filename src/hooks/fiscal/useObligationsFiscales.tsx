@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses, ClientFiscalData, ObligationType, IGSData, Establishment } from "./types";
@@ -94,7 +95,17 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     }
     
     if (data.obligations) {
-      setObligationStatuses(data.obligations);
+      // Ensure all required fields are present in the loaded data
+      const completeObligations: ObligationStatuses = {
+        patente: { assujetti: false, paye: false },
+        igs: { assujetti: false, paye: false },
+        bail: { assujetti: false, paye: false },
+        taxeFonciere: { assujetti: false, paye: false },
+        dsf: { assujetti: false, depose: false },
+        darp: { assujetti: false, depose: false },
+        ...data.obligations
+      };
+      setObligationStatuses(completeObligations);
     }
 
     if (data.igs) {

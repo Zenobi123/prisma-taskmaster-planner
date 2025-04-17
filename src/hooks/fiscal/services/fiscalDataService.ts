@@ -73,9 +73,6 @@ const invalidateRelatedQueries = async (): Promise<void> => {
     // In a real app, we would need to somehow trigger a refresh of related queries
     console.log("Related queries should be invalidated");
     
-    // One option is to add a timestamp to a table that other components can watch
-    // Another option is to use a pub/sub mechanism or websockets
-    
   } catch (error) {
     console.error("Error invalidating related queries:", error);
   }

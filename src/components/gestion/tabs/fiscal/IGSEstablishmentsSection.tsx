@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +31,9 @@ const calculateIGSClass = (revenue: number): { classNumber: number; amount: numb
 };
 
 export function IGSEstablishmentsSection({ igsData, onIGSDataChange, assujetti }: IGSEstablishmentsProps) {
+  // Safely handle undefined assujetti value
+  const isAssujetti = assujetti === true;
+  
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [igsClass, setIgsClass] = useState(0);
@@ -41,7 +43,7 @@ export function IGSEstablishmentsSection({ igsData, onIGSDataChange, assujetti }
   // Initialize with default establishment if none exists
   useEffect(() => {
     if (igsData) {
-      setEstablishments(igsData.establishments);
+      setEstablishments(igsData.establishments || []);
       setCgaReduction(igsData.cgaReduction || false);
     } else if (establishments.length === 0) {
       // Add a default establishment
@@ -110,7 +112,7 @@ export function IGSEstablishmentsSection({ igsData, onIGSDataChange, assujetti }
     setCgaReduction(checked);
   };
 
-  if (!assujetti) {
+  if (!isAssujetti) {
     return null; // Don't render if not assujetti
   }
 

@@ -26,6 +26,17 @@ export function AnnualObligationsSection({
   igsData,
   onIGSDataChange
 }: AnnualObligationsSectionProps) {
+  // Ensure obligationStatuses includes all required fields with defaults
+  const safeObligationStatuses: ObligationStatuses = {
+    patente: { assujetti: false, paye: false },
+    igs: { assujetti: false, paye: false },
+    bail: { assujetti: false, paye: false },
+    taxeFonciere: { assujetti: false, paye: false },
+    dsf: { assujetti: false, depose: false },
+    darp: { assujetti: false, depose: false },
+    ...obligationStatuses
+  };
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Obligations annuelles</h3>
@@ -38,7 +49,7 @@ export function AnnualObligationsSection({
               title="Patente"
               deadline="28 février"
               obligationType="patente"
-              status={obligationStatuses.patente}
+              status={safeObligationStatuses.patente}
               onChange={handleStatusChange}
             />
             
@@ -46,21 +57,21 @@ export function AnnualObligationsSection({
               title="Impôt Général Synthétique (IGS)"
               deadline="31 mars"
               obligationType="igs"
-              status={obligationStatuses.igs}
+              status={safeObligationStatuses.igs}
               onChange={handleStatusChange}
             />
 
             <IGSEstablishmentsSection 
               igsData={igsData}
               onIGSDataChange={onIGSDataChange}
-              assujetti={obligationStatuses.igs.assujetti}
+              assujetti={safeObligationStatuses.igs?.assujetti || false}
             />
             
             <TaxObligationItem
               title="Bail"
               deadline="28 février"
               obligationType="bail"
-              status={obligationStatuses.bail}
+              status={safeObligationStatuses.bail}
               onChange={handleStatusChange}
             />
             
@@ -68,7 +79,7 @@ export function AnnualObligationsSection({
               title="Taxe foncière"
               deadline="28 février"
               obligationType="taxeFonciere"
-              status={obligationStatuses.taxeFonciere}
+              status={safeObligationStatuses.taxeFonciere}
               onChange={handleStatusChange}
             />
           </div>
@@ -81,7 +92,7 @@ export function AnnualObligationsSection({
               title="Déclaration Statistique et Fiscale (DSF)"
               deadline="15 avril"
               obligationType="dsf"
-              status={obligationStatuses.dsf}
+              status={safeObligationStatuses.dsf}
               onChange={handleStatusChange}
             />
             
@@ -89,7 +100,7 @@ export function AnnualObligationsSection({
               title="Déclaration Annuelle des Revenus des Particuliers (DARP)"
               deadline="30 juin"
               obligationType="darp"
-              status={obligationStatuses.darp}
+              status={safeObligationStatuses.darp}
               onChange={handleStatusChange}
             />
           </div>

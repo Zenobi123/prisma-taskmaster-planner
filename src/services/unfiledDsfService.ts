@@ -35,9 +35,13 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
       
       // Vérifier si obligations existe dans les données fiscales
       if (fiscalData.obligations) {
+        // Vérifier que dsf existe dans les obligations
+        if (!fiscalData.obligations.dsf) {
+          return false;
+        }
+        
         // On cherche une obligation de type dsf qui est assujetti mais non déposée
-        return fiscalData.obligations.dsf && 
-               fiscalData.obligations.dsf.assujetti === true && 
+        return fiscalData.obligations.dsf.assujetti === true && 
                fiscalData.obligations.dsf.depose === false;
       }
     }

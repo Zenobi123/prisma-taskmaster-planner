@@ -33,9 +33,13 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
       
       // Vérifier si obligations existe dans les données fiscales
       if (fiscalData.obligations) {
+        // Vérifier que patente existe dans les obligations
+        if (!fiscalData.obligations.patente) {
+          return false;
+        }
+        
         // On cherche une obligation de type patente qui est assujetti mais non payée
-        return fiscalData.obligations.patente && 
-               fiscalData.obligations.patente.assujetti === true && 
+        return fiscalData.obligations.patente.assujetti === true && 
                fiscalData.obligations.patente.paye === false;
       }
     }
