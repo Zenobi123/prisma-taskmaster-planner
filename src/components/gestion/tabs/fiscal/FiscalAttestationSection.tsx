@@ -2,14 +2,12 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import { 
   Card, 
   CardContent, 
   CardHeader, 
-  CardTitle,
-  CardFooter
+  CardTitle
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 
@@ -17,7 +15,7 @@ interface FiscalAttestationSectionProps {
   creationDate: string;
   validityEndDate: string;
   setCreationDate: (date: string) => void;
-  handleSave: () => Promise<void>;
+  handleSave?: () => Promise<void>;  // Make handleSave optional
   showInAlert?: boolean;
   onToggleAlert?: () => void;
   hiddenFromDashboard?: boolean;
@@ -28,23 +26,11 @@ export function FiscalAttestationSection({
   creationDate, 
   validityEndDate, 
   setCreationDate, 
-  handleSave,
   showInAlert = true,
   onToggleAlert,
   hiddenFromDashboard = false,
   onToggleDashboardVisibility
 }: FiscalAttestationSectionProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      await handleSave();
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
   // Helper function to validate date format (DD/MM/YYYY)
   const isValidDateFormat = (date: string): boolean => {
     const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
@@ -121,15 +107,6 @@ export function FiscalAttestationSection({
           </Label>
         </div>
       </CardContent>
-      <CardFooter>
-        <Button 
-          onClick={handleSubmit} 
-          disabled={isSubmitting || isDateInvalid}
-          className="bg-[#84A98C] hover:bg-[#5E8C61] text-white"
-        >
-          {isSubmitting ? "Enregistrement..." : "Enregistrer"}
-        </Button>
-      </CardFooter>
     </Card>
   );
 }
