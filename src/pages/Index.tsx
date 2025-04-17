@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { 
@@ -97,8 +96,8 @@ const Index = () => {
           <QuickStats />
           
           <DashboardCollapsible 
-            title="Tâches récentes"
-            componentName="RecentTasks"
+            title="Gestion de l'Impôt Général Synthétique"
+            componentName="IgsSection"
           />
           
           <DashboardCollapsible 
