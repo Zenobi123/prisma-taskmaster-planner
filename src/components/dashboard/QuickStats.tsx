@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
+import { Briefcase, FileText, Clock } from "lucide-react";
 
 const QuickStats = () => {
   const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
@@ -17,7 +18,7 @@ const QuickStats = () => {
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      {/* Deuxième rangée: les statistiques des clients */}
+      {/* Première rangée: les statistiques des clients existantes */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
@@ -70,6 +71,42 @@ const QuickStats = () => {
         </div>
       </div>
       
+      {/* Nouvelle rangée: trois sections vides */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="card opacity-50">
+          <h3 className="font-semibold text-neutral-800 mb-4 flex items-center">
+            <Briefcase className="mr-2 h-5 w-5 text-neutral-500" />
+            Section 1
+          </h3>
+          <div className="text-3xl font-bold text-neutral-400">
+            0
+          </div>
+          <p className="text-neutral-500 text-sm mt-1">Non défini</p>
+        </div>
+
+        <div className="card opacity-50">
+          <h3 className="font-semibold text-neutral-800 mb-4 flex items-center">
+            <FileText className="mr-2 h-5 w-5 text-neutral-500" />
+            Section 2
+          </h3>
+          <div className="text-3xl font-bold text-neutral-400">
+            0
+          </div>
+          <p className="text-neutral-500 text-sm mt-1">Non défini</p>
+        </div>
+
+        <div className="card opacity-50">
+          <h3 className="font-semibold text-neutral-800 mb-4 flex items-center">
+            <Clock className="mr-2 h-5 w-5 text-neutral-500" />
+            Section 3
+          </h3>
+          <div className="text-3xl font-bold text-neutral-400">
+            0
+          </div>
+          <p className="text-neutral-500 text-sm mt-1">Non défini</p>
+        </div>
+      </div>
+      
       <UnpaidPatenteDialog 
         open={showUnpaidPatenteDialog} 
         onOpenChange={setShowUnpaidPatenteDialog} 
@@ -79,4 +116,3 @@ const QuickStats = () => {
 };
 
 export default QuickStats;
-
