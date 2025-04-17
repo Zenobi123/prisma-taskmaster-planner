@@ -21,6 +21,7 @@ export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps
     creationDate,
     setCreationDate,
     validityEndDate,
+    setValidityEndDate,
     obligationStatuses,
     handleStatusChange,
     handleSave,
@@ -51,6 +52,7 @@ export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps
         creationDate={creationDate}
         validityEndDate={validityEndDate}
         setCreationDate={setCreationDate}
+        setValidityEndDate={setValidityEndDate}
         handleSave={handleSave}
         showInAlert={showInAlert}
         onToggleAlert={handleToggleAlert}

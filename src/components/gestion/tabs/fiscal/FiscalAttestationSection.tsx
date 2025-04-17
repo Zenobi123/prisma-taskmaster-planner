@@ -1,14 +1,17 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { calculateValidityEndDate } from "@/hooks/fiscal/utils/dateUtils";
+import { format, parse } from "date-fns";
 
 export interface FiscalAttestationSectionProps {
   creationDate: string;
   validityEndDate: string;
   setCreationDate: (date: string) => void;
+  setValidityEndDate: (date: string) => void; // Ajout de cette prop
   handleSave: () => void;
   showInAlert: boolean;
   onToggleAlert: (checked: boolean) => void;
@@ -20,12 +23,44 @@ export const FiscalAttestationSection = ({
   creationDate,
   validityEndDate,
   setCreationDate,
+  setValidityEndDate, // Utilisation de cette prop
   handleSave,
   showInAlert,
   onToggleAlert,
   hiddenFromDashboard,
   onToggleDashboardVisibility
 }: FiscalAttestationSectionProps) => {
+  // Conversion des dates entre format HTML (YYYY-MM-DD) et format français (DD/MM/YYYY)
+  const htmlDateFormat = (frenchDate: string): string => {
+    if (!frenchDate) return "";
+    const parts = frenchDate.split('/');
+    return parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : "";
+  };
+
+  const frenchDateFormat = (htmlDate: string): string => {
+    if (!htmlDate) return "";
+    const date = new Date(htmlDate);
+    return isNaN(date.getTime()) ? "" : format(date, 'dd/MM/yyyy');
+  };
+
+  // Mettre à jour la date de fin de validité lorsque la date de création change
+  useEffect(() => {
+    if (creationDate) {
+      // Assurer que nous travaillons avec le format français pour le calcul
+      const frenchDate = creationDate.includes('-') ? frenchDateFormat(creationDate) : creationDate;
+      const newEndDate = calculateValidityEndDate(frenchDate);
+      if (newEndDate) {
+        setValidityEndDate(newEndDate);
+      }
+    }
+  }, [creationDate, setValidityEndDate]);
+
+  // Gérer le changement de date en convertissant le format
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const htmlDate = e.target.value;
+    setCreationDate(frenchDateFormat(htmlDate));
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -38,8 +73,8 @@ export const FiscalAttestationSection = ({
             <Input
               id="creation-date"
               type="date"
-              value={creationDate}
-              onChange={(e) => setCreationDate(e.target.value)}
+              value={htmlDateFormat(creationDate)}
+              onChange={handleDateChange}
             />
           </div>
           <div className="space-y-2">
@@ -47,8 +82,9 @@ export const FiscalAttestationSection = ({
             <Input
               id="validity-end-date"
               type="date"
-              value={validityEndDate}
+              value={htmlDateFormat(validityEndDate)}
               readOnly
+              className="bg-gray-50"
             />
           </div>
         </div>

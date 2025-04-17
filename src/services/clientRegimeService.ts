@@ -1,50 +1,55 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import { format } from "date-fns";
 import { calculatePaymentStatus } from "@/components/clients/identity/igs/utils/igsCalculations";
 
-export interface ClientRegimeStats {
-  reelClients: number;
-  igsClients: number;
-  delayedIgsClients: number;
-}
+// Cache des résultats de requête
+let clientRegimeCache: any = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
-  console.log("Récupération des statistiques des régimes fiscaux...");
+export const getClientRegimeStats = async (): Promise<{ 
+  igsClients: number;
+  reelClients: number; 
+  unpaidIGS: number;
+  clientsWithPaymentInfo: number;
+}> => {
+  // Vérifier si le cache est valide
+  const now = Date.now();
+  if (clientRegimeCache && now - cacheTimestamp < CACHE_DURATION) {
+    console.log("Utilisation du cache pour les statistiques de régime fiscal");
+    return clientRegimeCache;
+  }
+
+  console.log("Récupération des statistiques de régime fiscal depuis la base de données");
   
   // Récupérer tous les clients
-  const { data: allClients, error: clientsError } = await supabase
+  const { data: allClients, error } = await supabase
     .from("clients")
     .select("*");
   
-  if (clientsError) {
-    console.error("Erreur lors de la récupération des clients:", clientsError);
-    throw clientsError;
+  if (error) {
+    console.error("Erreur lors de la récupération des clients:", error);
+    throw error;
   }
 
-  // Compter les clients par régime fiscal
-  let reelClients = 0;
+  // Initialiser les compteurs
   let igsClients = 0;
-  let delayedIgsClients = 0;
-
+  let reelClients = 0;
+  let unpaidIGS = 0;
+  let clientsWithPaymentInfo = 0;
+  
   const currentDate = new Date();
-
-  allClients.forEach(client => {
-    console.log(`Analyse du client ${client.id} - régime fiscal: ${client.regimefiscal}`);
-    
-    // Vérifier si le client est au régime du réel
-    if (client.regimefiscal === "reel") {
-      reelClients++;
-    }
-    
-    // Vérifier si le client est à l'IGS
+  
+  // Analyser chaque client
+  allClients.forEach((client: any) => {
     if (client.regimefiscal === "igs") {
-      console.log(`Client IGS détecté: ${client.id}`);
       igsClients++;
       
       // Vérifier si caché du tableau de bord
-      const fiscalDataObj = typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
-      if (fiscalDataObj && fiscalDataObj.hiddenFromDashboard === true) {
+      const fiscalDataObj = client.fiscal_data && typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
+      if (fiscalDataObj && 'hiddenFromDashboard' in fiscalDataObj && fiscalDataObj.hiddenFromDashboard === true) {
         console.log(`Client ${client.id} caché du tableau de bord`);
         return;
       }
@@ -52,84 +57,87 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
       // Cast client to Client type to properly access IGS data
       const typedClient = client as unknown as Client;
       
-      // Vérifier les données IGS - d'abord dans typedClient.igs
+      // Vérifier directement dans l'objet client.igs
       if (typedClient.igs && typedClient.igs.soumisIGS) {
-        const igsData = typedClient.igs;
-        console.log(`Données IGS pour client ${client.id}:`, igsData);
+        clientsWithPaymentInfo++;
         
         // Utiliser le système de suivi des paiements avec completedPayments
-        if (Array.isArray(igsData.completedPayments)) {
-          const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
+        if (Array.isArray(typedClient.igs.completedPayments)) {
+          const paymentStatus = calculatePaymentStatus(typedClient.igs.completedPayments, currentDate);
           
           if (!paymentStatus.isUpToDate) {
-            console.log(`Client ${client.id} en retard selon le système de suivi des paiements`);
-            delayedIgsClients++;
+            unpaidIGS++;
           }
         } 
-        // Fallback: vérifier les acomptes individuels si completedPayments n'est pas utilisé
+        // Ancien système : vérifier les acomptes individuels (fallback)
         else {
           const currentMonth = currentDate.getMonth();
           
-          if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
-            console.log(`Client ${client.id} en retard pour l'acompte de janvier`);
-            delayedIgsClients++;
+          if (currentMonth > 0 && (!typedClient.igs.acompteJanvier || !typedClient.igs.acompteJanvier.montant)) {
+            unpaidIGS++;
           }
-          else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
-            console.log(`Client ${client.id} en retard pour l'acompte de février`);
-            delayedIgsClients++;
+          else if (currentMonth > 1 && (!typedClient.igs.acompteFevrier || !typedClient.igs.acompteFevrier.montant)) {
+            unpaidIGS++;
           }
         }
       } 
       // Chercher les données IGS dans fiscal_data si elles n'existent pas directement
       else if (client.fiscal_data) {
-        const fiscalData = typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
+        const fiscalData = client.fiscal_data && typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
         
         // Vérifier si caché du tableau de bord
-        if (fiscalData && fiscalData.hiddenFromDashboard === true) {
+        if (fiscalData && 'hiddenFromDashboard' in fiscalData && fiscalData.hiddenFromDashboard === true) {
           console.log(`Client ${client.id} caché du tableau de bord via fiscal_data`);
           return;
         }
         
-        if (fiscalData && fiscalData.igs && fiscalData.igs.soumisIGS) {
+        if (fiscalData && 'igs' in fiscalData && fiscalData.igs && fiscalData.igs.soumisIGS) {
           const igsData = fiscalData.igs;
+          clientsWithPaymentInfo++;
           
           // Utiliser le système de suivi des paiements avec completedPayments
           if (Array.isArray(igsData.completedPayments)) {
             const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
             
             if (!paymentStatus.isUpToDate) {
-              console.log(`Client ${client.id} en retard selon le système de suivi des paiements (via fiscal_data)`);
-              delayedIgsClients++;
+              unpaidIGS++;
             }
-          }
-          // Fallback: vérifier les acomptes individuels
+          } 
+          // Ancien système (fallback)
           else {
             const currentMonth = currentDate.getMonth();
             
             if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
-              console.log(`Client ${client.id} en retard pour l'acompte de janvier (via fiscal_data)`);
-              delayedIgsClients++;
+              unpaidIGS++;
             } else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
-              console.log(`Client ${client.id} en retard pour l'acompte de février (via fiscal_data)`);
-              delayedIgsClients++;
+              unpaidIGS++;
             }
           }
         } else {
-          console.log(`Client ${client.id} est IGS mais sans données IGS définies dans fiscal_data`);
-          delayedIgsClients++;
+          // Si le client est IGS mais sans données complètes, le compter comme en retard
+          unpaidIGS++;
         }
       } else {
-        console.log(`Client ${client.id} est IGS mais sans données IGS définies`);
-        delayedIgsClients++;
+        // Si le client est IGS mais sans données complètes, le compter comme en retard
+        unpaidIGS++;
       }
+    } 
+    else if (client.regimefiscal === "reel") {
+      reelClients++;
     }
   });
-  
-  console.log("Statistiques des régimes fiscaux:", { reelClients, igsClients, delayedIgsClients });
-  
-  return {
-    reelClients,
+
+  // Stocker les résultats dans le cache
+  clientRegimeCache = {
     igsClients,
-    delayedIgsClients
+    reelClients,
+    unpaidIGS,
+    clientsWithPaymentInfo
   };
+  
+  cacheTimestamp = now;
+  
+  console.log(`Statistiques calculées: ${igsClients} clients IGS, ${reelClients} clients au réel, ${unpaidIGS} IGS impayés`);
+  
+  return clientRegimeCache;
 };

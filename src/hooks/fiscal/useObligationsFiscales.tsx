@@ -46,7 +46,7 @@ export function useObligationsFiscales(selectedClient: Client) {
     creationDate, 
     setCreationDate,
     validityEndDate, 
-    setValidityEndDate,
+    setValidityEndDate, // Important: nous exportons maintenant cette fonction
     showInAlert, 
     handleToggleAlert,
     hiddenFromDashboard, 
@@ -137,6 +137,7 @@ export function useObligationsFiscales(selectedClient: Client) {
     creationDate,
     setCreationDate,
     validityEndDate,
+    setValidityEndDate, // Important: nous exportons maintenant cette fonction
     obligationStatuses,
     handleStatusChange,
     handleSave,
