@@ -39,6 +39,8 @@ export const getClientRegimeStats = async (): Promise<{
   let unpaidIGS = 0;
   let clientsWithPaymentInfo = 0;
   
+  console.log(`Nombre total de clients récupérés: ${allClients.length}`);
+  
   const currentDate = new Date();
   
   // Analyser chaque client
@@ -46,10 +48,11 @@ export const getClientRegimeStats = async (): Promise<{
     // Log pour débogage
     console.log(`Analyse du client ${client.id} (${client.nom || client.raisonsociale}) - Régime: ${client.regimefiscal}`);
     
+    // Vérifier si le client est en régime IGS
     if (client.regimefiscal === "igs") {
       // Incrémenter le compteur de clients IGS, indépendamment de leur statut de paiement
       igsClients++;
-      console.log(`Client ${client.id} compté comme client IGS`);
+      console.log(`Client ${client.id} compté comme client IGS - Total: ${igsClients}`);
       
       // Vérifier si caché du tableau de bord
       const fiscalDataObj = client.fiscal_data && typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
@@ -169,6 +172,7 @@ export const getClientRegimeStats = async (): Promise<{
     } 
     else if (client.regimefiscal === "reel") {
       reelClients++;
+      console.log(`Client ${client.id} compté comme client au réel - Total: ${reelClients}`);
     }
   });
 

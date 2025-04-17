@@ -71,14 +71,18 @@ export const getClientStats = async () => {
           if (currentMonth > 0 && 
               typedClient.igs.acompteJanvier && 
               typeof typedClient.igs.acompteJanvier === 'object' && 
-              (!('montant' in typedClient.igs.acompteJanvier) || !typedClient.igs.acompteJanvier.montant)) {
+              (!('montant' in typedClient.igs.acompteJanvier) || 
+               (typeof typedClient.igs.acompteJanvier.montant === 'object' ? 
+                  false : !typedClient.igs.acompteJanvier.montant))) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de janvier - ajouté aux statistiques`);
             return true;
           }
           else if (currentMonth > 1 && 
                   typedClient.igs.acompteFevrier && 
                   typeof typedClient.igs.acompteFevrier === 'object' && 
-                  (!('montant' in typedClient.igs.acompteFevrier) || !typedClient.igs.acompteFevrier.montant)) {
+                  (!('montant' in typedClient.igs.acompteFevrier) || 
+                   (typeof typedClient.igs.acompteFevrier.montant === 'object' ? 
+                      false : !typedClient.igs.acompteFevrier.montant))) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de février - ajouté aux statistiques`);
             return true;
           }
@@ -113,7 +117,7 @@ export const getClientStats = async () => {
           // Utiliser le système de suivi des paiements avec completedPayments
           if ('completedPayments' in igsData && Array.isArray(igsData.completedPayments)) {
             // Convertir les éléments en chaînes de caractères
-            const paymentStrings = igsData.completedPayments.map(payment => 
+            const paymentStrings = (igsData.completedPayments as any[]).map(payment => 
               typeof payment === 'string' ? payment : String(payment)
             );
             
@@ -134,14 +138,18 @@ export const getClientStats = async () => {
               'acompteJanvier' in igsData && 
               igsData.acompteJanvier && 
               typeof igsData.acompteJanvier === 'object' && 
-              (!('montant' in igsData.acompteJanvier) || !igsData.acompteJanvier.montant)) {
+              (!('montant' in igsData.acompteJanvier) || 
+               (typeof igsData.acompteJanvier.montant === 'object' ? 
+                  false : !igsData.acompteJanvier.montant))) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de janvier (via fiscal_data) - ajouté aux statistiques`);
             return true;
           } else if (currentMonth > 1 && 
                     'acompteFevrier' in igsData && 
                     igsData.acompteFevrier && 
                     typeof igsData.acompteFevrier === 'object' && 
-                    (!('montant' in igsData.acompteFevrier) || !igsData.acompteFevrier.montant)) {
+                    (!('montant' in igsData.acompteFevrier) || 
+                     (typeof igsData.acompteFevrier.montant === 'object' ? 
+                        false : !igsData.acompteFevrier.montant))) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de février (via fiscal_data) - ajouté aux statistiques`);
             return true;
           }
@@ -163,17 +171,18 @@ export const getClientStats = async () => {
     // On vérifie si le client a des données fiscales
     if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
       // Vérifier si caché du tableau de bord
-      const fiscalData = client.fiscal_data && typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
+      const fiscalData = client.fiscal_data;
       
-      if (fiscalData && 
-          typeof fiscalData === 'object' && 
+      if (typeof fiscalData === 'object' && 
           'hiddenFromDashboard' in fiscalData && 
           fiscalData.hiddenFromDashboard === true) {
         return false;
       }
       
       // Vérifier si obligations existe dans les données fiscales
-      if ('obligations' in fiscalData && fiscalData.obligations && typeof fiscalData.obligations === 'object') {
+      if ('obligations' in fiscalData && 
+          fiscalData.obligations && 
+          typeof fiscalData.obligations === 'object') {
         // On cherche une obligation de type dsf qui est assujetti mais non déposée
         return 'dsf' in fiscalData.obligations && 
                typeof fiscalData.obligations.dsf === 'object' &&

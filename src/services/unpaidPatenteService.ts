@@ -68,14 +68,18 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
           if (currentMonth > 0 && 
               typedClient.igs.acompteJanvier && 
               typeof typedClient.igs.acompteJanvier === 'object' && 
-              (!('montant' in typedClient.igs.acompteJanvier) || !typedClient.igs.acompteJanvier.montant)) {
+              (!('montant' in typedClient.igs.acompteJanvier) || 
+               (typeof typedClient.igs.acompteJanvier.montant === 'object' ? 
+                false : !typedClient.igs.acompteJanvier.montant))) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de janvier`);
             return true;
           }
           else if (currentMonth > 1 && 
                   typedClient.igs.acompteFevrier && 
                   typeof typedClient.igs.acompteFevrier === 'object' && 
-                  (!('montant' in typedClient.igs.acompteFevrier) || !typedClient.igs.acompteFevrier.montant)) {
+                  (!('montant' in typedClient.igs.acompteFevrier) || 
+                   (typeof typedClient.igs.acompteFevrier.montant === 'object' ? 
+                    false : !typedClient.igs.acompteFevrier.montant))) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de février`);
             return true;
           }
@@ -110,7 +114,7 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
           // Utiliser le système de suivi des paiements avec completedPayments
           if ('completedPayments' in igsData && Array.isArray(igsData.completedPayments)) {
             // Fix TypeScript error - ensure we're passing string[] to calculatePaymentStatus
-            const payments = (igsData.completedPayments).map(payment => 
+            const payments = (igsData.completedPayments as any[]).map(payment => 
               typeof payment === 'string' ? payment : String(payment)
             );
             
@@ -131,14 +135,18 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
               'acompteJanvier' in igsData &&
               igsData.acompteJanvier && 
               typeof igsData.acompteJanvier === 'object' && 
-              (!('montant' in igsData.acompteJanvier) || !igsData.acompteJanvier.montant)) {
+              (!('montant' in igsData.acompteJanvier) || 
+               (typeof igsData.acompteJanvier.montant === 'object' ? 
+                false : !igsData.acompteJanvier.montant))) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de janvier (via fiscal_data)`);
             return true;
           } else if (currentMonth > 1 && 
                     'acompteFevrier' in igsData &&
                     igsData.acompteFevrier && 
                     typeof igsData.acompteFevrier === 'object' && 
-                    (!('montant' in igsData.acompteFevrier) || !igsData.acompteFevrier.montant)) {
+                    (!('montant' in igsData.acompteFevrier) || 
+                     (typeof igsData.acompteFevrier.montant === 'object' ? 
+                      false : !igsData.acompteFevrier.montant))) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de février (via fiscal_data)`);
             return true;
           }
