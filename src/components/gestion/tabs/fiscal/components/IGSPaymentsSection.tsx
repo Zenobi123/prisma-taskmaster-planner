@@ -1,10 +1,19 @@
 
+import { useState } from "react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { IGSPaymentField } from "./IGSPaymentField";
 import { BadgeEuro, Receipt, AlertTriangle, Calendar } from "lucide-react";
 import { CGAClasse } from "@/hooks/fiscal/types";
 import { useIGSReliquat } from "@/hooks/fiscal/useIGSReliquat";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { 
+  getIGSPaymentDeadlines, 
+  calculatePaymentStatus,
+  calculateQuarterlyPayment,
+  calculateIGSAmount
+} from "@/components/clients/identity/igs/utils/igsCalculations";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 interface IGSPaymentsSectionProps {
   patente: IGSPayment;
@@ -16,6 +25,8 @@ interface IGSPaymentsSectionProps {
   soumisIGS: boolean;
   classeIGS?: CGAClasse;
   adherentCGA: boolean;
+  completedPayments?: string[];
+  onCompletedPaymentsChange?: (payments: string[]) => void;
 }
 
 export function IGSPaymentsSection({
@@ -27,7 +38,9 @@ export function IGSPaymentsSection({
   onAcompteFevierChange,
   soumisIGS,
   classeIGS,
-  adherentCGA
+  adherentCGA,
+  completedPayments = [],
+  onCompletedPaymentsChange
 }: IGSPaymentsSectionProps) {
   const reliquat = useIGSReliquat(
     soumisIGS,
@@ -37,6 +50,24 @@ export function IGSPaymentsSection({
     acompteJanvier,
     acompteFevrier
   );
+  
+  const [paymentsList, setPaymentsList] = useState<string[]>(completedPayments);
+  const deadlines = getIGSPaymentDeadlines();
+  const totalAmount = calculateIGSAmount(soumisIGS, classeIGS, adherentCGA);
+  const quarterlyAmount = calculateQuarterlyPayment(totalAmount);
+  const paymentStatus = calculatePaymentStatus(paymentsList);
+
+  const handlePaymentToggle = (paymentId: string, isChecked: boolean) => {
+    let newPaymentsList = isChecked 
+      ? [...paymentsList, paymentId]
+      : paymentsList.filter(id => id !== paymentId);
+    
+    setPaymentsList(newPaymentsList);
+    
+    if (onCompletedPaymentsChange) {
+      onCompletedPaymentsChange(newPaymentsList);
+    }
+  };
 
   if (!soumisIGS) {
     return null;
@@ -45,6 +76,67 @@ export function IGSPaymentsSection({
   return (
     <div className="mt-6 space-y-4">
       <h4 className="font-medium">Paiements et déductions</h4>
+      
+      {/* Payment deadlines section */}
+      {totalAmount !== null && (
+        <div className="space-y-4 mb-4">
+          <div className="flex flex-col gap-2">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-blue-600" />
+              Échéances de paiement
+              <Badge variant={paymentStatus.isUpToDate ? "success" : "destructive"} className="ml-2">
+                {paymentStatus.isUpToDate ? "À jour" : "En retard"}
+              </Badge>
+            </h4>
+            
+            {!paymentStatus.isUpToDate && (
+              <p className="text-xs text-red-600 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                {paymentStatus.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {deadlines.map(deadline => (
+              <div key={deadline.id} className="flex items-center space-x-2 bg-gray-50 p-2 rounded-md">
+                <Checkbox 
+                  id={`payment-${deadline.id}`}
+                  checked={paymentsList.includes(deadline.id)}
+                  onCheckedChange={(checked) => {
+                    handlePaymentToggle(deadline.id, checked === true);
+                  }}
+                />
+                <label 
+                  htmlFor={`payment-${deadline.id}`}
+                  className="text-sm flex-1 flex justify-between cursor-pointer"
+                >
+                  <span>{deadline.label}</span>
+                  {quarterlyAmount && (
+                    <span className="font-medium text-blue-700 flex items-center">
+                      <BadgeEuro className="h-3 w-3 mr-1" />
+                      {quarterlyAmount.toLocaleString()} FCFA
+                    </span>
+                  )}
+                </label>
+              </div>
+            ))}
+          </div>
+          
+          {quarterlyAmount && (
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-blue-800">
+                  Payé: {paymentsList.length} sur 4 échéances
+                </p>
+                <p className="text-sm font-medium text-blue-800">
+                  {(quarterlyAmount * paymentsList.length).toLocaleString()} / {totalAmount.toLocaleString()} FCFA
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
       
       <Alert className="bg-amber-50 border-amber-200">
         <AlertTriangle className="h-4 w-4 text-amber-800" />
@@ -90,6 +182,9 @@ export function IGSPaymentsSection({
           <p className="text-blue-800 font-medium flex items-center">
             <BadgeEuro className="h-5 w-5 mr-2" />
             Reliquat IGS à payer: {reliquat.toLocaleString()} FCFA
+            <Badge variant={reliquat === 0 ? "success" : "destructive"} className="ml-2">
+              {reliquat === 0 ? "Soldé" : "Non soldé"}
+            </Badge>
           </p>
         </div>
       )}

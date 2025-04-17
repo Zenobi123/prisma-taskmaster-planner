@@ -11,6 +11,7 @@ interface UseIGSPaymentProps {
   patente: IGSPayment;
   acompteJanvier: IGSPayment;
   acompteFevrier: IGSPayment;
+  completedPayments?: string[];
   onChange: (name: string, value: any) => void;
 }
 
@@ -21,6 +22,7 @@ export function useIGSPayment({
   patente,
   acompteJanvier,
   acompteFevrier,
+  completedPayments = [],
   onChange
 }: UseIGSPaymentProps) {
   const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
@@ -28,6 +30,7 @@ export function useIGSPayment({
   const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
   const [reliquat, setReliquat] = useState<number | null>(null);
   const [showPayments, setShowPayments] = useState(false);
+  const [paymentsList, setPaymentsList] = useState<string[]>(completedPayments);
 
   // Initialize states with props when they change
   useEffect(() => {
@@ -35,6 +38,13 @@ export function useIGSPayment({
     setAcompteJanvierState(acompteJanvier);
     setAcompteFevrierState(acompteFevrier);
   }, [patente, acompteJanvier, acompteFevrier]);
+
+  // Initialize completed payments
+  useEffect(() => {
+    if (completedPayments.length > 0) {
+      setPaymentsList(completedPayments);
+    }
+  }, [completedPayments]);
 
   // Calculate IGS amount based on class
   const montantIGS = useMemo(() => 
@@ -79,6 +89,20 @@ export function useIGSPayment({
     }
   };
 
+  // Handle payment deadline toggles
+  const handlePaymentToggle = (paymentId: string, isChecked: boolean) => {
+    let newPaymentsList: string[];
+    
+    if (isChecked) {
+      newPaymentsList = [...paymentsList, paymentId];
+    } else {
+      newPaymentsList = paymentsList.filter(id => id !== paymentId);
+    }
+    
+    setPaymentsList(newPaymentsList);
+    onChange("igs.completedPayments", newPaymentsList);
+  };
+
   return {
     patenteState,
     acompteJanvierState,
@@ -87,6 +111,8 @@ export function useIGSPayment({
     showPayments,
     setShowPayments,
     handlePaymentChange,
-    montantIGS
+    montantIGS,
+    completedPayments: paymentsList,
+    handlePaymentToggle
   };
 }

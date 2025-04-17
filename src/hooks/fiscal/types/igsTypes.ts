@@ -28,6 +28,7 @@ export interface IGSData {
   acompteFevrier?: IGSPayment;
   chiffreAffairesAnnuel?: number;
   etablissements?: Etablissement[];
+  completedPayments?: string[];
 }
 
 // Interface for the fiscal data structure

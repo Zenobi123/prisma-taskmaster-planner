@@ -16,6 +16,7 @@ interface IGSFieldsProps {
   patente?: IGSPayment;
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
+  completedPayments?: string[];
   onChange: (name: string, value: any) => void;
   hidePayments?: boolean;
 }
@@ -27,6 +28,7 @@ export function IGSFields({
   patente = { montant: '', quittance: '' },
   acompteJanvier = { montant: '', quittance: '' },
   acompteFevrier = { montant: '', quittance: '' },
+  completedPayments = [],
   onChange,
   hidePayments = false
 }: IGSFieldsProps) {
@@ -59,6 +61,7 @@ export function IGSFields({
               patente={patente}
               acompteJanvier={acompteJanvier}
               acompteFevrier={acompteFevrier}
+              completedPayments={completedPayments}
               onChange={onChange}
             />
           )}

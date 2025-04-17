@@ -7,6 +7,7 @@ import {
   IGSPaymentForm,
   IGSReliquatDisplay,
   IGSPaymentToggle,
+  IGSPaymentDeadlines,
   useIGSPayment
 } from "./payment";
 
@@ -17,6 +18,7 @@ interface IGSPaymentSectionProps {
   patente: IGSPayment;
   acompteJanvier: IGSPayment;
   acompteFevrier: IGSPayment;
+  completedPayments?: string[];
   onChange: (name: string, value: any) => void;
 }
 
@@ -27,6 +29,7 @@ export function IGSPaymentSection({
   patente,
   acompteJanvier,
   acompteFevrier,
+  completedPayments = [],
   onChange
 }: IGSPaymentSectionProps) {
   const {
@@ -37,7 +40,9 @@ export function IGSPaymentSection({
     showPayments,
     setShowPayments,
     handlePaymentChange,
-    montantIGS
+    montantIGS,
+    completedPayments: paymentsList,
+    handlePaymentToggle
   } = useIGSPayment({
     soumisIGS,
     adherentCGA,
@@ -45,6 +50,7 @@ export function IGSPaymentSection({
     patente,
     acompteJanvier,
     acompteFevrier,
+    completedPayments,
     onChange
   });
 
@@ -54,6 +60,13 @@ export function IGSPaymentSection({
 
   return (
     <div className="mt-6 space-y-4">
+      {/* Payment deadlines with checkboxes */}
+      <IGSPaymentDeadlines
+        totalAmount={montantIGS}
+        completedPayments={paymentsList}
+        onPaymentToggle={handlePaymentToggle}
+      />
+
       {/* Toggle to activate payments and deductions */}
       <IGSPaymentToggle 
         showPayments={showPayments} 

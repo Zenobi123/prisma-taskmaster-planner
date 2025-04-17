@@ -20,6 +20,7 @@ interface IGSStatusContentProps {
   acompteFevrierState: IGSPayment;
   localChiffreAffaires: number;
   localEtablissements: Etablissement[];
+  completedPayments?: string[];
   onSoumisIGSChange: (checked: boolean) => void;
   onAdherentCGAChange: (checked: boolean) => void;
   onClasseIGSChange: (value: CGAClasse) => void;
@@ -29,6 +30,7 @@ interface IGSStatusContentProps {
   handleChiffreAffairesChange: (value: number) => void;
   handleEtablissementsChange: (value: Etablissement[]) => void;
   handleTotalChange: (total: number) => void;
+  handleCompletedPaymentsChange?: (payments: string[]) => void;
 }
 
 export function IGSStatusContent({
@@ -40,6 +42,7 @@ export function IGSStatusContent({
   acompteFevrierState,
   localChiffreAffaires,
   localEtablissements,
+  completedPayments = [],
   onSoumisIGSChange,
   onAdherentCGAChange,
   onClasseIGSChange,
@@ -48,7 +51,8 @@ export function IGSStatusContent({
   handleAcompteFevierChange,
   handleChiffreAffairesChange,
   handleEtablissementsChange,
-  handleTotalChange
+  handleTotalChange,
+  handleCompletedPaymentsChange
 }: IGSStatusContentProps) {
   const [showPayments, setShowPayments] = useState(false);
 
@@ -110,6 +114,8 @@ export function IGSStatusContent({
               soumisIGS={soumisIGS}
               classeIGS={classeIGS}
               adherentCGA={adherentCGA}
+              completedPayments={completedPayments}
+              onCompletedPaymentsChange={handleCompletedPaymentsChange}
             />
           )}
         </>

@@ -14,7 +14,7 @@ export function useIGSData(
   const { toast } = useToast();
   
   // Initialize IGS data with default values
-  const [igsData, setIgsData] = useState<IGSData & { chiffreAffairesAnnuel?: number; etablissements?: Etablissement[] }>({
+  const [igsData, setIgsData] = useState<IGSData & { chiffreAffairesAnnuel?: number; etablissements?: Etablissement[], completedPayments?: string[] }>({
     soumisIGS: false,
     adherentCGA: false,
     classeIGS: undefined,
@@ -22,7 +22,8 @@ export function useIGSData(
     acompteJanvier: { montant: '', quittance: '' },
     acompteFevrier: { montant: '', quittance: '' },
     chiffreAffairesAnnuel: 0,
-    etablissements: []
+    etablissements: [],
+    completedPayments: []
   });
 
   // Load IGS data when client or fiscal data changes
@@ -70,6 +71,16 @@ export function useIGSData(
         setIgsData(prev => ({
           ...prev,
           [parts[1]]: etablissements
+        }));
+      } else if (parts[1] === 'completedPayments') {
+        // Si on met à jour les paiements effectués, s'assurer qu'ils sont bien des tableaux
+        const completedPayments = Array.isArray(value) ? value : [];
+        
+        console.log("Mise à jour des paiements effectués:", completedPayments);
+        
+        setIgsData(prev => ({
+          ...prev,
+          [parts[1]]: completedPayments
         }));
       } else {
         // Gérer toutes les autres modifications de données IGS
