@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
-import { format } from "date-fns";
 import { calculatePaymentStatus } from "@/components/clients/identity/igs/utils/igsCalculations";
 
 // Cache des résultats de requête
@@ -58,11 +57,11 @@ export const getClientRegimeStats = async (): Promise<{
       const typedClient = client as unknown as Client;
       
       // Vérifier directement dans l'objet client.igs
-      if (typedClient.igs && typedClient.igs.soumisIGS) {
+      if (typedClient.igs && typeof typedClient.igs === 'object' && 'soumisIGS' in typedClient.igs && typedClient.igs.soumisIGS) {
         clientsWithPaymentInfo++;
         
         // Utiliser le système de suivi des paiements avec completedPayments
-        if (Array.isArray(typedClient.igs.completedPayments)) {
+        if (typedClient.igs.completedPayments && Array.isArray(typedClient.igs.completedPayments)) {
           const paymentStatus = calculatePaymentStatus(typedClient.igs.completedPayments, currentDate);
           
           if (!paymentStatus.isUpToDate) {
@@ -73,10 +72,10 @@ export const getClientRegimeStats = async (): Promise<{
         else {
           const currentMonth = currentDate.getMonth();
           
-          if (currentMonth > 0 && (!typedClient.igs.acompteJanvier || !typedClient.igs.acompteJanvier.montant)) {
+          if (currentMonth > 0 && (!typedClient.igs.acompteJanvier || !typedClient.igs.acompteJanvier?.montant)) {
             unpaidIGS++;
           }
-          else if (currentMonth > 1 && (!typedClient.igs.acompteFevrier || !typedClient.igs.acompteFevrier.montant)) {
+          else if (currentMonth > 1 && (!typedClient.igs.acompteFevrier || !typedClient.igs.acompteFevrier?.montant)) {
             unpaidIGS++;
           }
         }
@@ -91,12 +90,14 @@ export const getClientRegimeStats = async (): Promise<{
           return;
         }
         
-        if (fiscalData && 'igs' in fiscalData && fiscalData.igs && fiscalData.igs.soumisIGS) {
-          const igsData = fiscalData.igs;
+        // Vérifie si fiscalData.igs existe et est un objet avec soumisIGS
+        const igsData = fiscalData && 'igs' in fiscalData ? fiscalData.igs : null;
+        
+        if (igsData && typeof igsData === 'object' && 'soumisIGS' in igsData && igsData.soumisIGS) {
           clientsWithPaymentInfo++;
           
           // Utiliser le système de suivi des paiements avec completedPayments
-          if (Array.isArray(igsData.completedPayments)) {
+          if ('completedPayments' in igsData && Array.isArray(igsData.completedPayments)) {
             const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
             
             if (!paymentStatus.isUpToDate) {
@@ -107,9 +108,9 @@ export const getClientRegimeStats = async (): Promise<{
           else {
             const currentMonth = currentDate.getMonth();
             
-            if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
+            if (currentMonth > 0 && (!igsData.acompteJanvier || (typeof igsData.acompteJanvier === 'object' && !igsData.acompteJanvier?.montant))) {
               unpaidIGS++;
-            } else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
+            } else if (currentMonth > 1 && (!igsData.acompteFevrier || (typeof igsData.acompteFevrier === 'object' && !igsData.acompteFevrier?.montant))) {
               unpaidIGS++;
             }
           }

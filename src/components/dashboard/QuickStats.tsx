@@ -2,7 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getClientStats } from "@/services/clientStatsService";
-import { getClientsRegimeStats } from "@/services/clientRegimeService";
+import { getClientRegimeStats } from "@/services/clientRegimeService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { Briefcase, FileText, Clock, AlertTriangle } from "lucide-react";
@@ -17,9 +17,9 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
-  const { data: regimeStats = { reelClients: 0, igsClients: 0, delayedIgsClients: 0 }, isLoading: isRegimeStatsLoading } = useQuery({
+  const { data: regimeStats = { igsClients: 0, reelClients: 0, unpaidIGS: 0 }, isLoading: isRegimeStatsLoading } = useQuery({
     queryKey: ["regime-stats"],
-    queryFn: getClientsRegimeStats,
+    queryFn: getClientRegimeStats,
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
@@ -118,10 +118,10 @@ const QuickStats = () => {
               {isRegimeStatsLoading ? (
                 <span className="animate-pulse">--</span>
               ) : (
-                regimeStats.delayedIgsClients
+                regimeStats.unpaidIGS
               )}
             </div>
-            {!isRegimeStatsLoading && regimeStats.delayedIgsClients > 0 && (
+            {!isRegimeStatsLoading && regimeStats.unpaidIGS > 0 && (
               <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
                 Retards
               </Badge>
