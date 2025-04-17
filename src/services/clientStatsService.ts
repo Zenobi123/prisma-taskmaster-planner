@@ -68,7 +68,7 @@ export const getClientStats = async () => {
         const fiscalData = client.fiscal_data as any;
         
         // Skip if hidden from dashboard
-        if (fiscalData.hiddenFromDashboard === true) {
+        if (fiscalData && typeof fiscalData === 'object' && fiscalData.hiddenFromDashboard === true) {
           console.log(`Client ${client.id} caché du tableau de bord via fiscal_data - exclu des statistiques`);
           return false;
         }
@@ -116,12 +116,12 @@ export const getClientStats = async () => {
     // On vérifie si le client a des données fiscales
     if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
       // Vérifier si caché du tableau de bord
-      if (client.fiscal_data.hiddenFromDashboard === true) {
+      const fiscalData = client.fiscal_data as any;
+      if (fiscalData && typeof fiscalData === 'object' && fiscalData.hiddenFromDashboard === true) {
         return false;
       }
       
       // Vérifier si obligations existe dans les données fiscales
-      const fiscalData = client.fiscal_data as { obligations?: any };
       if (fiscalData.obligations) {
         // On cherche une obligation de type dsf qui est assujetti mais non déposée
         return fiscalData.obligations.dsf && 

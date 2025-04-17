@@ -7,23 +7,36 @@ import { Button } from "@/components/ui/button";
 
 interface UnpaidPatenteSummaryProps {
   onViewAllClick: () => void;
+  unpaidCount?: number;
+  isLoading?: boolean;
 }
 
-const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => {
-  const { data: clients = [], isLoading, error } = useQuery({
+const UnpaidPatenteSummary = ({ onViewAllClick, unpaidCount, isLoading }: UnpaidPatenteSummaryProps) => {
+  // Use the internal query only if unpaidCount is not provided as a prop
+  const { 
+    data: clients = [], 
+    isLoading: internalLoading, 
+    error 
+  } = useQuery({
     queryKey: ["clients-unpaid-patente-summary"],
     queryFn: getClientsWithUnpaidPatente,
-    // Configurer le rafraîchissement automatique
+    // Only fetch if unpaidCount is not provided
+    enabled: unpaidCount === undefined,
+    // Configure auto-refresh
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
 
-  console.log("UnpaidPatenteSummary - Clients:", clients.length);
-  console.log("UnpaidPatenteSummary - isLoading:", isLoading);
+  // Use either the passed count or the fetched count
+  const displayCount = unpaidCount !== undefined ? unpaidCount : clients.length;
+  const showLoading = isLoading !== undefined ? isLoading : internalLoading;
+
+  console.log("UnpaidPatenteSummary - Clients:", displayCount);
+  console.log("UnpaidPatenteSummary - isLoading:", showLoading);
   console.log("UnpaidPatenteSummary - error:", error);
   console.log("UnpaidPatenteSummary - Le composant est bien rendu");
 
-  if (isLoading) {
+  if (showLoading) {
     return (
       <Card className="bg-white shadow-md">
         <CardContent className="p-6 flex items-center justify-center">
@@ -43,7 +56,7 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
               IGS impayés
             </h3>
             <div className="flex items-center mt-3">
-              <span className="text-4xl font-semibold text-red-600">{clients.length}</span>
+              <span className="text-4xl font-semibold text-red-600">{displayCount}</span>
               <div className="ml-4">
                 <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
                   À régulariser
