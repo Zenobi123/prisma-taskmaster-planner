@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getClientStats } from "@/services/clientStatsService";
+import { getClientsRegimeStats } from "@/services/clientRegimeService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { Briefcase, FileText, Clock, AlertTriangle } from "lucide-react";
@@ -12,6 +13,13 @@ const QuickStats = () => {
   const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientStats,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
+
+  const { data: regimeStats = { reelClients: 0, igsClients: 0, delayedIgsClients: 0 }, isLoading: isRegimeStatsLoading } = useQuery({
+    queryKey: ["regime-stats"],
+    queryFn: getClientsRegimeStats,
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
@@ -71,36 +79,55 @@ const QuickStats = () => {
         </div>
       </div>
 
-      {/* Nouvelles sections vides */}
+      {/* Deuxième rangée: statistiques régimes fiscaux */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
-            Section 1
+            Clients au réel
           </h3>
           <div className="text-3xl font-bold text-primary">
-            --
+            {isRegimeStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              regimeStats.reelClients
+            )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">Description</p>
+          <p className="text-neutral-600 text-sm mt-1">Régime du réel</p>
         </div>
 
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
-            Section 2
+            Clients à l'IGS
           </h3>
           <div className="text-3xl font-bold text-primary">
-            --
+            {isRegimeStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              regimeStats.igsClients
+            )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">Description</p>
+          <p className="text-neutral-600 text-sm mt-1">Impôt global simplifié</p>
         </div>
 
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
-            Section 3
+            IGS en retard
           </h3>
-          <div className="text-3xl font-bold text-primary">
-            --
+          <div className="flex items-center">
+            <div className="text-3xl font-bold text-yellow-600 mr-2">
+              {isRegimeStatsLoading ? (
+                <span className="animate-pulse">--</span>
+              ) : (
+                regimeStats.delayedIgsClients
+              )}
+            </div>
+            {!isRegimeStatsLoading && regimeStats.delayedIgsClients > 0 && (
+              <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                Retards
+              </Badge>
+            )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">Description</p>
+          <p className="text-neutral-600 text-sm mt-1">Paiements en retard</p>
         </div>
       </div>
       

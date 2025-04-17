@@ -1,4 +1,3 @@
-
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
@@ -39,6 +38,8 @@ export interface IGSData {
   patente?: IGSPayment;
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
+  etablissements?: any[];
+  chiffreAffairesAnnuel?: number;
 }
 
 export interface Interaction {
@@ -83,5 +84,5 @@ export interface Client {
     loyer?: number;
   };
   fiscal_data?: any;
-  igs?: IGSData; // Add this back to the Client interface
+  igs?: IGSData;
 }
