@@ -43,9 +43,6 @@ export function ClientIdentityFields({
   igs,
   onChange 
 }: ClientIdentityFieldsProps) {
-  // Vérifier si regimefiscal est défini et le logger
-  console.log("ClientIdentityFields - Regime fiscal received:", regimefiscal);
-  
   return (
     <div className="space-y-6">
       {type === "physique" ? (

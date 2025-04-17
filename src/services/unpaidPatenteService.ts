@@ -19,29 +19,34 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   const clientsWithUnpaidIGS = allClients.filter(client => {
     // Vérifier si c'est un client IGS
     if (client.regimefiscal === "igs") {
-      // Vérifier les données fiscales IGS
-      if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
-        const fiscalData = client.fiscal_data as any;
+      console.log(`Vérification du client IGS: ${client.id}`);
+      
+      // Vérifier directement dans l'objet client.igs
+      if (client.igs) {
+        console.log(`Données IGS pour client ${client.id}:`, client.igs);
         
         // Ne pas inclure si explicitement marqué comme caché du tableau de bord
-        if (fiscalData.hiddenFromDashboard === true) {
+        if (client.fiscal_data && client.fiscal_data.hiddenFromDashboard === true) {
+          console.log(`Client ${client.id} caché du tableau de bord`);
           return false;
         }
         
-        // Vérifier si les paiements IGS sont à jour
-        if (fiscalData.igs) {
-          const currentDate = new Date();
-          const currentMonth = currentDate.getMonth();
-          
-          // Vérifier si nous sommes après janvier mais qu'aucun acompte n'a été payé
-          if (currentMonth > 0 && (!fiscalData.igs.acompteJanvier || !fiscalData.igs.acompteJanvier.montant)) {
-            return true;
-          }
-          // Vérifier si nous sommes après février mais que l'acompte de février n'a pas été payé
-          else if (currentMonth > 1 && (!fiscalData.igs.acompteFevrier || !fiscalData.igs.acompteFevrier.montant)) {
-            return true;
-          }
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        
+        // Vérifier si nous sommes après janvier mais qu'aucun acompte n'a été payé
+        if (currentMonth > 0 && (!client.igs.acompteJanvier || !client.igs.acompteJanvier.montant)) {
+          console.log(`Client ${client.id} n'a pas payé l'acompte de janvier`);
+          return true;
         }
+        // Vérifier si nous sommes après février mais que l'acompte de février n'a pas été payé
+        else if (currentMonth > 1 && (!client.igs.acompteFevrier || !client.igs.acompteFevrier.montant)) {
+          console.log(`Client ${client.id} n'a pas payé l'acompte de février`);
+          return true;
+        }
+      } else {
+        console.log(`Client ${client.id} est IGS mais sans données IGS définies`);
+        return true; // Si le client est IGS mais n'a pas de données IGS, on le considère en retard
       }
     }
     return false;
