@@ -1,6 +1,6 @@
 
 import React from "react";
-import { ObligationType, DeclarationObligationStatus } from "../fiscal/types";
+import { ObligationType, DeclarationObligationStatus } from "@/hooks/fiscal/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ interface DeclarationObligationItemProps {
   status: DeclarationObligationStatus;
   onChange: (
     obligationType: ObligationType,
-    statusType: "assujetti" | "paye" | "depose",
+    statusType: string,
     value: boolean
   ) => void;
 }

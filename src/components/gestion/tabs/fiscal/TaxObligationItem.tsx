@@ -14,7 +14,7 @@ interface TaxObligationItemProps {
   };
   onChange: (
     obligationType: ObligationType, 
-    statusType: "assujetti" | "paye", 
+    statusType: string, 
     value: boolean
   ) => void;
 }

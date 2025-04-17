@@ -31,8 +31,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
-    igsData,
-    handleIGSDataChange,
     lastSaveSuccess
   } = useObligationsFiscales(selectedClient);
 
@@ -99,8 +97,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         <AnnualObligationsSection 
           obligationStatuses={obligationStatuses}
           handleStatusChange={handleStatusChange}
-          igsData={igsData}
-          onIGSDataChange={handleIGSDataChange}
         />
       </CardContent>
       <CardFooter className="flex flex-col gap-4">

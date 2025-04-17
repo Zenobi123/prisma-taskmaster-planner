@@ -7,7 +7,5 @@ export {
   type ObligationStatus,
   type ObligationStatuses,
   type FiscalAttestationData,
-  type Establishment,
-  type IGSData,
   type ClientFiscalData
 } from "@/hooks/fiscal/types";

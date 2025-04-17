@@ -3,11 +3,11 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { TaxObligationItem } from "./TaxObligationItem";
 import { DeclarationObligationItem } from "./DeclarationObligationItem";
-import { ObligationStatuses } from "@/hooks/fiscal/types";
+import { ObligationStatuses, ObligationType } from "@/hooks/fiscal/types";
 
 interface AnnualObligationsSectionProps {
   obligationStatuses: ObligationStatuses;
-  handleStatusChange: (type: string, field: string, value: boolean) => void;
+  handleStatusChange: (type: ObligationType, field: string, value: boolean) => void;
 }
 
 export function AnnualObligationsSection({ 
@@ -25,24 +25,32 @@ export function AnnualObligationsSection({
               <h4 className="text-sm font-medium text-muted-foreground">Impôts et taxes</h4>
               <div className="space-y-2">
                 <TaxObligationItem
-                  label="Patente"
+                  title="Patente"
+                  deadline="31 mars"
+                  obligationType="patente"
                   status={obligationStatuses.patente}
-                  onChange={(field, value) => handleStatusChange("patente", field, value)}
+                  onChange={handleStatusChange}
                 />
                 <TaxObligationItem
-                  label="IGS"
+                  title="IGS"
+                  deadline="30 juin"
+                  obligationType="igs"
                   status={obligationStatuses.igs}
-                  onChange={(field, value) => handleStatusChange("igs", field, value)}
+                  onChange={handleStatusChange}
                 />
                 <TaxObligationItem
-                  label="Bail"
+                  title="Bail"
+                  deadline="31 janvier"
+                  obligationType="bail"
                   status={obligationStatuses.bail}
-                  onChange={(field, value) => handleStatusChange("bail", field, value)}
+                  onChange={handleStatusChange}
                 />
                 <TaxObligationItem
-                  label="Taxe foncière"
+                  title="Taxe foncière"
+                  deadline="31 décembre"
+                  obligationType="taxeFonciere"
                   status={obligationStatuses.taxeFonciere}
-                  onChange={(field, value) => handleStatusChange("taxeFonciere", field, value)}
+                  onChange={handleStatusChange}
                 />
               </div>
             </div>
@@ -51,14 +59,18 @@ export function AnnualObligationsSection({
               <h4 className="text-sm font-medium text-muted-foreground">Déclarations</h4>
               <div className="space-y-2">
                 <DeclarationObligationItem
-                  label="DSF"
+                  title="DSF"
+                  deadline="30 avril"
+                  obligationType="dsf"
                   status={obligationStatuses.dsf}
-                  onChange={(field, value) => handleStatusChange("dsf", field, value)}
+                  onChange={handleStatusChange}
                 />
                 <DeclarationObligationItem
-                  label="DARP"
+                  title="DARP"
+                  deadline="31 mars"
+                  obligationType="darp"
                   status={obligationStatuses.darp}
-                  onChange={(field, value) => handleStatusChange("darp", field, value)}
+                  onChange={handleStatusChange}
                 />
               </div>
             </div>
