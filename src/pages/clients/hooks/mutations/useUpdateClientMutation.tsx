@@ -17,12 +17,21 @@ export function useUpdateClientMutation() {
       if (updates.regimefiscal) {
         console.log("Régime fiscal is defined as:", updates.regimefiscal);
       } else {
-        console.warn("Warning: Régime fiscal is undefined in updates object");
+        console.warn("WARNING: Régime fiscal is undefined in updates object");
+        
+        // Attempt to fall back to a default value based on client type if missing
+        if (updates.type) {
+          updates.regimefiscal = updates.type === "physique" ? "reel" : "simplifie";
+          console.log("Applied fallback regimefiscal value:", updates.regimefiscal);
+        }
       }
       
       if (updates.igs) {
         console.log("IGS data to update:", updates.igs);
       }
+      
+      // Force a delay to ensure the update is processed correctly (workaround for race conditions)
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Ensure we're correctly passing the update data to the service
       const updatedClient = await updateClient(id, updates);

@@ -4,7 +4,8 @@ import { ClientType, Client } from "@/types/client";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientFormFields } from "./form/ClientFormFields";
 import { useClientForm } from "@/hooks/clientForm";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface ClientFormProps {
   onSubmit: (data: any) => void;
@@ -14,8 +15,17 @@ interface ClientFormProps {
 }
 
 export function ClientForm({ onSubmit, type, onTypeChange, initialData }: ClientFormProps) {
+  const { toast } = useToast();
   const { formData, handleChange, prepareSubmitData } = useClientForm(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Log initial data and especially the regime fiscal value
+  useEffect(() => {
+    if (initialData) {
+      console.log("Initial client data loaded:", initialData);
+      console.log("Initial regime fiscal:", initialData.regimefiscal);
+    }
+  }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,9 +39,25 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       // Log specifically to confirm regimefiscal is included
       console.log("Régime fiscal being submitted:", clientData.regimefiscal);
       
+      if (!clientData.regimefiscal) {
+        console.warn("WARNING: regimefiscal is missing in form submission!");
+        toast({
+          title: "Attention",
+          description: "Le régime fiscal n'a pas été défini. Veuillez sélectionner un régime fiscal.",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+      
       onSubmit(clientData);
     } catch (error) {
       console.error("Error preparing client data:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la préparation des données. Veuillez réessayer.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }

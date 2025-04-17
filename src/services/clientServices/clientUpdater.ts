@@ -6,6 +6,10 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   console.log("Updating client:", id, updates);
   console.log("Updating regimefiscal to:", updates.regimefiscal);
   
+  if (!updates.regimefiscal) {
+    console.warn("WARNING: No regimefiscal found in updates. This might cause issues!");
+  }
+  
   // Format the data properly for Supabase
   const { igs, ...otherUpdates } = updates;
   
@@ -55,6 +59,11 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   }
   
   console.log("Final client data to update:", clientData);
+  console.log("Checking if regimefiscal is in final update data:", clientData.regimefiscal);
+  
+  if (!clientData.regimefiscal) {
+    console.error("ERROR: regimefiscal is missing in final update data!");
+  }
   
   // Update the client in Supabase
   const { data, error } = await supabase
@@ -70,6 +79,7 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   }
   
   console.log("Client updated successfully, returned data:", data);
+  console.log("Returned regimefiscal from database:", data.regimefiscal);
   
   // Convert the returned data to match our Client interface
   const clientResult = data as unknown as Client;

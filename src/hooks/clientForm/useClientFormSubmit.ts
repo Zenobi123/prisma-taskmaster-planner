@@ -7,6 +7,15 @@ export function useClientFormSubmit() {
     console.log("Client type:", type);
     console.log("Regime fiscal selected:", formData.regimefiscal);
     
+    // Verify regimefiscal value is present
+    if (!formData.regimefiscal) {
+      console.warn("WARNING: regimefiscal is missing in form data!");
+      
+      // Use a fallback value based on client type if missing
+      formData.regimefiscal = type === "physique" ? "reel" : "simplifie";
+      console.log("Using fallback regimefiscal value:", formData.regimefiscal);
+    }
+    
     // Prepare the client data for API submission
     const clientData: Partial<Client> = {
       type: type,
@@ -53,6 +62,8 @@ export function useClientFormSubmit() {
     }
     
     console.log("Final client data prepared:", clientData);
+    console.log("Final regime fiscal in prepared data:", clientData.regimefiscal);
+    
     return clientData;
   };
 

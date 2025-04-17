@@ -11,6 +11,9 @@ interface TaxRegimeFieldsProps {
 }
 
 export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeFieldsProps) {
+  console.log("TaxRegimeFields - Initial regime fiscal:", regimefiscal);
+  console.log("TaxRegimeFields - Client type:", type);
+  
   // Use internal state to ensure the radio buttons update correctly
   const [selectedValue, setSelectedValue] = useState<string>(
     regimefiscal || (type === "physique" ? "reel" : "simplifie")
@@ -36,7 +39,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
     setSelectedValue(value);
     
     // Send change to parent component
-    console.log("Selected tax regime:", value);
+    console.log("Selected tax regime changed to:", value);
     onChange("regimefiscal", value);
   };
 
@@ -48,6 +51,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
           value={selectedValue}
           onValueChange={handleValueChange}
           className="grid grid-cols-2 gap-4"
+          name="regimefiscal"
         >
           <div className="flex items-center space-x-2 cursor-pointer">
             <RadioGroupItem value="reel" id="reel" />
@@ -77,6 +81,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
         value={selectedValue}
         onValueChange={handleValueChange}
         className="grid grid-cols-1 gap-4"
+        name="regimefiscal"
       >
         <div className="flex items-center space-x-2 cursor-pointer">
           <RadioGroupItem value="reel" id="reel_morale" />
