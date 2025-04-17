@@ -16,7 +16,7 @@ const PatenteSection = () => {
 
   return (
     <div className="p-4 space-y-6">
-      {/* Résumé des patentes impayées */}
+      {/* Résumé des IGS impayés */}
       <UnpaidPatenteSummary onViewAllClick={() => setIsDialogOpen(true)} />
       
       {/* Dialog pour la vue complète */}

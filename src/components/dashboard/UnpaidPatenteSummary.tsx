@@ -40,7 +40,7 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
           <div>
             <h3 className="text-xl font-semibold text-neutral-800 flex items-center">
               <AlertCircle className="h-5 w-5 mr-2 text-red-500" />
-              Patentes impayées
+              IGS impayés
             </h3>
             <div className="flex items-center mt-3">
               <span className="text-4xl font-semibold text-red-600">{clients.length}</span>
