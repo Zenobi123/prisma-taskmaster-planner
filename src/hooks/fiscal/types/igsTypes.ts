@@ -8,6 +8,16 @@ export interface IGSPayment {
   quittance: string;
 }
 
+// Interface for establishment data
+export interface Etablissement {
+  nom: string;
+  activite: string;
+  ville: string;
+  departement: string;
+  quartier: string;
+  chiffreAffaires: number;
+}
+
 // Interface for complete IGS data
 export interface IGSData {
   soumisIGS: boolean;
@@ -17,6 +27,7 @@ export interface IGSData {
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
   chiffreAffairesAnnuel?: number;
+  etablissements?: Etablissement[];
 }
 
 // Interface for the fiscal data structure

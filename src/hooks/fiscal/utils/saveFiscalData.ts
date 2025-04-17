@@ -1,6 +1,6 @@
 
 import { ObligationStatuses } from "../types";
-import { IGSData } from "../types/igsTypes";
+import { IGSData, Etablissement } from "../types/igsTypes";
 
 // Prepare fiscal data for saving to the database
 export const prepareFiscalData = (
@@ -9,12 +9,18 @@ export const prepareFiscalData = (
   showInAlert: boolean,
   obligationStatuses: ObligationStatuses,
   hiddenFromDashboard: boolean,
-  igsData: IGSData & { chiffreAffairesAnnuel?: number }
+  igsData: IGSData & { 
+    chiffreAffairesAnnuel?: number;
+    etablissements?: Etablissement[];
+  }
 ) => {
   // Garantir que les objets de paiement sont bien définis
   const safePatente = igsData.patente || { montant: '', quittance: '' };
   const safeAcompteJanvier = igsData.acompteJanvier || { montant: '', quittance: '' };
   const safeAcompteFevrier = igsData.acompteFevrier || { montant: '', quittance: '' };
+  
+  // S'assurer que les établissements sont bien un tableau
+  const safeEtablissements = Array.isArray(igsData.etablissements) ? igsData.etablissements : [];
   
   return {
     attestation: {
@@ -31,17 +37,24 @@ export const prepareFiscalData = (
       patente: safePatente,
       acompteJanvier: safeAcompteJanvier,
       acompteFevrier: safeAcompteFevrier,
-      chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0
+      chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
+      etablissements: safeEtablissements
     }
   };
 };
 
 // Extract IGS data for client object
-export const extractClientIGSData = (igsData: IGSData & { chiffreAffairesAnnuel?: number }) => {
+export const extractClientIGSData = (igsData: IGSData & { 
+  chiffreAffairesAnnuel?: number;
+  etablissements?: Etablissement[];
+}) => {
   // Garantir que les objets de paiement sont bien définis
   const safePatente = igsData.patente || { montant: '', quittance: '' };
   const safeAcompteJanvier = igsData.acompteJanvier || { montant: '', quittance: '' };
   const safeAcompteFevrier = igsData.acompteFevrier || { montant: '', quittance: '' };
+  
+  // S'assurer que les établissements sont bien un tableau
+  const safeEtablissements = Array.isArray(igsData.etablissements) ? igsData.etablissements : [];
   
   return {
     soumisIGS: igsData.soumisIGS,
@@ -50,6 +63,7 @@ export const extractClientIGSData = (igsData: IGSData & { chiffreAffairesAnnuel?
     patente: safePatente,
     acompteJanvier: safeAcompteJanvier,
     acompteFevrier: safeAcompteFevrier,
-    chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0
+    chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
+    etablissements: safeEtablissements
   };
 };

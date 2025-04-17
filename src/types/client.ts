@@ -31,6 +31,15 @@ export interface IGSPayment {
   quittance: string;
 }
 
+export interface Etablissement {
+  nom: string;
+  activite: string;
+  ville: string;
+  departement: string;
+  quartier: string;
+  chiffreAffaires: number;
+}
+
 export interface IGSData {
   soumisIGS: boolean;
   adherentCGA: boolean;
@@ -39,6 +48,7 @@ export interface IGSData {
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
   chiffreAffairesAnnuel?: number;
+  etablissements?: Etablissement[];
 }
 
 export interface Interaction {

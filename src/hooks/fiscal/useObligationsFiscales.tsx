@@ -67,6 +67,14 @@ export function useObligationsFiscales(selectedClient: Client) {
   const handleSave = useCallback(async () => {
     if (!selectedClient?.id) return;
     
+    // S'assurer que etablissements est toujours un tableau avant l'enregistrement
+    const safeIgsData = {
+      ...igsData,
+      etablissements: Array.isArray(igsData.etablissements) ? [...igsData.etablissements] : []
+    };
+    
+    console.log("Saving safe IGS data with etablissements:", safeIgsData.etablissements);
+    
     // Remove any reference to etablissements and prepare data for saving
     const fiscalData = prepareFiscalData(
       creationDate,
@@ -74,7 +82,7 @@ export function useObligationsFiscales(selectedClient: Client) {
       showInAlert,
       obligationStatuses,
       hiddenFromDashboard,
-      igsData
+      safeIgsData
     );
     
     console.log("Saving fiscal data:", fiscalData);
@@ -85,7 +93,7 @@ export function useObligationsFiscales(selectedClient: Client) {
         updates: {
           fiscal_data: fiscalData,
           // Update the igs object for backward compatibility
-          igs: extractClientIGSData(igsData)
+          igs: extractClientIGSData(safeIgsData)
         }
       });
       

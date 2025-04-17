@@ -6,8 +6,9 @@ import { IGSClassesSelector } from "./components/IGSClassesSelector";
 import { IGSAmountDisplay } from "./components/IGSAmountDisplay";
 import { IGSPaymentsSection } from "./components/IGSPaymentsSection";
 import { IGSToggleSection } from "./components/IGSToggleSection";
+import { EtablissementsSection } from "./components/EtablissementsSection";
 import { CGAClasse } from "@/types/client";
-import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
+import { IGSPayment, Etablissement } from "@/hooks/fiscal/types/igsTypes";
 
 interface IGSStatusSectionProps {
   soumisIGS: boolean;
@@ -17,6 +18,7 @@ interface IGSStatusSectionProps {
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
   chiffreAffairesAnnuel?: number;
+  etablissements?: Etablissement[];
   onChange: (name: string, value: any) => void;
 }
 
@@ -28,6 +30,7 @@ export function IGSStatusSection({
   acompteJanvier = { montant: '', quittance: '' },
   acompteFevrier = { montant: '', quittance: '' },
   chiffreAffairesAnnuel = 0,
+  etablissements = [],
   onChange
 }: IGSStatusSectionProps) {
   // S'assurer que les valeurs par défaut sont correctement initialisées
@@ -40,6 +43,7 @@ export function IGSStatusSection({
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier || defaultAcompteJanvier);
   const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier || defaultAcompteFevrier);
   const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel || 0);
+  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(etablissements || []);
 
   useEffect(() => {
     console.log("IGSStatusSection - Initialisation des états avec les props");
@@ -47,7 +51,8 @@ export function IGSStatusSection({
     setAcompteJanvierState(acompteJanvier || defaultAcompteJanvier);
     setAcompteFevrierState(acompteFevrier || defaultAcompteFevrier);
     setLocalChiffreAffaires(chiffreAffairesAnnuel || 0);
-  }, [patente, acompteJanvier, acompteFevrier, chiffreAffairesAnnuel]);
+    setLocalEtablissements(etablissements || []);
+  }, [patente, acompteJanvier, acompteFevrier, chiffreAffairesAnnuel, etablissements]);
 
   const handlePatenteChange = (payment: IGSPayment) => {
     setPatenteState(payment);
@@ -67,6 +72,11 @@ export function IGSStatusSection({
   const handleChiffreAffairesChange = (value: number) => {
     setLocalChiffreAffaires(value);
     onChange("igs.chiffreAffairesAnnuel", value);
+  };
+
+  const handleEtablissementsChange = (value: Etablissement[]) => {
+    setLocalEtablissements(value);
+    onChange("igs.etablissements", value);
   };
 
   return (
@@ -89,6 +99,11 @@ export function IGSStatusSection({
                   chiffreAffaires={localChiffreAffaires}
                   onChange={handleChiffreAffairesChange}
                   onClasseChange={(value) => onChange("igs.classeIGS", value)}
+                />
+                
+                <EtablissementsSection
+                  etablissements={localEtablissements}
+                  onChange={handleEtablissementsChange}
                 />
                 
                 <IGSClassesSelector 

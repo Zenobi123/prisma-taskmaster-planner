@@ -42,6 +42,8 @@ export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps
         patente={igsData.patente}
         acompteJanvier={igsData.acompteJanvier}
         acompteFevrier={igsData.acompteFevrier}
+        chiffreAffairesAnnuel={igsData.chiffreAffairesAnnuel}
+        etablissements={igsData.etablissements}
         onChange={handleIGSChange}
       />
 
