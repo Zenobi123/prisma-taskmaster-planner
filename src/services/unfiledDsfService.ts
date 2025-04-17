@@ -37,6 +37,30 @@ export const getClientsWithUnfiledDsf = async () => {
   return fetchClientsWithUnfiledDsf();
 };
 
+// Fonction interne pour sauvegarder les modifications fiscales d'un client
+export const saveFiscalChanges = async (clientId: string, fiscalData: ClientFiscalData) => {
+  try {
+    const { error } = await supabase
+      .from('clients')
+      .update({
+        fiscal_data: fiscalData
+      })
+      .eq('id', clientId);
+
+    if (error) {
+      console.error('Erreur lors de la sauvegarde des données fiscales:', error);
+      throw error;
+    }
+
+    // Invalider le cache après une mise à jour réussie
+    invalidateDsfCache();
+    return true;
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde:', error);
+    return false;
+  }
+};
+
 // Fonction interne avec paramètre forceRefresh
 const fetchClientsWithUnfiledDsf = async (forceRefresh = false): Promise<Client[]> => {
   const now = Date.now();
@@ -49,7 +73,7 @@ const fetchClientsWithUnfiledDsf = async (forceRefresh = false): Promise<Client[
   
   console.log("Service: Récupération des clients avec DSF non déposées...");
   
-  // Récupérer tous les clients
+  // Récupérer tous les clients depuis Supabase
   const { data: allClients, error } = await supabase
     .from("clients")
     .select("*");
