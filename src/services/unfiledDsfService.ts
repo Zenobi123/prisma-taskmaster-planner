@@ -8,7 +8,7 @@ import { Json } from "@/integrations/supabase/types";
 declare global {
   interface Window {
     __dsfCacheTimestamp?: number;
-    __dsfCacheData?: Client[] | null;
+    __dsfCacheData?: any[] | null; // Use any[] to match the expected type
     __invalidateFiscalCaches?: () => void;
   }
 }
