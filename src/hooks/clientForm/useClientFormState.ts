@@ -1,4 +1,3 @@
-
 import { Client } from "@/types/client";
 import { ClientFormState } from "./types";
 
@@ -23,7 +22,7 @@ export function useClientFormState(initialData?: Client) {
     gestionexternalisee: false,
     sexe: "homme",
     etatcivil: "celibataire",
-    regimefiscal: "igs", // Default for physique
+    regimefiscal: "igs", // Définir IGS comme régime fiscal par défaut pour les personnes physiques
     situationimmobiliere: {
       type: "locataire",
     },

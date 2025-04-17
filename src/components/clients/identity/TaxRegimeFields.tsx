@@ -1,4 +1,3 @@
-
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ClientType, RegimeFiscalPhysique, RegimeFiscalMorale, RegimeFiscal } from "@/types/client";
@@ -11,30 +10,21 @@ interface TaxRegimeFieldsProps {
 }
 
 export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeFieldsProps) {
-  console.log("TaxRegimeFields - Initial regime fiscal:", regimefiscal);
-  console.log("TaxRegimeFields - Client type:", type);
-  
-  // Définir une valeur par défaut basée sur le type de client
+  // Toujours définir IGS comme valeur par défaut pour les personnes physiques
   const defaultValue = type === "physique" ? "igs" as RegimeFiscalPhysique : "non_lucratif" as RegimeFiscalMorale;
   
-  // Utiliser la valeur passée ou la valeur par défaut si non définie
   const [selectedValue, setSelectedValue] = useState<RegimeFiscal>(
     (regimefiscal as RegimeFiscal) || defaultValue
   );
   
-  // Mettre à jour la sélection interne lorsque les props changent
   useEffect(() => {
-    if (regimefiscal) {
-      console.log("TaxRegimeFields: Updating from props to", regimefiscal);
-      setSelectedValue(regimefiscal as RegimeFiscal);
-    } else {
-      console.log("TaxRegimeFields: Using default value", defaultValue);
-      setSelectedValue(defaultValue);
-      
-      // Initialiser avec la valeur par défaut si aucune n'est fournie
-      onChange("regimefiscal", defaultValue);
+    // Toujours initialiser avec IGS pour les personnes physiques si non défini
+    if (type === "physique" && (!regimefiscal || regimefiscal !== "igs")) {
+      const defaultIGS = "igs" as RegimeFiscalPhysique;
+      setSelectedValue(defaultIGS);
+      onChange("regimefiscal", defaultIGS);
     }
-  }, [regimefiscal, type, defaultValue]);
+  }, [type, regimefiscal]);
   
   const handleValueChange = (value: string) => {
     console.log("Regime fiscal selection changed to:", value);
