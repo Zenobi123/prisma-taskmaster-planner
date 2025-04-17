@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { 
@@ -32,14 +31,13 @@ export const useIGSEstablishments = ({
 
   // Initialize data from props or create default
   useEffect(() => {
-    if (igsData && igsData.establishments) {
+    if (igsData) {
       setEstablishments(igsData.establishments);
       setCgaReduction(igsData.cgaReduction);
       if (igsData.quarterlyPayments) {
         setQuarterlyPayments(igsData.quarterlyPayments);
       }
     } else {
-      // Create default establishment if none exists
       setEstablishments([createDefaultEstablishment()]);
     }
   }, [igsData]);
@@ -73,7 +71,7 @@ export const useIGSEstablishments = ({
       cgaReduction,
       quarterlyPayments: updatedQuarterlyPayments
     });
-  }, [establishments, cgaReduction, onIGSDataChange, assujetti, quarterlyPayments]);
+  }, [establishments, cgaReduction, onIGSDataChange, assujetti]);
 
   const handleAddEstablishment = () => {
     const newEstablishment: Establishment = {
