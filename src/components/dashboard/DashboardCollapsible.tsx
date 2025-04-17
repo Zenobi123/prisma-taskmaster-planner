@@ -9,11 +9,12 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations";
 import DsfSection from "./sections/DsfSection";
+import PatenteSection from "./sections/PatenteSection";
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 
 interface DashboardCollapsibleProps {
   title: string;
-  componentName: "ExpiringFiscalAttestations" | "DsfSection";
+  componentName: "ExpiringFiscalAttestations" | "DsfSection" | "PatenteSection";
 }
 
 const DashboardCollapsible = ({ title, componentName }: DashboardCollapsibleProps) => {
@@ -26,6 +27,8 @@ const DashboardCollapsible = ({ title, componentName }: DashboardCollapsibleProp
         return <ExpiringFiscalAttestations attestations={attestations} isLoading={isLoading} />;
       case "DsfSection":
         return <DsfSection />;
+      case "PatenteSection":
+        return <PatenteSection />;
       default:
         return null;
     }

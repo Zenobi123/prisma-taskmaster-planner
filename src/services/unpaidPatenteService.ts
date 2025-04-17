@@ -29,8 +29,11 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
       
       // Ne pas inclure si explicitement marqué comme caché du tableau de bord
       if (typedClient.fiscal_data && typeof typedClient.fiscal_data === 'object') {
-        const fiscalData = typedClient.fiscal_data as any;
-        if (fiscalData && typeof fiscalData === 'object' && 'hiddenFromDashboard' in fiscalData && fiscalData.hiddenFromDashboard === true) {
+        const fiscalData = typedClient.fiscal_data;
+        if (fiscalData && 
+            typeof fiscalData === 'object' && 
+            'hiddenFromDashboard' in fiscalData && 
+            fiscalData.hiddenFromDashboard === true) {
           console.log(`Client ${client.id} caché du tableau de bord`);
           return false;
         }
@@ -63,16 +66,16 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
           const currentMonth = currentDate.getMonth();
           
           if (currentMonth > 0 && 
-              (!typedClient.igs.acompteJanvier || 
-               (typeof typedClient.igs.acompteJanvier === 'object' && 
-                !typedClient.igs.acompteJanvier?.montant))) {
+              typedClient.igs.acompteJanvier && 
+              typeof typedClient.igs.acompteJanvier === 'object' && 
+              (!('montant' in typedClient.igs.acompteJanvier) || !typedClient.igs.acompteJanvier.montant)) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de janvier`);
             return true;
           }
           else if (currentMonth > 1 && 
-                  (!typedClient.igs.acompteFevrier || 
-                   (typeof typedClient.igs.acompteFevrier === 'object' && 
-                    !typedClient.igs.acompteFevrier?.montant))) {
+                  typedClient.igs.acompteFevrier && 
+                  typeof typedClient.igs.acompteFevrier === 'object' && 
+                  (!('montant' in typedClient.igs.acompteFevrier) || !typedClient.igs.acompteFevrier.montant)) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de février`);
             return true;
           }
@@ -86,7 +89,10 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
         const fiscalData = client.fiscal_data && typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
         
         // Ne pas inclure si caché du tableau de bord
-        if (fiscalData && typeof fiscalData === 'object' && 'hiddenFromDashboard' in fiscalData && fiscalData.hiddenFromDashboard === true) {
+        if (fiscalData && 
+            typeof fiscalData === 'object' && 
+            'hiddenFromDashboard' in fiscalData && 
+            fiscalData.hiddenFromDashboard === true) {
           console.log(`Client ${client.id} caché du tableau de bord via fiscal_data`);
           return false;
         }
@@ -94,13 +100,17 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
         // Vérifie si fiscalData.igs existe et est un objet avec soumisIGS
         const igsData = fiscalData && 'igs' in fiscalData ? fiscalData.igs : null;
         
-        if (igsData && typeof igsData === 'object' && 'soumisIGS' in igsData && igsData.soumisIGS === true) {
+        if (igsData && 
+            typeof igsData === 'object' && 
+            igsData !== null &&
+            'soumisIGS' in igsData && 
+            igsData.soumisIGS === true) {
           console.log(`Données IGS dans fiscal_data pour client ${client.id}:`, JSON.stringify(igsData));
           
           // Utiliser le système de suivi des paiements avec completedPayments
           if ('completedPayments' in igsData && Array.isArray(igsData.completedPayments)) {
             // Fix TypeScript error - ensure we're passing string[] to calculatePaymentStatus
-            const payments = (igsData.completedPayments as any[]).map(payment => 
+            const payments = (igsData.completedPayments).map(payment => 
               typeof payment === 'string' ? payment : String(payment)
             );
             
@@ -118,15 +128,17 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
           const currentMonth = currentDate.getMonth();
           
           if (currentMonth > 0 && 
-              (!igsData.acompteJanvier || 
-               (typeof igsData.acompteJanvier === 'object' && 
-                !('montant' in igsData.acompteJanvier && igsData.acompteJanvier.montant)))) {
+              'acompteJanvier' in igsData &&
+              igsData.acompteJanvier && 
+              typeof igsData.acompteJanvier === 'object' && 
+              (!('montant' in igsData.acompteJanvier) || !igsData.acompteJanvier.montant)) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de janvier (via fiscal_data)`);
             return true;
           } else if (currentMonth > 1 && 
-                    (!igsData.acompteFevrier || 
-                     (typeof igsData.acompteFevrier === 'object' && 
-                      !('montant' in igsData.acompteFevrier && igsData.acompteFevrier.montant)))) {
+                    'acompteFevrier' in igsData &&
+                    igsData.acompteFevrier && 
+                    typeof igsData.acompteFevrier === 'object' && 
+                    (!('montant' in igsData.acompteFevrier) || !igsData.acompteFevrier.montant)) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de février (via fiscal_data)`);
             return true;
           }

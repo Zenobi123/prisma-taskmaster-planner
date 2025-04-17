@@ -33,7 +33,11 @@ export const getClientStats = async () => {
       // Vérifier si caché du tableau de bord
       if (typedClient.fiscal_data) {
         const fiscalData = typedClient.fiscal_data && typeof typedClient.fiscal_data === 'object' ? typedClient.fiscal_data : {};
-        if (fiscalData && typeof fiscalData === 'object' && 'hiddenFromDashboard' in fiscalData && fiscalData.hiddenFromDashboard === true) {
+        
+        if (fiscalData && 
+            typeof fiscalData === 'object' && 
+            'hiddenFromDashboard' in fiscalData && 
+            fiscalData.hiddenFromDashboard === true) {
           console.log(`Client ${client.id} caché du tableau de bord - exclu des statistiques`);
           return false;
         }
@@ -45,8 +49,13 @@ export const getClientStats = async () => {
           console.log(`Données IGS pour client ${client.id}:`, JSON.stringify(typedClient.igs));
           
           // Utiliser le système de suivi des paiements avec completedPayments
-          if (Array.isArray(typedClient.igs.completedPayments)) {
-            const paymentStatus = calculatePaymentStatus(typedClient.igs.completedPayments, currentDate);
+          if (typedClient.igs.completedPayments && Array.isArray(typedClient.igs.completedPayments)) {
+            // Convertir les éléments en chaînes de caractères
+            const paymentStrings = typedClient.igs.completedPayments.map(payment => 
+              typeof payment === 'string' ? payment : String(payment)
+            );
+            
+            const paymentStatus = calculatePaymentStatus(paymentStrings, currentDate);
             console.log(`Client ${client.id} - statut de paiement:`, paymentStatus);
             
             if (!paymentStatus.isUpToDate) {
@@ -59,11 +68,17 @@ export const getClientStats = async () => {
           // Fallback: vérifier les acomptes individuels
           const currentMonth = currentDate.getMonth();
           
-          if (currentMonth > 0 && (!typedClient.igs.acompteJanvier || !typedClient.igs.acompteJanvier.montant)) {
+          if (currentMonth > 0 && 
+              typedClient.igs.acompteJanvier && 
+              typeof typedClient.igs.acompteJanvier === 'object' && 
+              (!('montant' in typedClient.igs.acompteJanvier) || !typedClient.igs.acompteJanvier.montant)) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de janvier - ajouté aux statistiques`);
             return true;
           }
-          else if (currentMonth > 1 && (!typedClient.igs.acompteFevrier || !typedClient.igs.acompteFevrier.montant)) {
+          else if (currentMonth > 1 && 
+                  typedClient.igs.acompteFevrier && 
+                  typeof typedClient.igs.acompteFevrier === 'object' && 
+                  (!('montant' in typedClient.igs.acompteFevrier) || !typedClient.igs.acompteFevrier.montant)) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de février - ajouté aux statistiques`);
             return true;
           }
@@ -77,7 +92,10 @@ export const getClientStats = async () => {
         const fiscalData = client.fiscal_data && typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
         
         // Skip if hidden from dashboard
-        if (fiscalData && typeof fiscalData === 'object' && 'hiddenFromDashboard' in fiscalData && fiscalData.hiddenFromDashboard === true) {
+        if (fiscalData && 
+            typeof fiscalData === 'object' && 
+            'hiddenFromDashboard' in fiscalData && 
+            fiscalData.hiddenFromDashboard === true) {
           console.log(`Client ${client.id} caché du tableau de bord via fiscal_data - exclu des statistiques`);
           return false;
         }
@@ -85,12 +103,21 @@ export const getClientStats = async () => {
         // Vérifier si igs existe dans fiscal_data
         const igsData = fiscalData && 'igs' in fiscalData ? fiscalData.igs : null;
         
-        if (igsData && typeof igsData === 'object' && 'soumisIGS' in igsData && igsData.soumisIGS === true) {
+        if (igsData && 
+            typeof igsData === 'object' && 
+            igsData !== null && 
+            'soumisIGS' in igsData && 
+            igsData.soumisIGS === true) {
           console.log(`Données IGS dans fiscal_data pour client ${client.id}:`, JSON.stringify(igsData));
           
           // Utiliser le système de suivi des paiements avec completedPayments
-          if (Array.isArray(igsData.completedPayments)) {
-            const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
+          if ('completedPayments' in igsData && Array.isArray(igsData.completedPayments)) {
+            // Convertir les éléments en chaînes de caractères
+            const paymentStrings = igsData.completedPayments.map(payment => 
+              typeof payment === 'string' ? payment : String(payment)
+            );
+            
+            const paymentStatus = calculatePaymentStatus(paymentStrings, currentDate);
             console.log(`Client ${client.id} - statut de paiement (via fiscal_data):`, paymentStatus);
             
             if (!paymentStatus.isUpToDate) {
@@ -103,10 +130,18 @@ export const getClientStats = async () => {
           // Fallback pour l'ancien système
           const currentMonth = currentDate.getMonth();
           
-          if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
+          if (currentMonth > 0 && 
+              'acompteJanvier' in igsData && 
+              igsData.acompteJanvier && 
+              typeof igsData.acompteJanvier === 'object' && 
+              (!('montant' in igsData.acompteJanvier) || !igsData.acompteJanvier.montant)) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de janvier (via fiscal_data) - ajouté aux statistiques`);
             return true;
-          } else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
+          } else if (currentMonth > 1 && 
+                    'acompteFevrier' in igsData && 
+                    igsData.acompteFevrier && 
+                    typeof igsData.acompteFevrier === 'object' && 
+                    (!('montant' in igsData.acompteFevrier) || !igsData.acompteFevrier.montant)) {
             console.log(`Client ${client.id} n'a pas payé l'acompte de février (via fiscal_data) - ajouté aux statistiques`);
             return true;
           }
@@ -129,15 +164,23 @@ export const getClientStats = async () => {
     if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
       // Vérifier si caché du tableau de bord
       const fiscalData = client.fiscal_data && typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
-      if (fiscalData && typeof fiscalData === 'object' && 'hiddenFromDashboard' in fiscalData && fiscalData.hiddenFromDashboard === true) {
+      
+      if (fiscalData && 
+          typeof fiscalData === 'object' && 
+          'hiddenFromDashboard' in fiscalData && 
+          fiscalData.hiddenFromDashboard === true) {
         return false;
       }
       
       // Vérifier si obligations existe dans les données fiscales
-      if (fiscalData.obligations) {
+      if ('obligations' in fiscalData && fiscalData.obligations && typeof fiscalData.obligations === 'object') {
         // On cherche une obligation de type dsf qui est assujetti mais non déposée
-        return fiscalData.obligations.dsf && 
+        return 'dsf' in fiscalData.obligations && 
+               typeof fiscalData.obligations.dsf === 'object' &&
+               fiscalData.obligations.dsf !== null &&
+               'assujetti' in fiscalData.obligations.dsf &&
                fiscalData.obligations.dsf.assujetti === true && 
+               'depose' in fiscalData.obligations.dsf &&
                fiscalData.obligations.dsf.depose === false;
       }
     }

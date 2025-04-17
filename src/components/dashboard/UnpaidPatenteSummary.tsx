@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface UnpaidPatenteSummaryProps {
+export interface UnpaidPatenteSummaryProps {
   onViewAllClick: () => void;
   unpaidCount?: number;
   isLoading?: boolean;
