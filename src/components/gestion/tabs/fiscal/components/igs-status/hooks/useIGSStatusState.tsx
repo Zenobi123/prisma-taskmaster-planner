@@ -1,10 +1,9 @@
 
-import { useState, useEffect, useCallback } from "react";
-import { Etablissement, IGSPayment } from "@/hooks/fiscal/types/igsTypes";
+import { useState, useEffect } from "react";
 import { CGAClasse } from "@/types/client";
-import { determineIGSClassFromCA } from "@/components/clients/identity/igs/utils/igsCalculations";
+import { Etablissement, IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 
-interface IGSStatusProps {
+interface UseIGSStatusStateProps {
   soumisIGS: boolean;
   adherentCGA: boolean;
   classeIGS?: CGAClasse;
@@ -17,8 +16,8 @@ interface IGSStatusProps {
 }
 
 export function useIGSStatusState({
-  soumisIGS = false,
-  adherentCGA = false,
+  soumisIGS,
+  adherentCGA,
   classeIGS,
   patente = { montant: '', quittance: '' },
   acompteJanvier = { montant: '', quittance: '' },
@@ -26,72 +25,68 @@ export function useIGSStatusState({
   chiffreAffairesAnnuel = 0,
   etablissements = [],
   onChange
-}: IGSStatusProps) {
-  const [patenteState, setPatenteState] = useState<IGSPayment>(patente || { montant: '', quittance: '' });
-  const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier || { montant: '', quittance: '' });
-  const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier || { montant: '', quittance: '' });
+}: UseIGSStatusStateProps) {
+  // États locaux pour gérer les valeurs
+  const [localSoumisIGS, setLocalSoumisIGS] = useState(soumisIGS);
+  const [localAdherentCGA, setLocalAdherentCGA] = useState(adherentCGA);
+  const [localClasseIGS, setLocalClasseIGS] = useState<CGAClasse | undefined>(classeIGS);
+  const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
+  const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
+  const [acompteFevierState, setAcompteFevierState] = useState<IGSPayment>(acompteFevrier);
   const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel || 0);
   const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(
-    etablissements && etablissements.length > 0 
-      ? etablissements 
-      : [{ 
-          nom: "Établissement principal", 
-          activite: "", 
-          ville: "", 
-          departement: "", 
-          quartier: "", 
-          chiffreAffaires: 0 
-        }]
+    etablissements.length > 0 ? etablissements : [{
+      nom: "Établissement principal",
+      activite: "",
+      ville: "",
+      departement: "",
+      quartier: "",
+      chiffreAffaires: 0
+    }]
   );
+  const [localCompletedPayments, setLocalCompletedPayments] = useState<string[]>([]);
 
-  useEffect(() => {
-    if (!etablissements || etablissements.length === 0) {
-      const defaultEtab = [{ 
-        nom: "Établissement principal", 
-        activite: "", 
-        ville: "", 
-        departement: "", 
-        quartier: "", 
-        chiffreAffaires: 0 
-      }];
-      setLocalEtablissements(defaultEtab);
-      onChange("igs.etablissements", defaultEtab);
-    }
-  }, []);
-
-  useEffect(() => {
-    const totalChiffreAffaires = localEtablissements.reduce(
-      (sum, etab) => sum + (etab.chiffreAffaires || 0), 
-      0
-    );
-    
-    if (totalChiffreAffaires !== localChiffreAffaires) {
-      setLocalChiffreAffaires(totalChiffreAffaires);
-      onChange("igs.chiffreAffairesAnnuel", totalChiffreAffaires);
-    }
-  }, [localEtablissements]);
-
+  // Synchroniser les états locaux avec les props
   useEffect(() => {
     console.log("IGSStatusSection - Initialisation des états avec les props");
+    setLocalSoumisIGS(soumisIGS);
+    setLocalAdherentCGA(adherentCGA);
+    setLocalClasseIGS(classeIGS);
     setPatenteState(patente || { montant: '', quittance: '' });
     setAcompteJanvierState(acompteJanvier || { montant: '', quittance: '' });
-    setAcompteFevrierState(acompteFevrier || { montant: '', quittance: '' });
+    setAcompteFevierState(acompteFevrier || { montant: '', quittance: '' });
     setLocalChiffreAffaires(chiffreAffairesAnnuel || 0);
     
+    // Initialiser les établissements avec au moins un établissement par défaut
     if (etablissements && etablissements.length > 0) {
       setLocalEtablissements(etablissements);
-    } else if (localEtablissements.length === 0) {
-      const defaultEtab = [{ 
-        nom: "Établissement principal", 
-        activite: "", 
-        ville: "", 
-        departement: "", 
-        quartier: "", 
-        chiffreAffaires: 0 
-      }];
-      setLocalEtablissements(defaultEtab);
     }
-  }, [patente, acompteJanvier, acompteFevrier, chiffreAffairesAnnuel, etablissements]);
+  }, [
+    soumisIGS, 
+    adherentCGA, 
+    classeIGS, 
+    patente, 
+    acompteJanvier, 
+    acompteFevrier, 
+    chiffreAffairesAnnuel, 
+    etablissements
+  ]);
+
+  // Handlers pour les changements de valeurs
+  const onSoumisIGSChange = (checked: boolean) => {
+    setLocalSoumisIGS(checked);
+    onChange("igs.soumisIGS", checked);
+  };
+
+  const onAdherentCGAChange = (checked: boolean) => {
+    setLocalAdherentCGA(checked);
+    onChange("igs.adherentCGA", checked);
+  };
+
+  const onClasseIGSChange = (value: CGAClasse) => {
+    setLocalClasseIGS(value);
+    onChange("igs.classeIGS", value);
+  };
 
   const handlePatenteChange = (payment: IGSPayment) => {
     setPatenteState(payment);
@@ -104,7 +99,7 @@ export function useIGSStatusState({
   };
 
   const handleAcompteFevrierChange = (payment: IGSPayment) => {
-    setAcompteFevrierState(payment);
+    setAcompteFevierState(payment);
     onChange("igs.acompteFevrier", payment);
   };
 
@@ -116,38 +111,36 @@ export function useIGSStatusState({
   const handleEtablissementsChange = (value: Etablissement[]) => {
     setLocalEtablissements(value);
     onChange("igs.etablissements", value);
-    
-    const totalChiffreAffaires = value.reduce(
-      (sum, etab) => sum + (etab.chiffreAffaires || 0), 
-      0
-    );
-    handleChiffreAffairesChange(totalChiffreAffaires);
   };
 
   const handleTotalChange = (total: number) => {
     handleChiffreAffairesChange(total);
-    
-    const newClasse = determineIGSClassFromCA(total);
-    onChange("igs.classeIGS", newClasse);
+  };
+
+  const handleCompletedPaymentsChange = (payments: string[]) => {
+    setLocalCompletedPayments(payments);
+    onChange("igs.completedPayments", payments);
   };
 
   return {
-    soumisIGS,
-    adherentCGA,
-    classeIGS,
+    localSoumisIGS,
+    localAdherentCGA,
+    localClasseIGS,
     patenteState,
     acompteJanvierState,
-    acompteFevrierState,
+    acompteFevierState,
     localChiffreAffaires,
     localEtablissements,
-    onSoumisIGSChange: (checked: boolean) => onChange("igs.soumisIGS", checked),
-    onAdherentCGAChange: (checked: boolean) => onChange("igs.adherentCGA", checked),
-    onClasseIGSChange: (value: CGAClasse) => onChange("igs.classeIGS", value),
+    localCompletedPayments,
+    onSoumisIGSChange,
+    onAdherentCGAChange,
+    onClasseIGSChange,
     handlePatenteChange,
     handleAcompteJanvierChange,
     handleAcompteFevrierChange,
     handleChiffreAffairesChange,
     handleEtablissementsChange,
-    handleTotalChange
+    handleTotalChange,
+    handleCompletedPaymentsChange
   };
 }

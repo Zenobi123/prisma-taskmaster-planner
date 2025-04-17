@@ -12,17 +12,34 @@ export const prepareFiscalData = (
   igsData: IGSData & { 
     chiffreAffairesAnnuel?: number;
     etablissements?: Etablissement[];
+    completedPayments?: string[];
   }
 ) => {
+  console.log("Preparing fiscal data for saving with IGS data:", igsData);
+  
   // Garantir que les objets de paiement sont bien définis
   const safePatente = igsData.patente || { montant: '', quittance: '' };
   const safeAcompteJanvier = igsData.acompteJanvier || { montant: '', quittance: '' };
   const safeAcompteFevrier = igsData.acompteFevrier || { montant: '', quittance: '' };
   
   // S'assurer que les établissements sont bien un tableau
-  const safeEtablissements = Array.isArray(igsData.etablissements) ? igsData.etablissements : [];
+  const safeEtablissements = Array.isArray(igsData.etablissements) ? 
+    igsData.etablissements : 
+    [{
+      nom: "Établissement principal",
+      activite: "",
+      ville: "",
+      departement: "",
+      quartier: "",
+      chiffreAffaires: 0
+    }];
   
-  return {
+  // S'assurer que les paiements complétés sont bien un tableau
+  const safeCompletedPayments = Array.isArray(igsData.completedPayments) ?
+    igsData.completedPayments : [];
+  
+  // Assembler les données fiscales complètes
+  const preparedData = {
     attestation: {
       creationDate,
       validityEndDate,
@@ -38,25 +55,45 @@ export const prepareFiscalData = (
       acompteJanvier: safeAcompteJanvier,
       acompteFevrier: safeAcompteFevrier,
       chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
-      etablissements: safeEtablissements
+      etablissements: safeEtablissements,
+      completedPayments: safeCompletedPayments
     }
   };
+  
+  console.log("Prepared fiscal data:", preparedData);
+  return preparedData;
 };
 
 // Extract IGS data for client object
 export const extractClientIGSData = (igsData: IGSData & { 
   chiffreAffairesAnnuel?: number;
   etablissements?: Etablissement[];
+  completedPayments?: string[];
 }) => {
+  console.log("Extracting client IGS data from:", igsData);
+  
   // Garantir que les objets de paiement sont bien définis
   const safePatente = igsData.patente || { montant: '', quittance: '' };
   const safeAcompteJanvier = igsData.acompteJanvier || { montant: '', quittance: '' };
   const safeAcompteFevrier = igsData.acompteFevrier || { montant: '', quittance: '' };
   
   // S'assurer que les établissements sont bien un tableau
-  const safeEtablissements = Array.isArray(igsData.etablissements) ? igsData.etablissements : [];
+  const safeEtablissements = Array.isArray(igsData.etablissements) ? 
+    igsData.etablissements : 
+    [{
+      nom: "Établissement principal",
+      activite: "",
+      ville: "",
+      departement: "",
+      quartier: "",
+      chiffreAffaires: 0
+    }];
   
-  return {
+  // S'assurer que les paiements complétés sont bien un tableau
+  const safeCompletedPayments = Array.isArray(igsData.completedPayments) ?
+    igsData.completedPayments : [];
+  
+  const extractedData = {
     soumisIGS: igsData.soumisIGS,
     adherentCGA: igsData.adherentCGA,
     classeIGS: igsData.classeIGS,
@@ -64,6 +101,10 @@ export const extractClientIGSData = (igsData: IGSData & {
     acompteJanvier: safeAcompteJanvier,
     acompteFevrier: safeAcompteFevrier,
     chiffreAffairesAnnuel: igsData.chiffreAffairesAnnuel || 0,
-    etablissements: safeEtablissements
+    etablissements: safeEtablissements,
+    completedPayments: safeCompletedPayments
   };
+  
+  console.log("Extracted client IGS data:", extractedData);
+  return extractedData;
 };

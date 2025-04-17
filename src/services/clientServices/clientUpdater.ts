@@ -77,24 +77,37 @@ export async function updateClient(id: string, updates: Partial<Client>) {
     clientData.situationimmobiliere = updates.situationimmobiliere;
   }
   
-  // Extraire et traiter les données IGS et fiscal_data 
-  const { igs } = updates;
+  // Extraire et traiter les données IGS et fiscal_data
+  const { igs, fiscal_data } = updates;
   
   // S'assurer que fiscal_data existe
-  clientData.fiscal_data = updates.fiscal_data || {};
+  if (fiscal_data) {
+    console.log("Updating fiscal_data:", fiscal_data);
+    clientData.fiscal_data = fiscal_data;
+  }
   
   // Ajouter les données IGS si présentes
   if (igs) {
-    clientData.fiscal_data = {
-      ...clientData.fiscal_data,
-      igs: {
-        soumisIGS: igs.soumisIGS !== undefined ? igs.soumisIGS : false,
-        adherentCGA: igs.adherentCGA !== undefined ? igs.adherentCGA : false,
-        classeIGS: igs.classeIGS,
-        patente: igs.patente,
-        acompteJanvier: igs.acompteJanvier,
-        acompteFevrier: igs.acompteFevrier
-      }
+    console.log("Updating client IGS data:", igs);
+    
+    // Si fiscal_data n'existe pas, l'initialiser
+    if (!clientData.fiscal_data) {
+      clientData.fiscal_data = {};
+    }
+    
+    // Stocker les données IGS à la fois dans l'objet igs du client (pour rétrocompatibilité)
+    // et dans fiscal_data.igs pour la nouvelle structure
+    clientData.igs = igs;
+    clientData.fiscal_data.igs = {
+      ...clientData.fiscal_data.igs,
+      soumisIGS: igs.soumisIGS !== undefined ? igs.soumisIGS : false,
+      adherentCGA: igs.adherentCGA !== undefined ? igs.adherentCGA : false,
+      classeIGS: igs.classeIGS,
+      patente: igs.patente,
+      acompteJanvier: igs.acompteJanvier,
+      acompteFevrier: igs.acompteFevrier,
+      chiffreAffairesAnnuel: igs.chiffreAffairesAnnuel || 0,
+      etablissements: Array.isArray(igs.etablissements) ? igs.etablissements : []
     };
   }
   

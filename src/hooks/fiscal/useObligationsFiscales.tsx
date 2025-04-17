@@ -67,6 +67,9 @@ export function useObligationsFiscales(selectedClient: Client) {
   const handleSave = useCallback(async () => {
     if (!selectedClient?.id) return;
     
+    console.log("Saving changes for client:", selectedClient.id);
+    console.log("Current IGS data before preparing:", igsData);
+    
     // S'assurer que etablissements est toujours un tableau avant l'enregistrement
     const safeIgsData = {
       ...igsData,
@@ -75,8 +78,8 @@ export function useObligationsFiscales(selectedClient: Client) {
     
     console.log("Saving safe IGS data with etablissements:", safeIgsData.etablissements);
     
-    // Remove any reference to etablissements and prepare data for saving
-    const fiscalData = prepareFiscalData(
+    // Prepare data for saving
+    const preparedFiscalData = prepareFiscalData(
       creationDate,
       validityEndDate,
       showInAlert,
@@ -85,19 +88,26 @@ export function useObligationsFiscales(selectedClient: Client) {
       safeIgsData
     );
     
-    console.log("Saving fiscal data:", fiscalData);
+    console.log("Prepared fiscal data for saving:", preparedFiscalData);
+    
+    // Extract IGS data for client object
+    const extractedIGSData = extractClientIGSData(safeIgsData);
+    console.log("Extracted IGS data for client:", extractedIGSData);
     
     try {
+      // Make sure to update both fiscal_data and igs properties
       await mutateAsync({
         id: selectedClient.id,
         updates: {
-          fiscal_data: fiscalData,
-          // Update the igs object for backward compatibility
-          igs: extractClientIGSData(safeIgsData)
+          fiscal_data: preparedFiscalData,
+          // Si le régime fiscal est IGS, on met à jour également l'objet igs
+          ...(selectedClient.regimefiscal === "igs" ? { igs: extractedIGSData } : {}),
+          // Make sure to preserve the regimefiscal value
+          regimefiscal: selectedClient.regimefiscal
         }
       });
       
-      console.log("Fiscal data saved successfully");
+      console.log("Fiscal data and IGS data saved successfully");
       toast({
         title: "Succès",
         description: "Données fiscales enregistrées avec succès",
@@ -112,6 +122,7 @@ export function useObligationsFiscales(selectedClient: Client) {
     }
   }, [
     selectedClient?.id,
+    selectedClient?.regimefiscal,
     creationDate,
     validityEndDate,
     showInAlert,
