@@ -6,6 +6,7 @@ import { getFromCache, updateCache, clearCache, getDebugInfo } from "../services
 import { fetchFiscalData } from "../services/fetchService";
 import { toast } from "sonner";
 import { useIGSData } from "./useIGSData";
+import { Json } from "@/integrations/supabase/types";
 
 export const useFiscalData = (selectedClient: Client) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);

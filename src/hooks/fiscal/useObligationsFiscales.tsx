@@ -10,6 +10,7 @@ import { useObligationStatus } from "./hooks/useObligationStatus";
 import { useFiscalData } from "./hooks/useFiscalData";
 import { useState, useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { Json } from "@/integrations/supabase/types";
 
 export const useObligationsFiscales = (selectedClient: Client) => {
   const queryClient = useQueryClient();
