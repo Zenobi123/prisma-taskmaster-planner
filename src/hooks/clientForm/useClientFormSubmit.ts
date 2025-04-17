@@ -3,20 +3,20 @@ import { Client, ClientType } from "@/types/client";
 
 export function useClientFormSubmit() {
   const prepareSubmitData = (formData: any, type: ClientType, initialData?: Client) => {
-    console.log("Preparing client data for submission:", formData);
+    console.log("Preparing client data for submission, form data:", JSON.stringify(formData, null, 2));
     console.log("Client type:", type);
     console.log("Regime fiscal selected:", formData.regimefiscal);
     
-    // Verify regimefiscal value is present
+    // Vérifier que la valeur regimefiscal est présente
     if (!formData.regimefiscal) {
       console.warn("WARNING: regimefiscal is missing in form data!");
       
-      // Use a fallback value based on client type if missing
+      // Utiliser une valeur de secours basée sur le type de client
       formData.regimefiscal = type === "physique" ? "reel" : "simplifie";
       console.log("Using fallback regimefiscal value:", formData.regimefiscal);
     }
     
-    // Prepare the client data for API submission
+    // Préparer les données client pour la soumission à l'API
     const clientData: Partial<Client> = {
       type: type,
       niu: formData.niu,
@@ -33,11 +33,11 @@ export function useClientFormSubmit() {
       secteuractivite: formData.secteuractivite,
       numerocnps: formData.numerocnps,
       gestionexternalisee: formData.gestionexternalisee,
-      regimefiscal: formData.regimefiscal, // Ensure this is explicitly set
+      regimefiscal: formData.regimefiscal, // S'assurer que ceci est explicitement défini
       situationimmobiliere: formData.situationimmobiliere,
     };
     
-    // Add type-specific fields
+    // Ajouter les champs spécifiques au type
     if (type === "physique") {
       clientData.nom = formData.nom;
       clientData.sexe = formData.sexe;
@@ -51,18 +51,17 @@ export function useClientFormSubmit() {
       clientData.formejuridique = formData.formejuridique;
     }
     
-    // Handle IGS data if present
+    // Gérer les données IGS si présentes
     if (formData.regimefiscal === "igs" && formData.igs) {
       clientData.igs = formData.igs;
     }
     
-    // If this is an update, include the ID
+    // Si c'est une mise à jour, inclure l'ID
     if (initialData?.id) {
       clientData.id = initialData.id;
     }
     
-    console.log("Final client data prepared:", clientData);
-    console.log("Final regime fiscal in prepared data:", clientData.regimefiscal);
+    console.log("Final client data prepared:", JSON.stringify(clientData, null, 2));
     
     return clientData;
   };

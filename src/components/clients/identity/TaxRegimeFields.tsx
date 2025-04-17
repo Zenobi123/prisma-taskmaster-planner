@@ -14,32 +14,35 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   console.log("TaxRegimeFields - Initial regime fiscal:", regimefiscal);
   console.log("TaxRegimeFields - Client type:", type);
   
-  // Use internal state to ensure the radio buttons update correctly
+  // Définir une valeur par défaut basée sur le type de client
+  const defaultValue = type === "physique" ? "reel" : "simplifie";
+  
+  // Utiliser la valeur passée ou la valeur par défaut
   const [selectedValue, setSelectedValue] = useState<string>(
-    regimefiscal || (type === "physique" ? "reel" : "simplifie")
+    regimefiscal || defaultValue
   );
   
-  // Update internal state when props change
+  // Mettre à jour la sélection interne lorsque les props changent
   useEffect(() => {
     if (regimefiscal) {
+      console.log("TaxRegimeFields: Mise à jour depuis props vers", regimefiscal);
       setSelectedValue(regimefiscal);
-      console.log("TaxRegimeFields: Updated from props to", regimefiscal);
     } else {
-      const defaultValue = type === "physique" ? "reel" : "simplifie";
+      console.log("TaxRegimeFields: Utilisation de la valeur par défaut", defaultValue);
       setSelectedValue(defaultValue);
-      console.log("TaxRegimeFields: Using default value", defaultValue);
       
-      // Initialize with default if none is provided
+      // Initialiser avec la valeur par défaut si aucune n'est fournie
       onChange("regimefiscal", defaultValue);
     }
-  }, [regimefiscal, type, onChange]);
+  }, [regimefiscal, type, onChange, defaultValue]);
   
   const handleValueChange = (value: string) => {
-    // Update internal state
+    console.log("Régime fiscal sélectionné changé pour:", value);
+    
+    // Mettre à jour l'état interne
     setSelectedValue(value);
     
-    // Send change to parent component
-    console.log("Selected tax regime changed to:", value);
+    // Envoyer le changement au composant parent avec le nom exact du champ
     onChange("regimefiscal", value);
   };
 

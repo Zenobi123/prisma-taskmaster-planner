@@ -19,7 +19,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
   const { formData, handleChange, prepareSubmitData } = useClientForm(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Log initial data and especially the regime fiscal value
+  // Loguer les données initiales et en particulier la valeur du regime fiscal
   useEffect(() => {
     if (initialData) {
       console.log("Initial client data loaded:", initialData);
@@ -32,11 +32,11 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     setIsSubmitting(true);
     
     try {
-      // Explicitly passing type as ClientType to ensure type safety
+      // Passer explicitement le type comme ClientType pour assurer la sécurité des types
       const clientData = prepareSubmitData(type);
-      console.log("Submitting client data:", clientData);
+      console.log("Submitting client data:", JSON.stringify(clientData, null, 2));
       
-      // Log specifically to confirm regimefiscal is included
+      // Loguer spécifiquement pour confirmer que regimefiscal est inclus
       console.log("Régime fiscal being submitted:", clientData.regimefiscal);
       
       if (!clientData.regimefiscal) {

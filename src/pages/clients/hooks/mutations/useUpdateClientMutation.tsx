@@ -10,16 +10,17 @@ export function useUpdateClientMutation() {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Client> }) => {
-      console.log("Updating client:", { id, updates });
+      console.log("Updating client with id:", id);
+      console.log("Full update data:", JSON.stringify(updates, null, 2));
       console.log("Régime fiscal value:", updates.regimefiscal);
       
-      // Ensure regimefiscal is properly passed
+      // Garantir que regimefiscal est correctement transmis
       if (updates.regimefiscal) {
         console.log("Régime fiscal is defined as:", updates.regimefiscal);
       } else {
         console.warn("WARNING: Régime fiscal is undefined in updates object");
         
-        // Attempt to fall back to a default value based on client type if missing
+        // Tenter de revenir à une valeur par défaut en fonction du type de client
         if (updates.type) {
           updates.regimefiscal = updates.type === "physique" ? "reel" : "simplifie";
           console.log("Applied fallback regimefiscal value:", updates.regimefiscal);
@@ -30,17 +31,22 @@ export function useUpdateClientMutation() {
         console.log("IGS data to update:", updates.igs);
       }
       
-      // Force a delay to ensure the update is processed correctly (workaround for race conditions)
+      // Forcer un délai pour s'assurer que la mise à jour est traitée correctement
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Ensure we're correctly passing the update data to the service
-      const updatedClient = await updateClient(id, updates);
-      console.log("Client updated successfully:", updatedClient);
-      console.log("Updated client's regimefiscal:", updatedClient.regimefiscal);
-      return updatedClient;
+      try {
+        // S'assurer que nous passons correctement les données de mise à jour au service
+        const updatedClient = await updateClient(id, updates);
+        console.log("Client updated successfully:", updatedClient);
+        console.log("Updated client's regimefiscal:", updatedClient.regimefiscal);
+        return updatedClient;
+      } catch (error) {
+        console.error("Error in mutation function:", error);
+        throw error;
+      }
     },
     onSuccess: (data) => {
-      // Invalidate and refetch to ensure we have the latest data
+      // Invalider et refetch pour s'assurer que nous avons les dernières données
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       
       const clientName = data.type === "physique" 
