@@ -1,29 +1,12 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { getTasks } from "@/services/taskService";
-import { getCollaborateurs } from "@/services/collaborateurService";
 import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 
 const QuickStats = () => {
   const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
-
-  const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
-    queryKey: ["tasks"],
-    queryFn: getTasks,
-    // Configurer le rafraîchissement automatique
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
-  });
-
-  const { data: collaborateurs = [], isLoading: isCollaborateursLoading } = useQuery({
-    queryKey: ["collaborateurs"],
-    queryFn: getCollaborateurs,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
-  });
 
   const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
@@ -32,107 +15,8 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
-  // Calculate statistics based on actual data
-  const activeTasks = tasks.filter((task: any) => task.status === "en_cours").length;
-  
-  // Count completed missions for current month
-  const countCompletedMissions = () => {
-    let completedCount = 0;
-    const currentMonth = new Date().getMonth();
-    
-    tasks.forEach((task: any) => {
-      if (task.status === "termine" && task.end_date) {
-        const endDate = new Date(task.end_date);
-        // Only count tasks that were completed in the current month
-        if (endDate.getMonth() === currentMonth) {
-          completedCount++;
-        }
-      }
-    });
-    
-    return completedCount;
-  };
-  
-  // Count active collaborators that are assigned to tasks
-  const countActiveCollaborators = () => {
-    // Create a map to count tasks per collaborator
-    const collaborateurTaskCount = new Map();
-    
-    // Count active tasks per collaborator
-    tasks.forEach((task: any) => {
-      if (task.status === "en_cours" && task.collaborateur_id) {
-        const collaborateurId = task.collaborateur_id;
-        const currentCount = collaborateurTaskCount.get(collaborateurId) || 0;
-        collaborateurTaskCount.set(collaborateurId, currentCount + 1);
-      }
-    });
-    
-    // Filter collaborateurs with active status
-    const activeCollaborateurs = collaborateurs.filter(collab => collab.statut === "actif");
-    
-    // Return the count of collaborateurs that have active status and are assigned to at least one task
-    return activeCollaborateurs.filter(collab => 
-      collaborateurTaskCount.has(collab.id) && collaborateurTaskCount.get(collab.id) > 0
-    ).length;
-  };
-
-  const completedMissions = countCompletedMissions();
-  const activeCollaborators = countActiveCollaborators();
-
   return (
     <div className="grid grid-cols-1 gap-6">
-      {/* Première rangée: les 3 premières caractéristiques */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card">
-          <h3 className="font-semibold text-neutral-800 mb-4">
-            Tâches en cours
-          </h3>
-          <div className="text-3xl font-bold text-primary">
-            {isTasksLoading ? (
-              <span className="animate-pulse">--</span>
-            ) : (
-              activeTasks
-            )}
-          </div>
-          <p className="text-neutral-600 text-sm mt-1">Cette semaine</p>
-        </div>
-
-        <div className="card">
-          <h3 className="font-semibold text-neutral-800 mb-4">
-            Missions réalisées
-          </h3>
-          <div className="text-3xl font-bold text-primary">
-            {isTasksLoading ? (
-              <span className="animate-pulse">--</span>
-            ) : (
-              completedMissions
-            )}
-          </div>
-          <p className="text-neutral-600 text-sm mt-1">Ce mois</p>
-        </div>
-
-        <div className="card">
-          <h3 className="font-semibold text-neutral-800 mb-4">
-            Collaborateurs actifs
-          </h3>
-          <div className="flex items-center">
-            <div className="text-3xl font-bold text-primary mr-2">
-              {isTasksLoading || isCollaborateursLoading ? (
-                <span className="animate-pulse">--</span>
-              ) : (
-                activeCollaborators
-              )}
-            </div>
-            {!isTasksLoading && !isCollaborateursLoading && (
-              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                Actifs
-              </Badge>
-            )}
-          </div>
-          <p className="text-neutral-600 text-sm mt-1">Sur les missions</p>
-        </div>
-      </div>
-
       {/* Deuxième rangée: les statistiques des clients */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card">
@@ -195,3 +79,4 @@ const QuickStats = () => {
 };
 
 export default QuickStats;
+
