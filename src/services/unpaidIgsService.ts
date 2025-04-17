@@ -25,6 +25,13 @@ if (typeof window !== 'undefined') {
     if (window.__patenteCacheTimestamp) {
       window.__patenteCacheTimestamp = 0;
     }
+    
+    // Make sure to initialize __igsCache if needed
+    if (!window.__igsCache) {
+      window.__igsCache = { data: null, timestamp: 0 };
+    } else {
+      window.__igsCache.timestamp = 0;
+    }
   };
 }
 
@@ -88,3 +95,4 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
   
   return typedClients;
 };
+
