@@ -14,6 +14,16 @@ const defaultObligationStatuses: ObligationStatuses = {
   cnps: { assujetti: false, paye: false }
 };
 
+// Default establishment
+const defaultEtablissement: Etablissement = {
+  nom: "Établissement principal",
+  activite: "",
+  ville: "",
+  departement: "",
+  quartier: "",
+  chiffreAffaires: 0
+};
+
 // Load fiscal data for a client
 export const loadFiscalData = async (clientId: string): Promise<FiscalData> => {
   // Simulate an API call delay
@@ -34,7 +44,8 @@ export const loadFiscalData = async (clientId: string): Promise<FiscalData> => {
       patente: { montant: '', quittance: '' },
       acompteJanvier: { montant: '', quittance: '' },
       acompteFevrier: { montant: '', quittance: '' },
-      etablissements: []
+      chiffreAffairesAnnuel: 0,
+      etablissements: [defaultEtablissement]
     }
   };
 };
@@ -47,7 +58,7 @@ const defaultIGSData: IGSData = {
   acompteJanvier: { montant: '', quittance: '' },
   acompteFevrier: { montant: '', quittance: '' },
   chiffreAffairesAnnuel: 0,
-  etablissements: []
+  etablissements: [defaultEtablissement]
 };
 
 export const extractIGSData = (fiscalData: FiscalData | null, client: Client): IGSData & { 
@@ -59,6 +70,20 @@ export const extractIGSData = (fiscalData: FiscalData | null, client: Client): I
   // Extract client IGS data or use defaults
   const clientIGS = client?.igs || defaultIGSData;
   
+  // Ensure there's at least one establishment
+  const establishments = 
+    (fiscalIGS.etablissements && fiscalIGS.etablissements.length > 0) 
+      ? fiscalIGS.etablissements 
+      : (clientIGS.etablissements && clientIGS.etablissements.length > 0)
+        ? clientIGS.etablissements
+        : [defaultEtablissement];
+  
+  // Calculate total revenue from establishments
+  const totalRevenue = establishments.reduce(
+    (sum, etab) => sum + (etab.chiffreAffaires || 0), 
+    0
+  );
+  
   // Merge and return values from both sources with safe defaults
   return {
     soumisIGS: fiscalIGS.soumisIGS !== undefined ? fiscalIGS.soumisIGS : (clientIGS.soumisIGS || false),
@@ -67,7 +92,7 @@ export const extractIGSData = (fiscalData: FiscalData | null, client: Client): I
     patente: fiscalIGS.patente || clientIGS.patente || { montant: '', quittance: '' },
     acompteJanvier: fiscalIGS.acompteJanvier || clientIGS.acompteJanvier || { montant: '', quittance: '' },
     acompteFevrier: fiscalIGS.acompteFevrier || clientIGS.acompteFevrier || { montant: '', quittance: '' },
-    chiffreAffairesAnnuel: fiscalIGS.chiffreAffairesAnnuel || clientIGS.chiffreAffairesAnnuel || 0,
-    etablissements: fiscalIGS.etablissements || clientIGS.etablissements || []
+    chiffreAffairesAnnuel: totalRevenue || fiscalIGS.chiffreAffairesAnnuel || clientIGS.chiffreAffairesAnnuel || 0,
+    etablissements: establishments
   };
 };

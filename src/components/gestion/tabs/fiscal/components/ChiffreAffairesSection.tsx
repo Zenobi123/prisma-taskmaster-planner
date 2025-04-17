@@ -9,12 +9,14 @@ interface ChiffreAffairesSectionProps {
   chiffreAffaires?: number;
   onChange: (value: number) => void;
   onClasseChange: (classe: CGAClasse) => void;
+  readOnly?: boolean;
 }
 
 export function ChiffreAffairesSection({ 
   chiffreAffaires = 0, 
   onChange,
-  onClasseChange
+  onClasseChange,
+  readOnly = false
 }: ChiffreAffairesSectionProps) {
   // État local pour gérer la valeur affichée
   const [displayValue, setDisplayValue] = useState("");
@@ -63,6 +65,7 @@ export function ChiffreAffairesSection({
       <div>
         <Label htmlFor="chiffreAffaires">
           Chiffre d'affaires de l'année précédente (FCFA)
+          {readOnly && " (calculé automatiquement)"}
         </Label>
         <Input
           id="chiffreAffaires"
@@ -70,8 +73,14 @@ export function ChiffreAffairesSection({
           value={displayValue}
           onChange={handleChiffreAffairesChange}
           placeholder="0"
-          className="mt-1"
+          className={`mt-1 ${readOnly ? 'bg-gray-100' : ''}`}
+          readOnly={readOnly}
         />
+        {readOnly && (
+          <p className="text-sm text-muted-foreground mt-1">
+            Ce montant est calculé automatiquement à partir du chiffre d'affaires des établissements.
+          </p>
+        )}
       </div>
     </div>
   );

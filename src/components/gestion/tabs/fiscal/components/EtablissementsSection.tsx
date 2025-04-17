@@ -1,5 +1,5 @@
 
-import React, { useState, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,14 +11,62 @@ import { formatNumberWithSpaces, parseFormattedNumber } from "@/utils/formatUtil
 interface EtablissementsSectionProps {
   etablissements: Etablissement[];
   onChange: (etablissements: Etablissement[]) => void;
+  onTotalChange?: (total: number) => void;
 }
 
 export function EtablissementsSection({
   etablissements = [],
-  onChange
+  onChange,
+  onTotalChange
 }: EtablissementsSectionProps) {
   // État local pour gérer les établissements
   const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(etablissements);
+
+  // Assurer qu'il y a toujours au moins un établissement
+  useEffect(() => {
+    if (localEtablissements.length === 0) {
+      const defaultEtablissement: Etablissement = {
+        nom: "Établissement principal",
+        activite: "",
+        ville: "",
+        departement: "",
+        quartier: "",
+        chiffreAffaires: 0
+      };
+      
+      setLocalEtablissements([defaultEtablissement]);
+      onChange([defaultEtablissement]);
+    }
+  }, [localEtablissements, onChange]);
+
+  // Initialiser avec les établissements fournis ou un établissement par défaut
+  useEffect(() => {
+    if (etablissements.length > 0) {
+      setLocalEtablissements(etablissements);
+    } else {
+      const defaultEtablissement: Etablissement = {
+        nom: "Établissement principal",
+        activite: "",
+        ville: "",
+        departement: "",
+        quartier: "",
+        chiffreAffaires: 0
+      };
+      
+      setLocalEtablissements([defaultEtablissement]);
+      onChange([defaultEtablissement]);
+    }
+  }, []);
+
+  // Calculer le total du chiffre d'affaires et le remonter au parent
+  useEffect(() => {
+    const total = localEtablissements.reduce((sum, etablissement) => 
+      sum + (etablissement.chiffreAffaires || 0), 0);
+    
+    if (onTotalChange) {
+      onTotalChange(total);
+    }
+  }, [localEtablissements, onTotalChange]);
 
   // Ajouter un nouvel établissement
   const handleAddEtablissement = () => {
@@ -38,6 +86,11 @@ export function EtablissementsSection({
 
   // Supprimer un établissement
   const handleRemoveEtablissement = (index: number) => {
+    // Ne pas supprimer si c'est le dernier établissement
+    if (localEtablissements.length <= 1) {
+      return;
+    }
+    
     const updatedEtablissements = localEtablissements.filter((_, i) => i !== index);
     setLocalEtablissements(updatedEtablissements);
     onChange(updatedEtablissements);
@@ -89,12 +142,6 @@ export function EtablissementsSection({
         </Button>
       </div>
 
-      {localEtablissements.length === 0 && (
-        <div className="text-center py-4 text-muted-foreground">
-          Aucun établissement ajouté
-        </div>
-      )}
-
       {localEtablissements.map((etablissement, index) => (
         <Card className="p-4 relative" key={index}>
           <Button
@@ -102,6 +149,7 @@ export function EtablissementsSection({
             size="icon"
             onClick={() => handleRemoveEtablissement(index)}
             className="absolute top-2 right-2 text-destructive"
+            disabled={localEtablissements.length <= 1}
           >
             <Trash2 size={16} />
           </Button>
