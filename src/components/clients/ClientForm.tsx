@@ -22,6 +22,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     setIsSubmitting(true);
     
     try {
+      // Explicitly passing type as ClientType to ensure type safety
       const clientData = prepareSubmitData(type);
       console.log("Submitting client data:", clientData);
       onSubmit(clientData);

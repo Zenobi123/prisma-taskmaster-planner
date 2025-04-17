@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Client } from "@/types/client";
+import { Client, ClientType } from "@/types/client";
 import { useClientFormState } from "./useClientFormState";
 import { useClientFormHandlers } from "./useClientFormHandlers";
 import { useClientFormSubmit } from "./useClientFormSubmit";
@@ -15,7 +15,7 @@ export function useClientForm(initialData?: Client) {
     // Process will be handled by parent component
   };
 
-  const prepareClientData = (type: string) => {
+  const prepareClientData = (type: ClientType) => {
     return prepareSubmitData(formData, type, initialData);
   };
 
