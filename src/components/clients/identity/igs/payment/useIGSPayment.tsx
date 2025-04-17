@@ -68,25 +68,13 @@ export function useIGSPayment({
     type: 'montant' | 'quittance',
     value: string
   ) => {
-    let updatedPayment: IGSPayment;
-    
-    switch (field) {
-      case 'patente':
-        updatedPayment = { ...patenteState, [type]: value };
-        setPatenteState(updatedPayment);
-        onChange("igs.patente", updatedPayment);
-        break;
-      case 'acompteJanvier':
-        updatedPayment = { ...acompteJanvierState, [type]: value };
-        setAcompteJanvierState(updatedPayment);
-        onChange("igs.acompteJanvier", updatedPayment);
-        break;
-      case 'acompteFevrier':
-        updatedPayment = { ...acompteFevrierState, [type]: value };
-        setAcompteFevrierState(updatedPayment);
-        onChange("igs.acompteFevrier", updatedPayment);
-        break;
+    if (field === 'patente') {
+      const updatedPayment = { ...patenteState, [type]: value };
+      setPatenteState(updatedPayment);
+      onChange("igs.patente", updatedPayment);
     }
+    // Nous gardons les cas des acomptes dans le code pour maintenir la compatibilité,
+    // mais ils ne seront plus utilisés dans l'interface
   };
 
   // Handle payment deadline toggles

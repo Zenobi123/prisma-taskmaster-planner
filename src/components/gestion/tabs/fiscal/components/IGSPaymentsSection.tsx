@@ -163,20 +163,6 @@ export function IGSPaymentsSection({
           onPatenteChange({ montant, quittance })}
       />
       
-      <IGSPaymentField
-        label="Acompte IR de janvier 2025 (FCFA)"
-        payment={acompteJanvier}
-        onChange={(montant, quittance) => 
-          onAcompteJanvierChange({ montant, quittance })}
-      />
-      
-      <IGSPaymentField
-        label="Acompte IR de février 2025 (FCFA)"
-        payment={acompteFevrier}
-        onChange={(montant, quittance) => 
-          onAcompteFevierChange({ montant, quittance })}
-      />
-      
       {reliquat !== null && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
           <p className="text-blue-800 font-medium flex items-center">
