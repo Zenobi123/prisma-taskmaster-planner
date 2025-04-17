@@ -39,7 +39,7 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
 /**
  * Save fiscal data to the database
  */
-export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalData): Promise<void> => {
+export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalData): Promise<boolean> => {
   try {
     console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
     
@@ -53,11 +53,12 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
       throw error;
     }
     
-    console.log(`Fiscal data saved for client ${clientId}`);
+    console.log(`Fiscal data saved successfully for client ${clientId}`);
     
-    // Invalidate related queries to refresh dashboard data
+    // Clear all related caches to ensure fresh data is loaded
     await invalidateRelatedQueries();
     
+    return true;
   } catch (error) {
     console.error("Exception saving fiscal data:", error);
     throw error;
@@ -69,9 +70,15 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
  */
 const invalidateRelatedQueries = async (): Promise<void> => {
   try {
-    // This is just a placeholder since we can't directly access React Query's queryClient
-    // In a real app, we would need to somehow trigger a refresh of related queries
-    console.log("Related queries should be invalidated");
+    // Force a refresh for IGS and Patente caches
+    // This will ensure dashboard and other displays show updated information
+    console.log("Invalidating related caches and refreshing data...");
+    
+    // Clear caches in unpaidIgsService and unpaidPatenteService
+    // We do this by making cache timestamps expire
+    if (window && window.__invalidateFiscalCaches) {
+      window.__invalidateFiscalCaches();
+    }
     
   } catch (error) {
     console.error("Error invalidating related queries:", error);

@@ -5,7 +5,7 @@ import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "@/hooks/fiscal/types";
@@ -23,6 +23,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     handleStatusChange,
     handleSave,
     isLoading,
+    isSaving,
     showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
@@ -71,8 +72,19 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         <Button 
           onClick={handleSave}
           className="w-full"
+          disabled={isSaving}
         >
-          Enregistrer toutes les modifications
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Enregistrement en cours...
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              Enregistrer toutes les modifications
+            </>
+          )}
         </Button>
       </CardFooter>
     </Card>

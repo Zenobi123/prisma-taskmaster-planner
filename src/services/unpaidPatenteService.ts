@@ -15,6 +15,16 @@ let patenteCache: {
 // Cache duration in milliseconds (30 seconds)
 const CACHE_DURATION = 30000;
 
+// Add a global reference to patente cache timestamp for invalidation
+if (typeof window !== 'undefined') {
+  window.__patenteCacheTimestamp = window.__patenteCacheTimestamp || 0;
+  // Update the reference whenever the cache is updated
+  Object.defineProperty(patenteCache, 'timestamp', {
+    get: function() { return window.__patenteCacheTimestamp || 0; },
+    set: function(value) { window.__patenteCacheTimestamp = value; }
+  });
+}
+
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   const now = Date.now();
   

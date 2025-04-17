@@ -26,8 +26,25 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
  * Update cache with new data
  */
 export const updateCache = (clientId: string, data: ClientFiscalData): void => {
+  console.log(`Updating cache for client ${clientId}`, data);
   fiscalDataCache.set(clientId, {
     data,
     timestamp: Date.now()
   });
+};
+
+/**
+ * Clear cache for specific client
+ */
+export const clearCache = (clientId: string): void => {
+  console.log(`Clearing cache for client ${clientId}`);
+  fiscalDataCache.delete(clientId);
+};
+
+/**
+ * Clear all caches
+ */
+export const clearAllCaches = (): void => {
+  console.log('Clearing all fiscal data caches');
+  fiscalDataCache.clear();
 };

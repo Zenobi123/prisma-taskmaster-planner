@@ -15,6 +15,19 @@ let igsCache: {
 // Cache duration in milliseconds (30 seconds)
 const CACHE_DURATION = 30000;
 
+// Add a global cache invalidation function
+if (typeof window !== 'undefined') {
+  window.__invalidateFiscalCaches = window.__invalidateFiscalCaches || function() {
+    console.log("Invalidating IGS and Patente caches");
+    // Reset cache timestamps
+    igsCache.timestamp = 0;
+    // Also invalidate patente cache if it exists
+    if (window.__patenteCacheTimestamp) {
+      window.__patenteCacheTimestamp = 0;
+    }
+  };
+}
+
 export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
   const now = Date.now();
   
