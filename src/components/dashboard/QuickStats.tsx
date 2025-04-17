@@ -4,7 +4,8 @@ import { useState } from "react";
 import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
-import { Briefcase, FileText, Clock } from "lucide-react";
+import { Briefcase, FileText, Clock, AlertTriangle } from "lucide-react";
+import { getClientsRegimeStats } from "@/services/clientRegimeService";
 
 const QuickStats = () => {
   const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
@@ -12,6 +13,13 @@ const QuickStats = () => {
   const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientStats,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
+
+  const { data: regimeStats = { reelClients: 0, igsClients: 0, delayedIgsClients: 0 }, isLoading: isRegimeStatsLoading } = useQuery({
+    queryKey: ["regime-stats"],
+    queryFn: getClientsRegimeStats,
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
@@ -71,39 +79,51 @@ const QuickStats = () => {
         </div>
       </div>
       
-      {/* Nouvelle rangée: trois sections vides */}
+      {/* Deuxième rangée: statistiques des régimes fiscaux et IGS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card opacity-50">
+        <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4 flex items-center">
-            <Briefcase className="mr-2 h-5 w-5 text-neutral-500" />
-            Section 1
+            <Briefcase className="mr-2 h-5 w-5 text-indigo-500" />
+            Clients au réel
           </h3>
-          <div className="text-3xl font-bold text-neutral-400">
-            0
+          <div className="text-3xl font-bold text-indigo-600">
+            {isRegimeStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              regimeStats.reelClients
+            )}
           </div>
-          <p className="text-neutral-500 text-sm mt-1">Non défini</p>
+          <p className="text-neutral-600 text-sm mt-1">Régime du réel</p>
         </div>
 
-        <div className="card opacity-50">
+        <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4 flex items-center">
-            <FileText className="mr-2 h-5 w-5 text-neutral-500" />
-            Section 2
+            <FileText className="mr-2 h-5 w-5 text-blue-500" />
+            Clients à IGS
           </h3>
-          <div className="text-3xl font-bold text-neutral-400">
-            0
+          <div className="text-3xl font-bold text-blue-600">
+            {isRegimeStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              regimeStats.igsClients
+            )}
           </div>
-          <p className="text-neutral-500 text-sm mt-1">Non défini</p>
+          <p className="text-neutral-600 text-sm mt-1">Impôt Global Simplifié</p>
         </div>
 
-        <div className="card opacity-50">
+        <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4 flex items-center">
-            <Clock className="mr-2 h-5 w-5 text-neutral-500" />
-            Section 3
+            <AlertTriangle className="mr-2 h-5 w-5 text-amber-500" />
+            IGS en retard
           </h3>
-          <div className="text-3xl font-bold text-neutral-400">
-            0
+          <div className="text-3xl font-bold text-amber-600">
+            {isRegimeStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              regimeStats.delayedIgsClients
+            )}
           </div>
-          <p className="text-neutral-500 text-sm mt-1">Non défini</p>
+          <p className="text-neutral-600 text-sm mt-1">Paiement en retard</p>
         </div>
       </div>
       
