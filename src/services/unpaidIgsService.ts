@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import { ClientFiscalData } from "@/hooks/fiscal/types";
 
 export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
   console.log("Service: Récupération des clients avec IGS impayés...");
@@ -16,14 +17,12 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
 
   const clientsWithUnpaidIGS = allClients.filter(client => {
     if (client.fiscal_data && typeof client.fiscal_data === 'object') {
-      const fiscalData = client.fiscal_data as any;
+      const fiscalData = client.fiscal_data as ClientFiscalData;
       
-      // Ne pas inclure si explicitement marqué comme caché du tableau de bord
       if (fiscalData.hiddenFromDashboard === true) {
         return false;
       }
       
-      // Vérifier si IGS existe et est assujetti mais non payé
       if (fiscalData.obligations?.igs) {
         return fiscalData.obligations.igs.assujetti === true && 
                fiscalData.obligations.igs.paye === false;
@@ -32,6 +31,12 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
     return false;
   });
   
-  console.log("Service: Clients avec IGS impayés:", clientsWithUnpaidIGS.length);
-  return clientsWithUnpaidIGS as Client[];
+  // Ensure proper type casting with all required Client properties
+  return clientsWithUnpaidIGS.map(client => ({
+    ...client,
+    adresse: client.adresse as Client['adresse'],
+    contact: client.contact as Client['contact'],
+    interactions: client.interactions as Client['interactions'],
+    fiscal_data: client.fiscal_data as Client['fiscal_data']
+  }));
 };
