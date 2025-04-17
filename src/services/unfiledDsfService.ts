@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
+import { Json } from "@/integrations/supabase/types";
 
 // Cache pour les données DSF
 let dsfCache: {
@@ -40,10 +41,11 @@ export const getClientsWithUnfiledDsf = async () => {
 // Fonction interne pour sauvegarder les modifications fiscales d'un client
 export const saveFiscalChanges = async (clientId: string, fiscalData: ClientFiscalData) => {
   try {
+    // Fixed: Cast ClientFiscalData to Json type before saving to Supabase
     const { error } = await supabase
       .from('clients')
       .update({
-        fiscal_data: fiscalData
+        fiscal_data: fiscalData as unknown as Json
       })
       .eq('id', clientId);
 

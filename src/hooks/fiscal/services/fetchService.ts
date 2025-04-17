@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { getFromCache, updateCache } from "./cacheService";
@@ -35,7 +36,8 @@ export const fetchFiscalData = async (clientId: string, retryCount = 0): Promise
     }
     
     if (data?.fiscal_data) {
-      const fiscalData = data.fiscal_data as ClientFiscalData;
+      // Fixed: Properly cast the JSON data to ClientFiscalData using unknown as an intermediate step
+      const fiscalData = data.fiscal_data as unknown as ClientFiscalData;
       updateCache(clientId, fiscalData);
       return fiscalData;
     }
