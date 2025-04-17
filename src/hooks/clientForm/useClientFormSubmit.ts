@@ -80,6 +80,17 @@ export function useClientFormSubmit() {
     // Gérer les données IGS si présentes
     if (formData.regimefiscal === "igs" && formData.igs) {
       clientData.igs = formData.igs;
+      
+      // Ajout : S'assurer que fiscal_data existe et contient les données IGS
+      clientData.fiscal_data = {
+        ...(initialData?.fiscal_data || {}),
+        igs: {
+          ...(initialData?.fiscal_data?.igs || {}),
+          soumisIGS: formData.igs.soumisIGS,
+          adherentCGA: formData.igs.adherentCGA,
+          classeIGS: formData.igs.classeIGS
+        }
+      };
     }
     
     // Si c'est une mise à jour, inclure l'ID

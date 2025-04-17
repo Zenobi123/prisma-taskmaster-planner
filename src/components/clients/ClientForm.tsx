@@ -26,9 +26,21 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       console.log("Initial regime fiscal:", initialData.regimefiscal);
       
       // Si le client a un regimefiscal défini, assurons-nous que formData l'a aussi
-      if (initialData.regimefiscal && !formData.regimefiscal) {
+      if (initialData.regimefiscal) {
         console.log("Setting formData regimefiscal from initialData:", initialData.regimefiscal);
         handleChange("regimefiscal", initialData.regimefiscal);
+      }
+      
+      // Si le client est en régime IGS, assurons-nous que les données IGS sont chargées
+      if (initialData.regimefiscal === "igs") {
+        const igsData = initialData.igs || 
+                       (initialData.fiscal_data && typeof initialData.fiscal_data === 'object' && 
+                        initialData.fiscal_data.igs ? initialData.fiscal_data.igs : undefined);
+                        
+        if (igsData) {
+          console.log("Setting IGS data from initialData:", igsData);
+          handleChange("igs", igsData);
+        }
       }
     }
   }, [initialData]);
