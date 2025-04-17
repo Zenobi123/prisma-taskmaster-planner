@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 
@@ -21,7 +20,7 @@ export const verifyFiscalDataSave = async (clientId: string, expectedData: Clien
     }
     
     if (data?.fiscal_data) {
-      const savedData = data.fiscal_data as ClientFiscalData;
+      const savedData = data.fiscal_data as unknown as ClientFiscalData;
       
       // Check essential fields match
       const keysToCheck = ['hiddenFromDashboard', 'attestation', 'obligations'];

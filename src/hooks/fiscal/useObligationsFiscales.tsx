@@ -1,9 +1,10 @@
 
 import { Client } from "@/types/client";
-import { ClientFiscalData, IGSData } from "./types";
+import { ClientFiscalData } from "./types";
 import { toast } from "sonner";
-import { saveFiscalData, verifyFiscalDataSave } from "./services/fiscalDataService";
-import { updateCache, clearCache, getDebugInfo } from "./services/fiscalDataCache";
+import { saveFiscalData } from "./services/saveService";
+import { verifyFiscalDataSave } from "./services/verifyService";
+import { updateCache, clearCache, getDebugInfo } from "./services/cacheService";
 import { useFiscalAttestation } from "./hooks/useFiscalAttestation";
 import { useObligationStatus } from "./hooks/useObligationStatus";
 import { useFiscalData } from "./hooks/useFiscalData";
@@ -22,7 +23,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     creationDate,
     setCreationDate,
     validityEndDate,
-    setValidityEndDate,
     showInAlert,
     handleToggleAlert
   } = useFiscalAttestation();

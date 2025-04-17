@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { getFromCache, updateCache } from "./cacheService";

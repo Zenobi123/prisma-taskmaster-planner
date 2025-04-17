@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { calculateValidityEndDate, checkAttestationExpiration } from "../utils/dateUtils";
 

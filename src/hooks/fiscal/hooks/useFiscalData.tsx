@@ -1,9 +1,9 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "../types";
-import { getFromCache, updateCache, isCached, getDebugInfo, clearCache } from "../services/fiscalDataCache";
-import { fetchFiscalData } from "../services/fiscalDataService";
+import { getFromCache, updateCache, clearCache, getDebugInfo } from "../services/cacheService";
+import { fetchFiscalData } from "../services/fetchService";
 import { toast } from "sonner";
 import { useIGSData } from "./useIGSData";
 
