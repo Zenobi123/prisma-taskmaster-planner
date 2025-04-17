@@ -1,5 +1,5 @@
 
-import { Client, ClientType } from "@/types/client";
+import { Client, ClientType, RegimeFiscal } from "@/types/client";
 
 export function useClientFormSubmit() {
   const prepareSubmitData = (formData: any, type: ClientType, initialData?: Client) => {
@@ -16,9 +16,30 @@ export function useClientFormSubmit() {
         formData.regimefiscal = initialData.regimefiscal;
         console.log("Using initial regimefiscal value:", formData.regimefiscal);
       } else {
-        formData.regimefiscal = type === "physique" ? "reel" : "simplifie";
+        // Ensure proper RegimeFiscal type for the default value
+        formData.regimefiscal = (type === "physique" ? "reel" : "simplifie") as RegimeFiscal;
         console.log("Using fallback regimefiscal value:", formData.regimefiscal);
       }
+    } else {
+      // Vérifier que regimefiscal est bien l'une des valeurs autorisées
+      console.log("Validating regimefiscal type:", formData.regimefiscal);
+      
+      const validPhysiqueRegimes = ["reel", "igs", "non_professionnel_salarie", "non_professionnel_autre"];
+      const validMoraleRegimes = ["reel", "simplifie", "non_lucratif"];
+      
+      if (type === "physique") {
+        if (!validPhysiqueRegimes.includes(formData.regimefiscal)) {
+          console.warn(`Invalid regime fiscal for physique: ${formData.regimefiscal}, defaulting to 'reel'`);
+          formData.regimefiscal = "reel";
+        }
+      } else {
+        if (!validMoraleRegimes.includes(formData.regimefiscal)) {
+          console.warn(`Invalid regime fiscal for morale: ${formData.regimefiscal}, defaulting to 'simplifie'`);
+          formData.regimefiscal = "simplifie";
+        }
+      }
+      
+      console.log("Final regimefiscal after validation:", formData.regimefiscal);
     }
     
     // Préparer les données client pour la soumission à l'API
@@ -38,7 +59,7 @@ export function useClientFormSubmit() {
       secteuractivite: formData.secteuractivite,
       numerocnps: formData.numerocnps,
       gestionexternalisee: formData.gestionexternalisee,
-      regimefiscal: formData.regimefiscal, // S'assurer que ceci est explicitement défini
+      regimefiscal: formData.regimefiscal as RegimeFiscal, // Type assertion to ensure compatibility
       situationimmobiliere: formData.situationimmobiliere,
     };
     

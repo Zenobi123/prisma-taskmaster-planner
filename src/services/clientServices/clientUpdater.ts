@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client } from "@/types/client";
+import { Client, RegimeFiscal, RegimeFiscalPhysique, RegimeFiscalMorale } from "@/types/client";
 
 export async function updateClient(id: string, updates: Partial<Client>) {
   console.log("Updating client:", id);
@@ -18,10 +18,32 @@ export async function updateClient(id: string, updates: Partial<Client>) {
       .single();
       
     if (!fetchError && currentClient) {
-      updates.regimefiscal = currentClient.regimefiscal || 
-        (currentClient.type === "physique" ? "reel" : "simplifie");
+      // Ensure proper RegimeFiscal type with type assertion
+      const defaultRegime: RegimeFiscal = currentClient.type === "physique" ? "reel" : "simplifie";
+      updates.regimefiscal = (currentClient.regimefiscal as RegimeFiscal) || defaultRegime;
       console.log("Set regimefiscal fallback based on existing client:", updates.regimefiscal);
     }
+  } else {
+    // Ensure that the regimefiscal value is properly typed
+    console.log("Validating regimefiscal type:", updates.regimefiscal);
+    
+    // Verify that the provided regime fiscal is one of the allowed values
+    const validPhysiqueRegimes: RegimeFiscalPhysique[] = ["reel", "igs", "non_professionnel_salarie", "non_professionnel_autre"];
+    const validMoraleRegimes: RegimeFiscalMorale[] = ["reel", "simplifie", "non_lucratif"];
+    
+    if (updates.type === "physique") {
+      if (!validPhysiqueRegimes.includes(updates.regimefiscal as RegimeFiscalPhysique)) {
+        console.warn(`Invalid regime fiscal for type physique: ${updates.regimefiscal}, defaulting to 'reel'`);
+        updates.regimefiscal = "reel";
+      }
+    } else {
+      if (!validMoraleRegimes.includes(updates.regimefiscal as RegimeFiscalMorale)) {
+        console.warn(`Invalid regime fiscal for type morale: ${updates.regimefiscal}, defaulting to 'simplifie'`);
+        updates.regimefiscal = "simplifie";
+      }
+    }
+    
+    console.log("Final regimefiscal after validation:", updates.regimefiscal);
   }
   
   // Données client de base avec gestion explicite des champs

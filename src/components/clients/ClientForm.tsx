@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ClientType, Client } from "@/types/client";
+import { ClientType, Client, RegimeFiscal } from "@/types/client";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientFormFields } from "./form/ClientFormFields";
 import { useClientForm } from "@/hooks/clientForm";
@@ -24,6 +24,12 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     if (initialData) {
       console.log("Initial client data loaded:", initialData);
       console.log("Initial regime fiscal:", initialData.regimefiscal);
+      
+      // Si le client a un regimefiscal défini, assurons-nous que formData l'a aussi
+      if (initialData.regimefiscal && !formData.regimefiscal) {
+        console.log("Setting formData regimefiscal from initialData:", initialData.regimefiscal);
+        handleChange("regimefiscal", initialData.regimefiscal);
+      }
     }
   }, [initialData]);
 
@@ -39,7 +45,8 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       if (!formData.regimefiscal) {
         console.warn("Regime fiscal is missing in formData, using default value");
         // Appliquer une valeur par défaut basée sur le type
-        handleChange("regimefiscal", type === "physique" ? "reel" : "simplifie");
+        const defaultRegime: RegimeFiscal = type === "physique" ? "reel" : "simplifie";
+        handleChange("regimefiscal", defaultRegime);
       }
       
       // Passer explicitement le type pour la préparation des données

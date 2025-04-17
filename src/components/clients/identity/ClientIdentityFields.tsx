@@ -81,6 +81,7 @@ export function ClientIdentityFields({
       {regimefiscal === "igs" && (
         <IGSFields
           onChange={onChange}
+          igs={igs}
         />
       )}
     </div>

@@ -1,7 +1,7 @@
 
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ClientType, RegimeFiscalPhysique, RegimeFiscalMorale } from "@/types/client";
+import { ClientType, RegimeFiscalPhysique, RegimeFiscalMorale, RegimeFiscal } from "@/types/client";
 import { useState, useEffect } from "react";
 
 interface TaxRegimeFieldsProps {
@@ -15,11 +15,11 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   console.log("TaxRegimeFields - Client type:", type);
   
   // Définir une valeur par défaut basée sur le type de client
-  const defaultValue = type === "physique" ? "reel" : "simplifie";
+  const defaultValue = type === "physique" ? "reel" as RegimeFiscalPhysique : "simplifie" as RegimeFiscalMorale;
   
   // Utiliser la valeur passée ou la valeur par défaut si non définie
-  const [selectedValue, setSelectedValue] = useState<string>(
-    regimefiscal || defaultValue
+  const [selectedValue, setSelectedValue] = useState<RegimeFiscal>(
+    (regimefiscal as RegimeFiscal) || defaultValue
   );
   
   // Mettre à jour la sélection interne lorsque les props changent
@@ -30,7 +30,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
     
     if (regimefiscal) {
       console.log("TaxRegimeFields: Mise à jour depuis props vers", regimefiscal);
-      setSelectedValue(regimefiscal);
+      setSelectedValue(regimefiscal as RegimeFiscal);
       
       // Ne pas déclencher onChange ici pour éviter les boucles infinies
     } else {
@@ -45,11 +45,20 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   const handleValueChange = (value: string) => {
     console.log("Régime fiscal sélectionné changé pour:", value);
     
+    // Vérifier que la valeur est un RegimeFiscal valide
+    let typedValue: RegimeFiscal;
+    
+    if (type === "physique") {
+      typedValue = value as RegimeFiscalPhysique;
+    } else {
+      typedValue = value as RegimeFiscalMorale;
+    }
+    
     // Mettre à jour l'état interne
-    setSelectedValue(value);
+    setSelectedValue(typedValue);
     
     // Envoyer le changement au composant parent avec le nom exact du champ
-    onChange("regimefiscal", value);
+    onChange("regimefiscal", typedValue);
   };
 
   if (type === "physique") {
