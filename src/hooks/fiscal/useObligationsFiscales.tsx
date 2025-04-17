@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
-import { ObligationStatuses, ClientFiscalData } from "./types";
+import { ObligationStatuses, ClientFiscalData, ObligationType } from "./types";
 import { calculateValidityEndDate, checkAttestationExpiration } from "./utils/dateUtils";
 import { getFromCache, updateCache } from "./services/fiscalDataCache";
 import { saveFiscalData, fetchFiscalData } from "./services/fiscalDataService";
@@ -106,7 +106,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   };
 
   const handleStatusChange = (
-    type: keyof ObligationStatuses, 
+    type: ObligationType, 
     field: "assujetti" | "paye" | "depose", 
     value: boolean
   ) => {

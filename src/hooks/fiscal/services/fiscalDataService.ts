@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 /**
  * Fetch fiscal data from the database
@@ -23,7 +24,8 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
     
     if (data?.fiscal_data) {
       console.log(`Fiscal data found for client ${clientId}`);
-      return data.fiscal_data as ClientFiscalData;
+      // Cast the data to the correct type
+      return data.fiscal_data as unknown as ClientFiscalData;
     }
     
     console.log(`No fiscal data found for client ${clientId}`);
@@ -43,7 +45,7 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     
     const { error } = await supabase
       .from('clients')
-      .update({ fiscal_data: fiscalData })
+      .update({ fiscal_data: fiscalData as unknown as Json })
       .eq('id', clientId);
     
     if (error) {

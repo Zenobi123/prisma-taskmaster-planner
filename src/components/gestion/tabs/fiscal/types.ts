@@ -31,4 +31,5 @@ export interface FiscalAttestationData {
 export interface ClientFiscalData {
   attestation: FiscalAttestationData;
   obligations: ObligationStatuses;
+  hiddenFromDashboard?: boolean; // Add property to hide from dashboard
 }

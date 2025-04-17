@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 interface TaxObligationItemProps {
   title: string;
   deadline: string;
-  obligationType: Extract<ObligationType, "patente" | "bail" | "taxeFonciere">;
+  obligationType: Extract<ObligationType, "patente" | "igs" | "bail" | "taxeFonciere">;
   status: TaxObligationStatus;
   onChange: (
     obligationType: ObligationType,
