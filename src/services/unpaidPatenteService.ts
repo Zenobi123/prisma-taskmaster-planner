@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Client, ClientType, FormeJuridique, Sexe, EtatCivil } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
 
-// Cache for Patente data
+// Cache pour les données Patente
 let patenteCache: {
   data: Client[] | null;
   timestamp: number;
@@ -12,25 +12,38 @@ let patenteCache: {
   timestamp: 0
 };
 
-// Cache duration in milliseconds (30 seconds)
-const CACHE_DURATION = 30000;
+// Durée du cache en millisecondes (augmenté à 2 minutes)
+const CACHE_DURATION = 120000; // Augmenté de 30s à 2min pour réduire les rechargements fréquents
 
-// Add a global reference to patente cache timestamp for invalidation
+// Ajouter une référence globale au timestamp du cache patente pour invalidation
 if (typeof window !== 'undefined') {
   window.__patenteCacheTimestamp = window.__patenteCacheTimestamp || 0;
-  // Update the reference whenever the cache is updated
+  // Mettre à jour la référence chaque fois que le cache est mis à jour
   Object.defineProperty(patenteCache, 'timestamp', {
     get: function() { return window.__patenteCacheTimestamp || 0; },
     set: function(value) { window.__patenteCacheTimestamp = value; }
   });
+  
+  // S'assurer que la fonction d'invalidation existe
+  window.__invalidateFiscalCaches = window.__invalidateFiscalCaches || function() {
+    console.log("Invalidation des caches IGS et Patente");
+    // Réinitialiser les timestamps du cache
+    window.__patenteCacheTimestamp = 0;
+    
+    // Invalider également le cache IGS s'il existe
+    if (window.__igsCache) {
+      window.__igsCache.timestamp = 0;
+      window.__igsCache.data = null;
+    }
+  };
 }
 
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   const now = Date.now();
   
-  // Return cached data if valid
+  // Retourner les données en cache si valides
   if (patenteCache.data && now - patenteCache.timestamp < CACHE_DURATION) {
-    console.log("Using cached Patente data");
+    console.log("Utilisation des données Patente en cache");
     return patenteCache.data;
   }
   
@@ -61,7 +74,7 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
     return false;
   });
   
-  // Convert to client type with proper type casting
+  // Convertir au type client avec le bon casting de type
   const typedClients = clientsWithUnpaidPatente.map(client => {
     return {
       ...client,
@@ -77,7 +90,7 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
     } as Client;
   });
 
-  // Update cache
+  // Mettre à jour le cache
   patenteCache = {
     data: typedClients,
     timestamp: now

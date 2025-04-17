@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "../types";
 import { getFromCache, updateCache, isCached, getDebugInfo, clearCache } from "../services/fiscalDataCache";
@@ -12,33 +12,96 @@ export const useFiscalData = (selectedClient: Client) => {
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
   const { igsData, setIgsData, handleIGSDataChange } = useIGSData();
   
-  // Add a state to track whether fiscal data has been loaded
+  // Ajouter un état pour suivre si les données fiscales ont été chargées
   const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-  // Add a state for retry counter
+  // Ajouter un état pour le compteur de tentatives
   const [loadRetries, setLoadRetries] = useState<number>(0);
+
+  // Utiliser useCallback pour pouvoir réutiliser loadFiscalData dans des effets
+  const loadFiscalData = useCallback(async () => {
+    if (!selectedClient?.id) return;
+    
+    setIsLoading(true);
+    try {
+      console.log(`Chargement des données fiscales pour le client ${selectedClient.id}`);
+      console.log("État actuel du cache:", getDebugInfo());
+      
+      // Effacer le cache pour ce client pour assurer des données fraîches
+      if (loadRetries > 0) {
+        console.log(`Tentative ${loadRetries}: effacement du cache pour des données fraîches`);
+        clearCache(selectedClient.id);
+      }
+      
+      // Tenter d'obtenir les données du cache d'abord
+      const cachedData = getFromCache(selectedClient.id);
+      if (cachedData) {
+        console.log(`Utilisation des données fiscales en cache pour le client ${selectedClient.id}`);
+        setFiscalDataFromResponse(cachedData);
+        setIsLoading(false);
+        return;
+      }
+
+      // Si pas dans le cache, récupérer depuis la base de données
+      console.log(`Récupération des données fiscales depuis la base de données pour le client ${selectedClient.id}`);
+      const fiscalData = await fetchFiscalData(selectedClient.id);
+      
+      if (fiscalData) {
+        console.log(`Données fiscales reçues de la base de données pour le client ${selectedClient.id}`);
+        setFiscalDataFromResponse(fiscalData);
+        updateCache(selectedClient.id, fiscalData);
+      } else {
+        console.log(`Aucune donnée fiscale trouvée pour le client ${selectedClient.id}`);
+        // Réinitialiser l'état pour des données vides
+        setHiddenFromDashboard(false);
+        setIgsData(undefined);
+        setDataLoaded(true);
+      }
+    } catch (error) {
+      console.error("Erreur lors du chargement des données fiscales:", error);
+      toast.error("Erreur lors du chargement des données fiscales");
+      setDataLoaded(false);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [selectedClient?.id, loadRetries, setIgsData]);
+
+  const setFiscalDataFromResponse = (data: ClientFiscalData) => {
+    // Gérer les données d'attestation dans le hook parent
+    
+    // Définir hidden from dashboard
+    setHiddenFromDashboard(data.hiddenFromDashboard || false);
+    
+    // Définir les données IGS si disponibles
+    if (data.igs) {
+      handleIGSDataChange(data.igs);
+    }
+    
+    // Marquer les données comme chargées
+    setDataLoaded(true);
+  };
 
   useEffect(() => {
     if (selectedClient?.id) {
-      // Reset state when client changes
+      // Réinitialiser l'état lorsque le client change
       setIsLoading(true);
       setHiddenFromDashboard(false);
       setIgsData(undefined);
       setDataLoaded(false);
       setLoadRetries(0);
       
-      // Load the fiscal data
+      // Charger les données fiscales
       loadFiscalData();
     }
-  }, [selectedClient?.id]);
+  }, [selectedClient?.id, loadFiscalData, setIgsData]);
 
-  // Add an effect to retry loading if data failed to load
+  // Ajouter un effet pour réessayer le chargement si les données n'ont pas pu être chargées
   useEffect(() => {
     let retryTimeout: NodeJS.Timeout;
     
     if (selectedClient?.id && !dataLoaded && loadRetries < 3 && !isLoading) {
-      console.log(`Scheduling retry #${loadRetries + 1} to load fiscal data`);
+      console.log(`Planification de la tentative #${loadRetries + 1} pour charger les données fiscales`);
       retryTimeout = setTimeout(() => {
-        console.log(`Executing retry #${loadRetries + 1} to load fiscal data`);
+        console.log(`Exécution de la tentative #${loadRetries + 1} pour charger les données fiscales`);
         setLoadRetries(prev => prev + 1);
         loadFiscalData();
       }, 3000);
@@ -49,68 +112,7 @@ export const useFiscalData = (selectedClient: Client) => {
         clearTimeout(retryTimeout);
       }
     };
-  }, [selectedClient?.id, dataLoaded, loadRetries, isLoading]);
-
-  const setFiscalDataFromResponse = (data: ClientFiscalData) => {
-    // Handle attestation data in parent hook
-    
-    // Set hidden from dashboard
-    setHiddenFromDashboard(data.hiddenFromDashboard || false);
-    
-    // Set IGS data if available
-    if (data.igs) {
-      handleIGSDataChange(data.igs);
-    }
-    
-    // Mark data as loaded
-    setDataLoaded(true);
-  };
-
-  const loadFiscalData = async () => {
-    if (!selectedClient?.id) return;
-    
-    setIsLoading(true);
-    try {
-      console.log(`Loading fiscal data for client ${selectedClient.id}`);
-      console.log("Current cache state:", getDebugInfo());
-      
-      // Clear cache for this client to ensure fresh data
-      if (loadRetries > 0) {
-        console.log(`Retry attempt ${loadRetries}: clearing cache for fresh data`);
-        clearCache(selectedClient.id);
-      }
-      
-      // Try to get data from cache first
-      const cachedData = getFromCache(selectedClient.id);
-      if (cachedData) {
-        console.log(`Using cached fiscal data for client ${selectedClient.id}`);
-        setFiscalDataFromResponse(cachedData);
-        setIsLoading(false);
-        return;
-      }
-
-      // If not in cache, fetch from database
-      console.log(`Fetching fiscal data from database for client ${selectedClient.id}`);
-      const fiscalData = await fetchFiscalData(selectedClient.id);
-      if (fiscalData) {
-        console.log(`Received fiscal data from database for client ${selectedClient.id}`);
-        setFiscalDataFromResponse(fiscalData);
-        updateCache(selectedClient.id, fiscalData);
-      } else {
-        console.log(`No fiscal data found for client ${selectedClient.id}`);
-        // Reset state for empty data
-        setHiddenFromDashboard(false);
-        setIgsData(undefined);
-        setDataLoaded(true);
-      }
-    } catch (error) {
-      console.error("Error loading fiscal data:", error);
-      toast.error("Erreur lors du chargement des données fiscales");
-      setDataLoaded(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [selectedClient?.id, dataLoaded, loadRetries, isLoading, loadFiscalData]);
 
   const handleToggleDashboardVisibility = () => {
     setHiddenFromDashboard(prev => !prev);

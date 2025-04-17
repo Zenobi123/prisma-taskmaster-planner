@@ -1,33 +1,33 @@
 
 import { ClientFiscalData } from "../types";
 
-// Cache for clients' fiscal data
+// Cache pour les données fiscales des clients
 const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
 
-// Cache validity duration in ms (10 seconds for quicker testing/updates)
-const CACHE_DURATION = 10000; // Reduced from 30s to 10s for quicker refreshes
+// Durée de validité du cache en ms (5 minutes au lieu de 10 secondes)
+const CACHE_DURATION = 300000; // Augmenté de 10s à 5min pour une meilleure persistance
 
 /**
- * Get data from cache if valid
+ * Récupérer les données du cache si valides
  */
 export const getFromCache = (clientId: string): ClientFiscalData | null => {
   const now = Date.now();
   const cachedData = fiscalDataCache.get(clientId);
   
   if (cachedData && now - cachedData.timestamp < CACHE_DURATION) {
-    console.log(`Using cache for client ${clientId} fiscal data`);
+    console.log(`Utilisation du cache pour les données fiscales du client ${clientId}`);
     return cachedData.data;
   }
   
-  console.log(`Cache invalid or not found for client ${clientId}`);
+  console.log(`Cache invalide ou non trouvé pour le client ${clientId}`);
   return null;
 };
 
 /**
- * Update cache with new data
+ * Mettre à jour le cache avec de nouvelles données
  */
 export const updateCache = (clientId: string, data: ClientFiscalData): void => {
-  console.log(`Updating cache for client ${clientId}`, data);
+  console.log(`Mise à jour du cache pour le client ${clientId}`, data);
   fiscalDataCache.set(clientId, {
     data,
     timestamp: Date.now()
@@ -35,59 +35,59 @@ export const updateCache = (clientId: string, data: ClientFiscalData): void => {
 };
 
 /**
- * Clear cache for specific client
+ * Vider le cache pour un client spécifique
  */
 export const clearCache = (clientId: string): void => {
-  console.log(`Clearing cache for client ${clientId}`);
+  console.log(`Suppression du cache pour le client ${clientId}`);
   fiscalDataCache.delete(clientId);
 };
 
 /**
- * Clear all caches
+ * Vider tous les caches
  */
 export const clearAllCaches = (): void => {
-  console.log('Clearing all fiscal data caches');
+  console.log('Suppression de tous les caches de données fiscales');
   fiscalDataCache.clear();
 };
 
 /**
- * Force expire cache for a specific client
- * This keeps the data but makes it expire immediately
+ * Forcer l'expiration du cache pour un client spécifique
+ * Cela conserve les données mais les fait expirer immédiatement
  */
 export const expireCache = (clientId: string): void => {
   const cachedEntry = fiscalDataCache.get(clientId);
   if (cachedEntry) {
-    console.log(`Expiring cache for client ${clientId}`);
+    console.log(`Expiration du cache pour le client ${clientId}`);
     fiscalDataCache.set(clientId, {
       data: cachedEntry.data,
-      timestamp: 0 // Set timestamp to 0 to force expiration
+      timestamp: 0 // Mettre le timestamp à 0 pour forcer l'expiration
     });
   }
 };
 
 /**
- * Force expire all caches
- * This keeps the data but makes it all expire immediately
+ * Forcer l'expiration de tous les caches
+ * Cela conserve les données mais les fait toutes expirer immédiatement
  */
 export const expireAllCaches = (): void => {
-  console.log('Expiring all fiscal data caches');
+  console.log('Expiration de tous les caches de données fiscales');
   fiscalDataCache.forEach((value, key) => {
     fiscalDataCache.set(key, {
       data: value.data,
-      timestamp: 0 // Set timestamp to 0 to force expiration
+      timestamp: 0 // Mettre le timestamp à 0 pour forcer l'expiration
     });
   });
 };
 
 /**
- * Check if data is currently in cache (for debugging)
+ * Vérifier si les données sont actuellement en cache (pour le débogage)
  */
 export const isCached = (clientId: string): boolean => {
   return fiscalDataCache.has(clientId);
 };
 
 /**
- * Get debug info about the cache
+ * Obtenir des informations de débogage sur le cache
  */
 export const getDebugInfo = (): { 
   cacheSize: number, 

@@ -6,11 +6,11 @@ import { Json } from "@/integrations/supabase/types";
 import { clearCache, expireAllCaches, getDebugInfo } from "./fiscalDataCache";
 
 /**
- * Fetch fiscal data from the database
+ * Récupérer les données fiscales de la base de données
  */
 export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalData | null> => {
   try {
-    console.log(`Fetching fiscal data for client ${clientId}`);
+    console.log(`Récupération des données fiscales pour le client ${clientId}`);
     
     const { data, error } = await supabase
       .from('clients')
@@ -19,122 +19,128 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
       .single();
     
     if (error) {
-      console.error("Error fetching fiscal data:", error);
+      console.error("Erreur lors de la récupération des données fiscales:", error);
       return null;
     }
     
     if (data?.fiscal_data) {
-      console.log(`Fiscal data found for client ${clientId}`);
-      // Cast the data to the correct type with an intermediate unknown cast for safety
+      console.log(`Données fiscales trouvées pour le client ${clientId}`);
+      // Cast des données au type correct avec un cast intermédiaire pour sécurité
       return data.fiscal_data as unknown as ClientFiscalData;
     }
     
-    console.log(`No fiscal data found for client ${clientId}`);
+    console.log(`Aucune donnée fiscale trouvée pour le client ${clientId}`);
     return null;
   } catch (error) {
-    console.error("Exception fetching fiscal data:", error);
+    console.error("Exception lors de la récupération des données fiscales:", error);
     return null;
   }
 };
 
 /**
- * Save fiscal data to the database
+ * Enregistrer les données fiscales dans la base de données
  */
 export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalData): Promise<boolean> => {
   try {
-    console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
-    console.log("Cache state before save:", getDebugInfo());
+    console.log(`Enregistrement des données fiscales pour le client ${clientId}`, fiscalData);
+    console.log("État du cache avant enregistrement:", getDebugInfo());
     
-    // Ensure we're really sending the data to the database
+    // S'assurer que nous envoyons réellement les données à la base de données
     const { error } = await supabase
       .from('clients')
       .update({ fiscal_data: fiscalData as unknown as Json })
       .eq('id', clientId);
     
     if (error) {
-      console.error("Error saving fiscal data:", error);
+      console.error("Erreur lors de l'enregistrement des données fiscales:", error);
       throw error;
     }
     
-    console.log(`Fiscal data saved successfully for client ${clientId}`);
+    console.log(`Données fiscales enregistrées avec succès pour le client ${clientId}`);
     
-    // Clear this client's cache to ensure fresh data is loaded next time
+    // Vider le cache de ce client pour garantir le chargement de données fraîches la prochaine fois
     clearCache(clientId);
     
-    // Force expire all related caches to ensure fresh data is loaded everywhere
+    // Forcer l'expiration de tous les caches associés pour assurer le chargement de données fraîches partout
     await invalidateRelatedQueries();
     
-    console.log("Cache state after save:", getDebugInfo());
+    console.log("État du cache après enregistrement:", getDebugInfo());
     
-    // After a successful save, wait a moment and verify the data was saved
-    setTimeout(async () => {
-      try {
-        const verificationSuccess = await verifyFiscalDataSave(clientId, fiscalData);
-        console.log(`Verification after delay: ${verificationSuccess ? "Successful" : "Failed"}`);
-      } catch (err) {
-        console.error("Error in delayed verification:", err);
+    // Après un enregistrement réussi, attendre un moment et vérifier que les données ont bien été enregistrées
+    try {
+      const verificationSuccess = await verifyFiscalDataSave(clientId, fiscalData);
+      console.log(`Vérification après enregistrement : ${verificationSuccess ? "Réussie" : "Échouée"}`);
+      
+      if (!verificationSuccess) {
+        // Réessayer une fois en cas d'échec
+        setTimeout(async () => {
+          const secondVerification = await verifyFiscalDataSave(clientId, fiscalData);
+          console.log(`Seconde vérification : ${secondVerification ? "Réussie" : "Échouée"}`);
+        }, 3000);
       }
-    }, 2000);
+    } catch (err) {
+      console.error("Erreur lors de la vérification:", err);
+    }
     
     return true;
   } catch (error) {
-    console.error("Exception saving fiscal data:", error);
+    console.error("Exception lors de l'enregistrement des données fiscales:", error);
     throw error;
   }
 };
 
 /**
- * Helper function to invalidate related queries when fiscal data changes
+ * Fonction auxiliaire pour invalider les requêtes associées lorsque les données fiscales changent
  */
 const invalidateRelatedQueries = async (): Promise<void> => {
   try {
-    // Force a refresh for IGS and Patente caches
-    // This will ensure dashboard and other displays show updated information
-    console.log("Invalidating related caches and refreshing data...");
+    // Forcer un rafraîchissement pour les caches IGS et Patente
+    // Cela garantira que les tableaux de bord et autres affichages montreront des informations à jour
+    console.log("Invalidation des caches associés et rafraîchissement des données...");
     
-    // Expire all fiscal-related caches
+    // Expirer tous les caches liés aux données fiscales
     expireAllCaches();
     
-    // Call global cache invalidation function if it exists
+    // Appeler la fonction d'invalidation de cache globale si elle existe
     if (typeof window !== 'undefined') {
-      // Create the function if it doesn't exist
+      // Créer la fonction si elle n'existe pas
       if (!window.__invalidateFiscalCaches) {
         window.__invalidateFiscalCaches = function() {
-          console.log("Creating and calling global cache invalidation function");
+          console.log("Création et appel de la fonction d'invalidation de cache globale");
           
-          // Reset timestamps in the IGS and Patente caches
+          // Réinitialiser les timestamps dans les caches IGS et Patente
           if (window.__patenteCacheTimestamp !== undefined) {
             window.__patenteCacheTimestamp = 0;
-            console.log("Patente cache invalidated");
+            console.log("Cache Patente invalidé");
           }
           
-          // Manually trigger any other cache invalidations here
+          // Déclencher manuellement toute autre invalidation de cache ici
           if (window.__igsCache) {
             window.__igsCache = { data: null, timestamp: 0 };
-            console.log("IGS cache invalidated");
+            console.log("Cache IGS invalidé");
           }
         };
       }
       
-      console.log("Calling global cache invalidation function");
+      console.log("Appel de la fonction d'invalidation de cache globale");
       window.__invalidateFiscalCaches();
     } else {
-      console.log("Global cache invalidation function not available - not running in browser");
+      console.log("Fonction d'invalidation de cache globale non disponible - n'est pas exécuté dans le navigateur");
     }
     
   } catch (error) {
-    console.error("Error invalidating related queries:", error);
+    console.error("Erreur lors de l'invalidation des requêtes associées:", error);
   }
 };
 
 /**
- * Verify the fiscal data was properly saved by fetching it again
+ * Vérifier que les données fiscales ont été correctement sauvegardées en les récupérant à nouveau
  */
 export const verifyFiscalDataSave = async (clientId: string, expectedData: ClientFiscalData): Promise<boolean> => {
   try {
-    console.log(`Verifying fiscal data save for client ${clientId}`);
+    console.log(`Vérification de l'enregistrement des données fiscales pour le client ${clientId}`);
     
-    // Force fetch from DB by bypassing cache
+    // Forcer la récupération depuis la BD en contournant le cache
     const { data, error } = await supabase
       .from('clients')
       .select('fiscal_data')
@@ -142,34 +148,41 @@ export const verifyFiscalDataSave = async (clientId: string, expectedData: Clien
       .single();
     
     if (error) {
-      console.error("Error verifying fiscal data save:", error);
+      console.error("Erreur lors de la vérification de l'enregistrement des données fiscales:", error);
       return false;
     }
     
     if (data?.fiscal_data) {
-      console.log("Verification data:", data.fiscal_data);
+      console.log("Données de vérification:", data.fiscal_data);
       
-      // Do a simple check to make sure some key fields match
+      // Faire une vérification simple pour s'assurer que certains champs clés correspondent
       const savedData = data.fiscal_data as unknown as ClientFiscalData;
       
-      // Log detailed comparisons for debugging
-      console.log("Comparison of key fields:");
-      if (savedData.hiddenFromDashboard !== undefined && expectedData.hiddenFromDashboard !== undefined) {
-        console.log(`hiddenFromDashboard: expected=${expectedData.hiddenFromDashboard}, saved=${savedData.hiddenFromDashboard}`);
+      // Vérifier si les données essentielles ont été correctement sauvegardées
+      const keysToCheck = ['hiddenFromDashboard', 'attestation'];
+      let allKeysMatch = true;
+      
+      for (const key of keysToCheck) {
+        if (JSON.stringify(savedData[key as keyof ClientFiscalData]) !== 
+            JSON.stringify(expectedData[key as keyof ClientFiscalData])) {
+          console.error(`Différence détectée dans le champ ${key}`);
+          allKeysMatch = false;
+        }
       }
       
-      if (savedData.attestation && expectedData.attestation) {
-        console.log(`attestation.creationDate: expected=${expectedData.attestation.creationDate}, saved=${savedData.attestation.creationDate}`);
+      if (allKeysMatch) {
+        console.log("Toutes les données fiscales ont été correctement enregistrées");
+      } else {
+        console.warn("Certaines données fiscales ne correspondent pas à ce qui était attendu");
       }
       
-      return true; // If we got this far, the save succeeded
+      return true; // Si nous sommes arrivés jusqu'ici, l'enregistrement a réussi
     }
     
-    console.log("Verification failed: No data returned");
+    console.log("Vérification échouée: Aucune donnée retournée");
     return false;
   } catch (error) {
-    console.error("Exception verifying fiscal data save:", error);
+    console.error("Exception lors de la vérification de l'enregistrement des données fiscales:", error);
     return false;
   }
 };
-

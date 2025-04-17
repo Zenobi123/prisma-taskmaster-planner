@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Client, ClientType, FormeJuridique, Sexe, EtatCivil } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
 
-// Cache for IGS data
+// Cache pour les données IGS
 let igsCache: {
   data: Client[] | null;
   timestamp: number;
@@ -12,35 +12,56 @@ let igsCache: {
   timestamp: 0
 };
 
-// Cache duration in milliseconds (30 seconds)
-const CACHE_DURATION = 30000;
+// Durée du cache en millisecondes (augmenté à 2 minutes)
+const CACHE_DURATION = 120000; // Augmenté de 30s à 2min pour réduire les rechargements fréquents
 
-// Add a global cache invalidation function
+// Ajouter une fonction d'invalidation de cache global
 if (typeof window !== 'undefined') {
+  // Initialiser le cache global si nécessaire
+  if (!window.__igsCache) {
+    window.__igsCache = { data: null, timestamp: 0 };
+  }
+  
+  // S'assurer que la fonction d'invalidation existe
   window.__invalidateFiscalCaches = window.__invalidateFiscalCaches || function() {
-    console.log("Invalidating IGS and Patente caches");
-    // Reset cache timestamps
+    console.log("Invalidation des caches IGS et Patente");
+    // Réinitialiser les timestamps du cache
     igsCache.timestamp = 0;
-    // Also invalidate patente cache if it exists
-    if (window.__patenteCacheTimestamp) {
+    window.__igsCache.timestamp = 0;
+    window.__igsCache.data = null;
+    
+    // Invalider également le cache patente s'il existe
+    if (window.__patenteCacheTimestamp !== undefined) {
       window.__patenteCacheTimestamp = 0;
     }
-    
-    // Make sure to initialize __igsCache if needed
-    if (!window.__igsCache) {
-      window.__igsCache = { data: null, timestamp: 0 };
-    } else {
-      window.__igsCache.timestamp = 0;
-    }
   };
+  
+  // Synchroniser notre cache local avec le cache global
+  Object.defineProperty(igsCache, 'timestamp', {
+    get: function() { return window.__igsCache?.timestamp || 0; },
+    set: function(value) { 
+      if (window.__igsCache) {
+        window.__igsCache.timestamp = value;
+      }
+    }
+  });
+  
+  Object.defineProperty(igsCache, 'data', {
+    get: function() { return window.__igsCache?.data || null; },
+    set: function(value) {
+      if (window.__igsCache) {
+        window.__igsCache.data = value;
+      }
+    }
+  });
 }
 
 export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
   const now = Date.now();
   
-  // Return cached data if valid
+  // Retourner les données en cache si valides
   if (igsCache.data && now - igsCache.timestamp < CACHE_DURATION) {
-    console.log("Using cached IGS data");
+    console.log("Utilisation des données IGS en cache");
     return igsCache.data;
   }
   
@@ -71,7 +92,7 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
     return false;
   });
   
-  // Convert to client type with proper type casting
+  // Convertir au type client avec le bon casting de type
   const typedClients = clientsWithUnpaidIGS.map(client => {
     return {
       ...client,
@@ -87,7 +108,7 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
     } as Client;
   });
 
-  // Update cache
+  // Mettre à jour le cache
   igsCache = {
     data: typedClients,
     timestamp: now
@@ -95,4 +116,3 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
   
   return typedClients;
 };
-

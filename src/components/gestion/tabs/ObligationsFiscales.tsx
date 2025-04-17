@@ -5,7 +5,7 @@ import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
-import { Loader2, Save, AlertCircle, RefreshCw } from "lucide-react";
+import { Loader2, Save, AlertCircle, RefreshCw, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -32,10 +32,11 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
     igsData,
-    handleIGSDataChange
+    handleIGSDataChange,
+    lastSaveSuccess
   } = useObligationsFiscales(selectedClient);
 
-  // Function to handle page refresh
+  // Fonction pour gérer le rafraîchissement de la page
   const handleRefreshPage = () => {
     window.location.reload();
   };
@@ -59,7 +60,16 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {saveAttempts > 0 && (
+        {lastSaveSuccess && saveAttempts > 0 && (
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              Les modifications ont été enregistrées avec succès.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {!lastSaveSuccess && saveAttempts > 0 && (
           <Alert className={saveAttempts >= 2 ? "bg-amber-50 border-amber-200" : "bg-yellow-50 border-yellow-200"}>
             <AlertCircle className={`h-4 w-4 ${saveAttempts >= 2 ? "text-amber-600" : "text-yellow-600"}`} />
             <AlertDescription className={saveAttempts >= 2 ? "text-amber-800" : "text-yellow-800"}>
@@ -113,7 +123,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         </Button>
         
         <div className="text-xs text-muted-foreground text-center w-full">
-          Pour voir les changements dans le tableau de bord, vous devrez peut-être actualiser la page après l'enregistrement.
+          Vos modifications seront enregistrées de façon permanente et visibles dans tout le système après actualisation.
         </div>
       </CardFooter>
     </Card>
