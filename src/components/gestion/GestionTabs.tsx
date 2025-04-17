@@ -32,8 +32,7 @@ export function GestionTabs({
       // Map URL parameter to tab value
       const tabMapping: Record<string, string> = {
         'entreprise': 'entreprise',
-        'obligations-fiscales': 'fiscal',
-        'fiscal': 'fiscal' // Ajout de ce mappage pour permettre la redirection directe
+        'obligations-fiscales': 'fiscal'
       };
       
       const tabValue = tabMapping[tabParam];

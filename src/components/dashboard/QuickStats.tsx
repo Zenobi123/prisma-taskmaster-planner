@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getTasks } from "@/services/taskService";
@@ -7,12 +6,10 @@ import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { UnpaidIgsDialog } from "@/components/dashboard/UnpaidIgsDialog";
-import { useNavigate } from "react-router-dom";
 
 const QuickStats = () => {
   const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
   const [showUnpaidIgsDialog, setShowUnpaidIgsDialog] = useState(false);
-  const navigate = useNavigate();
 
   const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
     queryKey: ["tasks"],
@@ -74,11 +71,6 @@ const QuickStats = () => {
   const completedMissions = countCompletedMissions();
   const activeCollaborators = countActiveCollaborators();
 
-  // Fonction pour naviguer directement vers la section gestion fiscale
-  const handleNavigateToFiscalManagement = () => {
-    navigate("/gestion?tab=fiscal");
-  };
-
   return (
     <div className="grid grid-cols-1 gap-6">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -124,14 +116,7 @@ const QuickStats = () => {
               )}
             </div>
             {!isClientStatsLoading && (clientStats.unpaidIgsClients || 0) > 0 && (
-              <Badge 
-                variant="outline" 
-                className="bg-red-100 text-red-800 border-red-300 cursor-pointer hover:bg-red-200"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleNavigateToFiscalManagement();
-                }}
-              >
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
                 À régulariser
               </Badge>
             )}
@@ -183,14 +168,7 @@ const QuickStats = () => {
               )}
             </div>
             {!isClientStatsLoading && clientStats.unpaidPatenteClients > 0 && (
-              <Badge 
-                variant="outline" 
-                className="bg-red-100 text-red-800 border-red-300 cursor-pointer hover:bg-red-200"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate("/gestion?tab=fiscal");
-                }}
-              >
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
                 À régulariser
               </Badge>
             )}

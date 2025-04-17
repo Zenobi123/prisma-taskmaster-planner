@@ -29,7 +29,6 @@ export function UnpaidIgsDialog({ open, onOpenChange }: UnpaidIgsDialogProps) {
 
   const handleViewClient = (client: Client) => {
     onOpenChange(false);
-    // Navigate to fiscal management with client and tab params
     navigate(`/gestion?client=${client.id}&tab=obligations-fiscales`);
   };
 
@@ -38,7 +37,7 @@ export function UnpaidIgsDialog({ open, onOpenChange }: UnpaidIgsDialogProps) {
   };
 
   const handleArchiveClient = (client: Client) => {
-    // No action needed for this view
+    // Pas d'action nécessaire pour cette vue
   };
 
   return (
