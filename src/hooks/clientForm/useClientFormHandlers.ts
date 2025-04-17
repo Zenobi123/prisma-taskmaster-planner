@@ -26,6 +26,13 @@ export function useClientFormHandlers(
           [name.split('.')[1]]: value !== "" ? Number(value) : undefined
         }
       });
+    } else if (name === "regimefiscal") {
+      // Log explicite pour le changement de régime fiscal
+      console.log("Setting regime fiscal to:", value);
+      setFormData({
+        ...formData,
+        regimefiscal: value
+      });
     } else if (name.startsWith("igs.")) {
       const igsField = name.split('.')[1];
       console.log(`Setting IGS field ${igsField} to:`, value);

@@ -20,26 +20,6 @@ export function useClientFormSubmit() {
         formData.regimefiscal = (type === "physique" ? "reel" : "simplifie") as RegimeFiscal;
         console.log("Using fallback regimefiscal value:", formData.regimefiscal);
       }
-    } else {
-      // Vérifier que regimefiscal est bien l'une des valeurs autorisées
-      console.log("Validating regimefiscal type:", formData.regimefiscal);
-      
-      const validPhysiqueRegimes = ["reel", "igs", "non_professionnel_salarie", "non_professionnel_autre"];
-      const validMoraleRegimes = ["reel", "simplifie", "non_lucratif"];
-      
-      if (type === "physique") {
-        if (!validPhysiqueRegimes.includes(formData.regimefiscal)) {
-          console.warn(`Invalid regime fiscal for physique: ${formData.regimefiscal}, defaulting to 'reel'`);
-          formData.regimefiscal = "reel";
-        }
-      } else {
-        if (!validMoraleRegimes.includes(formData.regimefiscal)) {
-          console.warn(`Invalid regime fiscal for morale: ${formData.regimefiscal}, defaulting to 'simplifie'`);
-          formData.regimefiscal = "simplifie";
-        }
-      }
-      
-      console.log("Final regimefiscal after validation:", formData.regimefiscal);
     }
     
     // Préparer les données client pour la soumission à l'API

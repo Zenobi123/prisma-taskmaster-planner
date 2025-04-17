@@ -19,28 +19,15 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
   const { formData, handleChange, prepareSubmitData } = useClientForm(initialData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // Loguer les données initiales et en particulier la valeur du regime fiscal
+  // Loguer les données initiales
   useEffect(() => {
     if (initialData) {
       console.log("Initial client data loaded:", initialData);
-      console.log("Initial regime fiscal:", initialData.regimefiscal);
       
-      // Si le client a un regimefiscal défini, assurons-nous que formData l'a aussi
+      // S'assurer que le régime fiscal est défini dans formData
       if (initialData.regimefiscal) {
         console.log("Setting formData regimefiscal from initialData:", initialData.regimefiscal);
         handleChange("regimefiscal", initialData.regimefiscal);
-      }
-      
-      // Si le client est en régime IGS, assurons-nous que les données IGS sont chargées
-      if (initialData.regimefiscal === "igs") {
-        const igsData = initialData.igs || 
-                       (initialData.fiscal_data && typeof initialData.fiscal_data === 'object' && 
-                        initialData.fiscal_data.igs ? initialData.fiscal_data.igs : undefined);
-                        
-        if (igsData) {
-          console.log("Setting IGS data from initialData:", igsData);
-          handleChange("igs", igsData);
-        }
       }
     }
   }, [initialData]);
@@ -53,13 +40,6 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       // Vérifier que formData contient regimefiscal avant de préparer les données
       console.log("Current formData before submission:", formData);
       console.log("Current regime fiscal before submission:", formData.regimefiscal);
-      
-      if (!formData.regimefiscal) {
-        console.warn("Regime fiscal is missing in formData, using default value");
-        // Appliquer une valeur par défaut basée sur le type
-        const defaultRegime: RegimeFiscal = type === "physique" ? "reel" : "simplifie";
-        handleChange("regimefiscal", defaultRegime);
-      }
       
       // Passer explicitement le type pour la préparation des données
       const clientData = prepareSubmitData(type);

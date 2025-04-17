@@ -24,17 +24,11 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   
   // Mettre à jour la sélection interne lorsque les props changent
   useEffect(() => {
-    console.log("TaxRegimeFields useEffect triggered");
-    console.log("Current regimefiscal prop:", regimefiscal);
-    console.log("Current selectedValue state:", selectedValue);
-    
     if (regimefiscal) {
-      console.log("TaxRegimeFields: Mise à jour depuis props vers", regimefiscal);
+      console.log("TaxRegimeFields: Updating from props to", regimefiscal);
       setSelectedValue(regimefiscal as RegimeFiscal);
-      
-      // Ne pas déclencher onChange ici pour éviter les boucles infinies
     } else {
-      console.log("TaxRegimeFields: Utilisation de la valeur par défaut", defaultValue);
+      console.log("TaxRegimeFields: Using default value", defaultValue);
       setSelectedValue(defaultValue);
       
       // Initialiser avec la valeur par défaut si aucune n'est fournie
@@ -43,7 +37,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   }, [regimefiscal, type, defaultValue]);
   
   const handleValueChange = (value: string) => {
-    console.log("Régime fiscal sélectionné changé pour:", value);
+    console.log("Regime fiscal selection changed to:", value);
     
     // Vérifier que la valeur est un RegimeFiscal valide
     let typedValue: RegimeFiscal;

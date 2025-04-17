@@ -19,38 +19,19 @@ export async function updateClient(id: string, updates: Partial<Client>) {
     throw new Error(`Failed to fetch current client data: ${fetchError.message}`);
   }
   
-  // S'assurer que regimefiscal est correctement défini
+  // S'assurer que regimefiscal est correctement défini et préservé
   if (!updates.regimefiscal) {
     console.warn("WARNING: No regimefiscal found in updates. Using existing value.");
-    updates.regimefiscal = currentClient.regimefiscal as RegimeFiscal;
+    updates.regimefiscal = currentClient.regimefiscal;
     console.log("Using existing regimefiscal:", updates.regimefiscal);
   } else {
-    // Vérifier que la valeur de regimefiscal est valide pour le type de client
-    console.log("Validating regimefiscal type:", updates.regimefiscal);
-    
-    const clientType = updates.type || currentClient.type;
-    const validPhysiqueRegimes: RegimeFiscalPhysique[] = ["reel", "igs", "non_professionnel_salarie", "non_professionnel_autre"];
-    const validMoraleRegimes: RegimeFiscalMorale[] = ["reel", "simplifie", "non_lucratif"];
-    
-    if (clientType === "physique") {
-      if (!validPhysiqueRegimes.includes(updates.regimefiscal as RegimeFiscalPhysique)) {
-        console.warn(`Invalid regime fiscal for type physique: ${updates.regimefiscal}, using existing value`);
-        updates.regimefiscal = currentClient.regimefiscal as RegimeFiscal;
-      }
-    } else {
-      if (!validMoraleRegimes.includes(updates.regimefiscal as RegimeFiscalMorale)) {
-        console.warn(`Invalid regime fiscal for type morale: ${updates.regimefiscal}, using existing value`);
-        updates.regimefiscal = currentClient.regimefiscal as RegimeFiscal;
-      }
-    }
-    
-    console.log("Final regimefiscal after validation:", updates.regimefiscal);
+    console.log("Using provided regimefiscal:", updates.regimefiscal);
   }
   
   // Préparer les données à mettre à jour
-  const clientData: any = { ...currentClient };
+  const clientData = { ...currentClient };
   
-  // Mettre à jour avec les nouvelles valeurs
+  // Mettre à jour avec les nouvelles valeurs, en préservant explicitement le regime fiscal
   Object.keys(updates).forEach(key => {
     if (updates[key as keyof Partial<Client>] !== undefined) {
       clientData[key] = updates[key as keyof Partial<Client>];
@@ -76,13 +57,7 @@ export async function updateClient(id: string, updates: Partial<Client>) {
       ...clientData.fiscal_data.igs,
       soumisIGS: updates.igs.soumisIGS !== undefined ? updates.igs.soumisIGS : false,
       adherentCGA: updates.igs.adherentCGA !== undefined ? updates.igs.adherentCGA : false,
-      classeIGS: updates.igs.classeIGS,
-      patente: updates.igs.patente,
-      acompteJanvier: updates.igs.acompteJanvier,
-      acompteFevrier: updates.igs.acompteFevrier,
-      chiffreAffairesAnnuel: updates.igs.chiffreAffairesAnnuel || 0,
-      etablissements: Array.isArray(updates.igs.etablissements) ? updates.igs.etablissements : [],
-      completedPayments: Array.isArray(updates.igs.completedPayments) ? updates.igs.completedPayments : []
+      classeIGS: updates.igs.classeIGS
     };
   }
   
@@ -95,15 +70,6 @@ export async function updateClient(id: string, updates: Partial<Client>) {
       ...clientData.fiscal_data,
       ...updates.fiscal_data
     };
-    
-    // S'assurer que les données IGS sont cohérentes dans fiscal_data.igs et igs
-    if (clientData.igs && clientData.fiscal_data.igs) {
-      clientData.fiscal_data.igs = {
-        ...clientData.fiscal_data.igs,
-        soumisIGS: clientData.igs.soumisIGS !== undefined ? clientData.igs.soumisIGS : clientData.fiscal_data.igs.soumisIGS,
-        adherentCGA: clientData.igs.adherentCGA !== undefined ? clientData.igs.adherentCGA : clientData.fiscal_data.igs.adherentCGA
-      };
-    }
   }
   
   console.log("Final client data to update:", JSON.stringify(clientData, null, 2));

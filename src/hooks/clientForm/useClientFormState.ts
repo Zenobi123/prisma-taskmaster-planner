@@ -23,7 +23,7 @@ export function useClientFormState(initialData?: Client) {
     gestionexternalisee: false,
     sexe: "homme",
     etatcivil: "celibataire",
-    regimefiscal: "simplifie",
+    regimefiscal: "simplifie", 
     situationimmobiliere: {
       type: "locataire",
     },
@@ -40,6 +40,9 @@ export function useClientFormState(initialData?: Client) {
   if (initialData) {
     // Récupérer les données IGS soit directement depuis igs soit depuis fiscal_data.igs
     const igsData = initialData.igs || (initialData.fiscal_data?.igs ? initialData.fiscal_data.igs : undefined);
+    
+    // Log explicite pour le régime fiscal lors de l'initialisation
+    console.log("Setting form state with regime fiscal:", initialData.regimefiscal || defaultFormData.regimefiscal);
     
     formData = {
       nom: initialData.nom || "",
@@ -61,7 +64,7 @@ export function useClientFormState(initialData?: Client) {
       gestionexternalisee: initialData.gestionexternalisee || false,
       sexe: initialData.sexe || "homme",
       etatcivil: initialData.etatcivil || "celibataire",
-      regimefiscal: initialData.regimefiscal || "simplifie",
+      regimefiscal: initialData.regimefiscal || (initialData.type === "physique" ? "reel" : "simplifie"),
       situationimmobiliere: initialData.situationimmobiliere || { type: "locataire" },
       igs: igsData || { soumisIGS: false, adherentCGA: false }
     };

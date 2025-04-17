@@ -16,6 +16,10 @@ export function useClientForm(initialData?: Client) {
   };
 
   const prepareClientData = (type: ClientType) => {
+    console.log("Preparing client data for submission with type:", type);
+    console.log("Current formData:", formData);
+    console.log("Current regime fiscal:", formData.regimefiscal);
+    
     return prepareSubmitData(formData, type, initialData);
   };
 
