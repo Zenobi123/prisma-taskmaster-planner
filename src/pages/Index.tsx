@@ -96,10 +96,7 @@ const Index = () => {
         <div className="p-8 space-y-8">
           <QuickStats />
           
-          <DashboardCollapsible 
-            title="Tâches récentes"
-            componentName="RecentTasks"
-          />
+          {/* Removed: DashboardCollapsible for Recent Tasks */}
           
           <DashboardCollapsible 
             title="Attestations de Conformité Fiscale"
