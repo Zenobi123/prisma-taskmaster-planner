@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
-import { clearCache, expireAllCaches } from "./fiscalDataCache";
+import { clearCache, expireAllCaches, getDebugInfo } from "./fiscalDataCache";
 
 /**
  * Fetch fiscal data from the database
@@ -43,6 +43,7 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
 export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalData): Promise<boolean> => {
   try {
     console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
+    console.log("Cache state before save:", getDebugInfo());
     
     const { error } = await supabase
       .from('clients')
@@ -62,6 +63,7 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     // Force expire all related caches to ensure fresh data is loaded everywhere
     await invalidateRelatedQueries();
     
+    console.log("Cache state after save:", getDebugInfo());
     return true;
   } catch (error) {
     console.error("Exception saving fiscal data:", error);
@@ -83,10 +85,45 @@ const invalidateRelatedQueries = async (): Promise<void> => {
     
     // Call global cache invalidation function if it exists
     if (typeof window !== 'undefined' && window.__invalidateFiscalCaches) {
+      console.log("Calling global cache invalidation function");
       window.__invalidateFiscalCaches();
+    } else {
+      console.log("Global cache invalidation function not available");
     }
     
   } catch (error) {
     console.error("Error invalidating related queries:", error);
+  }
+};
+
+/**
+ * Verify the fiscal data was properly saved by fetching it again
+ */
+export const verifyFiscalDataSave = async (clientId: string, expectedData: ClientFiscalData): Promise<boolean> => {
+  try {
+    console.log(`Verifying fiscal data save for client ${clientId}`);
+    
+    // Force fetch from DB by bypassing cache
+    const { data, error } = await supabase
+      .from('clients')
+      .select('fiscal_data')
+      .eq('id', clientId)
+      .single();
+    
+    if (error) {
+      console.error("Error verifying fiscal data save:", error);
+      return false;
+    }
+    
+    if (data?.fiscal_data) {
+      console.log("Verification data:", data.fiscal_data);
+      return true;
+    }
+    
+    console.log("Verification failed: No data returned");
+    return false;
+  } catch (error) {
+    console.error("Exception verifying fiscal data save:", error);
+    return false;
   }
 };

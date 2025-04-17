@@ -4,8 +4,8 @@ import { ClientFiscalData } from "../types";
 // Cache for clients' fiscal data
 const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
 
-// Cache validity duration in ms (1 minute)
-const CACHE_DURATION = 60000;
+// Cache validity duration in ms (30 seconds for quicker testing/updates)
+const CACHE_DURATION = 30000;
 
 /**
  * Get data from cache if valid
@@ -19,6 +19,7 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
     return cachedData.data;
   }
   
+  console.log(`Cache invalid or not found for client ${clientId}`);
   return null;
 };
 
@@ -76,4 +77,40 @@ export const expireAllCaches = (): void => {
       timestamp: 0 // Set timestamp to 0 to force expiration
     });
   });
+};
+
+/**
+ * Check if data is currently in cache (for debugging)
+ */
+export const isCached = (clientId: string): boolean => {
+  return fiscalDataCache.has(clientId);
+};
+
+/**
+ * Get debug info about the cache
+ */
+export const getDebugInfo = (): { 
+  cacheSize: number, 
+  cachedClients: string[], 
+  cacheDetails: {[key: string]: {timestamp: number, validFor: number}} 
+} => {
+  const now = Date.now();
+  const cachedClients = Array.from(fiscalDataCache.keys());
+  const cacheDetails: {[key: string]: {timestamp: number, validFor: number}} = {};
+  
+  cachedClients.forEach(clientId => {
+    const entry = fiscalDataCache.get(clientId);
+    if (entry) {
+      cacheDetails[clientId] = {
+        timestamp: entry.timestamp,
+        validFor: Math.max(0, CACHE_DURATION - (now - entry.timestamp))
+      };
+    }
+  });
+  
+  return {
+    cacheSize: fiscalDataCache.size,
+    cachedClients,
+    cacheDetails
+  };
 };

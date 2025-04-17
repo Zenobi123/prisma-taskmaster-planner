@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "../types";
-import { getFromCache, updateCache } from "../services/fiscalDataCache";
+import { getFromCache, updateCache, isCached, getDebugInfo } from "../services/fiscalDataCache";
 import { fetchFiscalData } from "../services/fiscalDataService";
 import { toast } from "sonner";
 import { useIGSData } from "./useIGSData";
@@ -49,6 +49,7 @@ export const useFiscalData = (selectedClient: Client) => {
     setIsLoading(true);
     try {
       console.log(`Loading fiscal data for client ${selectedClient.id}`);
+      console.log("Current cache state:", getDebugInfo());
       
       // Try to get data from cache first
       const cachedData = getFromCache(selectedClient.id);
@@ -71,10 +72,12 @@ export const useFiscalData = (selectedClient: Client) => {
         // Reset state for empty data
         setHiddenFromDashboard(false);
         setIgsData(undefined);
+        setDataLoaded(true);
       }
     } catch (error) {
       console.error("Error loading fiscal data:", error);
       toast.error("Erreur lors du chargement des données fiscales");
+      setDataLoaded(false);
     } finally {
       setIsLoading(false);
     }
