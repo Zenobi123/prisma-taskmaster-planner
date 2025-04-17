@@ -12,6 +12,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   const [validityEndDate, setValidityEndDate] = useState<string>("");
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
     patente: { assujetti: false, paye: false },
+    igs: { assujetti: false, paye: false },
     bail: { assujetti: false, paye: false },
     taxeFonciere: { assujetti: false, paye: false },
     dsf: { assujetti: false, depose: false },
@@ -94,6 +95,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     setValidityEndDate("");
     setObligationStatuses({
       patente: { assujetti: false, paye: false },
+      igs: { assujetti: false, paye: false },
       bail: { assujetti: false, paye: false },
       taxeFonciere: { assujetti: false, paye: false },
       dsf: { assujetti: false, depose: false },

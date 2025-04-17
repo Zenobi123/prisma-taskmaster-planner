@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   ObligationStatuses, 
@@ -32,6 +33,14 @@ export function AnnualObligationsSection({
               deadline="28 février"
               obligationType="patente"
               status={obligationStatuses.patente}
+              onChange={handleStatusChange}
+            />
+            
+            <TaxObligationItem
+              title="Impôt Général Synthétique (IGS)"
+              deadline="31 mars"
+              obligationType="igs"
+              status={obligationStatuses.igs}
               onChange={handleStatusChange}
             />
             

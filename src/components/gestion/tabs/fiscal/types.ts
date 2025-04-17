@@ -1,5 +1,5 @@
 
-export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp";
+export type ObligationType = "patente" | "igs" | "bail" | "taxeFonciere" | "dsf" | "darp";
 
 export interface TaxObligationStatus {
   assujetti: boolean;
@@ -15,6 +15,7 @@ export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus
 
 export type ObligationStatuses = {
   patente: TaxObligationStatus;
+  igs: TaxObligationStatus;
   bail: TaxObligationStatus;
   taxeFonciere: TaxObligationStatus;
   dsf: DeclarationObligationStatus;
