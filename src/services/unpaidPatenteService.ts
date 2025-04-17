@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import { calculatePaymentStatus } from "@/components/clients/identity/igs/utils/igsCalculations";
 
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   console.log("Service: Récupération des clients avec IGS impayés...");
@@ -15,6 +16,8 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
     throw error;
   }
 
+  const currentDate = new Date();
+
   // Filtrer les clients avec IGS impayé
   const clientsWithUnpaidIGS = allClients.filter(client => {
     // Vérifier si c'est un client IGS
@@ -24,28 +27,37 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
       // Cast client to Client type to properly access IGS data
       const typedClient = client as unknown as Client;
       
+      // Ne pas inclure si explicitement marqué comme caché du tableau de bord
+      if (typedClient.fiscal_data && typeof typedClient.fiscal_data === 'object') {
+        const fiscalData = typedClient.fiscal_data as any;
+        if (fiscalData.hiddenFromDashboard === true) {
+          console.log(`Client ${client.id} caché du tableau de bord`);
+          return false;
+        }
+      }
+      
       // Vérifier directement dans l'objet client.igs
-      if (typedClient.igs) {
+      if (typedClient.igs && typedClient.igs.soumisIGS) {
         console.log(`Données IGS pour client ${client.id}:`, typedClient.igs);
         
-        // Ne pas inclure si explicitement marqué comme caché du tableau de bord
-        if (typedClient.fiscal_data && typeof typedClient.fiscal_data === 'object') {
-          const fiscalData = typedClient.fiscal_data as any;
-          if (fiscalData.hiddenFromDashboard === true) {
-            console.log(`Client ${client.id} caché du tableau de bord`);
-            return false;
+        // Utiliser le nouveau système de suivi des paiements avec completedPayments
+        if (Array.isArray(typedClient.igs.completedPayments)) {
+          const paymentStatus = calculatePaymentStatus(typedClient.igs.completedPayments, currentDate);
+          
+          if (!paymentStatus.isUpToDate) {
+            console.log(`Client ${client.id} en retard selon le système de suivi des paiements`);
+            return true;
           }
+          return false;
         }
         
-        const currentDate = new Date();
+        // Fallback: vérifier les acomptes individuels
         const currentMonth = currentDate.getMonth();
         
-        // Vérifier si nous sommes après janvier mais qu'aucun acompte n'a été payé
         if (currentMonth > 0 && (!typedClient.igs.acompteJanvier || !typedClient.igs.acompteJanvier.montant)) {
           console.log(`Client ${client.id} n'a pas payé l'acompte de janvier`);
           return true;
         }
-        // Vérifier si nous sommes après février mais que l'acompte de février n'a pas été payé
         else if (currentMonth > 1 && (!typedClient.igs.acompteFevrier || !typedClient.igs.acompteFevrier.montant)) {
           console.log(`Client ${client.id} n'a pas payé l'acompte de février`);
           return true;
@@ -60,9 +72,21 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
           return false;
         }
         
-        if (fiscalData.igs) {
+        if (fiscalData.igs && fiscalData.igs.soumisIGS) {
           const igsData = fiscalData.igs;
-          const currentDate = new Date();
+          
+          // Utiliser le nouveau système de suivi des paiements avec completedPayments
+          if (Array.isArray(igsData.completedPayments)) {
+            const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
+            
+            if (!paymentStatus.isUpToDate) {
+              console.log(`Client ${client.id} en retard selon le système de suivi des paiements (via fiscal_data)`);
+              return true;
+            }
+            return false;
+          }
+          
+          // Fallback pour la méthode ancienne
           const currentMonth = currentDate.getMonth();
           
           if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {

@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import { calculatePaymentStatus } from "@/components/clients/identity/igs/utils/igsCalculations";
 
 export interface ClientRegimeStats {
   reelClients: number;
@@ -26,6 +27,8 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
   let igsClients = 0;
   let delayedIgsClients = 0;
 
+  const currentDate = new Date();
+
   allClients.forEach(client => {
     console.log(`Analyse du client ${client.id} - régime fiscal: ${client.regimefiscal}`);
     
@@ -42,42 +45,76 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
       // Cast client to Client type to properly access IGS data
       const typedClient = client as unknown as Client;
       
-      // Vérifier les données IGS
-      if (typedClient.igs) {
+      // Vérifier les données IGS - d'abord dans typedClient.igs
+      if (typedClient.igs && typedClient.igs.soumisIGS) {
         const igsData = typedClient.igs;
         console.log(`Données IGS pour client ${client.id}:`, igsData);
         
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth();
+        // Vérifier si caché du tableau de bord
+        if (typedClient.fiscal_data?.hiddenFromDashboard === true) {
+          console.log(`Client ${client.id} caché du tableau de bord`);
+          return;
+        }
         
-        // Vérifier si nous sommes après janvier mais qu'aucun acompte n'a été payé
-        if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
-          console.log(`Client ${client.id} en retard pour l'acompte de janvier`);
-          delayedIgsClients++;
-        }
-        // Vérifier si nous sommes après février mais que l'acompte de février n'a pas été payé
-        else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
-          console.log(`Client ${client.id} en retard pour l'acompte de février`);
-          delayedIgsClients++;
-        }
-      } else if (client.fiscal_data) {
-        // Alternatively, try to get IGS data from fiscal_data
-        const fiscalData = client.fiscal_data as any;
-        if (fiscalData.igs) {
-          const igsData = fiscalData.igs;
+        // Utiliser le nouveau système de suivi des paiements avec completedPayments
+        if (Array.isArray(igsData.completedPayments)) {
+          const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
           
-          const currentDate = new Date();
+          if (!paymentStatus.isUpToDate) {
+            console.log(`Client ${client.id} en retard selon le système de suivi des paiements`);
+            delayedIgsClients++;
+          }
+        } 
+        // Fallback: vérifier les acomptes individuels si completedPayments n'est pas utilisé
+        else {
           const currentMonth = currentDate.getMonth();
           
           if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
-            console.log(`Client ${client.id} en retard pour l'acompte de janvier (via fiscal_data)`);
-            delayedIgsClients++;
-          } else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
-            console.log(`Client ${client.id} en retard pour l'acompte de février (via fiscal_data)`);
+            console.log(`Client ${client.id} en retard pour l'acompte de janvier`);
             delayedIgsClients++;
           }
+          else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
+            console.log(`Client ${client.id} en retard pour l'acompte de février`);
+            delayedIgsClients++;
+          }
+        }
+      } 
+      // Chercher les données IGS dans fiscal_data si elles n'existent pas directement
+      else if (client.fiscal_data) {
+        const fiscalData = client.fiscal_data as any;
+        
+        // Vérifier si caché du tableau de bord
+        if (fiscalData.hiddenFromDashboard === true) {
+          console.log(`Client ${client.id} caché du tableau de bord via fiscal_data`);
+          return;
+        }
+        
+        if (fiscalData.igs && fiscalData.igs.soumisIGS) {
+          const igsData = fiscalData.igs;
+          
+          // Utiliser le nouveau système de suivi des paiements avec completedPayments
+          if (Array.isArray(igsData.completedPayments)) {
+            const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
+            
+            if (!paymentStatus.isUpToDate) {
+              console.log(`Client ${client.id} en retard selon le système de suivi des paiements (via fiscal_data)`);
+              delayedIgsClients++;
+            }
+          }
+          // Fallback: vérifier les acomptes individuels si completedPayments n'est pas utilisé
+          else {
+            const currentMonth = currentDate.getMonth();
+            
+            if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
+              console.log(`Client ${client.id} en retard pour l'acompte de janvier (via fiscal_data)`);
+              delayedIgsClients++;
+            } else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
+              console.log(`Client ${client.id} en retard pour l'acompte de février (via fiscal_data)`);
+              delayedIgsClients++;
+            }
+          }
         } else {
-          console.log(`Client ${client.id} est IGS mais sans données IGS définies`);
+          console.log(`Client ${client.id} est IGS mais sans données IGS définies dans fiscal_data`);
         }
       } else {
         console.log(`Client ${client.id} est IGS mais sans données IGS définies`);

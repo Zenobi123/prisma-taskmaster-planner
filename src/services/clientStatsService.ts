@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import { calculatePaymentStatus } from "@/components/clients/identity/igs/utils/igsCalculations";
 
 export const getClientStats = async () => {
   console.log("Récupération des statistiques clients...");
@@ -19,6 +20,8 @@ export const getClientStats = async () => {
   const managedClients = allClients.filter(client => client.gestionexternalisee === true).length;
   
   // Clients assujettis à l'IGS qui ne l'ont pas payé
+  const currentDate = new Date();
+  
   const unpaidPatenteClients = allClients.filter(client => {
     // Vérifier si c'est un client IGS
     if (client.regimefiscal === "igs") {
@@ -27,19 +30,33 @@ export const getClientStats = async () => {
       // Cast client to Client type to properly access IGS data
       const typedClient = client as unknown as Client;
       
+      // Vérifier si caché du tableau de bord
+      if (typedClient.fiscal_data?.hiddenFromDashboard === true) {
+        return false;
+      }
+      
       // Vérifier si le client a des données IGS, soit directement, soit dans fiscal_data
-      if (typedClient.igs) {
+      if (typedClient.igs && typedClient.igs.soumisIGS) {
         console.log(`Données IGS pour client ${client.id}:`, typedClient.igs);
         
-        const currentDate = new Date();
+        // Utiliser le nouveau système de suivi des paiements avec completedPayments
+        if (Array.isArray(typedClient.igs.completedPayments)) {
+          const paymentStatus = calculatePaymentStatus(typedClient.igs.completedPayments, currentDate);
+          
+          if (!paymentStatus.isUpToDate) {
+            console.log(`Client ${client.id} en retard selon le système de suivi des paiements`);
+            return true;
+          }
+          return false;
+        }
+        
+        // Fallback: vérifier les acomptes individuels
         const currentMonth = currentDate.getMonth();
         
-        // Vérifier si nous sommes après janvier mais qu'aucun acompte n'a été payé
         if (currentMonth > 0 && (!typedClient.igs.acompteJanvier || !typedClient.igs.acompteJanvier.montant)) {
           console.log(`Client ${client.id} n'a pas payé l'acompte de janvier - ajouté aux statistiques`);
           return true;
         }
-        // Vérifier si nous sommes après février mais que l'acompte de février n'a pas été payé
         else if (currentMonth > 1 && (!typedClient.igs.acompteFevrier || !typedClient.igs.acompteFevrier.montant)) {
           console.log(`Client ${client.id} n'a pas payé l'acompte de février - ajouté aux statistiques`);
           return true;
@@ -47,10 +64,27 @@ export const getClientStats = async () => {
       } else if (client.fiscal_data) {
         // Check fiscal_data.igs as an alternative
         const fiscalData = client.fiscal_data as any;
-        if (fiscalData.igs) {
+        
+        // Skip if hidden from dashboard
+        if (fiscalData.hiddenFromDashboard === true) {
+          return false;
+        }
+        
+        if (fiscalData.igs && fiscalData.igs.soumisIGS) {
           const igsData = fiscalData.igs;
           
-          const currentDate = new Date();
+          // Utiliser le nouveau système de suivi des paiements avec completedPayments
+          if (Array.isArray(igsData.completedPayments)) {
+            const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
+            
+            if (!paymentStatus.isUpToDate) {
+              console.log(`Client ${client.id} en retard selon le système de suivi des paiements (via fiscal_data)`);
+              return true;
+            }
+            return false;
+          }
+          
+          // Fallback pour la méthode ancienne (vérification des acomptes)
           const currentMonth = currentDate.getMonth();
           
           if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
@@ -59,7 +93,7 @@ export const getClientStats = async () => {
             return true;
           }
         } else {
-          console.log(`Client ${client.id} est IGS mais sans données IGS définies - ajouté aux statistiques`);
+          console.log(`Client ${client.id} est IGS mais sans données IGS définies dans fiscal_data - ajouté aux statistiques`);
           return true;
         }
       } else {
