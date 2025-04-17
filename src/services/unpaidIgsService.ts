@@ -18,12 +18,10 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
     if (client.fiscal_data && typeof client.fiscal_data === 'object') {
       const fiscalData = client.fiscal_data as any;
       
-      // Ne pas inclure si explicitement marqué comme caché du tableau de bord
       if (fiscalData.hiddenFromDashboard === true) {
         return false;
       }
       
-      // Vérifier si IGS existe et est assujetti mais non payé
       if (fiscalData.obligations?.igs) {
         return fiscalData.obligations.igs.assujetti === true && 
                fiscalData.obligations.igs.paye === false;
@@ -33,5 +31,6 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
   });
   
   console.log("Service: Clients avec IGS impayés:", clientsWithUnpaidIGS.length);
-  return clientsWithUnpaidIGS as Client[];
+  // Cast to Client[] after filtering
+  return clientsWithUnpaidIGS as unknown as Client[];
 };
