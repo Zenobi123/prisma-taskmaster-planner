@@ -3,10 +3,11 @@ import { useState, useEffect, useMemo } from "react";
 import { FormItem } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { BadgeEuro } from "lucide-react";
+import { BadgeEuro, Receipt } from "lucide-react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { CGAClasse } from "@/hooks/fiscal/types";
 import { igsClassesInfo } from "./IGSClassSelector";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface IGSPaymentSectionProps {
   soumisIGS: boolean;
@@ -102,6 +103,13 @@ export function IGSPaymentSection({
   return (
     <div className="mt-6 space-y-4">
       <h4 className="font-medium">Paiements et déductions</h4>
+      
+      <Alert className="bg-amber-50 border-amber-200 text-amber-800">
+        <Receipt className="h-4 w-4" />
+        <AlertDescription className="text-sm">
+          Les paiements et déductions ne sont pris en compte que s'ils sont autorisés par l'administration fiscale.
+        </AlertDescription>
+      </Alert>
       
       {/* Patente */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

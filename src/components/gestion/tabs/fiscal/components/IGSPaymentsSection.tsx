@@ -1,9 +1,10 @@
 
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { IGSPaymentField } from "./IGSPaymentField";
-import { BadgeEuro } from "lucide-react";
+import { BadgeEuro, Receipt } from "lucide-react";
 import { CGAClasse } from "@/hooks/fiscal/types";
 import { useIGSReliquat } from "@/hooks/fiscal/useIGSReliquat";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface IGSPaymentsSectionProps {
   patente: IGSPayment;
@@ -44,6 +45,13 @@ export function IGSPaymentsSection({
   return (
     <div className="mt-6 space-y-4">
       <h4 className="font-medium">Paiements et déductions</h4>
+      
+      <Alert className="bg-amber-50 border-amber-200 text-amber-800">
+        <Receipt className="h-4 w-4" />
+        <AlertDescription className="text-sm">
+          Les paiements et déductions ne sont pris en compte que s'ils sont autorisés par l'administration fiscale.
+        </AlertDescription>
+      </Alert>
       
       <IGSPaymentField
         label="Patente payée pour l'exercice (FCFA)"
