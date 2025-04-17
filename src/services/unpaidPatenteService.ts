@@ -51,18 +51,21 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
     return false;
   });
   
-  const typedClients = clientsWithUnpaidPatente.map(client => ({
-    ...client,
-    type: client.type as ClientType,
-    formejuridique: (client.formejuridique || 'autre') as FormeJuridique,
-    sexe: client.sexe as Sexe,
-    etatcivil: client.etatcivil as EtatCivil,
-    adresse: client.adresse as Client['adresse'],
-    contact: client.contact as Client['contact'],
-    interactions: client.interactions as Client['interactions'],
-    fiscal_data: client.fiscal_data as Client['fiscal_data'],
-    statut: client.statut as Client['statut']
-  }));
+  // Convert to client type with proper type casting
+  const typedClients = clientsWithUnpaidPatente.map(client => {
+    return {
+      ...client,
+      type: client.type as ClientType,
+      formejuridique: (client.formejuridique || 'autre') as FormeJuridique,
+      sexe: client.sexe as Sexe,
+      etatcivil: client.etatcivil as EtatCivil,
+      adresse: client.adresse as Client['adresse'],
+      contact: client.contact as Client['contact'],
+      interactions: client.interactions as unknown as Client['interactions'],
+      fiscal_data: client.fiscal_data as unknown as Client['fiscal_data'],
+      statut: client.statut as Client['statut']
+    } as Client;
+  });
 
   // Update cache
   patenteCache = {

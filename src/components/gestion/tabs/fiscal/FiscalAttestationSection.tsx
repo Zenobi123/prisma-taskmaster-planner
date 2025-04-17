@@ -1,8 +1,5 @@
 
 import { useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Calendar } from "lucide-react";
 import { 
   Card, 
   CardContent, 
@@ -10,6 +7,8 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import DatePickerSelector from "./DatePickerSelector";
 
 interface FiscalAttestationSectionProps {
   creationDate: string;
@@ -48,42 +47,28 @@ export function FiscalAttestationSection({
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="creationDate" className="text-[#336755]">
-              Date de délivrance
-            </Label>
-            <div className="relative">
-              <Input
-                id="creationDate"
-                placeholder="JJ/MM/AAAA"
-                value={creationDate}
-                onChange={(e) => setCreationDate(e.target.value)}
-                className={`pl-10 ${isDateInvalid ? 'border-red-500' : 'border-[#A8C1AE]'}`}
-              />
-              <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-[#84A98C]" />
-            </div>
-            {isDateInvalid && (
-              <p className="text-red-500 text-xs mt-1">
-                Format invalide. Utilisez JJ/MM/AAAA
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="validityEndDate" className="text-[#336755]">
-              Date d'expiration
-            </Label>
-            <div className="relative">
-              <Input
-                id="validityEndDate"
-                placeholder="JJ/MM/AAAA"
-                value={validityEndDate}
-                readOnly
-                className="pl-10 bg-[#E8FDF5] border-[#A8C1AE]"
-              />
-              <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-[#84A98C]" />
-            </div>
-          </div>
+          <DatePickerSelector
+            id="creationDate"
+            label="Date de délivrance"
+            date={creationDate}
+            onChange={setCreationDate}
+            error={isDateInvalid}
+          />
+          
+          <DatePickerSelector
+            id="validityEndDate"
+            label="Date d'expiration"
+            date={validityEndDate}
+            onChange={() => {}} // This date is calculated automatically
+            readOnly={true}
+          />
         </div>
+
+        {isDateInvalid && (
+          <p className="text-red-500 text-xs mt-1">
+            Format invalide. Utilisez JJ/MM/AAAA
+          </p>
+        )}
 
         <div className="flex items-center space-x-2 mt-4">
           <Switch 
