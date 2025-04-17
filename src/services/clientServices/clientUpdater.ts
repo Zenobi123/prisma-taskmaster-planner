@@ -4,6 +4,7 @@ import { Client } from "@/types/client";
 
 export async function updateClient(id: string, updates: Partial<Client>) {
   console.log("Updating client:", id, updates);
+  console.log("Updating regimefiscal to:", updates.regimefiscal);
   
   // Format the data properly for Supabase
   const { igs, ...otherUpdates } = updates;
@@ -21,7 +22,7 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   // Ensure regimefiscal is properly captured
   if (updates.regimefiscal !== undefined) {
     clientData.regimefiscal = updates.regimefiscal;
-    console.log("Setting regimefiscal to:", updates.regimefiscal);
+    console.log("Setting regimefiscal in database to:", updates.regimefiscal);
   }
   
   // Handle special fields like address, contact and custom objects
@@ -67,6 +68,8 @@ export async function updateClient(id: string, updates: Partial<Client>) {
     console.error("Error updating client:", error);
     throw new Error(`Failed to update client: ${error.message}`);
   }
+  
+  console.log("Client updated successfully, returned data:", data);
   
   // Convert the returned data to match our Client interface
   const clientResult = data as unknown as Client;

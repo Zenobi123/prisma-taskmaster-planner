@@ -25,6 +25,10 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       // Explicitly passing type as ClientType to ensure type safety
       const clientData = prepareSubmitData(type);
       console.log("Submitting client data:", clientData);
+      
+      // Log specifically to confirm regimefiscal is included
+      console.log("Régime fiscal being submitted:", clientData.regimefiscal);
+      
       onSubmit(clientData);
     } catch (error) {
       console.error("Error preparing client data:", error);

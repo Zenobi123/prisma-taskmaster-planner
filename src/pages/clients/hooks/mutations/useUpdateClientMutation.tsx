@@ -10,16 +10,24 @@ export function useUpdateClientMutation() {
 
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Client> }) => {
-      console.log("Mise à jour du client:", { id, updates });
-      console.log("Régime fiscal:", updates.regimefiscal);
+      console.log("Updating client:", { id, updates });
+      console.log("Régime fiscal value:", updates.regimefiscal);
+      
+      // Ensure regimefiscal is properly passed
+      if (updates.regimefiscal) {
+        console.log("Régime fiscal is defined as:", updates.regimefiscal);
+      } else {
+        console.warn("Warning: Régime fiscal is undefined in updates object");
+      }
       
       if (updates.igs) {
-        console.log("Données IGS à mettre à jour:", updates.igs);
+        console.log("IGS data to update:", updates.igs);
       }
       
       // Ensure we're correctly passing the update data to the service
       const updatedClient = await updateClient(id, updates);
-      console.log("Client mis à jour avec succès:", updatedClient);
+      console.log("Client updated successfully:", updatedClient);
+      console.log("Updated client's regimefiscal:", updatedClient.regimefiscal);
       return updatedClient;
     },
     onSuccess: (data) => {
@@ -36,7 +44,7 @@ export function useUpdateClientMutation() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur lors de la mise à jour du client:", error);
+      console.error("Error updating client:", error);
       toast({
         title: "Erreur lors de la mise à jour",
         description: error.message || "Une erreur est survenue lors de la mise à jour du client. Veuillez vérifier les données et réessayer.",

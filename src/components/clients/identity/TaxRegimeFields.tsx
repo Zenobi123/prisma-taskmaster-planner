@@ -20,10 +20,16 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   useEffect(() => {
     if (regimefiscal) {
       setSelectedValue(regimefiscal);
+      console.log("TaxRegimeFields: Updated from props to", regimefiscal);
     } else {
-      setSelectedValue(type === "physique" ? "reel" : "simplifie");
+      const defaultValue = type === "physique" ? "reel" : "simplifie";
+      setSelectedValue(defaultValue);
+      console.log("TaxRegimeFields: Using default value", defaultValue);
+      
+      // Initialize with default if none is provided
+      onChange("regimefiscal", defaultValue);
     }
-  }, [regimefiscal, type]);
+  }, [regimefiscal, type, onChange]);
   
   const handleValueChange = (value: string) => {
     // Update internal state
