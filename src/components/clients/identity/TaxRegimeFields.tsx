@@ -2,6 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ClientType, RegimeFiscalPhysique, RegimeFiscalMorale } from "@/types/client";
+import { useState, useEffect } from "react";
 
 interface TaxRegimeFieldsProps {
   type: ClientType;
@@ -10,11 +11,25 @@ interface TaxRegimeFieldsProps {
 }
 
 export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeFieldsProps) {
-  // Fix: Ensure we have a string value for RadioGroup
-  const currentValue = regimefiscal || (type === "physique" ? "reel" : "simplifie");
+  // Use internal state to ensure the radio buttons update correctly
+  const [selectedValue, setSelectedValue] = useState<string>(
+    regimefiscal || (type === "physique" ? "reel" : "simplifie")
+  );
+  
+  // Update internal state when props change
+  useEffect(() => {
+    if (regimefiscal) {
+      setSelectedValue(regimefiscal);
+    } else {
+      setSelectedValue(type === "physique" ? "reel" : "simplifie");
+    }
+  }, [regimefiscal, type]);
   
   const handleValueChange = (value: string) => {
-    // Ensure the value is being correctly passed to the onChange handler
+    // Update internal state
+    setSelectedValue(value);
+    
+    // Send change to parent component
     console.log("Selected tax regime:", value);
     onChange("regimefiscal", value);
   };
@@ -24,7 +39,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
       <div>
         <Label className="mb-2 block">Régime fiscal</Label>
         <RadioGroup
-          value={currentValue}
+          value={selectedValue}
           onValueChange={handleValueChange}
           className="grid grid-cols-2 gap-4"
         >
@@ -53,7 +68,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
     <div>
       <Label className="mb-2 block">Régime fiscal</Label>
       <RadioGroup
-        value={currentValue}
+        value={selectedValue}
         onValueChange={handleValueChange}
         className="grid grid-cols-1 gap-4"
       >
