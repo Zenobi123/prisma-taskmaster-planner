@@ -87,7 +87,7 @@ export function IGSStatusContent({
             adherentCGA={adherentCGA} 
           />
           
-          {/* Ajouter le déclencheur pour les paiements et déductions */}
+          {/* Déclencheur pour les paiements et déductions */}
           <div className="flex items-center space-x-2 pt-4">
             <Switch 
               id="showPayments" 
