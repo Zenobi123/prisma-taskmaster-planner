@@ -62,7 +62,12 @@ export const getClientRegimeStats = async (): Promise<{
         
         // Utiliser le système de suivi des paiements avec completedPayments
         if (typedClient.igs.completedPayments && Array.isArray(typedClient.igs.completedPayments)) {
-          const paymentStatus = calculatePaymentStatus(typedClient.igs.completedPayments, currentDate);
+          // Fix TypeScript error - ensure we're passing string[] to calculatePaymentStatus
+          const payments = typedClient.igs.completedPayments.map(payment => 
+            typeof payment === 'string' ? payment : String(payment)
+          );
+          
+          const paymentStatus = calculatePaymentStatus(payments, currentDate);
           
           if (!paymentStatus.isUpToDate) {
             unpaidIGS++;
@@ -72,10 +77,16 @@ export const getClientRegimeStats = async (): Promise<{
         else {
           const currentMonth = currentDate.getMonth();
           
-          if (currentMonth > 0 && (!typedClient.igs.acompteJanvier || !typedClient.igs.acompteJanvier?.montant)) {
+          if (currentMonth > 0 && 
+              (!typedClient.igs.acompteJanvier || 
+               (typeof typedClient.igs.acompteJanvier === 'object' && 
+                !('montant' in typedClient.igs.acompteJanvier && typedClient.igs.acompteJanvier.montant)))) {
             unpaidIGS++;
           }
-          else if (currentMonth > 1 && (!typedClient.igs.acompteFevrier || !typedClient.igs.acompteFevrier?.montant)) {
+          else if (currentMonth > 1 && 
+                  (!typedClient.igs.acompteFevrier || 
+                   (typeof typedClient.igs.acompteFevrier === 'object' && 
+                    !('montant' in typedClient.igs.acompteFevrier && typedClient.igs.acompteFevrier.montant)))) {
             unpaidIGS++;
           }
         }
@@ -98,7 +109,12 @@ export const getClientRegimeStats = async (): Promise<{
           
           // Utiliser le système de suivi des paiements avec completedPayments
           if ('completedPayments' in igsData && Array.isArray(igsData.completedPayments)) {
-            const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
+            // Fix TypeScript error - ensure we're passing string[] to calculatePaymentStatus
+            const payments = (igsData.completedPayments as any[]).map(payment => 
+              typeof payment === 'string' ? payment : String(payment)
+            );
+            
+            const paymentStatus = calculatePaymentStatus(payments, currentDate);
             
             if (!paymentStatus.isUpToDate) {
               unpaidIGS++;
@@ -108,9 +124,15 @@ export const getClientRegimeStats = async (): Promise<{
           else {
             const currentMonth = currentDate.getMonth();
             
-            if (currentMonth > 0 && (!igsData.acompteJanvier || (typeof igsData.acompteJanvier === 'object' && !igsData.acompteJanvier?.montant))) {
+            if (currentMonth > 0 && 
+                (!igsData.acompteJanvier || 
+                 (typeof igsData.acompteJanvier === 'object' && 
+                  !('montant' in igsData.acompteJanvier || !igsData.acompteJanvier.montant)))) {
               unpaidIGS++;
-            } else if (currentMonth > 1 && (!igsData.acompteFevrier || (typeof igsData.acompteFevrier === 'object' && !igsData.acompteFevrier?.montant))) {
+            } else if (currentMonth > 1 && 
+                      (!igsData.acompteFevrier || 
+                       (typeof igsData.acompteFevrier === 'object' && 
+                        !('montant' in igsData.acompteFevrier || !igsData.acompteFevrier.montant)))) {
               unpaidIGS++;
             }
           }
