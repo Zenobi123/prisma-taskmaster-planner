@@ -9,18 +9,25 @@ interface IGSPaymentFieldProps {
   quittanceLabel?: string;
   payment: IGSPayment;
   onChange: (montant: string, quittance: string) => void;
+  helperText?: string;
 }
 
 export function IGSPaymentField({ 
   label, 
   quittanceLabel = "Numéro de quittance", 
   payment, 
-  onChange 
+  onChange,
+  helperText
 }: IGSPaymentFieldProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <FormItem>
-        <Label>{label}</Label>
+        <Label className="flex flex-col">
+          <span>{label}</span>
+          {helperText && (
+            <span className="text-xs text-muted-foreground italic mt-0.5">{helperText}</span>
+          )}
+        </Label>
         <Input 
           type="number" 
           value={payment.montant}

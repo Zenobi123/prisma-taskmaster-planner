@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { IGSPaymentField } from "./IGSPaymentField";
@@ -161,6 +160,7 @@ export function IGSPaymentsSection({
         payment={patente}
         onChange={(montant, quittance) => 
           onPatenteChange({ montant, quittance })}
+        helperText="Vient en déduction de l'IGS si autorisée par l'administration fiscale"
       />
       
       {reliquat !== null && (
