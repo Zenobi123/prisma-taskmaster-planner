@@ -23,7 +23,7 @@ export interface IGSData {
   igsClass: number;
   igsAmount: number;
   cgaReduction: boolean;
-  quarterlyPayments: QuarterlyPayment[];
+  quarterlyPayments?: QuarterlyPayment[];
 }
 
 export const createDefaultEstablishment = (): Establishment => ({
