@@ -1,14 +1,18 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { Json } from "@/integrations/supabase/types";
 import { toast } from "sonner";
 
 /**
- * Verify that fiscal data was saved correctly
+ * Verify that fiscal data was saved correctly with enhanced checking
  */
 export const verifyFiscalDataSave = async (clientId: string, expectedData: ClientFiscalData): Promise<boolean> => {
   try {
     console.log(`Verifying fiscal data save for client ${clientId}`);
+    
+    // Pause for database consistency
+    await new Promise(resolve => setTimeout(resolve, 300));
     
     const { data, error } = await supabase
       .from('clients')
@@ -21,16 +25,39 @@ export const verifyFiscalDataSave = async (clientId: string, expectedData: Clien
       return false;
     }
     
-    if (data?.fiscal_data) {
-      const savedData = data.fiscal_data as unknown as ClientFiscalData;
-      
-      // Vérification complète de toutes les données fiscales
-      return verifyAllFiscalData(savedData, expectedData);
+    if (!data?.fiscal_data) {
+      console.error("No fiscal data found during verification");
+      return false;
     }
     
-    return false;
+    const savedData = data.fiscal_data as unknown as ClientFiscalData;
+    
+    // Vérification complète de toutes les données fiscales
+    return verifyAllFiscalData(savedData, expectedData);
   } catch (error) {
     console.error("Exception during save verification:", error);
+    return false;
+  }
+};
+
+/**
+ * Check if fiscal data is properly saved by stringifying and comparing
+ */
+const compareObjects = (obj1: any, obj2: any): boolean => {
+  try {
+    // Comparison using stringification with sorted keys
+    const sortedStringify = (obj: any) => JSON.stringify(obj, Object.keys(obj).sort());
+    
+    // Remove metadata fields for comparison
+    const obj1ForComparison = { ...obj1 };
+    const obj2ForComparison = { ...obj2 };
+    
+    if (obj1ForComparison._metadata) delete obj1ForComparison._metadata;
+    if (obj2ForComparison._metadata) delete obj2ForComparison._metadata;
+    
+    return sortedStringify(obj1ForComparison) === sortedStringify(obj2ForComparison);
+  } catch (e) {
+    console.error("Error comparing objects:", e);
     return false;
   }
 };
@@ -39,6 +66,15 @@ export const verifyFiscalDataSave = async (clientId: string, expectedData: Clien
  * Perform a deep verification of all fiscal data fields
  */
 const verifyAllFiscalData = (savedData: ClientFiscalData, expectedData: ClientFiscalData): boolean => {
+  // Vérification rapide par comparaison JSON
+  const quickCheck = compareObjects(savedData, expectedData);
+  if (quickCheck) {
+    console.log("Quick verification passed - objects match");
+    return true;
+  }
+  
+  console.log("Quick verification failed - performing detailed checks");
+  
   // Vérifier les champs principaux
   const mainFieldsValid = verifyMainFields(savedData, expectedData);
   if (!mainFieldsValid) {
@@ -68,7 +104,17 @@ const verifyAllFiscalData = (savedData: ClientFiscalData, expectedData: ClientFi
  * Verify main fields of fiscal data
  */
 const verifyMainFields = (savedData: ClientFiscalData, expectedData: ClientFiscalData): boolean => {
-  return savedData.hiddenFromDashboard === expectedData.hiddenFromDashboard;
+  if (savedData.hiddenFromDashboard !== expectedData.hiddenFromDashboard) {
+    console.error(`Mismatch in hiddenFromDashboard: saved=${savedData.hiddenFromDashboard}, expected=${expectedData.hiddenFromDashboard}`);
+    return false;
+  }
+  
+  if (expectedData.updatedAt && !savedData.updatedAt) {
+    console.error("Missing updatedAt timestamp in saved data");
+    return false;
+  }
+  
+  return true;
 };
 
 /**
@@ -82,7 +128,12 @@ const verifyObligations = (
   
   for (const type of obligationTypes) {
     // Vérifier si le type d'obligation existe
-    if (savedObligations[type] && expectedObligations[type]) {
+    if (expectedObligations[type]) {
+      if (!savedObligations[type]) {
+        console.error(`Missing obligation type ${type} in saved data`);
+        return false;
+      }
+      
       const saved = savedObligations[type];
       const expected = expectedObligations[type];
       
@@ -93,7 +144,7 @@ const verifyObligations = (
       }
       
       // Vérifier paye pour les taxes
-      if ('paye' in saved && 'paye' in expected) {
+      if ('paye' in expected && 'paye' in saved) {
         if (saved.paye !== expected.paye) {
           console.error(`Mismatch in ${type}.paye: saved=${saved.paye}, expected=${expected.paye}`);
           return false;
@@ -101,15 +152,12 @@ const verifyObligations = (
       }
       
       // Vérifier depose pour les déclarations
-      if ('depose' in saved && 'depose' in expected) {
+      if ('depose' in expected && 'depose' in saved) {
         if (saved.depose !== expected.depose) {
           console.error(`Mismatch in ${type}.depose: saved=${saved.depose}, expected=${expected.depose}`);
           return false;
         }
       }
-    } else if (expectedObligations[type] && !savedObligations[type]) {
-      console.error(`Missing obligation type ${type} in saved data`);
-      return false;
     }
   }
   
@@ -123,8 +171,13 @@ const verifyAttestation = (
   savedAttestation: ClientFiscalData['attestation'],
   expectedAttestation: ClientFiscalData['attestation']
 ): boolean => {
+  if (!savedAttestation && !expectedAttestation) {
+    return true;
+  }
+  
   if (!savedAttestation || !expectedAttestation) {
-    return !savedAttestation === !expectedAttestation;
+    console.error("One of attestation objects is missing");
+    return false;
   }
   
   if (savedAttestation.creationDate !== expectedAttestation.creationDate) {
@@ -152,13 +205,27 @@ export const verifyAndNotifyFiscalChanges = async (clientId: string, expectedDat
   const isVerified = await verifyFiscalDataSave(clientId, expectedData);
   
   if (isVerified) {
+    console.log(`Modifications fiscales vérifiées et confirmées pour le client ${clientId}`);
     toast.success("✅ Les modifications fiscales ont été enregistrées définitivement dans la base de données.", {
       duration: 5000
     });
   } else {
+    console.error(`Échec de la vérification des modifications fiscales pour le client ${clientId}`);
     toast.error("❌ Certaines modifications n'ont pas été enregistrées correctement. Nouvelle tentative en cours...", {
       duration: 3000
     });
+    
+    // Nouvelle tentative après un délai
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const secondVerification = await verifyFiscalDataSave(clientId, expectedData);
+    
+    if (secondVerification) {
+      console.log(`Seconde vérification réussie pour le client ${clientId}`);
+      toast.success("✅ Les modifications ont été vérifiées et enregistrées définitivement.", {
+        duration: 5000
+      });
+      return true;
+    }
   }
   
   return isVerified;

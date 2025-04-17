@@ -1,7 +1,8 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "../types";
-import { getFromCache, updateCache, clearCache, getDebugInfo } from "../services/cacheService";
+import { getFromCache, updateCache, clearCache, getDebugInfo, recoverCacheFromStorage } from "../services/cacheService";
 import { fetchFiscalData } from "../services/fetchService";
 import { toast } from "sonner";
 
@@ -26,17 +27,35 @@ export const useFiscalData = (selectedClient: Client) => {
         clearCache(selectedClient.id);
       }
       
+      // Essayer d'abord le cache en mémoire
+      let cachedData = null;
       if (!force) {
-        const cachedData = getFromCache(selectedClient.id);
+        cachedData = getFromCache(selectedClient.id);
         if (cachedData) {
           console.log(`Utilisation des données fiscales en cache pour le client ${selectedClient.id}`);
           setFiscalDataFromResponse(cachedData);
           setIsLoading(false);
           setLastSuccessfulLoad(Date.now());
+          setDataLoaded(true);
+          return;
+        }
+      }
+      
+      // Ensuite essayer le cache persisté dans sessionStorage
+      if (!force && !cachedData) {
+        const storedCache = recoverCacheFromStorage(selectedClient.id);
+        if (storedCache) {
+          console.log(`Utilisation des données fiscales du sessionStorage pour le client ${selectedClient.id}`);
+          setFiscalDataFromResponse(storedCache);
+          setIsLoading(false);
+          setLastSuccessfulLoad(Date.now());
+          setDataLoaded(true);
           return;
         }
       }
 
+      // Finalement, récupérer depuis la base de données
+      console.log(`Récupération des données fiscales depuis la base pour le client ${selectedClient.id}`);
       const fiscalData = await fetchFiscalData(selectedClient.id);
       
       if (fiscalData) {
@@ -44,6 +63,7 @@ export const useFiscalData = (selectedClient: Client) => {
         setFiscalDataFromResponse(fiscalData);
         updateCache(selectedClient.id, fiscalData);
         setLastSuccessfulLoad(Date.now());
+        setDataLoaded(true);
       } else {
         console.log(`Aucune donnée fiscale trouvée pour le client ${selectedClient.id}`);
         setHiddenFromDashboard(false);
@@ -97,14 +117,15 @@ export const useFiscalData = (selectedClient: Client) => {
   useEffect(() => {
     let refreshInterval: NodeJS.Timeout;
 
+    // Diminuer la fréquence des rafraîchissements automatiques
     if (selectedClient?.id && dataLoaded && lastSuccessfulLoad) {
       refreshInterval = setInterval(() => {
         const timeSinceLoad = Date.now() - lastSuccessfulLoad;
-        if (timeSinceLoad > 120000) {
+        if (timeSinceLoad > 300000) { // 5 minutes au lieu de 2 minutes
           console.log("Rafraîchissement périodique des données fiscales");
           loadFiscalData(true);
         }
-      }, 30000);
+      }, 120000); // Vérifier toutes les 2 minutes au lieu de 30 secondes
     }
 
     return () => {
