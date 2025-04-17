@@ -15,6 +15,7 @@ export function EtablissementsSection({
   etablissements = [],
   onChange
 }: EtablissementsSectionProps) {
+  // État local pour suivre les établissements
   const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>([]);
 
   // Met à jour l'état local quand les props changent

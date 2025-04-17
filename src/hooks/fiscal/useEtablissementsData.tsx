@@ -16,8 +16,15 @@ export function useEtablissementsData(etablissements: Etablissement[] | undefine
         ? [...etablissements]
         : [createDefaultEtablissement()];
       
-      console.log("useEtablissementsData - Initializing établissements:", safeEtablissements);
-      setLocalEtablissements(safeEtablissements);
+      // Ensure all establishments have proper structure
+      const validEtablissements = safeEtablissements.map(etab => ({
+        ...createDefaultEtablissement(),
+        ...etab,
+        chiffreAffaires: typeof etab.chiffreAffaires === 'number' ? etab.chiffreAffaires : 0
+      }));
+      
+      console.log("useEtablissementsData - Initializing établissements:", validEtablissements);
+      setLocalEtablissements(validEtablissements);
     } catch (error) {
       console.error("Error initializing établissements data:", error);
       toast({
@@ -35,15 +42,19 @@ export function useEtablissementsData(etablissements: Etablissement[] | undefine
   const handleEtablissementsChange = useCallback((newEtablissements: Etablissement[]) => {
     console.log("handleEtablissementsChange called with:", newEtablissements);
     
-    // Ensure we're working with a valid array with at least one element
-    const safeEtablissements = Array.isArray(newEtablissements) && newEtablissements.length > 0
-      ? [...newEtablissements]
+    // Ensure we're working with a valid array with proper structure
+    const validEtablissements = Array.isArray(newEtablissements) && newEtablissements.length > 0
+      ? newEtablissements.map(etab => ({
+          ...createDefaultEtablissement(),
+          ...etab,
+          chiffreAffaires: typeof etab.chiffreAffaires === 'number' ? etab.chiffreAffaires : 0
+        }))
       : [createDefaultEtablissement()];
     
-    console.log("Setting établissements to:", safeEtablissements);
-    setLocalEtablissements(safeEtablissements);
+    console.log("Setting établissements to:", validEtablissements);
+    setLocalEtablissements(validEtablissements);
     
-    return safeEtablissements;
+    return validEtablissements;
   }, []);
 
   return { 

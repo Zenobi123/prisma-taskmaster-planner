@@ -70,31 +70,40 @@ export function useIGSData(
   // Handle updates to IGS data
   const handleIGSChange = useCallback((name: string, value: any) => {
     const parts = name.split('.');
+    
     if (parts[0] === 'igs') {
       if (parts[1] === 'etablissements') {
-        // Use the specialized handler for établissements
-        const safeEtablissements = handleEtablissementsChange(value);
+        // Convertir en tableau si ce n'est pas déjà le cas
+        const safeEtablissements = Array.isArray(value) ? value : [];
         
-        // Calculate the new total turnover from all establishments
-        const newTotalTurnover = calculateTotalTurnover(safeEtablissements);
+        // Utiliser le gestionnaire spécialisé pour les établissements
+        const updatedEtablissements = handleEtablissementsChange(safeEtablissements);
         
-        // Update both the establishments and the annual turnover
+        // Calculer le nouveau chiffre d'affaires total à partir de tous les établissements
+        const newTotalTurnover = calculateTotalTurnover(updatedEtablissements);
+        
+        console.log("Mise à jour des établissements:", updatedEtablissements);
+        console.log("Nouveau chiffre d'affaires total calculé:", newTotalTurnover);
+        
+        // Mettre à jour à la fois les établissements et le chiffre d'affaires annuel
         setIgsData(prev => ({
           ...prev,
-          etablissements: safeEtablissements,
+          etablissements: updatedEtablissements,
           chiffreAffairesAnnuel: newTotalTurnover
         }));
       } else if (parts[1] === 'chiffreAffairesAnnuel') {
         // Si on met à jour directement le chiffre d'affaires annuel,
-        // conserver cette valeur
+        // convertir la valeur en nombre si nécessaire
         const caValue = typeof value === 'number' ? value : 0;
+        
+        console.log("Mise à jour directe du chiffre d'affaires annuel:", caValue);
 
         setIgsData(prev => ({
           ...prev,
           [parts[1]]: caValue
         }));
       } else {
-        // Handle all other IGS data changes
+        // Gérer toutes les autres modifications de données IGS
         setIgsData(prev => ({
           ...prev,
           [parts[1]]: value
@@ -103,7 +112,7 @@ export function useIGSData(
     }
   }, [handleEtablissementsChange, calculateTotalTurnover]);
 
-  // Combine the IGS data with the établissements for the complete data object
+  // Combiner les données IGS avec les établissements pour l'objet de données complet
   const completeIGSData = {
     ...igsData,
     etablissements: localEtablissements
