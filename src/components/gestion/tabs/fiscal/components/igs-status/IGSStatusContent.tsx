@@ -79,7 +79,7 @@ export function IGSStatusContent({
             <div>
               <Label htmlFor="classeIGS">Classe IGS</Label>
               <IGSClassSelector 
-                value={classeIGS} 
+                classeIGS={classeIGS} 
                 onChange={onClasseIGSChange}
               />
             </div>

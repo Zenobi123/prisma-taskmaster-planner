@@ -64,15 +64,15 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
         }
       } else if (client.fiscal_data) {
         // Vérifier dans fiscal_data.igs comme alternative
-        const fiscalData = client.fiscal_data as any;
+        const fiscalData = typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
         
         // Ne pas inclure si caché du tableau de bord
-        if (fiscalData.hiddenFromDashboard === true) {
+        if (fiscalData && fiscalData.hiddenFromDashboard === true) {
           console.log(`Client ${client.id} caché du tableau de bord via fiscal_data`);
           return false;
         }
         
-        if (fiscalData.igs && fiscalData.igs.soumisIGS) {
+        if (fiscalData && fiscalData.igs && fiscalData.igs.soumisIGS) {
           const igsData = fiscalData.igs;
           
           // Utiliser le système de suivi des paiements avec completedPayments

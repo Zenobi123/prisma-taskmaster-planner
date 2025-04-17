@@ -43,7 +43,8 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
       igsClients++;
       
       // Vérifier si caché du tableau de bord
-      if (client.fiscal_data?.hiddenFromDashboard === true) {
+      const fiscalDataObj = typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
+      if (fiscalDataObj && fiscalDataObj.hiddenFromDashboard === true) {
         console.log(`Client ${client.id} caché du tableau de bord`);
         return;
       }
@@ -81,15 +82,15 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
       } 
       // Chercher les données IGS dans fiscal_data si elles n'existent pas directement
       else if (client.fiscal_data) {
-        const fiscalData = client.fiscal_data as any;
+        const fiscalData = typeof client.fiscal_data === 'object' ? client.fiscal_data : {};
         
         // Vérifier si caché du tableau de bord
-        if (fiscalData.hiddenFromDashboard === true) {
+        if (fiscalData && fiscalData.hiddenFromDashboard === true) {
           console.log(`Client ${client.id} caché du tableau de bord via fiscal_data`);
           return;
         }
         
-        if (fiscalData.igs && fiscalData.igs.soumisIGS) {
+        if (fiscalData && fiscalData.igs && fiscalData.igs.soumisIGS) {
           const igsData = fiscalData.igs;
           
           // Utiliser le système de suivi des paiements avec completedPayments
