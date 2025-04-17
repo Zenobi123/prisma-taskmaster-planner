@@ -30,7 +30,11 @@ export function IGSEstablishmentsSection({
     handleRemoveEstablishment,
     handleEstablishmentChange,
     isAssujetti
-  } = useIGSEstablishments({ igsData, onIGSDataChange, assujetti });
+  } = useIGSEstablishments({ 
+    igsData, 
+    onIGSDataChange, 
+    assujetti 
+  });
 
   if (!isAssujetti) return null;
 

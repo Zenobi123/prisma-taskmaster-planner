@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Establishment, IGSData } from '../types/igsTypes';
+import { Establishment, IGSData, createDefaultEstablishment } from '../types/igsTypes';
 import { calculateIGSClass } from '@/components/gestion/tabs/fiscal/utils/igsCalculations';
 
 interface UseIGSEstablishmentsProps {
@@ -17,29 +17,25 @@ export const useIGSEstablishments = ({
 }: UseIGSEstablishmentsProps) => {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [totalRevenue, setTotalRevenue] = useState(0);
-  const [igsClass, setIgsClass] = useState(0);
-  const [igsAmount, setIgsAmount] = useState(0);
+  const [igsClass, setIgsClass] = useState(1);
+  const [igsAmount, setIgsAmount] = useState(20000);
   const [cgaReduction, setCgaReduction] = useState(false);
 
+  // Initialize data from props or create default
   useEffect(() => {
-    if (igsData) {
-      setEstablishments(igsData.establishments || []);
-      setCgaReduction(igsData.cgaReduction || false);
-    } else if (establishments.length === 0) {
-      const defaultEstablishment: Establishment = {
-        id: uuidv4(),
-        name: "Établissement principal",
-        activity: "",
-        city: "",
-        department: "",
-        district: "",
-        revenue: 0
-      };
-      setEstablishments([defaultEstablishment]);
+    if (igsData && igsData.establishments) {
+      setEstablishments(igsData.establishments);
+      setCgaReduction(igsData.cgaReduction);
+    } else {
+      // Create default establishment if none exists
+      setEstablishments([createDefaultEstablishment()]);
     }
   }, [igsData]);
 
+  // Calculate totals and update parent component
   useEffect(() => {
+    if (!assujetti) return;
+    
     const total = establishments.reduce((sum, est) => sum + (est.revenue || 0), 0);
     setTotalRevenue(total);
     
@@ -49,6 +45,7 @@ export const useIGSEstablishments = ({
     const finalAmount = cgaReduction ? amount * 0.5 : amount;
     setIgsAmount(finalAmount);
     
+    // Update parent component with all IGS data
     onIGSDataChange({
       establishments,
       previousYearRevenue: total,
@@ -56,7 +53,7 @@ export const useIGSEstablishments = ({
       igsAmount: finalAmount,
       cgaReduction
     });
-  }, [establishments, cgaReduction]);
+  }, [establishments, cgaReduction, onIGSDataChange, assujetti]);
 
   const handleAddEstablishment = () => {
     const newEstablishment: Establishment = {
