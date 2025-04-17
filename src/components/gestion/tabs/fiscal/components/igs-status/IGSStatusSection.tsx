@@ -32,7 +32,7 @@ export function IGSStatusSection(props: IGSStatusSectionProps) {
             classeIGS={statusState.localClasseIGS}
             patenteState={statusState.patenteState}
             acompteJanvierState={statusState.acompteJanvierState}
-            acompteFevrierState={statusState.acompteFevierState}
+            acompteFevrierState={statusState.acompteFevrierState}
             localChiffreAffaires={statusState.localChiffreAffaires}
             localEtablissements={statusState.localEtablissements}
             completedPayments={statusState.localCompletedPayments}
