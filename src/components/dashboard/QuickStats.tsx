@@ -1,10 +1,9 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
-import { Briefcase, FileText, Clock, AlertTriangle } from "lucide-react";
+import { Briefcase, FileText, Clock, AlertTriangle, TrendingUp } from "lucide-react";
 import { getClientsRegimeStats } from "@/services/clientRegimeService";
 
 const QuickStats = () => {
@@ -109,6 +108,54 @@ const QuickStats = () => {
             )}
           </div>
           <p className="text-neutral-600 text-sm mt-1">Impôt Global Simplifié</p>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4 flex items-center">
+            <AlertTriangle className="mr-2 h-5 w-5 text-amber-500" />
+            IGS en retard
+          </h3>
+          <div className="text-3xl font-bold text-amber-600">
+            {isRegimeStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              regimeStats.delayedIgsClients
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Paiement en retard</p>
+        </div>
+      </div>
+      
+      {/* Troisième rangée: Nouveaux stats IGS */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4 flex items-center">
+            <TrendingUp className="mr-2 h-5 w-5 text-primary" />
+            Clients au réel
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            {isRegimeStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              regimeStats.reelClients
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Régime fiscal classique</p>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4 flex items-center">
+            <FileText className="mr-2 h-5 w-5 text-primary" />
+            Clients à IGS
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            {isRegimeStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              regimeStats.igsClients
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Impôt Général Synthétique</p>
         </div>
 
         <div className="card">
