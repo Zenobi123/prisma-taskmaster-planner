@@ -35,7 +35,7 @@ const UnpaidPatenteList = () => {
         <CardHeader className="pb-2">
           <CardTitle className="text-lg flex items-center">
             <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
-            Liste des IGS impayés
+            Liste des patentes impayées
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -53,7 +53,7 @@ const UnpaidPatenteList = () => {
       <CardHeader className="pb-2 bg-red-50">
         <CardTitle className="text-lg flex items-center">
           <AlertTriangle className="h-5 w-5 mr-2 text-red-500" />
-          Liste des IGS impayés ({clients.length})
+          Liste des patentes impayées ({clients.length})
         </CardTitle>
       </CardHeader>
       <CardContent className="p-4">
@@ -107,10 +107,10 @@ const UnpaidPatenteList = () => {
           <div className="py-8 text-center border-2 border-red-200 rounded-md bg-red-50">
             <FileWarning className="h-12 w-12 mx-auto text-red-500 mb-3" />
             <p className="text-gray-700 font-medium text-lg mb-2">
-              Aucun client avec IGS impayé
+              Aucun client avec patente impayée
             </p>
             <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-              Tous les clients assujettis à l'IGS sont à jour avec leurs paiements.
+              Tous les clients assujettis à la patente sont à jour avec leurs paiements.
             </p>
           </div>
         )}

@@ -4,7 +4,6 @@ import { PersonalInfoFields } from "./identity/PersonalInfoFields";
 import { CompanyInfoFields } from "./identity/CompanyInfoFields";
 import { TaxRegimeFields } from "./identity/TaxRegimeFields";
 import { PropertyStatusFields } from "./identity/PropertyStatusFields";
-import { IGSFields } from "./identity/IGSFields";
 
 interface ClientIdentityFieldsProps {
   type: ClientType;
@@ -23,7 +22,6 @@ interface ClientIdentityFieldsProps {
     valeur?: number;
     loyer?: number;
   };
-  igs?: any;
   onChange: (name: string, value: any) => void;
 }
 
@@ -40,7 +38,6 @@ export function ClientIdentityFields({
   etatcivil = "celibataire",
   regimefiscal,
   situationimmobiliere = { type: "locataire" },
-  igs,
   onChange 
 }: ClientIdentityFieldsProps) {
   return (

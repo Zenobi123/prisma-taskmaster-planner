@@ -1,7 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
-import { ClientFiscalData } from "@/hooks/fiscal/types";
 
 export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
   console.log("Service: Récupération des clients avec DSF non déposées...");
@@ -25,15 +24,13 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
         typeof client.fiscal_data === 'object' && 
         client.fiscal_data !== null) {
       
-      // Cast fiscal_data to ClientFiscalData for proper type checking
-      const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
-      
       // Ne pas inclure si explicitement marqué comme caché du tableau de bord
-      if (fiscalData.hiddenFromDashboard === true) {
+      if (client.fiscal_data.hiddenFromDashboard === true) {
         return false;
       }
       
       // Vérifier si obligations existe dans les données fiscales
+      const fiscalData = client.fiscal_data;
       if (fiscalData.obligations) {
         // On cherche une obligation de type dsf qui est assujetti mais non déposée
         return fiscalData.obligations.dsf && 
@@ -50,5 +47,5 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
     console.log("Service: Premier client avec DSF non déposée:", clientsWithUnfiledDsf[0]);
   }
   
-  return clientsWithUnfiledDsf as unknown as Client[];
+  return clientsWithUnfiledDsf;
 };

@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { ClientFiscalData, ObligationStatuses } from "../types";
+import { ClientFiscalData } from "../types";
 import { toast } from "sonner";
 
 /**
@@ -23,28 +23,7 @@ export const fetchFiscalData = async (clientId: string): Promise<ClientFiscalDat
     
     if (data?.fiscal_data) {
       console.log(`Fiscal data found for client ${clientId}`);
-      // Convertir explicitement le Json à ClientFiscalData
-      const fiscalData = data.fiscal_data as unknown as ClientFiscalData;
-      
-      // Ensure all obligation types exist
-      if (fiscalData.obligations) {
-        const defaultObligations: ObligationStatuses = {
-          patente: { assujetti: false, paye: false },
-          bail: { assujetti: false, paye: false },
-          taxeFonciere: { assujetti: false, paye: false },
-          dsf: { assujetti: false, depose: false },
-          darp: { assujetti: false, depose: false },
-          tva: { assujetti: false, paye: false },
-          cnps: { assujetti: false, paye: false }
-        };
-        
-        fiscalData.obligations = {
-          ...defaultObligations,
-          ...fiscalData.obligations
-        };
-      }
-      
-      return fiscalData;
+      return data.fiscal_data as ClientFiscalData;
     }
     
     console.log(`No fiscal data found for client ${clientId}`);
@@ -62,28 +41,9 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
   try {
     console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
     
-    // Ensure fiscalData has the required structure to match ClientFiscalData type
-    const validatedFiscalData: ClientFiscalData = {
-      attestation: fiscalData.attestation || { creationDate: "", validityEndDate: "" },
-      obligations: fiscalData.obligations || {
-        patente: { assujetti: false, paye: false },
-        bail: { assujetti: false, paye: false },
-        taxeFonciere: { assujetti: false, paye: false },
-        dsf: { assujetti: false, depose: false },
-        darp: { assujetti: false, depose: false },
-        tva: { assujetti: false, paye: false },
-        cnps: { assujetti: false, paye: false }
-      },
-      hiddenFromDashboard: fiscalData.hiddenFromDashboard,
-      igs: fiscalData.igs
-    };
-    
-    // Cast to unknown then to Json for Supabase compatibility
-    const jsonData = validatedFiscalData as unknown as any;
-    
     const { error } = await supabase
       .from('clients')
-      .update({ fiscal_data: jsonData })
+      .update({ fiscal_data: fiscalData })
       .eq('id', clientId);
     
     if (error) {

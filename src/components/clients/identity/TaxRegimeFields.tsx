@@ -1,8 +1,7 @@
 
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ClientType, RegimeFiscalPhysique, RegimeFiscalMorale, RegimeFiscal } from "@/types/client";
-import { useState, useEffect } from "react";
+import { ClientType, RegimeFiscalPhysique, RegimeFiscalMorale } from "@/types/client";
 
 interface TaxRegimeFieldsProps {
   type: ClientType;
@@ -11,66 +10,38 @@ interface TaxRegimeFieldsProps {
 }
 
 export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeFieldsProps) {
-  // Par défaut, tout contribuable est soumis à l'IGS
-  const defaultValue = type === "physique" ? "igs" as RegimeFiscalPhysique : "non_lucratif" as RegimeFiscalMorale;
-  
-  const [selectedValue, setSelectedValue] = useState<RegimeFiscal>(
-    (regimefiscal as RegimeFiscal) || defaultValue
-  );
-  
-  useEffect(() => {
-    // S'assurer que l'IGS est sélectionné par défaut pour les personnes physiques si non défini
-    if (type === "physique" && (!regimefiscal || regimefiscal !== "igs")) {
-      const defaultIGS = "igs" as RegimeFiscalPhysique;
-      setSelectedValue(defaultIGS);
-      onChange("regimefiscal", defaultIGS);
-    }
-  }, [type, regimefiscal, onChange]);
-  
-  const handleValueChange = (value: string) => {
-    console.log("Regime fiscal selection changed to:", value);
-    
-    // Vérifier que la valeur est un RegimeFiscal valide
-    let typedValue: RegimeFiscal;
-    
-    if (type === "physique") {
-      typedValue = value as RegimeFiscalPhysique;
-    } else {
-      typedValue = value as RegimeFiscalMorale;
-    }
-    
-    // Mettre à jour l'état interne
-    setSelectedValue(typedValue);
-    
-    // Envoyer le changement au composant parent avec le nom exact du champ
-    onChange("regimefiscal", typedValue);
-  };
-
   if (type === "physique") {
     return (
       <div>
         <Label className="mb-2 block">Régime fiscal</Label>
         <RadioGroup
-          value={selectedValue}
-          onValueChange={handleValueChange}
+          value={regimefiscal}
+          onValueChange={(value) => onChange("regimefiscal", value)}
           className="grid grid-cols-2 gap-4"
-          name="regimefiscal"
         >
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <RadioGroupItem value="igs" id="igs" />
-            <Label htmlFor="igs" className="cursor-pointer">IGS</Label>
-          </div>
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <RadioGroupItem value="non_professionnel_salarie" id="non_professionnel_salarie" />
-            <Label htmlFor="non_professionnel_salarie" className="cursor-pointer">Non professionnel salarié</Label>
-          </div>
-          <div className="flex items-center space-x-2 cursor-pointer">
-            <RadioGroupItem value="non_professionnel_autre" id="non_professionnel_autre" />
-            <Label htmlFor="non_professionnel_autre" className="cursor-pointer text-sm">Non professionnel (Autres)</Label>
-          </div>
-          <div className="flex items-center space-x-2 cursor-pointer">
+          <div className="flex items-center space-x-2">
             <RadioGroupItem value="reel" id="reel" />
-            <Label htmlFor="reel" className="cursor-pointer">Réel</Label>
+            <Label htmlFor="reel">Réel</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="simplifie" id="simplifie" />
+            <Label htmlFor="simplifie">Simplifié</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="liberatoire" id="liberatoire" />
+            <Label htmlFor="liberatoire">Libératoire</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="non_professionnel_public" id="non_professionnel_public" />
+            <Label htmlFor="non_professionnel_public" className="text-sm">Non professionnel (Secteur public)</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="non_professionnel_prive" id="non_professionnel_prive" />
+            <Label htmlFor="non_professionnel_prive" className="text-sm">Non professionnel (Secteur privé)</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="non_professionnel_autre" id="non_professionnel_autre" />
+            <Label htmlFor="non_professionnel_autre" className="text-sm">Non professionnel (Autres)</Label>
           </div>
         </RadioGroup>
       </div>
@@ -81,18 +52,21 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
     <div>
       <Label className="mb-2 block">Régime fiscal</Label>
       <RadioGroup
-        value={selectedValue}
-        onValueChange={handleValueChange}
+        value={regimefiscal}
+        onValueChange={(value) => onChange("regimefiscal", value)}
         className="grid grid-cols-1 gap-4"
-        name="regimefiscal"
       >
-        <div className="flex items-center space-x-2 cursor-pointer">
-          <RadioGroupItem value="non_lucratif" id="non_lucratif" />
-          <Label htmlFor="non_lucratif" className="cursor-pointer">Organisme à but non lucratif</Label>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="reel" id="reel_morale" />
+          <Label htmlFor="reel_morale">Réel</Label>
         </div>
-        <div className="flex items-center space-x-2 cursor-pointer">
-          <RadioGroupItem value="reel" id="reel" />
-          <Label htmlFor="reel" className="cursor-pointer">Réel</Label>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="simplifie" id="simplifie_morale" />
+          <Label htmlFor="simplifie_morale">Simplifié</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="non_lucratif" id="non_lucratif" />
+          <Label htmlFor="non_lucratif">Organisme à but non lucratif</Label>
         </div>
       </RadioGroup>
     </div>

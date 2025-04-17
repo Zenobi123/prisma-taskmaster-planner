@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Briefcase, Check, Clock, PlayCircle, Trash } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -112,12 +111,20 @@ const MissionCard = ({ mission }: MissionCardProps) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
+                {/* Remplacer "planifiee" par "en_attente" */}
                 <DropdownMenuItem 
                   onClick={() => handleStatusChange("en_attente")}
                   className="flex items-center gap-2"
                   disabled={mission.status === "en_attente"}
                 >
                   <Calendar className="h-4 w-4" /> En attente
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => handleStatusChange("en_attente")}
+                  className="flex items-center gap-2"
+                  disabled={mission.status === "en_attente"}
+                >
+                  <Clock className="h-4 w-4" /> En attente
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   onClick={() => handleStatusChange("en_cours")}

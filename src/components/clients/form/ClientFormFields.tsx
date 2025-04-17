@@ -31,7 +31,6 @@ interface FormDataType {
     valeur?: number;
     loyer?: number;
   };
-  igs?: any;
 }
 
 interface ClientFormFieldsProps {
@@ -56,7 +55,6 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
         etatcivil={formData.etatcivil}
         regimefiscal={formData.regimefiscal}
         situationimmobiliere={formData.situationimmobiliere}
-        igs={formData.igs}
         onChange={onChange}
       />
 

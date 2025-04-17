@@ -1,12 +1,15 @@
+
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
 export type RegimeFiscalPhysique = 
-  | "igs" 
-  | "non_professionnel_salarie" 
-  | "non_professionnel_autre"
-  | "reel";
-export type RegimeFiscalMorale = "non_lucratif" | "reel";
+  | "reel" 
+  | "simplifie" 
+  | "liberatoire" 
+  | "non_professionnel_public" 
+  | "non_professionnel_prive" 
+  | "non_professionnel_autre";
+export type RegimeFiscalMorale = "reel" | "simplifie" | "non_lucratif";
 export type SituationImmobiliere = "proprietaire" | "locataire";
 export type FormeJuridique = 
   | "sa" 
@@ -20,27 +23,6 @@ export type ClientStatus = "actif" | "inactif" | "archive";
 
 // Ajout de l'export du type RegimeFiscal
 export type RegimeFiscal = RegimeFiscalPhysique | RegimeFiscalMorale;
-
-// Mise à jour des classes de 1 à 10 pour l'IGS
-export type CGAClasse = "classe1" | "classe2" | "classe3" | "classe4" | "classe5" | 
-  "classe6" | "classe7" | "classe8" | "classe9" | "classe10";
-
-export interface IGSPayment {
-  montant: string;
-  quittance: string;
-}
-
-export interface IGSData {
-  soumisIGS: boolean;
-  adherentCGA: boolean;
-  classeIGS?: CGAClasse;
-  patente?: IGSPayment;
-  acompteJanvier?: IGSPayment;
-  acompteFevrier?: IGSPayment;
-  etablissements?: any[];
-  chiffreAffairesAnnuel?: number;
-  completedPayments?: string[];
-}
 
 export interface Interaction {
   id: string;
@@ -83,6 +65,5 @@ export interface Client {
     valeur?: number;
     loyer?: number;
   };
-  fiscal_data?: any;
-  igs?: IGSData;
+  fiscal_data?: any; // Add this property to fix the TypeScript error
 }

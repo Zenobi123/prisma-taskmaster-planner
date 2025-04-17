@@ -1,14 +1,29 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { getTasks } from "@/services/taskService";
+import { getCollaborateurs } from "@/services/collaborateurService";
 import { getClientStats } from "@/services/clientStatsService";
-import { getClientRegimeStats } from "@/services/clientRegimeService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
-import { Briefcase, FileText, Clock, AlertTriangle } from "lucide-react";
 
 const QuickStats = () => {
   const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
+
+  const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: getTasks,
+    // Configurer le rafraîchissement automatique
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
+
+  const { data: collaborateurs = [], isLoading: isCollaborateursLoading } = useQuery({
+    queryKey: ["collaborateurs"],
+    queryFn: getCollaborateurs,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
 
   const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
@@ -17,21 +32,108 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
-  const { data: regimeStats = { igsClients: 0, unpaidIGS: 0, clientsWithPaymentInfo: 0 }, isLoading: isRegimeStatsLoading } = useQuery({
-    queryKey: ["regime-stats"],
-    queryFn: getClientRegimeStats,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
-  });
+  // Calculate statistics based on actual data
+  const activeTasks = tasks.filter((task: any) => task.status === "en_cours").length;
+  
+  // Count completed missions for current month
+  const countCompletedMissions = () => {
+    let completedCount = 0;
+    const currentMonth = new Date().getMonth();
+    
+    tasks.forEach((task: any) => {
+      if (task.status === "termine" && task.end_date) {
+        const endDate = new Date(task.end_date);
+        // Only count tasks that were completed in the current month
+        if (endDate.getMonth() === currentMonth) {
+          completedCount++;
+        }
+      }
+    });
+    
+    return completedCount;
+  };
+  
+  // Count active collaborators that are assigned to tasks
+  const countActiveCollaborators = () => {
+    // Create a map to count tasks per collaborator
+    const collaborateurTaskCount = new Map();
+    
+    // Count active tasks per collaborator
+    tasks.forEach((task: any) => {
+      if (task.status === "en_cours" && task.collaborateur_id) {
+        const collaborateurId = task.collaborateur_id;
+        const currentCount = collaborateurTaskCount.get(collaborateurId) || 0;
+        collaborateurTaskCount.set(collaborateurId, currentCount + 1);
+      }
+    });
+    
+    // Filter collaborateurs with active status
+    const activeCollaborateurs = collaborateurs.filter(collab => collab.statut === "actif");
+    
+    // Return the count of collaborateurs that have active status and are assigned to at least one task
+    return activeCollaborateurs.filter(collab => 
+      collaborateurTaskCount.has(collab.id) && collaborateurTaskCount.get(collab.id) > 0
+    ).length;
+  };
 
-  console.log("QuickStats - Données reçues:", {
-    clientStats,
-    regimeStats
-  });
+  const completedMissions = countCompletedMissions();
+  const activeCollaborators = countActiveCollaborators();
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      {/* Première rangée: les statistiques des clients existantes */}
+      {/* Première rangée: les 3 premières caractéristiques */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Tâches en cours
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            {isTasksLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              activeTasks
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Cette semaine</p>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Missions réalisées
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            {isTasksLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              completedMissions
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Ce mois</p>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Collaborateurs actifs
+          </h3>
+          <div className="flex items-center">
+            <div className="text-3xl font-bold text-primary mr-2">
+              {isTasksLoading || isCollaborateursLoading ? (
+                <span className="animate-pulse">--</span>
+              ) : (
+                activeCollaborators
+              )}
+            </div>
+            {!isTasksLoading && !isCollaborateursLoading && (
+              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
+                Actifs
+              </Badge>
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Sur les missions</p>
+        </div>
+      </div>
+
+      {/* Deuxième rangée: les statistiques des clients */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
@@ -64,7 +166,7 @@ const QuickStats = () => {
         <div className="card cursor-pointer hover:bg-slate-50 transition-colors" 
              onClick={() => setShowUnpaidPatenteDialog(true)}>
           <h3 className="font-semibold text-neutral-800 mb-4">
-            IGS impayés
+            Patentes impayées
           </h3>
           <div className="flex items-center">
             <div className="text-3xl font-bold text-emerald-600 mr-2">
@@ -81,44 +183,6 @@ const QuickStats = () => {
             )}
           </div>
           <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
-        </div>
-      </div>
-
-      {/* Deuxième rangée: statistiques régimes fiscaux */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card">
-          <h3 className="font-semibold text-neutral-800 mb-4">
-            Clients à l'IGS
-          </h3>
-          <div className="text-3xl font-bold text-primary">
-            {isRegimeStatsLoading ? (
-              <span className="animate-pulse">--</span>
-            ) : (
-              regimeStats.igsClients
-            )}
-          </div>
-          <p className="text-neutral-600 text-sm mt-1">Impôt Général synthétique</p>
-        </div>
-
-        <div className="card">
-          <h3 className="font-semibold text-neutral-800 mb-4">
-            IGS en retard
-          </h3>
-          <div className="flex items-center">
-            <div className="text-3xl font-bold text-yellow-600 mr-2">
-              {isRegimeStatsLoading ? (
-                <span className="animate-pulse">--</span>
-              ) : (
-                regimeStats.unpaidIGS
-              )}
-            </div>
-            {!isRegimeStatsLoading && regimeStats.unpaidIGS > 0 && (
-              <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-300">
-                Retards
-              </Badge>
-            )}
-          </div>
-          <p className="text-neutral-600 text-sm mt-1">Paiements en retard</p>
         </div>
       </div>
       

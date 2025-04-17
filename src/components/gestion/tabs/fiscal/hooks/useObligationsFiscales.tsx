@@ -24,9 +24,7 @@ export function useObligationsFiscales(client: Client) {
     bail: { assujetti: false, paye: false },
     taxeFonciere: { assujetti: false, paye: false },
     dsf: { assujetti: true, depose: false },
-    darp: { assujetti: false, depose: false },
-    tva: { assujetti: false, paye: false },
-    cnps: { assujetti: false, paye: false }
+    darp: { assujetti: false, depose: false }
   });
 
   // Nettoyage lors du démontage
@@ -176,10 +174,6 @@ export function useObligationsFiscales(client: Client) {
     setShowInAlert(value);
   };
 
-  const handleToggleDashboardVisibility = (value: boolean) => {
-    // This would be implemented if needed
-  };
-
   const handleSave = async () => {
     if (!client || !client.id) {
       toast.error("Impossible d'enregistrer les données: client non sélectionné");
@@ -234,8 +228,6 @@ export function useObligationsFiscales(client: Client) {
     handleSave,
     isLoading,
     showInAlert,
-    handleToggleAlert,
-    hiddenFromDashboard: false,
-    handleToggleDashboardVisibility
+    handleToggleAlert
   };
 }

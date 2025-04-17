@@ -1,11 +1,9 @@
 
 import { Button } from "@/components/ui/button";
-import { ClientType, Client, RegimeFiscal } from "@/types/client";
+import { ClientType, Client } from "@/types/client";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientFormFields } from "./form/ClientFormFields";
-import { useClientForm } from "@/hooks/clientForm";
-import { useState, useEffect } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useClientForm } from "@/hooks/useClientForm";
 
 interface ClientFormProps {
   onSubmit: (data: any) => void;
@@ -15,61 +13,12 @@ interface ClientFormProps {
 }
 
 export function ClientForm({ onSubmit, type, onTypeChange, initialData }: ClientFormProps) {
-  const { toast } = useToast();
   const { formData, handleChange, prepareSubmitData } = useClientForm(initialData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
-  // Loguer les données initiales
-  useEffect(() => {
-    if (initialData) {
-      console.log("Initial client data loaded:", initialData);
-      
-      // S'assurer que le régime fiscal est défini dans formData
-      if (initialData.regimefiscal) {
-        console.log("Setting formData regimefiscal from initialData:", initialData.regimefiscal);
-        handleChange("regimefiscal", initialData.regimefiscal);
-      }
-    }
-  }, [initialData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      // Vérifier que formData contient regimefiscal avant de préparer les données
-      console.log("Current formData before submission:", formData);
-      console.log("Current regime fiscal before submission:", formData.regimefiscal);
-      
-      // Passer explicitement le type pour la préparation des données
-      const clientData = prepareSubmitData(type);
-      console.log("Submitting client data:", JSON.stringify(clientData, null, 2));
-      
-      // Loguer spécifiquement pour confirmer que regimefiscal est inclus
-      console.log("Régime fiscal being submitted:", clientData.regimefiscal);
-      
-      if (!clientData.regimefiscal) {
-        console.warn("WARNING: regimefiscal is missing in form submission!");
-        toast({
-          title: "Attention",
-          description: "Le régime fiscal n'a pas été défini. Veuillez sélectionner un régime fiscal.",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-      
-      onSubmit(clientData);
-    } catch (error) {
-      console.error("Error preparing client data:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la préparation des données. Veuillez réessayer.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    const clientData = prepareSubmitData(type);
+    onSubmit(clientData);
   };
 
   return (
@@ -84,7 +33,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         onChange={handleChange}
       />
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
+      <Button type="submit" className="w-full">
         {initialData ? "Modifier le client" : "Ajouter le client"}
       </Button>
     </form>

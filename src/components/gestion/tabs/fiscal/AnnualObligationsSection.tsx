@@ -1,80 +1,79 @@
-
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { DeclarationObligationItem } from "./DeclarationObligationItem";
+import { 
+  ObligationStatuses, 
+  ObligationType, 
+} from "../fiscal/types";
 import { TaxObligationItem } from "./TaxObligationItem";
-import { ObligationStatuses } from "@/hooks/fiscal/types";
+import { DeclarationObligationItem } from "./DeclarationObligationItem";
 
-export interface AnnualObligationsSectionProps {
+interface AnnualObligationsSectionProps {
   obligationStatuses: ObligationStatuses;
   handleStatusChange: (
-    obligationType: keyof ObligationStatuses,
-    status: any
+    obligationType: ObligationType,
+    statusType: "assujetti" | "paye" | "depose",
+    value: boolean
   ) => void;
-  regimeFiscal?: string;
 }
 
-export const AnnualObligationsSection = ({
+export function AnnualObligationsSection({
   obligationStatuses,
-  handleStatusChange,
-  regimeFiscal
-}: AnnualObligationsSectionProps) => {
-  // Determine if patente tooltip should be shown (for "réel" tax regime)
-  const patenteTooltip = regimeFiscal === "reel" 
-    ? "La patente est une obligation annuelle obligatoire pour les contribuables du régime du réel, car ils ne sont pas soumis à l'IGS."
-    : undefined;
-
+  handleStatusChange
+}: AnnualObligationsSectionProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Obligations annuelles</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <TaxObligationItem
-          id="taxeFonciere"
-          title="Taxe Foncière"
-          status={obligationStatuses.taxeFonciere}
-          onStatusChange={(status) => handleStatusChange('taxeFonciere', status)}
-        />
-
-        <Separator />
-
-        <TaxObligationItem
-          id="bail"
-          title="Bail"
-          status={obligationStatuses.bail}
-          onStatusChange={(status) => handleStatusChange('bail', status)}
-        />
-
-        <Separator />
-
-        <TaxObligationItem
-          id="patente"
-          title="Patente"
-          status={obligationStatuses.patente}
-          onStatusChange={(status) => handleStatusChange('patente', status)}
-          tooltip={patenteTooltip}
-        />
-
-        <Separator />
-
-        <DeclarationObligationItem
-          id="dsf"
-          title="DSF (Déclaration Statistique et Fiscale)"
-          status={obligationStatuses.dsf}
-          onStatusChange={(status) => handleStatusChange('dsf', status)}
-        />
-
-        <Separator />
-
-        <DeclarationObligationItem
-          id="darp"
-          title="DARP (Déclaration Annuelle des Revenus Professionnels)"
-          status={obligationStatuses.darp}
-          onStatusChange={(status) => handleStatusChange('darp', status)}
-        />
-      </CardContent>
-    </Card>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Obligations annuelles</h3>
+      
+      <div className="space-y-6">
+        <div className="space-y-4">
+          <h4 className="font-medium">Impôts</h4>
+          <div className="grid grid-cols-1 gap-4">
+            <TaxObligationItem
+              title="Patente"
+              deadline="28 février"
+              obligationType="patente"
+              status={obligationStatuses.patente}
+              onChange={handleStatusChange}
+            />
+            
+            <TaxObligationItem
+              title="Bail"
+              deadline="28 février"
+              obligationType="bail"
+              status={obligationStatuses.bail}
+              onChange={handleStatusChange}
+            />
+            
+            <TaxObligationItem
+              title="Taxe foncière"
+              deadline="28 février"
+              obligationType="taxeFonciere"
+              status={obligationStatuses.taxeFonciere}
+              onChange={handleStatusChange}
+            />
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <h4 className="font-medium">Déclarations</h4>
+          <div className="grid grid-cols-1 gap-4">
+            <DeclarationObligationItem
+              title="Déclaration Statistique et Fiscale (DSF)"
+              deadline="15 avril"
+              obligationType="dsf"
+              status={obligationStatuses.dsf}
+              onChange={handleStatusChange}
+            />
+            
+            <DeclarationObligationItem
+              title="Déclaration Annuelle des Revenus des Particuliers (DARP)"
+              deadline="30 juin"
+              obligationType="darp"
+              status={obligationStatuses.darp}
+              onChange={handleStatusChange}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   );
-};
+}

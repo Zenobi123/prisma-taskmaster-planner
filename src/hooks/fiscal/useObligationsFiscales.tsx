@@ -1,143 +1,158 @@
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
-import { useUpdateClientMutation } from "@/pages/clients/hooks/mutations/useUpdateClientMutation";
-import { loadFiscalData } from "./utils/loadFiscalData";
-import { prepareFiscalData, extractClientIGSData } from "./utils/saveFiscalData";
-import { useToast } from "@/components/ui/use-toast";
-import { useIGSData } from "./useIGSData";
-import { useObligationStatus } from "./useObligationStatus";
-import { useAttestationData } from "./useAttestationData";
+import { ObligationStatuses, ClientFiscalData } from "./types";
+import { calculateValidityEndDate, checkAttestationExpiration } from "./utils/dateUtils";
+import { getFromCache, updateCache } from "./services/fiscalDataCache";
+import { saveFiscalData, fetchFiscalData } from "./services/fiscalDataService";
+import { toast } from "sonner";
 
-export function useObligationsFiscales(selectedClient: Client) {
-  const { toast } = useToast();
-  const [isLoading, setIsLoading] = useState(true);
-  const [fiscalData, setFiscalData] = useState(null);
-  const { mutateAsync } = useUpdateClientMutation();
+export const useObligationsFiscales = (selectedClient: Client) => {
+  const [creationDate, setCreationDate] = useState<string>("");
+  const [validityEndDate, setValidityEndDate] = useState<string>("");
+  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
+    patente: { assujetti: false, paye: false },
+    bail: { assujetti: false, paye: false },
+    taxeFonciere: { assujetti: false, paye: false },
+    dsf: { assujetti: false, depose: false },
+    darp: { assujetti: false, depose: false }
+  });
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [showInAlert, setShowInAlert] = useState<boolean>(true);
+  const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
 
-  // Load client's fiscal data
+  // Fetch fiscal data when client changes
   useEffect(() => {
-    const fetchFiscalData = async () => {
-      if (!selectedClient?.id) return;
-      
-      setIsLoading(true);
-      
-      try {
-        const data = await loadFiscalData(selectedClient.id);
-        console.log("Fiscal data loaded:", data);
-        setFiscalData(data);
-      } catch (error) {
-        console.error("Error fetching fiscal data:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les données fiscales",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchFiscalData();
-  }, [selectedClient?.id, toast]);
+    if (selectedClient?.id) {
+      loadFiscalData();
+    }
+  }, [selectedClient?.id]);
 
-  // Use our custom hooks
-  const { 
-    creationDate, 
-    setCreationDate,
-    validityEndDate, 
-    setValidityEndDate, // Important: nous exportons maintenant cette fonction
-    showInAlert, 
-    handleToggleAlert,
-    hiddenFromDashboard, 
-    handleToggleDashboardVisibility 
-  } = useAttestationData(fiscalData, isLoading);
-  
-  const { 
-    obligationStatuses, 
-    handleStatusChange 
-  } = useObligationStatus(fiscalData, isLoading);
-  
-  const { 
-    igsData, 
-    handleIGSChange 
-  } = useIGSData(selectedClient, fiscalData, isLoading);
-  
-  // Save fiscal data changes
-  const handleSave = useCallback(async () => {
-    if (!selectedClient?.id) return;
-    
-    console.log("Saving changes for client:", selectedClient.id);
-    console.log("Current IGS data before preparing:", igsData);
-    
-    // S'assurer que etablissements est toujours un tableau avant l'enregistrement
-    const safeIgsData = {
-      ...igsData,
-      etablissements: Array.isArray(igsData.etablissements) ? [...igsData.etablissements] : []
-    };
-    
-    console.log("Saving safe IGS data with etablissements:", safeIgsData.etablissements);
-    
-    // Prepare data for saving
-    const preparedFiscalData = prepareFiscalData(
-      creationDate,
-      validityEndDate,
-      showInAlert,
-      obligationStatuses,
-      hiddenFromDashboard,
-      safeIgsData
-    );
-    
-    console.log("Prepared fiscal data for saving:", preparedFiscalData);
-    
-    // Extract IGS data for client object
-    const extractedIGSData = extractClientIGSData(safeIgsData);
-    console.log("Extracted IGS data for client:", extractedIGSData);
-    
+  // Update validity end date when creation date changes
+  useEffect(() => {
+    if (creationDate) {
+      const calculatedEndDate = calculateValidityEndDate(creationDate);
+      setValidityEndDate(calculatedEndDate);
+    }
+  }, [creationDate]);
+
+  // Show toast notifications for expiring attestations
+  useEffect(() => {
+    if (creationDate && validityEndDate) {
+      checkAttestationExpiration(creationDate, validityEndDate);
+    }
+  }, [creationDate, validityEndDate]);
+
+  const loadFiscalData = async () => {
+    setIsLoading(true);
     try {
-      // Make sure to update both fiscal_data and igs properties
-      await mutateAsync({
-        id: selectedClient.id,
-        updates: {
-          fiscal_data: preparedFiscalData,
-          // Si le régime fiscal est IGS, on met à jour également l'objet igs
-          ...(selectedClient.regimefiscal === "igs" ? { igs: extractedIGSData } : {}),
-          // Make sure to preserve the regimefiscal value
-          regimefiscal: selectedClient.regimefiscal
-        }
-      });
+      // Try to get data from cache first
+      const cachedData = getFromCache(selectedClient.id);
+      if (cachedData) {
+        setFiscalDataToState(cachedData);
+        setIsLoading(false);
+        return;
+      }
+
+      // If not in cache, fetch from database
+      const fiscalData = await fetchFiscalData(selectedClient.id);
       
-      console.log("Fiscal data and IGS data saved successfully");
-      toast({
-        title: "Succès",
-        description: "Données fiscales enregistrées avec succès",
-      });
+      if (fiscalData) {
+        setFiscalDataToState(fiscalData);
+        
+        // Update cache
+        updateCache(selectedClient.id, fiscalData);
+      } else {
+        // Initialize default values if no data exists
+        resetToDefaults();
+      }
+    } catch (error) {
+      console.error("Error loading fiscal data:", error);
+      toast.error("Erreur lors du chargement des données fiscales");
+      resetToDefaults();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const setFiscalDataToState = (data: ClientFiscalData) => {
+    if (data.attestation) {
+      setCreationDate(data.attestation.creationDate || "");
+      setValidityEndDate(data.attestation.validityEndDate || "");
+      setShowInAlert(data.attestation.showInAlert !== false); // Default to true if undefined
+    }
+    
+    if (data.obligations) {
+      setObligationStatuses(data.obligations);
+    }
+
+    setHiddenFromDashboard(data.hiddenFromDashboard === true);
+  };
+
+  const resetToDefaults = () => {
+    setCreationDate("");
+    setValidityEndDate("");
+    setObligationStatuses({
+      patente: { assujetti: false, paye: false },
+      bail: { assujetti: false, paye: false },
+      taxeFonciere: { assujetti: false, paye: false },
+      dsf: { assujetti: false, depose: false },
+      darp: { assujetti: false, depose: false }
+    });
+    setShowInAlert(true);
+    setHiddenFromDashboard(false);
+  };
+
+  const handleStatusChange = (
+    type: keyof ObligationStatuses, 
+    field: "assujetti" | "paye" | "depose", 
+    value: boolean
+  ) => {
+    setObligationStatuses((prev) => ({
+      ...prev,
+      [type]: {
+        ...prev[type],
+        [field]: value
+      }
+    }));
+  };
+
+  const handleToggleAlert = () => {
+    setShowInAlert(prev => !prev);
+  };
+
+  const handleToggleDashboardVisibility = () => {
+    setHiddenFromDashboard(prev => !prev);
+  };
+
+  const handleSave = async () => {
+    const fiscalData: ClientFiscalData = {
+      attestation: {
+        creationDate,
+        validityEndDate,
+        showInAlert
+      },
+      obligations: obligationStatuses,
+      hiddenFromDashboard
+    };
+
+    try {
+      await saveFiscalData(selectedClient.id, fiscalData);
+      
+      // Update cache
+      updateCache(selectedClient.id, fiscalData);
+      
+      toast.success("Données fiscales enregistrées avec succès");
     } catch (error) {
       console.error("Error saving fiscal data:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'enregistrer les données fiscales",
-        variant: "destructive"
-      });
+      toast.error("Erreur lors de l'enregistrement des données fiscales");
     }
-  }, [
-    selectedClient?.id,
-    selectedClient?.regimefiscal,
-    creationDate,
-    validityEndDate,
-    showInAlert,
-    obligationStatuses,
-    hiddenFromDashboard,
-    igsData,
-    mutateAsync,
-    toast
-  ]);
-  
+  };
+
   return {
     creationDate,
     setCreationDate,
     validityEndDate,
-    setValidityEndDate, // Important: nous exportons maintenant cette fonction
     obligationStatuses,
     handleStatusChange,
     handleSave,
@@ -145,8 +160,6 @@ export function useObligationsFiscales(selectedClient: Client) {
     showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
-    handleToggleDashboardVisibility,
-    igsData,
-    handleIGSChange
+    handleToggleDashboardVisibility
   };
-}
+};

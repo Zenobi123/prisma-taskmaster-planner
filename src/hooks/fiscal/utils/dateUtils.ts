@@ -25,20 +25,6 @@ export const calculateValidityEndDate = (creationDate: string): string => {
         console.error("Invalid date format:", creationDate);
         return "";
       }
-    } else if (creationDate.includes('-')) {
-      // Support YYYY-MM-DD format (from HTML date inputs)
-      const parsedDate = parse(creationDate, 'yyyy-MM-dd', new Date());
-      
-      if (isValid(parsedDate)) {
-        // Calculate end date - 3 months after creation date
-        const endDate = addMonths(parsedDate, 3);
-        
-        // Format the end date as DD/MM/YYYY
-        return format(endDate, 'dd/MM/yyyy');
-      } else {
-        console.error("Invalid date format:", creationDate);
-        return "";
-      }
     }
     return "";
   } catch (error) {
@@ -69,22 +55,4 @@ export const checkAttestationExpiration = (creationDate: string, validityEndDate
   } catch (error) {
     console.error("Error checking attestation expiration:", error);
   }
-};
-
-/**
- * Convert date from French format (DD/MM/YYYY) to HTML format (YYYY-MM-DD)
- */
-export const toHtmlDateFormat = (frenchDate: string): string => {
-  if (!frenchDate) return "";
-  const parts = frenchDate.split('/');
-  return parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : "";
-};
-
-/**
- * Convert date from HTML format (YYYY-MM-DD) to French format (DD/MM/YYYY)
- */
-export const toFrenchDateFormat = (htmlDate: string): string => {
-  if (!htmlDate) return "";
-  const date = new Date(htmlDate);
-  return isNaN(date.getTime()) ? "" : format(date, 'dd/MM/yyyy');
 };

@@ -1,88 +1,69 @@
 
 import React from "react";
-import { Label } from "@/components/ui/label";
+import { ObligationType, TaxObligationStatus } from "../fiscal/types";
+import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
-import { TaxObligationStatus } from "@/hooks/fiscal/types";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
+import { Label } from "@/components/ui/label";
 
-export interface TaxObligationItemProps {
-  id: string;
+interface TaxObligationItemProps {
   title: string;
+  deadline: string;
+  obligationType: Extract<ObligationType, "patente" | "bail" | "taxeFonciere">;
   status: TaxObligationStatus;
-  onStatusChange: (status: TaxObligationStatus) => void;
-  tooltip?: string;
+  onChange: (
+    obligationType: ObligationType,
+    statusType: "assujetti" | "paye" | "depose",
+    value: boolean
+  ) => void;
 }
 
-export const TaxObligationItem = ({
-  id,
+export function TaxObligationItem({
   title,
+  deadline,
+  obligationType,
   status,
-  onStatusChange,
-  tooltip
-}: TaxObligationItemProps) => {
-  // Create a default status if it's undefined
-  const safeStatus: TaxObligationStatus = status || { assujetti: false, paye: false };
-  
+  onChange
+}: TaxObligationItemProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-      <div className="flex flex-col">
-        <div className="flex items-center mb-1">
-          <Label htmlFor={`${id}-assujetti`}>{title}</Label>
-          {tooltip && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="h-4 w-4 ml-1 text-muted-foreground cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="max-w-xs text-sm">{tooltip}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-        </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            id={`${id}-assujetti`}
-            checked={safeStatus.assujetti}
-            onCheckedChange={(checked) => onStatusChange({ ...safeStatus, assujetti: checked })}
-          />
-          <Label htmlFor={`${id}-assujetti`}>
-            {safeStatus.assujetti ? 'Assujetti' : 'Non assujetti'}
-          </Label>
-        </div>
-      </div>
-      
-      {safeStatus.assujetti && (
-        <>
-          <div className="flex items-center space-x-2">
-            <Switch
-              id={`${id}-paye`}
-              checked={safeStatus.paye}
-              onCheckedChange={(checked) => onStatusChange({ ...safeStatus, paye: checked })}
-            />
-            <Label htmlFor={`${id}-paye`}>
-              {safeStatus.paye ? 'Payé' : 'Non payé'}
-            </Label>
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex flex-col space-y-3">
+          <div className="flex justify-between items-center">
+            <div>
+              <h5 className="font-medium">{title}</h5>
+              <p className="text-sm text-gray-500">
+                Date limite de paiement : {deadline}
+              </p>
+            </div>
           </div>
           
-          <div className="flex space-x-2">
-            <Input
-              type="date"
-              placeholder="Date de paiement"
-              className="flex-1"
-              disabled={!safeStatus.paye}
-            />
-            <Input
-              placeholder="Réf. quittance"
-              className="flex-1"
-              disabled={!safeStatus.paye}
-            />
+          <div className="flex flex-col sm:flex-row gap-4 mt-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id={`${obligationType}-assujetti`}
+                checked={status.assujetti}
+                onCheckedChange={(checked) => onChange(obligationType, "assujetti", checked)}
+              />
+              <Label htmlFor={`${obligationType}-assujetti`}>
+                {status.assujetti ? "Assujetti" : "Non assujetti"}
+              </Label>
+            </div>
+            
+            {status.assujetti && (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id={`${obligationType}-paye`}
+                  checked={status.paye}
+                  onCheckedChange={(checked) => onChange(obligationType, "paye", checked)}
+                />
+                <Label htmlFor={`${obligationType}-paye`}>
+                  {status.paye ? "Payé" : "Non payé"}
+                </Label>
+              </div>
+            )}
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
-};
+}

@@ -1,27 +1,24 @@
 
 import React from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
-import { IGSStatusSection } from "./fiscal/IGSStatusSection";
-import { DeclarationObligationItem } from "./fiscal/DeclarationObligationItem";
-import { TaxObligationItem } from "./fiscal/TaxObligationItem";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
+import { Loader2 } from "lucide-react";
+
+// Properly re-export types with 'export type' syntax to fix the TS1205 error
+export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "@/hooks/fiscal/types";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
 }
 
-export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps) => {
+export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps) {
   const {
     creationDate,
     setCreationDate,
     validityEndDate,
-    setValidityEndDate,
     obligationStatuses,
     handleStatusChange,
     handleSave,
@@ -29,78 +26,44 @@ export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps
     showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
-    handleToggleDashboardVisibility,
-    igsData,
-    handleIGSChange
+    handleToggleDashboardVisibility
   } = useObligationsFiscales(selectedClient);
 
-  return (
-    <div className="space-y-6">
-      <IGSStatusSection
-        soumisIGS={igsData.soumisIGS}
-        adherentCGA={igsData.adherentCGA}
-        classeIGS={igsData.classeIGS}
-        patente={igsData.patente}
-        acompteJanvier={igsData.acompteJanvier}
-        acompteFevrier={igsData.acompteFevrier}
-        chiffreAffairesAnnuel={igsData.chiffreAffairesAnnuel}
-        etablissements={igsData.etablissements}
-        onChange={handleIGSChange}
-      />
-
-      <FiscalAttestationSection
-        creationDate={creationDate}
-        validityEndDate={validityEndDate}
-        setCreationDate={setCreationDate}
-        setValidityEndDate={setValidityEndDate}
-        handleSave={handleSave}
-        showInAlert={showInAlert}
-        onToggleAlert={handleToggleAlert}
-        hiddenFromDashboard={hiddenFromDashboard}
-        onToggleDashboardVisibility={handleToggleDashboardVisibility}
-      />
-
+  if (isLoading) {
+    return (
       <Card>
-        <CardContent className="pt-6">
-          <h3 className="text-lg font-medium mb-4">Obligations mensuelles</h3>
-
-          <div className="space-y-4">
-            <TaxObligationItem
-              id="tva"
-              title="TVA"
-              status={obligationStatuses.tva}
-              onStatusChange={(status) => handleStatusChange('tva', status)}
-              tooltip="TVA applicable selon la situation fiscale du contribuable"
-            />
-
-            <Separator />
-
-            <TaxObligationItem
-              id="cnps"
-              title="CNPS"
-              status={obligationStatuses.cnps}
-              onStatusChange={(status) => handleStatusChange('cnps', status)}
-            />
-          </div>
+        <CardContent className="flex items-center justify-center h-60">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </CardContent>
       </Card>
+    );
+  }
 
-      <AnnualObligationsSection 
-        obligationStatuses={obligationStatuses}
-        handleStatusChange={handleStatusChange}
-        regimeFiscal={selectedClient.regimefiscal}
-      />
-
-      {/* Bouton d'enregistrement repositionné à la fin de la page */}
-      <div className="flex justify-end mt-6">
-        <Button 
-          onClick={handleSave}
-          disabled={isLoading}
-          className="w-full md:w-auto"
-        >
-          {isLoading ? "Enregistrement..." : "Enregistrer toutes les modifications"}
-        </Button>
-      </div>
-    </div>
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Obligations fiscales</CardTitle>
+        <CardDescription>
+          Suivi des obligations fiscales de l'entreprise
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <FiscalAttestationSection 
+          creationDate={creationDate}
+          validityEndDate={validityEndDate}
+          setCreationDate={setCreationDate}
+          handleSave={handleSave}
+          showInAlert={showInAlert}
+          onToggleAlert={handleToggleAlert}
+          hiddenFromDashboard={hiddenFromDashboard}
+          onToggleDashboardVisibility={handleToggleDashboardVisibility}
+        />
+        
+        <AnnualObligationsSection 
+          obligationStatuses={obligationStatuses}
+          handleStatusChange={handleStatusChange}
+        />
+      </CardContent>
+    </Card>
   );
-};
+}

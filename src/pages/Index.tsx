@@ -34,11 +34,10 @@ const Index = () => {
       queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-section"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["client-stats"] });
-      queryClient.invalidateQueries({ queryKey: ["regime-stats"] });
       
       // Mettre à jour le timestamp de dernière actualisation
       setLastRefresh(new Date());
@@ -97,16 +96,18 @@ const Index = () => {
         <div className="p-8 space-y-8">
           <QuickStats />
           
-          {/* Removed: DashboardCollapsible for Recent Tasks */}
+          <DashboardCollapsible 
+            title="Tâches récentes"
+            componentName="RecentTasks"
+          />
           
           <DashboardCollapsible 
             title="Attestations de Conformité Fiscale"
             componentName="ExpiringFiscalAttestations"
           />
-          
-          {/* Ajouter le DashboardCollapsible pour l'IGS (Patente) */}
+
           <DashboardCollapsible 
-            title="Gestion des IGS"
+            title="Gestion des Patentes"
             componentName="PatenteSection"
           />
           
