@@ -1,4 +1,3 @@
-
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
@@ -25,31 +24,6 @@ export type RegimeFiscal = RegimeFiscalPhysique | RegimeFiscalMorale;
 // Mise à jour des classes de 1 à 10 pour l'IGS
 export type CGAClasse = "classe1" | "classe2" | "classe3" | "classe4" | "classe5" | 
   "classe6" | "classe7" | "classe8" | "classe9" | "classe10";
-
-export interface IGSPayment {
-  montant: string;
-  quittance: string;
-}
-
-export interface Etablissement {
-  nom: string;
-  activite: string;
-  ville: string;
-  departement: string;
-  quartier: string;
-  chiffreAffaires: number;
-}
-
-export interface IGSData {
-  soumisIGS: boolean;
-  adherentCGA: boolean;
-  classeIGS?: CGAClasse;
-  patente?: IGSPayment;
-  acompteJanvier?: IGSPayment;
-  acompteFevrier?: IGSPayment;
-  chiffreAffairesAnnuel?: number;
-  etablissements?: Etablissement[];
-}
 
 export interface Interaction {
   id: string;
@@ -93,5 +67,4 @@ export interface Client {
     loyer?: number;
   };
   fiscal_data?: any;
-  igs?: IGSData; // Propriété pour les données IGS
 }
