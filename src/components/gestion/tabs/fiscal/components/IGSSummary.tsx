@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { formatCurrency } from "@/lib/utils";
+import { formatMontant } from "@/utils/formatUtils";
 
 interface IGSSummaryProps {
   totalRevenue: number;
@@ -37,7 +37,7 @@ export function IGSSummary({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <p className="text-sm font-medium">Chiffre d'affaires total</p>
-            <p className="text-lg font-bold">{formatCurrency(totalRevenue)}</p>
+            <p className="text-lg font-bold">{formatMontant(totalRevenue)}</p>
           </div>
           
           <div>
@@ -64,12 +64,12 @@ export function IGSSummary({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium">Montant annuel IGS</p>
-                <p className="text-xl font-bold text-primary">{formatCurrency(igsAmount)}</p>
+                <p className="text-xl font-bold text-primary">{formatMontant(igsAmount)}</p>
               </div>
               
               <div>
                 <p className="text-sm font-medium">Paiement trimestriel</p>
-                <p className="text-xl font-bold text-primary">{formatCurrency(quarterlyAmount)}</p>
+                <p className="text-xl font-bold text-primary">{formatMontant(quarterlyAmount)}</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   À payer aux échéances : 15 janvier, 15 avril, 15 juillet, 15 octobre
                 </p>
