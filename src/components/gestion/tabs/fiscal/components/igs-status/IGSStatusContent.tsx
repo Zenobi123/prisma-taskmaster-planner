@@ -7,6 +7,9 @@ import { IGSAmountDisplay } from "../../components/IGSAmountDisplay";
 import { IGSPaymentsSection } from "../../components/IGSPaymentsSection";
 import { Etablissement, IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { CGAClasse } from "@/types/client";
+import { useState } from "react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface IGSStatusContentProps {
   soumisIGS: boolean;
@@ -47,6 +50,8 @@ export function IGSStatusContent({
   handleEtablissementsChange,
   handleTotalChange
 }: IGSStatusContentProps) {
+  const [showPayments, setShowPayments] = useState(false);
+
   return (
     <div className="flex flex-col space-y-4">
       <IGSToggleSection
@@ -82,17 +87,31 @@ export function IGSStatusContent({
             adherentCGA={adherentCGA} 
           />
           
-          <IGSPaymentsSection 
-            patente={patenteState}
-            acompteJanvier={acompteJanvierState}
-            acompteFevrier={acompteFevrierState}
-            onPatenteChange={handlePatenteChange}
-            onAcompteJanvierChange={handleAcompteJanvierChange}
-            onAcompteFevierChange={handleAcompteFevierChange}
-            soumisIGS={soumisIGS}
-            classeIGS={classeIGS}
-            adherentCGA={adherentCGA}
-          />
+          {/* Ajouter le déclencheur pour les paiements et déductions */}
+          <div className="flex items-center space-x-2 pt-4">
+            <Switch 
+              id="showPayments" 
+              checked={showPayments} 
+              onCheckedChange={setShowPayments} 
+            />
+            <Label htmlFor="showPayments" className="font-medium">
+              Activer les paiements et déductions
+            </Label>
+          </div>
+          
+          {showPayments && (
+            <IGSPaymentsSection 
+              patente={patenteState}
+              acompteJanvier={acompteJanvierState}
+              acompteFevrier={acompteFevrierState}
+              onPatenteChange={handlePatenteChange}
+              onAcompteJanvierChange={handleAcompteJanvierChange}
+              onAcompteFevierChange={handleAcompteFevierChange}
+              soumisIGS={soumisIGS}
+              classeIGS={classeIGS}
+              adherentCGA={adherentCGA}
+            />
+          )}
         </>
       )}
     </div>

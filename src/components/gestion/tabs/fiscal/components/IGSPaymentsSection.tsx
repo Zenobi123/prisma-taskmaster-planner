@@ -1,10 +1,10 @@
 
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { IGSPaymentField } from "./IGSPaymentField";
-import { BadgeEuro, Receipt } from "lucide-react";
+import { BadgeEuro, Receipt, AlertTriangle } from "lucide-react";
 import { CGAClasse } from "@/hooks/fiscal/types";
 import { useIGSReliquat } from "@/hooks/fiscal/useIGSReliquat";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface IGSPaymentsSectionProps {
   patente: IGSPayment;
@@ -46,10 +46,12 @@ export function IGSPaymentsSection({
     <div className="mt-6 space-y-4">
       <h4 className="font-medium">Paiements et déductions</h4>
       
-      <Alert className="bg-amber-50 border-amber-200 text-amber-800">
-        <Receipt className="h-4 w-4" />
-        <AlertDescription className="text-sm">
+      <Alert className="bg-amber-50 border-amber-200">
+        <AlertTriangle className="h-4 w-4 text-amber-800" />
+        <AlertTitle className="text-amber-800">Important</AlertTitle>
+        <AlertDescription className="text-sm text-amber-800">
           Les paiements et déductions ne sont pris en compte que s'ils sont autorisés par l'administration fiscale.
+          Veuillez vous assurer d'avoir les justificatifs nécessaires.
         </AlertDescription>
       </Alert>
       
