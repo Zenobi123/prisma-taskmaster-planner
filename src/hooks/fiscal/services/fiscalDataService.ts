@@ -164,6 +164,13 @@ const invalidateRelatedQueries = async (): Promise<void> => {
             window.__igsCache = { data: null, timestamp: 0 };
             console.log("Cache IGS invalidé");
           }
+
+          // Invalider aussi le cache DSF
+          if (window.__dsfCacheTimestamp !== undefined) {
+            window.__dsfCacheTimestamp = 0;
+            window.__dsfCacheData = null;
+            console.log("Cache DSF invalidé");
+          }
         };
       }
       

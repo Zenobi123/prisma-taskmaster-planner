@@ -56,7 +56,13 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export const getClientsWithUnpaidIGS = async (forceRefresh = false): Promise<Client[]> => {
+// Version compatible avec React Query (pas de paramètre)
+export const getClientsWithUnpaidIGS = async () => {
+  return fetchClientsWithUnpaidIGS();
+};
+
+// Fonction interne qui peut accepter le forceRefresh
+const fetchClientsWithUnpaidIGS = async (forceRefresh = false): Promise<Client[]> => {
   const now = Date.now();
   
   // Retourner les données en cache si valides et pas de forçage de rafraîchissement
@@ -124,5 +130,14 @@ export const getClientsWithUnpaidIGS = async (forceRefresh = false): Promise<Cli
       return igsCache.data;
     }
     return [];
+  }
+};
+
+// Fonction d'invalidation manuelle du cache
+export const invalidateIgsCache = () => {
+  if (typeof window !== 'undefined') {
+    igsCache.timestamp = 0;
+    igsCache.data = null;
+    console.log("Cache IGS invalidé manuellement");
   }
 };

@@ -40,7 +40,13 @@ if (typeof window !== 'undefined') {
   };
 }
 
-export const getClientsWithUnpaidPatente = async (forceRefresh = false): Promise<Client[]> => {
+// Version compatible avec React Query (pas de paramètre)
+export const getClientsWithUnpaidPatente = async () => {
+  return fetchClientsWithUnpaidPatente();
+};
+
+// Fonction interne qui peut accepter le forceRefresh
+const fetchClientsWithUnpaidPatente = async (forceRefresh = false): Promise<Client[]> => {
   const now = Date.now();
   
   // Retourner les données en cache si valides et pas de forçage de rafraîchissement
@@ -108,5 +114,14 @@ export const getClientsWithUnpaidPatente = async (forceRefresh = false): Promise
       return patenteCache.data;
     }
     return [];
+  }
+};
+
+// Fonction d'invalidation manuelle du cache
+export const invalidatePatenteCache = () => {
+  if (typeof window !== 'undefined') {
+    window.__patenteCacheTimestamp = 0;
+    patenteCache.data = null;
+    console.log("Cache patente invalidé manuellement");
   }
 };
