@@ -3,35 +3,28 @@ import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "../types";
 import { getFromCache, updateCache } from "../services/fiscalDataCache";
-import { fetchFiscalData, saveFiscalData } from "../services/fiscalDataService";
+import { fetchFiscalData } from "../services/fiscalDataService";
 import { toast } from "sonner";
+import { useIGSData } from "./useIGSData";
+import { IGSData } from "../types/igsTypes";
 
 export const useFiscalData = (selectedClient: Client) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
-  const [igsData, setIgsData] = useState<IGSData>({
-    establishments: [
-      {
-        id: uuidv4(),
-        name: "Établissement principal",
-        activity: "",
-        city: "",
-        department: "",
-        district: "",
-        revenue: 0
-      }
-    ],
-    previousYearRevenue: 0,
-    igsClass: 1,
-    igsAmount: 20000,
-    cgaReduction: false
-  });
+  const { igsData, handleIGSDataChange } = useIGSData();
 
   useEffect(() => {
     if (selectedClient?.id) {
       loadFiscalData();
     }
   }, [selectedClient?.id]);
+
+  const setFiscalDataFromResponse = (data: ClientFiscalData) => {
+    setHiddenFromDashboard(data.hiddenFromDashboard || false);
+    if (data.igs) {
+      handleIGSDataChange(data.igs);
+    }
+  };
 
   const loadFiscalData = async () => {
     if (!selectedClient?.id) return;
@@ -56,10 +49,6 @@ export const useFiscalData = (selectedClient: Client) => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleIGSDataChange = (data: IGSData) => {
-    setIgsData(data);
   };
 
   const handleToggleDashboardVisibility = () => {
