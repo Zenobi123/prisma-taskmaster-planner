@@ -26,7 +26,27 @@ export function IGSStatusSection(props: IGSStatusSectionProps) {
       
       <Card>
         <CardContent className="pt-6">
-          <IGSStatusContent {...statusState} />
+          <IGSStatusContent 
+            soumisIGS={statusState.localSoumisIGS}
+            adherentCGA={statusState.localAdherentCGA}
+            classeIGS={statusState.localClasseIGS}
+            patenteState={statusState.patenteState}
+            acompteJanvierState={statusState.acompteJanvierState}
+            acompteFevrierState={statusState.acompteFevierState}
+            localChiffreAffaires={statusState.localChiffreAffaires}
+            localEtablissements={statusState.localEtablissements}
+            completedPayments={statusState.localCompletedPayments}
+            onSoumisIGSChange={statusState.onSoumisIGSChange}
+            onAdherentCGAChange={statusState.onAdherentCGAChange}
+            onClasseIGSChange={statusState.onClasseIGSChange}
+            handlePatenteChange={statusState.handlePatenteChange}
+            handleAcompteJanvierChange={statusState.handleAcompteJanvierChange}
+            handleAcompteFevrierChange={statusState.handleAcompteFevrierChange}
+            handleChiffreAffairesChange={statusState.handleChiffreAffairesChange}
+            handleEtablissementsChange={statusState.handleEtablissementsChange}
+            handleTotalChange={statusState.handleTotalChange}
+            handleCompletedPaymentsChange={statusState.handleCompletedPaymentsChange}
+          />
         </CardContent>
       </Card>
     </div>

@@ -27,12 +27,12 @@ export function useIGSStatusState({
   onChange
 }: UseIGSStatusStateProps) {
   // États locaux pour gérer les valeurs
-  const [localSoumisIGS, setLocalSoumisIGS] = useState(soumisIGS);
-  const [localAdherentCGA, setLocalAdherentCGA] = useState(adherentCGA);
+  const [localSoumisIGS, setLocalSoumisIGS] = useState<boolean>(soumisIGS);
+  const [localAdherentCGA, setLocalAdherentCGA] = useState<boolean>(adherentCGA);
   const [localClasseIGS, setLocalClasseIGS] = useState<CGAClasse | undefined>(classeIGS);
   const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
-  const [acompteFevierState, setAcompteFevierState] = useState<IGSPayment>(acompteFevrier);
+  const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
   const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel || 0);
   const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(
     etablissements.length > 0 ? etablissements : [{
@@ -54,7 +54,7 @@ export function useIGSStatusState({
     setLocalClasseIGS(classeIGS);
     setPatenteState(patente || { montant: '', quittance: '' });
     setAcompteJanvierState(acompteJanvier || { montant: '', quittance: '' });
-    setAcompteFevierState(acompteFevrier || { montant: '', quittance: '' });
+    setAcompteFevrierState(acompteFevrier || { montant: '', quittance: '' });
     setLocalChiffreAffaires(chiffreAffairesAnnuel || 0);
     
     // Initialiser les établissements avec au moins un établissement par défaut
@@ -99,7 +99,7 @@ export function useIGSStatusState({
   };
 
   const handleAcompteFevrierChange = (payment: IGSPayment) => {
-    setAcompteFevierState(payment);
+    setAcompteFevrierState(payment);
     onChange("igs.acompteFevrier", payment);
   };
 
@@ -128,7 +128,7 @@ export function useIGSStatusState({
     localClasseIGS,
     patenteState,
     acompteJanvierState,
-    acompteFevierState,
+    acompteFevrierState,
     localChiffreAffaires,
     localEtablissements,
     localCompletedPayments,

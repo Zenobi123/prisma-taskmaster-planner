@@ -107,7 +107,8 @@ export async function updateClient(id: string, updates: Partial<Client>) {
       acompteJanvier: igs.acompteJanvier,
       acompteFevrier: igs.acompteFevrier,
       chiffreAffairesAnnuel: igs.chiffreAffairesAnnuel || 0,
-      etablissements: Array.isArray(igs.etablissements) ? igs.etablissements : []
+      etablissements: Array.isArray(igs.etablissements) ? igs.etablissements : [],
+      completedPayments: Array.isArray(igs.completedPayments) ? igs.completedPayments : []
     };
   }
   
