@@ -30,20 +30,10 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
       return false;
     }
     
-    // Update cache with new data
-    updateCache(clientId, fiscalData);
-    
-    // Verify save was successful
-    const verified = await verifyFiscalDataSave(clientId, fiscalData);
-    if (!verified && retryCount < 2) {
-      console.log("Save verification failed, retrying...");
-      return saveFiscalData(clientId, fiscalData, retryCount + 1);
-    }
-    
-    return verified;
+    return true;
   } catch (error) {
     console.error(`Exception during fiscal data save (attempt ${retryCount + 1}):`, error);
-    clearCache(clientId); // Clear cache on error
+    clearCache(clientId);
     
     if (retryCount < 2) {
       const delay = (retryCount + 1) * 1500;

@@ -24,7 +24,7 @@ export const verifyFiscalDataSave = async (clientId: string, expectedData: Clien
     if (data?.fiscal_data) {
       const savedData = data.fiscal_data as unknown as ClientFiscalData;
       
-      // Check essential fields match
+      // Vérification des champs essentiels
       const keysToCheck = ['hiddenFromDashboard', 'attestation', 'obligations'];
       for (const key of keysToCheck) {
         if (JSON.stringify(savedData[key as keyof ClientFiscalData]) !== 

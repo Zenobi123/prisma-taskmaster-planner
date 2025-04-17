@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
-import { getFromCache, updateCache } from "./cacheService";
+import { Json } from "@/integrations/supabase/types";
 
 /**
  * Fetch fiscal data with retry capability
@@ -9,12 +9,6 @@ import { getFromCache, updateCache } from "./cacheService";
 export const fetchFiscalData = async (clientId: string, retryCount = 0): Promise<ClientFiscalData | null> => {
   try {
     console.log(`Fetching fiscal data for client ${clientId} (attempt ${retryCount + 1})`);
-    
-    // Try cache first
-    const cachedData = getFromCache(clientId);
-    if (cachedData) {
-      return cachedData;
-    }
     
     const { data, error } = await supabase
       .from('clients')
@@ -36,23 +30,14 @@ export const fetchFiscalData = async (clientId: string, retryCount = 0): Promise
     }
     
     if (data?.fiscal_data) {
-      // Fixed: Properly cast the JSON data to ClientFiscalData using unknown as an intermediate step
+      // Conversion sécurisée en utilisant unknown comme intermédiaire
       const fiscalData = data.fiscal_data as unknown as ClientFiscalData;
-      updateCache(clientId, fiscalData);
       return fiscalData;
     }
     
     return null;
   } catch (error) {
     console.error(`Exception during fiscal data fetch (attempt ${retryCount + 1}):`, error);
-    
-    if (retryCount < 2) {
-      const delay = (retryCount + 1) * 1000;
-      console.log(`Retrying in ${delay}ms...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return fetchFiscalData(clientId, retryCount + 1);
-    }
-    
     return null;
   }
 };
