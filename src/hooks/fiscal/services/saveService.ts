@@ -15,6 +15,8 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     // S'assurer que toutes les propriétés requises sont présentes
     const completeData = {
       ...fiscalData,
+      // Add updatedAt timestamp to ensure consistency
+      updatedAt: new Date().toISOString(),
       // Ajouter des méta-données pour traçabilité
       _metadata: {
         lastSaved: new Date().toISOString(),

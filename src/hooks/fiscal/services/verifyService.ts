@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { Json } from "@/integrations/supabase/types";
@@ -109,9 +108,12 @@ const verifyMainFields = (savedData: ClientFiscalData, expectedData: ClientFisca
     return false;
   }
   
-  if (expectedData.updatedAt && !savedData.updatedAt) {
-    console.error("Missing updatedAt timestamp in saved data");
-    return false;
+  // Check updatedAt only if it exists in expected data
+  if (expectedData.updatedAt) {
+    if (!savedData.updatedAt) {
+      console.error("Missing updatedAt timestamp in saved data");
+      return false;
+    }
   }
   
   return true;

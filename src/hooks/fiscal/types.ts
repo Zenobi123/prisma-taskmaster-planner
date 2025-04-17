@@ -32,4 +32,5 @@ export interface ClientFiscalData {
   attestation: FiscalAttestationData;
   obligations: ObligationStatuses;
   hiddenFromDashboard?: boolean;
+  updatedAt?: string; // Add this optional property
 }
