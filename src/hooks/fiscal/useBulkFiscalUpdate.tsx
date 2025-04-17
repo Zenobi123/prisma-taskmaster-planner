@@ -28,6 +28,13 @@ export const useBulkFiscalUpdate = () => {
   const updateClientsfiscalData = useCallback(async () => {
     const eligibleClients = clients.filter(client => client.gestionexternalisee);
     
+    if (eligibleClients.length === 0) {
+      toast.error("Aucun client éligible trouvé pour la mise à jour fiscale");
+      return;
+    }
+
+    toast.info(`Début de la mise à jour pour ${eligibleClients.length} clients...`);
+    
     setUpdatingClients({
       total: eligibleClients.length,
       processed: 0,
@@ -35,13 +42,12 @@ export const useBulkFiscalUpdate = () => {
       failed: 0
     });
 
-    const updatePromises = eligibleClients.map(async (client) => {
+    for (const client of eligibleClients) {
       try {
-        // Logique de mise à jour fiscale (à personnaliser selon vos besoins)
         const fiscalData = {
           ...client.fiscal_data,
-          // Ajoutez ici la logique de modification des données fiscales
-          hiddenFromDashboard: false, // Exemple
+          updatedAt: new Date().toISOString(),
+          lastBulkUpdate: new Date().toISOString()
         };
 
         const saveSuccess = await saveFiscalData(client.id, fiscalData);
@@ -52,41 +58,37 @@ export const useBulkFiscalUpdate = () => {
           setUpdatingClients(prev => ({
             ...prev,
             processed: prev.processed + 1,
-            successful: verified ? prev.successful + 1 : prev.successful
+            successful: verified ? prev.successful + 1 : prev.successful,
+            failed: verified ? prev.failed : prev.failed + 1
           }));
-
-          return verified;
+        } else {
+          setUpdatingClients(prev => ({
+            ...prev,
+            processed: prev.processed + 1,
+            failed: prev.failed + 1
+          }));
         }
-        
-        return false;
       } catch (error) {
         console.error(`Erreur pour le client ${client.id}:`, error);
-        
         setUpdatingClients(prev => ({
           ...prev,
           processed: prev.processed + 1,
           failed: prev.failed + 1
         }));
-        
-        return false;
       }
-    });
 
-    const results = await Promise.all(updatePromises);
+      // Petit délai entre chaque client pour éviter de surcharger le serveur
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+
+    const { successful, failed } = updatingClients;
     
-    const successCount = results.filter(Boolean).length;
-    const failedCount = results.filter(x => !x).length;
-
-    toast.info(`Mise à jour fiscale terminée: ${successCount} succès, ${failedCount} échecs`, {
-      duration: 5000
-    });
-
-    return {
-      total: eligibleClients.length,
-      successful: successCount,
-      failed: failedCount
-    };
-  }, [clients]);
+    if (failed === 0) {
+      toast.success(`Mise à jour terminée avec succès pour tous les clients !`);
+    } else {
+      toast.warning(`Mise à jour terminée : ${successful} succès, ${failed} échecs`);
+    }
+  }, [clients, updatingClients]);
 
   return {
     updateClientsfiscalData,
