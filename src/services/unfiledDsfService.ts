@@ -4,11 +4,11 @@ import { Client } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
 import { Json } from "@/integrations/supabase/types";
 
-// Create a global type definition for the window object to support the cache
+// Extend the window interface instead of redeclaring it
 declare global {
   interface Window {
-    __dsfCacheTimestamp: number;
-    __dsfCacheData: Client[] | null;
+    __dsfCacheTimestamp?: number;
+    __dsfCacheData?: Client[] | null;
     __invalidateFiscalCaches?: () => void;
   }
 }
