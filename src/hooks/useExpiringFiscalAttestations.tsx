@@ -78,9 +78,10 @@ export const useExpiringFiscalAttestations = () => {
       return expiringAttestations.sort((a, b) => a.daysRemaining - b.daysRemaining);
     },
     // Configurer la mise en cache et le rafraîchissement automatique
-    staleTime: 5 * 60 * 1000, // 5 minutes avant que les données soient considérées comme périmées
-    gcTime: 30 * 60 * 1000,   // 30 minutes avant le nettoyage du cache
-    refetchInterval: 10000,    // Rafraîchir toutes les 10 secondes
-    refetchOnWindowFocus: true // Rafraîchir quand l'utilisateur revient sur l'onglet
+    staleTime: 2 * 60 * 1000,  // 2 minutes avant que les données soient considérées comme périmées
+    gcTime: 10 * 60 * 1000,    // 10 minutes avant le nettoyage du cache
+    refetchInterval: 60000,    // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand l'utilisateur revient sur l'onglet
+    refetchOnMount: true       // Rafraîchir à chaque montage du composant
   });
 };

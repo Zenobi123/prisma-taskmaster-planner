@@ -12,8 +12,8 @@ let igsCache: {
   timestamp: 0
 };
 
-// Durée du cache en millisecondes (augmenté à 2 minutes)
-const CACHE_DURATION = 120000; // Augmenté de 30s à 2min pour réduire les rechargements fréquents
+// Durée du cache en millisecondes (10 minutes)
+const CACHE_DURATION = 600000; // Augmenté de 2min à 10min pour équilibrer réactivité et performances
 
 // Ajouter une fonction d'invalidation de cache global
 if (typeof window !== 'undefined') {
@@ -56,63 +56,73 @@ if (typeof window !== 'undefined') {
   });
 }
 
-export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
+export const getClientsWithUnpaidIGS = async (forceRefresh = false): Promise<Client[]> => {
   const now = Date.now();
   
-  // Retourner les données en cache si valides
-  if (igsCache.data && now - igsCache.timestamp < CACHE_DURATION) {
+  // Retourner les données en cache si valides et pas de forçage de rafraîchissement
+  if (!forceRefresh && igsCache.data && now - igsCache.timestamp < CACHE_DURATION) {
     console.log("Utilisation des données IGS en cache");
     return igsCache.data;
   }
   
   console.log("Service: Récupération des clients avec IGS impayés...");
   
-  const { data: allClients, error } = await supabase
-    .from("clients")
-    .select("*");
-  
-  if (error) {
-    console.error("Erreur lors de la récupération des clients:", error);
-    throw error;
-  }
-
-  const clientsWithUnpaidIGS = allClients.filter(client => {
-    if (client.fiscal_data && typeof client.fiscal_data === 'object') {
-      const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
-      
-      if (fiscalData.hiddenFromDashboard === true) {
-        return false;
-      }
-      
-      if (fiscalData.obligations?.igs) {
-        return fiscalData.obligations.igs.assujetti === true && 
-               fiscalData.obligations.igs.paye === false;
-      }
+  try {
+    const { data: allClients, error } = await supabase
+      .from("clients")
+      .select("*");
+    
+    if (error) {
+      console.error("Erreur lors de la récupération des clients:", error);
+      throw error;
     }
-    return false;
-  });
-  
-  // Convertir au type client avec le bon casting de type
-  const typedClients = clientsWithUnpaidIGS.map(client => {
-    return {
-      ...client,
-      type: client.type as ClientType,
-      formejuridique: (client.formejuridique || 'autre') as FormeJuridique,
-      sexe: client.sexe as Sexe,
-      etatcivil: client.etatcivil as EtatCivil,
-      adresse: client.adresse as Client['adresse'],
-      contact: client.contact as Client['contact'],
-      interactions: client.interactions as unknown as Client['interactions'],
-      fiscal_data: client.fiscal_data as unknown as Client['fiscal_data'],
-      statut: client.statut as Client['statut']
-    } as Client;
-  });
 
-  // Mettre à jour le cache
-  igsCache = {
-    data: typedClients,
-    timestamp: now
-  };
-  
-  return typedClients;
+    const clientsWithUnpaidIGS = allClients.filter(client => {
+      if (client.fiscal_data && typeof client.fiscal_data === 'object') {
+        const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
+        
+        if (fiscalData.hiddenFromDashboard === true) {
+          return false;
+        }
+        
+        if (fiscalData.obligations?.igs) {
+          return fiscalData.obligations.igs.assujetti === true && 
+                fiscalData.obligations.igs.paye === false;
+        }
+      }
+      return false;
+    });
+    
+    // Convertir au type client avec le bon casting de type
+    const typedClients = clientsWithUnpaidIGS.map(client => {
+      return {
+        ...client,
+        type: client.type as ClientType,
+        formejuridique: (client.formejuridique || 'autre') as FormeJuridique,
+        sexe: client.sexe as Sexe,
+        etatcivil: client.etatcivil as EtatCivil,
+        adresse: client.adresse as Client['adresse'],
+        contact: client.contact as Client['contact'],
+        interactions: client.interactions as unknown as Client['interactions'],
+        fiscal_data: client.fiscal_data as unknown as Client['fiscal_data'],
+        statut: client.statut as Client['statut']
+      } as Client;
+    });
+
+    // Mettre à jour le cache avec horodatage
+    igsCache = {
+      data: typedClients,
+      timestamp: now
+    };
+    
+    return typedClients;
+  } catch (error) {
+    console.error("Erreur critique lors de la récupération des clients IGS:", error);
+    // En cas d'erreur, essayer de retourner le cache même expiré
+    if (igsCache.data) {
+      console.log("Utilisation du cache expiré en cas d'erreur");
+      return igsCache.data;
+    }
+    return [];
+  }
 };
