@@ -1,3 +1,4 @@
+
 export type ObligationType = "patente" | "igs" | "bail" | "taxeFonciere" | "dsf" | "darp";
 
 export interface TaxObligationStatus {
@@ -27,23 +28,8 @@ export interface FiscalAttestationData {
   showInAlert?: boolean; // Add property to control alert visibility
 }
 
-export interface Establishment {
-  id: string;
-  name: string;
-  activity: string;
-  city: string;
-  department: string;
-  district: string; // quartier
-  revenue: number; // chiffre d'affaires HT
-}
-
-export interface IGSData {
-  establishments: Establishment[];
-  previousYearRevenue?: number;
-  igsClass?: number;
-  igsAmount?: number;
-  cgaReduction?: boolean;
-}
+// Re-export IGSData types from igsTypes.ts to maintain consistency
+export { type Establishment, type IGSData } from './types/igsTypes';
 
 export interface ClientFiscalData {
   attestation: FiscalAttestationData;

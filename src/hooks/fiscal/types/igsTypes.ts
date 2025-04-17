@@ -13,10 +13,10 @@ export interface Establishment {
 
 export interface IGSData {
   establishments: Establishment[];
-  previousYearRevenue: number;
-  igsClass: number;
-  igsAmount: number;
-  cgaReduction: boolean;
+  previousYearRevenue?: number;
+  igsClass?: number;
+  igsAmount?: number;
+  cgaReduction?: boolean;
 }
 
 export const createDefaultEstablishment = (): Establishment => ({
