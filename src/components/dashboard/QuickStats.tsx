@@ -24,6 +24,11 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
+  console.log("QuickStats - Données reçues:", {
+    clientStats,
+    regimeStats
+  });
+
   return (
     <div className="grid grid-cols-1 gap-6">
       {/* Première rangée: les statistiques des clients existantes */}

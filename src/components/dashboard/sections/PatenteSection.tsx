@@ -25,6 +25,8 @@ const PatenteSection = () => {
     }
   }, [clients, isLoading]);
 
+  console.log("PatenteSection - rendering with:", { clientCount, isLoading });
+
   return (
     <div className="p-4 space-y-6">
       {/* Résumé des IGS impayés */}
