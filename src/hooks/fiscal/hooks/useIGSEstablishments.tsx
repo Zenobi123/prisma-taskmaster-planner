@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { 
@@ -30,7 +29,6 @@ export const useIGSEstablishments = ({
     createDefaultQuarterlyPayments()
   );
 
-  // Initialize data from props or create default
   useEffect(() => {
     if (igsData && igsData.establishments) {
       setEstablishments(igsData.establishments);
@@ -39,12 +37,10 @@ export const useIGSEstablishments = ({
         setQuarterlyPayments(igsData.quarterlyPayments);
       }
     } else {
-      // Create default establishment if none exists
       setEstablishments([createDefaultEstablishment()]);
     }
   }, [igsData]);
 
-  // Calculate totals and update parent component
   useEffect(() => {
     if (!assujetti) return;
     
@@ -57,14 +53,12 @@ export const useIGSEstablishments = ({
     const finalAmount = cgaReduction ? amount * 0.5 : amount;
     setIgsAmount(finalAmount);
     
-    // Update quarterly payments based on new amount
     const updatedQuarterlyPayments = quarterlyPayments.map(payment => ({
       ...payment,
       amount: finalAmount / 4
     }));
     setQuarterlyPayments(updatedQuarterlyPayments);
     
-    // Update parent component with all IGS data
     onIGSDataChange({
       establishments,
       previousYearRevenue: total,
@@ -99,6 +93,13 @@ export const useIGSEstablishments = ({
     ));
   };
 
+  const handlePaymentStatusChange = (index: number, isPaid: boolean) => {
+    const updatedPayments = quarterlyPayments.map((payment, i) => 
+      i === index ? { ...payment, isPaid } : payment
+    );
+    setQuarterlyPayments(updatedPayments);
+  };
+
   return {
     establishments,
     totalRevenue,
@@ -110,6 +111,7 @@ export const useIGSEstablishments = ({
     handleAddEstablishment,
     handleRemoveEstablishment,
     handleEstablishmentChange,
+    handlePaymentStatusChange,
     isAssujetti: assujetti === true
   };
 };

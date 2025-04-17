@@ -5,6 +5,9 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { formatMontant } from "@/utils/formatUtils";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { QuarterlyPayment } from "@/hooks/fiscal/types/igsTypes";
 
 interface IGSSummaryProps {
   totalRevenue: number;
@@ -12,6 +15,8 @@ interface IGSSummaryProps {
   igsAmount: number;
   cgaReduction: boolean;
   onCgaReductionChange: (value: boolean) => void;
+  quarterlyPayments: QuarterlyPayment[];
+  onPaymentStatusChange: (index: number, isPaid: boolean) => void;
 }
 
 export function IGSSummary({
@@ -19,10 +24,14 @@ export function IGSSummary({
   igsClass,
   igsAmount,
   cgaReduction,
-  onCgaReductionChange
+  onCgaReductionChange,
+  quarterlyPayments,
+  onPaymentStatusChange
 }: IGSSummaryProps) {
-  // Calculate quarterly amount
-  const quarterlyAmount = igsAmount / 4;
+  const totalPaid = quarterlyPayments.reduce((sum, payment) => 
+    sum + (payment.isPaid ? payment.amount : 0), 0
+  );
+  const remainingAmount = igsAmount - totalPaid;
 
   return (
     <Card className="bg-slate-50">
@@ -61,18 +70,46 @@ export function IGSSummary({
           </div>
           
           <div className="bg-white p-4 rounded-md border">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
                 <p className="text-sm font-medium">Montant annuel IGS</p>
                 <p className="text-xl font-bold text-primary">{formatMontant(igsAmount)}</p>
+                <div className="mt-2 space-y-1">
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">Payé : </span>
+                    <span className="font-medium text-green-600">{formatMontant(totalPaid)}</span>
+                  </p>
+                  <p className="text-sm">
+                    <span className="text-muted-foreground">Reste à payer : </span>
+                    <span className="font-medium text-red-600">{formatMontant(remainingAmount)}</span>
+                  </p>
+                </div>
               </div>
               
+              <Separator />
+              
               <div>
-                <p className="text-sm font-medium">Paiement trimestriel</p>
-                <p className="text-xl font-bold text-primary">{formatMontant(quarterlyAmount)}</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  À payer aux échéances : 15 janvier, 15 avril, 15 juillet, 15 octobre
-                </p>
+                <p className="text-sm font-medium mb-2">Échéances trimestrielles</p>
+                <div className="space-y-2">
+                  {quarterlyPayments.map((payment, index) => (
+                    <div key={index} className="flex justify-between items-center p-2 bg-slate-50 rounded">
+                      <div className="flex items-center gap-3">
+                        <Checkbox 
+                          checked={payment.isPaid}
+                          onCheckedChange={(checked) => onPaymentStatusChange(index, checked as boolean)}
+                          id={`payment-${index}`}
+                        />
+                        <div>
+                          <p className="font-medium">{payment.dueDate}</p>
+                          <p className="text-sm text-muted-foreground">{formatMontant(payment.amount)}</p>
+                        </div>
+                      </div>
+                      <Badge variant={payment.isPaid ? "success" : "destructive"}>
+                        {payment.isPaid ? "Payé" : "À payer"}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

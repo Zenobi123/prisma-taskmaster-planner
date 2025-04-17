@@ -25,10 +25,12 @@ export function IGSEstablishmentsSection({
     igsClass,
     igsAmount,
     cgaReduction,
+    quarterlyPayments,
     setCgaReduction,
     handleAddEstablishment,
     handleRemoveEstablishment,
     handleEstablishmentChange,
+    handlePaymentStatusChange,
     isAssujetti
   } = useIGSEstablishments({ 
     igsData, 
@@ -71,6 +73,8 @@ export function IGSEstablishmentsSection({
             igsAmount={igsAmount}
             cgaReduction={cgaReduction}
             onCgaReductionChange={setCgaReduction}
+            quarterlyPayments={quarterlyPayments}
+            onPaymentStatusChange={handlePaymentStatusChange}
           />
         </div>
       </CardContent>
