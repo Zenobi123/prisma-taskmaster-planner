@@ -6,7 +6,7 @@ import { IGSClassesSelector } from "./components/IGSClassesSelector";
 import { IGSAmountDisplay } from "./components/IGSAmountDisplay";
 import { IGSPaymentsSection } from "./components/IGSPaymentsSection";
 import { IGSToggleSection } from "./components/IGSToggleSection";
-import { EtablissementsSection } from "./components/EtablissementsSection";
+import { EtablissementsSection } from "./components/etablissements";
 import { CGAClasse } from "@/types/client";
 import { IGSPayment, Etablissement } from "@/hooks/fiscal/types/igsTypes";
 
