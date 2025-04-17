@@ -51,5 +51,3 @@ export interface ClientFiscalData {
   hiddenFromDashboard?: boolean; // Add property to hide from dashboard
   igs?: IGSData; // Add IGS data
 }
-
-export type { IGSData, Establishment } from './types/igsTypes';

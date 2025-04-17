@@ -1,13 +1,12 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
-import { Establishment, IGSData } from "@/hooks/fiscal/types/igsTypes";
-import { v4 as uuidv4 } from "uuid";
+import { IGSData } from "@/hooks/fiscal/types/igsTypes";
 import { EstablishmentForm } from "./components/EstablishmentForm";
 import { IGSSummary } from "./components/IGSSummary";
-import { calculateIGSClass } from "./utils/igsCalculations";
+import { useIGSEstablishments } from "@/hooks/fiscal/hooks/useIGSEstablishments";
 
 interface IGSEstablishmentsProps {
   igsData: IGSData | undefined;
@@ -20,74 +19,18 @@ export function IGSEstablishmentsSection({
   onIGSDataChange,
   assujetti
 }: IGSEstablishmentsProps) {
-  const isAssujetti = assujetti === true;
-  
-  const [establishments, setEstablishments] = useState<Establishment[]>([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
-  const [igsClass, setIgsClass] = useState(0);
-  const [igsAmount, setIgsAmount] = useState(0);
-  const [cgaReduction, setCgaReduction] = useState(false);
-
-  useEffect(() => {
-    if (igsData) {
-      setEstablishments(igsData.establishments || []);
-      setCgaReduction(igsData.cgaReduction || false);
-    } else if (establishments.length === 0) {
-      const defaultEstablishment: Establishment = {
-        id: uuidv4(),
-        name: "Établissement principal",
-        activity: "",
-        city: "",
-        department: "",
-        district: "",
-        revenue: 0
-      };
-      setEstablishments([defaultEstablishment]);
-    }
-  }, [igsData]);
-
-  useEffect(() => {
-    const total = establishments.reduce((sum, est) => sum + (est.revenue || 0), 0);
-    setTotalRevenue(total);
-    
-    const { classNumber, amount } = calculateIGSClass(total);
-    setIgsClass(classNumber);
-    
-    const finalAmount = cgaReduction ? amount * 0.5 : amount;
-    setIgsAmount(finalAmount);
-    
-    onIGSDataChange({
-      establishments,
-      previousYearRevenue: total,
-      igsClass: classNumber,
-      igsAmount: finalAmount,
-      cgaReduction
-    });
-  }, [establishments, cgaReduction]);
-
-  const handleAddEstablishment = () => {
-    const newEstablishment: Establishment = {
-      id: uuidv4(),
-      name: `Établissement ${establishments.length + 1}`,
-      activity: "",
-      city: "",
-      department: "",
-      district: "",
-      revenue: 0
-    };
-    setEstablishments([...establishments, newEstablishment]);
-  };
-
-  const handleRemoveEstablishment = (id: string) => {
-    if (establishments.length <= 1) return;
-    setEstablishments(establishments.filter(est => est.id !== id));
-  };
-
-  const handleEstablishmentChange = (id: string, field: keyof Establishment, value: string | number) => {
-    setEstablishments(establishments.map(est => 
-      est.id === id ? { ...est, [field]: value } : est
-    ));
-  };
+  const {
+    establishments,
+    totalRevenue,
+    igsClass,
+    igsAmount,
+    cgaReduction,
+    setCgaReduction,
+    handleAddEstablishment,
+    handleRemoveEstablishment,
+    handleEstablishmentChange,
+    isAssujetti
+  } = useIGSEstablishments({ igsData, onIGSDataChange, assujetti });
 
   if (!isAssujetti) return null;
 
