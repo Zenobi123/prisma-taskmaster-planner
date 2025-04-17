@@ -13,7 +13,6 @@ interface IGSPaymentSectionProps {
   soumisIGS: boolean;
   adherentCGA: boolean;
   classeIGS?: CGAClasse;
-  patente: IGSPayment;
   acompteJanvier: IGSPayment;
   acompteFevrier: IGSPayment;
   completedPayments?: string[];
@@ -24,26 +23,22 @@ export function IGSPaymentSection({
   soumisIGS,
   adherentCGA,
   classeIGS,
-  patente,
   acompteJanvier,
   acompteFevrier,
   completedPayments = [],
   onChange
 }: IGSPaymentSectionProps) {
   const {
-    patenteState,
     acompteJanvierState,
     acompteFevrierState,
     reliquat,
     handlePaymentChange,
     montantIGS,
     completedPayments: paymentsList,
-    handlePaymentToggle
   } = useIGSPayment({
     soumisIGS,
     adherentCGA,
     classeIGS,
-    patente,
     acompteJanvier,
     acompteFevrier,
     completedPayments,
@@ -56,12 +51,11 @@ export function IGSPaymentSection({
 
   return (
     <div className="mt-6 space-y-4">
-      <h4 className="font-medium">Paiements et déductions</h4>
+      <h4 className="font-medium">Suivi des paiements</h4>
       
       <IGSPaymentAlerts />
       
       <IGSPaymentForm
-        patente={patenteState}
         acompteJanvier={acompteJanvierState}
         acompteFevrier={acompteFevrierState}
         handlePaymentChange={handlePaymentChange}

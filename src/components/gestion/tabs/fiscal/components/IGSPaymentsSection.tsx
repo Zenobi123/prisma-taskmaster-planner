@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { BadgeEuro, Receipt, AlertTriangle, Calendar } from "lucide-react";
@@ -15,7 +14,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 
 interface IGSPaymentsSectionProps {
-  patente?: IGSPayment;
   acompteJanvier: IGSPayment;
   acompteFevrier: IGSPayment;
   onAcompteJanvierChange: (payment: IGSPayment) => void;
@@ -25,6 +23,7 @@ interface IGSPaymentsSectionProps {
   adherentCGA: boolean;
   completedPayments?: string[];
   onCompletedPaymentsChange?: (payments: string[]) => void;
+  title?: string;
 }
 
 export function IGSPaymentsSection({
@@ -36,7 +35,8 @@ export function IGSPaymentsSection({
   classeIGS,
   adherentCGA,
   completedPayments = [],
-  onCompletedPaymentsChange
+  onCompletedPaymentsChange,
+  title = "Paiements et déductions"
 }: IGSPaymentsSectionProps) {
   const [paymentsList, setPaymentsList] = useState<string[]>(completedPayments);
   const deadlines = getIGSPaymentDeadlines();
@@ -62,7 +62,7 @@ export function IGSPaymentsSection({
 
   return (
     <div className="mt-6 space-y-4">
-      <h4 className="font-medium">Paiements et déductions</h4>
+      <h4 className="font-medium">{title}</h4>
       
       {totalAmount !== null && (
         <div className="space-y-4 mb-4">
@@ -135,4 +135,3 @@ export function IGSPaymentsSection({
     </div>
   );
 }
-

@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { IGSToggleSection } from "../../components/IGSToggleSection";
 import { ChiffreAffairesSection } from "../../components/ChiffreAffairesSection";
 import { EtablissementsSection } from "../../components/etablissements";
@@ -90,10 +90,8 @@ export function IGSStatusContent({
           />
           
           <IGSPaymentsSection 
-            patente={patenteState}
             acompteJanvier={acompteJanvierState}
             acompteFevrier={acompteFevrierState}
-            onPatenteChange={handlePatenteChange}
             onAcompteJanvierChange={handleAcompteJanvierChange}
             onAcompteFevrierChange={handleAcompteFevrierChange}
             soumisIGS={soumisIGS}
@@ -101,6 +99,7 @@ export function IGSStatusContent({
             adherentCGA={adherentCGA}
             completedPayments={completedPayments}
             onCompletedPaymentsChange={handleCompletedPaymentsChange}
+            title="Suivi des paiements"
           />
         </>
       )}
