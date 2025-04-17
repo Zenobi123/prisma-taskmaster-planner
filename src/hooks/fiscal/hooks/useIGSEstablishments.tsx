@@ -1,7 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { Establishment, IGSData, createDefaultEstablishment } from '../types/igsTypes';
+import { 
+  Establishment, 
+  IGSData, 
+  createDefaultEstablishment, 
+  QuarterlyPayment,
+  createDefaultQuarterlyPayments 
+} from '../types/igsTypes';
 import { calculateIGSClass } from '@/components/gestion/tabs/fiscal/utils/igsCalculations';
 
 interface UseIGSEstablishmentsProps {
@@ -20,12 +26,18 @@ export const useIGSEstablishments = ({
   const [igsClass, setIgsClass] = useState(1);
   const [igsAmount, setIgsAmount] = useState(20000);
   const [cgaReduction, setCgaReduction] = useState(false);
+  const [quarterlyPayments, setQuarterlyPayments] = useState<QuarterlyPayment[]>(
+    createDefaultQuarterlyPayments()
+  );
 
   // Initialize data from props or create default
   useEffect(() => {
     if (igsData && igsData.establishments) {
       setEstablishments(igsData.establishments);
       setCgaReduction(igsData.cgaReduction);
+      if (igsData.quarterlyPayments) {
+        setQuarterlyPayments(igsData.quarterlyPayments);
+      }
     } else {
       // Create default establishment if none exists
       setEstablishments([createDefaultEstablishment()]);
@@ -45,15 +57,23 @@ export const useIGSEstablishments = ({
     const finalAmount = cgaReduction ? amount * 0.5 : amount;
     setIgsAmount(finalAmount);
     
+    // Update quarterly payments based on new amount
+    const updatedQuarterlyPayments = quarterlyPayments.map(payment => ({
+      ...payment,
+      amount: finalAmount / 4
+    }));
+    setQuarterlyPayments(updatedQuarterlyPayments);
+    
     // Update parent component with all IGS data
     onIGSDataChange({
       establishments,
       previousYearRevenue: total,
       igsClass: classNumber,
       igsAmount: finalAmount,
-      cgaReduction
+      cgaReduction,
+      quarterlyPayments: updatedQuarterlyPayments
     });
-  }, [establishments, cgaReduction, onIGSDataChange, assujetti]);
+  }, [establishments, cgaReduction, onIGSDataChange, assujetti, quarterlyPayments]);
 
   const handleAddEstablishment = () => {
     const newEstablishment: Establishment = {
@@ -85,6 +105,7 @@ export const useIGSEstablishments = ({
     igsClass,
     igsAmount,
     cgaReduction,
+    quarterlyPayments,
     setCgaReduction,
     handleAddEstablishment,
     handleRemoveEstablishment,

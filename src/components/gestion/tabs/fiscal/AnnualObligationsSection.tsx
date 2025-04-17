@@ -55,7 +55,7 @@ export function AnnualObligationsSection({
             
             <TaxObligationItem
               title="Impôt Général Synthétique (IGS)"
-              deadline="31 mars"
+              deadline="15 janvier, 15 avril, 15 juillet, 15 octobre"
               obligationType="igs"
               status={safeObligationStatuses.igs}
               onChange={handleStatusChange}

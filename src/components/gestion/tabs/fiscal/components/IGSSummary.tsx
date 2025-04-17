@@ -3,14 +3,15 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { formatNumberWithSeparator } from "@/utils/formatUtils";
+import { Separator } from "@/components/ui/separator";
+import { formatCurrency } from "@/lib/utils";
 
 interface IGSSummaryProps {
   totalRevenue: number;
   igsClass: number;
   igsAmount: number;
   cgaReduction: boolean;
-  onCgaReductionChange: (checked: boolean) => void;
+  onCgaReductionChange: (value: boolean) => void;
 }
 
 export function IGSSummary({
@@ -20,38 +21,60 @@ export function IGSSummary({
   cgaReduction,
   onCgaReductionChange
 }: IGSSummaryProps) {
+  // Calculate quarterly amount
+  const quarterlyAmount = igsAmount / 4;
+
   return (
-    <Card className="bg-gray-50 border-gray-200">
-      <CardContent className="pt-6">
-        <h4 className="font-medium mb-4">Récapitulatif IGS</h4>
+    <Card className="bg-slate-50">
+      <CardContent className="pt-6 space-y-4">
+        <div className="space-y-1">
+          <h4 className="font-semibold">Récapitulatif IGS</h4>
+          <p className="text-sm text-muted-foreground">
+            Synthèse du calcul de l'IGS basé sur le chiffre d'affaires
+          </p>
+        </div>
         
-        <div className="space-y-3">
-          <div className="flex justify-between">
-            <span>Chiffre d'affaires total (année précédente):</span>
-            <span className="font-medium">{formatNumberWithSeparator(totalRevenue)} FCFA</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm font-medium">Chiffre d'affaires total</p>
+            <p className="text-lg font-bold">{formatCurrency(totalRevenue)}</p>
           </div>
           
-          <div className="flex justify-between">
-            <span>Classe IGS:</span>
-            <span className="font-medium">{igsClass}</span>
+          <div>
+            <p className="text-sm font-medium">Classe IGS</p>
+            <p className="text-lg font-bold">Classe {igsClass}</p>
           </div>
-          
-          <div className="flex items-center space-x-2 py-2">
+        </div>
+        
+        <Separator />
+        
+        <div className="space-y-2">
+          <div className="flex items-center space-x-2">
             <Switch
               id="cga-reduction"
               checked={cgaReduction}
               onCheckedChange={onCgaReductionChange}
             />
             <Label htmlFor="cga-reduction">
-              Adhérent au Centre de Gestion Agréé (-50%)
+              Application réduction CGA (50%)
             </Label>
           </div>
           
-          <div className="flex justify-between pt-2 border-t border-gray-200">
-            <span className="font-semibold">Montant IGS à payer:</span>
-            <span className="font-semibold text-primary">
-              {formatNumberWithSeparator(igsAmount)} FCFA
-            </span>
+          <div className="bg-white p-4 rounded-md border">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm font-medium">Montant annuel IGS</p>
+                <p className="text-xl font-bold text-primary">{formatCurrency(igsAmount)}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm font-medium">Paiement trimestriel</p>
+                <p className="text-xl font-bold text-primary">{formatCurrency(quarterlyAmount)}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  À payer aux échéances : 15 janvier, 15 avril, 15 juillet, 15 octobre
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </CardContent>

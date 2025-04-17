@@ -11,12 +11,19 @@ export interface Establishment {
   revenue: number;
 }
 
+export interface QuarterlyPayment {
+  dueDate: string;
+  amount: number;
+  isPaid: boolean;
+}
+
 export interface IGSData {
   establishments: Establishment[];
   previousYearRevenue: number;
   igsClass: number;
   igsAmount: number;
   cgaReduction: boolean;
+  quarterlyPayments?: QuarterlyPayment[];
 }
 
 export const createDefaultEstablishment = (): Establishment => ({
@@ -29,10 +36,23 @@ export const createDefaultEstablishment = (): Establishment => ({
   revenue: 0
 });
 
+export const createDefaultQuarterlyPayments = (totalAmount: number = 20000): QuarterlyPayment[] => {
+  const quarterlyAmount = totalAmount / 4;
+  const currentYear = new Date().getFullYear();
+  
+  return [
+    { dueDate: `15/01/${currentYear}`, amount: quarterlyAmount, isPaid: false },
+    { dueDate: `15/04/${currentYear}`, amount: quarterlyAmount, isPaid: false },
+    { dueDate: `15/07/${currentYear}`, amount: quarterlyAmount, isPaid: false },
+    { dueDate: `15/10/${currentYear}`, amount: quarterlyAmount, isPaid: false },
+  ];
+};
+
 export const createDefaultIGSData = (): IGSData => ({
   establishments: [createDefaultEstablishment()],
   previousYearRevenue: 0,
   igsClass: 1,
   igsAmount: 20000,
-  cgaReduction: false
+  cgaReduction: false,
+  quarterlyPayments: createDefaultQuarterlyPayments()
 });
