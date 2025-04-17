@@ -1,3 +1,4 @@
+
 import { Client } from "@/types/client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,7 +12,6 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
   const getRegimeFiscalLabel = (regime: RegimeFiscalPhysique | RegimeFiscalMorale) => {
     switch (regime) {
       // Régimes personnes physiques
-      case "reel": return "Réel";
       case "simplifie": return "Simplifié";
       case "igs": return "IGS";
       case "non_professionnel_salarie": return "Non professionnel salarié";

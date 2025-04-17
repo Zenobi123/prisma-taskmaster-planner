@@ -17,7 +17,7 @@ export function useClientFormSubmit() {
         console.log("Using initial regimefiscal value:", formData.regimefiscal);
       } else {
         // Ensure proper RegimeFiscal type for the default value
-        formData.regimefiscal = (type === "physique" ? "reel" : "simplifie") as RegimeFiscal;
+        formData.regimefiscal = (type === "physique" ? "igs" : "simplifie") as RegimeFiscal;
         console.log("Using fallback regimefiscal value:", formData.regimefiscal);
       }
     }

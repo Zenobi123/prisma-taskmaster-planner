@@ -26,7 +26,7 @@ export function useUpdateClientMutation() {
           console.log("Using cached regimefiscal value:", updates.regimefiscal);
         } else {
           // Valeur par défaut basée sur le type de client
-          updates.regimefiscal = updates.type === "physique" ? "reel" : "simplifie";
+          updates.regimefiscal = updates.type === "physique" ? "igs" : "simplifie";
           console.log("Applied fallback regimefiscal value:", updates.regimefiscal);
         }
       }

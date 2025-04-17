@@ -70,7 +70,7 @@ export const ObligationsFiscales = ({ selectedClient }: ObligationsFiscalesProps
               title="TVA"
               status={obligationStatuses.tva}
               onStatusChange={(status) => handleStatusChange('tva', status)}
-              tooltip={selectedClient.regimefiscal === "reel" ? "Obligatoire pour les contribuables du régime du réel" : undefined}
+              tooltip="TVA applicable selon la situation fiscale du contribuable"
             />
 
             <Separator />
