@@ -15,7 +15,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   console.log("TaxRegimeFields - Client type:", type);
   
   // Définir une valeur par défaut basée sur le type de client
-  const defaultValue = type === "physique" ? "reel" as RegimeFiscalPhysique : "simplifie" as RegimeFiscalMorale;
+  const defaultValue = type === "physique" ? "igs" as RegimeFiscalPhysique : "simplifie" as RegimeFiscalMorale;
   
   // Utiliser la valeur passée ou la valeur par défaut si non définie
   const [selectedValue, setSelectedValue] = useState<RegimeFiscal>(
@@ -66,10 +66,6 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
           name="regimefiscal"
         >
           <div className="flex items-center space-x-2 cursor-pointer">
-            <RadioGroupItem value="reel" id="reel" />
-            <Label htmlFor="reel" className="cursor-pointer">Réel</Label>
-          </div>
-          <div className="flex items-center space-x-2 cursor-pointer">
             <RadioGroupItem value="igs" id="igs" />
             <Label htmlFor="igs" className="cursor-pointer">IGS</Label>
           </div>
@@ -95,10 +91,6 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
         className="grid grid-cols-1 gap-4"
         name="regimefiscal"
       >
-        <div className="flex items-center space-x-2 cursor-pointer">
-          <RadioGroupItem value="reel" id="reel_morale" />
-          <Label htmlFor="reel_morale" className="cursor-pointer">Réel</Label>
-        </div>
         <div className="flex items-center space-x-2 cursor-pointer">
           <RadioGroupItem value="simplifie" id="simplifie_morale" />
           <Label htmlFor="simplifie_morale" className="cursor-pointer">Simplifié</Label>

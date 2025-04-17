@@ -3,7 +3,6 @@ export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
 export type RegimeFiscalPhysique = 
-  | "reel" 
   | "igs" 
   | "non_professionnel_salarie" 
   | "non_professionnel_autre";
