@@ -93,14 +93,22 @@ const fetchClientsWithUnfiledDsf = async (forceRefresh = false): Promise<Client[
   
   console.log("Service: Clients avec DSF non déposées:", clientsWithUnfiledDsf.length);
   
+  // Convertir les données au format Client[]
+  const typedClients = clientsWithUnfiledDsf.map(client => ({
+    ...client,
+    adresse: client.adresse as Client['adresse'],
+    contact: client.contact as Client['contact'],
+    interactions: client.interactions as unknown as Client['interactions'],
+    fiscal_data: client.fiscal_data as unknown as Client['fiscal_data'],
+  })) as Client[];
+  
   // Mettre à jour le cache
   dsfCache = {
-    data: clientsWithUnfiledDsf as Client[],
+    data: typedClients,
     timestamp: now
   };
   
-  // Cast the result to ensure it matches the Client type
-  return clientsWithUnfiledDsf as unknown as Client[];
+  return typedClients;
 };
 
 // Fonction d'invalidation du cache
