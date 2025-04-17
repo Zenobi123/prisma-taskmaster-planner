@@ -23,7 +23,7 @@ export function useClientFormState(initialData?: Client) {
     gestionexternalisee: false,
     sexe: "homme",
     etatcivil: "celibataire",
-    regimefiscal: "igs", // Changed default from "simplifie" to "igs"
+    regimefiscal: "igs", // Default for physique
     situationimmobiliere: {
       type: "locataire",
     },
@@ -64,7 +64,7 @@ export function useClientFormState(initialData?: Client) {
       gestionexternalisee: initialData.gestionexternalisee || false,
       sexe: initialData.sexe || "homme",
       etatcivil: initialData.etatcivil || "celibataire",
-      regimefiscal: initialData.regimefiscal || (initialData.type === "physique" ? "igs" : "simplifie"),
+      regimefiscal: initialData.regimefiscal || (initialData.type === "physique" ? "igs" : "non_lucratif"),
       situationimmobiliere: initialData.situationimmobiliere || { type: "locataire" },
       igs: igsData || { soumisIGS: false, adherentCGA: false }
     };

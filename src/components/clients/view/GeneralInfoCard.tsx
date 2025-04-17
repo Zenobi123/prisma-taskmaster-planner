@@ -12,7 +12,6 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
   const getRegimeFiscalLabel = (regime: RegimeFiscalPhysique | RegimeFiscalMorale) => {
     switch (regime) {
       // Régimes personnes physiques
-      case "simplifie": return "Simplifié";
       case "igs": return "IGS";
       case "non_professionnel_salarie": return "Non professionnel salarié";
       case "non_professionnel_autre": return "Non professionnel (Autres)";

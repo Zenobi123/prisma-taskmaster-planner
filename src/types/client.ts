@@ -6,7 +6,7 @@ export type RegimeFiscalPhysique =
   | "igs" 
   | "non_professionnel_salarie" 
   | "non_professionnel_autre";
-export type RegimeFiscalMorale = "simplifie" | "non_lucratif";
+export type RegimeFiscalMorale = "non_lucratif";
 export type SituationImmobiliere = "proprietaire" | "locataire";
 export type FormeJuridique = 
   | "sa" 

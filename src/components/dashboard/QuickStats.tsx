@@ -17,7 +17,7 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
-  const { data: regimeStats = { igsClients: 0, simplifieClients: 0, unpaidIGS: 0, clientsWithPaymentInfo: 0 }, isLoading: isRegimeStatsLoading } = useQuery({
+  const { data: regimeStats = { igsClients: 0, unpaidIGS: 0, clientsWithPaymentInfo: 0 }, isLoading: isRegimeStatsLoading } = useQuery({
     queryKey: ["regime-stats"],
     queryFn: getClientRegimeStats,
     refetchInterval: 10000,
@@ -85,21 +85,7 @@ const QuickStats = () => {
       </div>
 
       {/* Deuxième rangée: statistiques régimes fiscaux */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card">
-          <h3 className="font-semibold text-neutral-800 mb-4">
-            Clients régime simplifié
-          </h3>
-          <div className="text-3xl font-bold text-primary">
-            {isRegimeStatsLoading ? (
-              <span className="animate-pulse">--</span>
-            ) : (
-              regimeStats.simplifieClients
-            )}
-          </div>
-          <p className="text-neutral-600 text-sm mt-1">Régime simplifié</p>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
             Clients à l'IGS

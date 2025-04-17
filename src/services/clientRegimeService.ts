@@ -10,7 +10,6 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 export const getClientRegimeStats = async (): Promise<{ 
   igsClients: number;
-  simplifieClients: number; 
   unpaidIGS: number;
   clientsWithPaymentInfo: number;
 }> => {
@@ -35,7 +34,6 @@ export const getClientRegimeStats = async (): Promise<{
 
   // Initialiser les compteurs
   let igsClients = 0;
-  let simplifieClients = 0;
   let unpaidIGS = 0;
   let clientsWithPaymentInfo = 0;
   
@@ -169,24 +167,19 @@ export const getClientRegimeStats = async (): Promise<{
       } else {
         console.log(`Client ${client.id} est IGS mais n'a aucune donnée IGS`);
       }
-    } 
-    else if (client.regimefiscal === "simplifie") {
-      simplifieClients++;
-      console.log(`Client ${client.id} compté comme client au régime simplifié - Total: ${simplifieClients}`);
     }
   });
 
   // Stocker les résultats dans le cache
   clientRegimeCache = {
     igsClients,
-    simplifieClients,
     unpaidIGS,
     clientsWithPaymentInfo
   };
   
   cacheTimestamp = now;
   
-  console.log(`Statistiques calculées: ${igsClients} clients IGS, ${simplifieClients} clients au régime simplifié, ${unpaidIGS} IGS impayés`);
+  console.log(`Statistiques calculées: ${igsClients} clients IGS, ${unpaidIGS} IGS impayés`);
   
   return clientRegimeCache;
 };

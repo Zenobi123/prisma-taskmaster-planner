@@ -15,7 +15,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   console.log("TaxRegimeFields - Client type:", type);
   
   // Définir une valeur par défaut basée sur le type de client
-  const defaultValue = type === "physique" ? "igs" as RegimeFiscalPhysique : "simplifie" as RegimeFiscalMorale;
+  const defaultValue = type === "physique" ? "igs" as RegimeFiscalPhysique : "non_lucratif" as RegimeFiscalMorale;
   
   // Utiliser la valeur passée ou la valeur par défaut si non définie
   const [selectedValue, setSelectedValue] = useState<RegimeFiscal>(
@@ -91,10 +91,6 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
         className="grid grid-cols-1 gap-4"
         name="regimefiscal"
       >
-        <div className="flex items-center space-x-2 cursor-pointer">
-          <RadioGroupItem value="simplifie" id="simplifie_morale" />
-          <Label htmlFor="simplifie_morale" className="cursor-pointer">Simplifié</Label>
-        </div>
         <div className="flex items-center space-x-2 cursor-pointer">
           <RadioGroupItem value="non_lucratif" id="non_lucratif" />
           <Label htmlFor="non_lucratif" className="cursor-pointer">Organisme à but non lucratif</Label>
