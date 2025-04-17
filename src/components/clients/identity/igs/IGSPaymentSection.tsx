@@ -1,14 +1,14 @@
 
-import { useState, useEffect, useMemo } from "react";
-import { FormItem } from "@/components/ui/form";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { BadgeEuro, AlertTriangle, Calendar } from "lucide-react";
+import { useState } from "react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { CGAClasse } from "@/hooks/fiscal/types";
-import { igsClassesInfo } from "./IGSClassSelector";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {
+  IGSPaymentAlerts,
+  IGSPaymentForm,
+  IGSReliquatDisplay,
+  IGSPaymentToggle,
+  useIGSPayment
+} from "./payment";
 
 interface IGSPaymentSectionProps {
   soumisIGS: boolean;
@@ -29,74 +29,24 @@ export function IGSPaymentSection({
   acompteFevrier,
   onChange
 }: IGSPaymentSectionProps) {
-  const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
-  const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
-  const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
-  const [reliquat, setReliquat] = useState<number | null>(null);
-  const [showPayments, setShowPayments] = useState(false);
-
-  // Initialiser les états avec les props quand elles changent
-  useEffect(() => {
-    setPatenteState(patente);
-    setAcompteJanvierState(acompteJanvier);
-    setAcompteFevrierState(acompteFevrier);
-  }, [patente, acompteJanvier, acompteFevrier]);
-
-  // Calculer le montant IGS en fonction de la classe
-  const montantIGS = useMemo(() => {
-    if (soumisIGS && classeIGS && igsClassesInfo[classeIGS]) {
-      let baseAmount = igsClassesInfo[classeIGS].montant;
-      
-      // Appliquer une réduction de 50% si adhérent CGA
-      if (adherentCGA) {
-        baseAmount = baseAmount * 0.5;
-      }
-      
-      return baseAmount;
-    }
-    return null;
-  }, [soumisIGS, classeIGS, adherentCGA]);
-
-  // Calculer le reliquat IGS
-  useEffect(() => {
-    if (montantIGS !== null) {
-      const patenteValue = parseFloat(patenteState.montant) || 0;
-      const janvierValue = parseFloat(acompteJanvierState.montant) || 0;
-      const fevrierValue = parseFloat(acompteFevrierState.montant) || 0;
-      
-      const reliquatValue = montantIGS - patenteValue - janvierValue - fevrierValue;
-      setReliquat(reliquatValue > 0 ? reliquatValue : 0);
-    } else {
-      setReliquat(null);
-    }
-  }, [montantIGS, patenteState.montant, acompteJanvierState.montant, acompteFevrierState.montant]);
-
-  // Gérer les changements de valeurs pour les paiements
-  const handlePaymentChange = (
-    field: 'patente' | 'acompteJanvier' | 'acompteFevrier',
-    type: 'montant' | 'quittance',
-    value: string
-  ) => {
-    let updatedPayment: IGSPayment;
-    
-    switch (field) {
-      case 'patente':
-        updatedPayment = { ...patenteState, [type]: value };
-        setPatenteState(updatedPayment);
-        onChange("igs.patente", updatedPayment);
-        break;
-      case 'acompteJanvier':
-        updatedPayment = { ...acompteJanvierState, [type]: value };
-        setAcompteJanvierState(updatedPayment);
-        onChange("igs.acompteJanvier", updatedPayment);
-        break;
-      case 'acompteFevrier':
-        updatedPayment = { ...acompteFevrierState, [type]: value };
-        setAcompteFevrierState(updatedPayment);
-        onChange("igs.acompteFevrier", updatedPayment);
-        break;
-    }
-  };
+  const {
+    patenteState,
+    acompteJanvierState,
+    acompteFevrierState,
+    reliquat,
+    showPayments,
+    setShowPayments,
+    handlePaymentChange,
+    montantIGS
+  } = useIGSPayment({
+    soumisIGS,
+    adherentCGA,
+    classeIGS,
+    patente,
+    acompteJanvier,
+    acompteFevrier,
+    onChange
+  });
 
   if (!soumisIGS || !montantIGS) {
     return null;
@@ -104,112 +54,29 @@ export function IGSPaymentSection({
 
   return (
     <div className="mt-6 space-y-4">
-      {/* Déclencheur pour activer les paiements et déductions */}
-      <div className="flex items-center space-x-2 pt-4">
-        <Switch 
-          id="showPayments" 
-          checked={showPayments} 
-          onCheckedChange={setShowPayments} 
-        />
-        <Label htmlFor="showPayments" className="font-medium">
-          Activer les paiements et déductions
-        </Label>
-      </div>
+      {/* Toggle to activate payments and deductions */}
+      <IGSPaymentToggle 
+        showPayments={showPayments} 
+        setShowPayments={setShowPayments} 
+      />
       
       {showPayments && (
         <>
           <h4 className="font-medium">Paiements et déductions</h4>
           
-          <Alert className="bg-amber-50 border-amber-200">
-            <AlertTriangle className="h-4 w-4 text-amber-800" />
-            <AlertTitle className="text-amber-800">Important</AlertTitle>
-            <AlertDescription className="text-sm text-amber-800">
-              Les paiements et déductions ne sont pris en compte que s'ils sont autorisés par l'administration fiscale.
-              Veuillez vous assurer d'avoir les justificatifs nécessaires.
-            </AlertDescription>
-          </Alert>
+          {/* Alerts for payment information */}
+          <IGSPaymentAlerts />
           
-          <Alert className="bg-blue-50 border-blue-200">
-            <Calendar className="h-4 w-4 text-blue-800" />
-            <AlertTitle className="text-blue-800">Échéances de paiement IGS</AlertTitle>
-            <AlertDescription className="text-sm text-blue-800">
-              L'IGS se paie par trimestre aux dates suivantes : 15 janvier, 15 avril, 15 juillet et 15 octobre.
-              Vous pouvez payer en 1, 2 ou 4 fois selon votre choix.
-            </AlertDescription>
-          </Alert>
+          {/* Payment form for patente and advances */}
+          <IGSPaymentForm
+            patente={patenteState}
+            acompteJanvier={acompteJanvierState}
+            acompteFevrier={acompteFevrierState}
+            handlePaymentChange={handlePaymentChange}
+          />
           
-          {/* Patente */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormItem>
-              <Label>Patente payée pour l'exercice (FCFA)</Label>
-              <Input 
-                type="number" 
-                value={patenteState.montant}
-                onChange={(e) => handlePaymentChange('patente', 'montant', e.target.value)}
-                placeholder="Montant"
-              />
-            </FormItem>
-            <FormItem>
-              <Label>Numéro de quittance</Label>
-              <Input 
-                value={patenteState.quittance}
-                onChange={(e) => handlePaymentChange('patente', 'quittance', e.target.value)}
-                placeholder="Numéro de quittance"
-              />
-            </FormItem>
-          </div>
-          
-          {/* Acompte IR de janvier */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormItem>
-              <Label>Acompte IR de janvier 2025 (FCFA)</Label>
-              <Input 
-                type="number" 
-                value={acompteJanvierState.montant}
-                onChange={(e) => handlePaymentChange('acompteJanvier', 'montant', e.target.value)}
-                placeholder="Montant"
-              />
-            </FormItem>
-            <FormItem>
-              <Label>Numéro de quittance</Label>
-              <Input 
-                value={acompteJanvierState.quittance}
-                onChange={(e) => handlePaymentChange('acompteJanvier', 'quittance', e.target.value)}
-                placeholder="Numéro de quittance"
-              />
-            </FormItem>
-          </div>
-          
-          {/* Acompte IR de février */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormItem>
-              <Label>Acompte IR de février 2025 (FCFA)</Label>
-              <Input 
-                type="number" 
-                value={acompteFevrierState.montant}
-                onChange={(e) => handlePaymentChange('acompteFevrier', 'montant', e.target.value)}
-                placeholder="Montant"
-              />
-            </FormItem>
-            <FormItem>
-              <Label>Numéro de quittance</Label>
-              <Input 
-                value={acompteFevrierState.quittance}
-                onChange={(e) => handlePaymentChange('acompteFevrier', 'quittance', e.target.value)}
-                placeholder="Numéro de quittance"
-              />
-            </FormItem>
-          </div>
-          
-          {/* Reliquat */}
-          {reliquat !== null && (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-              <p className="text-blue-800 font-medium flex items-center">
-                <BadgeEuro className="h-5 w-5 mr-2" />
-                Reliquat IGS à payer: {reliquat.toLocaleString()} FCFA
-              </p>
-            </div>
-          )}
+          {/* Display of the IGS remainder to pay */}
+          <IGSReliquatDisplay reliquat={reliquat} />
         </>
       )}
     </div>
