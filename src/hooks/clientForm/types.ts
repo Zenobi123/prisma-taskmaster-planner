@@ -8,7 +8,6 @@ import {
   RegimeFiscalMorale,
   SituationImmobiliere,
   FormeJuridique,
-  IGSData
 } from "@/types/client";
 
 export interface ClientFormState {
@@ -37,7 +36,7 @@ export interface ClientFormState {
     valeur?: number;
     loyer?: number;
   };
-  igs: IGSData;
+  igs?: any;
 }
 
 export interface UseClientFormReturn {

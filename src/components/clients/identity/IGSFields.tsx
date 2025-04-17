@@ -1,5 +1,5 @@
 
-import { CGAClasse } from "@/hooks/fiscal/types";
+import { CGAClasse, IGSData, IGSPayment } from "@/types/client";
 
 interface IGSFieldsProps {
   onChange: (name: string, value: any) => void;

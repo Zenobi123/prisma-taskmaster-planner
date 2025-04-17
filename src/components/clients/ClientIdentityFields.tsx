@@ -1,5 +1,5 @@
 
-import { ClientType, FormeJuridique, Sexe, EtatCivil, RegimeFiscalPhysique, RegimeFiscalMorale, SituationImmobiliere, IGSData, CGAClasse } from "@/types/client";
+import { ClientType, FormeJuridique, Sexe, EtatCivil, RegimeFiscalPhysique, RegimeFiscalMorale, SituationImmobiliere } from "@/types/client";
 import { PersonalInfoFields } from "./identity/PersonalInfoFields";
 import { CompanyInfoFields } from "./identity/CompanyInfoFields";
 import { TaxRegimeFields } from "./identity/TaxRegimeFields";
@@ -23,7 +23,7 @@ interface ClientIdentityFieldsProps {
     valeur?: number;
     loyer?: number;
   };
-  igs?: IGSData;
+  igs?: any;
   onChange: (name: string, value: any) => void;
 }
 
@@ -40,11 +40,9 @@ export function ClientIdentityFields({
   etatcivil = "celibataire",
   regimefiscal,
   situationimmobiliere = { type: "locataire" },
-  igs = { soumisIGS: false, adherentCGA: false },
+  igs,
   onChange 
 }: ClientIdentityFieldsProps) {
-  console.log("IGS data in ClientIdentityFields:", igs);
-  
   return (
     <div className="space-y-6">
       {type === "physique" ? (
@@ -70,17 +68,6 @@ export function ClientIdentityFields({
         type={type}
         regimefiscal={regimefiscal}
         onChange={onChange}
-      />
-
-      <IGSFields
-        soumisIGS={igs?.soumisIGS || false}
-        adherentCGA={igs?.adherentCGA || false}
-        classeIGS={igs?.classeIGS}
-        patente={igs?.patente}
-        acompteJanvier={igs?.acompteJanvier}
-        acompteFevrier={igs?.acompteFevrier}
-        onChange={onChange}
-        hidePayments={true} // Masquer les paiements dans la section Clients
       />
 
       <PropertyStatusFields
