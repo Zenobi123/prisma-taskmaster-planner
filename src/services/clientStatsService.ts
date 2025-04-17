@@ -25,26 +25,28 @@ export const getClientStats = async () => {
   const unpaidPatenteClients = allClients.filter(client => {
     // Vérifier si c'est un client IGS
     if (client.regimefiscal === "igs") {
-      console.log(`Analyse du client IGS ${client.id} pour statistiques`);
+      console.log(`Analyse du client IGS ${client.id} (${client.nom || client.raisonsociale}) pour statistiques`);
       
       // Cast client to Client type to properly access IGS data
       const typedClient = client as unknown as Client;
       
       // Vérifier si caché du tableau de bord
       if (typedClient.fiscal_data?.hiddenFromDashboard === true) {
+        console.log(`Client ${client.id} caché du tableau de bord - exclu des statistiques`);
         return false;
       }
       
       // Vérifier si le client a des données IGS, soit directement, soit dans fiscal_data
       if (typedClient.igs && typedClient.igs.soumisIGS) {
-        console.log(`Données IGS pour client ${client.id}:`, typedClient.igs);
+        console.log(`Données IGS pour client ${client.id}:`, JSON.stringify(typedClient.igs));
         
         // Utiliser le système de suivi des paiements avec completedPayments
         if (Array.isArray(typedClient.igs.completedPayments)) {
           const paymentStatus = calculatePaymentStatus(typedClient.igs.completedPayments, currentDate);
+          console.log(`Client ${client.id} - statut de paiement:`, paymentStatus);
           
           if (!paymentStatus.isUpToDate) {
-            console.log(`Client ${client.id} en retard selon le système de suivi des paiements`);
+            console.log(`Client ${client.id} en retard selon le système de suivi des paiements - ajouté aux statistiques`);
             return true;
           }
           return false;
@@ -67,18 +69,21 @@ export const getClientStats = async () => {
         
         // Skip if hidden from dashboard
         if (fiscalData.hiddenFromDashboard === true) {
+          console.log(`Client ${client.id} caché du tableau de bord via fiscal_data - exclu des statistiques`);
           return false;
         }
         
         if (fiscalData.igs && fiscalData.igs.soumisIGS) {
           const igsData = fiscalData.igs;
+          console.log(`Données IGS dans fiscal_data pour client ${client.id}:`, JSON.stringify(igsData));
           
           // Utiliser le système de suivi des paiements avec completedPayments
           if (Array.isArray(igsData.completedPayments)) {
             const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
+            console.log(`Client ${client.id} - statut de paiement (via fiscal_data):`, paymentStatus);
             
             if (!paymentStatus.isUpToDate) {
-              console.log(`Client ${client.id} en retard selon le système de suivi des paiements (via fiscal_data)`);
+              console.log(`Client ${client.id} en retard selon le système de suivi des paiements (via fiscal_data) - ajouté aux statistiques`);
               return true;
             }
             return false;
@@ -110,6 +115,11 @@ export const getClientStats = async () => {
   const unfiledDsfClients = allClients.filter(client => {
     // On vérifie si le client a des données fiscales
     if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
+      // Vérifier si caché du tableau de bord
+      if (client.fiscal_data.hiddenFromDashboard === true) {
+        return false;
+      }
+      
       // Vérifier si obligations existe dans les données fiscales
       const fiscalData = client.fiscal_data as { obligations?: any };
       if (fiscalData.obligations) {

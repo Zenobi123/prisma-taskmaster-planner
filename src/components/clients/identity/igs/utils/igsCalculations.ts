@@ -78,13 +78,24 @@ export const calculatePaymentStatus = (
   completedPayments: string[],
   currentDate: Date = new Date()
 ): { isUpToDate: boolean; message: string } => {
+  if (!Array.isArray(completedPayments)) {
+    console.error("completedPayments n'est pas un tableau:", completedPayments);
+    return { isUpToDate: false, message: "Erreur de données" };
+  }
+  
   const deadlines = getIGSPaymentDeadlines();
   const currentQuarter = Math.floor(currentDate.getMonth() / 3);
+  
+  // Pour le débogage
+  console.log(`Date actuelle: ${currentDate}, Trimestre actuel: ${currentQuarter + 1}`);
+  console.log(`Paiements effectués:`, completedPayments);
   
   // Calculate how many quarters should be paid by now
   const expectedPayments = deadlines
     .filter(deadline => deadline.date <= currentDate)
     .map(deadline => deadline.id);
+  
+  console.log(`Paiements attendus:`, expectedPayments);
   
   // Check if all expected payments have been completed
   const isUpToDate = expectedPayments.every(id => completedPayments.includes(id));
@@ -98,6 +109,7 @@ export const calculatePaymentStatus = (
     const missingPayments = expectedPayments
       .filter(id => !completedPayments.includes(id))
       .map(id => deadlines.find(d => d.id === id)?.label)
+      .filter(Boolean) // Remove undefined values
       .join(", ");
       
     return { 

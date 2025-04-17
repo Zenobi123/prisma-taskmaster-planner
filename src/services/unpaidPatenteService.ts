@@ -17,12 +17,13 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   }
 
   const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
 
   // Filtrer les clients avec IGS impayé
   const clientsWithUnpaidIGS = allClients.filter(client => {
     // Vérifier si c'est un client IGS
     if (client.regimefiscal === "igs") {
-      console.log(`Vérification du client IGS: ${client.id}`);
+      console.log(`Vérification du client IGS: ${client.id} - ${client.nom || client.raisonsociale}`);
       
       // Cast client to Client type to properly access IGS data
       const typedClient = client as unknown as Client;
@@ -38,7 +39,7 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
       
       // Vérifier directement dans l'objet client.igs
       if (typedClient.igs && typeof typedClient.igs === 'object' && 'soumisIGS' in typedClient.igs && typedClient.igs.soumisIGS) {
-        console.log(`Données IGS pour client ${client.id}:`, typedClient.igs);
+        console.log(`Données IGS pour client ${client.id}:`, JSON.stringify(typedClient.igs));
         
         // Utiliser le système de suivi des paiements avec completedPayments
         if (typedClient.igs.completedPayments && Array.isArray(typedClient.igs.completedPayments)) {
@@ -48,6 +49,7 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
           );
           
           const paymentStatus = calculatePaymentStatus(payments, currentDate);
+          console.log(`Client ${client.id} - statut de paiement:`, paymentStatus);
           
           if (!paymentStatus.isUpToDate) {
             console.log(`Client ${client.id} en retard selon le système de suivi des paiements`);
@@ -87,6 +89,8 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
         const igsData = fiscalData && 'igs' in fiscalData ? fiscalData.igs : null;
         
         if (igsData && typeof igsData === 'object' && 'soumisIGS' in igsData && igsData.soumisIGS) {
+          console.log(`Données IGS dans fiscal_data pour client ${client.id}:`, JSON.stringify(igsData));
+          
           // Utiliser le système de suivi des paiements avec completedPayments
           if ('completedPayments' in igsData && Array.isArray(igsData.completedPayments)) {
             // Fix TypeScript error - ensure we're passing string[] to calculatePaymentStatus
@@ -95,6 +99,7 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
             );
             
             const paymentStatus = calculatePaymentStatus(payments, currentDate);
+            console.log(`Client ${client.id} - statut de paiement (via fiscal_data):`, paymentStatus);
             
             if (!paymentStatus.isUpToDate) {
               console.log(`Client ${client.id} en retard selon le système de suivi des paiements (via fiscal_data)`);

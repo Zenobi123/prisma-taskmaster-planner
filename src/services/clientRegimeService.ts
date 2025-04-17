@@ -40,9 +40,13 @@ export const getClientRegimeStats = async (): Promise<{
   let clientsWithPaymentInfo = 0;
   
   const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
   
   // Analyser chaque client
   allClients.forEach((client: any) => {
+    // Log pour débogage
+    console.log(`Analyse du client ${client.id} (${client.nom || client.raisonsociale}) - Régime: ${client.regimefiscal}`);
+    
     if (client.regimefiscal === "igs") {
       igsClients++;
       
@@ -58,6 +62,7 @@ export const getClientRegimeStats = async (): Promise<{
       
       // Vérifier directement dans l'objet client.igs
       if (typedClient.igs && typeof typedClient.igs === 'object' && 'soumisIGS' in typedClient.igs && typedClient.igs.soumisIGS) {
+        console.log(`Données IGS pour client ${client.id}:`, JSON.stringify(typedClient.igs));
         clientsWithPaymentInfo++;
         
         // Utiliser le système de suivi des paiements avec completedPayments
@@ -68,8 +73,10 @@ export const getClientRegimeStats = async (): Promise<{
           );
           
           const paymentStatus = calculatePaymentStatus(payments, currentDate);
+          console.log(`Client ${client.id} - statut de paiement:`, paymentStatus);
           
           if (!paymentStatus.isUpToDate) {
+            console.log(`Client ${client.id} ajouté aux IGS impayés`);
             unpaidIGS++;
           }
         } 
@@ -81,12 +88,14 @@ export const getClientRegimeStats = async (): Promise<{
               (!typedClient.igs.acompteJanvier || 
                (typeof typedClient.igs.acompteJanvier === 'object' && 
                 !('montant' in typedClient.igs.acompteJanvier && typedClient.igs.acompteJanvier.montant)))) {
+            console.log(`Client ${client.id} n'a pas payé l'acompte de janvier - ajouté aux IGS impayés`);
             unpaidIGS++;
           }
           else if (currentMonth > 1 && 
                   (!typedClient.igs.acompteFevrier || 
                    (typeof typedClient.igs.acompteFevrier === 'object' && 
                     !('montant' in typedClient.igs.acompteFevrier && typedClient.igs.acompteFevrier.montant)))) {
+            console.log(`Client ${client.id} n'a pas payé l'acompte de février - ajouté aux IGS impayés`);
             unpaidIGS++;
           }
         }
@@ -105,6 +114,7 @@ export const getClientRegimeStats = async (): Promise<{
         const igsData = fiscalData && 'igs' in fiscalData ? fiscalData.igs : null;
         
         if (igsData && typeof igsData === 'object' && 'soumisIGS' in igsData && igsData.soumisIGS) {
+          console.log(`Données IGS dans fiscal_data pour client ${client.id}:`, JSON.stringify(igsData));
           clientsWithPaymentInfo++;
           
           // Utiliser le système de suivi des paiements avec completedPayments
@@ -115,8 +125,10 @@ export const getClientRegimeStats = async (): Promise<{
             );
             
             const paymentStatus = calculatePaymentStatus(payments, currentDate);
+            console.log(`Client ${client.id} - statut de paiement (via fiscal_data):`, paymentStatus);
             
             if (!paymentStatus.isUpToDate) {
+              console.log(`Client ${client.id} ajouté aux IGS impayés (via fiscal_data)`);
               unpaidIGS++;
             }
           } 
@@ -128,20 +140,24 @@ export const getClientRegimeStats = async (): Promise<{
                 (!igsData.acompteJanvier || 
                  (typeof igsData.acompteJanvier === 'object' && 
                   !('montant' in igsData.acompteJanvier || !igsData.acompteJanvier.montant)))) {
+              console.log(`Client ${client.id} n'a pas payé l'acompte de janvier (via fiscal_data) - ajouté aux IGS impayés`);
               unpaidIGS++;
             } else if (currentMonth > 1 && 
                       (!igsData.acompteFevrier || 
                        (typeof igsData.acompteFevrier === 'object' && 
                         !('montant' in igsData.acompteFevrier || !igsData.acompteFevrier.montant)))) {
+              console.log(`Client ${client.id} n'a pas payé l'acompte de février (via fiscal_data) - ajouté aux IGS impayés`);
               unpaidIGS++;
             }
           }
         } else {
           // Si le client est IGS mais sans données complètes, le compter comme en retard
+          console.log(`Client ${client.id} est IGS mais sans données IGS dans fiscal_data - ajouté aux IGS impayés`);
           unpaidIGS++;
         }
       } else {
         // Si le client est IGS mais sans données complètes, le compter comme en retard
+        console.log(`Client ${client.id} est IGS mais sans aucunes données IGS - ajouté aux IGS impayés`);
         unpaidIGS++;
       }
     } 

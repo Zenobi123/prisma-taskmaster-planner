@@ -17,7 +17,7 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
-  const { data: regimeStats = { igsClients: 0, reelClients: 0, unpaidIGS: 0 }, isLoading: isRegimeStatsLoading } = useQuery({
+  const { data: regimeStats = { igsClients: 0, reelClients: 0, unpaidIGS: 0, clientsWithPaymentInfo: 0 }, isLoading: isRegimeStatsLoading } = useQuery({
     queryKey: ["regime-stats"],
     queryFn: getClientRegimeStats,
     refetchInterval: 10000,
