@@ -25,18 +25,11 @@ export type ObligationStatuses = {
 export interface FiscalAttestationData {
   creationDate: string;
   validityEndDate: string;
-  showInAlert?: boolean; // Add property to control alert visibility
+  showInAlert?: boolean;
 }
-
-// Import types from igsTypes.ts
-import { Establishment, IGSData } from './types/igsTypes';
-
-// Re-export for consistency
-export { type Establishment, type IGSData } from './types/igsTypes';
 
 export interface ClientFiscalData {
   attestation: FiscalAttestationData;
   obligations: ObligationStatuses;
-  hiddenFromDashboard?: boolean; // Add property to hide from dashboard
-  igs?: IGSData; // Add IGS data
+  hiddenFromDashboard?: boolean;
 }

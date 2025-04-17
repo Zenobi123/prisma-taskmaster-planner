@@ -1,4 +1,3 @@
-
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "./types";
 import { toast } from "sonner";
@@ -39,23 +38,18 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     dataLoaded,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
-    igsData,
-    handleIGSDataChange,
     loadFiscalData
   } = useFiscalData(selectedClient);
 
-  // Si plus de 60 secondes se sont écoulées depuis le dernier enregistrement, forcer le rechargement
   useEffect(() => {
     if (lastSaveTime && Date.now() - lastSaveTime > 60000) {
       console.log("Plus de 60 secondes depuis le dernier enregistrement, forçage du rechargement des données");
-      loadFiscalData(true); // Forcer le rechargement
+      loadFiscalData(true);
     }
   }, [lastSaveTime, loadFiscalData]);
 
-  // Invalider automatiquement les requêtes après modification des données fiscales
   useEffect(() => {
     if (lastSaveSuccess && lastSaveTime) {
-      // Petite temporisation pour s'assurer que les données sont bien enregistrées
       const invalidationTimeout = setTimeout(() => {
         console.log("Invalidation automatique des requêtes après enregistrement réussi");
         queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
@@ -75,7 +69,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
 
     setIsSaving(true);
     setSaveAttempts(prev => prev + 1);
-    setSaveRetryCount(0); // Réinitialiser le compteur de tentatives
+    setSaveRetryCount(0);
 
     try {
       console.log("Début de l'enregistrement des données fiscales...");
@@ -88,26 +82,21 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           showInAlert
         },
         obligations: obligationStatuses,
-        hiddenFromDashboard,
-        igs: igsData
+        hiddenFromDashboard
       };
 
       console.log("Enregistrement des données fiscales:", JSON.stringify(fiscalData, null, 2));
       
-      // Tenter d'enregistrer les données avec tentatives automatiques intégrées
       const saveSuccess = await saveFiscalData(selectedClient.id, fiscalData);
       
       if (saveSuccess) {
-        // Mettre à jour le cache local immédiatement
         updateCache(selectedClient.id, fiscalData);
         
-        // Forcer l'effacement des caches associés pour garantir des données fraîches
         if (typeof window !== 'undefined' && window.__invalidateFiscalCaches) {
           console.log("Invalidation des caches fiscaux après enregistrement");
           window.__invalidateFiscalCaches();
         }
         
-        // Vérifier que l'enregistrement a réussi
         const verified = await verifyFiscalDataSave(selectedClient.id, fiscalData);
         
         if (verified) {
@@ -116,7 +105,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           setLastSaveTime(Date.now());
           setLastSaveSuccess(true);
           
-          // Invalider les requêtes pertinentes pour forcer le rafraîchissement des données
           queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
           queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
           queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
@@ -125,7 +113,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           toast.warning("Enregistrement terminé, mais veuillez vérifier et actualiser la page pour confirmer les changements.");
           setLastSaveSuccess(false);
           
-          // Tenter une nouvelle vérification après un court délai
           setTimeout(async () => {
             const secondVerification = await verifyFiscalDataSave(selectedClient.id, fiscalData);
             if (secondVerification) {
@@ -134,10 +121,9 @@ export const useObligationsFiscales = (selectedClient: Client) => {
               toast.success("Les modifications ont été correctement enregistrées après vérification.");
             } else {
               console.error("Échec de la seconde vérification - tentative de réenregistrement");
-              // Tenter un nouvel enregistrement complet si le compteur le permet
               if (saveRetryCount < 2) {
                 setSaveRetryCount(prev => prev + 1);
-                handleSave(); // Appel récursif avec incrément du compteur
+                handleSave();
               } else {
                 toast.error("Problème de persistance détecté. Veuillez actualiser la page et réessayer.");
               }
@@ -153,11 +139,10 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       toast.error("Erreur lors de l'enregistrement des données fiscales. Veuillez actualiser la page et réessayer.");
       setLastSaveSuccess(false);
       
-      // Forcer le rechargement des données en cas d'erreur
       clearCache(selectedClient.id);
       
       setTimeout(() => {
-        loadFiscalData(true); // Forcer le rechargement
+        loadFiscalData(true);
       }, 1000);
     } finally {
       setIsSaving(false);
@@ -168,8 +153,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     validityEndDate, 
     showInAlert, 
     obligationStatuses, 
-    hiddenFromDashboard, 
-    igsData, 
+    hiddenFromDashboard,
     loadFiscalData,
     queryClient,
     saveRetryCount
@@ -190,8 +174,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
-    igsData,
-    handleIGSDataChange,
     lastSaveSuccess
   };
 };

@@ -1,111 +1,70 @@
 
 import React from "react";
-import { 
-  ObligationStatuses, 
-  ObligationType,
-  IGSData
-} from "../fiscal/types";
+import { Card, CardContent } from "@/components/ui/card";
 import { TaxObligationItem } from "./TaxObligationItem";
 import { DeclarationObligationItem } from "./DeclarationObligationItem";
-import { IGSEstablishmentsSection } from "./IGSEstablishmentsSection";
+import { ObligationStatuses } from "@/hooks/fiscal/types";
 
 interface AnnualObligationsSectionProps {
   obligationStatuses: ObligationStatuses;
-  handleStatusChange: (
-    obligationType: ObligationType,
-    statusType: "assujetti" | "paye" | "depose",
-    value: boolean
-  ) => void;
-  igsData?: IGSData;
-  onIGSDataChange: (data: IGSData) => void;
+  handleStatusChange: (type: string, field: string, value: boolean) => void;
 }
 
-export function AnnualObligationsSection({
+export function AnnualObligationsSection({ 
   obligationStatuses,
-  handleStatusChange,
-  igsData,
-  onIGSDataChange
+  handleStatusChange
 }: AnnualObligationsSectionProps) {
-  // Ensure obligationStatuses includes all required fields with defaults
-  const safeObligationStatuses: ObligationStatuses = {
-    patente: { assujetti: false, paye: false },
-    igs: { assujetti: false, paye: false },
-    bail: { assujetti: false, paye: false },
-    taxeFonciere: { assujetti: false, paye: false },
-    dsf: { assujetti: false, depose: false },
-    darp: { assujetti: false, depose: false },
-    ...obligationStatuses
-  };
-
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Obligations annuelles</h3>
-      
-      <div className="space-y-6">
+    <Card>
+      <CardContent className="pt-6">
         <div className="space-y-4">
-          <h4 className="font-medium">Impôts</h4>
-          <div className="grid grid-cols-1 gap-4">
-            <TaxObligationItem
-              title="Patente"
-              deadline="28 février"
-              obligationType="patente"
-              status={safeObligationStatuses.patente}
-              onChange={handleStatusChange}
-            />
+          <h3 className="text-lg font-semibold">Obligations fiscales annuelles</h3>
+          
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium text-muted-foreground">Impôts et taxes</h4>
+              <div className="space-y-2">
+                <TaxObligationItem
+                  label="Patente"
+                  status={obligationStatuses.patente}
+                  onChange={(field, value) => handleStatusChange("patente", field, value)}
+                />
+                <TaxObligationItem
+                  label="IGS"
+                  status={obligationStatuses.igs}
+                  onChange={(field, value) => handleStatusChange("igs", field, value)}
+                />
+                <TaxObligationItem
+                  label="Bail"
+                  status={obligationStatuses.bail}
+                  onChange={(field, value) => handleStatusChange("bail", field, value)}
+                />
+                <TaxObligationItem
+                  label="Taxe foncière"
+                  status={obligationStatuses.taxeFonciere}
+                  onChange={(field, value) => handleStatusChange("taxeFonciere", field, value)}
+                />
+              </div>
+            </div>
             
-            <TaxObligationItem
-              title="Impôt Général Synthétique (IGS)"
-              deadline="15 janvier, 15 avril, 15 juillet, 15 octobre"
-              obligationType="igs"
-              status={safeObligationStatuses.igs}
-              onChange={handleStatusChange}
-            />
-
-            <IGSEstablishmentsSection 
-              igsData={igsData}
-              onIGSDataChange={onIGSDataChange}
-              assujetti={safeObligationStatuses.igs?.assujetti || false}
-            />
-            
-            <TaxObligationItem
-              title="Bail"
-              deadline="28 février"
-              obligationType="bail"
-              status={safeObligationStatuses.bail}
-              onChange={handleStatusChange}
-            />
-            
-            <TaxObligationItem
-              title="Taxe foncière"
-              deadline="28 février"
-              obligationType="taxeFonciere"
-              status={safeObligationStatuses.taxeFonciere}
-              onChange={handleStatusChange}
-            />
+            <div className="space-y-4">
+              <h4 className="text-sm font-medium text-muted-foreground">Déclarations</h4>
+              <div className="space-y-2">
+                <DeclarationObligationItem
+                  label="DSF"
+                  status={obligationStatuses.dsf}
+                  onChange={(field, value) => handleStatusChange("dsf", field, value)}
+                />
+                <DeclarationObligationItem
+                  label="DARP"
+                  status={obligationStatuses.darp}
+                  onChange={(field, value) => handleStatusChange("darp", field, value)}
+                />
+              </div>
+            </div>
           </div>
         </div>
-        
-        <div className="space-y-4">
-          <h4 className="font-medium">Déclarations</h4>
-          <div className="grid grid-cols-1 gap-4">
-            <DeclarationObligationItem
-              title="Déclaration Statistique et Fiscale (DSF)"
-              deadline="15 avril"
-              obligationType="dsf"
-              status={safeObligationStatuses.dsf}
-              onChange={handleStatusChange}
-            />
-            
-            <DeclarationObligationItem
-              title="Déclaration Annuelle des Revenus des Particuliers (DARP)"
-              deadline="30 juin"
-              obligationType="darp"
-              status={safeObligationStatuses.darp}
-              onChange={handleStatusChange}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 }
