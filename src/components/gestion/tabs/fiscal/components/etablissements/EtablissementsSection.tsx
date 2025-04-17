@@ -77,8 +77,14 @@ export function EtablissementsSection({
       // Créer une copie de l'établissement à modifier
       const updatedEtab = {...etab};
       
-      // Mettre à jour le champ spécifique
-      updatedEtab[field] = value;
+      // S'assurer que la valeur est du bon type pour le champ spécifique
+      if (field === 'chiffreAffaires') {
+        updatedEtab[field] = typeof value === 'number' ? value : 
+                            typeof value === 'string' ? parseFloat(value) || 0 : 0;
+      } else if (typeof value === 'string') {
+        // Traiter les autres champs comme des chaînes de caractères
+        updatedEtab[field as keyof typeof updatedEtab] = value as any;
+      }
       
       return updatedEtab;
     });

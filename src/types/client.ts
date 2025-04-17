@@ -1,3 +1,4 @@
+
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
@@ -84,22 +85,16 @@ export interface Client {
   igs?: IGSData; // Propriété pour les données IGS
 }
 
-export type Etablissement = {
+export interface Etablissement {
   nom: string;
   activite: string;
   ville: string;
   departement: string;
   quartier: string;
   chiffreAffaires: number;
-};
+}
 
-export interface IGSData {
-  soumisIGS: boolean;
-  adherentCGA: boolean;
-  classeIGS?: CGAClasse;
-  patente?: IGSPayment;
-  acompteJanvier?: IGSPayment;
-  acompteFevrier?: IGSPayment;
+export interface IGSExtendedData extends IGSData {
   chiffreAffairesAnnuel?: number;
   etablissements?: Etablissement[];
 }
