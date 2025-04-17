@@ -10,7 +10,6 @@ import { useObligationStatus } from "./hooks/useObligationStatus";
 import { useFiscalData } from "./hooks/useFiscalData";
 import { useState, useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Json } from "@/integrations/supabase/types";
 
 export const useObligationsFiscales = (selectedClient: Client) => {
   const queryClient = useQueryClient();
@@ -92,11 +91,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       
       if (saveSuccess) {
         updateCache(selectedClient.id, fiscalData);
-        
-        if (typeof window !== 'undefined' && window.__invalidateFiscalCaches) {
-          console.log("Invalidation des caches fiscaux après enregistrement");
-          window.__invalidateFiscalCaches();
-        }
+        toast.success("Données enregistrées, vérification en cours...");
         
         // Utiliser notre vérification améliorée
         const verified = await verifyAndNotifyFiscalChanges(selectedClient.id, fiscalData);
@@ -106,27 +101,41 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           setLastSaveTime(Date.now());
           setLastSaveSuccess(true);
           
+          toast.success("✅ Toutes les modifications ont été vérifiées et enregistrées définitivement.", {
+            duration: 5000
+          });
+          
           queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
           queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
           queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
         } else {
-          console.warn("La vérification de l'enregistrement a échoué - les données peuvent ne pas avoir été correctement enregistrées");
-          toast.warning("Enregistrement terminé, mais veuillez vérifier et actualiser la page pour confirmer les changements.");
+          console.warn("La vérification de l'enregistrement a échoué");
+          toast.warning("⚠️ Vérification en cours... Les données sont enregistrées mais pas encore confirmées.", {
+            duration: 3000
+          });
           setLastSaveSuccess(false);
           
+          // Seconde vérification après un délai
           setTimeout(async () => {
             const secondVerification = await verifyAndNotifyFiscalChanges(selectedClient.id, fiscalData);
             if (secondVerification) {
               console.log("Seconde vérification réussie");
               setLastSaveSuccess(true);
-              toast.success("Les modifications ont été correctement enregistrées après vérification.");
+              toast.success("✅ Les modifications ont été vérifiées et enregistrées définitivement.", {
+                duration: 5000
+              });
             } else {
-              console.error("Échec de la seconde vérification - tentative de réenregistrement");
+              console.error("Échec de la seconde vérification");
               if (saveRetryCount < 2) {
                 setSaveRetryCount(prev => prev + 1);
+                toast.error("⚠️ Nouvelle tentative d'enregistrement...", {
+                  duration: 3000
+                });
                 handleSave();
               } else {
-                toast.error("Problème de persistance détecté. Veuillez actualiser la page et réessayer.");
+                toast.error("❌ Problème lors de l'enregistrement définitif. Veuillez actualiser et réessayer.", {
+                  duration: 5000
+                });
               }
             }
           }, 3000);
@@ -137,7 +146,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       }
     } catch (error) {
       console.error("Erreur lors de l'enregistrement des données fiscales:", error);
-      toast.error("Erreur lors de l'enregistrement des données fiscales. Veuillez actualiser la page et réessayer.");
+      toast.error("Erreur lors de l'enregistrement. Veuillez actualiser et réessayer.");
       setLastSaveSuccess(false);
       
       clearCache(selectedClient.id);

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { Json } from "@/integrations/supabase/types";
@@ -153,9 +152,13 @@ export const verifyAndNotifyFiscalChanges = async (clientId: string, expectedDat
   const isVerified = await verifyFiscalDataSave(clientId, expectedData);
   
   if (isVerified) {
-    toast.success("Toutes les modifications fiscales ont été vérifiées et enregistrées correctement.");
+    toast.success("✅ Les modifications fiscales ont été enregistrées définitivement dans la base de données.", {
+      duration: 5000
+    });
   } else {
-    toast.error("Certaines modifications fiscales n'ont pas été correctement enregistrées. Veuillez réessayer.");
+    toast.error("❌ Certaines modifications n'ont pas été enregistrées correctement. Nouvelle tentative en cours...", {
+      duration: 3000
+    });
   }
   
   return isVerified;
