@@ -23,6 +23,7 @@ interface ClientIdentityFieldsProps {
     valeur?: number;
     loyer?: number;
   };
+  igs?: any;
   onChange: (name: string, value: any) => void;
 }
 
@@ -39,8 +40,12 @@ export function ClientIdentityFields({
   etatcivil = "celibataire",
   regimefiscal,
   situationimmobiliere = { type: "locataire" },
+  igs,
   onChange 
 }: ClientIdentityFieldsProps) {
+  // Vérifier si regimefiscal est défini et le logger
+  console.log("ClientIdentityFields - Regime fiscal received:", regimefiscal);
+  
   return (
     <div className="space-y-6">
       {type === "physique" ? (
@@ -72,6 +77,12 @@ export function ClientIdentityFields({
         situationimmobiliere={situationimmobiliere}
         onChange={onChange}
       />
+      
+      {regimefiscal === "igs" && (
+        <IGSFields
+          onChange={onChange}
+        />
+      )}
     </div>
   );
 }

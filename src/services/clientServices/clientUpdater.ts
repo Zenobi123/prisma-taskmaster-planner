@@ -9,22 +9,33 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   
   if (!updates.regimefiscal) {
     console.warn("WARNING: No regimefiscal found in updates. This might cause issues!");
+    
+    // Récupérer le client actuel pour connaître son type et définir une valeur par défaut
+    const { data: currentClient, error: fetchError } = await supabase
+      .from("clients")
+      .select("type, regimefiscal")
+      .eq("id", id)
+      .single();
+      
+    if (!fetchError && currentClient) {
+      updates.regimefiscal = currentClient.regimefiscal || 
+        (currentClient.type === "physique" ? "reel" : "simplifie");
+      console.log("Set regimefiscal fallback based on existing client:", updates.regimefiscal);
+    }
   }
-  
-  // Sérialiser proprement les données pour Supabase
-  const { igs, ...otherUpdates } = updates;
   
   // Données client de base avec gestion explicite des champs
   const clientData: any = {};
   
   // Copier tous les champs directs depuis updates
-  Object.keys(otherUpdates).forEach(key => {
-    if (key !== 'adresse' && key !== 'contact' && key !== 'situationimmobiliere' && key !== 'fiscal_data') {
-      clientData[key] = (otherUpdates as any)[key];
+  Object.keys(updates).forEach(key => {
+    if (key !== 'adresse' && key !== 'contact' && key !== 'situationimmobiliere' && 
+        key !== 'fiscal_data' && key !== 'igs') {
+      clientData[key] = (updates as any)[key];
     }
   });
   
-  // S'assurer que regimefiscal est correctement capturé
+  // S'assurer explicitement que regimefiscal est défini dans les données à enregistrer
   if (updates.regimefiscal !== undefined) {
     clientData.regimefiscal = updates.regimefiscal;
     console.log("Setting regimefiscal in database to:", updates.regimefiscal);
@@ -44,14 +55,16 @@ export async function updateClient(id: string, updates: Partial<Client>) {
     clientData.situationimmobiliere = updates.situationimmobiliere;
   }
   
-  // Gérer les données IGS en les stockant dans le champ JSON fiscal_data
+  // Extraire et traiter les données IGS et fiscal_data 
+  const { igs } = updates;
+  
+  // S'assurer que fiscal_data existe
+  clientData.fiscal_data = updates.fiscal_data || {};
+  
+  // Ajouter les données IGS si présentes
   if (igs) {
-    // S'assurer que fiscal_data existe
-    clientData.fiscal_data = clientData.fiscal_data || {};
-    
-    // Ajouter les données IGS
     clientData.fiscal_data = {
-      ...(updates.fiscal_data || {}),
+      ...clientData.fiscal_data,
       igs: {
         soumisIGS: igs.soumisIGS !== undefined ? igs.soumisIGS : false,
         adherentCGA: igs.adherentCGA !== undefined ? igs.adherentCGA : false,
@@ -66,7 +79,7 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   console.log("Final client data to update:", JSON.stringify(clientData, null, 2));
   
   if (!clientData.regimefiscal) {
-    console.error("ERROR: regimefiscal is missing in final update data!");
+    console.error("ERROR: regimefiscal is still missing in final update data!");
   }
   
   // Mettre à jour le client dans Supabase
@@ -85,7 +98,5 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   console.log("Client updated successfully, returned data:", data);
   console.log("Returned regimefiscal from database:", data.regimefiscal);
   
-  // Convertir les données retournées pour correspondre à notre interface Client
-  const clientResult = data as unknown as Client;
-  return clientResult;
+  return data as unknown as Client;
 }

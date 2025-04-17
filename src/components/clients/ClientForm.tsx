@@ -32,7 +32,17 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     setIsSubmitting(true);
     
     try {
-      // Passer explicitement le type comme ClientType pour assurer la sécurité des types
+      // Vérifier que formData contient regimefiscal avant de préparer les données
+      console.log("Current formData before submission:", formData);
+      console.log("Current regime fiscal before submission:", formData.regimefiscal);
+      
+      if (!formData.regimefiscal) {
+        console.warn("Regime fiscal is missing in formData, using default value");
+        // Appliquer une valeur par défaut basée sur le type
+        handleChange("regimefiscal", type === "physique" ? "reel" : "simplifie");
+      }
+      
+      // Passer explicitement le type pour la préparation des données
       const clientData = prepareSubmitData(type);
       console.log("Submitting client data:", JSON.stringify(clientData, null, 2));
       

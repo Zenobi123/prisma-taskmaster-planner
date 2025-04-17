@@ -14,28 +14,26 @@ export function useUpdateClientMutation() {
       console.log("Full update data:", JSON.stringify(updates, null, 2));
       console.log("Régime fiscal value:", updates.regimefiscal);
       
-      // Garantir que regimefiscal est correctement transmis
-      if (updates.regimefiscal) {
-        console.log("Régime fiscal is defined as:", updates.regimefiscal);
-      } else {
+      // Vérification explicite du régime fiscal
+      if (!updates.regimefiscal) {
         console.warn("WARNING: Régime fiscal is undefined in updates object");
         
-        // Tenter de revenir à une valeur par défaut en fonction du type de client
-        if (updates.type) {
+        // Récupérer le client actuel depuis le cache pour trouver une valeur à utiliser
+        const cachedClient = queryClient.getQueryData<Client[]>(["clients"])?.find(client => client.id === id);
+        
+        if (cachedClient?.regimefiscal) {
+          updates.regimefiscal = cachedClient.regimefiscal;
+          console.log("Using cached regimefiscal value:", updates.regimefiscal);
+        } else {
+          // Valeur par défaut basée sur le type de client
           updates.regimefiscal = updates.type === "physique" ? "reel" : "simplifie";
           console.log("Applied fallback regimefiscal value:", updates.regimefiscal);
         }
       }
       
-      if (updates.igs) {
-        console.log("IGS data to update:", updates.igs);
-      }
-      
-      // Forcer un délai pour s'assurer que la mise à jour est traitée correctement
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
       try {
-        // S'assurer que nous passons correctement les données de mise à jour au service
+        // Appel au service avec journalisation complète
+        console.log("Calling updateClient with regimefiscal:", updates.regimefiscal);
         const updatedClient = await updateClient(id, updates);
         console.log("Client updated successfully:", updatedClient);
         console.log("Updated client's regimefiscal:", updatedClient.regimefiscal);
@@ -57,6 +55,10 @@ export function useUpdateClientMutation() {
         title: "Client mis à jour avec succès",
         description: `Les informations de "${clientName}" ont été mises à jour.`,
       });
+      
+      // Vérification après mise à jour
+      console.log("Updated client data in mutation:", data);
+      console.log("Regime fiscal after update:", data.regimefiscal);
     },
     onError: (error: any) => {
       console.error("Error updating client:", error);

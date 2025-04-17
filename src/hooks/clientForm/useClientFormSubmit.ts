@@ -5,15 +5,20 @@ export function useClientFormSubmit() {
   const prepareSubmitData = (formData: any, type: ClientType, initialData?: Client) => {
     console.log("Preparing client data for submission, form data:", JSON.stringify(formData, null, 2));
     console.log("Client type:", type);
-    console.log("Regime fiscal selected:", formData.regimefiscal);
+    console.log("Regime fiscal in form data:", formData.regimefiscal);
     
-    // Vérifier que la valeur regimefiscal est présente
+    // S'assurer que regimefiscal est défini
     if (!formData.regimefiscal) {
       console.warn("WARNING: regimefiscal is missing in form data!");
       
-      // Utiliser une valeur de secours basée sur le type de client
-      formData.regimefiscal = type === "physique" ? "reel" : "simplifie";
-      console.log("Using fallback regimefiscal value:", formData.regimefiscal);
+      // Utiliser une valeur de secours basée sur le type de client ou la valeur initiale
+      if (initialData?.regimefiscal) {
+        formData.regimefiscal = initialData.regimefiscal;
+        console.log("Using initial regimefiscal value:", formData.regimefiscal);
+      } else {
+        formData.regimefiscal = type === "physique" ? "reel" : "simplifie";
+        console.log("Using fallback regimefiscal value:", formData.regimefiscal);
+      }
     }
     
     // Préparer les données client pour la soumission à l'API
@@ -62,6 +67,7 @@ export function useClientFormSubmit() {
     }
     
     console.log("Final client data prepared:", JSON.stringify(clientData, null, 2));
+    console.log("Final regimefiscal value:", clientData.regimefiscal);
     
     return clientData;
   };

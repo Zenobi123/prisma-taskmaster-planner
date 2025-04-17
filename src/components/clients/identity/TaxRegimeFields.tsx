@@ -17,16 +17,22 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   // Définir une valeur par défaut basée sur le type de client
   const defaultValue = type === "physique" ? "reel" : "simplifie";
   
-  // Utiliser la valeur passée ou la valeur par défaut
+  // Utiliser la valeur passée ou la valeur par défaut si non définie
   const [selectedValue, setSelectedValue] = useState<string>(
     regimefiscal || defaultValue
   );
   
   // Mettre à jour la sélection interne lorsque les props changent
   useEffect(() => {
+    console.log("TaxRegimeFields useEffect triggered");
+    console.log("Current regimefiscal prop:", regimefiscal);
+    console.log("Current selectedValue state:", selectedValue);
+    
     if (regimefiscal) {
       console.log("TaxRegimeFields: Mise à jour depuis props vers", regimefiscal);
       setSelectedValue(regimefiscal);
+      
+      // Ne pas déclencher onChange ici pour éviter les boucles infinies
     } else {
       console.log("TaxRegimeFields: Utilisation de la valeur par défaut", defaultValue);
       setSelectedValue(defaultValue);
@@ -34,7 +40,7 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
       // Initialiser avec la valeur par défaut si aucune n'est fournie
       onChange("regimefiscal", defaultValue);
     }
-  }, [regimefiscal, type, onChange, defaultValue]);
+  }, [regimefiscal, type, defaultValue]);
   
   const handleValueChange = (value: string) => {
     console.log("Régime fiscal sélectionné changé pour:", value);
