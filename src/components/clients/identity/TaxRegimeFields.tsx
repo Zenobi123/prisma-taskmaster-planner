@@ -10,30 +10,39 @@ interface TaxRegimeFieldsProps {
 }
 
 export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeFieldsProps) {
+  // Fix: Ensure we have a string value for RadioGroup
+  const currentValue = regimefiscal || (type === "physique" ? "reel" : "simplifie");
+  
+  const handleValueChange = (value: string) => {
+    // Ensure the value is being correctly passed to the onChange handler
+    console.log("Selected tax regime:", value);
+    onChange("regimefiscal", value);
+  };
+
   if (type === "physique") {
     return (
       <div>
         <Label className="mb-2 block">Régime fiscal</Label>
         <RadioGroup
-          value={regimefiscal}
-          onValueChange={(value) => onChange("regimefiscal", value)}
+          value={currentValue}
+          onValueChange={handleValueChange}
           className="grid grid-cols-2 gap-4"
         >
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 cursor-pointer">
             <RadioGroupItem value="reel" id="reel" />
-            <Label htmlFor="reel">Réel</Label>
+            <Label htmlFor="reel" className="cursor-pointer">Réel</Label>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 cursor-pointer">
             <RadioGroupItem value="igs" id="igs" />
-            <Label htmlFor="igs">IGS</Label>
+            <Label htmlFor="igs" className="cursor-pointer">IGS</Label>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 cursor-pointer">
             <RadioGroupItem value="non_professionnel_salarie" id="non_professionnel_salarie" />
-            <Label htmlFor="non_professionnel_salarie">Non professionnel salarié</Label>
+            <Label htmlFor="non_professionnel_salarie" className="cursor-pointer">Non professionnel salarié</Label>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 cursor-pointer">
             <RadioGroupItem value="non_professionnel_autre" id="non_professionnel_autre" />
-            <Label htmlFor="non_professionnel_autre" className="text-sm">Non professionnel (Autres)</Label>
+            <Label htmlFor="non_professionnel_autre" className="cursor-pointer text-sm">Non professionnel (Autres)</Label>
           </div>
         </RadioGroup>
       </div>
@@ -44,21 +53,21 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
     <div>
       <Label className="mb-2 block">Régime fiscal</Label>
       <RadioGroup
-        value={regimefiscal}
-        onValueChange={(value) => onChange("regimefiscal", value)}
+        value={currentValue}
+        onValueChange={handleValueChange}
         className="grid grid-cols-1 gap-4"
       >
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 cursor-pointer">
           <RadioGroupItem value="reel" id="reel_morale" />
-          <Label htmlFor="reel_morale">Réel</Label>
+          <Label htmlFor="reel_morale" className="cursor-pointer">Réel</Label>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 cursor-pointer">
           <RadioGroupItem value="simplifie" id="simplifie_morale" />
-          <Label htmlFor="simplifie_morale">Simplifié</Label>
+          <Label htmlFor="simplifie_morale" className="cursor-pointer">Simplifié</Label>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 cursor-pointer">
           <RadioGroupItem value="non_lucratif" id="non_lucratif" />
-          <Label htmlFor="non_lucratif">Organisme à but non lucratif</Label>
+          <Label htmlFor="non_lucratif" className="cursor-pointer">Organisme à but non lucratif</Label>
         </div>
       </RadioGroup>
     </div>
