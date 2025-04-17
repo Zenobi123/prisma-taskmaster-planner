@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { Client } from "@/types/client";
 
 export interface ClientRegimeStats {
   reelClients: number;
@@ -35,12 +36,15 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
     
     // Vérifier si le client est à l'IGS
     if (client.regimefiscal === "igs") {
-      console.log(`Client IGS détecté: ${client.id}, données IGS:`, client.igs);
+      console.log(`Client IGS détecté: ${client.id}`);
       igsClients++;
       
-      // Vérifier les données IGS directement dans l'objet client.igs
-      if (client.igs) {
-        const igsData = client.igs;
+      // Cast client to Client type to properly access IGS data
+      const typedClient = client as unknown as Client;
+      
+      // Vérifier les données IGS
+      if (typedClient.igs) {
+        const igsData = typedClient.igs;
         console.log(`Données IGS pour client ${client.id}:`, igsData);
         
         const currentDate = new Date();
@@ -55,6 +59,25 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
         else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
           console.log(`Client ${client.id} en retard pour l'acompte de février`);
           delayedIgsClients++;
+        }
+      } else if (client.fiscal_data) {
+        // Alternatively, try to get IGS data from fiscal_data
+        const fiscalData = client.fiscal_data as any;
+        if (fiscalData.igs) {
+          const igsData = fiscalData.igs;
+          
+          const currentDate = new Date();
+          const currentMonth = currentDate.getMonth();
+          
+          if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
+            console.log(`Client ${client.id} en retard pour l'acompte de janvier (via fiscal_data)`);
+            delayedIgsClients++;
+          } else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
+            console.log(`Client ${client.id} en retard pour l'acompte de février (via fiscal_data)`);
+            delayedIgsClients++;
+          }
+        } else {
+          console.log(`Client ${client.id} est IGS mais sans données IGS définies`);
         }
       } else {
         console.log(`Client ${client.id} est IGS mais sans données IGS définies`);

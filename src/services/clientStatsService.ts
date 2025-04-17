@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { Client } from "@/types/client";
 
 export const getClientStats = async () => {
   console.log("Récupération des statistiques clients...");
@@ -23,21 +24,42 @@ export const getClientStats = async () => {
     if (client.regimefiscal === "igs") {
       console.log(`Analyse du client IGS ${client.id} pour statistiques`);
       
-      // Vérifier directement les données IGS dans l'objet client.igs
-      if (client.igs) {
-        console.log(`Données IGS pour client ${client.id}:`, client.igs);
+      // Cast client to Client type to properly access IGS data
+      const typedClient = client as unknown as Client;
+      
+      // Vérifier si le client a des données IGS, soit directement, soit dans fiscal_data
+      if (typedClient.igs) {
+        console.log(`Données IGS pour client ${client.id}:`, typedClient.igs);
         
         const currentDate = new Date();
         const currentMonth = currentDate.getMonth();
         
         // Vérifier si nous sommes après janvier mais qu'aucun acompte n'a été payé
-        if (currentMonth > 0 && (!client.igs.acompteJanvier || !client.igs.acompteJanvier.montant)) {
+        if (currentMonth > 0 && (!typedClient.igs.acompteJanvier || !typedClient.igs.acompteJanvier.montant)) {
           console.log(`Client ${client.id} n'a pas payé l'acompte de janvier - ajouté aux statistiques`);
           return true;
         }
         // Vérifier si nous sommes après février mais que l'acompte de février n'a pas été payé
-        else if (currentMonth > 1 && (!client.igs.acompteFevrier || !client.igs.acompteFevrier.montant)) {
+        else if (currentMonth > 1 && (!typedClient.igs.acompteFevrier || !typedClient.igs.acompteFevrier.montant)) {
           console.log(`Client ${client.id} n'a pas payé l'acompte de février - ajouté aux statistiques`);
+          return true;
+        }
+      } else if (client.fiscal_data) {
+        // Check fiscal_data.igs as an alternative
+        const fiscalData = client.fiscal_data as any;
+        if (fiscalData.igs) {
+          const igsData = fiscalData.igs;
+          
+          const currentDate = new Date();
+          const currentMonth = currentDate.getMonth();
+          
+          if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
+            return true;
+          } else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
+            return true;
+          }
+        } else {
+          console.log(`Client ${client.id} est IGS mais sans données IGS définies - ajouté aux statistiques`);
           return true;
         }
       } else {
