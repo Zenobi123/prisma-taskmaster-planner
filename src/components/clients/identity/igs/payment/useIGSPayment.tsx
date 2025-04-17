@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { CGAClasse } from "@/hooks/fiscal/types";
-import { igsClassesInfo } from "../IGSClassSelector";
+import { calculateIGSAmount, calculateIGSReliquat } from "../utils/igsCalculations";
 
 interface UseIGSPaymentProps {
   soumisIGS: boolean;
@@ -37,32 +37,19 @@ export function useIGSPayment({
   }, [patente, acompteJanvier, acompteFevrier]);
 
   // Calculate IGS amount based on class
-  const montantIGS = useMemo(() => {
-    if (soumisIGS && classeIGS && igsClassesInfo[classeIGS]) {
-      let baseAmount = igsClassesInfo[classeIGS].montant;
-      
-      // Apply 50% reduction if CGA member
-      if (adherentCGA) {
-        baseAmount = baseAmount * 0.5;
-      }
-      
-      return baseAmount;
-    }
-    return null;
-  }, [soumisIGS, classeIGS, adherentCGA]);
+  const montantIGS = useMemo(() => 
+    calculateIGSAmount(soumisIGS, classeIGS, adherentCGA),
+  [soumisIGS, classeIGS, adherentCGA]);
 
   // Calculate IGS remainder
   useEffect(() => {
-    if (montantIGS !== null) {
-      const patenteValue = parseFloat(patenteState.montant) || 0;
-      const janvierValue = parseFloat(acompteJanvierState.montant) || 0;
-      const fevrierValue = parseFloat(acompteFevrierState.montant) || 0;
-      
-      const reliquatValue = montantIGS - patenteValue - janvierValue - fevrierValue;
-      setReliquat(reliquatValue > 0 ? reliquatValue : 0);
-    } else {
-      setReliquat(null);
-    }
+    const calculatedReliquat = calculateIGSReliquat(
+      montantIGS,
+      patenteState,
+      acompteJanvierState,
+      acompteFevrierState
+    );
+    setReliquat(calculatedReliquat);
   }, [montantIGS, patenteState.montant, acompteJanvierState.montant, acompteFevrierState.montant]);
 
   // Handle payment value changes

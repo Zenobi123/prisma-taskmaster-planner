@@ -1,7 +1,7 @@
 
 import { BadgeEuro } from "lucide-react";
 import { CGAClasse } from "@/hooks/fiscal/types";
-import { igsClassesInfo } from "./IGSClassSelector";
+import { calculateIGSAmount } from "./utils/igsCalculations";
 
 interface IGSAmountDisplayProps {
   soumisIGS: boolean;
@@ -10,15 +10,10 @@ interface IGSAmountDisplayProps {
 }
 
 export function IGSAmountDisplay({ soumisIGS, classeIGS, adherentCGA }: IGSAmountDisplayProps) {
-  if (!soumisIGS || !classeIGS || !igsClassesInfo[classeIGS]) {
+  const montantIGS = calculateIGSAmount(soumisIGS, classeIGS, adherentCGA);
+  
+  if (montantIGS === null) {
     return null;
-  }
-  
-  let montantIGS = igsClassesInfo[classeIGS].montant;
-  
-  // Appliquer une réduction de 50% si adhérent CGA
-  if (adherentCGA) {
-    montantIGS = montantIGS * 0.5;
   }
   
   return (

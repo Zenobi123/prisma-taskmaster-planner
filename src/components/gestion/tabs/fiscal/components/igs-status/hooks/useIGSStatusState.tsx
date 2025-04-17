@@ -1,7 +1,7 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { Etablissement, IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { CGAClasse } from "@/types/client";
+import { determineIGSClassFromCA } from "@/components/clients/identity/igs/utils/igsCalculations";
 
 interface IGSStatusProps {
   soumisIGS: boolean;
@@ -26,7 +26,6 @@ export function useIGSStatusState({
   etablissements = [],
   onChange
 }: IGSStatusProps) {
-  // Initialiser les états avec des valeurs par défaut appropriées
   const [patenteState, setPatenteState] = useState<IGSPayment>(patente || { montant: '', quittance: '' });
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier || { montant: '', quittance: '' });
   const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier || { montant: '', quittance: '' });
@@ -44,7 +43,6 @@ export function useIGSStatusState({
         }]
   );
 
-  // S'assurer qu'il y a toujours au moins un établissement
   useEffect(() => {
     if (!etablissements || etablissements.length === 0) {
       const defaultEtab = [{ 
@@ -60,7 +58,6 @@ export function useIGSStatusState({
     }
   }, []);
 
-  // Mettre à jour la valeur du chiffre d'affaires total quand les établissements changent
   useEffect(() => {
     const totalChiffreAffaires = localEtablissements.reduce(
       (sum, etab) => sum + (etab.chiffreAffaires || 0), 
@@ -83,7 +80,6 @@ export function useIGSStatusState({
     if (etablissements && etablissements.length > 0) {
       setLocalEtablissements(etablissements);
     } else if (localEtablissements.length === 0) {
-      // Assurer qu'il y a au moins un établissement par défaut
       const defaultEtab = [{ 
         nom: "Établissement principal", 
         activite: "", 
@@ -111,7 +107,6 @@ export function useIGSStatusState({
     onChange("igs.acompteFevrier", payment);
   };
 
-  // Cette fonction est maintenant appelée automatiquement via l'effet
   const handleChiffreAffairesChange = (value: number) => {
     setLocalChiffreAffaires(value);
     onChange("igs.chiffreAffairesAnnuel", value);
@@ -121,7 +116,6 @@ export function useIGSStatusState({
     setLocalEtablissements(value);
     onChange("igs.etablissements", value);
     
-    // Calculer et mettre à jour le chiffre d'affaires total
     const totalChiffreAffaires = value.reduce(
       (sum, etab) => sum + (etab.chiffreAffaires || 0), 
       0
@@ -129,25 +123,11 @@ export function useIGSStatusState({
     handleChiffreAffairesChange(totalChiffreAffaires);
   };
 
-  // Fonction pour gérer la mise à jour de la classe IGS en fonction du CA
   const handleTotalChange = (total: number) => {
     handleChiffreAffairesChange(total);
     
-    // Déterminer la classe IGS en fonction du chiffre d'affaires total
-    const determineClasse = (ca: number): CGAClasse => {
-      if (ca < 500000) return "classe1";
-      if (ca < 1000000) return "classe2";
-      if (ca < 1500000) return "classe3";
-      if (ca < 2000000) return "classe4";
-      if (ca < 2500000) return "classe5";
-      if (ca < 5000000) return "classe6";
-      if (ca < 10000000) return "classe7";
-      if (ca < 20000000) return "classe8";
-      if (ca < 30000000) return "classe9";
-      return "classe10";
-    };
-    
-    onChange("igs.classeIGS", determineClasse(total));
+    const newClasse = determineIGSClassFromCA(total);
+    onChange("igs.classeIGS", newClasse);
   };
 
   return {
