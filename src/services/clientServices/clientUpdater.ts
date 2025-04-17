@@ -20,16 +20,20 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   }
   
   // S'assurer que regimefiscal est correctement défini et préservé
-  if (!updates.regimefiscal) {
-    console.warn("WARNING: No regimefiscal found in updates. Using existing value.");
-    updates.regimefiscal = currentClient.regimefiscal;
-    console.log("Using existing regimefiscal:", updates.regimefiscal);
-  } else {
-    console.log("Using provided regimefiscal:", updates.regimefiscal);
+  let typedRegimeFiscal: RegimeFiscal | undefined = undefined;
+  
+  if (updates.regimefiscal) {
+    // Effectuer une vérification explicite du type pour s'assurer que regimefiscal est valide
+    typedRegimeFiscal = updates.regimefiscal as RegimeFiscal;
+    console.log("Using provided regimefiscal:", typedRegimeFiscal);
+  } else if (currentClient.regimefiscal) {
+    // Convertir explicitement la valeur de la base de données en type RegimeFiscal
+    typedRegimeFiscal = currentClient.regimefiscal as RegimeFiscal;
+    console.log("Using existing regimefiscal:", typedRegimeFiscal);
   }
   
   // Préparer les données à mettre à jour
-  const clientData = { ...currentClient };
+  const clientData: Record<string, any> = { ...currentClient };
   
   // Mettre à jour avec les nouvelles valeurs, en préservant explicitement le regime fiscal
   Object.keys(updates).forEach(key => {
@@ -39,7 +43,9 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   });
   
   // S'assurer explicitement que regimefiscal est défini
-  clientData.regimefiscal = updates.regimefiscal || currentClient.regimefiscal;
+  if (typedRegimeFiscal) {
+    clientData.regimefiscal = typedRegimeFiscal;
+  }
   console.log("Final regimefiscal to save:", clientData.regimefiscal);
   
   // Gérer les objets IGS correctement
@@ -52,13 +58,20 @@ export async function updateClient(id: string, updates: Partial<Client>) {
       clientData.fiscal_data = {};
     }
     
-    // Mettre à jour les données IGS dans fiscal_data.igs aussi
-    clientData.fiscal_data.igs = {
-      ...clientData.fiscal_data.igs,
-      soumisIGS: updates.igs.soumisIGS !== undefined ? updates.igs.soumisIGS : false,
-      adherentCGA: updates.igs.adherentCGA !== undefined ? updates.igs.adherentCGA : false,
-      classeIGS: updates.igs.classeIGS
-    };
+    // Vérifier que fiscal_data est un objet avant de l'utiliser
+    if (typeof clientData.fiscal_data === 'object' && clientData.fiscal_data !== null) {
+      // Mettre à jour les données IGS dans fiscal_data.igs aussi
+      const fiscalData = clientData.fiscal_data as Record<string, any>;
+      
+      fiscalData.igs = {
+        ...(fiscalData.igs || {}),
+        soumisIGS: updates.igs.soumisIGS !== undefined ? updates.igs.soumisIGS : false,
+        adherentCGA: updates.igs.adherentCGA !== undefined ? updates.igs.adherentCGA : false,
+        classeIGS: updates.igs.classeIGS
+      };
+      
+      clientData.fiscal_data = fiscalData;
+    }
   }
   
   // Gérer fiscal_data séparément si fourni
@@ -66,9 +79,13 @@ export async function updateClient(id: string, updates: Partial<Client>) {
     console.log("Updating fiscal_data:", updates.fiscal_data);
     
     // Fusionner avec les données existantes plutôt que de remplacer
+    if (!clientData.fiscal_data || typeof clientData.fiscal_data !== 'object') {
+      clientData.fiscal_data = {};
+    }
+    
     clientData.fiscal_data = {
-      ...clientData.fiscal_data,
-      ...updates.fiscal_data
+      ...(typeof clientData.fiscal_data === 'object' ? clientData.fiscal_data : {}),
+      ...(typeof updates.fiscal_data === 'object' ? updates.fiscal_data : {})
     };
   }
   
