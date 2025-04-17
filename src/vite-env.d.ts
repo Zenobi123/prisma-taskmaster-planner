@@ -10,4 +10,3 @@ interface Window {
     timestamp: number;
   };
 }
-
