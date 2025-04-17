@@ -28,7 +28,7 @@ export interface FiscalAttestationData {
   showInAlert?: boolean; // Add property to control alert visibility
 }
 
-// Import types before using them
+// Import types from igsTypes.ts
 import { Establishment, IGSData } from './types/igsTypes';
 
 // Re-export for consistency
