@@ -11,6 +11,7 @@ export function useUpdateClientMutation() {
   return useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Client> }) => {
       console.log("Mise à jour du client:", { id, updates });
+      console.log("Régime fiscal:", updates.regimefiscal);
       
       if (updates.igs) {
         console.log("Données IGS à mettre à jour:", updates.igs);

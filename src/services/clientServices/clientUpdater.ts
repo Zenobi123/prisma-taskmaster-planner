@@ -13,6 +13,12 @@ export async function updateClient(id: string, updates: Partial<Client>) {
     ...otherUpdates,
   };
   
+  // Ensure regimefiscal is properly captured
+  if (updates.regimefiscal) {
+    clientData.regimefiscal = updates.regimefiscal;
+    console.log("Setting regimefiscal to:", updates.regimefiscal);
+  }
+  
   // Handle special fields like address, contact and custom objects
   if (updates.adresse) {
     clientData.adresse = updates.adresse;
@@ -41,6 +47,8 @@ export async function updateClient(id: string, updates: Partial<Client>) {
       }
     };
   }
+  
+  console.log("Final client data to update:", clientData);
   
   // Update the client in Supabase
   const { data, error } = await supabase
