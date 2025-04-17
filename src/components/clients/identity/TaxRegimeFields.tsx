@@ -1,3 +1,4 @@
+
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ClientType, RegimeFiscalPhysique, RegimeFiscalMorale, RegimeFiscal } from "@/types/client";
@@ -10,7 +11,7 @@ interface TaxRegimeFieldsProps {
 }
 
 export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeFieldsProps) {
-  // Toujours définir IGS comme valeur par défaut pour les personnes physiques
+  // Par défaut, tout contribuable est soumis à l'IGS
   const defaultValue = type === "physique" ? "igs" as RegimeFiscalPhysique : "non_lucratif" as RegimeFiscalMorale;
   
   const [selectedValue, setSelectedValue] = useState<RegimeFiscal>(
@@ -18,13 +19,13 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
   );
   
   useEffect(() => {
-    // Toujours initialiser avec IGS pour les personnes physiques si non défini
+    // S'assurer que l'IGS est sélectionné par défaut pour les personnes physiques si non défini
     if (type === "physique" && (!regimefiscal || regimefiscal !== "igs")) {
       const defaultIGS = "igs" as RegimeFiscalPhysique;
       setSelectedValue(defaultIGS);
       onChange("regimefiscal", defaultIGS);
     }
-  }, [type, regimefiscal]);
+  }, [type, regimefiscal, onChange]);
   
   const handleValueChange = (value: string) => {
     console.log("Regime fiscal selection changed to:", value);
@@ -67,6 +68,10 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
             <RadioGroupItem value="non_professionnel_autre" id="non_professionnel_autre" />
             <Label htmlFor="non_professionnel_autre" className="cursor-pointer text-sm">Non professionnel (Autres)</Label>
           </div>
+          <div className="flex items-center space-x-2 cursor-pointer">
+            <RadioGroupItem value="reel" id="reel" />
+            <Label htmlFor="reel" className="cursor-pointer">Réel</Label>
+          </div>
         </RadioGroup>
       </div>
     );
@@ -84,6 +89,10 @@ export function TaxRegimeFields({ type, regimefiscal, onChange }: TaxRegimeField
         <div className="flex items-center space-x-2 cursor-pointer">
           <RadioGroupItem value="non_lucratif" id="non_lucratif" />
           <Label htmlFor="non_lucratif" className="cursor-pointer">Organisme à but non lucratif</Label>
+        </div>
+        <div className="flex items-center space-x-2 cursor-pointer">
+          <RadioGroupItem value="reel" id="reel" />
+          <Label htmlFor="reel" className="cursor-pointer">Réel</Label>
         </div>
       </RadioGroup>
     </div>

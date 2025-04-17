@@ -25,7 +25,7 @@ export function useUpdateClientMutation() {
           updates.regimefiscal = cachedClient.regimefiscal;
           console.log("Using cached regimefiscal value:", updates.regimefiscal);
         } else {
-          // Valeur par défaut basée sur le type de client
+          // Par défaut, tout contribuable est soumis à l'IGS
           updates.regimefiscal = updates.type === "physique" ? "igs" : "non_lucratif";
           console.log("Applied fallback regimefiscal value:", updates.regimefiscal);
         }

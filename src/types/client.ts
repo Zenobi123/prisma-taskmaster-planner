@@ -1,12 +1,12 @@
-
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
 export type RegimeFiscalPhysique = 
   | "igs" 
   | "non_professionnel_salarie" 
-  | "non_professionnel_autre";
-export type RegimeFiscalMorale = "non_lucratif";
+  | "non_professionnel_autre"
+  | "reel";
+export type RegimeFiscalMorale = "non_lucratif" | "reel";
 export type SituationImmobiliere = "proprietaire" | "locataire";
 export type FormeJuridique = 
   | "sa" 
@@ -25,7 +25,6 @@ export type RegimeFiscal = RegimeFiscalPhysique | RegimeFiscalMorale;
 export type CGAClasse = "classe1" | "classe2" | "classe3" | "classe4" | "classe5" | 
   "classe6" | "classe7" | "classe8" | "classe9" | "classe10";
 
-// Add IGS-related interfaces that were removed
 export interface IGSPayment {
   montant: string;
   quittance: string;
