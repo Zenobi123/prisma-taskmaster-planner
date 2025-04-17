@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from "react";
 import { CGAClasse } from "@/hooks/fiscal/types";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import {

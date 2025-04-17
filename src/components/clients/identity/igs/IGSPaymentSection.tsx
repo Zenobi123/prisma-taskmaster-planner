@@ -6,8 +6,6 @@ import {
   IGSPaymentAlerts,
   IGSPaymentForm,
   IGSReliquatDisplay,
-  IGSPaymentToggle,
-  IGSPaymentDeadlines,
   useIGSPayment
 } from "./payment";
 
@@ -37,8 +35,6 @@ export function IGSPaymentSection({
     acompteJanvierState,
     acompteFevrierState,
     reliquat,
-    showPayments,
-    setShowPayments,
     handlePaymentChange,
     montantIGS,
     completedPayments: paymentsList,
@@ -60,38 +56,18 @@ export function IGSPaymentSection({
 
   return (
     <div className="mt-6 space-y-4">
-      {/* Payment deadlines with checkboxes */}
-      <IGSPaymentDeadlines
-        totalAmount={montantIGS}
-        completedPayments={paymentsList}
-        onPaymentToggle={handlePaymentToggle}
-      />
-
-      {/* Toggle to activate payments and deductions */}
-      <IGSPaymentToggle 
-        showPayments={showPayments} 
-        setShowPayments={setShowPayments} 
+      <h4 className="font-medium">Paiements et déductions</h4>
+      
+      <IGSPaymentAlerts />
+      
+      <IGSPaymentForm
+        patente={patenteState}
+        acompteJanvier={acompteJanvierState}
+        acompteFevrier={acompteFevrierState}
+        handlePaymentChange={handlePaymentChange}
       />
       
-      {showPayments && (
-        <>
-          <h4 className="font-medium">Paiements et déductions</h4>
-          
-          {/* Alerts for payment information */}
-          <IGSPaymentAlerts />
-          
-          {/* Payment form for patente and advances */}
-          <IGSPaymentForm
-            patente={patenteState}
-            acompteJanvier={acompteJanvierState}
-            acompteFevrier={acompteFevrierState}
-            handlePaymentChange={handlePaymentChange}
-          />
-          
-          {/* Display of the IGS remainder to pay */}
-          <IGSReliquatDisplay reliquat={reliquat} />
-        </>
-      )}
+      <IGSReliquatDisplay reliquat={reliquat} />
     </div>
   );
 }
