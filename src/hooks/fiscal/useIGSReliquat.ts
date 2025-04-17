@@ -8,7 +8,7 @@ export const useIGSReliquat = (
   soumisIGS: boolean,
   classeIGS: CGAClasse | undefined,
   adherentCGA: boolean,
-  patente: IGSPayment,
+  patente: IGSPayment = { montant: '', quittance: '' },
   acompteJanvier: IGSPayment,
   acompteFevrier: IGSPayment
 ) => {

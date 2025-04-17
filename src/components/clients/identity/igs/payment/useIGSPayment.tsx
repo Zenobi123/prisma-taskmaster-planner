@@ -8,7 +8,7 @@ interface UseIGSPaymentProps {
   soumisIGS: boolean;
   adherentCGA: boolean;
   classeIGS?: CGAClasse;
-  patente: IGSPayment;
+  patente?: IGSPayment; // Make patente optional
   acompteJanvier: IGSPayment;
   acompteFevrier: IGSPayment;
   completedPayments?: string[];
@@ -19,7 +19,7 @@ export function useIGSPayment({
   soumisIGS,
   adherentCGA,
   classeIGS,
-  patente,
+  patente = { montant: '', quittance: '' }, // Provide default value
   acompteJanvier,
   acompteFevrier,
   completedPayments = [],

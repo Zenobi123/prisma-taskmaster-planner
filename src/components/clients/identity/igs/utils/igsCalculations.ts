@@ -26,7 +26,7 @@ export const calculateIGSAmount = (soumisIGS: boolean, classeIGS?: CGAClasse, ad
  */
 export const calculateIGSReliquat = (
   montantIGS: number | null,
-  patente: IGSPayment,
+  patente: IGSPayment = { montant: '', quittance: '' },
   acompteJanvier: IGSPayment,
   acompteFevrier: IGSPayment
 ): number | null => {

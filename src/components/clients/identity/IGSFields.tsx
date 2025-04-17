@@ -57,7 +57,6 @@ export function IGSFields({
               soumisIGS={soumisIGS}
               adherentCGA={adherentCGA}
               classeIGS={classeIGS}
-              patente={patente}
               acompteJanvier={acompteJanvier}
               acompteFevrier={acompteFevrier}
               completedPayments={completedPayments}
