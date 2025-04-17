@@ -72,9 +72,6 @@ export function ChiffreAffairesSection({
           placeholder="0"
           className="mt-1"
         />
-        <p className="text-xs text-muted-foreground mt-1">
-          Cette valeur est la somme des chiffres d'affaires de tous les établissements
-        </p>
       </div>
     </div>
   );

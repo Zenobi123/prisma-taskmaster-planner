@@ -38,6 +38,7 @@ export interface IGSData {
   patente?: IGSPayment;
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
+  chiffreAffairesAnnuel?: number;
 }
 
 export interface Interaction {
@@ -83,18 +84,4 @@ export interface Client {
   };
   fiscal_data?: any;
   igs?: IGSData; // Propriété pour les données IGS
-}
-
-export interface Etablissement {
-  nom: string;
-  activite: string;
-  ville: string;
-  departement: string;
-  quartier: string;
-  chiffreAffaires: number;
-}
-
-export interface IGSExtendedData extends IGSData {
-  chiffreAffairesAnnuel?: number;
-  etablissements?: Etablissement[];
 }

@@ -1,6 +1,6 @@
 
 // Types related to IGS (Impôt Général Synthétique)
-import { CGAClasse, Etablissement } from "@/hooks/fiscal/types";
+import { CGAClasse } from "@/hooks/fiscal/types";
 
 // Interface for IGS payment data
 export interface IGSPayment {
@@ -17,7 +17,6 @@ export interface IGSData {
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
   chiffreAffairesAnnuel?: number;
-  etablissements?: Etablissement[];
 }
 
 // Interface for the fiscal data structure
