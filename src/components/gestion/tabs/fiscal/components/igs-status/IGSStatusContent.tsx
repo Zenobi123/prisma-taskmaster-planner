@@ -1,18 +1,14 @@
 
-import React from 'react';
-import { IGSToggleSection } from "../../components/IGSToggleSection";
-import { ChiffreAffairesSection } from "../../components/ChiffreAffairesSection";
-import { EtablissementsSection } from "../../components/etablissements";
-import { IGSClassesSelector } from "../../components/IGSClassesSelector";
-import { IGSAmountDisplay } from "../../components/IGSAmountDisplay";
-import { IGSPaymentsSection } from "../../components/IGSPaymentsSection";
-import { Etablissement, IGSPayment } from "@/hooks/fiscal/types/igsTypes";
-import { CGAClasse } from "@/types/client";
-import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { CGAClasse } from "@/types/client";
+import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
+import { IGSClassSelector } from "@/components/clients/identity/igs/IGSClassSelector";
+import { IGSAmountDisplay } from "@/components/clients/identity/igs/IGSAmountDisplay";
+import { IGSEstablishmentsSection } from "./IGSEstablishmentsSection";
+import { IGSPaymentsSection } from "../IGSPaymentsSection";
 
-interface IGSStatusContentProps {
+export interface IGSStatusContentProps {
   soumisIGS: boolean;
   adherentCGA: boolean;
   classeIGS?: CGAClasse;
@@ -20,18 +16,18 @@ interface IGSStatusContentProps {
   acompteJanvierState: IGSPayment;
   acompteFevrierState: IGSPayment;
   localChiffreAffaires: number;
-  localEtablissements: Etablissement[];
-  completedPayments?: string[];
+  localEtablissements: any[];
+  completedPayments: string[];
   onSoumisIGSChange: (checked: boolean) => void;
   onAdherentCGAChange: (checked: boolean) => void;
   onClasseIGSChange: (value: CGAClasse) => void;
-  handlePatenteChange: (payment: IGSPayment) => void;
-  handleAcompteJanvierChange: (payment: IGSPayment) => void;
-  handleAcompteFevrierChange: (payment: IGSPayment) => void;
+  handlePatenteChange: (field: "montant" | "quittance", value: string) => void;
+  handleAcompteJanvierChange: (field: "montant" | "quittance", value: string) => void;
+  handleAcompteFevrierChange: (field: "montant" | "quittance", value: string) => void;
   handleChiffreAffairesChange: (value: number) => void;
-  handleEtablissementsChange: (value: Etablissement[]) => void;
-  handleTotalChange: (total: number) => void;
-  handleCompletedPaymentsChange?: (payments: string[]) => void;
+  handleEtablissementsChange: (etablissements: any[]) => void;
+  handleTotalChange: (value: string) => void;
+  handleCompletedPaymentsChange: (payments: string[]) => void;
 }
 
 export function IGSStatusContent({
@@ -43,7 +39,7 @@ export function IGSStatusContent({
   acompteFevrierState,
   localChiffreAffaires,
   localEtablissements,
-  completedPayments = [],
+  completedPayments,
   onSoumisIGSChange,
   onAdherentCGAChange,
   onClasseIGSChange,
@@ -52,55 +48,75 @@ export function IGSStatusContent({
   handleAcompteFevrierChange,
   handleChiffreAffairesChange,
   handleEtablissementsChange,
-  handleTotalChange,
   handleCompletedPaymentsChange
 }: IGSStatusContentProps) {
   return (
-    <div className="flex flex-col space-y-4">
-      <IGSToggleSection
-        soumisIGS={soumisIGS}
-        adherentCGA={adherentCGA}
-        onSoumisIGSChange={onSoumisIGSChange}
-        onAdherentCGAChange={onAdherentCGAChange}
-      />
-      
+    <div className="space-y-6">
+      {/* Section Soumis à l'IGS */}
+      <div className="flex items-center space-x-2">
+        <Switch 
+          id="soumisIGS" 
+          checked={soumisIGS}
+          onCheckedChange={onSoumisIGSChange}
+        />
+        <Label htmlFor="soumisIGS">Soumis à l'IGS</Label>
+      </div>
+
       {soumisIGS && (
         <>
-          <ChiffreAffairesSection
-            chiffreAffaires={localChiffreAffaires}
-            onChange={handleChiffreAffairesChange}
-            onClasseChange={onClasseIGSChange}
-            readOnly={true} // Le chiffre d'affaires est en lecture seule car calculé automatiquement
+          {/* Section Adhérent CGA */}
+          <div className="flex items-center space-x-2">
+            <Switch 
+              id="adherentCGA" 
+              checked={adherentCGA}
+              onCheckedChange={onAdherentCGAChange}
+            />
+            <Label htmlFor="adherentCGA">Adhérent CGA (50% de réduction)</Label>
+          </div>
+
+          {/* Section Classe IGS */}
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="classeIGS">Classe IGS</Label>
+              <IGSClassSelector 
+                value={classeIGS} 
+                onChange={onClasseIGSChange}
+              />
+            </div>
+
+            {/* Affichage du montant IGS */}
+            <IGSAmountDisplay 
+              soumisIGS={soumisIGS}
+              adherentCGA={adherentCGA}
+              classeIGS={classeIGS}
+            />
+          </div>
+
+          {/* Section Établissements */}
+          <IGSEstablishmentsSection 
+            etablissements={localEtablissements} 
+            chiffreAffairesAnnuel={localChiffreAffaires}
+            onChiffreAffairesChange={handleChiffreAffairesChange}
+            onEtablissementsChange={handleEtablissementsChange}
           />
-          
-          <EtablissementsSection
-            etablissements={localEtablissements}
-            onChange={handleEtablissementsChange}
-            onTotalChange={handleTotalChange}
-          />
-          
-          <IGSClassesSelector 
-            classeIGS={classeIGS} 
-            onChange={onClasseIGSChange} 
-          />
-          
-          <IGSAmountDisplay 
-            soumisIGS={soumisIGS} 
-            classeIGS={classeIGS} 
-            adherentCGA={adherentCGA} 
-          />
-          
+
+          {/* Section Paiements et déductions */}
           <IGSPaymentsSection 
             acompteJanvier={acompteJanvierState}
             acompteFevrier={acompteFevrierState}
-            onAcompteJanvierChange={handleAcompteJanvierChange}
-            onAcompteFevrierChange={handleAcompteFevrierChange}
+            onAcompteJanvierChange={(payment) => {
+              handleAcompteJanvierChange('montant', payment.montant);
+              handleAcompteJanvierChange('quittance', payment.quittance);
+            }}
+            onAcompteFevrierChange={(payment) => {
+              handleAcompteFevrierChange('montant', payment.montant);
+              handleAcompteFevrierChange('quittance', payment.quittance);
+            }}
             soumisIGS={soumisIGS}
             classeIGS={classeIGS}
             adherentCGA={adherentCGA}
             completedPayments={completedPayments}
             onCompletedPaymentsChange={handleCompletedPaymentsChange}
-            title="Suivi des paiements"
           />
         </>
       )}

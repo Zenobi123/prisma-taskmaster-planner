@@ -1,9 +1,9 @@
 
 import { useState, useEffect } from "react";
+import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { CGAClasse } from "@/types/client";
-import { Etablissement, IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 
-interface UseIGSStatusStateProps {
+interface IGSStatusStateProps {
   soumisIGS: boolean;
   adherentCGA: boolean;
   classeIGS?: CGAClasse;
@@ -11,7 +11,8 @@ interface UseIGSStatusStateProps {
   acompteJanvier?: IGSPayment;
   acompteFevrier?: IGSPayment;
   chiffreAffairesAnnuel?: number;
-  etablissements?: Etablissement[];
+  etablissements?: any[];
+  completedPayments?: string[];
   onChange: (name: string, value: any) => void;
 }
 
@@ -24,102 +25,92 @@ export function useIGSStatusState({
   acompteFevrier = { montant: '', quittance: '' },
   chiffreAffairesAnnuel = 0,
   etablissements = [],
+  completedPayments = [],
   onChange
-}: UseIGSStatusStateProps) {
-  // États locaux pour gérer les valeurs
-  const [localSoumisIGS, setLocalSoumisIGS] = useState<boolean>(soumisIGS);
-  const [localAdherentCGA, setLocalAdherentCGA] = useState<boolean>(adherentCGA);
+}: IGSStatusStateProps) {
+  const [localSoumisIGS, setLocalSoumisIGS] = useState(soumisIGS);
+  const [localAdherentCGA, setLocalAdherentCGA] = useState(adherentCGA);
   const [localClasseIGS, setLocalClasseIGS] = useState<CGAClasse | undefined>(classeIGS);
   const [patenteState, setPatenteState] = useState<IGSPayment>(patente);
   const [acompteJanvierState, setAcompteJanvierState] = useState<IGSPayment>(acompteJanvier);
   const [acompteFevrierState, setAcompteFevrierState] = useState<IGSPayment>(acompteFevrier);
-  const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel || 0);
-  const [localEtablissements, setLocalEtablissements] = useState<Etablissement[]>(
-    etablissements.length > 0 ? etablissements : [{
-      nom: "Établissement principal",
-      activite: "",
-      ville: "",
-      departement: "",
-      quartier: "",
-      chiffreAffaires: 0
-    }]
-  );
-  const [localCompletedPayments, setLocalCompletedPayments] = useState<string[]>([]);
+  const [localChiffreAffaires, setLocalChiffreAffaires] = useState<number>(chiffreAffairesAnnuel);
+  const [localEtablissements, setLocalEtablissements] = useState<any[]>(etablissements);
+  const [localCompletedPayments, setLocalCompletedPayments] = useState<string[]>(completedPayments);
 
-  // Synchroniser les états locaux avec les props
+  // Mettre à jour les états locaux lorsque les props changent
   useEffect(() => {
-    console.log("IGSStatusSection - Initialisation des états avec les props");
     setLocalSoumisIGS(soumisIGS);
     setLocalAdherentCGA(adherentCGA);
     setLocalClasseIGS(classeIGS);
-    setPatenteState(patente || { montant: '', quittance: '' });
-    setAcompteJanvierState(acompteJanvier || { montant: '', quittance: '' });
-    setAcompteFevrierState(acompteFevrier || { montant: '', quittance: '' });
-    setLocalChiffreAffaires(chiffreAffairesAnnuel || 0);
-    
-    // Initialiser les établissements avec au moins un établissement par défaut
-    if (etablissements && etablissements.length > 0) {
-      setLocalEtablissements(etablissements);
-    }
-  }, [
-    soumisIGS, 
-    adherentCGA, 
-    classeIGS, 
-    patente, 
-    acompteJanvier, 
-    acompteFevrier, 
-    chiffreAffairesAnnuel, 
-    etablissements
-  ]);
+    setPatenteState(patente);
+    setAcompteJanvierState(acompteJanvier);
+    setAcompteFevrierState(acompteFevrier);
+    setLocalChiffreAffaires(chiffreAffairesAnnuel);
+    setLocalEtablissements(Array.isArray(etablissements) ? etablissements : []);
+    setLocalCompletedPayments(Array.isArray(completedPayments) ? completedPayments : []);
+  }, [soumisIGS, adherentCGA, classeIGS, patente, acompteJanvier, acompteFevrier, chiffreAffairesAnnuel, etablissements, completedPayments]);
 
-  // Handlers pour les changements de valeurs
+  // Handler pour le changement de soumisIGS
   const onSoumisIGSChange = (checked: boolean) => {
     setLocalSoumisIGS(checked);
     onChange("igs.soumisIGS", checked);
   };
 
+  // Handler pour le changement de adherentCGA
   const onAdherentCGAChange = (checked: boolean) => {
     setLocalAdherentCGA(checked);
     onChange("igs.adherentCGA", checked);
   };
 
+  // Handler pour le changement de classeIGS
   const onClasseIGSChange = (value: CGAClasse) => {
     setLocalClasseIGS(value);
     onChange("igs.classeIGS", value);
   };
 
-  const handlePatenteChange = (payment: IGSPayment) => {
-    setPatenteState(payment);
-    onChange("igs.patente", payment);
+  // Handler pour le changement de patente
+  const handlePatenteChange = (field: "montant" | "quittance", value: string) => {
+    const updatedPatente = { ...patenteState, [field]: value };
+    setPatenteState(updatedPatente);
+    onChange("igs.patente", updatedPatente);
   };
 
-  const handleAcompteJanvierChange = (payment: IGSPayment) => {
-    setAcompteJanvierState(payment);
-    onChange("igs.acompteJanvier", payment);
+  // Handler pour le changement de acompteJanvier
+  const handleAcompteJanvierChange = (field: "montant" | "quittance", value: string) => {
+    const updatedAcompte = { ...acompteJanvierState, [field]: value };
+    setAcompteJanvierState(updatedAcompte);
+    onChange("igs.acompteJanvier", updatedAcompte);
   };
 
-  const handleAcompteFevrierChange = (payment: IGSPayment) => {
-    setAcompteFevrierState(payment);
-    onChange("igs.acompteFevrier", payment);
+  // Handler pour le changement de acompteFevrier
+  const handleAcompteFevrierChange = (field: "montant" | "quittance", value: string) => {
+    const updatedAcompte = { ...acompteFevrierState, [field]: value };
+    setAcompteFevrierState(updatedAcompte);
+    onChange("igs.acompteFevrier", updatedAcompte);
   };
 
+  // Handler pour le changement de chiffre d'affaires
   const handleChiffreAffairesChange = (value: number) => {
     setLocalChiffreAffaires(value);
     onChange("igs.chiffreAffairesAnnuel", value);
   };
 
-  const handleEtablissementsChange = (value: Etablissement[]) => {
-    setLocalEtablissements(value);
-    onChange("igs.etablissements", value);
+  // Handler pour le changement des établissements
+  const handleEtablissementsChange = (etablissements: any[]) => {
+    setLocalEtablissements(etablissements);
+    onChange("igs.etablissements", etablissements);
   };
 
-  const handleTotalChange = (total: number) => {
-    handleChiffreAffairesChange(total);
-  };
-
+  // Handler pour le changement des paiements complétés
   const handleCompletedPaymentsChange = (payments: string[]) => {
     setLocalCompletedPayments(payments);
     onChange("igs.completedPayments", payments);
+  };
+
+  // Handler pour le montant total
+  const handleTotalChange = (value: string) => {
+    // Cette fonction est utilisée par l'ancien système, on la garde pour compatibilité
   };
 
   return {

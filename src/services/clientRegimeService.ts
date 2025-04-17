@@ -42,6 +42,12 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
       console.log(`Client IGS détecté: ${client.id}`);
       igsClients++;
       
+      // Vérifier si caché du tableau de bord
+      if (client.fiscal_data?.hiddenFromDashboard === true) {
+        console.log(`Client ${client.id} caché du tableau de bord`);
+        return;
+      }
+      
       // Cast client to Client type to properly access IGS data
       const typedClient = client as unknown as Client;
       
@@ -50,13 +56,7 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
         const igsData = typedClient.igs;
         console.log(`Données IGS pour client ${client.id}:`, igsData);
         
-        // Vérifier si caché du tableau de bord
-        if (typedClient.fiscal_data?.hiddenFromDashboard === true) {
-          console.log(`Client ${client.id} caché du tableau de bord`);
-          return;
-        }
-        
-        // Utiliser le nouveau système de suivi des paiements avec completedPayments
+        // Utiliser le système de suivi des paiements avec completedPayments
         if (Array.isArray(igsData.completedPayments)) {
           const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
           
@@ -92,7 +92,7 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
         if (fiscalData.igs && fiscalData.igs.soumisIGS) {
           const igsData = fiscalData.igs;
           
-          // Utiliser le nouveau système de suivi des paiements avec completedPayments
+          // Utiliser le système de suivi des paiements avec completedPayments
           if (Array.isArray(igsData.completedPayments)) {
             const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
             
@@ -101,7 +101,7 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
               delayedIgsClients++;
             }
           }
-          // Fallback: vérifier les acomptes individuels si completedPayments n'est pas utilisé
+          // Fallback: vérifier les acomptes individuels
           else {
             const currentMonth = currentDate.getMonth();
             
@@ -115,9 +115,11 @@ export const getClientsRegimeStats = async (): Promise<ClientRegimeStats> => {
           }
         } else {
           console.log(`Client ${client.id} est IGS mais sans données IGS définies dans fiscal_data`);
+          delayedIgsClients++;
         }
       } else {
         console.log(`Client ${client.id} est IGS mais sans données IGS définies`);
+        delayedIgsClients++;
       }
     }
   });

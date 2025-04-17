@@ -39,7 +39,7 @@ export const getClientStats = async () => {
       if (typedClient.igs && typedClient.igs.soumisIGS) {
         console.log(`Données IGS pour client ${client.id}:`, typedClient.igs);
         
-        // Utiliser le nouveau système de suivi des paiements avec completedPayments
+        // Utiliser le système de suivi des paiements avec completedPayments
         if (Array.isArray(typedClient.igs.completedPayments)) {
           const paymentStatus = calculatePaymentStatus(typedClient.igs.completedPayments, currentDate);
           
@@ -73,7 +73,7 @@ export const getClientStats = async () => {
         if (fiscalData.igs && fiscalData.igs.soumisIGS) {
           const igsData = fiscalData.igs;
           
-          // Utiliser le nouveau système de suivi des paiements avec completedPayments
+          // Utiliser le système de suivi des paiements avec completedPayments
           if (Array.isArray(igsData.completedPayments)) {
             const paymentStatus = calculatePaymentStatus(igsData.completedPayments, currentDate);
             
@@ -84,12 +84,14 @@ export const getClientStats = async () => {
             return false;
           }
           
-          // Fallback pour la méthode ancienne (vérification des acomptes)
+          // Fallback pour l'ancien système
           const currentMonth = currentDate.getMonth();
           
           if (currentMonth > 0 && (!igsData.acompteJanvier || !igsData.acompteJanvier.montant)) {
+            console.log(`Client ${client.id} n'a pas payé l'acompte de janvier (via fiscal_data) - ajouté aux statistiques`);
             return true;
           } else if (currentMonth > 1 && (!igsData.acompteFevrier || !igsData.acompteFevrier.montant)) {
+            console.log(`Client ${client.id} n'a pas payé l'acompte de février (via fiscal_data) - ajouté aux statistiques`);
             return true;
           }
         } else {
@@ -98,13 +100,13 @@ export const getClientStats = async () => {
         }
       } else {
         console.log(`Client ${client.id} est IGS mais sans données IGS définies - ajouté aux statistiques`);
-        return true; // Si le client est IGS mais n'a pas de données IGS, on le considère en retard
+        return true; // Client IGS sans données est considéré en retard
       }
     }
     return false;
   }).length;
   
-  // Clients avec DSF non déposée (gardons cette partie inchangée)
+  // Clients avec DSF non déposée
   const unfiledDsfClients = allClients.filter(client => {
     // On vérifie si le client a des données fiscales
     if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
