@@ -1,8 +1,9 @@
+
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "./types";
 import { toast } from "sonner";
 import { saveFiscalData } from "./services/saveService";
-import { verifyFiscalDataSave } from "./services/verifyService";
+import { verifyAndNotifyFiscalChanges } from "./services/verifyService";
 import { updateCache, clearCache, getDebugInfo } from "./services/cacheService";
 import { useFiscalAttestation } from "./hooks/useFiscalAttestation";
 import { useObligationStatus } from "./hooks/useObligationStatus";
@@ -97,11 +98,11 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           window.__invalidateFiscalCaches();
         }
         
-        const verified = await verifyFiscalDataSave(selectedClient.id, fiscalData);
+        // Utiliser notre vérification améliorée
+        const verified = await verifyAndNotifyFiscalChanges(selectedClient.id, fiscalData);
         
         if (verified) {
           console.log("Enregistrement vérifié avec succès");
-          toast.success("Les informations fiscales ont été mises à jour.");
           setLastSaveTime(Date.now());
           setLastSaveSuccess(true);
           
@@ -114,7 +115,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           setLastSaveSuccess(false);
           
           setTimeout(async () => {
-            const secondVerification = await verifyFiscalDataSave(selectedClient.id, fiscalData);
+            const secondVerification = await verifyAndNotifyFiscalChanges(selectedClient.id, fiscalData);
             if (secondVerification) {
               console.log("Seconde vérification réussie");
               setLastSaveSuccess(true);

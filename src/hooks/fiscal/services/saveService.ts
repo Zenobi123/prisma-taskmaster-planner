@@ -2,7 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { clearCache, updateCache } from "./cacheService";
-import { verifyFiscalDataSave } from "./verifyService";
+import { verifyFiscalDataSave, verifyAndNotifyFiscalChanges } from "./verifyService";
 import { Json } from "@/integrations/supabase/types";
 
 /**
@@ -30,7 +30,17 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
       return false;
     }
     
-    return true;
+    // Vérifier que les données ont été correctement enregistrées
+    const isVerified = await verifyFiscalDataSave(clientId, fiscalData);
+    
+    if (!isVerified && retryCount < 2) {
+      console.warn(`Verification failed, retrying save (attempt ${retryCount + 1})...`);
+      const delay = (retryCount + 1) * 2000;
+      await new Promise(resolve => setTimeout(resolve, delay));
+      return saveFiscalData(clientId, fiscalData, retryCount + 1);
+    }
+    
+    return isVerified;
   } catch (error) {
     console.error(`Exception during fiscal data save (attempt ${retryCount + 1}):`, error);
     clearCache(clientId);
