@@ -1,7 +1,6 @@
 
 import { useState } from "react";
 import { IGSPayment } from "@/hooks/fiscal/types/igsTypes";
-import { IGSPaymentField } from "./IGSPaymentField";
 import { BadgeEuro, Receipt, AlertTriangle, Calendar } from "lucide-react";
 import { CGAClasse } from "@/hooks/fiscal/types";
 import { useIGSReliquat } from "@/hooks/fiscal/useIGSReliquat";
@@ -16,10 +15,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 
 interface IGSPaymentsSectionProps {
-  patente: IGSPayment;
+  patente?: IGSPayment;
   acompteJanvier: IGSPayment;
   acompteFevrier: IGSPayment;
-  onPatenteChange: (payment: IGSPayment) => void;
   onAcompteJanvierChange: (payment: IGSPayment) => void;
   onAcompteFevrierChange: (payment: IGSPayment) => void;
   soumisIGS: boolean;
@@ -30,10 +28,8 @@ interface IGSPaymentsSectionProps {
 }
 
 export function IGSPaymentsSection({
-  patente,
   acompteJanvier,
   acompteFevrier,
-  onPatenteChange,
   onAcompteJanvierChange,
   onAcompteFevrierChange,
   soumisIGS,
@@ -42,15 +38,6 @@ export function IGSPaymentsSection({
   completedPayments = [],
   onCompletedPaymentsChange
 }: IGSPaymentsSectionProps) {
-  const reliquat = useIGSReliquat(
-    soumisIGS,
-    classeIGS,
-    adherentCGA,
-    patente,
-    acompteJanvier,
-    acompteFevrier
-  );
-  
   const [paymentsList, setPaymentsList] = useState<string[]>(completedPayments);
   const deadlines = getIGSPaymentDeadlines();
   const totalAmount = calculateIGSAmount(soumisIGS, classeIGS, adherentCGA);
@@ -137,15 +124,6 @@ export function IGSPaymentsSection({
         </div>
       )}
       
-      <Alert className="bg-amber-50 border-amber-200">
-        <AlertTriangle className="h-4 w-4 text-amber-800" />
-        <AlertTitle className="text-amber-800">Important</AlertTitle>
-        <AlertDescription className="text-sm text-amber-800">
-          Les paiements et déductions ne sont pris en compte que s'ils sont autorisés par l'administration fiscale.
-          Veuillez vous assurer d'avoir les justificatifs nécessaires.
-        </AlertDescription>
-      </Alert>
-      
       <Alert className="bg-blue-50 border-blue-200">
         <Calendar className="h-4 w-4 text-blue-800" />
         <AlertTitle className="text-blue-800">Échéances de paiement IGS</AlertTitle>
@@ -154,26 +132,7 @@ export function IGSPaymentsSection({
           Vous pouvez payer en 1, 2 ou 4 fois selon votre choix.
         </AlertDescription>
       </Alert>
-      
-      <IGSPaymentField
-        label="Patente payée pour l'exercice (FCFA)"
-        payment={patente}
-        onChange={(montant, quittance) => 
-          onPatenteChange({ montant, quittance })}
-        helperText="Vient en déduction de l'IGS si autorisée par l'administration fiscale"
-      />
-      
-      {reliquat !== null && (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-          <p className="text-blue-800 font-medium flex items-center">
-            <BadgeEuro className="h-5 w-5 mr-2" />
-            Reliquat IGS à payer: {reliquat.toLocaleString()} FCFA
-            <Badge variant={reliquat === 0 ? "success" : "destructive"} className="ml-2">
-              {reliquat === 0 ? "Soldé" : "Non soldé"}
-            </Badge>
-          </p>
-        </div>
-      )}
     </div>
   );
 }
+

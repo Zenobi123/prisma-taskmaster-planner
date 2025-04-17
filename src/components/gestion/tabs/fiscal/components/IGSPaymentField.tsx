@@ -13,7 +13,7 @@ interface IGSPaymentFieldProps {
 }
 
 export function IGSPaymentField({ 
-  label, 
+  label = "Acompte", 
   quittanceLabel = "Numéro de quittance", 
   payment, 
   onChange,
@@ -46,3 +46,4 @@ export function IGSPaymentField({
     </div>
   );
 }
+
