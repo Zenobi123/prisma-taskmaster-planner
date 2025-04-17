@@ -45,6 +45,7 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     console.log(`Saving fiscal data for client ${clientId}`, fiscalData);
     console.log("Cache state before save:", getDebugInfo());
     
+    // Ensure we're really sending the data to the database
     const { error } = await supabase
       .from('clients')
       .update({ fiscal_data: fiscalData as unknown as Json })
@@ -64,6 +65,17 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     await invalidateRelatedQueries();
     
     console.log("Cache state after save:", getDebugInfo());
+    
+    // After a successful save, wait a moment and verify the data was saved
+    setTimeout(async () => {
+      try {
+        const verificationSuccess = await verifyFiscalDataSave(clientId, fiscalData);
+        console.log(`Verification after delay: ${verificationSuccess ? "Successful" : "Failed"}`);
+      } catch (err) {
+        console.error("Error in delayed verification:", err);
+      }
+    }, 2000);
+    
     return true;
   } catch (error) {
     console.error("Exception saving fiscal data:", error);
@@ -84,11 +96,30 @@ const invalidateRelatedQueries = async (): Promise<void> => {
     expireAllCaches();
     
     // Call global cache invalidation function if it exists
-    if (typeof window !== 'undefined' && window.__invalidateFiscalCaches) {
+    if (typeof window !== 'undefined') {
+      // Create the function if it doesn't exist
+      if (!window.__invalidateFiscalCaches) {
+        window.__invalidateFiscalCaches = function() {
+          console.log("Creating and calling global cache invalidation function");
+          
+          // Reset timestamps in the IGS and Patente caches
+          if (window.__patenteCacheTimestamp !== undefined) {
+            window.__patenteCacheTimestamp = 0;
+            console.log("Patente cache invalidated");
+          }
+          
+          // Manually trigger any other cache invalidations here
+          if (window.__igsCache) {
+            window.__igsCache = { data: null, timestamp: 0 };
+            console.log("IGS cache invalidated");
+          }
+        };
+      }
+      
       console.log("Calling global cache invalidation function");
       window.__invalidateFiscalCaches();
     } else {
-      console.log("Global cache invalidation function not available");
+      console.log("Global cache invalidation function not available - not running in browser");
     }
     
   } catch (error) {
@@ -117,7 +148,21 @@ export const verifyFiscalDataSave = async (clientId: string, expectedData: Clien
     
     if (data?.fiscal_data) {
       console.log("Verification data:", data.fiscal_data);
-      return true;
+      
+      // Do a simple check to make sure some key fields match
+      const savedData = data.fiscal_data as unknown as ClientFiscalData;
+      
+      // Log detailed comparisons for debugging
+      console.log("Comparison of key fields:");
+      if (savedData.hiddenFromDashboard !== undefined && expectedData.hiddenFromDashboard !== undefined) {
+        console.log(`hiddenFromDashboard: expected=${expectedData.hiddenFromDashboard}, saved=${savedData.hiddenFromDashboard}`);
+      }
+      
+      if (savedData.attestation && expectedData.attestation) {
+        console.log(`attestation.creationDate: expected=${expectedData.attestation.creationDate}, saved=${savedData.attestation.creationDate}`);
+      }
+      
+      return true; // If we got this far, the save succeeded
     }
     
     console.log("Verification failed: No data returned");

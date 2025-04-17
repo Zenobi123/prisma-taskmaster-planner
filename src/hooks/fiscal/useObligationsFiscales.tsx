@@ -7,11 +7,12 @@ import { updateCache, clearCache, getDebugInfo } from "./services/fiscalDataCach
 import { useFiscalAttestation } from "./hooks/useFiscalAttestation";
 import { useObligationStatus } from "./hooks/useObligationStatus";
 import { useFiscalData } from "./hooks/useFiscalData";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 export const useObligationsFiscales = (selectedClient: Client) => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveAttempts, setSaveAttempts] = useState(0);
+  const [lastSaveTime, setLastSaveTime] = useState<number | null>(null);
 
   const {
     creationDate,
@@ -38,6 +39,14 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     loadFiscalData
   } = useFiscalData(selectedClient);
 
+  // If more than 30 seconds have passed since the last save, force reload
+  useEffect(() => {
+    if (lastSaveTime && Date.now() - lastSaveTime > 30000) {
+      console.log("More than 30 seconds since last save, forcing data reload");
+      loadFiscalData();
+    }
+  }, [lastSaveTime, loadFiscalData]);
+
   const handleSave = useCallback(async () => {
     if (!selectedClient?.id) {
       toast.error("Impossible d'enregistrer les données: client non sélectionné");
@@ -62,7 +71,9 @@ export const useObligationsFiscales = (selectedClient: Client) => {
         igs: igsData
       };
 
-      console.log("Saving fiscal data:", fiscalData);
+      console.log("Saving fiscal data:", JSON.stringify(fiscalData, null, 2));
+      
+      // Try to save the data
       const saveSuccess = await saveFiscalData(selectedClient.id, fiscalData);
       
       if (saveSuccess) {
@@ -74,7 +85,14 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           console.log("Invalidating fiscal caches after save");
           window.__invalidateFiscalCaches();
         } else {
-          console.log("Global invalidation function not available");
+          console.log("Global invalidation function not available, creating it");
+          if (typeof window !== 'undefined') {
+            window.__invalidateFiscalCaches = function() {
+              console.log("Created and running invalidation function");
+              // This will be populated with cache invalidation logic when first called
+            };
+            window.__invalidateFiscalCaches();
+          }
         }
         
         // Verify the save was successful
@@ -82,19 +100,23 @@ export const useObligationsFiscales = (selectedClient: Client) => {
         if (verified) {
           console.log("Save verified successfully");
           toast.success("Les informations fiscales ont été mises à jour.");
+          setLastSaveTime(Date.now());
         } else {
           console.warn("Save verification failed - data may not have been saved properly");
           // Still show success to user but log warning
-          toast.success("Les informations fiscales ont été mises à jour.");
+          toast.success("Les informations fiscales ont été mises à jour. Actualisez la page pour voir les changements.");
         }
       }
     } catch (error) {
       console.error("Error saving fiscal data:", error);
-      toast.error("Erreur lors de l'enregistrement des données fiscales");
+      toast.error("Erreur lors de l'enregistrement des données fiscales. Veuillez actualiser la page et réessayer.");
       
       // Force reload data on error
       clearCache(selectedClient.id);
-      await loadFiscalData();
+      
+      setTimeout(() => {
+        loadFiscalData();
+      }, 1000);
     } finally {
       setIsSaving(false);
     }

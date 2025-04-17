@@ -4,8 +4,8 @@ import { ClientFiscalData } from "../types";
 // Cache for clients' fiscal data
 const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
 
-// Cache validity duration in ms (30 seconds for quicker testing/updates)
-const CACHE_DURATION = 30000;
+// Cache validity duration in ms (10 seconds for quicker testing/updates)
+const CACHE_DURATION = 10000; // Reduced from 30s to 10s for quicker refreshes
 
 /**
  * Get data from cache if valid
