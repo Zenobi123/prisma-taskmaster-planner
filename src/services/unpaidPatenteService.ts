@@ -1,10 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
-import { ClientFiscalData } from "@/hooks/fiscal/types";
 
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
-  console.log("Service: Récupération des clients avec patentes impayées...");
+  console.log("Service: Récupération des clients avec IGS impayés...");
   
   // Récupérer tous les clients
   const { data: allClients, error } = await supabase
@@ -16,33 +15,39 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
     throw error;
   }
 
-  // Filtrer les clients avec patente impayée
-  const clientsWithUnpaidPatente = allClients.filter(client => {
-    // On vérifie si le client a des données fiscales
-    if (client.fiscal_data && 
-        typeof client.fiscal_data === 'object' && 
-        client.fiscal_data !== null) {
-      
-      // Cast fiscal_data to ClientFiscalData for proper type checking
-      const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
-      
-      // Ne pas inclure si explicitement marqué comme caché du tableau de bord
-      if (fiscalData.hiddenFromDashboard === true) {
-        return false;
-      }
-      
-      // Vérifier si obligations existe dans les données fiscales
-      if (fiscalData.obligations) {
-        // On cherche une obligation de type patente qui est assujetti mais non payée
-        return fiscalData.obligations.patente && 
-               fiscalData.obligations.patente.assujetti === true && 
-               fiscalData.obligations.patente.paye === false;
+  // Filtrer les clients avec IGS impayé
+  const clientsWithUnpaidIGS = allClients.filter(client => {
+    // Vérifier si c'est un client IGS
+    if (client.regimefiscal === "igs") {
+      // Vérifier les données fiscales IGS
+      if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
+        const fiscalData = client.fiscal_data as any;
+        
+        // Ne pas inclure si explicitement marqué comme caché du tableau de bord
+        if (fiscalData.hiddenFromDashboard === true) {
+          return false;
+        }
+        
+        // Vérifier si les paiements IGS sont à jour
+        if (fiscalData.igs) {
+          const currentDate = new Date();
+          const currentMonth = currentDate.getMonth();
+          
+          // Vérifier si nous sommes après janvier mais qu'aucun acompte n'a été payé
+          if (currentMonth > 0 && (!fiscalData.igs.acompteJanvier || !fiscalData.igs.acompteJanvier.montant)) {
+            return true;
+          }
+          // Vérifier si nous sommes après février mais que l'acompte de février n'a pas été payé
+          else if (currentMonth > 1 && (!fiscalData.igs.acompteFevrier || !fiscalData.igs.acompteFevrier.montant)) {
+            return true;
+          }
+        }
       }
     }
     return false;
   });
   
-  console.log("Service: Clients avec patentes impayées:", clientsWithUnpaidPatente.length);
+  console.log("Service: Clients avec IGS impayés:", clientsWithUnpaidIGS.length);
   
-  return clientsWithUnpaidPatente as unknown as Client[];
+  return clientsWithUnpaidIGS as unknown as Client[];
 };

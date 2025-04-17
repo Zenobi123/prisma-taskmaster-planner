@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getClientStats } from "@/services/clientStatsService";
@@ -58,7 +59,7 @@ const QuickStats = () => {
         <div className="card cursor-pointer hover:bg-slate-50 transition-colors" 
              onClick={() => setShowUnpaidPatenteDialog(true)}>
           <h3 className="font-semibold text-neutral-800 mb-4">
-            Patentes impayées
+            IGS impayés
           </h3>
           <div className="flex items-center">
             <div className="text-3xl font-bold text-emerald-600 mr-2">

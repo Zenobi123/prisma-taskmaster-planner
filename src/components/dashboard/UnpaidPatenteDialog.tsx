@@ -46,9 +46,9 @@ export function UnpaidPatenteDialog({ open, onOpenChange }: UnpaidPatenteDialogP
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl">
         <DialogHeader>
-          <DialogTitle>Clients avec patentes impayées</DialogTitle>
+          <DialogTitle>Clients avec IGS impayés</DialogTitle>
           <DialogDescription>
-            Liste des clients assujettis à la patente qui ne l'ont pas encore payée.
+            Liste des clients assujettis à l'IGS qui n'ont pas effectué leurs paiements.
           </DialogDescription>
         </DialogHeader>
 
@@ -58,7 +58,7 @@ export function UnpaidPatenteDialog({ open, onOpenChange }: UnpaidPatenteDialogP
           </div>
         ) : clients.length === 0 ? (
           <div className="text-center p-8">
-            <p className="text-muted-foreground">Aucun client avec patente impayée trouvé.</p>
+            <p className="text-muted-foreground">Aucun client avec IGS impayé trouvé.</p>
           </div>
         ) : (
           <div className="overflow-auto max-h-[70vh]">

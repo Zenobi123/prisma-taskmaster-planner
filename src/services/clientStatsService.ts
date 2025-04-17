@@ -17,17 +17,28 @@ export const getClientStats = async () => {
   // Nombre total de clients en gestion
   const managedClients = allClients.filter(client => client.gestionexternalisee === true).length;
   
-  // Clients assujettis à la patente qui ne l'ont pas payée
+  // Clients assujettis à l'IGS qui ne l'ont pas payé
   const unpaidPatenteClients = allClients.filter(client => {
-    // On vérifie si le client a des données fiscales
-    if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
-      // Vérifier si obligations existe dans les données fiscales
-      const fiscalData = client.fiscal_data as { obligations?: any };
-      if (fiscalData.obligations) {
-        // On cherche une obligation de type patente qui est assujetti mais non payée
-        return fiscalData.obligations.patente && 
-               fiscalData.obligations.patente.assujetti === true && 
-               fiscalData.obligations.patente.paye === false;
+    // Vérifier si c'est un client IGS
+    if (client.regimefiscal === "igs") {
+      // Vérifier les données fiscales IGS
+      if (client.fiscal_data && typeof client.fiscal_data === 'object' && client.fiscal_data !== null) {
+        const fiscalData = client.fiscal_data as any;
+        
+        // Vérifier si les paiements IGS sont à jour
+        if (fiscalData.igs) {
+          const currentDate = new Date();
+          const currentMonth = currentDate.getMonth();
+          
+          // Vérifier si nous sommes après janvier mais qu'aucun acompte n'a été payé
+          if (currentMonth > 0 && (!fiscalData.igs.acompteJanvier || !fiscalData.igs.acompteJanvier.montant)) {
+            return true;
+          }
+          // Vérifier si nous sommes après février mais que l'acompte de février n'a pas été payé
+          else if (currentMonth > 1 && (!fiscalData.igs.acompteFevrier || !fiscalData.igs.acompteFevrier.montant)) {
+            return true;
+          }
+        }
       }
     }
     return false;
