@@ -32,6 +32,16 @@ export function IGSSummary({
     sum + (payment.isPaid ? payment.amount : 0), 0
   );
   const remainingAmount = igsAmount - totalPaid;
+  
+  // Calculate overdue amount
+  const currentDate = new Date();
+  const overdueAmount = quarterlyPayments.reduce((sum, payment) => {
+    const dueDate = new Date(payment.dueDate.split('/').reverse().join('-'));
+    if (!payment.isPaid && dueDate < currentDate) {
+      return sum + payment.amount;
+    }
+    return sum;
+  }, 0);
 
   return (
     <Card className="bg-slate-50">
@@ -83,6 +93,12 @@ export function IGSSummary({
                     <span className="text-muted-foreground">Reste à payer : </span>
                     <span className="font-medium text-red-600">{formatMontant(remainingAmount)}</span>
                   </p>
+                  {overdueAmount > 0 && (
+                    <p className="text-sm">
+                      <span className="text-muted-foreground">En retard : </span>
+                      <span className="font-medium text-red-600">{formatMontant(overdueAmount)}</span>
+                    </p>
+                  )}
                 </div>
               </div>
               
