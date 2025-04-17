@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses, ClientFiscalData, ObligationType, IGSData, Establishment } from "./types";
@@ -40,14 +39,12 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     cgaReduction: false
   });
 
-  // Fetch fiscal data when client changes
   useEffect(() => {
     if (selectedClient?.id) {
       loadFiscalData();
     }
   }, [selectedClient?.id]);
 
-  // Update validity end date when creation date changes
   useEffect(() => {
     if (creationDate) {
       const calculatedEndDate = calculateValidityEndDate(creationDate);
@@ -55,7 +52,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     }
   }, [creationDate]);
 
-  // Show toast notifications for expiring attestations
   useEffect(() => {
     if (creationDate && validityEndDate) {
       checkAttestationExpiration(creationDate, validityEndDate);
@@ -65,7 +61,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   const loadFiscalData = async () => {
     setIsLoading(true);
     try {
-      // Try to get data from cache first
       const cachedData = getFromCache(selectedClient.id);
       if (cachedData) {
         setFiscalDataToState(cachedData);
@@ -73,16 +68,13 @@ export const useObligationsFiscales = (selectedClient: Client) => {
         return;
       }
 
-      // If not in cache, fetch from database
       const fiscalData = await fetchFiscalData(selectedClient.id);
       
       if (fiscalData) {
         setFiscalDataToState(fiscalData);
         
-        // Update cache
         updateCache(selectedClient.id, fiscalData);
       } else {
-        // Initialize default values if no data exists
         resetToDefaults();
       }
     } catch (error) {
@@ -98,7 +90,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     if (data.attestation) {
       setCreationDate(data.attestation.creationDate || "");
       setValidityEndDate(data.attestation.validityEndDate || "");
-      setShowInAlert(data.attestation.showInAlert !== false); // Default to true if undefined
+      setShowInAlert(data.attestation.showInAlert !== false);
     }
     
     if (data.obligations) {
@@ -185,7 +177,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     try {
       await saveFiscalData(selectedClient.id, fiscalData);
       
-      // Update cache
       updateCache(selectedClient.id, fiscalData);
       
       toast.success("Données fiscales enregistrées avec succès");
