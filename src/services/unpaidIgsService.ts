@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client } from "@/types/client";
+import { Client, ClientType } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
 
 export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
@@ -17,7 +17,8 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
 
   const clientsWithUnpaidIGS = allClients.filter(client => {
     if (client.fiscal_data && typeof client.fiscal_data === 'object') {
-      const fiscalData = client.fiscal_data as ClientFiscalData;
+      // Cast fiscal_data to unknown first, then to ClientFiscalData
+      const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
       
       if (fiscalData.hiddenFromDashboard === true) {
         return false;
@@ -31,12 +32,14 @@ export const getClientsWithUnpaidIGS = async (): Promise<Client[]> => {
     return false;
   });
   
-  // Ensure proper type casting with all required Client properties
+  // Properly cast each client to ensure type safety
   return clientsWithUnpaidIGS.map(client => ({
     ...client,
+    type: client.type as ClientType,
     adresse: client.adresse as Client['adresse'],
     contact: client.contact as Client['contact'],
-    interactions: client.interactions as Client['interactions'],
-    fiscal_data: client.fiscal_data as Client['fiscal_data']
+    interactions: client.interactions as unknown as Client['interactions'],
+    fiscal_data: client.fiscal_data as unknown as Client['fiscal_data'],
+    statut: client.statut as Client['statut']
   }));
 };

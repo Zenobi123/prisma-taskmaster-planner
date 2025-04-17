@@ -7,6 +7,7 @@ import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations";
 import PatenteSection from "./sections/PatenteSection";
 import IgsSection from "./sections/IgsSection";
 import DsfSection from "./sections/DsfSection";
+import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 
 interface DashboardCollapsibleProps {
   title: string;
@@ -14,12 +15,15 @@ interface DashboardCollapsibleProps {
 }
 
 export default function DashboardCollapsible({ title, componentName }: DashboardCollapsibleProps) {
+  // Use the hook to get data for ExpiringFiscalAttestations
+  const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
+  
   const renderComponent = () => {
     switch (componentName) {
       case "RecentTasks":
         return <RecentTasks />;
       case "ExpiringFiscalAttestations":
-        return <ExpiringFiscalAttestations />;
+        return <ExpiringFiscalAttestations attestations={attestations} isLoading={isLoading} />;
       case "PatenteSection":
         return <PatenteSection />;
       case "IgsSection":
