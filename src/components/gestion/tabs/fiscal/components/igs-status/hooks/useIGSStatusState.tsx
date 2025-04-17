@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { Etablissement, IGSPayment } from "@/hooks/fiscal/types/igsTypes";
 import { CGAClasse } from "@/types/client";
@@ -102,7 +103,7 @@ export function useIGSStatusState({
     onChange("igs.acompteJanvier", payment);
   };
 
-  const handleAcompteFevierChange = (payment: IGSPayment) => {
+  const handleAcompteFevrierChange = (payment: IGSPayment) => {
     setAcompteFevrierState(payment);
     onChange("igs.acompteFevrier", payment);
   };
@@ -144,7 +145,7 @@ export function useIGSStatusState({
     onClasseIGSChange: (value: CGAClasse) => onChange("igs.classeIGS", value),
     handlePatenteChange,
     handleAcompteJanvierChange,
-    handleAcompteFevierChange,
+    handleAcompteFevrierChange,
     handleChiffreAffairesChange,
     handleEtablissementsChange,
     handleTotalChange

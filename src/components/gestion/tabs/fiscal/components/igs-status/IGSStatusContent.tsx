@@ -26,7 +26,7 @@ interface IGSStatusContentProps {
   onClasseIGSChange: (value: CGAClasse) => void;
   handlePatenteChange: (payment: IGSPayment) => void;
   handleAcompteJanvierChange: (payment: IGSPayment) => void;
-  handleAcompteFevierChange: (payment: IGSPayment) => void;
+  handleAcompteFevrierChange: (payment: IGSPayment) => void;
   handleChiffreAffairesChange: (value: number) => void;
   handleEtablissementsChange: (value: Etablissement[]) => void;
   handleTotalChange: (total: number) => void;
@@ -48,14 +48,12 @@ export function IGSStatusContent({
   onClasseIGSChange,
   handlePatenteChange,
   handleAcompteJanvierChange,
-  handleAcompteFevierChange,
+  handleAcompteFevrierChange,
   handleChiffreAffairesChange,
   handleEtablissementsChange,
   handleTotalChange,
   handleCompletedPaymentsChange
 }: IGSStatusContentProps) {
-  const [showPayments, setShowPayments] = useState(false);
-
   return (
     <div className="flex flex-col space-y-4">
       <IGSToggleSection
@@ -91,33 +89,19 @@ export function IGSStatusContent({
             adherentCGA={adherentCGA} 
           />
           
-          {/* Déclencheur pour les paiements et déductions */}
-          <div className="flex items-center space-x-2 pt-4">
-            <Switch 
-              id="showPayments" 
-              checked={showPayments} 
-              onCheckedChange={setShowPayments} 
-            />
-            <Label htmlFor="showPayments" className="font-medium">
-              Activer les paiements et déductions
-            </Label>
-          </div>
-          
-          {showPayments && (
-            <IGSPaymentsSection 
-              patente={patenteState}
-              acompteJanvier={acompteJanvierState}
-              acompteFevrier={acompteFevrierState}
-              onPatenteChange={handlePatenteChange}
-              onAcompteJanvierChange={handleAcompteJanvierChange}
-              onAcompteFevierChange={handleAcompteFevierChange}
-              soumisIGS={soumisIGS}
-              classeIGS={classeIGS}
-              adherentCGA={adherentCGA}
-              completedPayments={completedPayments}
-              onCompletedPaymentsChange={handleCompletedPaymentsChange}
-            />
-          )}
+          <IGSPaymentsSection 
+            patente={patenteState}
+            acompteJanvier={acompteJanvierState}
+            acompteFevrier={acompteFevrierState}
+            onPatenteChange={handlePatenteChange}
+            onAcompteJanvierChange={handleAcompteJanvierChange}
+            onAcompteFevrierChange={handleAcompteFevrierChange}
+            soumisIGS={soumisIGS}
+            classeIGS={classeIGS}
+            adherentCGA={adherentCGA}
+            completedPayments={completedPayments}
+            onCompletedPaymentsChange={handleCompletedPaymentsChange}
+          />
         </>
       )}
     </div>
