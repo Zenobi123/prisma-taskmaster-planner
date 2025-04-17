@@ -39,15 +39,27 @@ export const loadFiscalData = async (clientId: string): Promise<FiscalData> => {
   };
 };
 
+// Default IGS values to use when data is missing
+const defaultIGSData: IGSData = {
+  soumisIGS: false,
+  adherentCGA: false,
+  patente: { montant: '', quittance: '' },
+  acompteJanvier: { montant: '', quittance: '' },
+  acompteFevrier: { montant: '', quittance: '' },
+  chiffreAffairesAnnuel: 0,
+  etablissements: []
+};
+
 export const extractIGSData = (fiscalData: FiscalData | null, client: Client): IGSData & { 
   chiffreAffairesAnnuel?: number;
   etablissements?: Etablissement[];
 } => {
-  // Check if fiscal data is available
-  const fiscalIGS = fiscalData?.igs || {};
-  const clientIGS = client?.igs || {};
+  // Check if fiscal data is available and extract IGS data
+  const fiscalIGS = fiscalData?.igs || defaultIGSData;
+  // Extract client IGS data or use defaults
+  const clientIGS = client?.igs || defaultIGSData;
   
-  // Merge and return values from both sources
+  // Merge and return values from both sources with safe defaults
   return {
     soumisIGS: fiscalIGS.soumisIGS !== undefined ? fiscalIGS.soumisIGS : (clientIGS.soumisIGS || false),
     adherentCGA: fiscalIGS.adherentCGA !== undefined ? fiscalIGS.adherentCGA : (clientIGS.adherentCGA || false),
