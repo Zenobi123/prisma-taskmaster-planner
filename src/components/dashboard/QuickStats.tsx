@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getClientStats } from "@/services/clientStatsService";
@@ -106,7 +105,7 @@ const QuickStats = () => {
               regimeStats.igsClients
             )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">Impôt global simplifié</p>
+          <p className="text-neutral-600 text-sm mt-1">Impôt Général synthétique</p>
         </div>
 
         <div className="card">
