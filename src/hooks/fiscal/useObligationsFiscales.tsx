@@ -56,14 +56,16 @@ export const useObligationsFiscales = (selectedClient: Client) => {
         igs: igsData
       };
 
+      console.log("Saving fiscal data:", fiscalData);
       const saveSuccess = await saveFiscalData(selectedClient.id, fiscalData);
       
-      // Update local cache immediately
       if (saveSuccess) {
+        // Update local cache immediately
         updateCache(selectedClient.id, fiscalData);
         
-        // Force clear the cache for unpaid IGS and Patente clients
-        if (window && window.__invalidateFiscalCaches) {
+        // Force clear related caches to ensure fresh data
+        if (typeof window !== 'undefined' && window.__invalidateFiscalCaches) {
+          console.log("Invalidating fiscal caches after save");
           window.__invalidateFiscalCaches();
         }
         

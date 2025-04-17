@@ -18,6 +18,7 @@ export const useIGSData = (initialData?: IGSData) => {
 
   return {
     igsData,
+    setIgsData,
     handleIGSDataChange
   };
 };

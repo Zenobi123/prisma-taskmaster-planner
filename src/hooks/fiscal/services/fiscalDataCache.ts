@@ -48,3 +48,32 @@ export const clearAllCaches = (): void => {
   console.log('Clearing all fiscal data caches');
   fiscalDataCache.clear();
 };
+
+/**
+ * Force expire cache for a specific client
+ * This keeps the data but makes it expire immediately
+ */
+export const expireCache = (clientId: string): void => {
+  const cachedEntry = fiscalDataCache.get(clientId);
+  if (cachedEntry) {
+    console.log(`Expiring cache for client ${clientId}`);
+    fiscalDataCache.set(clientId, {
+      data: cachedEntry.data,
+      timestamp: 0 // Set timestamp to 0 to force expiration
+    });
+  }
+};
+
+/**
+ * Force expire all caches
+ * This keeps the data but makes it all expire immediately
+ */
+export const expireAllCaches = (): void => {
+  console.log('Expiring all fiscal data caches');
+  fiscalDataCache.forEach((value, key) => {
+    fiscalDataCache.set(key, {
+      data: value.data,
+      timestamp: 0 // Set timestamp to 0 to force expiration
+    });
+  });
+};

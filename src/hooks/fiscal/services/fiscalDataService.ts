@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
+import { clearCache, expireAllCaches } from "./fiscalDataCache";
 
 /**
  * Fetch fiscal data from the database
@@ -55,7 +56,10 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     
     console.log(`Fiscal data saved successfully for client ${clientId}`);
     
-    // Clear all related caches to ensure fresh data is loaded
+    // Clear this client's cache to ensure fresh data is loaded next time
+    clearCache(clientId);
+    
+    // Force expire all related caches to ensure fresh data is loaded everywhere
     await invalidateRelatedQueries();
     
     return true;
@@ -74,9 +78,11 @@ const invalidateRelatedQueries = async (): Promise<void> => {
     // This will ensure dashboard and other displays show updated information
     console.log("Invalidating related caches and refreshing data...");
     
-    // Clear caches in unpaidIgsService and unpaidPatenteService
-    // We do this by making cache timestamps expire
-    if (window && window.__invalidateFiscalCaches) {
+    // Expire all fiscal-related caches
+    expireAllCaches();
+    
+    // Call global cache invalidation function if it exists
+    if (typeof window !== 'undefined' && window.__invalidateFiscalCaches) {
       window.__invalidateFiscalCaches();
     }
     
