@@ -17,10 +17,13 @@ export function useUpdateClientMutation() {
         console.log("Données IGS à mettre à jour:", updates.igs);
       }
       
+      // Ensure we're correctly passing the update data to the service
       const updatedClient = await updateClient(id, updates);
+      console.log("Client mis à jour avec succès:", updatedClient);
       return updatedClient;
     },
     onSuccess: (data) => {
+      // Invalidate and refetch to ensure we have the latest data
       queryClient.invalidateQueries({ queryKey: ["clients"] });
       
       const clientName = data.type === "physique" 

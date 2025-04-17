@@ -4,6 +4,7 @@ import { ClientType, Client } from "@/types/client";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientFormFields } from "./form/ClientFormFields";
 import { useClientForm } from "@/hooks/clientForm";
+import { useState } from "react";
 
 interface ClientFormProps {
   onSubmit: (data: any) => void;
@@ -14,11 +15,21 @@ interface ClientFormProps {
 
 export function ClientForm({ onSubmit, type, onTypeChange, initialData }: ClientFormProps) {
   const { formData, handleChange, prepareSubmitData } = useClientForm(initialData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const clientData = prepareSubmitData(type);
-    onSubmit(clientData);
+    setIsSubmitting(true);
+    
+    try {
+      const clientData = prepareSubmitData(type);
+      console.log("Submitting client data:", clientData);
+      onSubmit(clientData);
+    } catch (error) {
+      console.error("Error preparing client data:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -33,7 +44,7 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         onChange={handleChange}
       />
 
-      <Button type="submit" className="w-full">
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
         {initialData ? "Modifier le client" : "Ajouter le client"}
       </Button>
     </form>

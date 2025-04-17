@@ -1,26 +1,30 @@
 
-import { Client, ClientType } from "@/types/client";
+import { useState } from "react";
+import { Client } from "@/types/client";
 import { useClientFormState } from "./useClientFormState";
 import { useClientFormHandlers } from "./useClientFormHandlers";
 import { useClientFormSubmit } from "./useClientFormSubmit";
-import { UseClientFormReturn } from "./types";
 
-export function useClientForm(initialData?: Client): UseClientFormReturn {
-  // Initialize form state
+export function useClientForm(initialData?: Client) {
   const { formData, setFormData } = useClientFormState(initialData);
-  
-  // Form event handlers
   const { handleChange } = useClientFormHandlers(formData, setFormData);
-  
-  // Form submission preparation
-  const { prepareSubmitData } = useClientFormSubmit(formData);
+  const { prepareSubmitData } = useClientFormSubmit();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Process will be handled by parent component
+  };
+
+  const prepareClientData = (type: string) => {
+    return prepareSubmitData(formData, type, initialData);
+  };
 
   return {
     formData,
     handleChange,
-    prepareSubmitData
+    handleSubmit,
+    prepareSubmitData: prepareClientData,
   };
 }
 
-// Re-export types
 export * from "./types";

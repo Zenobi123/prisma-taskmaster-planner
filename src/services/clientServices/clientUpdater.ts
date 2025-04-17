@@ -8,13 +8,18 @@ export async function updateClient(id: string, updates: Partial<Client>) {
   // Format the data properly for Supabase
   const { igs, ...otherUpdates } = updates;
   
-  // Basic client data
-  const clientData: any = {
-    ...otherUpdates,
-  };
+  // Basic client data with explicit field handling
+  const clientData: any = {};
+  
+  // Copy all direct fields from updates
+  Object.keys(otherUpdates).forEach(key => {
+    if (key !== 'adresse' && key !== 'contact' && key !== 'situationimmobiliere' && key !== 'fiscal_data') {
+      clientData[key] = (otherUpdates as any)[key];
+    }
+  });
   
   // Ensure regimefiscal is properly captured
-  if (updates.regimefiscal) {
+  if (updates.regimefiscal !== undefined) {
     clientData.regimefiscal = updates.regimefiscal;
     console.log("Setting regimefiscal to:", updates.regimefiscal);
   }

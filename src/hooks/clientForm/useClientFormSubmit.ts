@@ -1,11 +1,15 @@
 
-import { ClientType, RegimeFiscalPhysique, RegimeFiscalMorale } from "@/types/client";
-import { ClientFormState } from "./types";
+import { Client, ClientType } from "@/types/client";
 
-export function useClientFormSubmit(formData: ClientFormState) {
-  const prepareSubmitData = (type: ClientType) => {
-    const baseData = {
-      type,
+export function useClientFormSubmit() {
+  const prepareSubmitData = (formData: any, type: ClientType, initialData?: Client) => {
+    console.log("Preparing client data for submission:", formData);
+    console.log("Client type:", type);
+    console.log("Regime fiscal selected:", formData.regimefiscal);
+    
+    // Prepare the client data for API submission
+    const clientData: Partial<Client> = {
+      type: type,
       niu: formData.niu,
       centrerattachement: formData.centrerattachement,
       adresse: {
@@ -18,50 +22,41 @@ export function useClientFormSubmit(formData: ClientFormState) {
         email: formData.email,
       },
       secteuractivite: formData.secteuractivite,
-      numerocnps: formData.numerocnps || null,
+      numerocnps: formData.numerocnps,
       gestionexternalisee: formData.gestionexternalisee,
-      situationimmobiliere: {
-        type: formData.situationimmobiliere.type,
-        valeur: formData.situationimmobiliere.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
-        loyer: formData.situationimmobiliere.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
-      },
-      igs: formData.igs
+      regimefiscal: formData.regimefiscal, // Ensure this is explicitly set
+      situationimmobiliere: formData.situationimmobiliere,
     };
-
-    console.log("Prepared IGS data:", formData.igs);
-
+    
+    // Add type-specific fields
     if (type === "physique") {
-      return {
-        ...baseData,
-        nom: formData.nom,
-        raisonsociale: null,
-        sexe: formData.sexe,
-        etatcivil: formData.etatcivil,
-        regimefiscal: formData.regimefiscal as RegimeFiscalPhysique,
-        sigle: null,
-        datecreation: null,
-        lieucreation: null,
-        nomdirigeant: null,
-        formejuridique: null
-      };
+      clientData.nom = formData.nom;
+      clientData.sexe = formData.sexe;
+      clientData.etatcivil = formData.etatcivil;
     } else {
-      return {
-        ...baseData,
-        nom: null,
-        raisonsociale: formData.raisonsociale,
-        sexe: undefined,
-        etatcivil: undefined,
-        regimefiscal: formData.regimefiscal as RegimeFiscalMorale,
-        sigle: formData.sigle || null,
-        datecreation: formData.datecreation || null,
-        lieucreation: formData.lieucreation || null,
-        nomdirigeant: formData.nomdirigeant || null,
-        formejuridique: formData.formejuridique || null
-      };
+      clientData.raisonsociale = formData.raisonsociale;
+      clientData.sigle = formData.sigle;
+      clientData.datecreation = formData.datecreation;
+      clientData.lieucreation = formData.lieucreation;
+      clientData.nomdirigeant = formData.nomdirigeant;
+      clientData.formejuridique = formData.formejuridique;
     }
+    
+    // Handle IGS data if present
+    if (formData.regimefiscal === "igs" && formData.igs) {
+      clientData.igs = formData.igs;
+    }
+    
+    // If this is an update, include the ID
+    if (initialData?.id) {
+      clientData.id = initialData.id;
+    }
+    
+    console.log("Final client data prepared:", clientData);
+    return clientData;
   };
 
   return {
-    prepareSubmitData
+    prepareSubmitData,
   };
 }
