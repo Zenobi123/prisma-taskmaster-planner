@@ -36,7 +36,6 @@ const Index = () => {
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["client-stats"] });
       
       // Mettre à jour le timestamp de dernière actualisation
@@ -102,11 +101,8 @@ const Index = () => {
             title="Attestations de Conformité Fiscale"
             componentName="ExpiringFiscalAttestations"
           />
-
-          <DashboardCollapsible 
-            title="Gestion des Patentes"
-            componentName="PatenteSection"
-          />
+          
+          {/* Removed: DashboardCollapsible for Gestion des Patentes */}
           
           <DashboardCollapsible 
             title="Déclarations Statistiques et Fiscales"

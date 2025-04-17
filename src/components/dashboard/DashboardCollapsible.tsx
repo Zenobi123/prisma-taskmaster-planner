@@ -7,15 +7,13 @@ import {
 } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import RecentTasks from "./RecentTasks";
 import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations";
-import PatenteSection from "./sections/PatenteSection";
 import DsfSection from "./sections/DsfSection";
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 
 interface DashboardCollapsibleProps {
   title: string;
-  componentName: "RecentTasks" | "ExpiringFiscalAttestations" | "PatenteSection" | "DsfSection";
+  componentName: "ExpiringFiscalAttestations" | "DsfSection";
 }
 
 const DashboardCollapsible = ({ title, componentName }: DashboardCollapsibleProps) => {
@@ -24,12 +22,8 @@ const DashboardCollapsible = ({ title, componentName }: DashboardCollapsibleProp
 
   const renderComponent = () => {
     switch (componentName) {
-      case "RecentTasks":
-        return <RecentTasks />;
       case "ExpiringFiscalAttestations":
         return <ExpiringFiscalAttestations attestations={attestations} isLoading={isLoading} />;
-      case "PatenteSection":
-        return <PatenteSection />;
       case "DsfSection":
         return <DsfSection />;
       default:
