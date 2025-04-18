@@ -10,7 +10,7 @@ import { UnfiledDarpDialog } from "../UnfiledDarpDialog";
 const DarpSection = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  const { data: clients = [], isLoading } = useQuery({
+  const { data: clients = [] } = useQuery({
     queryKey: ["clients-unfiled-darp-section"],
     queryFn: getClientsWithUnfiledDarp,
     refetchInterval: 10000,
