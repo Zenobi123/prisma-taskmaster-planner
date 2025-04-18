@@ -54,17 +54,22 @@ export const QuarterlyPayment = ({
     }
   };
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  // Use a simpler approach for the click handler
+  const togglePaymentStatus = () => {
     if (isQuarterDue) {
-      // Toggle payment status when clicking on the card
       handlePaymentStatusChange(!payment?.isPaid);
     }
+  };
+
+  // Prevent event propagation for child elements
+  const stopPropagation = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
   return (
     <div 
       className="p-3 border rounded-md hover:border-primary/50 transition-colors cursor-pointer" 
-      onClick={handleCardClick}
+      onClick={togglePaymentStatus}
       role="button"
       tabIndex={0}
       aria-label={`Paiement du ${trimester}`}
@@ -73,13 +78,12 @@ export const QuarterlyPayment = ({
         <Label className="font-medium">
           {trimester} - {dueDate}
         </Label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" onClick={stopPropagation}>
           <Checkbox 
             id={`trimester-check-${trimester}`}
             checked={payment?.isPaid || false}
             onCheckedChange={handlePaymentStatusChange}
             disabled={!isQuarterDue}
-            onClick={(e) => e.stopPropagation()}
           />
           <Badge variant={payment?.isPaid ? "success" : isLate ? "destructive" : "secondary"}>
             {payment?.isPaid ? "Payé" : isLate ? "En retard" : "Non payé"}
@@ -92,14 +96,13 @@ export const QuarterlyPayment = ({
       </div>
       
       {payment?.isPaid && (
-        <div className="flex items-center gap-2 mt-2">
+        <div className="flex items-center gap-2 mt-2" onClick={stopPropagation}>
           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
           <Input
             type="date"
             value={payment.datePayment || ""}
             onChange={(e) => handlePaymentDateChange(e.target.value)}
             className="h-8 w-40"
-            onClick={(e) => e.stopPropagation()}
           />
         </div>
       )}
