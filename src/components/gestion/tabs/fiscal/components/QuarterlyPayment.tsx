@@ -24,14 +24,20 @@ export const QuarterlyPayment = ({
   isQuarterDue,
   onPaymentUpdate,
 }: QuarterlyPaymentProps) => {
+  // Default payment object to prevent null reference errors
+  const paymentData = payment || { isPaid: false };
+  
   const handlePaymentDateChange = (date: string) => {
     onPaymentUpdate("datePayment", date);
   };
 
   const handleSwitchChange = (checked: boolean) => {
     onPaymentUpdate("isPaid", checked);
-    if (checked && !payment?.datePayment) {
-      handlePaymentDateChange(new Date().toISOString().split('T')[0]);
+    
+    // Automatically set today's date when marking as paid
+    if (checked && !paymentData.datePayment) {
+      const today = new Date().toISOString().split('T')[0];
+      handlePaymentDateChange(today);
     }
   };
 
@@ -43,12 +49,12 @@ export const QuarterlyPayment = ({
         </Label>
         <div className="flex items-center gap-3">
           <Switch 
-            checked={payment?.isPaid || false}
+            checked={paymentData.isPaid || false}
             onCheckedChange={handleSwitchChange}
             disabled={!isQuarterDue}
           />
-          <Badge variant={payment?.isPaid ? "success" : "destructive"}>
-            {payment?.isPaid ? "Payé" : "Non payé"}
+          <Badge variant={paymentData.isPaid ? "success" : "destructive"}>
+            {paymentData.isPaid ? "Payé" : "Non payé"}
           </Badge>
         </div>
       </div>
@@ -57,12 +63,12 @@ export const QuarterlyPayment = ({
         Montant dû : {quarterlyAmount.toLocaleString()} FCFA
       </div>
       
-      {payment?.isPaid && (
+      {paymentData.isPaid && (
         <div className="flex items-center gap-2 mt-2">
           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
           <Input
             type="date"
-            value={payment.datePayment || ""}
+            value={paymentData.datePayment || ""}
             onChange={(e) => handlePaymentDateChange(e.target.value)}
             className="h-8 w-40"
           />

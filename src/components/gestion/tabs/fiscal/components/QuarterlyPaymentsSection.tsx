@@ -17,6 +17,7 @@ interface QuarterlyPaymentsSectionProps {
   onQuarterlyPaymentUpdate: (trimester: string, field: string, value: any) => void;
 }
 
+// Define trimester dates with due dates for each quarter
 const TRIMESTER_DATES = {
   T1: "15 janvier",
   T2: "15 avril",
@@ -34,6 +35,9 @@ export const QuarterlyPaymentsSection = ({
   isAssujetti,
   onQuarterlyPaymentUpdate,
 }: QuarterlyPaymentsSectionProps) => {
+  // Ensure paiementsTrimestriels is always an object
+  const safePayments = paiementsTrimestriels || {};
+  
   return (
     <>
       <div className="space-y-2">
@@ -58,7 +62,7 @@ export const QuarterlyPaymentsSection = ({
               key={trimester}
               trimester={trimester}
               dueDate={TRIMESTER_DATES[trimester]}
-              payment={paiementsTrimestriels?.[trimester]}
+              payment={safePayments[trimester]}
               quarterlyAmount={quarterlyAmount}
               isQuarterDue={isAssujetti}
               onPaymentUpdate={(field, value) => onQuarterlyPaymentUpdate(trimester, field, value)}

@@ -17,23 +17,29 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
     return null;
   }
 
-  const revenue = igsStatus.chiffreAffaires || 0;
+  // Safe access to revenue with fallback to 0
+  const revenue = igsStatus.chiffreAffaires ?? 0;
   const { classNumber, amount } = calculateIGSClass(revenue);
+  
+  // Apply CGA reduction if applicable
   const finalAmount = igsStatus.reductionCGA ? amount / 2 : amount;
   const quarterlyAmount = Math.ceil(finalAmount / 4);
 
-  // Calculate payment status
+  // Calculate payment status with safe access patterns
   const paiementsTrimestriels = igsStatus.paiementsTrimestriels || {};
   const totalPaidQuarters = Object.values(paiementsTrimestriels).filter(p => p?.isPaid).length;
-  const totalDueQuarters = 4;
+  const totalDueQuarters = 4; // There are always 4 quarters in a year
+  
+  // Calculate remaining amount to pay
   const remainingAmount = finalAmount - (quarterlyAmount * totalPaidQuarters);
   
-  // Determine if payments are late
+  // Determine if payments are late based on current date
   const currentDate = new Date();
   const currentMonth = currentDate.getMonth() + 1;
   const expectedQuartersPaid = Math.ceil(currentMonth / 3);
   const isLate = totalPaidQuarters < expectedQuartersPaid;
 
+  // Event handlers with null checks
   const handleRevenueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value) || 0;
     onUpdate?.("chiffreAffaires", value);

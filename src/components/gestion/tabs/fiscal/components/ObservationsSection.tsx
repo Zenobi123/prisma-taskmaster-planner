@@ -9,6 +9,7 @@ interface ObservationsSectionProps {
 }
 
 export const ObservationsSection = ({ observations }: ObservationsSectionProps) => {
+  // Don't render anything if there are no observations
   if (!observations) return null;
 
   return (
