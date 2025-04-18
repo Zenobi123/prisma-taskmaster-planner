@@ -118,11 +118,6 @@ const Index = () => {
             title="Déclarations Statistiques et Fiscales"
             componentName="DsfSection"
           />
-
-          <DashboardCollapsible 
-            title="Déclaration Annuelle de Revenu des Particuliers"
-            componentName="DarpSection"
-          />
         </div>
       </main>
       

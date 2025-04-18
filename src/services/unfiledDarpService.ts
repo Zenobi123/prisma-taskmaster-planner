@@ -32,17 +32,7 @@ export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
       return false;
     });
 
-    // Convert the Supabase result to proper Client type
-    return clientsWithUnfiledDarp.map(client => {
-      return {
-        ...client,
-        adresse: client.adresse as { ville: string; quartier: string; lieuDit: string },
-        contact: client.contact as { telephone: string; email: string },
-        fiscal_data: client.fiscal_data,
-        interactions: client.interactions as any[] || [],
-        gestionexternalisee: Boolean(client.gestionexternalisee)
-      } as Client;
-    });
+    return clientsWithUnfiledDarp as Client[];
   } catch (error) {
     console.error("Erreur critique lors de la récupération des clients DARP:", error);
     return [];
