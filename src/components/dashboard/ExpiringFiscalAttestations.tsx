@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { useQueryClient } from "@tanstack/react-query";
 
-interface ExpiringFiscalAttestationsProps {
+export interface ExpiringFiscalAttestationsProps {
   attestations: FiscalAttestation[];
   isLoading: boolean;
 }
