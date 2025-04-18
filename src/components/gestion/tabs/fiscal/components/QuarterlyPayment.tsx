@@ -1,6 +1,5 @@
 
 import React from "react";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -36,27 +35,41 @@ export const QuarterlyPayment = ({
     onPaymentUpdate("isPaid", newPaidStatus);
     
     if (newPaidStatus) {
-      // Set today's date when marking as paid
       onPaymentUpdate("datePayment", new Date().toISOString().split('T')[0]);
       toast.success(`Échéance "${trimester} - ${dueDate}" marquée comme payée`);
     } else {
-      // Clear the date when marking as unpaid
       onPaymentUpdate("datePayment", "");
     }
   };
 
   return (
     <div className="bg-white border rounded-lg p-4 hover:border-primary/50 transition-colors">
-      <div className="flex justify-between items-start mb-2">
-        <div>
-          <div className="text-lg font-semibold mb-1">
+      <div className="flex justify-between items-start gap-4">
+        <div className="flex-1">
+          <div className="text-lg font-semibold mb-2">
             {trimester} - {dueDate}
           </div>
-          <div className="text-sm text-muted-foreground">
-            Montant dû : {quarterlyAmount.toLocaleString()} FCFA
-          </div>
+          {payment?.isPaid ? (
+            <div className="space-y-1">
+              <div className="text-sm text-green-600 font-medium">
+                Montant payé : {quarterlyAmount.toLocaleString()} FCFA
+              </div>
+              <div className="text-sm text-muted-foreground">
+                Reste à payer : 0 FCFA
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              <div className="text-sm text-muted-foreground">
+                Montant payé : 0 FCFA
+              </div>
+              <div className="text-sm font-medium">
+                Reste à payer : {quarterlyAmount.toLocaleString()} FCFA
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col items-end gap-2">
           <Badge 
             variant={payment?.isPaid ? "success" : isLate ? "destructive" : "secondary"}
             className="capitalize px-2.5 py-1"
@@ -65,11 +78,14 @@ export const QuarterlyPayment = ({
           </Badge>
           <Button
             onClick={handlePaymentToggle}
-            variant={payment?.isPaid ? "secondary" : "default"}
+            variant={payment?.isPaid ? "outline" : "secondary"}
             disabled={!isQuarterDue}
             size="sm"
+            className={payment?.isPaid ? 
+              "bg-green-500 text-white hover:bg-green-600" : 
+              "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"}
           >
-            {payment?.isPaid ? "Annuler" : "Payé"}
+            {payment?.isPaid ? "Payé" : "Marquer comme payé"}
           </Button>
         </div>
       </div>
