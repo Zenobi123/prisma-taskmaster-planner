@@ -55,7 +55,7 @@ export const QuarterlyPayment = ({
         <div className="flex items-center gap-3">
           <Switch 
             id={`switch-${trimester}`} 
-            checked={!!paymentData.isPaid}
+            checked={paymentData.isPaid === true}
             onCheckedChange={handleSwitchChange}
             disabled={!isQuarterDue}
             aria-label={`Marquer ${trimester} comme payé`}

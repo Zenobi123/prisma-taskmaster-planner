@@ -27,7 +27,7 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
 
   // Calculate payment status with safe access patterns
   const paiementsTrimestriels = igsStatus.paiementsTrimestriels || {};
-  const totalPaidQuarters = Object.values(paiementsTrimestriels).filter(p => p?.isPaid).length;
+  const totalPaidQuarters = Object.values(paiementsTrimestriels).filter(p => p?.isPaid === true).length;
   const totalDueQuarters = 4; // There are always 4 quarters in a year
   
   // Calculate remaining amount to pay
