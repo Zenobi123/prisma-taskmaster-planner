@@ -1,5 +1,10 @@
 export type ObligationType = "tax" | "declaration";
 
+export interface IgsPaymentStatus {
+  isPaid: boolean;
+  datePayment?: string;
+}
+
 export interface TaxObligationStatus {
   assujetti: boolean;
   paye: boolean;
@@ -9,6 +14,12 @@ export interface TaxObligationStatus {
   chiffreAffaires?: number;
   classeIGS?: number;
   reductionCGA?: boolean;
+  paiementsTrimestriels?: {
+    T1?: IgsPaymentStatus; // 15 janvier
+    T2?: IgsPaymentStatus; // 15 avril
+    T3?: IgsPaymentStatus; // 15 juillet
+    T4?: IgsPaymentStatus; // 15 octobre
+  };
 }
 
 export interface DeclarationObligationStatus {
