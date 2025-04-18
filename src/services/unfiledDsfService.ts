@@ -4,6 +4,15 @@ import { Client } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
 import { Json } from "@/integrations/supabase/types";
 
+// Extend the window interface instead of redeclaring it
+declare global {
+  interface Window {
+    __dsfCacheTimestamp?: number;
+    __dsfCacheData?: Client[] | null;
+    __invalidateFiscalCaches?: () => void;
+  }
+}
+
 // Cache pour les données DSF
 let dsfCache: {
   data: Client[] | null;
@@ -41,7 +50,7 @@ export const getClientsWithUnfiledDsf = async () => {
 // Fonction interne pour sauvegarder les modifications fiscales d'un client
 export const saveFiscalChanges = async (clientId: string, fiscalData: ClientFiscalData) => {
   try {
-    // Conversion explicite en utilisant unknown
+    // Conversion explicite en utilisant unknown comme intermédiaire
     const { error } = await supabase
       .from('clients')
       .update({
