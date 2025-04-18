@@ -47,13 +47,8 @@ export const IGSCalculation = ({
         </Label>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Badge variant="secondary" className="text-lg">
-          Classe {classNumber}
-        </Badge>
-        <span className="text-sm text-muted-foreground">
-          ({finalAmount.toLocaleString()} FCFA {reductionCGA ? "avec réduction CGA" : ""})
-        </span>
+      <div className="text-sm text-muted-foreground">
+        {reductionCGA ? "(avec réduction CGA)" : ""}
       </div>
 
       {remainingAmount > 0 && (
