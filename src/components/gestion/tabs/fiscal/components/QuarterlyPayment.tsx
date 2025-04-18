@@ -55,7 +55,11 @@ export const QuarterlyPayment = ({
   };
 
   return (
-    <div className="p-3 border rounded-md">
+    <div className="p-3 border rounded-md hover:border-primary/50 transition-colors cursor-pointer" onClick={() => {
+      if (isQuarterDue) {
+        handlePaymentStatusChange(!payment?.isPaid);
+      }
+    }}>
       <div className="flex justify-between items-center mb-2">
         <Label className="font-medium">
           {trimester} - {dueDate}
@@ -66,6 +70,7 @@ export const QuarterlyPayment = ({
             checked={payment?.isPaid || false}
             onCheckedChange={handlePaymentStatusChange}
             disabled={!isQuarterDue}
+            onClick={(e) => e.stopPropagation()}
           />
           <Badge variant={payment?.isPaid ? "success" : isLate ? "destructive" : "secondary"}>
             {payment?.isPaid ? "Payé" : isLate ? "En retard" : "Non payé"}
@@ -85,6 +90,7 @@ export const QuarterlyPayment = ({
             value={payment.datePayment || ""}
             onChange={(e) => handlePaymentDateChange(e.target.value)}
             className="h-8 w-40"
+            onClick={(e) => e.stopPropagation()}
           />
         </div>
       )}
