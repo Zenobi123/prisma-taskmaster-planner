@@ -26,25 +26,12 @@ export const QuarterlyPayment = ({
 }: QuarterlyPaymentProps) => {
   const handlePaymentDateChange = (date: string) => {
     onPaymentUpdate("datePayment", date);
-    // Automatically mark as paid when a date is entered
-    if (date) {
-      onPaymentUpdate("isPaid", true);
-    } else {
-      // Mark as unpaid when date is removed
-      onPaymentUpdate("isPaid", false);
-    }
   };
 
-  const handlePaymentStatusChange = (checked: boolean | "indeterminate") => {
-    if (typeof checked === "boolean") {
-      onPaymentUpdate("isPaid", checked);
-      if (checked && !payment?.datePayment) {
-        // If marking as paid and no date is set, set today's date
-        handlePaymentDateChange(new Date().toISOString().split('T')[0]);
-      } else if (!checked) {
-        // If marking as unpaid, clear the date
-        handlePaymentDateChange("");
-      }
+  const handleCheckboxChange = (checked: boolean) => {
+    onPaymentUpdate("isPaid", checked);
+    if (checked && !payment?.datePayment) {
+      handlePaymentDateChange(new Date().toISOString().split('T')[0]);
     }
   };
 
@@ -58,7 +45,11 @@ export const QuarterlyPayment = ({
           <Checkbox 
             id={`trimester-check-${trimester}`}
             checked={payment?.isPaid || false}
-            onCheckedChange={handlePaymentStatusChange}
+            onCheckedChange={(checked) => {
+              if (typeof checked === "boolean") {
+                handleCheckboxChange(checked);
+              }
+            }}
             disabled={!isQuarterDue}
           />
           <Badge variant={payment?.isPaid ? "success" : "destructive"}>

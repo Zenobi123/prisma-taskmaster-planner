@@ -30,7 +30,7 @@ export const IGSCalculation = ({
         <Label className="text-sm font-medium">Chiffre d'affaires</Label>
         <Input
           type="number"
-          value={revenue}
+          value={revenue || ""}
           onChange={onRevenueChange}
           placeholder="Entrer le chiffre d'affaires"
         />
@@ -57,7 +57,7 @@ export const IGSCalculation = ({
       </div>
 
       {remainingAmount > 0 && (
-        <div className="text-sm text-amber-600">
+        <div className="text-sm text-amber-600 font-medium">
           Reste à payer : {remainingAmount.toLocaleString()} FCFA
         </div>
       )}
