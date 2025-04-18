@@ -54,12 +54,21 @@ export const QuarterlyPayment = ({
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (isQuarterDue) {
+      // Toggle payment status when clicking on the card
+      handlePaymentStatusChange(!payment?.isPaid);
+    }
+  };
+
   return (
-    <div className="p-3 border rounded-md hover:border-primary/50 transition-colors cursor-pointer" onClick={() => {
-      if (isQuarterDue) {
-        handlePaymentStatusChange(!payment?.isPaid);
-      }
-    }}>
+    <div 
+      className="p-3 border rounded-md hover:border-primary/50 transition-colors cursor-pointer" 
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      aria-label={`Paiement du ${trimester}`}
+    >
       <div className="flex justify-between items-center mb-2">
         <Label className="font-medium">
           {trimester} - {dueDate}
