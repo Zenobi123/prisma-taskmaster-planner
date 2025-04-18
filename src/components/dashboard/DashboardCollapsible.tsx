@@ -10,7 +10,6 @@ import DsfSection from "./sections/DsfSection";
 import DarpSection from "./sections/DarpSection";
 import PatenteSection from "./sections/PatenteSection";
 import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations";
-import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 
 interface DashboardCollapsibleProps {
   title: string;
@@ -19,11 +18,6 @@ interface DashboardCollapsibleProps {
 
 const DashboardCollapsible = ({ title, componentName }: DashboardCollapsibleProps) => {
   const [isOpen, setIsOpen] = useState(true);
-  
-  // Fetch attestation data only when needed
-  const { data: attestations = [], isLoading } = componentName === "ExpiringFiscalAttestations" 
-    ? useExpiringFiscalAttestations() 
-    : { data: [], isLoading: false };
 
   const renderComponent = () => {
     switch (componentName) {
@@ -36,7 +30,7 @@ const DashboardCollapsible = ({ title, componentName }: DashboardCollapsibleProp
       case "PatenteSection":
         return <PatenteSection />;
       case "ExpiringFiscalAttestations":
-        return <ExpiringFiscalAttestations attestations={attestations} isLoading={isLoading} />;
+        return <ExpiringFiscalAttestations />;
       default:
         return null;
     }
