@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -96,13 +97,14 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
     const isQuarterDue = igsStatus.assujetti;
 
     return (
-      <div className="p-3 border rounded-md">
+      <div key={`trimester-${trimester}`} className="p-3 border rounded-md">
         <div className="flex justify-between items-center mb-2">
           <Label className="font-medium">
             {trimester} - {dueDate}
           </Label>
           <div className="flex items-center gap-2">
             <Checkbox 
+              id={`trimester-check-${trimester}`}
               checked={payment?.isPaid || false}
               onCheckedChange={(checked) => {
                 if (typeof checked === "boolean") {
