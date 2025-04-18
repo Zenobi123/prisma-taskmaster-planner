@@ -6,6 +6,9 @@ import { ClientFiscalData } from "../types";
 import { saveFiscalData } from "../services/saveService";
 import { verifyAndNotifyFiscalChanges } from "../services/verifyService";
 import { updateCache, clearCache } from "../services/cacheService";
+import { invalidateDsfCache } from "@/services/unfiledDsfService";
+import { invalidatePatenteCache } from "@/services/unpaidPatenteService";
+import { invalidateIgsCache } from "@/services/unpaidIgsService";
 
 export const useFiscalSave = (clientId: string | undefined, loadFiscalData: (force: boolean) => Promise<void>) => {
   const [isSaving, setIsSaving] = useState(false);
@@ -39,9 +42,19 @@ export const useFiscalSave = (clientId: string | undefined, loadFiscalData: (for
           setLastSaveTime(Date.now());
           setLastSaveSuccess(true);
           
+          // Invalider tous les caches pertinents
+          invalidateDsfCache();
+          invalidatePatenteCache();
+          invalidateIgsCache();
+          
+          // Invalider toutes les requêtes pertinentes
           queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
           queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
           queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
+          queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
+          queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
+          queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-section"] });
+          queryClient.invalidateQueries({ queryKey: ["client-stats"] });
           
           return true;
         } else {

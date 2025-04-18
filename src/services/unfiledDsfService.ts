@@ -22,8 +22,8 @@ let dsfCache: {
   timestamp: 0
 };
 
-// Durée du cache en millisecondes (10 minutes)
-const CACHE_DURATION = 600000;
+// Durée du cache en millisecondes (2 minutes au lieu de 10 minutes)
+const CACHE_DURATION = 120000; // Réduit de 10min à 2min pour une mise à jour plus fréquente
 
 // Initialiser le cache global si on est côté client
 if (typeof window !== 'undefined') {
@@ -44,7 +44,7 @@ if (typeof window !== 'undefined') {
 
 // Fonction adaptée pour React Query (sans paramètre)
 export const getClientsWithUnfiledDsf = async () => {
-  return fetchClientsWithUnfiledDsf();
+  return fetchClientsWithUnfiledDsf(true); // Forcer le rafraîchissement à chaque appel
 };
 
 // Fonction interne pour sauvegarder les modifications fiscales d'un client
