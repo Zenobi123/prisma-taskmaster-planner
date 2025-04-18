@@ -37,6 +37,15 @@ export interface ObligationStatuses {
   patente: TaxObligationStatus;
   dsf: DeclarationObligationStatus;
   darp: DeclarationObligationStatus;
+  iba: TaxObligationStatus; // Impôts sur les Bénéfices Agricoles
+  baic: TaxObligationStatus; // Impôts sur les Bénéfices Artisanaux, Industriels et Commerciaux
+  ibnc: TaxObligationStatus; // Impôts sur les Bénéfices des Professions Non Commerciales
+  ircm: TaxObligationStatus; // Impôts sur les Revenus des Capitaux Mobiliers
+  irf: TaxObligationStatus; // Impôts sur les Revenus Foncier
+  its: TaxObligationStatus; // Impôts sur les traitements, salaires et rentes viagères
+  licence: DeclarationObligationStatus; // Licence
+  precompte: TaxObligationStatus; // Précompte sur loyer
+  taxeSejour: TaxObligationStatus; // Taxe de séjour dans les établissements d'hébergement
 }
 
 export interface ClientFiscalData {

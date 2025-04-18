@@ -7,7 +7,17 @@ export const useObligationStatus = () => {
     igs: { assujetti: false, paye: false },
     patente: { assujetti: false, paye: false },
     dsf: { assujetti: false, depose: false },
-    darp: { assujetti: false, depose: false }
+    darp: { assujetti: false, depose: false },
+    // New obligations with default values
+    iba: { assujetti: false, paye: false },
+    baic: { assujetti: false, paye: false },
+    ibnc: { assujetti: false, paye: false },
+    ircm: { assujetti: false, paye: false },
+    irf: { assujetti: false, paye: false },
+    its: { assujetti: false, paye: false },
+    licence: { assujetti: false, depose: false },
+    precompte: { assujetti: false, paye: false },
+    taxeSejour: { assujetti: false, paye: false }
   });
 
   // Debug when obligation statuses change
