@@ -32,12 +32,14 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
 
   const handleAssujettiChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
+      console.log(`${obligationKey} assujetti change:`, checked);
       onChange(obligationKey, "assujetti", checked);
     }
   };
 
   const handlePayeChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
+      console.log(`${obligationKey} paye change:`, checked);
       onChange(obligationKey, "paye", checked);
     }
   };
@@ -57,6 +59,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
 
   // Handle expansion click with proper event stopping
   const handleExpandClick = (e: React.MouseEvent) => {
+    console.log("Expansion button clicked");
     e.preventDefault();
     e.stopPropagation();
     if (onToggleExpand) {

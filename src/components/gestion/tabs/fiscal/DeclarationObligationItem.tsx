@@ -32,12 +32,14 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
 
   const handleAssujettiChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
+      console.log(`${obligationKey} assujetti change:`, checked);
       onChange(obligationKey, "assujetti", checked);
     }
   };
 
   const handleDeposeChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
+      console.log(`${obligationKey} depose change:`, checked);
       onChange(obligationKey, "depose", checked);
     }
   };
@@ -52,6 +54,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
 
   // Handle expansion click with proper event stopping
   const handleExpandClick = (e: React.MouseEvent) => {
+    console.log("Expansion button clicked for Declaration item");
     e.preventDefault();
     e.stopPropagation();
     if (onToggleExpand) {

@@ -15,21 +15,32 @@ export const useObligationStatus = () => {
   }, [obligationStatuses]);
 
   // Handle nested updates like 'igs.paiementsTrimestriels.T1.isPaid'
-  const handleStatusChange = useCallback((key: string, value: any) => {
-    console.log(`useObligationStatus: Updating ${key} to:`, value);
+  const handleStatusChange = useCallback((obligation: string, field: string, value: any) => {
+    console.log(`useObligationStatus: Updating ${obligation}.${field} to:`, value);
     
-    // Handle nested paths like 'igs.paiementsTrimestriels.T1.isPaid'
-    if (key.includes('.')) {
-      const parts = key.split('.');
-      const obligationType = parts[0] as keyof ObligationStatuses;
+    setObligationStatuses(prev => {
+      // Create a deep copy to avoid mutation issues
+      const updated = JSON.parse(JSON.stringify(prev));
       
-      setObligationStatuses(prev => {
-        // Create a deep copy of the current state
-        const updated = JSON.parse(JSON.stringify(prev));
+      // Handle the special case where we're updating a direct obligation property
+      if (field === "assujetti" || field === "paye" || field === "depose") {
+        console.log(`Direct update to ${obligation}.${field}:`, value);
+        if (!updated[obligation]) {
+          updated[obligation] = {};
+        }
+        updated[obligation][field] = value;
+      } 
+      // Handle nested paths like 'paiementsTrimestriels.T1.isPaid'
+      else if (field.includes('.')) {
+        const parts = field.split('.');
+        
+        if (!updated[obligation]) {
+          updated[obligation] = {};
+        }
         
         // Navigate to the parent object that will contain our update
-        let current = updated[obligationType];
-        for (let i = 1; i < parts.length - 1; i++) {
+        let current = updated[obligation];
+        for (let i = 0; i < parts.length - 1; i++) {
           // Create empty objects for the path if they don't exist
           if (!current[parts[i]]) {
             current[parts[i]] = {};
@@ -41,16 +52,20 @@ export const useObligationStatus = () => {
         const lastPart = parts[parts.length - 1];
         current[lastPart] = value;
         
-        console.log("Updated obligation statuses:", updated);
-        return updated;
-      });
-    } else {
-      // Simple updates like 'igs'
-      setObligationStatuses(prev => ({
-        ...prev,
-        [key]: value
-      }));
-    }
+        console.log(`Updated nested property ${obligation}.${field}:`, value);
+      } 
+      // Handle simple object properties
+      else {
+        console.log(`Simple property update to ${obligation}.${field}:`, value);
+        if (!updated[obligation]) {
+          updated[obligation] = {};
+        }
+        updated[obligation][field] = value;
+      }
+      
+      console.log("Updated obligation statuses:", JSON.stringify(updated, null, 2));
+      return updated;
+    });
   }, []);
 
   return {
