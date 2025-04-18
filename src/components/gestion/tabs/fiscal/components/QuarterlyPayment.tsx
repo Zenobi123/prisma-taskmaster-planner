@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -24,27 +24,38 @@ export const QuarterlyPayment = ({
   isQuarterDue,
   onPaymentUpdate,
 }: QuarterlyPaymentProps) => {
-  // Default payment object to prevent null reference errors
+  // Create a local payment object to prevent null reference errors
   const paymentData = payment || { isPaid: false };
   
+  // Function to update payment date
   const handlePaymentDateChange = (date: string) => {
+    console.log(`Setting payment date for ${trimester} to ${date}`);
     onPaymentUpdate("datePayment", date);
   };
 
+  // Function to handle toggle change
   const handleSwitchChange = (checked: boolean) => {
     console.log(`Toggle changed for ${trimester}: ${checked}`);
     
-    // Update isPaid state
+    // Update isPaid state with explicit boolean value
     onPaymentUpdate("isPaid", checked);
     
-    // Automatically set today's date when marking as paid
+    // When marking as paid, automatically set today's date
     if (checked) {
       const today = new Date().toISOString().split('T')[0];
+      // Small delay to ensure the isPaid update is processed first
       setTimeout(() => {
         handlePaymentDateChange(today);
       }, 50);
     }
   };
+
+  // Debug rendering
+  useEffect(() => {
+    console.log(`[${trimester}] Rendering with isPaid:`, paymentData.isPaid, 
+      "Type:", typeof paymentData.isPaid, 
+      "Value as boolean:", Boolean(paymentData.isPaid));
+  }, [trimester, paymentData.isPaid]);
 
   return (
     <div className="p-3 border rounded-md">
@@ -60,8 +71,8 @@ export const QuarterlyPayment = ({
             disabled={!isQuarterDue}
             aria-label={`Marquer ${trimester} comme payé`}
           />
-          <Badge variant={paymentData.isPaid ? "success" : "destructive"}>
-            {paymentData.isPaid ? "Payé" : "Non payé"}
+          <Badge variant={paymentData.isPaid === true ? "success" : "destructive"}>
+            {paymentData.isPaid === true ? "Payé" : "Non payé"}
           </Badge>
         </div>
       </div>
@@ -70,7 +81,7 @@ export const QuarterlyPayment = ({
         Montant dû : {quarterlyAmount.toLocaleString()} FCFA
       </div>
       
-      {paymentData.isPaid && (
+      {paymentData.isPaid === true && (
         <div className="flex items-center gap-2 mt-2">
           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
           <Input

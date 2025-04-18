@@ -25,8 +25,13 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
   const finalAmount = igsStatus.reductionCGA ? amount / 2 : amount;
   const quarterlyAmount = Math.ceil(finalAmount / 4);
 
-  // Calculate payment status with safe access patterns
+  // Initialize payments object if it doesn't exist
   const paiementsTrimestriels = igsStatus.paiementsTrimestriels || {};
+  
+  // Log the current state for debugging
+  console.log("Current IGS status:", JSON.stringify(igsStatus, null, 2));
+  
+  // Calculate payment status with strict boolean comparison
   const totalPaidQuarters = Object.values(paiementsTrimestriels).filter(p => p?.isPaid === true).length;
   const totalDueQuarters = 4; // There are always 4 quarters in a year
   
@@ -45,10 +50,18 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
     
     // Create the nested path for the update
     const updatePath = `paiementsTrimestriels.${trimester}.${field}`;
-    console.log(`Updating IGS: ${updatePath} = ${value}`);
+    console.log(`Updating IGS: ${updatePath} = ${JSON.stringify(value)}`);
     
-    // Pass the update to the parent component
-    onUpdate(updatePath, value);
+    // Initialize the payment object for this trimester if it doesn't exist
+    if (!paiementsTrimestriels[trimester]) {
+      // First initialize the object structure
+      onUpdate(`paiementsTrimestriels.${trimester}`, { isPaid: false });
+    }
+    
+    // After ensuring the object exists, update the specific field
+    setTimeout(() => {
+      onUpdate(updatePath, value);
+    }, 10);
   };
 
   // Event handlers with null checks

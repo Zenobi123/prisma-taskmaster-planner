@@ -38,6 +38,9 @@ export const QuarterlyPaymentsSection = ({
   // Ensure paiementsTrimestriels is always an object
   const safePayments = paiementsTrimestriels || {};
   
+  // Debug payments object
+  console.log("Current payments state:", JSON.stringify(safePayments, null, 2));
+  
   // Handle quarterly payment updates with structured approach
   const handlePaymentUpdate = (trimester: string, field: string, value: any) => {
     console.log(`Updating ${trimester} - ${field}: ${value}`);
