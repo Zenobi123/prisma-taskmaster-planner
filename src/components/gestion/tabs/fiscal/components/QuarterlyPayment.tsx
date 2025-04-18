@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -27,6 +27,7 @@ export const QuarterlyPayment = ({
   onPaymentUpdate,
 }: QuarterlyPaymentProps) => {
   const isLate = !payment?.isPaid && quarterNumber <= expectedQuartersPaid;
+  const isPaid = payment?.isPaid || false;
 
   const handlePaymentToggle = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -34,14 +35,18 @@ export const QuarterlyPayment = ({
     
     if (!isQuarterDue) return;
 
-    const newPaidStatus = !payment?.isPaid;
+    const newPaidStatus = !isPaid;
+    
+    // Mettre à jour le statut de paiement
     onPaymentUpdate("isPaid", newPaidStatus);
     
+    // Si marqué comme payé, ajouter la date de paiement
     if (newPaidStatus) {
       onPaymentUpdate("datePayment", new Date().toISOString().split('T')[0]);
       toast.success(`Échéance "${trimester} - ${dueDate}" marquée comme payée`);
     } else {
       onPaymentUpdate("datePayment", "");
+      toast.success(`Échéance "${trimester} - ${dueDate}" marquée comme non payée`);
     }
   };
 
@@ -52,7 +57,7 @@ export const QuarterlyPayment = ({
           <div className="text-lg font-semibold mb-2">
             {trimester} - {dueDate}
           </div>
-          {payment?.isPaid ? (
+          {isPaid ? (
             <div className="space-y-1">
               <div className="text-sm text-green-600 font-medium">
                 Montant payé : {quarterlyAmount.toLocaleString()} FCFA
@@ -74,21 +79,21 @@ export const QuarterlyPayment = ({
         </div>
         <div className="flex flex-col items-end gap-2">
           <Badge 
-            variant={payment?.isPaid ? "success" : isLate ? "destructive" : "secondary"}
+            variant={isPaid ? "success" : isLate ? "destructive" : "secondary"}
             className="capitalize px-2.5 py-1"
           >
-            {payment?.isPaid ? "À jour" : isLate ? "En retard" : "Non payé"}
+            {isPaid ? "À jour" : isLate ? "En retard" : "Non payé"}
           </Badge>
           <Button
             onClick={handlePaymentToggle}
             variant="outline"
             disabled={!isQuarterDue}
             size="sm"
-            className={payment?.isPaid ? 
+            className={isPaid ? 
               "bg-green-500 text-white hover:bg-green-600" : 
               "bg-neutral-200 text-neutral-700 hover:bg-neutral-300"}
           >
-            {payment?.isPaid ? "Payé" : "Marquer comme payé"}
+            {isPaid ? "Payé" : "Marquer comme payé"}
           </Button>
         </div>
       </div>
