@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
@@ -25,6 +25,11 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
   expanded = false,
   onToggleExpand
 }) => {
+  // Debug the expanded state
+  useEffect(() => {
+    console.log(`TaxObligationItem ${label} expanded state:`, expanded);
+  }, [expanded, label]);
+
   const handleAssujettiChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
       onChange(obligationKey, "assujetti", checked);
@@ -50,6 +55,15 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
     onChange(obligationKey, "observations", e.target.value);
   };
 
+  // Handle expansion click with proper event stopping
+  const handleExpandClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleExpand) {
+      onToggleExpand();
+    }
+  };
+
   return (
     <div className="border p-4 rounded-md bg-background">
       <div className="flex items-center justify-between">
@@ -71,8 +85,10 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={onToggleExpand}
+            onClick={handleExpandClick}
             className="h-8 w-8 p-0"
+            type="button"
+            aria-label={expanded ? "Réduire" : "Développer"}
           >
             {expanded ? (
               <ChevronUp className="h-4 w-4" />

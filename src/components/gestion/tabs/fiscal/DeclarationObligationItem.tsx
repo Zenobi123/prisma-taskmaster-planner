@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { DeclarationObligationStatus } from "@/hooks/fiscal/types";
@@ -25,6 +25,11 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   expanded = false,
   onToggleExpand
 }) => {
+  // Debug the expanded state
+  useEffect(() => {
+    console.log(`DeclarationObligationItem ${label} expanded state:`, expanded);
+  }, [expanded, label]);
+
   const handleAssujettiChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
       onChange(obligationKey, "assujetti", checked);
@@ -43,6 +48,15 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
 
   const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(obligationKey, "observations", e.target.value);
+  };
+
+  // Handle expansion click with proper event stopping
+  const handleExpandClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onToggleExpand) {
+      onToggleExpand();
+    }
   };
 
   return (
@@ -66,8 +80,10 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={onToggleExpand}
+            onClick={handleExpandClick}
             className="h-8 w-8 p-0"
+            type="button"
+            aria-label={expanded ? "Réduire" : "Développer"}
           >
             {expanded ? (
               <ChevronUp className="h-4 w-4" />

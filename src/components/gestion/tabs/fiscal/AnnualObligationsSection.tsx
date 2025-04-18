@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ObligationStatuses } from "@/hooks/fiscal/types";
 import { TaxObligationItem } from "./TaxObligationItem";
@@ -17,8 +17,18 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>("igs");
 
+  // Debug expanded section state changes
+  useEffect(() => {
+    console.log("AnnualObligationsSection - Current expanded section:", expandedSection);
+  }, [expandedSection]);
+
   const toggleSection = (section: string) => {
-    setExpandedSection(prev => prev === section ? null : section);
+    console.log(`Toggling section: ${section}, current: ${expandedSection}`);
+    setExpandedSection(prevSection => {
+      const newSection = prevSection === section ? null : section;
+      console.log(`Setting expanded section from ${prevSection} to ${newSection}`);
+      return newSection;
+    });
   };
 
   const handleIgsUpdate = (field: string, value: any) => {

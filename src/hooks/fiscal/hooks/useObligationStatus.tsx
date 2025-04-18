@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ObligationStatuses } from "../types";
 
 export const useObligationStatus = () => {
@@ -9,8 +9,13 @@ export const useObligationStatus = () => {
     dsf: { assujetti: false, depose: false }
   });
 
+  // Debug when obligation statuses change
+  useEffect(() => {
+    console.log("Current obligation statuses:", JSON.stringify(obligationStatuses, null, 2));
+  }, [obligationStatuses]);
+
   // Handle nested updates like 'igs.paiementsTrimestriels.T1.isPaid'
-  const handleStatusChange = (key: string, value: any) => {
+  const handleStatusChange = useCallback((key: string, value: any) => {
     console.log(`useObligationStatus: Updating ${key} to:`, value);
     
     // Handle nested paths like 'igs.paiementsTrimestriels.T1.isPaid'
@@ -46,7 +51,7 @@ export const useObligationStatus = () => {
         [key]: value
       }));
     }
-  };
+  }, []);
 
   return {
     obligationStatuses,
