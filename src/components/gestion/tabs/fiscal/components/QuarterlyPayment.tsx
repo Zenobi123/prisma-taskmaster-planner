@@ -28,7 +28,10 @@ export const QuarterlyPayment = ({
 }: QuarterlyPaymentProps) => {
   const isLate = !payment?.isPaid && quarterNumber <= expectedQuartersPaid;
 
-  const handlePaymentToggle = () => {
+  const handlePaymentToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     if (!isQuarterDue) return;
 
     const newPaidStatus = !payment?.isPaid;
@@ -78,7 +81,7 @@ export const QuarterlyPayment = ({
           </Badge>
           <Button
             onClick={handlePaymentToggle}
-            variant={payment?.isPaid ? "outline" : "secondary"}
+            variant="outline"
             disabled={!isQuarterDue}
             size="sm"
             className={payment?.isPaid ? 
