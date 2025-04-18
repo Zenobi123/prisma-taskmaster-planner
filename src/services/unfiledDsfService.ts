@@ -4,15 +4,6 @@ import { Client } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
 import { Json } from "@/integrations/supabase/types";
 
-// Extend the window interface instead of redeclaring it
-declare global {
-  interface Window {
-    __dsfCacheTimestamp?: number;
-    __dsfCacheData?: any[] | null; // Use any[] to match the expected type
-    __invalidateFiscalCaches?: () => void;
-  }
-}
-
 // Cache pour les données DSF
 let dsfCache: {
   data: Client[] | null;
@@ -22,8 +13,8 @@ let dsfCache: {
   timestamp: 0
 };
 
-// Durée du cache en millisecondes (2 minutes au lieu de 10 minutes)
-const CACHE_DURATION = 120000; // Réduit de 10min à 2min pour une mise à jour plus fréquente
+// Durée du cache en millisecondes (10 minutes)
+const CACHE_DURATION = 600000;
 
 // Initialiser le cache global si on est côté client
 if (typeof window !== 'undefined') {
@@ -44,13 +35,13 @@ if (typeof window !== 'undefined') {
 
 // Fonction adaptée pour React Query (sans paramètre)
 export const getClientsWithUnfiledDsf = async () => {
-  return fetchClientsWithUnfiledDsf(true); // Forcer le rafraîchissement à chaque appel
+  return fetchClientsWithUnfiledDsf();
 };
 
 // Fonction interne pour sauvegarder les modifications fiscales d'un client
 export const saveFiscalChanges = async (clientId: string, fiscalData: ClientFiscalData) => {
   try {
-    // Conversion explicite en utilisant unknown comme intermédiaire
+    // Conversion explicite en utilisant unknown
     const { error } = await supabase
       .from('clients')
       .update({

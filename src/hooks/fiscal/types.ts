@@ -1,50 +1,42 @@
-export type ObligationType = "tax" | "declaration";
 
-export interface IgsPaymentStatus {
-  isPaid: boolean;
-  datePayment?: string;
-}
+export type ObligationType = "patente" | "igs" | "bail" | "taxeFonciere" | "dsf" | "darp";
 
 export interface TaxObligationStatus {
   assujetti: boolean;
   paye: boolean;
-  montant?: number;
-  datePaiement?: string;
-  observations?: string;
-  chiffreAffaires?: number;
-  classeIGS?: number;
-  reductionCGA?: boolean;
-  paiementsTrimestriels?: {
-    T1?: IgsPaymentStatus; // 15 janvier
-    T2?: IgsPaymentStatus; // 15 avril
-    T3?: IgsPaymentStatus; // 15 juillet
-    T4?: IgsPaymentStatus; // 15 octobre
-  };
 }
 
 export interface DeclarationObligationStatus {
   assujetti: boolean;
   depose: boolean;
-  dateDepot?: string;
-  observations?: string;
 }
 
 export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
 
-export interface ObligationStatuses {
-  [key: string]: ObligationStatus;
-  igs: TaxObligationStatus;
+export type ObligationStatuses = {
   patente: TaxObligationStatus;
+  igs: TaxObligationStatus;
+  bail: TaxObligationStatus;
+  taxeFonciere: TaxObligationStatus;
   dsf: DeclarationObligationStatus;
+  darp: DeclarationObligationStatus;
+};
+
+export interface FiscalAttestationData {
+  creationDate: string;
+  validityEndDate: string;
+  showInAlert?: boolean; // Add property to control alert visibility
 }
 
+// Import types from igsTypes.ts
+import { Establishment, IGSData } from './types/igsTypes';
+
+// Re-export for consistency
+export { type Establishment, type IGSData } from './types/igsTypes';
+
 export interface ClientFiscalData {
-  attestation?: {
-    creationDate: string | null;
-    validityEndDate: string | null;
-    showInAlert: boolean;
-  };
-  obligations?: ObligationStatuses;
-  hiddenFromDashboard?: boolean;
-  updatedAt?: string;
+  attestation: FiscalAttestationData;
+  obligations: ObligationStatuses;
+  hiddenFromDashboard?: boolean; // Add property to hide from dashboard
+  igs?: IGSData; // Add IGS data
 }

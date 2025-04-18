@@ -1,81 +1,111 @@
 
-import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { ObligationStatuses } from "@/hooks/fiscal/types";
+import React from "react";
+import { 
+  ObligationStatuses, 
+  ObligationType,
+  IGSData
+} from "../fiscal/types";
 import { TaxObligationItem } from "./TaxObligationItem";
 import { DeclarationObligationItem } from "./DeclarationObligationItem";
-import { IgsDetailPanel } from "./IgsDetailPanel";
+import { IGSEstablishmentsSection } from "./IGSEstablishmentsSection";
 
 interface AnnualObligationsSectionProps {
   obligationStatuses: ObligationStatuses;
-  handleStatusChange: (obligation: string, field: string, value: boolean | string | number) => void;
+  handleStatusChange: (
+    obligationType: ObligationType,
+    statusType: "assujetti" | "paye" | "depose",
+    value: boolean
+  ) => void;
+  igsData?: IGSData;
+  onIGSDataChange: (data: IGSData) => void;
 }
 
-export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> = ({ 
+export function AnnualObligationsSection({
   obligationStatuses,
-  handleStatusChange
-}) => {
-  const [expandedSection, setExpandedSection] = useState<string | null>("igs");
-
-  const toggleSection = (section: string) => {
-    setExpandedSection(prev => prev === section ? null : section);
-  };
-
-  const handleIgsUpdate = (field: string, value: any) => {
-    handleStatusChange("igs", field, value);
+  handleStatusChange,
+  igsData,
+  onIGSDataChange
+}: AnnualObligationsSectionProps) {
+  // Ensure obligationStatuses includes all required fields with defaults
+  const safeObligationStatuses: ObligationStatuses = {
+    patente: { assujetti: false, paye: false },
+    igs: { assujetti: false, paye: false },
+    bail: { assujetti: false, paye: false },
+    taxeFonciere: { assujetti: false, paye: false },
+    dsf: { assujetti: false, depose: false },
+    darp: { assujetti: false, depose: false },
+    ...obligationStatuses
   };
 
   return (
-    <Card>
-      <CardContent className="p-6">
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold">Obligations annuelles</h3>
+      
+      <div className="space-y-6">
         <div className="space-y-4">
-          <h3 className="text-lg font-medium">Obligations annuelles</h3>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <TaxObligationItem
-                label="Impôt Général Synthétique (IGS)"
-                status={obligationStatuses.igs}
-                obligationKey="igs"
-                onChange={handleStatusChange}
-                expanded={expandedSection === "igs"}
-                onToggleExpand={() => toggleSection("igs")}
-              />
-              
-              {expandedSection === "igs" && (
-                <IgsDetailPanel 
-                  igsStatus={obligationStatuses.igs}
-                  onUpdate={handleIgsUpdate}
-                />
-              )}
-            </div>
+          <h4 className="font-medium">Impôts</h4>
+          <div className="grid grid-cols-1 gap-4">
+            <TaxObligationItem
+              title="Patente"
+              deadline="28 février"
+              obligationType="patente"
+              status={safeObligationStatuses.patente}
+              onChange={handleStatusChange}
+            />
             
-            {/* Patente Section */}
-            <div className="space-y-2">
-              <TaxObligationItem
-                label="Patente"
-                status={obligationStatuses.patente}
-                obligationKey="patente"
-                onChange={handleStatusChange}
-                expanded={expandedSection === "patente"}
-                onToggleExpand={() => toggleSection("patente")}
-              />
-            </div>
+            <TaxObligationItem
+              title="Impôt Général Synthétique (IGS)"
+              deadline="15 janvier, 15 avril, 15 juillet, 15 octobre"
+              obligationType="igs"
+              status={safeObligationStatuses.igs}
+              onChange={handleStatusChange}
+            />
+
+            <IGSEstablishmentsSection 
+              igsData={igsData}
+              onIGSDataChange={onIGSDataChange}
+              assujetti={safeObligationStatuses.igs?.assujetti || false}
+            />
             
-            {/* DSF Section */}
-            <div className="space-y-2">
-              <DeclarationObligationItem
-                label="Déclaration Statistique et Fiscale (DSF)"
-                status={obligationStatuses.dsf}
-                obligationKey="dsf"
-                onChange={handleStatusChange}
-                expanded={expandedSection === "dsf"}
-                onToggleExpand={() => toggleSection("dsf")}
-              />
-            </div>
+            <TaxObligationItem
+              title="Bail"
+              deadline="28 février"
+              obligationType="bail"
+              status={safeObligationStatuses.bail}
+              onChange={handleStatusChange}
+            />
+            
+            <TaxObligationItem
+              title="Taxe foncière"
+              deadline="28 février"
+              obligationType="taxeFonciere"
+              status={safeObligationStatuses.taxeFonciere}
+              onChange={handleStatusChange}
+            />
           </div>
         </div>
-      </CardContent>
-    </Card>
+        
+        <div className="space-y-4">
+          <h4 className="font-medium">Déclarations</h4>
+          <div className="grid grid-cols-1 gap-4">
+            <DeclarationObligationItem
+              title="Déclaration Statistique et Fiscale (DSF)"
+              deadline="15 avril"
+              obligationType="dsf"
+              status={safeObligationStatuses.dsf}
+              onChange={handleStatusChange}
+            />
+            
+            <DeclarationObligationItem
+              title="Déclaration Annuelle des Revenus des Particuliers (DARP)"
+              deadline="30 juin"
+              obligationType="darp"
+              status={safeObligationStatuses.darp}
+              onChange={handleStatusChange}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

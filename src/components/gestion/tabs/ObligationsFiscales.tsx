@@ -1,11 +1,11 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
-import { Loader2, Save, AlertCircle, RefreshCw, CheckCircle2, Clock } from "lucide-react";
+import { Loader2, Save, AlertCircle, RefreshCw, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -31,27 +31,15 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
-    lastSaveSuccess,
-    hasUnsavedChanges
+    igsData,
+    handleIGSDataChange,
+    lastSaveSuccess
   } = useObligationsFiscales(selectedClient);
 
-  // Function to handle page refresh
+  // Fonction pour gérer le rafraîchissement de la page
   const handleRefreshPage = () => {
     window.location.reload();
   };
-
-  // Auto-save visual indicator
-  useEffect(() => {
-    if (hasUnsavedChanges && !isSaving) {
-      const saveTimeout = setTimeout(() => {
-        if (hasUnsavedChanges && !isSaving) {
-          handleSave();
-        }
-      }, 120000); // 2 minutes
-      
-      return () => clearTimeout(saveTimeout);
-    }
-  }, [hasUnsavedChanges, isSaving, handleSave]);
 
   if (isLoading) {
     return (
@@ -72,15 +60,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {hasUnsavedChanges && (
-          <Alert className="bg-amber-50 border-amber-200">
-            <Clock className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-amber-800">
-              Vous avez des modifications non enregistrées. Enregistrez avant de quitter cette page.
-            </AlertDescription>
-          </Alert>
-        )}
-        
         {lastSaveSuccess && saveAttempts > 0 && (
           <Alert className="bg-green-50 border-green-200">
             <CheckCircle2 className="h-4 w-4 text-green-600" />
@@ -120,12 +99,14 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         <AnnualObligationsSection 
           obligationStatuses={obligationStatuses}
           handleStatusChange={handleStatusChange}
+          igsData={igsData}
+          onIGSDataChange={handleIGSDataChange}
         />
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
         <Button 
           onClick={handleSave}
-          className={`w-full ${hasUnsavedChanges ? "bg-primary" : ""}`}
+          className="w-full"
           disabled={isSaving}
         >
           {isSaving ? (
@@ -136,13 +117,13 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {hasUnsavedChanges ? "Enregistrer les modifications" : "Enregistrer toutes les modifications"}
+              Enregistrer toutes les modifications
             </>
           )}
         </Button>
         
         <div className="text-xs text-muted-foreground text-center w-full">
-          Vos modifications sont enregistrées automatiquement tous les 2 minutes et lors de la fermeture de la page.
+          Vos modifications seront enregistrées de façon permanente et visibles dans tout le système après actualisation.
         </div>
       </CardFooter>
     </Card>

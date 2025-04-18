@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { 
@@ -36,9 +35,6 @@ const Index = () => {
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-section"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs-section"] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["client-stats"] });
       

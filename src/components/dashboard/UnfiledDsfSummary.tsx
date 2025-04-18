@@ -13,11 +13,9 @@ const UnfiledDsfSummary = ({ onViewAllClick }: UnfiledDsfSummaryProps) => {
   const { data: clients = [], isLoading, error } = useQuery({
     queryKey: ["clients-unfiled-dsf-summary"],
     queryFn: getClientsWithUnfiledDsf,
-    // Configurer le rafraîchissement automatique avec des paramètres cohérents
-    refetchInterval: 10000,        // Rafraîchissement toutes les 10 secondes
-    refetchOnWindowFocus: true,    // Rafraîchissement quand la fenêtre reprend le focus
-    staleTime: 5000,               // Données considérées comme périmées après 5 secondes
-    gcTime: 30000                  // Nettoyage du cache après 30 secondes
+    // Configurer le rafraîchissement automatique
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
   });
 
   console.log("UnfiledDsfSummary - Clients:", clients.length);
