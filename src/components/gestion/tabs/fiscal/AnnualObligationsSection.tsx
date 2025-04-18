@@ -21,6 +21,10 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
     setExpandedSection(prev => prev === section ? null : section);
   };
 
+  const handleIgsUpdate = (field: string, value: any) => {
+    handleStatusChange("igs", field, value);
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -28,7 +32,6 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
           <h3 className="text-lg font-medium">Obligations annuelles</h3>
           
           <div className="space-y-4">
-            {/* IGS Section */}
             <div className="space-y-2">
               <TaxObligationItem
                 label="Impôt Général Synthétique (IGS)"
@@ -39,9 +42,11 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
                 onToggleExpand={() => toggleSection("igs")}
               />
               
-              {/* Nouveau panneau de détails IGS */}
               {expandedSection === "igs" && (
-                <IgsDetailPanel igsStatus={obligationStatuses.igs} />
+                <IgsDetailPanel 
+                  igsStatus={obligationStatuses.igs}
+                  onUpdate={handleIgsUpdate}
+                />
               )}
             </div>
             

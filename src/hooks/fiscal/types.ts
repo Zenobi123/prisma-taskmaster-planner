@@ -1,4 +1,3 @@
-
 export type ObligationType = "tax" | "declaration";
 
 export interface TaxObligationStatus {
@@ -7,6 +6,9 @@ export interface TaxObligationStatus {
   montant?: number;
   datePaiement?: string;
   observations?: string;
+  chiffreAffaires?: number;
+  classeIGS?: number;
+  reductionCGA?: boolean;
 }
 
 export interface DeclarationObligationStatus {
