@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "../types";

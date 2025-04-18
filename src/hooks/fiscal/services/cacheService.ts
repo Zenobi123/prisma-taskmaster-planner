@@ -19,6 +19,29 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
     return cachedData.data;
   }
   
+  // If in-memory cache is not available, try localStorage
+  if (typeof window !== 'undefined') {
+    try {
+      const cacheKey = `fiscal_cache_${clientId}`;
+      const storedCache = window.localStorage.getItem(cacheKey);
+      
+      if (storedCache) {
+        const parsedCache = JSON.parse(storedCache);
+        if (now - parsedCache.timestamp < CACHE_DURATION) {
+          console.log(`Recovering from localStorage for client ${clientId}`);
+          // Also restore to in-memory cache
+          fiscalDataCache.set(clientId, {
+            data: parsedCache.data,
+            timestamp: parsedCache.timestamp
+          });
+          return parsedCache.data;
+        }
+      }
+    } catch (e) {
+      console.error("Error accessing localStorage:", e);
+    }
+  }
+  
   return null;
 };
 

@@ -1,3 +1,4 @@
+
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "./types";
 import { toast } from "sonner";

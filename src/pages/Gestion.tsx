@@ -33,6 +33,36 @@ export default function Gestion() {
     [clientsEnGestion, selectedClientId]
   );
 
+  // Stocker la sélection du client dans localStorage pour persistance
+  useEffect(() => {
+    if (selectedClientId) {
+      localStorage.setItem('lastSelectedGestionClientId', selectedClientId);
+    }
+  }, [selectedClientId]);
+
+  // Restaurer la sélection du client depuis localStorage au chargement
+  useEffect(() => {
+    const savedClientId = localStorage.getItem('lastSelectedGestionClientId');
+    if (savedClientId && !selectedClientId) {
+      setSelectedClientId(savedClientId);
+    }
+  }, [selectedClientId]);
+
+  // Stocker l'onglet actif dans localStorage pour persistance
+  useEffect(() => {
+    if (activeTab) {
+      localStorage.setItem('lastActiveGestionTab', activeTab);
+    }
+  }, [activeTab]);
+
+  // Restaurer l'onglet actif depuis localStorage au chargement
+  useEffect(() => {
+    const savedTab = localStorage.getItem('lastActiveGestionTab');
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+  }, []);
+
   // Handle URL query parameters
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
