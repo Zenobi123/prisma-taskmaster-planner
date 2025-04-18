@@ -39,6 +39,18 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
   const expectedQuartersPaid = Math.ceil(currentMonth / 3);
   const isLate = totalPaidQuarters < expectedQuartersPaid;
 
+  // Handle quarterly payment updates
+  const handleQuarterlyPaymentUpdate = (trimester: string, field: string, value: any) => {
+    if (!onUpdate) return;
+    
+    // Create the nested path for the update
+    const updatePath = `paiementsTrimestriels.${trimester}.${field}`;
+    console.log(`Updating IGS: ${updatePath} = ${value}`);
+    
+    // Pass the update to the parent component
+    onUpdate(updatePath, value);
+  };
+
   // Event handlers with null checks
   const handleRevenueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value) || 0;
@@ -47,10 +59,6 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
 
   const handleCGAChange = (checked: boolean) => {
     onUpdate?.("reductionCGA", checked);
-  };
-
-  const handleQuarterlyPaymentUpdate = (trimester: string, field: string, value: any) => {
-    onUpdate?.(`paiementsTrimestriels.${trimester}.${field}`, value);
   };
 
   return (

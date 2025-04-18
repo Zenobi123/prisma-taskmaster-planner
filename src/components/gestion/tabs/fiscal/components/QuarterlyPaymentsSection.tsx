@@ -38,6 +38,12 @@ export const QuarterlyPaymentsSection = ({
   // Ensure paiementsTrimestriels is always an object
   const safePayments = paiementsTrimestriels || {};
   
+  // Handle quarterly payment updates with structured approach
+  const handlePaymentUpdate = (trimester: string, field: string, value: any) => {
+    console.log(`Updating ${trimester} - ${field}: ${value}`);
+    onQuarterlyPaymentUpdate(trimester, field, value);
+  };
+  
   return (
     <>
       <div className="space-y-2">
@@ -65,7 +71,7 @@ export const QuarterlyPaymentsSection = ({
               payment={safePayments[trimester]}
               quarterlyAmount={quarterlyAmount}
               isQuarterDue={isAssujetti}
-              onPaymentUpdate={(field, value) => onQuarterlyPaymentUpdate(trimester, field, value)}
+              onPaymentUpdate={(field, value) => handlePaymentUpdate(trimester, field, value)}
             />
           ))}
         </div>

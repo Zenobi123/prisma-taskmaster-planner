@@ -1,3 +1,4 @@
+
 export type ObligationType = "tax" | "declaration";
 
 export interface IgsPaymentStatus {

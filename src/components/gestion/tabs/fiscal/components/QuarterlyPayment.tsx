@@ -32,12 +32,16 @@ export const QuarterlyPayment = ({
   };
 
   const handleSwitchChange = (checked: boolean) => {
+    // Important: Update isPaid state first
     onPaymentUpdate("isPaid", checked);
     
     // Automatically set today's date when marking as paid
     if (checked && !paymentData.datePayment) {
       const today = new Date().toISOString().split('T')[0];
-      handlePaymentDateChange(today);
+      // Use setTimeout to ensure the isPaid update occurs first
+      setTimeout(() => {
+        handlePaymentDateChange(today);
+      }, 50);
     }
   };
 
@@ -49,9 +53,11 @@ export const QuarterlyPayment = ({
         </Label>
         <div className="flex items-center gap-3">
           <Switch 
-            checked={paymentData.isPaid || false}
+            id={`switch-${trimester}`} 
+            checked={!!paymentData.isPaid}
             onCheckedChange={handleSwitchChange}
             disabled={!isQuarterDue}
+            aria-label={`Marquer ${trimester} comme payé`}
           />
           <Badge variant={paymentData.isPaid ? "success" : "destructive"}>
             {paymentData.isPaid ? "Payé" : "Non payé"}
