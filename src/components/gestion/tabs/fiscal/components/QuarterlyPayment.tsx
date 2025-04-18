@@ -28,6 +28,13 @@ export const QuarterlyPayment = ({
     onPaymentUpdate("datePayment", date);
   };
 
+  const handleCheckboxChange = (checked: boolean) => {
+    onPaymentUpdate("isPaid", checked);
+    if (checked && !payment?.datePayment) {
+      handlePaymentDateChange(new Date().toISOString().split('T')[0]);
+    }
+  };
+
   return (
     <div className="p-3 border rounded-md">
       <div className="flex justify-between items-center mb-2">
@@ -40,10 +47,7 @@ export const QuarterlyPayment = ({
             checked={payment?.isPaid || false}
             onCheckedChange={(checked) => {
               if (typeof checked === "boolean") {
-                onPaymentUpdate("isPaid", checked);
-                if (checked && !payment?.datePayment) {
-                  handlePaymentDateChange(new Date().toISOString().split('T')[0]);
-                }
+                handleCheckboxChange(checked);
               }
             }}
             disabled={!isQuarterDue}
