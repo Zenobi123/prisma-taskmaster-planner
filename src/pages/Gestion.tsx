@@ -8,7 +8,7 @@ import { ClientSelector } from "@/components/gestion/ClientSelector";
 import { SelectedClientCard } from "@/components/gestion/SelectedClientCard";
 import { GestionTabs } from "@/components/gestion/GestionTabs";
 import { NoClientSelected } from "@/components/gestion/NoClientSelected";
-import { useLocation } from "react-router-dom";
+import { useLocation, useBeforeUnload } from "react-router-dom";
 
 export default function Gestion() {
   const [activeTab, setActiveTab] = useState("entreprise");
@@ -32,6 +32,36 @@ export default function Gestion() {
     clientsEnGestion.find(client => client.id === selectedClientId),
     [clientsEnGestion, selectedClientId]
   );
+
+  // Stocker la sélection du client dans localStorage pour persistance
+  useEffect(() => {
+    if (selectedClientId) {
+      localStorage.setItem('lastSelectedGestionClientId', selectedClientId);
+    }
+  }, [selectedClientId]);
+
+  // Restaurer la sélection du client depuis localStorage au chargement
+  useEffect(() => {
+    const savedClientId = localStorage.getItem('lastSelectedGestionClientId');
+    if (savedClientId && !selectedClientId) {
+      setSelectedClientId(savedClientId);
+    }
+  }, [selectedClientId]);
+
+  // Stocker l'onglet actif dans localStorage pour persistance
+  useEffect(() => {
+    if (activeTab) {
+      localStorage.setItem('lastActiveGestionTab', activeTab);
+    }
+  }, [activeTab]);
+
+  // Restaurer l'onglet actif depuis localStorage au chargement
+  useEffect(() => {
+    const savedTab = localStorage.getItem('lastActiveGestionTab');
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+  }, []);
 
   // Handle URL query parameters
   useEffect(() => {
