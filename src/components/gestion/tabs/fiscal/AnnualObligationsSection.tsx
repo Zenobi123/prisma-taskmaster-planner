@@ -83,6 +83,18 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
                 onToggleExpand={() => toggleSection("dsf")}
               />
             </div>
+            
+            {/* DARP Section - New */}
+            <div className="space-y-2">
+              <DeclarationObligationItem
+                label="Déclaration Annuelle des Revenus des Particuliers (DARP)"
+                status={obligationStatuses.darp}
+                obligationKey="darp"
+                onChange={handleStatusChange}
+                expanded={expandedSection === "darp"}
+                onToggleExpand={() => toggleSection("darp")}
+              />
+            </div>
           </div>
         </div>
       </CardContent>

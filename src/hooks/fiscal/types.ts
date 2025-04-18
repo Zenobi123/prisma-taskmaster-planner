@@ -1,4 +1,3 @@
-
 export type ObligationType = "tax" | "declaration";
 
 export interface IgsPaymentStatus {
@@ -37,6 +36,7 @@ export interface ObligationStatuses {
   igs: TaxObligationStatus;
   patente: TaxObligationStatus;
   dsf: DeclarationObligationStatus;
+  darp: DeclarationObligationStatus;
 }
 
 export interface ClientFiscalData {

@@ -6,7 +6,8 @@ export const useObligationStatus = () => {
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
     igs: { assujetti: false, paye: false },
     patente: { assujetti: false, paye: false },
-    dsf: { assujetti: false, depose: false }
+    dsf: { assujetti: false, depose: false },
+    darp: { assujetti: false, depose: false }
   });
 
   // Debug when obligation statuses change
