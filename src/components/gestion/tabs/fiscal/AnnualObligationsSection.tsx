@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ObligationStatuses } from "@/hooks/fiscal/types";
@@ -30,6 +31,12 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
       console.log(`Setting expanded section from ${prevSection} to ${newSection}`);
       return newSection;
     });
+  };
+
+  // Create the handleIgsUpdate function to pass to IgsDetailPanel
+  const handleIgsUpdate = (field: string, value: any) => {
+    console.log(`handleIgsUpdate: Updating IGS field ${field} to:`, value);
+    handleStatusChange("igs", field, value);
   };
 
   return (
