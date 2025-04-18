@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Info } from "lucide-react";
+import { Info, AlertCircle } from "lucide-react";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { calculateIGSClass } from "./utils/igsCalculations";
 import { QuarterlyPayment } from "./components/QuarterlyPayment";
@@ -112,6 +112,15 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
               <p className="text-sm whitespace-pre-line">{igsStatus.observations}</p>
             </div>
           </>
+        )}
+        
+        {isLate && !igsStatus.paye && (
+          <div className="flex items-start mt-2 bg-amber-50 p-2 rounded-md border border-amber-200">
+            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 mr-2 flex-shrink-0" />
+            <p className="text-sm text-amber-800">
+              Ce client est en retard dans ses paiements IGS. Pensez à régulariser la situation.
+            </p>
+          </div>
         )}
       </CardContent>
     </Card>

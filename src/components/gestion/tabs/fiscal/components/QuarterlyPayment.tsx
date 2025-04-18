@@ -24,15 +24,7 @@ export const QuarterlyPayment = ({
   isQuarterDue,
   onPaymentUpdate,
 }: QuarterlyPaymentProps) => {
-  const handleCheckboxChange = (checked: boolean) => {
-    onPaymentUpdate("isPaid", checked);
-    if (checked && !payment?.datePayment) {
-      const today = new Date().toISOString().split('T')[0];
-      onPaymentUpdate("datePayment", today);
-    }
-  };
-
-  const handleDateChange = (date: string) => {
+  const handlePaymentDateChange = (date: string) => {
     onPaymentUpdate("datePayment", date);
   };
 
@@ -48,7 +40,10 @@ export const QuarterlyPayment = ({
             checked={payment?.isPaid || false}
             onCheckedChange={(checked) => {
               if (typeof checked === "boolean") {
-                handleCheckboxChange(checked);
+                onPaymentUpdate("isPaid", checked);
+                if (checked && !payment?.datePayment) {
+                  handlePaymentDateChange(new Date().toISOString().split('T')[0]);
+                }
               }
             }}
             disabled={!isQuarterDue}
@@ -69,7 +64,7 @@ export const QuarterlyPayment = ({
           <Input
             type="date"
             value={payment.datePayment || ""}
-            onChange={(e) => handleDateChange(e.target.value)}
+            onChange={(e) => handlePaymentDateChange(e.target.value)}
             className="h-8 w-40"
           />
         </div>
