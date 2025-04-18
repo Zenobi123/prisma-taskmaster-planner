@@ -56,12 +56,15 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
     if (!paiementsTrimestriels[trimester]) {
       // First initialize the object structure
       onUpdate(`paiementsTrimestriels.${trimester}`, { isPaid: false });
-    }
-    
-    // After ensuring the object exists, update the specific field
-    setTimeout(() => {
+      
+      // Short delay to ensure initialization completes
+      setTimeout(() => {
+        onUpdate(updatePath, value);
+      }, 50);
+    } else {
+      // If object already exists, update directly
       onUpdate(updatePath, value);
-    }, 10);
+    }
   };
 
   // Event handlers with null checks
