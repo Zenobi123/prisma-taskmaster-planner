@@ -6,10 +6,12 @@ import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { UnpaidIgsDialog } from "@/components/dashboard/UnpaidIgsDialog";
+import { UnfiledDarpDialog } from "@/components/dashboard/UnfiledDarpDialog";
 
 const QuickStats = () => {
   const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
   const [showUnpaidIgsDialog, setShowUnpaidIgsDialog] = useState(false);
+  const [showUnfiledDarpDialog, setShowUnfiledDarpDialog] = useState(false);
 
   const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
     queryKey: ["tasks"],
@@ -25,7 +27,7 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
-  const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0, unpaidIgsClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
+  const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0, unpaidIgsClients: 0, unfiledDarpClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientStats,
     refetchInterval: 10000,
@@ -88,18 +90,26 @@ const QuickStats = () => {
           <p className="text-neutral-600 text-sm mt-1">Cette semaine</p>
         </div>
 
-        <div className="card">
+        <div className="card cursor-pointer hover:bg-slate-50 transition-colors"
+             onClick={() => setShowUnfiledDarpDialog(true)}>
           <h3 className="font-semibold text-neutral-800 mb-4">
-            Missions réalisées
+            DARP non déposées
           </h3>
-          <div className="text-3xl font-bold text-primary">
-            {isTasksLoading ? (
-              <span className="animate-pulse">--</span>
-            ) : (
-              completedMissions
+          <div className="flex items-center">
+            <div className="text-3xl font-bold text-emerald-600 mr-2">
+              {isClientStatsLoading ? (
+                <span className="animate-pulse">--</span>
+              ) : (
+                clientStats.unfiledDarpClients || 0
+              )}
+            </div>
+            {!isClientStatsLoading && (clientStats.unfiledDarpClients || 0) > 0 && (
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
+                À régulariser
+              </Badge>
             )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">Ce mois</p>
+          <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
         </div>
 
         <div className="card cursor-pointer hover:bg-slate-50 transition-colors" 
@@ -185,6 +195,11 @@ const QuickStats = () => {
       <UnpaidIgsDialog
         open={showUnpaidIgsDialog}
         onOpenChange={setShowUnpaidIgsDialog}
+      />
+
+      <UnfiledDarpDialog
+        open={showUnfiledDarpDialog}
+        onOpenChange={setShowUnfiledDarpDialog}
       />
     </div>
   );

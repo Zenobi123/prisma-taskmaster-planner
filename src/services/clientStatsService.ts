@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 
 export const getClientStats = async () => {
@@ -50,13 +51,26 @@ export const getClientStats = async () => {
     }
     return false;
   }).length;
+
+  // Clients avec DARP non déposée
+  const unfiledDarpClients = allClients.filter(client => {
+    if (client.fiscal_data && typeof client.fiscal_data === 'object') {
+      const fiscalData = client.fiscal_data as { obligations?: any };
+      if (fiscalData.obligations?.darp) {
+        return fiscalData.obligations.darp.assujetti === true && 
+               fiscalData.obligations.darp.depose === false;
+      }
+    }
+    return false;
+  }).length;
   
-  console.log("Statistiques clients:", { managedClients, unpaidPatenteClients, unpaidIgsClients, unfiledDsfClients });
+  console.log("Statistiques clients:", { managedClients, unpaidPatenteClients, unpaidIgsClients, unfiledDsfClients, unfiledDarpClients });
   
   return {
     managedClients,
     unpaidPatenteClients,
     unpaidIgsClients,
-    unfiledDsfClients
+    unfiledDsfClients,
+    unfiledDarpClients
   };
 };
