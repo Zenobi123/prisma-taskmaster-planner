@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ObligationStatuses } from "@/hooks/fiscal/types";
@@ -19,7 +18,6 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
 }) => {
   const [expandedSection, setExpandedSection] = useState<string | null>("igs");
 
-  // Debug expanded section state changes
   useEffect(() => {
     console.log("AnnualObligationsSection - Current expanded section:", expandedSection);
   }, [expandedSection]);
@@ -33,7 +31,6 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
     });
   };
 
-  // Create the handleIgsUpdate function to pass to IgsDetailPanel
   const handleIgsUpdate = (field: string, value: any) => {
     console.log(`handleIgsUpdate: Updating IGS field ${field} to:`, value);
     handleStatusChange("igs", field, value);
@@ -64,7 +61,6 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               )}
             </div>
             
-            {/* Patente Section */}
             <div className="space-y-2">
               <TaxObligationItem
                 label="Patente"
@@ -76,7 +72,6 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               />
             </div>
             
-            {/* DSF Section */}
             <div className="space-y-2">
               <DeclarationObligationItem
                 label="Déclaration Statistique et Fiscale (DSF)"
@@ -88,7 +83,6 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               />
             </div>
             
-            {/* DARP Section - New */}
             <div className="space-y-2">
               <DeclarationObligationItem
                 label="Déclaration Annuelle des Revenus des Particuliers (DARP)"
@@ -100,7 +94,6 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               />
             </div>
             
-            {/* New section: Other obligations */}
             <div className="mt-8">
               <div className="flex items-center gap-2 mb-4">
                 <ListCheck className="h-5 w-5 text-muted-foreground" />
@@ -178,6 +171,14 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
                   onChange={handleStatusChange}
                   expanded={expandedSection === "taxeSejour"}
                   onToggleExpand={() => toggleSection("taxeSejour")}
+                />
+                <TaxObligationItem
+                  label="Bail Commercial"
+                  status={obligationStatuses.baillCommercial}
+                  obligationKey="baillCommercial"
+                  onChange={handleStatusChange}
+                  expanded={expandedSection === "baillCommercial"}
+                  onToggleExpand={() => toggleSection("baillCommercial")}
                 />
               </div>
             </div>

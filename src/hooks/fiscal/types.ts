@@ -46,6 +46,7 @@ export interface ObligationStatuses {
   licence: DeclarationObligationStatus; // Licence
   precompte: TaxObligationStatus; // Précompte sur loyer
   taxeSejour: TaxObligationStatus; // Taxe de séjour dans les établissements d'hébergement
+  baillCommercial: TaxObligationStatus; // Add the new Bail Commercial obligation
 }
 
 export interface ClientFiscalData {
