@@ -1,26 +1,16 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { Info } from "lucide-react";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { calculateIGSClass } from "./utils/igsCalculations";
-import { QuarterlyPayment } from "./components/QuarterlyPayment";
-import { PaymentStatus } from "./components/PaymentStatus";
 import { IGSCalculation } from "./components/IGSCalculation";
+import { QuarterlyPaymentsSection } from "./components/QuarterlyPaymentsSection";
+import { ObservationsSection } from "./components/ObservationsSection";
 
 interface IgsDetailPanelProps {
   igsStatus: TaxObligationStatus;
   onUpdate?: (field: string, value: any) => void;
 }
-
-const TRIMESTER_DATES = {
-  T1: "15 janvier",
-  T2: "15 avril",
-  T3: "15 juillet",
-  T4: "15 octobre"
-};
 
 export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => {
   if (!igsStatus || !igsStatus.assujetti) {
@@ -53,7 +43,7 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
     onUpdate?.("reductionCGA", checked);
   };
 
-  const handleQuarterlyPaymentUpdate = (trimester: keyof typeof TRIMESTER_DATES, field: string, value: any) => {
+  const handleQuarterlyPaymentUpdate = (trimester: string, field: string, value: any) => {
     onUpdate?.(`paiementsTrimestriels.${trimester}.${field}`, value);
   };
 
@@ -70,49 +60,18 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
           onCGAChange={handleCGAChange}
         />
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">Montant total IGS</Label>
-            <PaymentStatus
-              totalPaidQuarters={totalPaidQuarters}
-              totalDueQuarters={totalDueQuarters}
-              expectedQuartersPaid={expectedQuartersPaid}
-              isLate={isLate}
-            />
-          </div>
-        </div>
+        <QuarterlyPaymentsSection
+          paiementsTrimestriels={paiementsTrimestriels}
+          totalPaidQuarters={totalPaidQuarters}
+          totalDueQuarters={totalDueQuarters}
+          expectedQuartersPaid={expectedQuartersPaid}
+          isLate={isLate}
+          quarterlyAmount={quarterlyAmount}
+          isAssujetti={igsStatus.assujetti}
+          onQuarterlyPaymentUpdate={handleQuarterlyPaymentUpdate}
+        />
 
-        <Separator className="my-4" />
-        
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">Échéancier de paiement</Label>
-          <div className="grid gap-3">
-            {(Object.keys(TRIMESTER_DATES) as Array<keyof typeof TRIMESTER_DATES>).map(trimester => (
-              <QuarterlyPayment
-                key={trimester}
-                trimester={trimester}
-                dueDate={TRIMESTER_DATES[trimester]}
-                payment={igsStatus.paiementsTrimestriels?.[trimester]}
-                quarterlyAmount={quarterlyAmount}
-                isQuarterDue={igsStatus.assujetti}
-                onPaymentUpdate={(field, value) => handleQuarterlyPaymentUpdate(trimester, field, value)}
-              />
-            ))}
-          </div>
-        </div>
-
-        {igsStatus.observations && (
-          <>
-            <Separator className="my-2" />
-            <div>
-              <div className="flex items-center mb-1">
-                <Info className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                <Label className="text-sm font-medium text-muted-foreground">Observations</Label>
-              </div>
-              <p className="text-sm whitespace-pre-line">{igsStatus.observations}</p>
-            </div>
-          </>
-        )}
+        <ObservationsSection observations={igsStatus.observations} />
       </CardContent>
     </Card>
   );
