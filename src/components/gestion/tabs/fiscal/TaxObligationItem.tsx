@@ -1,150 +1,45 @@
 
 import React from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 
 interface TaxObligationItemProps {
   label: string;
   status: TaxObligationStatus;
   obligationKey: string;
-  onChange: (obligation: string, field: string, value: boolean | string | number) => void;
-  expanded?: boolean;
-  onToggleExpand?: () => void;
+  onChange: (obligation: string, field: string, value: any) => void;
+  expanded: boolean;
+  onToggleExpand: () => void;
 }
 
-export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
+export const TaxObligationItem = ({
   label,
   status,
-  obligationKey,
-  onChange,
-  expanded = false,
-  onToggleExpand
-}) => {
-  const handleAssujettiChange = (checked: boolean | "indeterminate") => {
-    if (typeof checked === "boolean") {
-      onChange(obligationKey, "assujetti", checked);
-    }
-  };
-
-  const handlePayeChange = (checked: boolean | "indeterminate") => {
-    if (typeof checked === "boolean") {
-      onChange(obligationKey, "paye", checked);
-    }
-  };
-
-  const handleMontantChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value) || 0;
-    onChange(obligationKey, "montant", value);
-  };
-
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(obligationKey, "datePaiement", e.target.value);
-  };
-
-  const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(obligationKey, "observations", e.target.value);
+  expanded,
+  onToggleExpand,
+}: TaxObligationItemProps) => {
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onToggleExpand();
   };
 
   return (
-    <div className="border p-4 rounded-md bg-background">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Checkbox 
-            id={`${obligationKey}-assujetti`}
-            checked={status?.assujetti || false}
-            onCheckedChange={handleAssujettiChange}
-          />
-          <label
-            htmlFor={`${obligationKey}-assujetti`}
-            className="font-medium cursor-pointer"
-          >
-            {label}
-          </label>
-        </div>
-        
-        {status?.assujetti && onToggleExpand && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onToggleExpand}
-            className="h-8 w-8 p-0"
-          >
-            {expanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
+    <div className="w-full">
+      <Button
+        variant="outline"
+        className="w-full flex items-center justify-between p-4"
+        onClick={handleToggle}
+        type="button"
+      >
+        <span className="font-medium">{label}</span>
+        {expanded ? (
+          <ChevronUp className="h-4 w-4" />
+        ) : (
+          <ChevronDown className="h-4 w-4" />
         )}
-      </div>
-      
-      {status?.assujetti && (
-        <div className="mt-4 pl-6 space-y-3">
-          <div className="flex items-center space-x-2">
-            <Checkbox 
-              id={`${obligationKey}-paye`}
-              checked={status?.paye || false}
-              onCheckedChange={handlePayeChange}
-            />
-            <label
-              htmlFor={`${obligationKey}-paye`}
-              className="text-sm cursor-pointer"
-            >
-              Payé
-            </label>
-          </div>
-          
-          {expanded && (
-            <>
-              <div className="space-y-1.5">
-                <Label htmlFor={`${obligationKey}-montant`} className="text-sm">
-                  Montant (FCFA)
-                </Label>
-                <Input
-                  id={`${obligationKey}-montant`}
-                  type="number"
-                  value={status?.montant || 0}
-                  onChange={handleMontantChange}
-                  className="max-w-[200px]"
-                />
-              </div>
-              
-              {status?.paye && (
-                <div className="space-y-1.5">
-                  <Label htmlFor={`${obligationKey}-date`} className="text-sm">
-                    Date de paiement
-                  </Label>
-                  <Input
-                    id={`${obligationKey}-date`}
-                    type="date"
-                    value={status?.datePaiement || ""}
-                    onChange={handleDateChange}
-                    className="max-w-[200px]"
-                  />
-                </div>
-              )}
-              
-              <div className="space-y-1.5">
-                <Label htmlFor={`${obligationKey}-observations`} className="text-sm">
-                  Observations
-                </Label>
-                <Textarea
-                  id={`${obligationKey}-observations`}
-                  value={status?.observations || ""}
-                  onChange={handleObservationsChange}
-                  placeholder="Ajoutez des observations concernant cette obligation..."
-                  className="h-20"
-                />
-              </div>
-            </>
-          )}
-        </div>
-      )}
+      </Button>
     </div>
   );
 };

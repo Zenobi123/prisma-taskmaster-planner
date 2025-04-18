@@ -13,8 +13,6 @@ interface QuarterlyPaymentProps {
   payment?: IgsPaymentStatus;
   quarterlyAmount: number;
   isQuarterDue: boolean;
-  quarterNumber: number;
-  expectedQuartersPaid: number;
   onPaymentUpdate: (field: string, value: any) => void;
 }
 
@@ -24,34 +22,18 @@ export const QuarterlyPayment = ({
   payment,
   quarterlyAmount,
   isQuarterDue,
-  quarterNumber,
-  expectedQuartersPaid,
   onPaymentUpdate,
 }: QuarterlyPaymentProps) => {
-  const isLate = !payment?.isPaid && quarterNumber <= expectedQuartersPaid;
-
-  const handlePaymentDateChange = (date: string) => {
-    onPaymentUpdate("datePayment", date);
-    // Automatically mark as paid when a date is entered
-    if (date) {
-      onPaymentUpdate("isPaid", true);
-    } else {
-      // Mark as unpaid when date is removed
-      onPaymentUpdate("isPaid", false);
+  const handleCheckboxChange = (checked: boolean) => {
+    onPaymentUpdate("isPaid", checked);
+    if (checked && !payment?.datePayment) {
+      const today = new Date().toISOString().split('T')[0];
+      onPaymentUpdate("datePayment", today);
     }
   };
 
-  const handlePaymentStatusChange = (checked: boolean | "indeterminate") => {
-    if (typeof checked === "boolean") {
-      onPaymentUpdate("isPaid", checked);
-      if (checked && !payment?.datePayment) {
-        // If marking as paid and no date is set, set today's date
-        handlePaymentDateChange(new Date().toISOString().split('T')[0]);
-      } else if (!checked) {
-        // If marking as unpaid, clear the date
-        handlePaymentDateChange("");
-      }
-    }
+  const handleDateChange = (date: string) => {
+    onPaymentUpdate("datePayment", date);
   };
 
   return (
@@ -64,11 +46,15 @@ export const QuarterlyPayment = ({
           <Checkbox 
             id={`trimester-check-${trimester}`}
             checked={payment?.isPaid || false}
-            onCheckedChange={handlePaymentStatusChange}
+            onCheckedChange={(checked) => {
+              if (typeof checked === "boolean") {
+                handleCheckboxChange(checked);
+              }
+            }}
             disabled={!isQuarterDue}
           />
-          <Badge variant={payment?.isPaid ? "success" : isLate ? "destructive" : "secondary"}>
-            {payment?.isPaid ? "Payé" : isLate ? "En retard" : "Non payé"}
+          <Badge variant={payment?.isPaid ? "success" : "destructive"}>
+            {payment?.isPaid ? "Payé" : "Non payé"}
           </Badge>
         </div>
       </div>
@@ -83,7 +69,7 @@ export const QuarterlyPayment = ({
           <Input
             type="date"
             value={payment.datePayment || ""}
-            onChange={(e) => handlePaymentDateChange(e.target.value)}
+            onChange={(e) => handleDateChange(e.target.value)}
             className="h-8 w-40"
           />
         </div>

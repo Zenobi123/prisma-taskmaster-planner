@@ -3,10 +3,11 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Info, AlertCircle } from "lucide-react";
+import { Info } from "lucide-react";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { calculateIGSClass } from "./utils/igsCalculations";
 import { QuarterlyPayment } from "./components/QuarterlyPayment";
+import { PaymentStatus } from "./components/PaymentStatus";
 import { IGSCalculation } from "./components/IGSCalculation";
 
 interface IgsDetailPanelProps {
@@ -31,9 +32,10 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
   const finalAmount = igsStatus.reductionCGA ? amount / 2 : amount;
   const quarterlyAmount = Math.ceil(finalAmount / 4);
 
-  // Calculate payment status for late detection
+  // Calculate payment status
   const paiementsTrimestriels = igsStatus.paiementsTrimestriels || {};
   const totalPaidQuarters = Object.values(paiementsTrimestriels).filter(p => p?.isPaid).length;
+  const totalDueQuarters = 4;
   const remainingAmount = finalAmount - (quarterlyAmount * totalPaidQuarters);
   
   // Determine if payments are late
@@ -68,12 +70,24 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
           onCGAChange={handleCGAChange}
         />
 
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <Label className="text-sm font-medium">Montant total IGS</Label>
+            <PaymentStatus
+              totalPaidQuarters={totalPaidQuarters}
+              totalDueQuarters={totalDueQuarters}
+              expectedQuartersPaid={expectedQuartersPaid}
+              isLate={isLate}
+            />
+          </div>
+        </div>
+
         <Separator className="my-4" />
         
         <div className="space-y-2">
           <Label className="text-sm font-medium">Échéancier de paiement</Label>
           <div className="grid gap-3">
-            {(Object.keys(TRIMESTER_DATES) as Array<keyof typeof TRIMESTER_DATES>).map((trimester, index) => (
+            {(Object.keys(TRIMESTER_DATES) as Array<keyof typeof TRIMESTER_DATES>).map(trimester => (
               <QuarterlyPayment
                 key={trimester}
                 trimester={trimester}
@@ -81,8 +95,6 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
                 payment={igsStatus.paiementsTrimestriels?.[trimester]}
                 quarterlyAmount={quarterlyAmount}
                 isQuarterDue={igsStatus.assujetti}
-                quarterNumber={index + 1}
-                expectedQuartersPaid={expectedQuartersPaid}
                 onPaymentUpdate={(field, value) => handleQuarterlyPaymentUpdate(trimester, field, value)}
               />
             ))}
@@ -100,15 +112,6 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
               <p className="text-sm whitespace-pre-line">{igsStatus.observations}</p>
             </div>
           </>
-        )}
-        
-        {isLate && !igsStatus.paye && (
-          <div className="flex items-start mt-2 bg-amber-50 p-2 rounded-md border border-amber-200">
-            <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 mr-2 flex-shrink-0" />
-            <p className="text-sm text-amber-800">
-              Ce client est en retard dans ses paiements IGS. Pensez à régulariser la situation.
-            </p>
-          </div>
         )}
       </CardContent>
     </Card>
