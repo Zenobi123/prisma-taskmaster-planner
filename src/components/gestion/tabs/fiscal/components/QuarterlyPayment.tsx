@@ -24,16 +24,28 @@ export const QuarterlyPayment = ({
   isQuarterDue,
   onPaymentUpdate,
 }: QuarterlyPaymentProps) => {
-  const handleCheckboxChange = (checked: boolean) => {
-    onPaymentUpdate("isPaid", checked);
-    if (checked && !payment?.datePayment) {
-      const today = new Date().toISOString().split('T')[0];
-      onPaymentUpdate("datePayment", today);
+  const handlePaymentDateChange = (date: string) => {
+    onPaymentUpdate("datePayment", date);
+    // Automatically mark as paid when a date is entered
+    if (date) {
+      onPaymentUpdate("isPaid", true);
+    } else {
+      // Mark as unpaid when date is removed
+      onPaymentUpdate("isPaid", false);
     }
   };
 
-  const handleDateChange = (date: string) => {
-    onPaymentUpdate("datePayment", date);
+  const handlePaymentStatusChange = (checked: boolean | "indeterminate") => {
+    if (typeof checked === "boolean") {
+      onPaymentUpdate("isPaid", checked);
+      if (checked && !payment?.datePayment) {
+        // If marking as paid and no date is set, set today's date
+        handlePaymentDateChange(new Date().toISOString().split('T')[0]);
+      } else if (!checked) {
+        // If marking as unpaid, clear the date
+        handlePaymentDateChange("");
+      }
+    }
   };
 
   return (
@@ -46,11 +58,7 @@ export const QuarterlyPayment = ({
           <Checkbox 
             id={`trimester-check-${trimester}`}
             checked={payment?.isPaid || false}
-            onCheckedChange={(checked) => {
-              if (typeof checked === "boolean") {
-                handleCheckboxChange(checked);
-              }
-            }}
+            onCheckedChange={handlePaymentStatusChange}
             disabled={!isQuarterDue}
           />
           <Badge variant={payment?.isPaid ? "success" : "destructive"}>
@@ -69,7 +77,7 @@ export const QuarterlyPayment = ({
           <Input
             type="date"
             value={payment.datePayment || ""}
-            onChange={(e) => handleDateChange(e.target.value)}
+            onChange={(e) => handlePaymentDateChange(e.target.value)}
             className="h-8 w-40"
           />
         </div>
