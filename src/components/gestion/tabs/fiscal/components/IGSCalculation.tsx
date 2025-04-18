@@ -25,19 +25,18 @@ export const IGSCalculation = ({
   onCGAChange,
 }: IGSCalculationProps) => {
   return (
-    <div>
-      <div className="space-y-2 mb-3">
+    <div className="space-y-4">
+      <div className="space-y-2">
         <Label className="text-sm font-medium">Chiffre d'affaires</Label>
         <Input
           type="number"
-          value={revenue || ""}
+          value={revenue}
           onChange={onRevenueChange}
           placeholder="Entrer le chiffre d'affaires"
-          className="max-w-[200px]"
         />
       </div>
 
-      <div className="flex items-center space-x-2 mb-3">
+      <div className="flex items-center space-x-2">
         <Switch
           checked={reductionCGA}
           onCheckedChange={onCGAChange}
@@ -48,7 +47,7 @@ export const IGSCalculation = ({
         </Label>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center space-x-2">
         <Badge variant="secondary" className="text-lg">
           Classe {classNumber}
         </Badge>
@@ -58,7 +57,7 @@ export const IGSCalculation = ({
       </div>
 
       {remainingAmount > 0 && (
-        <div className="text-sm text-amber-600 mt-1">
+        <div className="text-sm text-amber-600">
           Reste à payer : {remainingAmount.toLocaleString()} FCFA
         </div>
       )}
