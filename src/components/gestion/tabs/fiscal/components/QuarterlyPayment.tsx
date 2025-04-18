@@ -32,13 +32,14 @@ export const QuarterlyPayment = ({
   };
 
   const handleSwitchChange = (checked: boolean) => {
-    // Important: Update isPaid state first
+    console.log(`Toggle changed for ${trimester}: ${checked}`);
+    
+    // Update isPaid state
     onPaymentUpdate("isPaid", checked);
     
     // Automatically set today's date when marking as paid
-    if (checked && !paymentData.datePayment) {
+    if (checked) {
       const today = new Date().toISOString().split('T')[0];
-      // Use setTimeout to ensure the isPaid update occurs first
       setTimeout(() => {
         handlePaymentDateChange(today);
       }, 50);
