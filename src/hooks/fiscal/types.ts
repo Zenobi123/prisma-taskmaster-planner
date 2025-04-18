@@ -1,36 +1,37 @@
 
-export type ObligationType = "patente" | "igs" | "bail" | "taxeFonciere" | "dsf" | "darp";
+export type ObligationType = "tax" | "declaration";
 
 export interface TaxObligationStatus {
   assujetti: boolean;
   paye: boolean;
+  montant?: number;
+  datePaiement?: string;
+  observations?: string;
 }
 
 export interface DeclarationObligationStatus {
   assujetti: boolean;
   depose: boolean;
+  dateDepot?: string;
+  observations?: string;
 }
 
 export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
 
-export type ObligationStatuses = {
-  patente: TaxObligationStatus;
+export interface ObligationStatuses {
+  [key: string]: ObligationStatus;
   igs: TaxObligationStatus;
-  bail: TaxObligationStatus;
-  taxeFonciere: TaxObligationStatus;
+  patente: TaxObligationStatus;
   dsf: DeclarationObligationStatus;
-  darp: DeclarationObligationStatus;
-};
-
-export interface FiscalAttestationData {
-  creationDate: string;
-  validityEndDate: string;
-  showInAlert?: boolean;
 }
 
 export interface ClientFiscalData {
-  attestation: FiscalAttestationData;
-  obligations: ObligationStatuses;
+  attestation?: {
+    creationDate: string | null;
+    validityEndDate: string | null;
+    showInAlert: boolean;
+  };
+  obligations?: ObligationStatuses;
   hiddenFromDashboard?: boolean;
-  updatedAt?: string; // Add this optional property
+  updatedAt?: string;
 }
