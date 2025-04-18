@@ -1,4 +1,3 @@
-
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "./types";
 import { toast } from "sonner";
@@ -10,6 +9,7 @@ import { useObligationStatus } from "./hooks/useObligationStatus";
 import { useFiscalData } from "./hooks/useFiscalData";
 import { useState, useCallback, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useBeforeUnload } from "react-router-dom";
 
 export const useObligationsFiscales = (selectedClient: Client) => {
   const queryClient = useQueryClient();
@@ -18,6 +18,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   const [lastSaveTime, setLastSaveTime] = useState<number | null>(null);
   const [lastSaveSuccess, setLastSaveSuccess] = useState<boolean>(false);
   const [saveRetryCount, setSaveRetryCount] = useState(0);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   const {
     creationDate,
@@ -42,8 +43,45 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   } = useFiscalData(selectedClient);
 
   useEffect(() => {
+    if (dataLoaded) {
+      setHasUnsavedChanges(true);
+    }
+  }, [creationDate, validityEndDate, showInAlert, obligationStatuses, hiddenFromDashboard]);
+
+  useBeforeUnload(
+    useCallback(
+      (event) => {
+        if (hasUnsavedChanges && !lastSaveSuccess) {
+          const message = "You have unsaved changes. Are you sure you want to leave this page?";
+          event.preventDefault();
+          event.returnValue = message;
+          return message;
+        }
+      },
+      [hasUnsavedChanges, lastSaveSuccess]
+    )
+  );
+
+  useEffect(() => {
+    let autoSaveInterval: NodeJS.Timeout;
+
+    if (dataLoaded && hasUnsavedChanges && !isSaving) {
+      autoSaveInterval = setInterval(() => {
+        console.log("Auto-saving fiscal data...");
+        handleSave();
+      }, 120000); // 2 minutes
+    }
+
+    return () => {
+      if (autoSaveInterval) {
+        clearInterval(autoSaveInterval);
+      }
+    };
+  }, [dataLoaded, hasUnsavedChanges, isSaving]);
+
+  useEffect(() => {
     if (lastSaveTime && Date.now() - lastSaveTime > 60000) {
-      console.log("Plus de 60 secondes depuis le dernier enregistrement, forçage du rechargement des données");
+      console.log("More than 60 seconds since the last save, forcing data reload");
       loadFiscalData(true);
     }
   }, [lastSaveTime, loadFiscalData]);
@@ -51,7 +89,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   useEffect(() => {
     if (lastSaveSuccess && lastSaveTime) {
       const invalidationTimeout = setTimeout(() => {
-        console.log("Invalidation automatique des requêtes après enregistrement réussi");
+        console.log("Automatic invalidation of requests after successful save");
         queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
         queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
         queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
@@ -63,7 +101,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
 
   const handleSave = useCallback(async () => {
     if (!selectedClient?.id) {
-      toast.error("Impossible d'enregistrer les données: client non sélectionné");
+      toast.error("Cannot save data: no client selected");
       return;
     }
 
@@ -72,8 +110,8 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     setSaveRetryCount(0);
 
     try {
-      console.log("Début de l'enregistrement des données fiscales...");
-      console.log("État du cache avant enregistrement:", getDebugInfo());
+      console.log("Starting fiscal data save...");
+      console.log("Cache state before save:", getDebugInfo());
       
       const fiscalData: ClientFiscalData = {
         attestation: {
@@ -82,26 +120,27 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           showInAlert
         },
         obligations: obligationStatuses,
-        hiddenFromDashboard
+        hiddenFromDashboard,
+        updatedAt: new Date().toISOString()
       };
 
-      console.log("Enregistrement des données fiscales:", JSON.stringify(fiscalData, null, 2));
+      console.log("Saving fiscal data:", JSON.stringify(fiscalData, null, 2));
       
       const saveSuccess = await saveFiscalData(selectedClient.id, fiscalData);
       
       if (saveSuccess) {
         updateCache(selectedClient.id, fiscalData);
-        toast.success("Données enregistrées, vérification en cours...");
+        toast.success("Data saved, verification in progress...");
+        setHasUnsavedChanges(false);
         
-        // Utiliser notre vérification améliorée
         const verified = await verifyAndNotifyFiscalChanges(selectedClient.id, fiscalData);
         
         if (verified) {
-          console.log("Enregistrement vérifié avec succès");
+          console.log("Save successfully verified");
           setLastSaveTime(Date.now());
           setLastSaveSuccess(true);
           
-          toast.success("✅ Toutes les modifications ont été vérifiées et enregistrées définitivement.", {
+          toast.success("✅ All changes have been verified and permanently saved.", {
             duration: 5000
           });
           
@@ -109,31 +148,31 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
           queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
         } else {
-          console.warn("La vérification de l'enregistrement a échoué");
-          toast.warning("⚠️ Vérification en cours... Les données sont enregistrées mais pas encore confirmées.", {
+          console.warn("Save verification failed");
+          toast.warning("⚠️ Verification in progress... Data is saved but not yet confirmed.", {
             duration: 3000
           });
           setLastSaveSuccess(false);
           
-          // Seconde vérification après un délai
           setTimeout(async () => {
             const secondVerification = await verifyAndNotifyFiscalChanges(selectedClient.id, fiscalData);
             if (secondVerification) {
-              console.log("Seconde vérification réussie");
+              console.log("Second verification successful");
               setLastSaveSuccess(true);
-              toast.success("✅ Les modifications ont été vérifiées et enregistrées définitivement.", {
+              setHasUnsavedChanges(false);
+              toast.success("✅ Changes have been verified and permanently saved.", {
                 duration: 5000
               });
             } else {
-              console.error("Échec de la seconde vérification");
+              console.error("Second verification failed");
               if (saveRetryCount < 2) {
                 setSaveRetryCount(prev => prev + 1);
-                toast.error("⚠️ Nouvelle tentative d'enregistrement...", {
+                toast.error("⚠️ New save attempt...", {
                   duration: 3000
                 });
                 handleSave();
               } else {
-                toast.error("❌ Problème lors de l'enregistrement définitif. Veuillez actualiser et réessayer.", {
+                toast.error("❌ Problem with final save. Please refresh and try again.", {
                   duration: 5000
                 });
               }
@@ -141,12 +180,12 @@ export const useObligationsFiscales = (selectedClient: Client) => {
           }, 3000);
         }
       } else {
-        toast.error("Erreur lors de l'enregistrement. Veuillez réessayer.");
+        toast.error("Error during save. Please try again.");
         setLastSaveSuccess(false);
       }
     } catch (error) {
-      console.error("Erreur lors de l'enregistrement des données fiscales:", error);
-      toast.error("Erreur lors de l'enregistrement. Veuillez actualiser et réessayer.");
+      console.error("Error during fiscal data save:", error);
+      toast.error("Error during save. Please refresh and try again.");
       setLastSaveSuccess(false);
       
       clearCache(selectedClient.id);
@@ -184,6 +223,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
-    lastSaveSuccess
+    lastSaveSuccess,
+    hasUnsavedChanges
   };
 };

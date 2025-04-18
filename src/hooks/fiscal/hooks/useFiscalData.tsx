@@ -1,4 +1,3 @@
-
 import { useState, useCallback, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ClientFiscalData } from "../types";
@@ -19,20 +18,20 @@ export const useFiscalData = (selectedClient: Client) => {
     
     setIsLoading(true);
     try {
-      console.log(`Chargement des données fiscales pour le client ${selectedClient.id}`);
-      console.log("État actuel du cache:", getDebugInfo());
+      console.log(`Loading fiscal data for client ${selectedClient.id}`);
+      console.log("Current cache state:", getDebugInfo());
       
       if (force || loadRetries > 0) {
-        console.log(`${force ? 'Forçage' : `Tentative ${loadRetries}`}: effacement du cache pour des données fraîches`);
+        console.log(`${force ? 'Forcing' : `Attempt ${loadRetries}`}: clearing cache for fresh data`);
         clearCache(selectedClient.id);
       }
       
-      // Essayer d'abord le cache en mémoire
+      // First try in-memory cache
       let cachedData = null;
       if (!force) {
         cachedData = getFromCache(selectedClient.id);
         if (cachedData) {
-          console.log(`Utilisation des données fiscales en cache pour le client ${selectedClient.id}`);
+          console.log(`Using in-memory cached fiscal data for client ${selectedClient.id}`);
           setFiscalDataFromResponse(cachedData);
           setIsLoading(false);
           setLastSuccessfulLoad(Date.now());
@@ -41,11 +40,11 @@ export const useFiscalData = (selectedClient: Client) => {
         }
       }
       
-      // Ensuite essayer le cache persisté dans sessionStorage
+      // Then try localStorage cache
       if (!force && !cachedData) {
         const storedCache = recoverCacheFromStorage(selectedClient.id);
         if (storedCache) {
-          console.log(`Utilisation des données fiscales du sessionStorage pour le client ${selectedClient.id}`);
+          console.log(`Using localStorage fiscal data for client ${selectedClient.id}`);
           setFiscalDataFromResponse(storedCache);
           setIsLoading(false);
           setLastSuccessfulLoad(Date.now());
@@ -54,24 +53,24 @@ export const useFiscalData = (selectedClient: Client) => {
         }
       }
 
-      // Finalement, récupérer depuis la base de données
-      console.log(`Récupération des données fiscales depuis la base pour le client ${selectedClient.id}`);
+      // Finally, fetch from database
+      console.log(`Fetching fiscal data from database for client ${selectedClient.id}`);
       const fiscalData = await fetchFiscalData(selectedClient.id);
       
       if (fiscalData) {
-        console.log(`Données fiscales reçues de la base de données pour le client ${selectedClient.id}`);
+        console.log(`Fiscal data received from database for client ${selectedClient.id}`);
         setFiscalDataFromResponse(fiscalData);
         updateCache(selectedClient.id, fiscalData);
         setLastSuccessfulLoad(Date.now());
         setDataLoaded(true);
       } else {
-        console.log(`Aucune donnée fiscale trouvée pour le client ${selectedClient.id}`);
+        console.log(`No fiscal data found for client ${selectedClient.id}`);
         setHiddenFromDashboard(false);
         setDataLoaded(true);
       }
     } catch (error) {
-      console.error("Erreur lors du chargement des données fiscales:", error);
-      toast.error("Erreur lors du chargement des données fiscales");
+      console.error("Error loading fiscal data:", error);
+      toast.error("Error loading fiscal data");
       setDataLoaded(false);
     } finally {
       setIsLoading(false);
@@ -99,9 +98,9 @@ export const useFiscalData = (selectedClient: Client) => {
     let retryTimeout: NodeJS.Timeout;
     
     if (selectedClient?.id && !dataLoaded && loadRetries < 3 && !isLoading) {
-      console.log(`Planification de la tentative #${loadRetries + 1} pour charger les données fiscales`);
+      console.log(`Planning attempt #${loadRetries + 1} to load fiscal data`);
       retryTimeout = setTimeout(() => {
-        console.log(`Exécution de la tentative #${loadRetries + 1} pour charger les données fiscales`);
+        console.log(`Executing attempt #${loadRetries + 1} to load fiscal data`);
         setLoadRetries(prev => prev + 1);
         loadFiscalData(true);
       }, 2000 + loadRetries * 1000);
@@ -117,15 +116,14 @@ export const useFiscalData = (selectedClient: Client) => {
   useEffect(() => {
     let refreshInterval: NodeJS.Timeout;
 
-    // Diminuer la fréquence des rafraîchissements automatiques
     if (selectedClient?.id && dataLoaded && lastSuccessfulLoad) {
       refreshInterval = setInterval(() => {
         const timeSinceLoad = Date.now() - lastSuccessfulLoad;
-        if (timeSinceLoad > 300000) { // 5 minutes au lieu de 2 minutes
-          console.log("Rafraîchissement périodique des données fiscales");
+        if (timeSinceLoad > 300000) {
+          console.log("Periodic refresh of fiscal data");
           loadFiscalData(true);
         }
-      }, 120000); // Vérifier toutes les 2 minutes au lieu de 30 secondes
+      }, 120000);
     }
 
     return () => {

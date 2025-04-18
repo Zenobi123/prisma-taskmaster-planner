@@ -4,7 +4,7 @@ import { ClientFiscalData } from "../types";
 // Cache for fiscal data with enhanced persistence
 const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
 
-// Duration of cache validity (2 hours instead of 30 minutes)
+// Duration of cache validity (2 hours)
 export const CACHE_DURATION = 7200000; // 2 heures
 
 /**
@@ -32,38 +32,38 @@ export const updateCache = (clientId: string, data: ClientFiscalData): void => {
     timestamp: Date.now()
   });
   
-  // Persist cache in sessionStorage for resilience
+  // Persist cache in localStorage for better persistence across page navigations
   if (typeof window !== 'undefined') {
     try {
       const cacheKey = `fiscal_cache_${clientId}`;
-      window.sessionStorage.setItem(cacheKey, JSON.stringify({
+      window.localStorage.setItem(cacheKey, JSON.stringify({
         data,
         timestamp: Date.now()
       }));
-      console.log(`Cache persisté dans sessionStorage pour ${clientId}`);
+      console.log(`Cache persisted in localStorage for ${clientId}`);
     } catch (e) {
-      console.error("Erreur lors de la persistance du cache:", e);
+      console.error("Error persisting cache:", e);
     }
   }
 };
 
 /**
- * Try to recover cache from sessionStorage if available
+ * Try to recover cache from localStorage if available
  */
 export const recoverCacheFromStorage = (clientId: string): ClientFiscalData | null => {
   if (typeof window === 'undefined') return null;
   
   try {
     const cacheKey = `fiscal_cache_${clientId}`;
-    const storedCache = window.sessionStorage.getItem(cacheKey);
+    const storedCache = window.localStorage.getItem(cacheKey);
     
     if (storedCache) {
       const parsedCache = JSON.parse(storedCache);
       const now = Date.now();
       
       if (now - parsedCache.timestamp < CACHE_DURATION) {
-        console.log(`Récupération du cache depuis sessionStorage pour ${clientId}`);
-        // Restaurer dans le cache en mémoire également
+        console.log(`Recovering cache from localStorage for ${clientId}`);
+        // Also restore to in-memory cache
         fiscalDataCache.set(clientId, {
           data: parsedCache.data,
           timestamp: parsedCache.timestamp
@@ -72,7 +72,7 @@ export const recoverCacheFromStorage = (clientId: string): ClientFiscalData | nu
       }
     }
   } catch (e) {
-    console.error("Erreur lors de la récupération du cache:", e);
+    console.error("Error recovering cache:", e);
   }
   
   return null;
@@ -88,9 +88,9 @@ export const clearCache = (clientId: string): void => {
   if (typeof window !== 'undefined') {
     try {
       const cacheKey = `fiscal_cache_${clientId}`;
-      window.sessionStorage.removeItem(cacheKey);
+      window.localStorage.removeItem(cacheKey);
     } catch (e) {
-      console.error("Erreur lors de la suppression du cache:", e);
+      console.error("Error removing cache:", e);
     }
   }
 };
@@ -104,14 +104,14 @@ export const clearAllCaches = (): void => {
   
   if (typeof window !== 'undefined') {
     try {
-      // Suppression des caches de session uniquement pour les données fiscales
-      Object.keys(window.sessionStorage).forEach(key => {
+      // Delete only fiscal data caches from localStorage
+      Object.keys(window.localStorage).forEach(key => {
         if (key.startsWith('fiscal_cache_')) {
-          window.sessionStorage.removeItem(key);
+          window.localStorage.removeItem(key);
         }
       });
     } catch (e) {
-      console.error("Erreur lors de la suppression des caches:", e);
+      console.error("Error removing caches:", e);
     }
   }
 };

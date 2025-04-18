@@ -8,7 +8,7 @@ import { ClientSelector } from "@/components/gestion/ClientSelector";
 import { SelectedClientCard } from "@/components/gestion/SelectedClientCard";
 import { GestionTabs } from "@/components/gestion/GestionTabs";
 import { NoClientSelected } from "@/components/gestion/NoClientSelected";
-import { useLocation } from "react-router-dom";
+import { useLocation, useBeforeUnload } from "react-router-dom";
 
 export default function Gestion() {
   const [activeTab, setActiveTab] = useState("entreprise");

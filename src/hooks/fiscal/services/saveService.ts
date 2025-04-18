@@ -6,21 +6,22 @@ import { verifyFiscalDataSave } from "./verifyService";
 import { Json } from "@/integrations/supabase/types";
 
 /**
- * Save fiscal data with enhanced retry capability and verification
+ * Save fiscal data with enhanced persistence and verification
  */
 export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalData, retryCount = 0): Promise<boolean> => {
   try {
     console.log(`Saving fiscal data for client ${clientId} (attempt ${retryCount + 1})`);
     
-    // S'assurer que toutes les propriétés requises sont présentes
+    // Ensure all required properties are present
     const completeData = {
       ...fiscalData,
       // Add updatedAt timestamp to ensure consistency
       updatedAt: new Date().toISOString(),
-      // Ajouter des méta-données pour traçabilité
+      // Add metadata for traceability
       _metadata: {
         lastSaved: new Date().toISOString(),
-        saveVersion: (retryCount + 1).toString()
+        saveVersion: (retryCount + 1).toString(),
+        saveSource: 'Gestion'
       }
     };
     
@@ -42,10 +43,10 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
       return false;
     }
     
-    // Pause pour laisser le temps à la base de données de se mettre à jour
-    await new Promise(resolve => setTimeout(resolve, 500));
+    // Pause to allow database to update
+    await new Promise(resolve => setTimeout(resolve, 700));
     
-    // Vérifier que les données ont été correctement enregistrées
+    // Verify data was correctly saved
     const isVerified = await verifyFiscalDataSave(clientId, completeData);
     
     if (!isVerified && retryCount < 3) {
@@ -56,11 +57,11 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     }
     
     if (isVerified) {
-      // Mettre à jour le cache seulement après vérification réussie
+      // Update cache only after successful verification
       updateCache(clientId, completeData);
       console.log(`Fiscal data saved and verified for client ${clientId}`);
       
-      // Invalider les caches globaux si définis
+      // Invalidate global caches if defined
       if (typeof window !== 'undefined') {
         if (window.__patenteCacheTimestamp !== undefined) {
           window.__patenteCacheTimestamp = 0;
