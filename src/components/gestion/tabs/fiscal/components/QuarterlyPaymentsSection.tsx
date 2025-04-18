@@ -39,11 +39,14 @@ export const QuarterlyPaymentsSection = ({
   const safePayments = paiementsTrimestriels || {};
   
   // Debug payments object
-  console.log("Current payments state:", JSON.stringify(safePayments, null, 2));
+  useEffect(() => {
+    console.log("Quarterly payments section rendering with payments:", 
+      JSON.stringify(safePayments, null, 2));
+  }, [safePayments]);
   
   // Handle quarterly payment updates with structured approach
   const handlePaymentUpdate = (trimester: string, field: string, value: any) => {
-    console.log(`Updating ${trimester} - ${field}: ${value}`);
+    console.log(`QuarterlyPaymentsSection: Updating ${trimester} - ${field}: ${value}`);
     onQuarterlyPaymentUpdate(trimester, field, value);
   };
   

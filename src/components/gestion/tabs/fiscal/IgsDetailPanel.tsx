@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { calculateIGSClass } from "./utils/igsCalculations";
@@ -28,8 +28,10 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
   // Initialize payments object if it doesn't exist
   const paiementsTrimestriels = igsStatus.paiementsTrimestriels || {};
   
-  // Log the current state for debugging
-  console.log("Current IGS status:", JSON.stringify(igsStatus, null, 2));
+  // Debug the payment statuses for each trimester
+  useEffect(() => {
+    console.log("Current paiementsTrimestriels:", JSON.stringify(paiementsTrimestriels, null, 2));
+  }, [paiementsTrimestriels]);
   
   // Calculate payment status with strict boolean comparison
   const totalPaidQuarters = Object.values(paiementsTrimestriels).filter(p => p?.isPaid === true).length;
@@ -46,23 +48,28 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
 
   // Handle quarterly payment updates
   const handleQuarterlyPaymentUpdate = (trimester: string, field: string, value: any) => {
-    if (!onUpdate) return;
+    if (!onUpdate) {
+      console.warn("No update handler provided to IgsDetailPanel");
+      return;
+    }
     
     // Create the nested path for the update
     const updatePath = `paiementsTrimestriels.${trimester}.${field}`;
-    console.log(`Updating IGS: ${updatePath} = ${JSON.stringify(value)}`);
+    console.log(`IgsDetailPanel: Updating IGS: ${updatePath} = ${JSON.stringify(value)}`);
     
-    // Initialize the payment object for this trimester if it doesn't exist
+    // Check if the payment object for this trimester exists
     if (!paiementsTrimestriels[trimester]) {
       // First initialize the object structure
       onUpdate(`paiementsTrimestriels.${trimester}`, { isPaid: false });
       
       // Short delay to ensure initialization completes
       setTimeout(() => {
+        console.log(`IgsDetailPanel: Delayed update after initialization: ${updatePath} = ${JSON.stringify(value)}`);
         onUpdate(updatePath, value);
-      }, 50);
+      }, 100);
     } else {
       // If object already exists, update directly
+      console.log(`IgsDetailPanel: Direct update: ${updatePath} = ${JSON.stringify(value)}`);
       onUpdate(updatePath, value);
     }
   };
