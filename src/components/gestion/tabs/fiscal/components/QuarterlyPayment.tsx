@@ -2,7 +2,7 @@
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "lucide-react";
 import { IgsPaymentStatus } from "@/hooks/fiscal/types";
@@ -28,7 +28,7 @@ export const QuarterlyPayment = ({
     onPaymentUpdate("datePayment", date);
   };
 
-  const handleCheckboxChange = (checked: boolean) => {
+  const handleSwitchChange = (checked: boolean) => {
     onPaymentUpdate("isPaid", checked);
     if (checked && !payment?.datePayment) {
       handlePaymentDateChange(new Date().toISOString().split('T')[0]);
@@ -41,15 +41,10 @@ export const QuarterlyPayment = ({
         <Label className="font-medium">
           {trimester} - {dueDate}
         </Label>
-        <div className="flex items-center gap-2">
-          <Checkbox 
-            id={`trimester-check-${trimester}`}
+        <div className="flex items-center gap-3">
+          <Switch 
             checked={payment?.isPaid || false}
-            onCheckedChange={(checked) => {
-              if (typeof checked === "boolean") {
-                handleCheckboxChange(checked);
-              }
-            }}
+            onCheckedChange={handleSwitchChange}
             disabled={!isQuarterDue}
           />
           <Badge variant={payment?.isPaid ? "success" : "destructive"}>
