@@ -10,7 +10,7 @@ import { Json } from "@/integrations/supabase/types";
  */
 export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalData, retryCount = 0): Promise<boolean> => {
   try {
-    console.log(`Saving fiscal data for client ${clientId} (attempt ${retryCount + 1})`);
+    console.log(`[FiscalService] Saving fiscal data for client ${clientId} (attempt ${retryCount + 1})`);
     
     // Ensure all required properties are present
     const completeData = {
@@ -31,11 +31,11 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
       .eq('id', clientId);
     
     if (error) {
-      console.error(`Error saving fiscal data (attempt ${retryCount + 1}):`, error);
+      console.error(`[FiscalService] Error saving fiscal data (attempt ${retryCount + 1}):`, error);
       
       if (retryCount < 3) {
         const delay = (retryCount + 1) * 2000;
-        console.log(`Retrying save in ${delay}ms...`);
+        console.log(`[FiscalService] Retrying save in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return saveFiscalData(clientId, fiscalData, retryCount + 1);
       }
@@ -44,24 +44,24 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     }
     
     // Pause to allow database to update
-    await new Promise(resolve => setTimeout(resolve, 700));
+    await new Promise(resolve => setTimeout(resolve, 1000));
     
     // Verify data was correctly saved
     const isVerified = await verifyFiscalDataSave(clientId, completeData);
     
     if (!isVerified && retryCount < 3) {
-      console.warn(`Verification failed, retrying save (attempt ${retryCount + 1})...`);
+      console.warn(`[FiscalService] Verification failed, retrying save (attempt ${retryCount + 1})...`);
       const delay = (retryCount + 1) * 2500;
       await new Promise(resolve => setTimeout(resolve, delay));
       return saveFiscalData(clientId, fiscalData, retryCount + 1);
     }
     
     if (isVerified) {
-      // Update cache only after successful verification
+      // Immédiatement mettre à jour le cache local après vérification
       updateCache(clientId, completeData);
-      console.log(`Fiscal data saved and verified for client ${clientId}`);
+      console.log(`[FiscalService] Fiscal data saved and verified for client ${clientId}`);
       
-      // Invalidate global caches if defined
+      // Forcer l'invalidation des caches globaux
       if (typeof window !== 'undefined') {
         if (window.__patenteCacheTimestamp !== undefined) {
           window.__patenteCacheTimestamp = 0;
@@ -72,20 +72,23 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
         if (window.__dsfCacheTimestamp) {
           window.__dsfCacheTimestamp = 0;
         }
+        if (window.__darpCacheTimestamp) {
+          window.__darpCacheTimestamp = 0;
+        }
       }
     } else {
-      console.error(`Final verification failed for client ${clientId} after ${retryCount + 1} attempts`);
+      console.error(`[FiscalService] Final verification failed for client ${clientId} after ${retryCount + 1} attempts`);
       clearCache(clientId);
     }
     
     return isVerified;
   } catch (error) {
-    console.error(`Exception during fiscal data save (attempt ${retryCount + 1}):`, error);
+    console.error(`[FiscalService] Exception during fiscal data save (attempt ${retryCount + 1}):`, error);
     clearCache(clientId);
     
     if (retryCount < 3) {
       const delay = (retryCount + 1) * 2000;
-      console.log(`Retrying save after exception in ${delay}ms...`);
+      console.log(`[FiscalService] Retrying save after exception in ${delay}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
       return saveFiscalData(clientId, fiscalData, retryCount + 1);
     }

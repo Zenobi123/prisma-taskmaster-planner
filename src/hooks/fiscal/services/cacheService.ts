@@ -1,21 +1,21 @@
 
 import { ClientFiscalData } from "../types";
 
-// Cache for fiscal data with enhanced persistence
+// Cache for fiscal data with extended validity period
 const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
 
-// Duration of cache validity (2 hours)
-export const CACHE_DURATION = 7200000; // 2 heures
+// Augmented cache duration of 2 hours for better persistence
+export const CACHE_DURATION = 7200000; // 2 hours
 
 /**
- * Get data from cache if valid
+ * Get data from cache if valid, with improved persistence
  */
 export const getFromCache = (clientId: string): ClientFiscalData | null => {
   const now = Date.now();
   const cachedData = fiscalDataCache.get(clientId);
   
   if (cachedData && now - cachedData.timestamp < CACHE_DURATION) {
-    console.log(`Using cache for client ${clientId}`);
+    console.log(`[CacheService] Using cache for client ${clientId}`);
     return cachedData.data;
   }
   
@@ -28,7 +28,7 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
       if (storedCache) {
         const parsedCache = JSON.parse(storedCache);
         if (now - parsedCache.timestamp < CACHE_DURATION) {
-          console.log(`Recovering from localStorage for client ${clientId}`);
+          console.log(`[CacheService] Recovering from localStorage for client ${clientId}`);
           // Also restore to in-memory cache
           fiscalDataCache.set(clientId, {
             data: parsedCache.data,
@@ -38,7 +38,7 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
         }
       }
     } catch (e) {
-      console.error("Error accessing localStorage:", e);
+      console.error("[CacheService] Error accessing localStorage:", e);
     }
   }
   
@@ -46,16 +46,16 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
 };
 
 /**
- * Update cache with new data
+ * Update cache with new data and persist to localStorage
  */
 export const updateCache = (clientId: string, data: ClientFiscalData): void => {
-  console.log(`Updating cache for client ${clientId}`);
+  console.log(`[CacheService] Updating cache for client ${clientId}`);
   fiscalDataCache.set(clientId, {
     data,
     timestamp: Date.now()
   });
   
-  // Persist cache in localStorage for better persistence across page navigations
+  // Also persist cache in localStorage for better persistence across page navigations
   if (typeof window !== 'undefined') {
     try {
       const cacheKey = `fiscal_cache_${clientId}`;
@@ -63,15 +63,15 @@ export const updateCache = (clientId: string, data: ClientFiscalData): void => {
         data,
         timestamp: Date.now()
       }));
-      console.log(`Cache persisted in localStorage for ${clientId}`);
+      console.log(`[CacheService] Cache persisted in localStorage for ${clientId}`);
     } catch (e) {
-      console.error("Error persisting cache:", e);
+      console.error("[CacheService] Error persisting cache:", e);
     }
   }
 };
 
 /**
- * Try to recover cache from localStorage if available
+ * Try to recover cache from storage if available
  */
 export const recoverCacheFromStorage = (clientId: string): ClientFiscalData | null => {
   if (typeof window === 'undefined') return null;
@@ -85,7 +85,7 @@ export const recoverCacheFromStorage = (clientId: string): ClientFiscalData | nu
       const now = Date.now();
       
       if (now - parsedCache.timestamp < CACHE_DURATION) {
-        console.log(`Recovering cache from localStorage for ${clientId}`);
+        console.log(`[CacheService] Recovering cache from localStorage for ${clientId}`);
         // Also restore to in-memory cache
         fiscalDataCache.set(clientId, {
           data: parsedCache.data,
@@ -95,7 +95,7 @@ export const recoverCacheFromStorage = (clientId: string): ClientFiscalData | nu
       }
     }
   } catch (e) {
-    console.error("Error recovering cache:", e);
+    console.error("[CacheService] Error recovering cache:", e);
   }
   
   return null;
@@ -105,7 +105,7 @@ export const recoverCacheFromStorage = (clientId: string): ClientFiscalData | nu
  * Clear cache for a specific client
  */
 export const clearCache = (clientId: string): void => {
-  console.log(`Clearing cache for client ${clientId}`);
+  console.log(`[CacheService] Clearing cache for client ${clientId}`);
   fiscalDataCache.delete(clientId);
   
   if (typeof window !== 'undefined') {
@@ -113,7 +113,7 @@ export const clearCache = (clientId: string): void => {
       const cacheKey = `fiscal_cache_${clientId}`;
       window.localStorage.removeItem(cacheKey);
     } catch (e) {
-      console.error("Error removing cache:", e);
+      console.error("[CacheService] Error removing cache:", e);
     }
   }
 };
@@ -122,7 +122,7 @@ export const clearCache = (clientId: string): void => {
  * Clear all caches
  */
 export const clearAllCaches = (): void => {
-  console.log('Clearing all fiscal data caches');
+  console.log('[CacheService] Clearing all fiscal data caches');
   fiscalDataCache.clear();
   
   if (typeof window !== 'undefined') {
@@ -134,7 +134,7 @@ export const clearAllCaches = (): void => {
         }
       });
     } catch (e) {
-      console.error("Error removing caches:", e);
+      console.error("[CacheService] Error removing caches:", e);
     }
   }
 };
