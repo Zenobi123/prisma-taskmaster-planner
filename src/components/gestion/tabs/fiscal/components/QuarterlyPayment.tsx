@@ -13,6 +13,8 @@ interface QuarterlyPaymentProps {
   payment?: IgsPaymentStatus;
   quarterlyAmount: number;
   isQuarterDue: boolean;
+  quarterNumber: number;
+  expectedQuartersPaid: number;
   onPaymentUpdate: (field: string, value: any) => void;
 }
 
@@ -22,8 +24,12 @@ export const QuarterlyPayment = ({
   payment,
   quarterlyAmount,
   isQuarterDue,
+  quarterNumber,
+  expectedQuartersPaid,
   onPaymentUpdate,
 }: QuarterlyPaymentProps) => {
+  const isLate = !payment?.isPaid && quarterNumber <= expectedQuartersPaid;
+
   const handlePaymentDateChange = (date: string) => {
     onPaymentUpdate("datePayment", date);
     // Automatically mark as paid when a date is entered
@@ -61,8 +67,8 @@ export const QuarterlyPayment = ({
             onCheckedChange={handlePaymentStatusChange}
             disabled={!isQuarterDue}
           />
-          <Badge variant={payment?.isPaid ? "success" : "destructive"}>
-            {payment?.isPaid ? "Payé" : "Non payé"}
+          <Badge variant={payment?.isPaid ? "success" : isLate ? "destructive" : "secondary"}>
+            {payment?.isPaid ? "Payé" : isLate ? "En retard" : "Non payé"}
           </Badge>
         </div>
       </div>

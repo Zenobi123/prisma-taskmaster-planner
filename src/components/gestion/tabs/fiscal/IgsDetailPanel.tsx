@@ -7,7 +7,6 @@ import { Info, AlertCircle } from "lucide-react";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { calculateIGSClass } from "./utils/igsCalculations";
 import { QuarterlyPayment } from "./components/QuarterlyPayment";
-import { PaymentStatus } from "./components/PaymentStatus";
 import { IGSCalculation } from "./components/IGSCalculation";
 
 interface IgsDetailPanelProps {
@@ -32,10 +31,9 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
   const finalAmount = igsStatus.reductionCGA ? amount / 2 : amount;
   const quarterlyAmount = Math.ceil(finalAmount / 4);
 
-  // Calculate payment status
+  // Calculate payment status for late detection
   const paiementsTrimestriels = igsStatus.paiementsTrimestriels || {};
   const totalPaidQuarters = Object.values(paiementsTrimestriels).filter(p => p?.isPaid).length;
-  const totalDueQuarters = 4;
   const remainingAmount = finalAmount - (quarterlyAmount * totalPaidQuarters);
   
   // Determine if payments are late
@@ -70,24 +68,12 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
           onCGAChange={handleCGAChange}
         />
 
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">Montant total IGS</Label>
-            <PaymentStatus
-              totalPaidQuarters={totalPaidQuarters}
-              totalDueQuarters={totalDueQuarters}
-              expectedQuartersPaid={expectedQuartersPaid}
-              isLate={isLate}
-            />
-          </div>
-        </div>
-
         <Separator className="my-4" />
         
         <div className="space-y-2">
           <Label className="text-sm font-medium">Échéancier de paiement</Label>
           <div className="grid gap-3">
-            {(Object.keys(TRIMESTER_DATES) as Array<keyof typeof TRIMESTER_DATES>).map(trimester => (
+            {(Object.keys(TRIMESTER_DATES) as Array<keyof typeof TRIMESTER_DATES>).map((trimester, index) => (
               <QuarterlyPayment
                 key={trimester}
                 trimester={trimester}
@@ -95,6 +81,8 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
                 payment={igsStatus.paiementsTrimestriels?.[trimester]}
                 quarterlyAmount={quarterlyAmount}
                 isQuarterDue={igsStatus.assujetti}
+                quarterNumber={index + 1}
+                expectedQuartersPaid={expectedQuartersPaid}
                 onPaymentUpdate={(field, value) => handleQuarterlyPaymentUpdate(trimester, field, value)}
               />
             ))}
