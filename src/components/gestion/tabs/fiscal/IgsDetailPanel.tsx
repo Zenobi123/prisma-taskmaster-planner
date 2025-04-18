@@ -3,15 +3,12 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Calendar, Info, AlertCircle, Check, Clock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Info, AlertCircle } from "lucide-react";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { calculateIGSClass } from "./utils/igsCalculations";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
-import { Checkbox } from "@/components/ui/checkbox";
+import { QuarterlyPayment } from "./components/QuarterlyPayment";
+import { PaymentStatus } from "./components/PaymentStatus";
+import { IGSCalculation } from "./components/IGSCalculation";
 
 interface IgsDetailPanelProps {
   igsStatus: TaxObligationStatus;
@@ -60,131 +57,29 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
     onUpdate?.(`paiementsTrimestriels.${trimester}.${field}`, value);
   };
 
-  const handlePaymentDateChange = (trimester: keyof typeof TRIMESTER_DATES, date: string) => {
-    handleQuarterlyPaymentUpdate(trimester, "datePayment", date);
-  };
-
-  const getPaymentStatusBadge = () => {
-    if (totalPaidQuarters === totalDueQuarters) {
-      return (
-        <Badge variant="success" className="gap-1">
-          <Check className="h-3.5 w-3.5" />
-          IGS entièrement payé
-        </Badge>
-      );
-    }
-    
-    if (isLate) {
-      return (
-        <Badge variant="destructive" className="gap-1">
-          <AlertCircle className="h-3.5 w-3.5" />
-          {`Retard de paiement (${totalPaidQuarters}/${expectedQuartersPaid} trimestres)`}
-        </Badge>
-      );
-    }
-    
-    return (
-      <Badge variant="secondary" className="gap-1">
-        <Clock className="h-3.5 w-3.5" />
-        {`${totalPaidQuarters}/${totalDueQuarters} trimestres payés`}
-      </Badge>
-    );
-  };
-
-  const renderQuarterlyPayment = (trimester: keyof typeof TRIMESTER_DATES) => {
-    const payment = igsStatus.paiementsTrimestriels?.[trimester];
-    const dueDate = TRIMESTER_DATES[trimester];
-    const isQuarterDue = igsStatus.assujetti;
-
-    return (
-      <div key={`trimester-${trimester}`} className="p-3 border rounded-md">
-        <div className="flex justify-between items-center mb-2">
-          <Label className="font-medium">
-            {trimester} - {dueDate}
-          </Label>
-          <div className="flex items-center gap-2">
-            <Checkbox 
-              id={`trimester-check-${trimester}`}
-              checked={payment?.isPaid || false}
-              onCheckedChange={(checked) => {
-                if (typeof checked === "boolean") {
-                  handleQuarterlyPaymentUpdate(trimester, "isPaid", checked);
-                  if (checked && !payment?.datePayment) {
-                    handlePaymentDateChange(trimester, new Date().toISOString().split('T')[0]);
-                  }
-                }
-              }}
-              disabled={!isQuarterDue}
-            />
-            <Badge variant={payment?.isPaid ? "success" : "destructive"}>
-              {payment?.isPaid ? "Payé" : "Non payé"}
-            </Badge>
-          </div>
-        </div>
-        
-        <div className="text-sm text-muted-foreground">
-          Montant dû : {quarterlyAmount.toLocaleString()} FCFA
-        </div>
-        
-        {payment?.isPaid && (
-          <div className="flex items-center gap-2 mt-2">
-            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-            <Input
-              type="date"
-              value={payment.datePayment || ""}
-              onChange={(e) => handlePaymentDateChange(trimester, e.target.value)}
-              className="h-8 w-40"
-            />
-          </div>
-        )}
-      </div>
-    );
-  };
-
   return (
     <Card className="mt-2 border-dashed">
       <CardContent className="pt-4 pb-3 space-y-4">
-        <div className="grid gap-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">Chiffre d'affaires</Label>
-            <Input
-              type="number"
-              value={revenue}
-              onChange={handleRevenueChange}
-              placeholder="Entrer le chiffre d'affaires"
-            />
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={igsStatus.reductionCGA || false}
-              onCheckedChange={handleCGAChange}
-              id="cga-switch"
-            />
-            <Label htmlFor="cga-switch" className="text-sm">
-              Adhérant au Centre de Gestion Agréé (-50%)
-            </Label>
-          </div>
-        </div>
+        <IGSCalculation
+          revenue={revenue}
+          reductionCGA={igsStatus.reductionCGA || false}
+          classNumber={classNumber}
+          finalAmount={finalAmount}
+          remainingAmount={remainingAmount}
+          onRevenueChange={handleRevenueChange}
+          onCGAChange={handleCGAChange}
+        />
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label className="text-sm font-medium">Montant total IGS</Label>
-            {getPaymentStatusBadge()}
+            <PaymentStatus
+              totalPaidQuarters={totalPaidQuarters}
+              totalDueQuarters={totalDueQuarters}
+              expectedQuartersPaid={expectedQuartersPaid}
+              isLate={isLate}
+            />
           </div>
-          <div className="flex items-center space-x-2">
-            <Badge variant="secondary" className="text-lg">
-              Classe {classNumber}
-            </Badge>
-            <span className="text-sm text-muted-foreground">
-              ({finalAmount.toLocaleString()} FCFA {igsStatus.reductionCGA ? "avec réduction CGA" : ""})
-            </span>
-          </div>
-          {remainingAmount > 0 && (
-            <div className="text-sm text-amber-600">
-              Reste à payer : {remainingAmount.toLocaleString()} FCFA
-            </div>
-          )}
         </div>
 
         <Separator className="my-4" />
@@ -192,9 +87,17 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
         <div className="space-y-2">
           <Label className="text-sm font-medium">Échéancier de paiement</Label>
           <div className="grid gap-3">
-            {(Object.keys(TRIMESTER_DATES) as Array<keyof typeof TRIMESTER_DATES>).map(trimester => 
-              renderQuarterlyPayment(trimester)
-            )}
+            {(Object.keys(TRIMESTER_DATES) as Array<keyof typeof TRIMESTER_DATES>).map(trimester => (
+              <QuarterlyPayment
+                key={trimester}
+                trimester={trimester}
+                dueDate={TRIMESTER_DATES[trimester]}
+                payment={igsStatus.paiementsTrimestriels?.[trimester]}
+                quarterlyAmount={quarterlyAmount}
+                isQuarterDue={igsStatus.assujetti}
+                onPaymentUpdate={(field, value) => handleQuarterlyPaymentUpdate(trimester, field, value)}
+              />
+            ))}
           </div>
         </div>
 
