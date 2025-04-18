@@ -19,12 +19,19 @@ export const TaxObligationItem = ({
   expanded,
   onToggleExpand,
 }: TaxObligationItemProps) => {
+  const handleToggle = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onToggleExpand();
+  };
+
   return (
     <div className="w-full">
       <Button
         variant="outline"
         className="w-full flex items-center justify-between p-4"
-        onClick={onToggleExpand}
+        onClick={handleToggle}
+        type="button"
       >
         <span className="font-medium">{label}</span>
         {expanded ? (
