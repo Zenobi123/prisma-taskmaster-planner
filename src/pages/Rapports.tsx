@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,13 +13,13 @@ import {
 import { exportToPdf } from "@/utils/exportUtils";
 import { toast } from "@/components/ui/use-toast";
 import { DocumentService } from "@/utils/pdf/documentService";
+import autoTable from "jspdf-autotable";
 
 const Rapports = () => {
   const [typeFilter, setTypeFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  // Données mockées pour l'exemple
   const rapports = [
     {
       id: 1,
@@ -64,7 +63,6 @@ const Rapports = () => {
     }
   ];
 
-  // Filtrer par type et recherche
   const filteredRapports = rapports.filter((rapport) => {
     const matchesType = typeFilter === "all" || rapport.type === typeFilter;
     const matchesSearch = searchQuery === "" || 
@@ -73,19 +71,15 @@ const Rapports = () => {
     return matchesType && matchesSearch;
   });
 
-  // Télécharger un rapport
   const handleDownloadReport = (rapport: any) => {
     try {
-      // Afficher toast de génération
       toast({
         title: "Génération en cours",
         description: `Préparation du rapport "${rapport.titre}"...`,
       });
       
-      // Générer le rapport en utilisant la fonction spécifique du rapport
       rapport.generator();
       
-      // Afficher toast de succès après génération
       toast({
         title: "Rapport généré",
         description: `Le rapport "${rapport.titre}" a été téléchargé avec succès.`,
@@ -187,9 +181,7 @@ const Rapports = () => {
   );
 };
 
-// Fonctions de génération de rapports
 function generateActivityReport() {
-  // Données du rapport d'activité
   const activityData = [
     { activite: "Conseil fiscal", nombre: 24, pourcentage: "32%", evolution: "+5%" },
     { activite: "Comptabilité", nombre: 18, pourcentage: "24%", evolution: "+2%" },
@@ -206,7 +198,6 @@ function generateActivityReport() {
 }
 
 function generateFinancialReport() {
-  // Données du rapport financier
   const financialData = [
     { categorie: "Revenus services fiscaux", montant: 2450000, evolution: "+15%", contribution: "38%" },
     { categorie: "Revenus comptabilité", montant: 1890000, evolution: "+8%", contribution: "29%" },
@@ -223,7 +214,6 @@ function generateFinancialReport() {
 }
 
 function generateTimeReport() {
-  // Données du rapport de temps
   const timeData = [
     { projet: "Audit LMN Corp", heures: 78, collaborateurs: 4, progression: "65%" },
     { projet: "Fiscalité ABC SA", heures: 42, collaborateurs: 2, progression: "90%" },
@@ -240,7 +230,6 @@ function generateTimeReport() {
 }
 
 function generateClientReport() {
-  // Données du rapport clients
   const clientData = [
     { client: "ABC Cameroun SA", secteur: "Industrie", chiffre_affaires: 4250000, statut: "Actif" },
     { client: "XYZ Consulting", secteur: "Services", chiffre_affaires: 2830000, statut: "Actif" },
@@ -249,20 +238,16 @@ function generateClientReport() {
     { client: "DEF Constructions", secteur: "BTP", chiffre_affaires: 5340000, statut: "Actif" }
   ];
   
-  // Créer un service de document personnalisé
   try {
     const docService = new DocumentService('rapport', 'Rapport clients', 'client-analysis');
     const doc = docService.getDocument();
     
-    // Ajouter l'en-tête standard
     docService.addStandardHeader();
     
-    // Ajouter le titre du rapport
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
     doc.text("Analyse du portefeuille clients", 15, 65);
     
-    // Ajouter une introduction
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     doc.text(
@@ -271,7 +256,6 @@ function generateClientReport() {
       15, 75
     );
     
-    // Tableau des clients
     autoTable(doc, {
       startY: 85,
       head: [["Client", "Secteur d'activité", "Chiffre d'affaires", "Statut"]],
@@ -296,7 +280,6 @@ function generateClientReport() {
       },
     });
     
-    // Statistiques sommaires
     const finalY = (doc as any).lastAutoTable.finalY + 15;
     
     doc.setFontSize(12);
@@ -306,27 +289,22 @@ function generateClientReport() {
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
     
-    // Calculer les statistiques
     const clientCount = clientData.length;
     const activeCount = clientData.filter(c => c.statut === "Actif").length;
     const totalRevenue = clientData.reduce((sum, c) => sum + c.chiffre_affaires, 0);
     const averageRevenue = totalRevenue / clientCount;
     
-    // Ajouter les statistiques
     doc.text(`• Nombre total de clients: ${clientCount}`, 15, finalY + 10);
     doc.text(`• Clients actifs: ${activeCount} (${Math.round(activeCount/clientCount*100)}%)`, 15, finalY + 20);
     doc.text(`• Chiffre d'affaires total: ${new Intl.NumberFormat('fr-FR').format(totalRevenue)} XAF`, 15, finalY + 30);
     doc.text(`• Chiffre d'affaires moyen: ${new Intl.NumberFormat('fr-FR').format(Math.round(averageRevenue))} XAF`, 15, finalY + 40);
     
-    // Répartition par secteur
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text("Répartition par secteur d'activité", 15, finalY + 60);
     
-    // Ajouter le pied de page
     docService.addStandardFooter();
     
-    // Générer le PDF
     docService.generate(true);
   } catch (error) {
     console.error("Erreur lors de la génération du rapport clients:", error);
