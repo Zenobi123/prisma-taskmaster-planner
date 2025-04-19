@@ -27,8 +27,10 @@ export const useFactureViewActions = () => {
         status_paiement: facture.status_paiement,
         prestations: facture.prestations,
         paiements: facture.paiements,
-        notes: facture.notes
+        notes: facture.notes && typeof facture.notes === 'string' ? facture.notes : ''
       };
+      
+      console.log("PDF Facture object:", pdfFacture);
       
       // Générer et visualiser (ouvrir dans un nouvel onglet)
       generateInvoicePDF(pdfFacture, false);
@@ -64,8 +66,10 @@ export const useFactureViewActions = () => {
         status_paiement: facture.status_paiement,
         prestations: facture.prestations,
         paiements: facture.paiements,
-        notes: facture.notes
+        notes: facture.notes && typeof facture.notes === 'string' ? facture.notes : ''
       };
+      
+      console.log("PDF Facture object for download:", pdfFacture);
       
       // Générer et télécharger
       generateInvoicePDF(pdfFacture, true);
@@ -146,6 +150,8 @@ export const useFactureViewActions = () => {
   
   // Helper function to map between client types
   const mapClientToPdfClient = (clientData: any): Client => {
+    console.log("Mapping client data:", clientData);
+    
     // Si c'est déjà un objet Client complet, on le retourne tel quel
     if (
       clientData && 

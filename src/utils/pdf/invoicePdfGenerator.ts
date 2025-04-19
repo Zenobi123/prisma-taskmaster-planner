@@ -44,7 +44,7 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
       paymentsSectionY = addPaymentsSection(doc, facture, totalSectionY);
     }
     
-    // Add notes if available
+    // Add notes if available - pass the notes string directly, not the entire facture object
     if (facture.notes && typeof facture.notes === 'string') {
       addNotesSection(doc, facture.notes, paymentsSectionY);
     }
