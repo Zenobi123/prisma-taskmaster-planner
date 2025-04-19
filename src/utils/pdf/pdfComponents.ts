@@ -73,7 +73,8 @@ export const addClientSection = (doc: jsPDF, client: Client) => {
   
   // Display client name - using company name or personal name as appropriate
   doc.setFont('helvetica', 'bold');
-  doc.text(`${client.nom}`, 20, 67);
+  const clientName = client.type === 'morale' && client.raisonsociale ? client.raisonsociale : client.nom;
+  doc.text(clientName || '', 20, 67);
   doc.setFont('helvetica', 'normal');
   
   // Additional client fields if available from the Client type
@@ -84,15 +85,16 @@ export const addClientSection = (doc: jsPDF, client: Client) => {
     additionalInfo.push(`NIU: ${client.niu}`);
   }
   
-  if ('adresse' in client) {
+  if (additionalInfo.length > 0) {
+    doc.text(additionalInfo.join(' | '), 20, 74);
+  }
+  
+  // Address info
+  if ('adresse' in client && client.adresse) {
     const clientAddress = typeof client.adresse === 'object' 
       ? `${client.adresse.ville || ''}, ${client.adresse.quartier || ''}`
       : client.adresse;
     doc.text(`${clientAddress}`, 20, 80);
-  }
-  
-  if (additionalInfo.length > 0) {
-    doc.text(additionalInfo.join(' | '), 20, 74);
   }
   
   // Contact info

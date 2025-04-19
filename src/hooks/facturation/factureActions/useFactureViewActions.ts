@@ -13,11 +13,25 @@ export const useFactureViewActions = () => {
     try {
       console.log("Aperçu de la facture:", facture.id);
       
-      // Convert facture to PDFFacture format with proper client handling
+      // Format the client data according to the expected structure for PDF
       const pdfFacture: PDFFacture = {
         id: facture.id,
-        // Cast to unknown first to avoid type error
-        client: facture.client as unknown as import('@/types/client').Client,
+        // Properly map the client data structure
+        client: {
+          id: facture.client.id,
+          nom: facture.client.nom,
+          raisonsociale: facture.client.raisonsociale,
+          type: facture.client.type,
+          niu: facture.client.niu,
+          adresse: facture.client.adresse,
+          contact: facture.client.contact,
+          // Add other required client properties from the Client type
+          centrerattachement: facture.client.centrerattachement,
+          secteuractivite: facture.client.secteuractivite,
+          statut: facture.client.statut,
+          interactions: facture.client.interactions || [],
+          gestionexternalisee: facture.client.gestionexternalisee
+        },
         date: facture.date,
         echeance: facture.echeance,
         montant: facture.montant,
@@ -50,11 +64,25 @@ export const useFactureViewActions = () => {
     try {
       console.log("Téléchargement de la facture:", facture.id);
       
-      // Convert facture to PDFFacture format with proper client handling
+      // Format the client data according to the expected structure for PDF
       const pdfFacture: PDFFacture = {
         id: facture.id,
-        // Cast to unknown first to avoid type error
-        client: facture.client as unknown as import('@/types/client').Client,
+        // Properly map the client data structure
+        client: {
+          id: facture.client.id,
+          nom: facture.client.nom,
+          raisonsociale: facture.client.raisonsociale,
+          type: facture.client.type,
+          niu: facture.client.niu,
+          adresse: facture.client.adresse,
+          contact: facture.client.contact,
+          // Add other required client properties from the Client type
+          centrerattachement: facture.client.centrerattachement,
+          secteuractivite: facture.client.secteuractivite,
+          statut: facture.client.statut,
+          interactions: facture.client.interactions || [],
+          gestionexternalisee: facture.client.gestionexternalisee
+        },
         date: facture.date,
         echeance: facture.echeance,
         montant: facture.montant,

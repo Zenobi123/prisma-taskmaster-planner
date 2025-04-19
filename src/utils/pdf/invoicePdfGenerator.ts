@@ -15,12 +15,14 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     docService.addStandardHeader(facture.date);
     
     // Add info section for client
-    docService.addInfoSection('CLIENT', [
-      facture.client.nom,
-      facture.client.adresse,
-      `Tel: ${facture.client.telephone}`,
-      `Email: ${facture.client.email}`
-    ], 50);
+    const clientInfoLines = [
+      facture.client.nom || facture.client.raisonsociale || '',
+      facture.client.adresse, // This is handled by DocumentService.addInfoSection to format correctly
+      facture.client.contact, // This is handled by DocumentService.addInfoSection to format correctly
+      facture.client.niu ? `NIU: ${facture.client.niu}` : ''
+    ].filter(line => line); // Filter out empty lines
+    
+    docService.addInfoSection('CLIENT', clientInfoLines, 50);
     
     // Add payment details section
     docService.addAmountSection('TOTAL À PAYER', facture.montant, 90);
