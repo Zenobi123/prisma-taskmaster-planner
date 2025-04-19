@@ -1,10 +1,10 @@
-
 import { Facture } from "@/types/facture";
 import { Paiement } from "@/types/paiement";
 import { useToast } from "@/components/ui/use-toast";
 import { PDFFacture, SimplifiedClient } from "@/utils/pdf/types";
 import { generateInvoicePDF } from "@/utils/pdf/invoicePdfGenerator";
 import { generateReceiptPDF, formatClientForReceipt } from "@/utils/pdf/receiptPdfGenerator";
+import { Client } from "@/types/client";
 
 export const useFactureViewActions = () => {
   const { toast } = useToast();
@@ -16,22 +16,8 @@ export const useFactureViewActions = () => {
       // Format the client data according to the expected structure for PDF
       const pdfFacture: PDFFacture = {
         id: facture.id,
-        // Properly map the client data structure
-        client: {
-          id: facture.client.id,
-          nom: facture.client.nom,
-          raisonsociale: facture.client.raisonsociale,
-          type: facture.client.type,
-          niu: facture.client.niu,
-          adresse: facture.client.adresse,
-          contact: facture.client.contact,
-          // Add other required client properties from the Client type
-          centrerattachement: facture.client.centrerattachement,
-          secteuractivite: facture.client.secteuractivite,
-          statut: facture.client.statut,
-          interactions: facture.client.interactions || [],
-          gestionexternalisee: facture.client.gestionexternalisee
-        },
+        // Map client properties correctly based on the actual facture.client structure
+        client: mapClientToPdfClient(facture.client),
         date: facture.date,
         echeance: facture.echeance,
         montant: facture.montant,
@@ -67,22 +53,8 @@ export const useFactureViewActions = () => {
       // Format the client data according to the expected structure for PDF
       const pdfFacture: PDFFacture = {
         id: facture.id,
-        // Properly map the client data structure
-        client: {
-          id: facture.client.id,
-          nom: facture.client.nom,
-          raisonsociale: facture.client.raisonsociale,
-          type: facture.client.type,
-          niu: facture.client.niu,
-          adresse: facture.client.adresse,
-          contact: facture.client.contact,
-          // Add other required client properties from the Client type
-          centrerattachement: facture.client.centrerattachement,
-          secteuractivite: facture.client.secteuractivite,
-          statut: facture.client.statut,
-          interactions: facture.client.interactions || [],
-          gestionexternalisee: facture.client.gestionexternalisee
-        },
+        // Map client properties correctly based on the actual facture.client structure
+        client: mapClientToPdfClient(facture.client),
         date: facture.date,
         echeance: facture.echeance,
         montant: facture.montant,
@@ -171,11 +143,56 @@ export const useFactureViewActions = () => {
     }
   };
   
+  // Helper function to map between client types
+  const mapClientToPdfClient = (clientData: any): Client => {
+    // If it's already a full Client type, just return it
+    if (
+      clientData && 
+      typeof clientData === 'object' && 
+      'type' in clientData &&
+      'niu' in clientData &&
+      'adresse' in clientData &&
+      typeof clientData.adresse === 'object' &&
+      'contact' in clientData &&
+      typeof clientData.contact === 'object'
+    ) {
+      return clientData as Client;
+    }
+    
+    // Otherwise convert from simplified format
+    return {
+      id: clientData.id || '',
+      type: 'physique', // Default type
+      nom: clientData.nom || '',
+      raisonsociale: clientData.raisonsociale || '',
+      niu: clientData.niu || '',
+      adresse: typeof clientData.adresse === 'object' 
+        ? clientData.adresse 
+        : { 
+            ville: typeof clientData.adresse === 'string' ? clientData.adresse : '', 
+            quartier: '', 
+            lieuDit: '' 
+          },
+      contact: typeof clientData.contact === 'object'
+        ? clientData.contact
+        : {
+            telephone: clientData.telephone || '',
+            email: clientData.email || ''
+          },
+      centrerattachement: clientData.centrerattachement || '',
+      secteuractivite: clientData.secteuractivite || '',
+      statut: clientData.statut || 'actif',
+      interactions: clientData.interactions || [],
+      gestionexternalisee: clientData.gestionexternalisee || false
+    };
+  };
+  
   return {
     handleVoirFacture,
     handleTelechargerFacture,
     handleVoirRecu,
-    handleTelechargerRecu
+    handleTelechargerRecu,
+    mapClientToPdfClient
   };
 };
 
