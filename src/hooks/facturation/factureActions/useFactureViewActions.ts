@@ -1,3 +1,4 @@
+
 import { Facture } from "@/types/facture";
 import { Paiement } from "@/types/paiement";
 import { useToast } from "@/components/ui/use-toast";
