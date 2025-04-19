@@ -12,12 +12,12 @@ export function useClientsPage() {
   const { toast } = useToast();
   const [isDataReady, setIsDataReady] = useState(false);
 
-  // Use lower staleTime to prevent stale data, but with proper cacheTime
+  // Use lower staleTime to prevent stale data, but with proper gcTime (formerly cacheTime)
   const { data: clients = [], isLoading, error, refetch } = useQuery({
     queryKey: ["clients"],
     queryFn: getClients,
     staleTime: 30000, // 30 seconds
-    cacheTime: 300000, // 5 minutes
+    gcTime: 300000, // 5 minutes (renamed from cacheTime in React Query v5)
     retry: 2,
     refetchOnWindowFocus: false,
     onSuccess: () => {
