@@ -20,11 +20,20 @@ export function useClientsPage() {
     gcTime: 300000, // 5 minutes (renamed from cacheTime in React Query v5)
     retry: 2,
     refetchOnWindowFocus: false,
-    onSuccess: () => {
-      // Mark data as ready to prevent UI freezing from premature renders
-      setIsDataReady(true);
+    meta: {
+      onSuccess: () => {
+        // Mark data as ready to prevent UI freezing from premature renders
+        setIsDataReady(true);
+      }
     }
   });
+
+  // Execute the onSuccess callback when data is loaded
+  useEffect(() => {
+    if (clients.length > 0 && !isDataReady) {
+      setIsDataReady(true);
+    }
+  }, [clients, isDataReady]);
 
   const {
     searchTerm,
