@@ -9,8 +9,12 @@ import IgsSection from "./sections/IgsSection"
 import DsfSection from "./sections/DsfSection"
 import PatenteSection from "./sections/PatenteSection"
 import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations"
+import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations"
 
 export default function DashboardAccordion() {
+  // Utiliser le hook pour récupérer les données des attestations fiscales
+  const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
+  
   return (
     <Accordion type="single" collapsible className="w-full space-y-4">
       <AccordionItem value="igs" className="border rounded-lg bg-white shadow-sm">
@@ -31,7 +35,10 @@ export default function DashboardAccordion() {
           </span>
         </AccordionTrigger>
         <AccordionContent>
-          <ExpiringFiscalAttestations attestations={[]} isLoading={false} />
+          <ExpiringFiscalAttestations 
+            attestations={attestations} 
+            isLoading={isLoading} 
+          />
         </AccordionContent>
       </AccordionItem>
 
