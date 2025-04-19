@@ -1,8 +1,7 @@
-
 import jsPDF from 'jspdf';
 import { Paiement } from '@/types/paiement';
 import { SimplifiedClient } from './types';
-import { DocumentService } from './documentService';
+import { DocumentService } from './services/DocumentService';
 
 /**
  * Fonction pour générer un PDF de reçu de paiement de haute qualité

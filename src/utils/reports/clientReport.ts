@@ -1,82 +1,119 @@
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import { ClientFinancialDetails } from '@/types/clientFinancial';
+import { formatDateToString } from '../exportUtils';
+import { DocumentService } from '../pdf/services/DocumentService';
 
-import { DocumentService } from "@/utils/pdf/documentService";
-import autoTable from "jspdf-autotable";
-
-export function generateClientReport() {
-  const clientData = [
-    { client: "ABC Cameroun SA", secteur: "Industrie", chiffre_affaires: 4250000, statut: "Actif" },
-    { client: "XYZ Consulting", secteur: "Services", chiffre_affaires: 2830000, statut: "Actif" },
-    { client: "LMN Technologies", secteur: "IT", chiffre_affaires: 1950000, statut: "En pause" },
-    { client: "PQR Distributions", secteur: "Commerce", chiffre_affaires: 3120000, statut: "Actif" },
-    { client: "DEF Constructions", secteur: "BTP", chiffre_affaires: 5340000, statut: "Actif" }
-  ];
-  
+/**
+ * Generates a detailed client financial report in PDF format.
+ * @param clientDetails - The financial details of the client.
+ */
+export const generateClientReport = (clientDetails: ClientFinancialDetails): void => {
   try {
-    const docService = new DocumentService('rapport', 'Rapport clients', 'client-analysis');
-    const doc = docService.getDocument();
-    
-    docService.addStandardHeader();
-    
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text("Analyse du portefeuille clients", 15, 65);
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    doc.text(
-      "Ce rapport présente une analyse détaillée du portefeuille clients et de leurs activités. " +
-      "Il comprend des informations sur le chiffre d'affaires, le secteur d'activité et le statut de chaque client.",
-      15, 75
+    if (!clientDetails.client) {
+      console.error("Client details are missing.");
+      alert("Impossible de générer le rapport : informations sur le client manquantes.");
+      return;
+    }
+
+    // Use DocumentService for consistent styling and structure
+    const docService = new DocumentService(
+      'rapport', 
+      'Situation Financière Client', 
+      clientDetails.client.nom
     );
-    
-    autoTable(doc, {
-      startY: 85,
-      head: [["Client", "Secteur d'activité", "Chiffre d'affaires", "Statut"]],
-      body: clientData.map(client => [
-        client.client,
-        client.secteur,
-        `${new Intl.NumberFormat('fr-FR').format(client.chiffre_affaires)} XAF`,
-        client.statut
-      ]),
-      theme: 'grid',
-      headStyles: { 
-        fillColor: [60, 98, 85], 
-        textColor: 255,
-        fontStyle: 'bold'
-      },
-      styles: {
-        fontSize: 10,
-        cellPadding: 5,
-      },
-      alternateRowStyles: {
-        fillColor: [248, 250, 249]
-      },
-    });
-    
-    const finalY = (doc as any).lastAutoTable.finalY + 15;
-    
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text("Résumé du portefeuille", 15, finalY);
-    
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'normal');
-    
-    const clientCount = clientData.length;
-    const activeCount = clientData.filter(c => c.statut === "Actif").length;
-    const totalRevenue = clientData.reduce((sum, c) => sum + c.chiffre_affaires, 0);
-    const averageRevenue = totalRevenue / clientCount;
-    
-    doc.text(`• Nombre total de clients: ${clientCount}`, 15, finalY + 10);
-    doc.text(`• Clients actifs: ${activeCount} (${Math.round(activeCount/clientCount*100)}%)`, 15, finalY + 20);
-    doc.text(`• Chiffre d'affaires total: ${new Intl.NumberFormat('fr-FR').format(totalRevenue)} XAF`, 15, finalY + 30);
-    doc.text(`• Chiffre d'affaires moyen: ${new Intl.NumberFormat('fr-FR').format(Math.round(averageRevenue))} XAF`, 15, finalY + 40);
-    
+    const doc = docService.getDocument();
+
+    // Add standard header and footer
+    docService.addStandardHeader();
     docService.addStandardFooter();
-    
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Situation Financière de ${clientDetails.client.nom}`, 15, 60);
+
+    // Client Information
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`ID Client: ${clientDetails.client.id}`, 15, 70);
+    doc.text(`Solde Disponible: ${clientDetails.solde_disponible} XAF`, 15, 75);
+
+    // Start Y position for tables
+    let startY = 85;
+
+    // Function to add tables with dynamic headers and data
+    const addTable = (title: string, headers: string[], data: any[], yPos: number): number => {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text(title, 15, yPos);
+
+      autoTable(doc, {
+        startY: yPos + 5,
+        head: [headers],
+        body: data,
+        theme: 'grid',
+        headStyles: { 
+          fillColor: [60, 98, 85], 
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        styles: {
+          fontSize: 10,
+          cellPadding: 5,
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 249]
+        },
+      });
+
+      return (doc as any).lastAutoTable.finalY + 10;
+    };
+
+    // Format invoices for table
+    const formattedInvoices = clientDetails.factures.map(invoice => [
+      invoice.id,
+      formatDateToString(new Date(invoice.date)),
+      invoice.montant,
+      invoice.montant_paye,
+      invoice.montant_restant,
+      invoice.status,
+      invoice.status_paiement,
+      formatDateToString(new Date(invoice.echeance))
+    ]);
+
+    // Add invoices table
+    startY = addTable(
+      "Factures",
+      ["ID", "Date", "Montant", "Payé", "Restant", "Statut", "Statut Paiement", "Échéance"],
+      formattedInvoices,
+      startY
+    );
+
+    // Format payments for table
+    const formattedPayments = clientDetails.paiements.map(payment => [
+      payment.id,
+      formatDateToString(new Date(payment.date)),
+      payment.montant,
+      payment.mode,
+      payment.reference,
+      payment.facture_id || 'N/A',
+      payment.est_credit ? 'Oui' : 'Non'
+    ]);
+
+    // Add payments table
+    startY = addTable(
+      "Paiements",
+      ["ID", "Date", "Montant", "Mode", "Référence", "Facture ID", "Crédit"],
+      formattedPayments,
+      startY
+    );
+
+    // Generate and download the PDF
     docService.generate(true);
+
   } catch (error) {
-    console.error("Erreur lors de la génération du rapport clients:", error);
-    throw error;
+    console.error("Error generating client report:", error);
+    alert("Erreur lors de la génération du rapport client.");
   }
-}
+};
