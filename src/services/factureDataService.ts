@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Facture } from "@/types/facture";
 import { formatDate } from "@/utils/formatUtils";
