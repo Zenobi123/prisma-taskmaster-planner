@@ -1,7 +1,7 @@
-
 import { Event } from "@/types/event";
 import { DocumentService } from '../pdf/services/DocumentService';
 import autoTable from 'jspdf-autotable';
+import { formatDateToString } from './csvExporter';
 
 /**
  * Exports events to a PDF file

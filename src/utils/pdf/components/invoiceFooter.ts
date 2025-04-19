@@ -2,6 +2,7 @@
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { addDocumentWatermark } from './watermark/documentWatermark';
 
 // Add footer and watermark to all pages
 export const addInvoiceFooter = (doc: jsPDF) => {
@@ -25,23 +26,7 @@ export const addInvoiceFooter = (doc: jsPDF) => {
     const generateDate = format(today, 'dd/MM/yyyy à HH:mm', { locale: fr });
     doc.text(`Document généré le ${generateDate}`, 15, pageHeight - 10);
     
-    // Add watermark diagonal text in very light color
-    doc.saveGraphicsState();
-    
-    // Use different approach for watermark since rotate/translate methods 
-    // may not be available in the current jsPDF version
-    doc.setTextColor(235, 235, 235);
-    
-    // Calculate center of page
-    const pageWidth = doc.internal.pageSize.width;
-    doc.setFontSize(30);
-    
-    // Instead of rotating, just place the watermark text
-    doc.text('PRISMA GESTION', pageWidth/2, pageHeight/2, { 
-      align: 'center',
-      angle: 45
-    });
-    
-    doc.restoreGraphicsState();
+    // Add watermark
+    addDocumentWatermark(doc, 'PRISMA GESTION');
   }
 };
