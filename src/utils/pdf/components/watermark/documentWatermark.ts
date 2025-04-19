@@ -21,7 +21,7 @@ export const addDocumentWatermark = (doc: jsPDF, text: string): void => {
   doc.saveGraphicsState();
   
   // Move to center, rotate, then move back
-  doc.setTransformationMatrix(
+  doc.setCurrentTransformationMatrix(
     Math.cos(angle), // a
     Math.sin(angle), // b
     -Math.sin(angle), // c 

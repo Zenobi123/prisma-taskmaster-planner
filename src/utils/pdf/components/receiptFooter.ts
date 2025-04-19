@@ -2,6 +2,7 @@
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { addDocumentWatermark } from './watermark/documentWatermark';
 
 // Add footer and watermark to all pages of the receipt
 export const addReceiptFooter = (doc: jsPDF, reference: string) => {
@@ -25,15 +26,7 @@ export const addReceiptFooter = (doc: jsPDF, reference: string) => {
     const generateDate = format(today, 'dd/MM/yyyy à HH:mm', { locale: fr });
     doc.text(`Document généré le ${generateDate}`, 15, pageHeight - 10);
     
-    // Add watermark diagonal text in very light color
-    doc.saveGraphicsState();
-    
-    // Fix TypeScript errors with correct type casting
-    (doc as any).translate(pageHeight/2, 100);
-    (doc as any).rotate(-45);
-    
-    doc.setTextColor(235, 235, 235);
-    doc.text('PRISMA GESTION', 0, 0, { align: 'center' });
-    doc.restoreGraphicsState();
+    // Add watermark
+    addDocumentWatermark(doc, 'PRISMA GESTION');
   }
 };

@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import { addCompanyLogo, formatDateForDisplay } from '../pdfComponents';
 import { BaseDocumentService, DocumentType } from './BaseDocumentService';
@@ -64,7 +65,7 @@ export class DocumentHeaderFooterService extends BaseDocumentService {
     
     this.doc.saveGraphicsState();
     
-    this.doc.setTransformationMatrix(
+    this.doc.setCurrentTransformationMatrix(
       Math.cos(angle), // a
       Math.sin(angle), // b
       -Math.sin(angle), // c 
