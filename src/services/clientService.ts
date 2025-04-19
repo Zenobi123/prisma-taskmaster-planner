@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { Database } from "@/integrations/supabase/types";
@@ -34,7 +35,6 @@ export const getClients = async () => {
       centrerattachement: client.centrerattachement,
       sexe: client.sexe || undefined,
       etatcivil: client.etatcivil || undefined,
-      regimefiscal: client.regimefiscal || undefined,
       situationimmobiliere: client.situationimmobiliere || { type: "locataire" },
       adresse: {
         ville: (client.adresse as any)?.ville || "",
@@ -54,7 +54,8 @@ export const getClients = async () => {
       })),
       statut: client.statut as "actif" | "inactif" | "archive",
       gestionexternalisee: client.gestionexternalisee || false,
-      created_at: client.created_at
+      created_at: client.created_at,
+      fiscal_data: client.fiscal_data
     })) as Client[];
   }
 
@@ -82,7 +83,6 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
       numerocnps: client.numerocnps,
       sexe: client.sexe,
       etatcivil: client.etatcivil,
-      regimefiscal: client.regimefiscal,
       situationimmobiliere: client.situationimmobiliere,
       interactions: [],
       statut: "actif",

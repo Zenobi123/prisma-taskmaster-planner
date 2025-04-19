@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { 
   Client, 
@@ -85,7 +86,6 @@ export function useClientForm(initialData?: Client) {
         gestionexternalisee: initialData.gestionexternalisee || false,
         sexe: initialData.sexe || "homme",
         etatcivil: initialData.etatcivil || "celibataire",
-        regimefiscal: initialData.regimefiscal || "reel",
         situationimmobiliere: {
           type: initialData.situationimmobiliere?.type || "locataire",
           valeur: initialData.situationimmobiliere?.valeur,

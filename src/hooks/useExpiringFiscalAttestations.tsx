@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { differenceInDays, isValid, parse } from "date-fns";
 import { Json } from "@/integrations/supabase/types";
-import { ClientFiscalData } from "@/hooks/fiscal/types";
 
 export interface FiscalAttestation {
   id: string;
@@ -37,7 +36,7 @@ export const useExpiringFiscalAttestations = () => {
       
       clients.forEach((client: any) => {
         try {
-          const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
+          const fiscalData = client.fiscal_data;
           
           // Skip if hidden from dashboard
           if (fiscalData.hiddenFromDashboard === true) {

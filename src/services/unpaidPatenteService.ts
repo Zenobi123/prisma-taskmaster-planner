@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Client, ClientType, FormeJuridique, Sexe, EtatCivil } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";

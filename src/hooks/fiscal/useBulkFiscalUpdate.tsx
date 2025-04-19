@@ -1,166 +1,95 @@
 
-import { useState, useCallback } from 'react';
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { getClients } from '@/services/clientService';
-import { Client } from '@/types/client';
-import { saveFiscalData } from '@/hooks/fiscal/services/saveService';
-import { verifyAndNotifyFiscalChanges } from '@/hooks/fiscal/services/verifyService';
-import { toast } from 'sonner';
-import { clearAllCaches } from '@/hooks/fiscal/services/cacheService';
+import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Client } from "@/types/client";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 export const useBulkFiscalUpdate = () => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [updatingClients, setUpdatingClients] = useState<{
-    total: number;
-    processed: number;
-    successful: number;
-    failed: number;
-  }>({
-    total: 0,
-    processed: 0,
-    successful: 0,
-    failed: 0
-  });
 
-  const [isUpdating, setIsUpdating] = useState(false);
-
-  const { data: clients = [], isLoading } = useQuery({
-    queryKey: ['clients'],
-    queryFn: getClients,
-  });
-
-  const updateClientsfiscalData = useCallback(async () => {
-    const eligibleClients = clients.filter(client => client.gestionexternalisee);
-    
-    if (eligibleClients.length === 0) {
-      toast.error("Aucun client éligible trouvé pour la mise à jour fiscale");
-      return;
-    }
-
-    setIsUpdating(true);
-    toast.info(`Début de la mise à jour pour ${eligibleClients.length} clients...`);
-    
-    // Effacer tous les caches avant de commencer la mise à jour en masse
-    clearAllCaches();
-    
-    setUpdatingClients({
-      total: eligibleClients.length,
-      processed: 0,
-      successful: 0,
-      failed: 0
-    });
-
-    let successCount = 0;
-    let failCount = 0;
-
-    for (const client of eligibleClients) {
+  // Mise à jour des données fiscales en masse
+  const updateFiscalDataMutation = useMutation({
+    mutationFn: async (clients: Client[]) => {
+      setIsLoading(true);
+      console.log("Mise à jour des données fiscales pour", clients.length, "clients");
+      
       try {
-        const fiscalData = {
-          ...client.fiscal_data,
-          updatedAt: new Date().toISOString(),
-          lastBulkUpdate: new Date().toISOString()
-        };
-
-        // Augmenter le nombre de tentatives pour les opérations importantes
-        const maxRetries = 3;
-        let saveSuccess = false;
-        let retryCount = 0;
+        // Traitement par lots de 10 clients maximum pour éviter les timeout
+        const batchSize = 10;
+        const batches = [];
         
-        while (!saveSuccess && retryCount < maxRetries) {
-          saveSuccess = await saveFiscalData(client.id, fiscalData, retryCount);
-          if (!saveSuccess) {
-            console.log(`Tentative ${retryCount + 1} échouée pour le client ${client.id}, nouvelle tentative...`);
-            await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
-            retryCount++;
-          }
+        for (let i = 0; i < clients.length; i += batchSize) {
+          const batch = clients.slice(i, i + batchSize);
+          batches.push(batch);
         }
         
-        if (saveSuccess) {
-          // Vérification avec retries
-          let verified = false;
-          retryCount = 0;
-          
-          while (!verified && retryCount < maxRetries) {
-            verified = await verifyAndNotifyFiscalChanges(client.id, fiscalData);
-            if (!verified) {
-              console.log(`Vérification ${retryCount + 1} échouée pour le client ${client.id}, nouvelle tentative...`);
-              await new Promise(resolve => setTimeout(resolve, 1000 * (retryCount + 1)));
-              retryCount++;
+        let successCount = 0;
+        let errorCount = 0;
+        
+        // Traiter chaque lot séquentiellement
+        for (const batch of batches) {
+          const promises = batch.map(async (client) => {
+            try {
+              // Vérifier si le client a des données fiscales à mettre à jour
+              if (!client.fiscal_data) {
+                return { success: false, id: client.id, error: "Pas de données fiscales" };
+              }
+              
+              const { error } = await supabase
+                .from("clients")
+                .update({ fiscal_data: client.fiscal_data })
+                .eq("id", client.id);
+                
+              if (error) throw error;
+              
+              return { success: true, id: client.id };
+            } catch (error) {
+              console.error(`Erreur lors de la mise à jour du client ${client.id}:`, error);
+              return { success: false, id: client.id, error };
             }
-          }
+          });
           
-          if (verified) {
-            successCount++;
-            setUpdatingClients(prev => ({
-              ...prev,
-              processed: prev.processed + 1,
-              successful: successCount
-            }));
-          } else {
-            failCount++;
-            setUpdatingClients(prev => ({
-              ...prev,
-              processed: prev.processed + 1,
-              failed: failCount
-            }));
-            toast.error(`Échec de la vérification pour le client ${client.id} après ${maxRetries} tentatives`);
-          }
-        } else {
-          failCount++;
-          setUpdatingClients(prev => ({
-            ...prev,
-            processed: prev.processed + 1,
-            failed: failCount
-          }));
-          toast.error(`Échec de l'enregistrement pour le client ${client.id} après ${maxRetries} tentatives`);
+          const results = await Promise.all(promises);
+          
+          // Compter les résultats
+          successCount += results.filter(r => r.success).length;
+          errorCount += results.filter(r => !r.success).length;
         }
-      } catch (error) {
-        console.error(`Erreur critique pour le client ${client.id}:`, error);
-        failCount++;
-        setUpdatingClients(prev => ({
-          ...prev,
-          processed: prev.processed + 1,
-          failed: failCount
-        }));
+        
+        return { successCount, errorCount };
+      } finally {
+        setIsLoading(false);
       }
-
-      // Petit délai entre chaque client pour éviter de surcharger le serveur
-      await new Promise(resolve => setTimeout(resolve, 800));
-    }
-
-    // Invalidation forcée des caches après l'opération complète
-    queryClient.invalidateQueries({ queryKey: ["clients"] });
-    queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
-    queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
-    queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
-    
-    if (typeof window !== 'undefined' && window.__invalidateFiscalCaches) {
-      window.__invalidateFiscalCaches();
-    }
-
-    setIsUpdating(false);
-    
-    if (failCount === 0) {
-      toast.success(`Mise à jour terminée avec succès pour tous les ${successCount} clients !`, {
-        duration: 6000
+    },
+    onSuccess: (result) => {
+      console.log("Résultat de la mise à jour:", result);
+      
+      // Rafraîchir les données des clients
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
+      
+      // Afficher un message de succès
+      toast({
+        title: "Mise à jour effectuée",
+        description: `${result.successCount} clients mis à jour avec succès. ${result.errorCount} erreurs.`,
+        variant: result.errorCount > 0 ? "destructive" : "default",
       });
-    } else if (successCount > 0) {
-      toast.warning(`Mise à jour terminée : ${successCount} succès, ${failCount} échecs`, {
-        duration: 6000
-      });
-    } else {
-      toast.error(`Échec de la mise à jour pour tous les clients. Veuillez réessayer.`, {
-        duration: 6000
+    },
+    onError: (error) => {
+      console.error("Erreur lors de la mise à jour des données fiscales:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la mise à jour des données fiscales.",
+        variant: "destructive",
       });
     }
-    
-  }, [clients, queryClient]);
+  });
 
   return {
-    updateClientsfiscalData,
-    updatingClients,
     isLoading,
-    isUpdating,
-    clients
+    updateFiscalDataMutation
   };
 };
