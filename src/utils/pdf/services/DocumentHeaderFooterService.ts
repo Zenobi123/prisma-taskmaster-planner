@@ -1,4 +1,3 @@
-
 import jsPDF from 'jspdf';
 import { addCompanyLogo, formatDateForDisplay } from '../pdfComponents';
 import { BaseDocumentService, DocumentType } from './BaseDocumentService';
@@ -55,25 +54,25 @@ export class DocumentHeaderFooterService extends BaseDocumentService {
     const pageWidth = this.doc.internal.pageSize.width;
     const pageHeight = this.doc.internal.pageSize.height;
     
-    // Utilisation correcte de la transformation avec les méthodes actuelles de jsPDF
     const centerX = pageWidth/2;
     const centerY = pageHeight/2;
     
-    // Utiliser une matrice de transformation pour la rotation
-    // Matrice de rotation de -45 degrés
-    const angle = -45 * Math.PI / 180;
-    const cos = Math.cos(angle);
-    const sin = Math.sin(angle);
-    
-    // Appliquer la transformation
     this.doc.setTextColor(235, 235, 235);
     this.doc.setFontSize(30);
     
-    // Appliquer la transformation
-    const matrix = new this.doc.Matrix(cos, sin, -sin, cos, centerX, centerY);
-    this.doc.setTransform(matrix);
+    const angle = -45 * Math.PI / 180;
     
-    // Texte centré avec une origine au centre de la page
+    this.doc.saveGraphicsState();
+    
+    this.doc.setTransformationMatrix(
+      Math.cos(angle), // a
+      Math.sin(angle), // b
+      -Math.sin(angle), // c 
+      Math.cos(angle), // d
+      centerX, // e (translation X)
+      centerY  // f (translation Y)
+    );
+    
     this.doc.text(text, 0, 0, { align: 'center', baseline: 'middle' });
     
     this.doc.restoreGraphicsState();
