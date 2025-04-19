@@ -39,10 +39,13 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     const totalSectionY = docService.addAmountSection('TOTAL', facture.montant, tableFinishY);
     
     // Add payments section if available
-    const paymentsSectionY = addPaymentsSection(doc, facture, totalSectionY);
+    let paymentsSectionY = totalSectionY;
+    if (facture.paiements && facture.paiements.length > 0) {
+      paymentsSectionY = addPaymentsSection(doc, facture, totalSectionY);
+    }
     
     // Add notes if available
-    if (facture.notes) {
+    if (facture.notes && typeof facture.notes === 'string') {
       addNotesSection(doc, facture.notes, paymentsSectionY);
     }
     
