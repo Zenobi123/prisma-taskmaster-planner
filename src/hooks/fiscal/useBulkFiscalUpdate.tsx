@@ -7,6 +7,13 @@ import { useToast } from "@/components/ui/use-toast";
 
 export const useBulkFiscalUpdate = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [updatingClients, setUpdatingClients] = useState({
+    total: 0,
+    processed: 0,
+    successful: 0,
+    failed: 0
+  });
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -14,6 +21,14 @@ export const useBulkFiscalUpdate = () => {
   const updateFiscalDataMutation = useMutation({
     mutationFn: async (clients: Client[]) => {
       setIsLoading(true);
+      setIsUpdating(true);
+      setUpdatingClients({
+        total: clients.length,
+        processed: 0,
+        successful: 0,
+        failed: 0
+      });
+      
       console.log("Mise à jour des données fiscales pour", clients.length, "clients");
       
       try {
@@ -45,9 +60,24 @@ export const useBulkFiscalUpdate = () => {
                 
               if (error) throw error;
               
+              // Mise à jour du compteur de clients traités
+              setUpdatingClients(prev => ({
+                ...prev,
+                processed: prev.processed + 1,
+                successful: prev.successful + 1
+              }));
+              
               return { success: true, id: client.id };
             } catch (error) {
               console.error(`Erreur lors de la mise à jour du client ${client.id}:`, error);
+              
+              // Mise à jour du compteur de clients avec erreur
+              setUpdatingClients(prev => ({
+                ...prev,
+                processed: prev.processed + 1,
+                failed: prev.failed + 1
+              }));
+              
               return { success: false, id: client.id, error };
             }
           });
@@ -62,6 +92,7 @@ export const useBulkFiscalUpdate = () => {
         return { successCount, errorCount };
       } finally {
         setIsLoading(false);
+        setIsUpdating(false);
       }
     },
     onSuccess: (result) => {
@@ -88,8 +119,18 @@ export const useBulkFiscalUpdate = () => {
     }
   });
 
+  // Fonction pour déclencher la mise à jour
+  const updateClientsfiscalData = () => {
+    // Logique pour récupérer les clients à mettre à jour
+    // Pour l'instant, simulation avec un ensemble vide
+    updateFiscalDataMutation.mutate([]);
+  };
+
   return {
     isLoading,
-    updateFiscalDataMutation
+    isUpdating,
+    updatingClients,
+    updateFiscalDataMutation,
+    updateClientsfiscalData
   };
 };

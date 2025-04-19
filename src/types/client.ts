@@ -53,5 +53,5 @@ export interface Client {
     valeur?: number;
     loyer?: number;
   };
-  fiscal_data?: any; // Adding this back with 'any' type to prevent TypeScript errors
+  fiscal_data?: any; // On conserve cette propriété pour éviter les erreurs avec les autres composants
 }

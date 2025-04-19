@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Client, ClientType, FormeJuridique, Sexe, EtatCivil } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
@@ -100,6 +101,18 @@ const fetchClientsWithUnpaidIGS = async (forceRefresh = false): Promise<Client[]
     
     // Convertir au type client avec le bon casting de type
     const typedClients = clientsWithUnpaidIGS.map(client => {
+      // S'assurer que la propriété situationimmobiliere est correctement traitée
+      let situationimmobiliere = client.situationimmobiliere;
+      if (typeof situationimmobiliere === 'object' && situationimmobiliere !== null) {
+        situationimmobiliere = {
+          type: (situationimmobiliere as any).type || 'locataire',
+          valeur: (situationimmobiliere as any).valeur,
+          loyer: (situationimmobiliere as any).loyer
+        };
+      } else {
+        situationimmobiliere = { type: 'locataire' };
+      }
+
       return {
         ...client,
         type: client.type as ClientType,
@@ -109,8 +122,9 @@ const fetchClientsWithUnpaidIGS = async (forceRefresh = false): Promise<Client[]
         adresse: client.adresse as Client['adresse'],
         contact: client.contact as Client['contact'],
         interactions: client.interactions as unknown as Client['interactions'],
-        fiscal_data: client.fiscal_data as unknown as Client['fiscal_data'],
-        statut: client.statut as Client['statut']
+        fiscal_data: client.fiscal_data,
+        statut: client.statut as Client['statut'],
+        situationimmobiliere
       } as Client;
     });
 
