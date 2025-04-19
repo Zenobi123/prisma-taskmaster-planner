@@ -25,6 +25,21 @@ if (typeof window !== 'undefined') {
     get: function() { return window.__darpCacheTimestamp || 0; },
     set: function(value) { window.__darpCacheTimestamp = value; }
   });
+  
+  // Créer la fonction unifiée d'invalidation de tous les caches si elle n'existe pas
+  if (!window.__invalidateAllCaches) {
+    window.__invalidateAllCaches = () => {
+      console.log("Invalidation de tous les caches");
+      // Réinitialiser tous les timestamps de cache à 0
+      window.__patenteCacheTimestamp = 0;
+      window.__dsfCacheTimestamp = 0;
+      window.__darpCacheTimestamp = 0;
+      if (window.__igsCache) window.__igsCache.timestamp = 0;
+      
+      // Si d'autres fonctions d'invalidation existent, les appeler
+      if (window.__invalidateFiscalCaches) window.__invalidateFiscalCaches();
+    };
+  }
 }
 
 export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {

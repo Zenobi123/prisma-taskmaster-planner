@@ -64,12 +64,16 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
       console.log(`[FiscalService] Fiscal data saved and verified for client ${clientId}`);
       
       // Invalider tous les caches globaux avec une approche unifiée
-      if (typeof window !== 'undefined') {
-        // Mettre à zéro tous les horodatages de cache
-        if (window.__patenteCacheTimestamp !== undefined) window.__patenteCacheTimestamp = 0;
-        if (window.__dsfCacheTimestamp) window.__dsfCacheTimestamp = 0;
-        if (window.__darpCacheTimestamp) window.__darpCacheTimestamp = 0;
-        if (window.__igsCache) window.__igsCache.timestamp = 0;
+      if (typeof window !== 'undefined' && window.__invalidateAllCaches) {
+        window.__invalidateAllCaches();
+      } else {
+        // Fallback: Mettre à zéro tous les horodatages de cache individuellement
+        if (typeof window !== 'undefined') {
+          if (window.__patenteCacheTimestamp !== undefined) window.__patenteCacheTimestamp = 0;
+          if (window.__dsfCacheTimestamp) window.__dsfCacheTimestamp = 0;
+          if (window.__darpCacheTimestamp) window.__darpCacheTimestamp = 0;
+          if (window.__igsCache) window.__igsCache.timestamp = 0;
+        }
       }
     } else {
       console.error(`[FiscalService] Final verification failed for client ${clientId} after ${retryCount + 1} attempts`);

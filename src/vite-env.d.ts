@@ -16,4 +16,3 @@ interface Window {
   // Ajout d'une fonction unifiée d'invalidation des caches
   __invalidateAllCaches?: () => void;
 }
-
