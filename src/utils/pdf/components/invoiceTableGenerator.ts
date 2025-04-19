@@ -20,36 +20,44 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
     ];
   });
 
-  autoTable(doc, {
-    head: [tableColumn],
-    body: tableRows,
-    startY: 135,
-    theme: 'grid',
-    headStyles: {
-      fillColor: [50, 98, 85],
-      textColor: 255,
-      fontStyle: 'bold',
-      fontSize: 10,
-      halign: 'center'
-    },
-    styles: {
-      fontSize: 9,
-      cellPadding: 4,
-      lineColor: [220, 220, 220],
-      lineWidth: 0.1,
-    },
-    columnStyles: {
-      0: { cellWidth: 70 },
-      1: { cellWidth: 20, halign: 'center' },
-      2: { cellWidth: 30, halign: 'right' },
-      3: { cellWidth: 25, halign: 'center' },
-      4: { cellWidth: 30, halign: 'right' }
-    },
-    alternateRowStyles: {
-      fillColor: [248, 250, 249]
-    },
-    margin: { left: 15, right: 15 }
-  });
+  try {
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 135,
+      theme: 'grid',
+      headStyles: {
+        fillColor: [50, 98, 85],
+        textColor: 255,
+        fontStyle: 'bold',
+        fontSize: 10,
+        halign: 'center'
+      },
+      styles: {
+        fontSize: 9,
+        cellPadding: 4,
+        lineColor: [220, 220, 220],
+        lineWidth: 0.1,
+      },
+      columnStyles: {
+        0: { cellWidth: 'auto' },
+        1: { cellWidth: 20, halign: 'center' },
+        2: { cellWidth: 30, halign: 'right' },
+        3: { cellWidth: 25, halign: 'center' },
+        4: { cellWidth: 30, halign: 'right' }
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 249]
+      },
+      margin: { left: 15, right: 15 }
+    });
+  } catch (error) {
+    console.error("Erreur pendant la génération du tableau:", error);
+    // Fallback si autoTable échoue
+    const defaultY = 150;
+    doc.text("Erreur lors de la génération du tableau des prestations", 15, defaultY);
+    return defaultY + 10;
+  }
   
   return (doc as any).lastAutoTable.finalY || 150;
 };

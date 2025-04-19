@@ -7,6 +7,8 @@ import { addNotesSection } from './components/invoiceNotes';
 
 export const generateInvoicePDF = (facture: PDFFacture, download: boolean = false) => {
   try {
+    console.log("Début de génération PDF pour facture:", facture.id);
+    
     // Create a new document service
     const docService = new DocumentService('facture', 'Facture', facture.id);
     const doc = docService.getDocument();
@@ -51,6 +53,8 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     
     // Add standard footer
     docService.addStandardFooter();
+    
+    console.log("Génération PDF terminée avec succès pour facture:", facture.id);
     
     // Generate PDF
     return docService.generate(download);
