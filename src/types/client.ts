@@ -2,14 +2,6 @@
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
-export type RegimeFiscalPhysique = 
-  | "reel" 
-  | "simplifie" 
-  | "liberatoire" 
-  | "non_professionnel_public" 
-  | "non_professionnel_prive" 
-  | "non_professionnel_autre";
-export type RegimeFiscalMorale = "reel" | "simplifie" | "non_lucratif";
 export type SituationImmobiliere = "proprietaire" | "locataire";
 export type FormeJuridique = 
   | "sa" 
@@ -20,9 +12,6 @@ export type FormeJuridique =
   | "gie" 
   | "autre";
 export type ClientStatus = "actif" | "inactif" | "archive";
-
-// Ajout de l'export du type RegimeFiscal
-export type RegimeFiscal = RegimeFiscalPhysique | RegimeFiscalMorale;
 
 export interface Interaction {
   id: string;
@@ -59,11 +48,9 @@ export interface Client {
   created_at?: string;
   sexe?: Sexe;
   etatcivil?: EtatCivil;
-  regimefiscal?: RegimeFiscalPhysique | RegimeFiscalMorale;
   situationimmobiliere?: {
     type: SituationImmobiliere;
     valeur?: number;
     loyer?: number;
   };
-  fiscal_data?: any; // Add this property to fix the TypeScript error
 }

@@ -1,12 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { 
   Client, 
   ClientType, 
   Sexe, 
-  EtatCivil, 
-  RegimeFiscalPhysique,
-  RegimeFiscalMorale,
+  EtatCivil,
   SituationImmobiliere,
   FormeJuridique
 } from "@/types/client";
@@ -31,7 +28,6 @@ interface ClientFormState {
   gestionexternalisee: boolean;
   sexe: Sexe;
   etatcivil: EtatCivil;
-  regimefiscal: RegimeFiscalPhysique | RegimeFiscalMorale;
   situationimmobiliere: {
     type: SituationImmobiliere;
     valeur?: number;
@@ -60,7 +56,6 @@ export function useClientForm(initialData?: Client) {
     gestionexternalisee: false,
     sexe: "homme",
     etatcivil: "celibataire",
-    regimefiscal: "reel",
     situationimmobiliere: {
       type: "locataire",
       valeur: undefined,
@@ -154,7 +149,6 @@ export function useClientForm(initialData?: Client) {
         raisonsociale: null,
         sexe: formData.sexe,
         etatcivil: formData.etatcivil,
-        regimefiscal: formData.regimefiscal as RegimeFiscalPhysique,
         sigle: null,
         datecreation: null,
         lieucreation: null,
@@ -168,7 +162,6 @@ export function useClientForm(initialData?: Client) {
         raisonsociale: formData.raisonsociale,
         sexe: undefined,
         etatcivil: undefined,
-        regimefiscal: formData.regimefiscal as RegimeFiscalMorale,
         sigle: formData.sigle || null,
         datecreation: formData.datecreation || null,
         lieucreation: formData.lieucreation || null,
