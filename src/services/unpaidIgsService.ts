@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client, ClientType, FormeJuridique, Sexe, EtatCivil } from "@/types/client";
+import { Client, ClientType, FormeJuridique, Sexe, EtatCivil, SituationImmobiliere } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
 
 // Cache pour les données IGS
@@ -102,17 +102,18 @@ const fetchClientsWithUnpaidIGS = async (forceRefresh = false): Promise<Client[]
     // Convertir au type client avec le bon casting de type
     const typedClients = clientsWithUnpaidIGS.map(client => {
       // S'assurer que la propriété situationimmobiliere est correctement traitée
-      let situationimmobiliere = client.situationimmobiliere;
-      if (typeof situationimmobiliere === 'object' && situationimmobiliere !== null) {
+      let situationimmobiliere: Client['situationimmobiliere'] = { type: 'locataire' };
+      
+      if (client.situationimmobiliere && typeof client.situationimmobiliere === 'object') {
+        const si = client.situationimmobiliere as any;
         situationimmobiliere = {
-          type: (situationimmobiliere as any).type || 'locataire',
-          valeur: (situationimmobiliere as any).valeur,
-          loyer: (situationimmobiliere as any).loyer
+          type: (si.type as SituationImmobiliere) || 'locataire',
+          valeur: typeof si.valeur === 'number' ? si.valeur : undefined,
+          loyer: typeof si.loyer === 'number' ? si.loyer : undefined
         };
-      } else {
-        situationimmobiliere = { type: 'locataire' };
       }
 
+      // Utiliser type assertion pour éviter les erreurs de TypeScript
       return {
         ...client,
         type: client.type as ClientType,
@@ -121,7 +122,7 @@ const fetchClientsWithUnpaidIGS = async (forceRefresh = false): Promise<Client[]
         etatcivil: client.etatcivil as EtatCivil,
         adresse: client.adresse as Client['adresse'],
         contact: client.contact as Client['contact'],
-        interactions: client.interactions as unknown as Client['interactions'],
+        interactions: (client.interactions || []) as unknown as Client['interactions'],
         fiscal_data: client.fiscal_data,
         statut: client.statut as Client['statut'],
         situationimmobiliere

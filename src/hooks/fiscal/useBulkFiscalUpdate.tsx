@@ -120,10 +120,9 @@ export const useBulkFiscalUpdate = () => {
   });
 
   // Fonction pour déclencher la mise à jour
-  const updateClientsfiscalData = () => {
-    // Logique pour récupérer les clients à mettre à jour
-    // Pour l'instant, simulation avec un ensemble vide
-    updateFiscalDataMutation.mutate([]);
+  const updateClientsfiscalData = (clients: Client[] = []) => {
+    // Si aucun client n'est fourni, utiliser un tableau vide
+    updateFiscalDataMutation.mutate(clients);
   };
 
   return {
