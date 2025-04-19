@@ -1,20 +1,13 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { 
-  Collapsible, 
-  CollapsibleContent, 
-  CollapsibleTrigger 
-} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
 // Components
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import DashboardCollapsible from "@/components/dashboard/DashboardCollapsible";
+import DashboardAccordion from "@/components/dashboard/DashboardAccordion";
 import QuickStats from "@/components/dashboard/QuickStats";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { UnfiledDsfDialog } from "@/components/dashboard/UnfiledDsfDialog";
@@ -98,26 +91,7 @@ const Index = () => {
 
         <div className="p-8 space-y-8">
           <QuickStats />
-          
-          <DashboardCollapsible 
-            title="Gestion de l'Impôt Général Synthétique"
-            componentName="IgsSection"
-          />
-          
-          <DashboardCollapsible 
-            title="Attestations de Conformité Fiscale"
-            componentName="ExpiringFiscalAttestations"
-          />
-
-          <DashboardCollapsible 
-            title="Gestion des Patentes"
-            componentName="PatenteSection"
-          />
-          
-          <DashboardCollapsible 
-            title="Déclarations Statistiques et Fiscales"
-            componentName="DsfSection"
-          />
+          <DashboardAccordion />
         </div>
       </main>
       
