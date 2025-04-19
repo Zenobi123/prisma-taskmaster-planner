@@ -2,7 +2,7 @@
 // Service centralisé d'exportation PDF pour rétrocompatibilité
 import { generateInvoicePDF } from './pdf/invoicePdfGenerator';
 import { generateReceiptPDF, formatClientForReceipt } from './pdf/receiptPdfGenerator';
-import { DocumentService } from './pdf/documentService';
+import { DocumentService } from './pdf/services/DocumentService';
 
 // Re-exporter les fonctions pour garantir la rétrocompatibilité
 export { 
@@ -13,4 +13,4 @@ export {
 };
 
 // Exporter toutes les fonctionnalités du service de document
-export * from './pdf/documentService';
+export * from './pdf/services/DocumentService';

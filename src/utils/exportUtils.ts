@@ -1,8 +1,7 @@
-
 import { Event } from "@/types/event";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import { DocumentService } from "./pdf/documentService";
+import { DocumentService } from './pdf/services/DocumentService';
 
 /**
  * Formats a date to a string in local format
