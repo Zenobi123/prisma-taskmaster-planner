@@ -1,6 +1,8 @@
+
 import { Event } from "@/types/event";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
+import { DocumentService } from "./pdf/documentService";
 
 /**
  * Formats a date to a string in local format
@@ -55,46 +57,80 @@ export const exportToCSV = (events: Event[], date: Date | undefined): void => {
 };
 
 /**
- * Exports events to a PDF file
+ * Exports events to a PDF file with improved quality
  */
 export const exportToPDF = (events: Event[], date: Date | undefined): void => {
-  // Create a new PDF document
-  const doc = new jsPDF();
-  
-  // Set title with the date
-  const dateStr = formatDateToString(date);
-  doc.setFontSize(16);
-  doc.text(`Planning du ${dateStr}`, 14, 20);
-  
-  // Prepare data for the table
-  const tableData = events.map(event => [
-    event.title,
-    event.client,
-    event.collaborateur,
-    event.time,
-    event.type === "mission" ? "Mission" : "Réunion"
-  ]);
-  
-  // Define table header
-  const tableHeader = [
-    ["Titre", "Client", "Collaborateur", "Horaire", "Type"]
-  ];
-  
-  // Add the table to the PDF
-  autoTable(doc, {
-    startY: 30,
-    head: tableHeader,
-    body: tableData,
-    theme: 'grid',
-    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-    styles: {
-      fontSize: 10,
-      cellPadding: 3,
-    },
-  });
-  
-  // Save the PDF
-  doc.save(`events-${date ? date.toISOString().split('T')[0] : 'all'}.pdf`);
+  try {
+    // Format the date for display and filename
+    const dateStr = formatDateToString(date);
+    const dateFilename = date ? date.toISOString().split('T')[0] : 'all';
+    
+    // Create document service for high quality PDF
+    const docService = new DocumentService(
+      'rapport', 
+      'Planning', 
+      date ? dateFilename : 'complet'
+    );
+    
+    const doc = docService.getDocument();
+    
+    // Add header with date
+    docService.addStandardHeader();
+    
+    // Add title with the date
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Planning du ${dateStr}`, 15, 65);
+    
+    // Add events table using autoTable
+    autoTable(doc, {
+      startY: 75,
+      head: [["Titre", "Client", "Collaborateur", "Horaire", "Type"]],
+      body: events.map(event => [
+        event.title,
+        event.client,
+        event.collaborateur,
+        event.time,
+        event.type === "mission" ? "Mission" : "Réunion"
+      ]),
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [60, 98, 85], 
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 5,
+      },
+      columnStyles: {
+        0: { cellWidth: 50 }, // Titre
+        1: { cellWidth: 40 }, // Client
+        2: { cellWidth: 40 }, // Collaborateur
+        3: { cellWidth: 30 }, // Horaire
+        4: { cellWidth: 25 }  // Type
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 249]
+      },
+    });
+    
+    // Add number of events
+    const finalY = (doc as any).lastAutoTable.finalY;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'italic');
+    doc.text(`Nombre total d'événements: ${events.length}`, 15, finalY + 15);
+    
+    // Add footer
+    docService.addStandardFooter();
+    
+    // Generate and save PDF
+    docService.generate(true);
+    
+  } catch (error) {
+    console.error("Erreur lors de l'exportation en PDF:", error);
+    alert("Une erreur est survenue lors de l'exportation en PDF.");
+  }
 };
 
 /**
@@ -132,43 +168,86 @@ export const exportToExcel = (data: any[], filename: string): void => {
 };
 
 /**
- * Exports data to PDF format
+ * Exports data to PDF format with improved quality
  */
 export const exportToPdf = (title: string, data: any[], filename: string): void => {
-  // Create a new PDF document
-  const doc = new jsPDF();
-  
-  // Set title
-  doc.setFontSize(16);
-  doc.text(title, 14, 20);
-  
-  // Check if data exists
-  if (data.length === 0) {
-    doc.setFontSize(12);
-    doc.text("Aucune donnée disponible", 14, 40);
-    doc.save(`${filename}.pdf`);
-    return;
+  try {
+    // Create document service for high quality PDF
+    const docService = new DocumentService('rapport', title, filename);
+    const doc = docService.getDocument();
+    
+    // Add header
+    docService.addStandardHeader();
+    
+    // Add title
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.text(title, 15, 65);
+    
+    // Check if data exists
+    if (data.length === 0) {
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'italic');
+      doc.text("Aucune donnée disponible", 15, 80);
+      
+      // Add footer
+      docService.addStandardFooter();
+      
+      // Generate and save PDF
+      docService.generate(true);
+      return;
+    }
+    
+    // Get headers from first data object
+    const headers = Object.keys(data[0]);
+    
+    // Clean up headers for display (remove underscores, capitalize)
+    const displayHeaders = headers.map(header => 
+      header.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
+    );
+    
+    // Generate table data
+    const tableData = data.map(row => headers.map(header => row[header]));
+    
+    // Add the table to the PDF
+    autoTable(doc, {
+      startY: 75,
+      head: [displayHeaders],
+      body: tableData,
+      theme: 'grid',
+      headStyles: { 
+        fillColor: [60, 98, 85], 
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 5,
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 249]
+      },
+    });
+    
+    // Add number of records
+    const finalY = (doc as any).lastAutoTable.finalY;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'italic');
+    doc.text(`Nombre total d'enregistrements: ${data.length}`, 15, finalY + 15);
+    
+    // Add today's date
+    const today = new Date();
+    const dateStr = today.toLocaleDateString('fr-FR');
+    doc.text(`Date d'exportation: ${dateStr}`, 15, finalY + 25);
+    
+    // Add footer
+    docService.addStandardFooter();
+    
+    // Generate and save PDF
+    docService.generate(true);
+    
+  } catch (error) {
+    console.error("Erreur lors de l'exportation en PDF:", error);
+    alert("Une erreur est survenue lors de l'exportation en PDF.");
   }
-  
-  // Prepare data for the table
-  const tableData = data.map(row => Object.values(row));
-  
-  // Define table header
-  const tableHeader = [Object.keys(data[0])];
-  
-  // Add the table to the PDF
-  autoTable(doc, {
-    startY: 30,
-    head: tableHeader,
-    body: tableData,
-    theme: 'grid',
-    headStyles: { fillColor: [132, 169, 140], textColor: 255 },
-    styles: {
-      fontSize: 10,
-      cellPadding: 3,
-    },
-  });
-  
-  // Save the PDF
-  doc.save(`${filename}.pdf`);
 };
