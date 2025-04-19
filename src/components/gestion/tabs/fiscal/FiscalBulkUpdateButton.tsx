@@ -13,6 +13,11 @@ export const FiscalBulkUpdateButton = () => {
     ? (updatingClients.processed / updatingClients.total) * 100 
     : 0;
 
+  // Create a click handler that doesn't need parameters
+  const handleButtonClick = () => {
+    updateClientsfiscalData();
+  };
+
   return (
     <Card className="mb-6">
       <CardHeader className="pb-3">
@@ -24,7 +29,7 @@ export const FiscalBulkUpdateButton = () => {
       <CardContent>
         <div className="flex flex-col space-y-4">
           <Button 
-            onClick={updateClientsfiscalData} 
+            onClick={handleButtonClick} 
             disabled={isLoading || isUpdating}
             className="w-full"
             size="lg"
