@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Event } from "@/types/event";
-import { exportToCSV, exportToPDF } from "@/utils/exportUtils";
+import { exportToCSV, exportToPDF } from "@/utils/exports";
 import {
   DropdownMenu,
   DropdownMenuContent,
