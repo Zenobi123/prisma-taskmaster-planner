@@ -5,11 +5,13 @@ import { ClientsHeader } from "./components/ClientsHeader";
 import { ClientsContent } from "./components/ClientsContent";
 import { ClientDialogs } from "./components/ClientDialogs";
 import { LoadingState } from "./components/LoadingState";
+import { useEffect } from "react";
 
 export default function ClientsPage() {
   const {
     clients,
     isLoading,
+    isDataReady,
     error,
     searchTerm,
     setSearchTerm,
@@ -38,17 +40,20 @@ export default function ClientsPage() {
     toast
   } = useClientsPage();
 
-  if (isLoading) {
-    return <LoadingState />;
-  }
+  // Error handling
+  useEffect(() => {
+    if (error) {
+      console.error("Erreur lors de la récupération des clients:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de récupérer la liste des clients",
+        variant: "destructive",
+      });
+    }
+  }, [error, toast]);
 
-  if (error) {
-    console.error("Erreur lors de la récupération des clients:", error);
-    toast({
-      title: "Erreur",
-      description: "Impossible de récupérer la liste des clients",
-      variant: "destructive",
-    });
+  if (isLoading || !isDataReady) {
+    return <LoadingState />;
   }
 
   return (

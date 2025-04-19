@@ -32,8 +32,8 @@ export const useBulkFiscalUpdate = () => {
       console.log("Mise à jour des données fiscales pour", clients.length, "clients");
       
       try {
-        // Traitement par lots de 10 clients maximum pour éviter les timeout
-        const batchSize = 10;
+        // Traitement par lots de 5 clients maximum pour éviter les timeout et réduire la charge
+        const batchSize = 5;
         const batches = [];
         
         for (let i = 0; i < clients.length; i += batchSize) {
@@ -44,7 +44,7 @@ export const useBulkFiscalUpdate = () => {
         let successCount = 0;
         let errorCount = 0;
         
-        // Traiter chaque lot séquentiellement
+        // Traiter chaque lot séquentiellement avec un petit délai entre chaque lot
         for (const batch of batches) {
           const promises = batch.map(async (client) => {
             try {
@@ -87,6 +87,11 @@ export const useBulkFiscalUpdate = () => {
           // Compter les résultats
           successCount += results.filter(r => r.success).length;
           errorCount += results.filter(r => !r.success).length;
+          
+          // Ajouter un petit délai entre les lots pour éviter de surcharger le navigateur
+          if (batches.length > 1) {
+            await new Promise(resolve => setTimeout(resolve, 300));
+          }
         }
         
         return { successCount, errorCount };
@@ -98,9 +103,27 @@ export const useBulkFiscalUpdate = () => {
     onSuccess: (result) => {
       console.log("Résultat de la mise à jour:", result);
       
-      // Rafraîchir les données des clients
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-      queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
+      // Invalidation contrôlée et séquentielle des requêtes pour éviter trop de refetch simultanés
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["clients"] });
+      }, 300);
+      
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
+        queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
+      }, 600);
+      
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
+        queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
+      }, 900);
+      
+      // Invalidation des requêtes moins urgentes en dernier
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
+        queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-section"] });
+        queryClient.invalidateQueries({ queryKey: ["client-stats"] });
+      }, 1200);
       
       // Afficher un message de succès
       toast({

@@ -6,15 +6,24 @@ import { useToast } from "@/components/ui/use-toast";
 import { useClientMutations } from "./useClientMutations";
 import { useClientFilters } from "./useClientFilters";
 import { useClientDialogs } from "./useClientDialogs";
+import { useState, useCallback, useEffect } from "react";
 
 export function useClientsPage() {
   const { toast } = useToast();
+  const [isDataReady, setIsDataReady] = useState(false);
 
-  const { data: clients = [], isLoading, error } = useQuery({
+  // Use lower staleTime to prevent stale data, but with proper cacheTime
+  const { data: clients = [], isLoading, error, refetch } = useQuery({
     queryKey: ["clients"],
     queryFn: getClients,
-    staleTime: 1000 * 60 * 5,
-    retry: 2
+    staleTime: 30000, // 30 seconds
+    cacheTime: 300000, // 5 minutes
+    retry: 2,
+    refetchOnWindowFocus: false,
+    onSuccess: () => {
+      // Mark data as ready to prevent UI freezing from premature renders
+      setIsDataReady(true);
+    }
   });
 
   const {
@@ -27,7 +36,7 @@ export function useClientsPage() {
     showArchived,
     setShowArchived,
     filteredClients
-  } = useClientFilters(clients);
+  } = useClientFilters(isDataReady ? clients : []);
 
   const {
     isDialogOpen,
@@ -49,6 +58,24 @@ export function useClientsPage() {
     restoreMutation,
     deleteMutation
   } = useClientMutations();
+
+  // Debounced refetch to prevent excessive API calls
+  const debouncedRefetch = useCallback(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        refetch();
+      }, 500);
+    };
+  }, [refetch]);
+
+  // Reset data ready state when loading begins
+  useEffect(() => {
+    if (isLoading) {
+      setIsDataReady(false);
+    }
+  }, [isLoading]);
 
   const handleView = (client: Client) => {
     setSelectedClient(client);
@@ -93,6 +120,7 @@ export function useClientsPage() {
   return {
     clients: filteredClients,
     isLoading,
+    isDataReady,
     error,
     searchTerm,
     setSearchTerm,
@@ -118,6 +146,7 @@ export function useClientsPage() {
     handleArchive,
     handleRestore,
     handleDelete,
-    toast
+    toast,
+    refreshClients: debouncedRefetch
   };
 }

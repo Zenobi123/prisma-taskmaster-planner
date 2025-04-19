@@ -8,10 +8,29 @@ export function useClientMutations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  // Helper for staged query invalidation to prevent UI freezing
+  const invalidateQueries = () => {
+    // First invalidate the primary query
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ["clients"] });
+    }, 100);
+    
+    // Then invalidate related queries with delays
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
+    }, 500);
+    
+    setTimeout(() => {
+      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
+      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
+    }, 1000);
+  };
+
   const addMutation = useMutation({
     mutationFn: addClient,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      invalidateQueries();
       toast({
         title: "Client ajouté",
         description: "Le nouveau client a été ajouté avec succès.",
@@ -33,7 +52,7 @@ export function useClientMutations() {
       return await updateClient(id, updates);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      invalidateQueries();
       toast({
         title: "Client mis à jour",
         description: "Le client a été mis à jour avec succès.",
@@ -52,7 +71,7 @@ export function useClientMutations() {
   const archiveMutation = useMutation({
     mutationFn: archiveClient,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      invalidateQueries();
       toast({
         title: "Client archivé",
         description: "Le client a été archivé avec succès.",
@@ -74,7 +93,7 @@ export function useClientMutations() {
       return await updateClient(id, { statut: "actif" });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      invalidateQueries();
       toast({
         title: "Client restauré",
         description: "Le client a été restauré avec succès.",
@@ -93,7 +112,7 @@ export function useClientMutations() {
   const deleteMutation = useMutation({
     mutationFn: deleteClient,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
+      invalidateQueries();
       toast({
         title: "Client supprimé",
         description: "Le client a été définitivement supprimé.",

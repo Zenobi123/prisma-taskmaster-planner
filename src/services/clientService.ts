@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { Database } from "@/integrations/supabase/types";
@@ -6,8 +5,29 @@ import { toast } from "sonner";
 
 type ClientRow = Database['public']['Tables']['clients']['Row'];
 
+// Add cache for clients to prevent multiple identical requests in short time
+let clientsCache: {
+  data: Client[] | null;
+  timestamp: number;
+} = {
+  data: null,
+  timestamp: 0
+};
+
+// Cache duration in milliseconds (30 seconds)
+const CACHE_DURATION = 30000;
+
 export const getClients = async () => {
   console.log("Récupération des clients...");
+  
+  // Check if we have a valid cache
+  const now = Date.now();
+  if (clientsCache.data && now - clientsCache.timestamp < CACHE_DURATION) {
+    console.log("Utilisation du cache clients");
+    return clientsCache.data;
+  }
+  
+  // Otherwise fetch from the database
   const { data: clients, error } = await supabase
     .from("clients")
     .select("*")
@@ -18,10 +38,10 @@ export const getClients = async () => {
     throw error;
   }
 
-  console.log("Clients récupérés:", clients);
+  console.log("Clients récupérés:", clients?.length || 0);
 
   if (clients) {
-    return clients.map((client: ClientRow) => ({
+    const formattedClients = clients.map((client: ClientRow) => ({
       id: client.id,
       type: client.type as "physique" | "morale",
       nom: client.nom || null,
@@ -57,9 +77,24 @@ export const getClients = async () => {
       created_at: client.created_at,
       fiscal_data: client.fiscal_data
     })) as Client[];
+    
+    // Update cache
+    clientsCache = {
+      data: formattedClients,
+      timestamp: now
+    };
+    
+    return formattedClients;
   }
 
   return [];
+};
+
+// Function to invalidate the cache manually
+export const invalidateClientsCache = () => {
+  clientsCache.data = null;
+  clientsCache.timestamp = 0;
+  console.log("Cache clients invalidé");
 };
 
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
