@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { Client } from "@/types/client";
 import { getClients } from "@/services/clientService";
@@ -12,28 +11,25 @@ export function useClientsPage() {
   const { toast } = useToast();
   const [isDataReady, setIsDataReady] = useState(false);
 
-  // Use lower staleTime to prevent stale data, but with proper gcTime (formerly cacheTime)
-  const { data: clients = [], isLoading, error, refetch } = useQuery({
+  const { 
+    data: clients = [], 
+    isLoading, 
+    error, 
+    refetch 
+  } = useQuery({
     queryKey: ["clients"],
     queryFn: getClients,
     staleTime: 30000, // 30 seconds
-    gcTime: 300000, // 5 minutes (renamed from cacheTime in React Query v5)
+    gcTime: 300000, // 5 minutes 
     retry: 2,
     refetchOnWindowFocus: false,
-    meta: {
-      onSuccess: () => {
-        // Mark data as ready to prevent UI freezing from premature renders
-        setIsDataReady(true);
-      }
-    }
   });
 
-  // Execute the onSuccess callback when data is loaded
   useEffect(() => {
-    if (clients.length > 0 && !isDataReady) {
+    if (clients.length > 0) {
       setIsDataReady(true);
     }
-  }, [clients, isDataReady]);
+  }, [clients]);
 
   const {
     searchTerm,
@@ -68,7 +64,6 @@ export function useClientsPage() {
     deleteMutation
   } = useClientMutations();
 
-  // Debounced refetch to prevent excessive API calls
   const debouncedRefetch = useCallback(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
     return () => {
@@ -79,7 +74,6 @@ export function useClientsPage() {
     };
   }, [refetch]);
 
-  // Reset data ready state when loading begins
   useEffect(() => {
     if (isLoading) {
       setIsDataReady(false);
