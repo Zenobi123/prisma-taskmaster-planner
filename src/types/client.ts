@@ -1,4 +1,3 @@
-
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";

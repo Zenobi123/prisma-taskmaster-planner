@@ -1,7 +1,7 @@
 import { Facture } from "@/types/facture";
 import { Paiement } from "@/types/paiement";
 import { useToast } from "@/components/ui/use-toast";
-import { PDFFacture, SimplifiedClient } from "@/utils/pdf/types";
+import { PDFFacture } from "@/utils/pdf/types";
 import { generateInvoicePDF } from "@/utils/pdf/invoicePdfGenerator";
 import { generateReceiptPDF, formatClientForReceipt } from "@/utils/pdf/receiptPdfGenerator";
 import { Client } from "@/types/client";
@@ -145,7 +145,7 @@ export const useFactureViewActions = () => {
   
   // Helper function to map between client types
   const mapClientToPdfClient = (clientData: any): Client => {
-    // If it's already a full Client type, just return it
+    // Si c'est déjà un objet Client complet, on le retourne tel quel
     if (
       clientData && 
       typeof clientData === 'object' && 
@@ -159,10 +159,10 @@ export const useFactureViewActions = () => {
       return clientData as Client;
     }
     
-    // Otherwise convert from simplified format
+    // Sinon on convertit à partir d'un format simplifié
     return {
       id: clientData.id || '',
-      type: 'physique', // Default type
+      type: clientData.type || 'physique',
       nom: clientData.nom || '',
       raisonsociale: clientData.raisonsociale || '',
       niu: clientData.niu || '',
