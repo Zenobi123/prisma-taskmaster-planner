@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { ObligationStatuses } from "../types";
 
@@ -19,55 +20,50 @@ export const useObligationStatus = () => {
     baillCommercial: { assujetti: false, paye: false }
   });
 
+  // Réduire les logs en production pour améliorer les performances
+  const isProduction = process.env.NODE_ENV === 'production';
+  
   useEffect(() => {
-    console.log("Current obligation statuses:", JSON.stringify(obligationStatuses, null, 2));
-  }, [obligationStatuses]);
+    if (!isProduction) {
+      console.log("Current obligation statuses:", JSON.stringify(obligationStatuses, null, 2));
+    }
+  }, [obligationStatuses, isProduction]);
 
+  // Optimisation du handleStatusChange pour éviter le clonage profond coûteux
   const handleStatusChange = useCallback((obligation: string, field: string, value: any) => {
-    console.log(`useObligationStatus: Updating ${obligation}.${field} to:`, value);
+    if (!isProduction) {
+      console.log(`useObligationStatus: Updating ${obligation}.${field} to:`, value);
+    }
     
     setObligationStatuses(prev => {
-      const updated = JSON.parse(JSON.stringify(prev));
-      
-      if (field === "assujetti" || field === "paye" || field === "depose") {
-        console.log(`Direct update to ${obligation}.${field}:`, value);
-        if (!updated[obligation]) {
-          updated[obligation] = {};
-        }
-        updated[obligation][field] = value;
-      } 
-      else if (field.includes('.')) {
+      // Cas des propriétés imbriquées avec notation pointée
+      if (field.includes('.')) {
         const parts = field.split('.');
         
-        if (!updated[obligation]) {
-          updated[obligation] = {};
-        }
-        
-        let current = updated[obligation];
-        for (let i = 0; i < parts.length - 1; i++) {
-          if (!current[parts[i]]) {
-            current[parts[i]] = {};
+        // Création immutable de l'objet mis à jour
+        return {
+          ...prev,
+          [obligation]: {
+            ...prev[obligation],
+            [parts[0]]: {
+              ...(prev[obligation][parts[0]] || {}),
+              [parts[1]]: value
+            }
           }
-          current = current[parts[i]];
-        }
-        
-        const lastPart = parts[parts.length - 1];
-        current[lastPart] = value;
-        
-        console.log(`Updated nested property ${obligation}.${field}:`, value);
+        };
       } 
+      // Cas simple: mise à jour directe d'une propriété de premier niveau
       else {
-        console.log(`Simple property update to ${obligation}.${field}:`, value);
-        if (!updated[obligation]) {
-          updated[obligation] = {};
-        }
-        updated[obligation][field] = value;
+        return {
+          ...prev,
+          [obligation]: {
+            ...prev[obligation],
+            [field]: value
+          }
+        };
       }
-      
-      console.log("Updated obligation statuses:", JSON.stringify(updated, null, 2));
-      return updated;
     });
-  }, []);
+  }, [isProduction]);
 
   return {
     obligationStatuses,

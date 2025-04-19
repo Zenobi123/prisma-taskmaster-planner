@@ -4,7 +4,38 @@ import { Client, Interaction } from "@/types/client";
 import { ClientFiscalData } from "@/hooks/fiscal/types";
 import { Json } from "@/integrations/supabase/types";
 
+// Cache pour les données DARP avec durée de validité optimisée
+let darpCache: {
+  data: Client[] | null;
+  timestamp: number;
+} = {
+  data: null,
+  timestamp: 0
+};
+
+// Durée du cache en millisecondes (10 minutes)
+const CACHE_DURATION = 600000;
+
+// Ajouter une référence globale au timestamp du cache DARP pour invalidation
+if (typeof window !== 'undefined') {
+  window.__darpCacheTimestamp = window.__darpCacheTimestamp || 0;
+  
+  // Mettre à jour la référence chaque fois que le cache est mis à jour
+  Object.defineProperty(darpCache, 'timestamp', {
+    get: function() { return window.__darpCacheTimestamp || 0; },
+    set: function(value) { window.__darpCacheTimestamp = value; }
+  });
+}
+
 export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
+  const now = Date.now();
+  
+  // Retourner les données en cache si valides
+  if (darpCache.data && now - darpCache.timestamp < CACHE_DURATION) {
+    console.log("Utilisation des données DARP en cache");
+    return darpCache.data;
+  }
+  
   console.log("Service: Récupération des clients avec DARP non déposées...");
   
   try {
@@ -79,9 +110,30 @@ export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
       };
     });
 
+    // Mettre à jour le cache avec horodatage
+    darpCache = {
+      data: typedClients,
+      timestamp: now
+    };
+    
     return typedClients;
   } catch (error) {
     console.error("Erreur critique lors de la récupération des clients DARP:", error);
+    
+    // En cas d'erreur, essayer de retourner le cache même expiré
+    if (darpCache.data) {
+      console.log("Utilisation du cache expiré en cas d'erreur");
+      return darpCache.data;
+    }
     return [];
+  }
+};
+
+// Fonction d'invalidation manuelle du cache DARP
+export const invalidateDarpCache = () => {
+  if (typeof window !== 'undefined') {
+    window.__darpCacheTimestamp = 0;
+    darpCache.data = null;
+    console.log("Cache DARP invalidé manuellement");
   }
 };

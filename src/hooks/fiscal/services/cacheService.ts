@@ -1,14 +1,16 @@
-
 import { ClientFiscalData } from "../types";
 
-// Cache for fiscal data with extended validity period
+// Cache pour les données fiscales avec durée de validité optimisée
 const fiscalDataCache = new Map<string, {data: ClientFiscalData, timestamp: number}>();
 
-// Augmented cache duration of 2 hours for better persistence
-export const CACHE_DURATION = 7200000; // 2 hours
+// Réduction de la durée du cache à 30 minutes pour un meilleur équilibre entre performance et fraîcheur des données
+export const CACHE_DURATION = 1800000; // 30 minutes
+
+// Limite de taille du cache (nombre d'entrées max)
+const MAX_CACHE_ENTRIES = 50;
 
 /**
- * Get data from cache if valid, with improved persistence
+ * Récupérer les données du cache si valides
  */
 export const getFromCache = (clientId: string): ClientFiscalData | null => {
   const now = Date.now();
@@ -19,7 +21,8 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
     return cachedData.data;
   }
   
-  // If in-memory cache is not available, try localStorage
+  // Si le cache en mémoire n'est pas disponible, essayer localStorage
+  // mais seulement si on n'est pas en SSR
   if (typeof window !== 'undefined') {
     try {
       const cacheKey = `fiscal_cache_${clientId}`;
@@ -29,12 +32,15 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
         const parsedCache = JSON.parse(storedCache);
         if (now - parsedCache.timestamp < CACHE_DURATION) {
           console.log(`[CacheService] Recovering from localStorage for client ${clientId}`);
-          // Also restore to in-memory cache
+          // Aussi restaurer dans le cache en mémoire
           fiscalDataCache.set(clientId, {
             data: parsedCache.data,
             timestamp: parsedCache.timestamp
           });
           return parsedCache.data;
+        } else {
+          // Nettoyer le localStorage si le cache est périmé
+          window.localStorage.removeItem(cacheKey);
         }
       }
     } catch (e) {
@@ -46,16 +52,39 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
 };
 
 /**
- * Update cache with new data and persist to localStorage
+ * Mettre à jour le cache avec de nouvelles données et limiter sa taille
  */
 export const updateCache = (clientId: string, data: ClientFiscalData): void => {
   console.log(`[CacheService] Updating cache for client ${clientId}`);
+  
+  // Si le cache atteint sa limite, supprimer l'entrée la plus ancienne
+  if (fiscalDataCache.size >= MAX_CACHE_ENTRIES) {
+    let oldestTimestamp = Date.now();
+    let oldestKey = '';
+    
+    fiscalDataCache.forEach((entry, key) => {
+      if (entry.timestamp < oldestTimestamp) {
+        oldestTimestamp = entry.timestamp;
+        oldestKey = key;
+      }
+    });
+    
+    if (oldestKey) {
+      fiscalDataCache.delete(oldestKey);
+      // Aussi nettoyer localStorage
+      if (typeof window !== 'undefined') {
+        window.localStorage.removeItem(`fiscal_cache_${oldestKey}`);
+      }
+    }
+  }
+  
+  // Mettre à jour le cache en mémoire
   fiscalDataCache.set(clientId, {
     data,
     timestamp: Date.now()
   });
   
-  // Also persist cache in localStorage for better persistence across page navigations
+  // Persister aussi dans localStorage
   if (typeof window !== 'undefined') {
     try {
       const cacheKey = `fiscal_cache_${clientId}`;
@@ -67,6 +96,76 @@ export const updateCache = (clientId: string, data: ClientFiscalData): void => {
     } catch (e) {
       console.error("[CacheService] Error persisting cache:", e);
     }
+  }
+};
+
+/**
+ * Vider le cache pour un client spécifique
+ */
+export const clearCache = (clientId: string): void => {
+  console.log(`[CacheService] Clearing cache for client ${clientId}`);
+  fiscalDataCache.delete(clientId);
+  
+  if (typeof window !== 'undefined') {
+    try {
+      const cacheKey = `fiscal_cache_${clientId}`;
+      window.localStorage.removeItem(cacheKey);
+    } catch (e) {
+      console.error("[CacheService] Error removing cache:", e);
+    }
+  }
+};
+
+/**
+ * Vider tous les caches avec nettoyage de localStorage
+ */
+export const clearAllCaches = (): void => {
+  console.log('[CacheService] Clearing all fiscal data caches');
+  fiscalDataCache.clear();
+  
+  if (typeof window !== 'undefined') {
+    try {
+      // Supprimer seulement les caches de données fiscales de localStorage
+      const keysToRemove: string[] = [];
+      for (let i = 0; i < window.localStorage.length; i++) {
+        const key = window.localStorage.key(i);
+        if (key && key.startsWith('fiscal_cache_')) {
+          keysToRemove.push(key);
+        }
+      }
+      
+      // Supprimer les clés en dehors de la boucle pour éviter les problèmes d'itération
+      keysToRemove.forEach(key => {
+        window.localStorage.removeItem(key);
+      });
+    } catch (e) {
+      console.error("[CacheService] Error removing caches:", e);
+    }
+  }
+};
+
+// Fonction unifiée pour invalider tous les caches liés aux obligations fiscales
+export const invalidateAllFiscalCaches = (): void => {
+  console.log('[CacheService] Invalidating all fiscal caches');
+  
+  // Invalider le cache en mémoire
+  clearAllCaches();
+  
+  // Invalider les caches spécifiques dans window
+  if (typeof window !== 'undefined') {
+    window.__patenteCacheTimestamp = 0;
+    window.__dsfCacheTimestamp = 0;
+    window.__darpCacheTimestamp = 0;
+    
+    if (window.__igsCache) {
+      window.__igsCache.timestamp = 0;
+      window.__igsCache.data = null;
+    }
+    
+    // S'assurer que la fonction d'invalidation globale existe
+    window.__invalidateFiscalCaches = function() {
+      invalidateAllFiscalCaches();
+    };
   }
 };
 
@@ -99,44 +198,6 @@ export const recoverCacheFromStorage = (clientId: string): ClientFiscalData | nu
   }
   
   return null;
-};
-
-/**
- * Clear cache for a specific client
- */
-export const clearCache = (clientId: string): void => {
-  console.log(`[CacheService] Clearing cache for client ${clientId}`);
-  fiscalDataCache.delete(clientId);
-  
-  if (typeof window !== 'undefined') {
-    try {
-      const cacheKey = `fiscal_cache_${clientId}`;
-      window.localStorage.removeItem(cacheKey);
-    } catch (e) {
-      console.error("[CacheService] Error removing cache:", e);
-    }
-  }
-};
-
-/**
- * Clear all caches
- */
-export const clearAllCaches = (): void => {
-  console.log('[CacheService] Clearing all fiscal data caches');
-  fiscalDataCache.clear();
-  
-  if (typeof window !== 'undefined') {
-    try {
-      // Delete only fiscal data caches from localStorage
-      Object.keys(window.localStorage).forEach(key => {
-        if (key.startsWith('fiscal_cache_')) {
-          window.localStorage.removeItem(key);
-        }
-      });
-    } catch (e) {
-      console.error("[CacheService] Error removing caches:", e);
-    }
-  }
 };
 
 /**

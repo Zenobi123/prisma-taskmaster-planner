@@ -12,4 +12,8 @@ interface Window {
     data: null | any;
     timestamp: number;
   };
+  
+  // Ajout d'une fonction unifiée d'invalidation des caches
+  __invalidateAllCaches?: () => void;
 }
+
