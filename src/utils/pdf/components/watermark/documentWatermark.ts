@@ -1,38 +1,44 @@
 
-import jsPDF from 'jspdf';
+import { jsPDF } from "jspdf";
 
-export const addDocumentWatermark = (doc: jsPDF, text: string): void => {
+/**
+ * Ajoute un filigrane "DOCUMENT" en diagonale sur toutes les pages du document
+ */
+export const addDocumentWatermark = (doc: jsPDF, text = "DOCUMENT") => {
+  const pageCount = doc.getNumberOfPages();
+  
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    applyWatermark(doc, text);
+  }
+};
+
+/**
+ * Applique le filigrane à la page actuelle
+ */
+export const applyWatermark = (doc: jsPDF, text = "DOCUMENT") => {
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const pageHeight = doc.internal.pageSize.getHeight();
+  
+  // Sauvegarder l'état actuel du document
   doc.saveGraphicsState();
   
-  const pageWidth = doc.internal.pageSize.width;
-  const pageHeight = doc.internal.pageSize.height;
+  // Utiliser la méthode correcte pour la manipulation de la matrice de transformation
+  doc.setCurrentTransformationMatrix([0.7, 0.7, -0.7, 0.7, pageWidth / 2, pageHeight / 2]);
   
-  const centerX = pageWidth/2;
-  const centerY = pageHeight/2;
+  // Configurer le style du filigrane
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(60);
+  doc.setTextColor(220, 220, 220); // Gris clair
   
-  // Set up text appearance
-  doc.setTextColor(235, 235, 235);
-  doc.setFontSize(30);
+  // Calculer la position du texte
+  const textWidth = doc.getTextWidth(text);
+  const x = -textWidth / 2;
+  const y = 0;
   
-  // Calculate rotation angle (-45 degrees)
-  const angle = -45 * Math.PI / 180;
+  // Ajouter le texte
+  doc.text(text, x, y);
   
-  // Save current transform matrix
-  doc.saveGraphicsState();
-  
-  // Move to center, rotate, then move back
-  doc.setCurrentTransformationMatrix(
-    Math.cos(angle), // a
-    Math.sin(angle), // b
-    -Math.sin(angle), // c 
-    Math.cos(angle), // d
-    centerX, // e (translation X)
-    centerY  // f (translation Y)
-  );
-  
-  // Draw text centered at origin
-  doc.text(text, 0, 0, { align: 'center', baseline: 'middle' });
-  
-  // Restore previous graphics state
+  // Restaurer l'état précédent
   doc.restoreGraphicsState();
 };

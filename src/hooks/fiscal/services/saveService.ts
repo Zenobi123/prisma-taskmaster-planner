@@ -1,6 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { ClientFiscalData } from "../types";
+import { ClientFiscalData, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus } from "../types";
 import { clearCache, updateCache } from "./cacheService";
 import { verifyFiscalDataSave } from "./verifyService";
 import { Json } from "@/integrations/supabase/types";
@@ -30,30 +30,36 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
       Object.keys(completeData.obligations).forEach(key => {
         const obligation = completeData.obligations![key];
         
+        // Assurer que 'assujetti' est toujours un booléen
         if (obligation.hasOwnProperty('assujetti')) {
           obligation.assujetti = Boolean(obligation.assujetti);
         }
         
-        if (obligation.hasOwnProperty('paye')) {
-          obligation.paye = Boolean(obligation.paye);
-        }
-        
-        if (obligation.hasOwnProperty('depose')) {
-          obligation.depose = Boolean(obligation.depose);
-        }
-        
-        if (obligation.hasOwnProperty('reductionCGA')) {
-          obligation.reductionCGA = Boolean(obligation.reductionCGA);
-        }
-        
-        // Traiter les paiements trimestriels IGS
-        if (key === 'igs' && obligation.paiementsTrimestriels) {
-          Object.keys(obligation.paiementsTrimestriels).forEach(trimester => {
-            const payment = obligation.paiementsTrimestriels![trimester];
-            if (payment && payment.hasOwnProperty('isPaid')) {
-              payment.isPaid = Boolean(payment.isPaid);
-            }
-          });
+        // Vérifier le type de l'obligation avant d'accéder aux propriétés spécifiques
+        if (isTaxObligation(obligation)) {
+          // Propriétés spécifiques aux obligations fiscales (TaxObligationStatus)
+          if (obligation.hasOwnProperty('paye')) {
+            obligation.paye = Boolean(obligation.paye);
+          }
+          
+          if (obligation.hasOwnProperty('reductionCGA')) {
+            obligation.reductionCGA = Boolean(obligation.reductionCGA);
+          }
+          
+          // Traiter les paiements trimestriels IGS
+          if (key === 'igs' && obligation.paiementsTrimestriels) {
+            Object.keys(obligation.paiementsTrimestriels).forEach(trimester => {
+              const payment = obligation.paiementsTrimestriels![trimester];
+              if (payment && payment.hasOwnProperty('isPaid')) {
+                payment.isPaid = Boolean(payment.isPaid);
+              }
+            });
+          }
+        } else if (isDeclarationObligation(obligation)) {
+          // Propriétés spécifiques aux obligations de déclaration (DeclarationObligationStatus)
+          if (obligation.hasOwnProperty('depose')) {
+            obligation.depose = Boolean(obligation.depose);
+          }
         }
       });
     }
@@ -131,3 +137,12 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
     return false;
   }
 };
+
+// Type Guards pour vérifier le type d'obligation
+function isTaxObligation(obligation: ObligationStatus): obligation is TaxObligationStatus {
+  return 'paye' in obligation;
+}
+
+function isDeclarationObligation(obligation: ObligationStatus): obligation is DeclarationObligationStatus {
+  return 'depose' in obligation;
+}
