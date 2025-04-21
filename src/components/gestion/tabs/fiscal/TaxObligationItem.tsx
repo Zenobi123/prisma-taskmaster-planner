@@ -30,6 +30,16 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
     console.log(`TaxObligationItem ${label} expanded state:`, expanded);
   }, [expanded, label]);
 
+  // Debug actual status
+  useEffect(() => {
+    console.log(`TaxObligationItem ${label} status:`, {
+      assujetti: status?.assujetti, 
+      type: typeof status?.assujetti,
+      paye: status?.paye,
+      payeType: typeof status?.paye
+    });
+  }, [status, label]);
+
   const handleAssujettiChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
       console.log(`${obligationKey} assujetti change:`, checked);
@@ -73,7 +83,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
         <div className="flex items-center space-x-2">
           <Checkbox 
             id={`${obligationKey}-assujetti`}
-            checked={status?.assujetti || false}
+            checked={Boolean(status?.assujetti)}
             onCheckedChange={handleAssujettiChange}
           />
           <label
@@ -107,7 +117,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
           <div className="flex items-center space-x-2">
             <Checkbox 
               id={`${obligationKey}-paye`}
-              checked={status?.paye || false}
+              checked={Boolean(status?.paye)}
               onCheckedChange={handlePayeChange}
             />
             <label

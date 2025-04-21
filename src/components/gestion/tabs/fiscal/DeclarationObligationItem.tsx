@@ -30,6 +30,16 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
     console.log(`DeclarationObligationItem ${label} expanded state:`, expanded);
   }, [expanded, label]);
 
+  // Debug actual status
+  useEffect(() => {
+    console.log(`DeclarationObligationItem ${label} status:`, {
+      assujetti: status?.assujetti, 
+      type: typeof status?.assujetti,
+      depose: status?.depose,
+      deposeType: typeof status?.depose
+    });
+  }, [status, label]);
+
   const handleAssujettiChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
       console.log(`${obligationKey} assujetti change:`, checked);
@@ -68,7 +78,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
         <div className="flex items-center space-x-2">
           <Checkbox 
             id={`${obligationKey}-assujetti`}
-            checked={status?.assujetti || false}
+            checked={Boolean(status?.assujetti)}
             onCheckedChange={handleAssujettiChange}
           />
           <label
@@ -102,7 +112,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
           <div className="flex items-center space-x-2">
             <Checkbox 
               id={`${obligationKey}-depose`}
-              checked={status?.depose || false}
+              checked={Boolean(status?.depose)}
               onCheckedChange={handleDeposeChange}
             />
             <label

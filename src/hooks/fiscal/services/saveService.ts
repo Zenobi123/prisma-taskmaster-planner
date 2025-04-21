@@ -25,6 +25,42 @@ export const saveFiscalData = async (clientId: string, fiscalData: ClientFiscalD
       }
     };
     
+    // Assurer que les valeurs booléennes sont correctement typées
+    if (completeData.obligations) {
+      Object.keys(completeData.obligations).forEach(key => {
+        const obligation = completeData.obligations![key];
+        
+        if (obligation.hasOwnProperty('assujetti')) {
+          obligation.assujetti = Boolean(obligation.assujetti);
+        }
+        
+        if (obligation.hasOwnProperty('paye')) {
+          obligation.paye = Boolean(obligation.paye);
+        }
+        
+        if (obligation.hasOwnProperty('depose')) {
+          obligation.depose = Boolean(obligation.depose);
+        }
+        
+        if (obligation.hasOwnProperty('reductionCGA')) {
+          obligation.reductionCGA = Boolean(obligation.reductionCGA);
+        }
+        
+        // Traiter les paiements trimestriels IGS
+        if (key === 'igs' && obligation.paiementsTrimestriels) {
+          Object.keys(obligation.paiementsTrimestriels).forEach(trimester => {
+            const payment = obligation.paiementsTrimestriels![trimester];
+            if (payment && payment.hasOwnProperty('isPaid')) {
+              payment.isPaid = Boolean(payment.isPaid);
+            }
+          });
+        }
+      });
+    }
+    
+    // Log the data before saving to help debug
+    console.log(`[FiscalService] Data to be saved:`, JSON.stringify(completeData, null, 2));
+    
     const { error } = await supabase
       .from('clients')
       .update({ fiscal_data: completeData as unknown as Json })
