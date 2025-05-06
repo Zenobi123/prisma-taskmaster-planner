@@ -47,8 +47,7 @@ export function TabsList({ activeTab, onTabChange }: TabsListProps) {
           Contrat
         </TabsTrigger>
         
-        {/* Les nouveaux onglets sont masqués dans la navigation principale 
-            mais accessibles via les cartes dans la section Entreprise */}
+        {/* Ces onglets sont accessibles via les cartes dans Entreprise mais également directement ici quand ils sont actifs */}
         <TabsTrigger 
           value="gestion-admin"
           className="hidden data-[state=active]:bg-primary data-[state=active]:flex"

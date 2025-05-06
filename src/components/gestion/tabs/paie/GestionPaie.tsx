@@ -11,6 +11,7 @@ import { Client } from "@/types/client";
 import { Label } from "@/components/ui/label";
 import { PayrollCalculator } from "./PayrollCalculator";
 import { formatMoney } from "./utils";
+import { Employee, PayrollItem } from "./types";
 
 interface GestionPaieProps {
   client: Client;
@@ -34,11 +35,11 @@ export function GestionPaie({ client }: GestionPaieProps) {
 
   // Données employés
   const employees = [
-    { id: 1, firstname: "Jean", lastname: "Dupont", department: "Direction" },
-    { id: 2, firstname: "Sophie", lastname: "Martin", department: "Finance" },
-    { id: 3, firstname: "Pierre", lastname: "Leroy", department: "Ventes" },
-    { id: 4, firstname: "Marie", lastname: "Dubois", department: "Administration" },
-    { id: 5, firstname: "Paul", lastname: "Moreau", department: "Production" }
+    { id: 1, firstname: "Jean", lastname: "Dupont", department: "Direction", position: "Directeur", baseSalary: 450000, hireDate: "2023-01-15" },
+    { id: 2, firstname: "Sophie", lastname: "Martin", department: "Finance", position: "Comptable", baseSalary: 380000, hireDate: "2023-03-01" },
+    { id: 3, firstname: "Pierre", lastname: "Leroy", department: "Ventes", position: "Commercial", baseSalary: 320000, hireDate: "2023-06-10" },
+    { id: 4, firstname: "Marie", lastname: "Dubois", department: "Administration", position: "Assistante", baseSalary: 280000, hireDate: "2023-08-22" },
+    { id: 5, firstname: "Paul", lastname: "Moreau", department: "Production", position: "Technicien", baseSalary: 350000, hireDate: "2022-11-05" }
   ];
 
   // Structure pour le rapport de paie
