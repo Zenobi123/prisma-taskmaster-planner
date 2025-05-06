@@ -1,6 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Client } from "@/types/client";
+import { Building, Users, Receipt } from "lucide-react";
 
 interface GestionEntrepriseProps {
   onTabChange: (tab: string) => void;
@@ -20,7 +21,10 @@ export function GestionEntreprise({ onTabChange, selectedClient }: GestionEntrep
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card onClick={() => onTabChange("gestion-admin")} className="cursor-pointer hover:border-primary transition-colors">
             <CardHeader>
-              <CardTitle className="text-lg">Administration</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Building className="h-5 w-5 text-gray-400" />
+                Administration
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
@@ -28,9 +32,13 @@ export function GestionEntreprise({ onTabChange, selectedClient }: GestionEntrep
               </p>
             </CardContent>
           </Card>
+          
           <Card onClick={() => onTabChange("gestion-rh")} className="cursor-pointer hover:border-primary transition-colors">
             <CardHeader>
-              <CardTitle className="text-lg">Ressources Humaines</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Users className="h-5 w-5 text-gray-400" />
+                Ressources Humaines
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
@@ -38,9 +46,13 @@ export function GestionEntreprise({ onTabChange, selectedClient }: GestionEntrep
               </p>
             </CardContent>
           </Card>
+          
           <Card onClick={() => onTabChange("gestion-paie")} className="cursor-pointer hover:border-primary transition-colors">
             <CardHeader>
-              <CardTitle className="text-lg">Paie</CardTitle>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Receipt className="h-5 w-5 text-gray-400" />
+                Paie
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground">
@@ -48,6 +60,7 @@ export function GestionEntreprise({ onTabChange, selectedClient }: GestionEntrep
               </p>
             </CardContent>
           </Card>
+          
           <Card onClick={() => onTabChange("contrat-prestations")} className="cursor-pointer hover:border-primary transition-colors">
             <CardHeader>
               <CardTitle className="text-lg">Notre contrat de prestations</CardTitle>

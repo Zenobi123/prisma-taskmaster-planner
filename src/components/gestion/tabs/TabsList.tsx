@@ -1,39 +1,73 @@
 
-import React from "react";
-import { TabsList as ShadcnTabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList as ShadcnTabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface TabsListProps {
   activeTab: string;
-  onTabChange: (value: string) => void;
+  onTabChange: (tab: string) => void;
 }
 
-export function GestionTabsList({ activeTab, onTabChange }: TabsListProps) {
+export function TabsList({ activeTab, onTabChange }: TabsListProps) {
   return (
-    <ShadcnTabsList className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-transparent">
-      <TabsTrigger 
-        value="entreprise"
-        className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-      >
-        Gestion d'entreprise
-      </TabsTrigger>
-      <TabsTrigger 
-        value="fiscal"
-        className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-      >
-        Gestion fiscale
-      </TabsTrigger>
-      <TabsTrigger 
-        value="comptable"
-        className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-      >
-        Gestion comptable
-      </TabsTrigger>
-      <TabsTrigger 
-        value="dossier"
-        className="data-[state=active]:bg-[#84A98C] data-[state=active]:text-white hover:bg-[#F2FCE2] transition-all"
-      >
-        Gestion documentaire
-      </TabsTrigger>
-    </ShadcnTabsList>
+    <Tabs value={activeTab} onValueChange={onTabChange}>
+      <ShadcnTabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-6 h-auto">
+        <TabsTrigger 
+          value="entreprise"
+          className="data-[state=active]:bg-primary"
+        >
+          Entreprise
+        </TabsTrigger>
+        <TabsTrigger 
+          value="fiscal"
+          className="data-[state=active]:bg-primary"
+        >
+          Fiscal
+        </TabsTrigger>
+        <TabsTrigger 
+          value="comptable"
+          className="data-[state=active]:bg-primary"
+        >
+          Comptable
+        </TabsTrigger>
+        <TabsTrigger 
+          value="cloture-exercice"
+          className="data-[state=active]:bg-primary"
+        >
+          Clôture
+        </TabsTrigger>
+        <TabsTrigger 
+          value="dossier"
+          className="data-[state=active]:bg-primary"
+        >
+          Dossier
+        </TabsTrigger>
+        <TabsTrigger 
+          value="contrat-prestations"
+          className="data-[state=active]:bg-primary"
+        >
+          Contrat
+        </TabsTrigger>
+        
+        {/* Les nouveaux onglets sont masqués dans la navigation principale 
+            mais accessibles via les cartes dans la section Entreprise */}
+        <TabsTrigger 
+          value="gestion-admin"
+          className="hidden data-[state=active]:bg-primary data-[state=active]:flex"
+        >
+          Administration
+        </TabsTrigger>
+        <TabsTrigger 
+          value="gestion-rh"
+          className="hidden data-[state=active]:bg-primary data-[state=active]:flex"
+        >
+          RH
+        </TabsTrigger>
+        <TabsTrigger 
+          value="gestion-paie"
+          className="hidden data-[state=active]:bg-primary data-[state=active]:flex"
+        >
+          Paie
+        </TabsTrigger>
+      </ShadcnTabsList>
+    </Tabs>
   );
 }

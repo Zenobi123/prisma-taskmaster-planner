@@ -9,16 +9,15 @@ import { ClotureExercice } from "./ClotureExercice";
 import { ObligationsFiscales } from "./ObligationsFiscales";
 import { Client } from "@/types/client";
 
-// Update the interface to match the GestionEntreprise component's props
-interface GestionEntrepriseProps {
-  onTabChange: (tab: string) => void;
-  selectedClient: Client;
-}
+// Import des nouveaux composants
+import { GestionAdmin } from "./administration/GestionAdmin";
+import { GestionRH } from "./rh/GestionRH";
+import { GestionPaie } from "./paie/GestionPaie";
 
 // Export components as nested objects
 export const TabsContent = {
-  Entreprise: ({ selectedClient }: { selectedClient: Client }) => (
-    <GestionEntreprise onTabChange={() => {}} selectedClient={selectedClient} />
+  Entreprise: ({ selectedClient, onTabChange }: { selectedClient: Client, onTabChange: (tab: string) => void }) => (
+    <GestionEntreprise onTabChange={onTabChange} selectedClient={selectedClient} />
   ),
   
   ObligationsFiscales: ({ selectedClient }: { selectedClient: Client }) => (
@@ -51,5 +50,18 @@ export const TabsContent = {
   
   GestionDossier: ({ selectedClient }: { selectedClient: Client }) => (
     <GestionDossier selectedClient={selectedClient} />
+  ),
+  
+  // Ajout des nouveaux modules
+  GestionAdmin: ({ selectedClient }: { selectedClient: Client }) => (
+    <GestionAdmin client={selectedClient} />
+  ),
+  
+  GestionRH: ({ selectedClient }: { selectedClient: Client }) => (
+    <GestionRH client={selectedClient} />
+  ),
+  
+  GestionPaie: ({ selectedClient }: { selectedClient: Client }) => (
+    <GestionPaie client={selectedClient} />
   ),
 };
