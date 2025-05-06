@@ -47,22 +47,22 @@ export function TabsList({ activeTab, onTabChange }: TabsListProps) {
           Contrat
         </TabsTrigger>
         
-        {/* Ces onglets sont accessibles via les cartes dans Entreprise mais également directement ici quand ils sont actifs */}
+        {/* Modules accessibles directement quand actifs ou via les cartes dans Entreprise */}
         <TabsTrigger 
           value="gestion-admin"
-          className="hidden data-[state=active]:bg-primary data-[state=active]:flex"
+          className="data-[state=active]:flex data-[state=active]:bg-primary hidden"
         >
           Administration
         </TabsTrigger>
         <TabsTrigger 
           value="gestion-rh"
-          className="hidden data-[state=active]:bg-primary data-[state=active]:flex"
+          className="data-[state=active]:flex data-[state=active]:bg-primary hidden"
         >
           RH
         </TabsTrigger>
         <TabsTrigger 
           value="gestion-paie"
-          className="hidden data-[state=active]:bg-primary data-[state=active]:flex"
+          className="data-[state=active]:flex data-[state=active]:bg-primary hidden"
         >
           Paie
         </TabsTrigger>
