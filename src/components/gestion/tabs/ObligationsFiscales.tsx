@@ -1,16 +1,15 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { RefreshCcw, Save } from "lucide-react";
+import { Client } from "@/types/client";
 import { useObligationsFiscales } from '@/hooks/fiscal/useObligationsFiscales';
 import { useBulkFiscalUpdate } from '@/hooks/fiscal/useBulkFiscalUpdate';
-import { Client } from '@/types/client';
 import { ClientFiscalData } from '@/hooks/fiscal/types';
 import { LoadingIndicator } from './fiscal/components/LoadingIndicator';
 import { FiscalAttestationCard } from './fiscal/components/FiscalAttestationCard';
 import { FiscalObligationsSection } from './fiscal/components/FiscalObligationsSection';
 import { SaveStatusMessage } from './fiscal/components/SaveStatusMessage';
+import { ObligationToolbar } from './fiscal/components/ObligationToolbar';
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
@@ -26,7 +25,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     handleStatusChange,
     handleSave,
     isLoading,
-    dataLoaded,
     isSaving,
     saveAttempts,
     showInAlert,
@@ -38,7 +36,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     loadFiscalData
   } = useObligationsFiscales(selectedClient);
 
-  // Use the useBulkFiscalUpdate hook correctly
+  // Use the useBulkFiscalUpdate hook
   const bulkUpdateHook = useBulkFiscalUpdate(selectedClient?.id);
 
   const handleBulkUpdate = async () => {
@@ -64,7 +62,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
   };
 
   const refreshData = () => {
-    loadFiscalData(true);
+    loadFiscalData();
   };
 
   return (
@@ -76,19 +74,15 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
             Suivi et gestion des obligations fiscales pour {selectedClient?.nom || selectedClient?.raisonsociale}
           </CardDescription>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={refreshData} disabled={isLoading}>
-            <RefreshCcw className="mr-2 h-4 w-4" />
-            Actualiser
-          </Button>
-          <Button 
-            onClick={handleSaveButtonClick} 
-            disabled={isSaving || isLoading || !hasUnsavedChanges}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Enregistrer
-          </Button>
-        </div>
+        <ObligationToolbar
+          onSave={handleSaveButtonClick}
+          onRefresh={refreshData}
+          onBulkUpdate={handleBulkUpdate}
+          isUpdating={bulkUpdateHook.isUpdating}
+          isSaving={isSaving}
+          isLoading={isLoading}
+          hasUnsavedChanges={hasUnsavedChanges}
+        />
       </CardHeader>
       <CardContent className="space-y-6">
         {isLoading ? (

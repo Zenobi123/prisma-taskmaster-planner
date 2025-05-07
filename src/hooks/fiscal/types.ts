@@ -1,61 +1,42 @@
-export type ObligationType = "tax" | "declaration";
+
+// Types for fiscal management
 
 export interface IgsPaymentStatus {
-  isPaid: boolean;
-  datePayment?: string;
+  paid: boolean;
+  date?: string;
+  amount?: number;
+  receipt?: string;
 }
 
 export interface TaxObligationStatus {
-  assujetti: boolean;
-  paye: boolean;
+  status: 'paid' | 'pending' | 'unpaid';
+  isAssujetti: boolean;
+  lastFiled?: string;
+  nextDue?: string;
   montant?: number;
-  datePaiement?: string;
-  observations?: string;
-  chiffreAffaires?: number;
-  classeIGS?: number;
-  reductionCGA?: boolean;
-  paiementsTrimestriels?: {
-    T1?: IgsPaymentStatus; // 15 janvier
-    T2?: IgsPaymentStatus; // 15 avril
-    T3?: IgsPaymentStatus; // 15 juillet
-    T4?: IgsPaymentStatus; // 15 octobre
+  notes?: string;
+  paiementsTrimestriels?: { 
+    [key: string]: IgsPaymentStatus;
   };
 }
 
-export interface DeclarationObligationStatus {
-  assujetti: boolean;
-  depose: boolean;
-  dateDepot?: string;
-  observations?: string;
+export interface FiscalObligations {
+  [key: string]: TaxObligationStatus;
 }
 
-export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
-
-export interface ObligationStatuses {
-  [key: string]: ObligationStatus;
-  igs: TaxObligationStatus;
-  patente: TaxObligationStatus;
-  dsf: DeclarationObligationStatus;
-  darp: DeclarationObligationStatus;
-  iba: TaxObligationStatus; // Impôts sur les Bénéfices Agricoles
-  baic: TaxObligationStatus; // Impôts sur les Bénéfices Artisanaux, Industriels et Commerciaux
-  ibnc: TaxObligationStatus; // Impôts sur les Bénéfices des Professions Non Commerciales
-  ircm: TaxObligationStatus; // Impôts sur les Revenus des Capitaux Mobiliers
-  irf: TaxObligationStatus; // Impôts sur les Revenus Foncier
-  its: TaxObligationStatus; // Impôts sur les traitements, salaires et rentes viagères
-  licence: DeclarationObligationStatus; // Licence
-  precompte: TaxObligationStatus; // Précompte sur loyer
-  taxeSejour: TaxObligationStatus; // Taxe de séjour dans les établissements d'hébergement
-  baillCommercial: TaxObligationStatus; // Add the new Bail Commercial obligation
+export interface AttestationData {
+  creationDate?: string;
+  validityEndDate?: string;
+  showInAlert?: boolean;
 }
 
 export interface ClientFiscalData {
-  attestation?: {
-    creationDate: string | null;
-    validityEndDate: string | null;
-    showInAlert: boolean;
-  };
-  obligations?: ObligationStatuses;
+  attestation?: AttestationData;
+  obligations?: FiscalObligations;
   hiddenFromDashboard?: boolean;
-  updatedAt?: string;
+}
+
+export interface FiscalClientResponse {
+  clientId: string;
+  fiscalData: ClientFiscalData;
 }

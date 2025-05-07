@@ -1,27 +1,38 @@
 
-export const formatMontant = (montant: number): string => {
-  return new Intl.NumberFormat('fr-FR', {
-    maximumFractionDigits: 0
-  }).format(Math.round(montant)) + " XAF";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
+
+// Format dates to French locale
+export const formatDate = (date: Date | string | undefined | null): string => {
+  if (!date) return "-";
+  
+  const dateObj = typeof date === "string" ? new Date(date) : date;
+  return format(dateObj, "dd/MM/yyyy", { locale: fr });
 };
 
-// Format a date string or Date object to a localized date string
-export const formatDate = (date: string | Date): string => {
-  if (date instanceof Date) {
-    return date.toLocaleDateString('fr-FR');
-  }
-  
-  // If it's already a formatted date string, just return it
-  if (typeof date === 'string' && date.includes('/')) {
-    return date;
-  }
-  
-  // Otherwise convert date string to Date object and format
-  const dateObj = new Date(date);
-  return dateObj.toLocaleDateString('fr-FR');
+// Format number as currency
+export const formatMontant = (amount?: number): string => {
+  if (amount === undefined || amount === null) return "-";
+  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF" }).format(amount);
 };
 
-// Format a number with thousand separators for better readability
-export const formatNumberWithSeparator = (value: number): string => {
-  return new Intl.NumberFormat('fr-FR').format(value);
+// Format currency
+export const formatCurrency = (amount?: number): string => {
+  if (amount === undefined || amount === null) return "-";
+  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "XAF" }).format(amount);
+};
+
+// Format number with commas
+export const formatNumber = (num?: number): string => {
+  if (num === undefined || num === null) return "-";
+  return new Intl.NumberFormat("fr-FR").format(num);
+};
+
+// Format percentage
+export const formatPercentage = (value?: number): string => {
+  if (value === undefined || value === null) return "-";
+  return `${new Intl.NumberFormat("fr-FR", { 
+    minimumFractionDigits: 1, 
+    maximumFractionDigits: 1 
+  }).format(value)}%`;
 };
