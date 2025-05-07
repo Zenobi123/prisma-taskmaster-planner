@@ -28,6 +28,7 @@ export function PayrollDetailsCard({
   netSalary 
 }: PayrollDetailsProps) {
   const totalDeductions = cnpsEmployee + irpp + cac + tdl + rav + cfc;
+  const totalIRPP = irpp + cac;
   
   return (
     <Card className="w-full">
@@ -54,24 +55,28 @@ export function PayrollDetailsCard({
               <TableCell>CNPS (Part salariale)</TableCell>
               <TableCell className="text-right text-destructive">- {formatMoney(cnpsEmployee)}</TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell>IRPP (Principal)</TableCell>
+            <TableRow className="bg-muted/30">
+              <TableCell className="pl-6">IRPP (Principal)</TableCell>
               <TableCell className="text-right text-destructive">- {formatMoney(irpp)}</TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell>CAC (10% de l'IRPP)</TableCell>
+            <TableRow className="bg-muted/30">
+              <TableCell className="pl-6">CAC (10% de l'IRPP)</TableCell>
               <TableCell className="text-right text-destructive">- {formatMoney(cac)}</TableCell>
             </TableRow>
+            <TableRow className="bg-muted/30">
+              <TableCell className="font-medium pl-6">Total IRPP + CAC</TableCell>
+              <TableCell className="text-right text-destructive font-medium">- {formatMoney(totalIRPP)}</TableCell>
+            </TableRow>
             <TableRow>
-              <TableCell>TDL</TableCell>
+              <TableCell>TDL (Taxe de Développement Local)</TableCell>
               <TableCell className="text-right text-destructive">- {formatMoney(tdl)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>RAV</TableCell>
+              <TableCell>RAV (Redevance Audiovisuelle)</TableCell>
               <TableCell className="text-right text-destructive">- {formatMoney(rav)}</TableCell>
             </TableRow>
             <TableRow>
-              <TableCell>CFC (Part salariale)</TableCell>
+              <TableCell>CFC (Crédit Foncier - Part salariale)</TableCell>
               <TableCell className="text-right text-destructive">- {formatMoney(cfc)}</TableCell>
             </TableRow>
             <TableRow className="bg-muted/50">

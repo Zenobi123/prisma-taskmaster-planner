@@ -1,119 +1,78 @@
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Client } from "@/types/client";
-import { useFiscalAttestation } from "./hooks/useFiscalAttestation";
-import { useObligationStatus } from "./hooks/useObligationStatus";
-import { useFiscalData } from "./hooks/useFiscalData";
-import { useFiscalSave } from "./hooks/useFiscalSave";
-import { useUnsavedChanges } from "./hooks/useUnsavedChanges";
+import { FiscalData } from "../fiscal/types";
+import useFiscalData from "./hooks/useFiscalData";
+import useFiscalSave from "./hooks/useFiscalSave";
+import useUnsavedChanges from "./hooks/useUnsavedChanges";
 
-export const useObligationsFiscales = (selectedClient: Client) => {
+export function useObligationsFiscales(selectedClient: Client) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
+  // Utiliser les hooks spécifiques
   const {
-    creationDate,
-    setCreationDate,
-    validityEndDate,
-    showInAlert,
-    handleToggleAlert
-  } = useFiscalAttestation();
-
-  const {
-    obligationStatuses,
-    setObligationStatuses,
-    handleStatusChange,
-    updateObligationsFromClientData,
-    isInitialized
-  } = useObligationStatus();
+    fiscalData,
+    selectedYear,
+    setSelectedYear,
+    fetchFiscalData,
+    updateFiscalDataField
+  } = useFiscalData(selectedClient.id);
 
   const {
-    isLoading,
-    dataLoaded,
-    hiddenFromDashboard,
-    handleToggleDashboardVisibility,
-    loadFiscalData
-  } = useFiscalData(selectedClient);
+    hasUnsavedChanges,
+    setHasUnsavedChanges,
+    handleBeforeUnload
+  } = useUnsavedChanges();
 
   const {
-    isSaving,
-    saveAttempts,
-    lastSaveSuccess,
-    lastSaveTime,
-    handleSave: handleSaveOperation
-  } = useFiscalSave(selectedClient?.id, loadFiscalData);
+    saveFiscalData,
+    saveStatus
+  } = useFiscalSave(selectedClient.id, setHasUnsavedChanges);
 
-  const { hasUnsavedChanges } = useUnsavedChanges({
-    dataLoaded,
-    lastSaveSuccess,
-    isSaving,
-    handleSave: async () => {
-      const fiscalData = {
-        attestation: {
-          creationDate,
-          validityEndDate,
-          showInAlert
-        },
-        obligations: obligationStatuses,
-        hiddenFromDashboard,
-        updatedAt: new Date().toISOString()
-      };
-      return handleSaveOperation(fiscalData);
-    }
-  });
-
-  // Mise à jour des données fiscales lorsque les données du client sont chargées
+  // Charger les données fiscales au chargement et quand le client ou l'année change
   useEffect(() => {
-    if (dataLoaded && selectedClient?.fiscal_data && !isInitialized) {
-      console.log("Initializing fiscal data from client:", selectedClient.id);
-      try {
-        // Initialiser les données d'attestation
-        if (selectedClient.fiscal_data.attestation) {
-          const attestation = selectedClient.fiscal_data.attestation;
-          setCreationDate(attestation.creationDate || null);
-          // Ne modifiez pas directement validityEndDate car c'est calculé à partir de creationDate
-          
-          // Initialiser l'état d'alerte avec une valeur explicite booléenne
-          if (attestation.hasOwnProperty('showInAlert')) {
-            handleToggleAlert(Boolean(attestation.showInAlert));
-          }
-        }
-        
-        // Initialiser les obligations fiscales
-        if (selectedClient.fiscal_data.obligations) {
-          updateObligationsFromClientData(selectedClient.fiscal_data);
-        }
-      } catch (error) {
-        console.error("Error initializing fiscal data:", error);
-      }
+    if (selectedClient?.id) {
+      setLoading(true);
+      setError(null);
+      
+      fetchFiscalData()
+        .then(() => setLoading(false))
+        .catch(err => {
+          setError("Erreur lors du chargement des données fiscales");
+          console.error(err);
+          setLoading(false);
+        });
     }
-  }, [dataLoaded, selectedClient, isInitialized, setCreationDate, handleToggleAlert, updateObligationsFromClientData]);
+  }, [selectedClient.id, selectedYear, fetchFiscalData]);
+
+  // Gestionnaire pour sauvegarder les données
+  const handleSave = () => {
+    if (fiscalData) {
+      saveFiscalData(fiscalData);
+    }
+  };
+
+  // Souscrire à l'événement beforeunload pour avertir si changements non sauvegardés
+  useEffect(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges, handleBeforeUnload]);
 
   return {
-    creationDate,
-    setCreationDate,
-    validityEndDate,
-    obligationStatuses,
-    handleStatusChange,
-    handleSave: async () => {
-      const fiscalData = {
-        attestation: {
-          creationDate,
-          validityEndDate,
-          showInAlert
-        },
-        obligations: obligationStatuses,
-        hiddenFromDashboard,
-        updatedAt: new Date().toISOString()
-      };
-      return handleSaveOperation(fiscalData);
-    },
-    isLoading,
-    dataLoaded,
-    isSaving,
-    saveAttempts,
-    showInAlert,
-    handleToggleAlert,
-    hiddenFromDashboard,
-    handleToggleDashboardVisibility,
-    lastSaveSuccess,
-    hasUnsavedChanges
+    fiscalData,
+    loading,
+    error,
+    selectedYear,
+    setSelectedYear,
+    updateFiscalDataField,
+    handleSave,
+    hasUnsavedChanges,
+    saveStatus
   };
-};
+}
+
+export default useObligationsFiscales;

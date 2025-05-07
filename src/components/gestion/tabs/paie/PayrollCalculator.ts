@@ -4,7 +4,7 @@
  */
 export class PayrollCalculator {
   // Constantes pour le calcul des charges sociales et fiscales
-  private static CHARGES_SOCIALES = {
+  public static CHARGES_SOCIALES = {
     // CNPS
     plafondCNPS: 750000,
     pensionVieillesseEmployeur: 4.20,
@@ -26,7 +26,7 @@ export class PayrollCalculator {
     cfcEmployeur: 1.5
   };
   
-  private static CHARGES_FISCALES = {
+  public static CHARGES_FISCALES = {
     // IRPP
     abattementForfaitaire: 30, // 30% pour frais professionnels
     abattementAnnuel: 500000, // 500 000 FCFA par an

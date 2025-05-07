@@ -1,30 +1,28 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { calculationService } from "@/services/calculationService";
 
 interface PayrollCalculationSettingsProps {
-  cnpsEmployeeRate: number;
-  cnpsEmployerRate: number;
-  cfcEmployeeRate: number;
-  cfcEmployerRate: number;
-  fneRate: number;
-  cacRate: number;
   onSave: () => void;
 }
 
-export function PayrollCalculationSettings({
-  cnpsEmployeeRate,
-  cnpsEmployerRate,
-  cfcEmployeeRate,
-  cfcEmployerRate,
-  fneRate,
-  cacRate,
-  onSave
-}: PayrollCalculationSettingsProps) {
+export function PayrollCalculationSettings({ onSave }: PayrollCalculationSettingsProps) {
+  // Obtenir les taux par défaut depuis le service
+  const employerRates = calculationService.getEmployerRates();
+  const employeeRates = calculationService.getEmployeeRates();
+  
+  const [cnpsEmployeeRate, setCnpsEmployeeRate] = useState(employeeRates.cnpsRate);
+  const [cnpsEmployerRate, setCnpsEmployerRate] = useState(employerRates.cnpsRate);
+  const [cfcEmployeeRate, setCfcEmployeeRate] = useState(employeeRates.cfcRate);
+  const [cfcEmployerRate, setCfcEmployerRate] = useState(employerRates.cfcRate);
+  const [fneRate, setFneRate] = useState(employerRates.fneRate);
+  const [cacRate, setCacRate] = useState(employeeRates.cacRate);
+  
   return (
     <Card>
       <CardHeader>
@@ -39,17 +37,35 @@ export function PayrollCalculationSettings({
             
             <div className="space-y-2">
               <Label htmlFor="cnps-rate-employee">Taux CNPS (%)</Label>
-              <Input id="cnps-rate-employee" type="number" defaultValue={cnpsEmployeeRate} step="0.1" />
+              <Input 
+                id="cnps-rate-employee" 
+                type="number" 
+                value={cnpsEmployeeRate} 
+                onChange={(e) => setCnpsEmployeeRate(parseFloat(e.target.value))} 
+                step="0.1" 
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="cfc-rate-employee">Taux CFC (%)</Label>
-              <Input id="cfc-rate-employee" type="number" defaultValue={cfcEmployeeRate} step="0.1" />
+              <Input 
+                id="cfc-rate-employee" 
+                type="number" 
+                value={cfcEmployeeRate} 
+                onChange={(e) => setCfcEmployeeRate(parseFloat(e.target.value))} 
+                step="0.1" 
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="cac-rate">Taux CAC sur IRPP (%)</Label>
-              <Input id="cac-rate" type="number" defaultValue={cacRate} step="0.1" />
+              <Input 
+                id="cac-rate" 
+                type="number" 
+                value={cacRate} 
+                onChange={(e) => setCacRate(parseFloat(e.target.value))} 
+                step="0.1" 
+              />
             </div>
             
             <div className="space-y-2">
@@ -70,7 +86,13 @@ export function PayrollCalculationSettings({
             
             <div className="space-y-2">
               <Label htmlFor="cnps-rate-employer">Taux CNPS total (%)</Label>
-              <Input id="cnps-rate-employer" type="number" defaultValue={cnpsEmployerRate} step="0.1" />
+              <Input 
+                id="cnps-rate-employer" 
+                type="number" 
+                value={cnpsEmployerRate} 
+                onChange={(e) => setCnpsEmployerRate(parseFloat(e.target.value))} 
+                step="0.1" 
+              />
               <div className="text-xs text-muted-foreground">
                 Inclut Pension Vieillesse, Prestations Familiales et Accidents de Travail
               </div>
@@ -78,12 +100,24 @@ export function PayrollCalculationSettings({
             
             <div className="space-y-2">
               <Label htmlFor="fne-rate">Taux FNE (%)</Label>
-              <Input id="fne-rate" type="number" defaultValue={fneRate} step="0.1" />
+              <Input 
+                id="fne-rate" 
+                type="number" 
+                value={fneRate} 
+                onChange={(e) => setFneRate(parseFloat(e.target.value))} 
+                step="0.1" 
+              />
             </div>
             
             <div className="space-y-2">
               <Label htmlFor="cfc-rate-employer">Taux CFC (%)</Label>
-              <Input id="cfc-rate-employer" type="number" defaultValue={cfcEmployerRate} step="0.1" />
+              <Input 
+                id="cfc-rate-employer" 
+                type="number" 
+                value={cfcEmployerRate} 
+                onChange={(e) => setCfcEmployerRate(parseFloat(e.target.value))} 
+                step="0.1" 
+              />
             </div>
           </div>
         </div>

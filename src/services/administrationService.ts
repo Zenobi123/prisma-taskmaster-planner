@@ -1,57 +1,21 @@
 
 import { supabase } from "@/integrations/supabase/client";
-
-/**
- * Types pour les données administratives
- */
-interface Document {
-  id: string;
-  client_id: string;
-  nom: string;
-  type: string;
-  categorie: string;
-  date_emission: string | null;
-  date_expiration: string | null;
-  fichier_url: string | null;
-  observations: string | null;
-  created_at: string;
-  updated_at: string;
-}
-
-interface Procedure {
-  id: string;
-  client_id: string;
-  nom: string;
-  description: string | null;
-  date_debut: string | null;
-  date_fin: string | null;
-  statut: string;
-  responsable: string | null;
-  observations: string | null;
-  created_at: string;
-  updated_at: string;
-}
+import { Document, Procedure, ProcedureStatut, DocumentStatut } from "@/types/administration";
 
 /**
  * Service pour la gestion des données administratives
  */
 export const administrationService = {
   /**
-   * Récupère les documents administratifs d'un client
+   * Récupère la liste des documents administratifs d'un client
    */
-  async getDocumentsByClientId(clientId: string, category?: string): Promise<Document[]> {
+  async getDocumentsByClientId(clientId: string): Promise<Document[]> {
     try {
-      let query = supabase
-        .from("documents")
+      const { data, error } = await supabase
+        .from("documents_administratifs")
         .select("*")
         .eq("client_id", clientId);
         
-      if (category) {
-        query = query.eq("categorie", category);
-      }
-      
-      const { data, error } = await query.order("date_emission", { ascending: false });
-      
       if (error) {
         throw error;
       }
@@ -69,7 +33,7 @@ export const administrationService = {
   async getDocumentById(documentId: string): Promise<Document | null> {
     try {
       const { data, error } = await supabase
-        .from("documents")
+        .from("documents_administratifs")
         .select("*")
         .eq("id", documentId)
         .single();
@@ -91,7 +55,7 @@ export const administrationService = {
   async createDocument(document: Omit<Document, "id" | "created_at" | "updated_at">): Promise<Document | null> {
     try {
       const { data, error } = await supabase
-        .from("documents")
+        .from("documents_administratifs")
         .insert([document])
         .select()
         .single();
@@ -113,7 +77,7 @@ export const administrationService = {
   async updateDocument(documentId: string, document: Partial<Document>): Promise<Document | null> {
     try {
       const { data, error } = await supabase
-        .from("documents")
+        .from("documents_administratifs")
         .update(document)
         .eq("id", documentId)
         .select()
@@ -136,7 +100,7 @@ export const administrationService = {
   async deleteDocument(documentId: string): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from("documents")
+        .from("documents_administratifs")
         .delete()
         .eq("id", documentId);
       
@@ -152,15 +116,14 @@ export const administrationService = {
   },
   
   /**
-   * Récupère les procédures administratives d'un client
+   * Récupère la liste des procédures administratives d'un client
    */
   async getProceduresByClientId(clientId: string): Promise<Procedure[]> {
     try {
       const { data, error } = await supabase
-        .from("procedures")
+        .from("procedures_administratives")
         .select("*")
-        .eq("client_id", clientId)
-        .order("date_debut", { ascending: false });
+        .eq("client_id", clientId);
         
       if (error) {
         throw error;
@@ -179,7 +142,7 @@ export const administrationService = {
   async getProcedureById(procedureId: string): Promise<Procedure | null> {
     try {
       const { data, error } = await supabase
-        .from("procedures")
+        .from("procedures_administratives")
         .select("*")
         .eq("id", procedureId)
         .single();
@@ -201,7 +164,7 @@ export const administrationService = {
   async createProcedure(procedure: Omit<Procedure, "id" | "created_at" | "updated_at">): Promise<Procedure | null> {
     try {
       const { data, error } = await supabase
-        .from("procedures")
+        .from("procedures_administratives")
         .insert([procedure])
         .select()
         .single();
@@ -223,7 +186,7 @@ export const administrationService = {
   async updateProcedure(procedureId: string, procedure: Partial<Procedure>): Promise<Procedure | null> {
     try {
       const { data, error } = await supabase
-        .from("procedures")
+        .from("procedures_administratives")
         .update(procedure)
         .eq("id", procedureId)
         .select()
@@ -246,7 +209,7 @@ export const administrationService = {
   async deleteProcedure(procedureId: string): Promise<boolean> {
     try {
       const { error } = await supabase
-        .from("procedures")
+        .from("procedures_administratives")
         .delete()
         .eq("id", procedureId);
       
@@ -261,5 +224,3 @@ export const administrationService = {
     }
   }
 };
-
-export type { Document, Procedure };
