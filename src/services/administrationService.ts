@@ -43,7 +43,10 @@ export const getDocumentsAdministratifs = async (clientId: string): Promise<Docu
     throw error;
   }
   
-  return data || [];
+  return data ? data.map(doc => ({
+    ...doc,
+    type: doc.type as 'Administratif' | 'Juridique' | 'Fiscal' | 'Social' | 'Autre'
+  })) : [];
 };
 
 export const addDocumentAdministratif = async (document: Omit<DocumentAdministratif, 'id' | 'created_at' | 'updated_at'>): Promise<DocumentAdministratif> => {
@@ -58,7 +61,10 @@ export const addDocumentAdministratif = async (document: Omit<DocumentAdministra
     throw error;
   }
   
-  return data;
+  return {
+    ...data,
+    type: data.type as 'Administratif' | 'Juridique' | 'Fiscal' | 'Social' | 'Autre'
+  };
 };
 
 export const updateDocumentAdministratif = async (id: string, updates: Partial<DocumentAdministratif>): Promise<DocumentAdministratif> => {
@@ -74,7 +80,10 @@ export const updateDocumentAdministratif = async (id: string, updates: Partial<D
     throw error;
   }
   
-  return data;
+  return {
+    ...data,
+    type: data.type as 'Administratif' | 'Juridique' | 'Fiscal' | 'Social' | 'Autre'
+  };
 };
 
 export const deleteDocumentAdministratif = async (id: string): Promise<void> => {
@@ -102,13 +111,21 @@ export const getProceduresAdministratives = async (clientId: string): Promise<Pr
     throw error;
   }
   
-  return data || [];
+  return data ? data.map(proc => ({
+    ...proc,
+    etapes: proc.etapes ? (typeof proc.etapes === 'string' ? JSON.parse(proc.etapes) : proc.etapes) : []
+  })) : [];
 };
 
 export const addProcedureAdministrative = async (procedure: Omit<ProcedureAdministrative, 'id' | 'created_at' | 'updated_at'>): Promise<ProcedureAdministrative> => {
+  const procToInsert = {
+    ...procedure,
+    etapes: procedure.etapes ? JSON.stringify(procedure.etapes) : null
+  };
+
   const { data, error } = await supabase
     .from('procedures_administratives')
-    .insert([procedure])
+    .insert([procToInsert])
     .select()
     .single();
 
@@ -117,13 +134,22 @@ export const addProcedureAdministrative = async (procedure: Omit<ProcedureAdmini
     throw error;
   }
   
-  return data;
+  return {
+    ...data,
+    etapes: data.etapes ? (typeof data.etapes === 'string' ? JSON.parse(data.etapes) : data.etapes) : []
+  };
 };
 
 export const updateProcedureAdministrative = async (id: string, updates: Partial<ProcedureAdministrative>): Promise<ProcedureAdministrative> => {
+  const updatesToApply = { ...updates };
+  
+  if (updates.etapes) {
+    updatesToApply.etapes = JSON.stringify(updates.etapes);
+  }
+
   const { data, error } = await supabase
     .from('procedures_administratives')
-    .update(updates)
+    .update(updatesToApply)
     .eq('id', id)
     .select()
     .single();
@@ -133,7 +159,10 @@ export const updateProcedureAdministrative = async (id: string, updates: Partial
     throw error;
   }
   
-  return data;
+  return {
+    ...data,
+    etapes: data.etapes ? (typeof data.etapes === 'string' ? JSON.parse(data.etapes) : data.etapes) : []
+  };
 };
 
 export const deleteProcedureAdministrative = async (id: string): Promise<void> => {

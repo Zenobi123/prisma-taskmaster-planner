@@ -20,6 +20,7 @@ export interface Paie {
   cac?: number;
   cfc?: number;
   tdl?: number;
+  rav?: number; // Nouvelle propriété pour la Redevance Audiovisuelle
   autres_retenues?: any[];
   total_retenues?: number;
   salaire_net: number;
@@ -40,6 +41,7 @@ export interface PayCalculation {
   cac?: number;
   cfc?: number;
   tdl?: number;
+  rav?: number; // Ajout de la RAV dans les résultats de calcul
   totalRetenues: number;
   salaireNet: number;
 }
@@ -81,7 +83,11 @@ export const getFichesPaie = async (clientId: string, options?: { mois?: number,
     throw error;
   }
 
-  return data || [];
+  return data ? data.map(paie => ({
+    ...paie,
+    primes: paie.primes ? (typeof paie.primes === 'string' ? JSON.parse(paie.primes) : paie.primes) : [],
+    autres_retenues: paie.autres_retenues ? (typeof paie.autres_retenues === 'string' ? JSON.parse(paie.autres_retenues) : paie.autres_retenues) : []
+  })) : [];
 };
 
 export const getFichesPaieEmploye = async (employeId: string): Promise<Paie[]> => {
@@ -97,7 +103,11 @@ export const getFichesPaieEmploye = async (employeId: string): Promise<Paie[]> =
     throw error;
   }
 
-  return data || [];
+  return data ? data.map(paie => ({
+    ...paie,
+    primes: paie.primes ? (typeof paie.primes === 'string' ? JSON.parse(paie.primes) : paie.primes) : [],
+    autres_retenues: paie.autres_retenues ? (typeof paie.autres_retenues === 'string' ? JSON.parse(paie.autres_retenues) : paie.autres_retenues) : []
+  })) : [];
 };
 
 export const getFichePaie = async (id: string): Promise<Paie> => {
@@ -112,13 +122,23 @@ export const getFichePaie = async (id: string): Promise<Paie> => {
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    primes: data.primes ? (typeof data.primes === 'string' ? JSON.parse(data.primes) : data.primes) : [],
+    autres_retenues: data.autres_retenues ? (typeof data.autres_retenues === 'string' ? JSON.parse(data.autres_retenues) : data.autres_retenues) : []
+  };
 };
 
 export const addFichePaie = async (fichePaie: Omit<Paie, 'id' | 'created_at' | 'updated_at'>): Promise<Paie> => {
+  const paieToInsert = {
+    ...fichePaie,
+    primes: fichePaie.primes ? JSON.stringify(fichePaie.primes) : JSON.stringify([]),
+    autres_retenues: fichePaie.autres_retenues ? JSON.stringify(fichePaie.autres_retenues) : JSON.stringify([])
+  };
+
   const { data, error } = await supabase
     .from('paie')
-    .insert([fichePaie])
+    .insert([paieToInsert])
     .select()
     .single();
 
@@ -127,13 +147,28 @@ export const addFichePaie = async (fichePaie: Omit<Paie, 'id' | 'created_at' | '
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    primes: data.primes ? (typeof data.primes === 'string' ? JSON.parse(data.primes) : data.primes) : [],
+    autres_retenues: data.autres_retenues ? (typeof data.autres_retenues === 'string' ? JSON.parse(data.autres_retenues) : data.autres_retenues) : []
+  };
 };
 
 export const updateFichePaie = async (id: string, updates: Partial<Paie>): Promise<Paie> => {
+  const updatesToApply = { ...updates };
+  
+  // Convertir les tableaux en JSON pour le stockage
+  if (updates.primes) {
+    updatesToApply.primes = JSON.stringify(updates.primes);
+  }
+  
+  if (updates.autres_retenues) {
+    updatesToApply.autres_retenues = JSON.stringify(updates.autres_retenues);
+  }
+
   const { data, error } = await supabase
     .from('paie')
-    .update(updates)
+    .update(updatesToApply)
     .eq('id', id)
     .select()
     .single();
@@ -143,7 +178,11 @@ export const updateFichePaie = async (id: string, updates: Partial<Paie>): Promi
     throw error;
   }
 
-  return data;
+  return {
+    ...data,
+    primes: data.primes ? (typeof data.primes === 'string' ? JSON.parse(data.primes) : data.primes) : [],
+    autres_retenues: data.autres_retenues ? (typeof data.autres_retenues === 'string' ? JSON.parse(data.autres_retenues) : data.autres_retenues) : []
+  };
 };
 
 export const deleteFichePaie = async (id: string): Promise<void> => {
@@ -156,6 +195,23 @@ export const deleteFichePaie = async (id: string): Promise<void> => {
     console.error("Erreur lors de la suppression de la fiche de paie:", error);
     throw error;
   }
+};
+
+// Fonction pour calculer le montant de la RAV selon le barème
+const calculerRAV = (salaireBrut: number): number => {
+  // Barème RAV 2025
+  if (salaireBrut <= 50000) return 0;
+  if (salaireBrut <= 100000) return 750;
+  if (salaireBrut <= 200000) return 1950;
+  if (salaireBrut <= 300000) return 3250;
+  if (salaireBrut <= 400000) return 4550;
+  if (salaireBrut <= 500000) return 5850;
+  if (salaireBrut <= 600000) return 7150;
+  if (salaireBrut <= 700000) return 8450;
+  if (salaireBrut <= 800000) return 9750;
+  if (salaireBrut <= 900000) return 11050;
+  if (salaireBrut <= 1000000) return 12350;
+  return 13000; // Plus de 1 000 000
 };
 
 // Fonctions de calcul de paie
@@ -209,8 +265,11 @@ export const calculerPaie = (employe: Employe, mois: number, annee: number, opti
   // Taxe de Développement Local (TDL) - variable selon les communes, ici on prend 0.5%
   const tdl = salaireBrut * 0.005;
   
+  // Calcul de la Redevance Audiovisuelle (RAV)
+  const rav = calculerRAV(salaireBrut);
+  
   // Total des retenues
-  const totalRetenues = cnpsEmploye + irpp + cac + cfc + tdl;
+  const totalRetenues = cnpsEmploye + irpp + cac + cfc + tdl + rav;
   
   // Salaire net
   const salaireNet = salaireBrut - totalRetenues;
@@ -223,6 +282,7 @@ export const calculerPaie = (employe: Employe, mois: number, annee: number, opti
     cac,
     cfc,
     tdl,
+    rav,
     totalRetenues,
     salaireNet
   };

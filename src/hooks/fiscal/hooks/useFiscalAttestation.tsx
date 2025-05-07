@@ -1,30 +1,57 @@
-import { useState, useEffect } from "react";
-import { calculateValidityEndDate, checkAttestationExpiration } from "../utils/dateUtils";
 
-export const useFiscalAttestation = (initialCreationDate: string = "", initialShowInAlert: boolean = true) => {
-  const [creationDate, setCreationDate] = useState<string>(initialCreationDate);
-  const [validityEndDate, setValidityEndDate] = useState<string>("");
-  const [showInAlert, setShowInAlert] = useState<boolean>(initialShowInAlert);
+import { useState, useCallback, useEffect } from 'react';
+import { useToast } from '@/components/ui/use-toast';
+import { getClientFiscalData } from '../services';
 
-  // Calculate validity end date whenever creation date changes
-  useEffect(() => {
-    if (creationDate) {
-      const endDate = calculateValidityEndDate(creationDate);
-      setValidityEndDate(endDate);
-    } else {
-      setValidityEndDate("");
-    }
-  }, [creationDate]);
+export const useFiscalAttestation = (clientId: string) => {
+  const [creationDate, setCreationDate] = useState<string>('');
+  const [validityEndDate, setValidityEndDate] = useState<string>('');
+  const [showInAlert, setShowInAlert] = useState(true);
+  const [hiddenFromDashboard, setHiddenFromDashboard] = useState(false);
+
+  const { toast } = useToast();
 
   useEffect(() => {
-    if (creationDate && validityEndDate) {
-      checkAttestationExpiration(creationDate, validityEndDate);
+    if (clientId) {
+      loadAttestationData();
     }
-  }, [creationDate, validityEndDate]);
+  }, [clientId]);
 
-  const handleToggleAlert = () => {
-    setShowInAlert(prev => !prev);
+  const loadAttestationData = async () => {
+    if (!clientId) return;
+
+    try {
+      const data = await getClientFiscalData(clientId);
+      
+      if (data?.attestation) {
+        setCreationDate(data.attestation.creationDate || '');
+        setValidityEndDate(data.attestation.validityEndDate || '');
+        setShowInAlert(data.attestation.showInAlert !== false);
+      } else {
+        resetAttestationData();
+      }
+
+      setHiddenFromDashboard(data?.hiddenFromDashboard === true);
+    } catch (error) {
+      console.error('Erreur lors du chargement des données d\'attestation:', error);
+      resetAttestationData();
+    }
   };
+
+  const resetAttestationData = () => {
+    setCreationDate('');
+    setValidityEndDate('');
+    setShowInAlert(true);
+    setHiddenFromDashboard(false);
+  };
+
+  const handleToggleAlert = useCallback(() => {
+    setShowInAlert(!showInAlert);
+  }, [showInAlert]);
+
+  const handleToggleDashboardVisibility = useCallback(() => {
+    setHiddenFromDashboard(!hiddenFromDashboard);
+  }, [hiddenFromDashboard]);
 
   return {
     creationDate,
@@ -32,6 +59,8 @@ export const useFiscalAttestation = (initialCreationDate: string = "", initialSh
     validityEndDate,
     setValidityEndDate,
     showInAlert,
-    handleToggleAlert
+    handleToggleAlert,
+    hiddenFromDashboard,
+    handleToggleDashboardVisibility
   };
 };

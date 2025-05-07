@@ -7,7 +7,7 @@ import { useFiscalData } from './hooks/useFiscalData';
 import { useFiscalSave } from './hooks/useFiscalSave';
 import { useObligationStatus } from './hooks/useObligationStatus';
 import { useUnsavedChanges } from './hooks/useUnsavedChanges';
-import { ObligationStatuses } from './types';
+import { ObligationStatuses, ClientFiscalData } from './types';
 
 export const useObligationsFiscales = (selectedClient: Client) => {
   const { toast } = useToast();
@@ -17,10 +17,11 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     creationDate, 
     setCreationDate,
     validityEndDate,
+    setValidityEndDate,
     showInAlert,
-    setShowInAlert,
+    handleToggleAlert,
     hiddenFromDashboard,
-    setHiddenFromDashboard
+    handleToggleDashboardVisibility
   } = useFiscalAttestation(clientId);
 
   const {
@@ -28,17 +29,16 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     setObligationStatuses,
     resetObligationStatuses,
     isLoading,
-    dataLoaded
+    dataLoaded,
+    loadFiscalData
   } = useFiscalData(clientId);
 
   const {
     saveAttempts,
-    setSaveAttempts,
     lastSaveSuccess,
-    setLastSaveSuccess,
     isSaving,
     handleSave
-  } = useFiscalSave(clientId, creationDate, validityEndDate, showInAlert, hiddenFromDashboard, obligationStatuses);
+  } = useFiscalSave(clientId);
 
   const { handleStatusChange } = useObligationStatus(setObligationStatuses);
   
@@ -51,20 +51,11 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     hiddenFromDashboard
   );
 
-  // Toggle pour l'alerte
-  const handleToggleAlert = useCallback(() => {
-    setShowInAlert(!showInAlert);
-  }, [showInAlert, setShowInAlert]);
-
-  // Toggle pour l'affichage au tableau de bord
-  const handleToggleDashboardVisibility = useCallback(() => {
-    setHiddenFromDashboard(!hiddenFromDashboard);
-  }, [hiddenFromDashboard, setHiddenFromDashboard]);
-
   return {
     creationDate,
     setCreationDate,
     validityEndDate,
+    setValidityEndDate,
     obligationStatuses,
     handleStatusChange,
     handleSave,
@@ -77,6 +68,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
     lastSaveSuccess,
-    hasUnsavedChanges
+    hasUnsavedChanges,
+    loadFiscalData
   };
 };
