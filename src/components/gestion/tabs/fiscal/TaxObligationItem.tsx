@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
@@ -7,12 +7,13 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { formatCurrency } from "@/utils/formatUtils";
 
-interface TaxObligationItemProps {
+export interface TaxObligationItemProps {
   label: string;
   status: TaxObligationStatus;
   obligationKey: string;
-  onChange: (obligation: string, field: string, value: boolean | string | number) => void;
+  onChange: (obligation: string, field: string, value: any) => void;
   expanded?: boolean;
   onToggleExpand?: () => void;
 }
@@ -25,25 +26,17 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
   expanded = false,
   onToggleExpand
 }) => {
-  // Debug the expanded state
-  useEffect(() => {
-    console.log(`TaxObligationItem ${label} expanded state:`, expanded);
-  }, [expanded, label]);
-
-  // Debug actual status
-  useEffect(() => {
-    console.log(`TaxObligationItem ${label} status:`, {
-      assujetti: status?.assujetti, 
-      type: typeof status?.assujetti,
-      paye: status?.paye,
-      payeType: typeof status?.paye
-    });
-  }, [status, label]);
+  const [showDetails, setShowDetails] = useState(false);
 
   const handleAssujettiChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
       console.log(`${obligationKey} assujetti change:`, checked);
       onChange(obligationKey, "assujetti", checked);
+      
+      // If not assujetti, automatically set paye to false
+      if (!checked) {
+        onChange(obligationKey, "paye", false);
+      }
     }
   };
 
@@ -55,7 +48,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
   };
 
   const handleMontantChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value) || 0;
+    const value = e.target.value === '' ? undefined : parseFloat(e.target.value);
     onChange(obligationKey, "montant", value);
   };
 
@@ -65,6 +58,10 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
 
   const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(obligationKey, "observations", e.target.value);
+  };
+
+  const handleToggleDetails = () => {
+    setShowDetails(!showDetails);
   };
 
   // Handle expansion click with proper event stopping
@@ -110,6 +107,23 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             )}
           </Button>
         )}
+        
+        {status?.assujetti && !onToggleExpand && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleToggleDetails}
+            className="h-8 w-8 p-0"
+            type="button"
+            aria-label={showDetails ? "Réduire" : "Développer"}
+          >
+            {showDetails ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+        )}
       </div>
       
       {status?.assujetti && (
@@ -128,21 +142,22 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             </label>
           </div>
           
-          {expanded && (
+          {(showDetails || expanded) && (
             <>
               <div className="space-y-1.5">
                 <Label htmlFor={`${obligationKey}-montant`} className="text-sm">
-                  Montant (FCFA)
+                  Montant
                 </Label>
                 <Input
                   id={`${obligationKey}-montant`}
                   type="number"
-                  value={status?.montant || 0}
+                  placeholder="0"
+                  value={status?.montant || ''}
                   onChange={handleMontantChange}
                   className="max-w-[200px]"
                 />
               </div>
-              
+
               {status?.paye && (
                 <div className="space-y-1.5">
                   <Label htmlFor={`${obligationKey}-date`} className="text-sm">

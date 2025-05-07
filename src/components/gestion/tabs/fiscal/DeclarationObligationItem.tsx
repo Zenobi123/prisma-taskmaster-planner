@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { DeclarationObligationStatus } from "@/hooks/fiscal/types";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-interface DeclarationObligationItemProps {
+export interface DeclarationObligationItemProps {
   label: string;
   status: DeclarationObligationStatus;
   obligationKey: string;
@@ -25,6 +25,8 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   expanded = false,
   onToggleExpand
 }) => {
+  const [showDetails, setShowDetails] = useState(false);
+  
   // Debug the expanded state
   useEffect(() => {
     console.log(`DeclarationObligationItem ${label} expanded state:`, expanded);
@@ -44,6 +46,11 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
     if (typeof checked === "boolean") {
       console.log(`${obligationKey} assujetti change:`, checked);
       onChange(obligationKey, "assujetti", checked);
+      
+      // If not assujetti, automatically set depose to false
+      if (!checked) {
+        onChange(obligationKey, "depose", false);
+      }
     }
   };
 
@@ -60,6 +67,10 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
 
   const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onChange(obligationKey, "observations", e.target.value);
+  };
+  
+  const handleToggleDetails = () => {
+    setShowDetails(!showDetails);
   };
 
   // Handle expansion click with proper event stopping
@@ -105,6 +116,23 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
             )}
           </Button>
         )}
+        
+        {status?.assujetti && !onToggleExpand && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleToggleDetails}
+            className="h-8 w-8 p-0"
+            type="button"
+            aria-label={showDetails ? "Réduire" : "Développer"}
+          >
+            {showDetails ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
+          </Button>
+        )}
       </div>
       
       {status?.assujetti && (
@@ -123,7 +151,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
             </label>
           </div>
           
-          {expanded && (
+          {(expanded || showDetails) && (
             <>
               {status?.depose && (
                 <div className="space-y-1.5">
