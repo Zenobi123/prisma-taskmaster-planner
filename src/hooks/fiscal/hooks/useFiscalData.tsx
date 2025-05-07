@@ -34,20 +34,13 @@ export const useFiscalData = (clientId: string) => {
 
   const resetObligationStatuses = () => {
     setObligationStatuses({
-      igs: { assujetti: false, paye: false, montant: 0 },
-      patente: { assujetti: false, paye: false, montant: 0 },
-      baic: { assujetti: false, paye: false, montant: 0 },
-      its: { assujetti: false, paye: false, montant: 0 },
-      dsf: { assujetti: false, depose: false, dateDepot: '' },
-      darp: { assujetti: false, depose: false, dateDepot: '' },
-      licence: { assujetti: false, depose: false, dateDepot: '' },
-      iba: { assujetti: false, paye: false },
-      ibnc: { assujetti: false, paye: false },
-      ircm: { assujetti: false, paye: false },
-      irf: { assujetti: false, paye: false },
-      precompte: { assujetti: false, paye: false },
-      taxeSejour: { assujetti: false, paye: false },
-      baillCommercial: { assujetti: false, paye: false }
+      igs: { paid: false, amount: 0 },
+      patente: { paid: false, amount: 0 },
+      baic: { paid: false, amount: 0 },
+      its: { paid: false, amount: 0 },
+      dsf: { filed: false, date: '' },
+      darp: { filed: false, date: '' },
+      licence: { filed: false, date: '' }
     });
   };
 
