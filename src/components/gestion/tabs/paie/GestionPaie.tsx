@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -461,12 +462,6 @@ export function GestionPaie({ client }: GestionPaieProps) {
                               <TableCell className="text-right">{formatMontant(selectedFichePaie.tdl)}</TableCell>
                             </TableRow>
                           )}
-                          {selectedFichePaie.rav !== undefined && selectedFichePaie.rav > 0 && (
-                            <TableRow>
-                              <TableCell>RAV (Redevance Audiovisuelle)</TableCell>
-                              <TableCell className="text-right">{formatMontant(selectedFichePaie.rav)}</TableCell>
-                            </TableRow>
-                          )}
                           <TableRow>
                             <TableCell className="font-medium">Total des retenues</TableCell>
                             <TableCell className="text-right font-medium">{formatMontant(selectedFichePaie.total_retenues)}</TableCell>
@@ -651,7 +646,6 @@ export function GestionPaie({ client }: GestionPaieProps) {
                   </Button>
                   <div className="text-right">
                     <p className="text-sm font-medium">Brut calculé: {formatMontant(newFichePaie.salaire_brut || 0)}</p>
-                    <p className="text-sm font-medium">RAV: {formatMontant(newFichePaie.rav || 0)}</p>
                     <p className="text-sm font-medium">Net calculé: {formatMontant(newFichePaie.salaire_net || 0)}</p>
                   </div>
                 </div>

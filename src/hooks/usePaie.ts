@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 import { Client } from "@/types/client";
@@ -45,7 +46,6 @@ export const usePaie = (client: Client) => {
     cnps_employe: 0,
     cnps_employeur: 0,
     irpp: 0,
-    rav: 0,
     total_retenues: 0,
     salaire_net: 0,
     statut: 'En cours'
@@ -150,7 +150,9 @@ export const usePaie = (client: Client) => {
       cnps_employe: resultat.cnpsEmploye,
       cnps_employeur: resultat.cnpsEmployeur,
       irpp: resultat.irpp,
-      rav: resultat.rav,
+      cac: resultat.cac,
+      cfc: resultat.cfc,
+      tdl: resultat.tdl,
       total_retenues: resultat.totalRetenues,
       salaire_net: resultat.salaireNet
     });
@@ -209,7 +211,6 @@ export const usePaie = (client: Client) => {
         cnps_employe: Number(newFichePaie.cnps_employe || 0),
         cnps_employeur: Number(newFichePaie.cnps_employeur || 0),
         irpp: Number(newFichePaie.irpp || 0),
-        rav: Number(newFichePaie.rav || 0),
         total_retenues: Number(newFichePaie.total_retenues || 0),
         salaire_net: Number(newFichePaie.salaire_net)
       } as Omit<Paie, 'id' | 'created_at' | 'updated_at'>;
@@ -300,7 +301,6 @@ export const usePaie = (client: Client) => {
       cnps_employe: 0,
       cnps_employeur: 0,
       irpp: 0,
-      rav: 0,
       total_retenues: 0,
       salaire_net: 0,
       statut: 'En cours'
@@ -356,48 +356,6 @@ export const usePaie = (client: Client) => {
     formatDate,
     getNomMois,
     refreshFichesPaie: fetchFichesPaie,
-    refreshFichesPaieEmploye: () => selectedEmploye && fetchFichesPaieEmploye(selectedEmploye.id),
-    fetchEmployes: async () => {
-      try {
-        const employesData = await getEmployes(client.id);
-        setEmployes(employesData);
-      } catch (error) {
-        console.error("Erreur lors du chargement des employés:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les données des employés",
-          variant: "destructive"
-        });
-      }
-    },
-    fetchFichesPaie: async () => {
-      setIsLoading(true);
-      try {
-        const fichesPaieData = await getFichesPaie(client.id, { mois: moisFiltre, annee: anneeFiltre });
-        setFichesPaie(fichesPaieData);
-      } catch (error) {
-        console.error("Erreur lors du chargement des fiches de paie:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les fiches de paie",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    fetchFichesPaieEmploye: async (employeId: string) => {
-      try {
-        const fichesPaieData = await getFichesPaieEmploye(employeId);
-        setFichesPaieEmploye(fichesPaieData);
-      } catch (error) {
-        console.error("Erreur lors du chargement des fiches de paie de l'employé:", error);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les fiches de paie de l'employé",
-          variant: "destructive"
-        });
-      }
-    }
+    refreshFichesPaieEmploye: () => selectedEmploye && fetchFichesPaieEmploye(selectedEmploye.id)
   };
 };

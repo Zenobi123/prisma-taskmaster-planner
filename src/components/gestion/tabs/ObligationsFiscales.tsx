@@ -1,34 +1,25 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React, { useEffect } from "react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
+import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
+import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
+import { Client } from "@/types/client";
+import { Loader2, Save, AlertCircle, RefreshCw, CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import DatePickerSelector from './fiscal/DatePickerSelector';
-import { TaxObligationItem } from './fiscal/TaxObligationItem';
-import { DeclarationObligationItem } from './fiscal/DeclarationObligationItem';
-import { FiscalAttestationSection } from './fiscal/FiscalAttestationSection';
-import { FiscalBulkUpdateButton } from './fiscal/FiscalBulkUpdateButton';
-import { IgsDetailPanel } from './fiscal/IgsDetailPanel';
-import { Separator } from "@/components/ui/separator";
-import { AlertTriangle, Save, CheckCircle, RefreshCcw } from "lucide-react";
-import { useObligationsFiscales } from '@/hooks/fiscal/useObligationsFiscales';
-import { useBulkFiscalUpdate } from '@/hooks/fiscal/useBulkFiscalUpdate';
-import { Client } from '@/types/client';
-import { TaxObligationStatus, DeclarationObligationStatus, ClientFiscalData } from '@/hooks/fiscal/types';
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
+export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "@/hooks/fiscal/types";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
 }
 
 export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps) {
-  const [igsDetailsOpen, setIgsDetailsOpen] = useState(false);
-  
   const {
-    creationDate, 
+    creationDate,
     setCreationDate,
     validityEndDate,
-    setValidityEndDate,
     obligationStatuses,
     handleStatusChange,
     handleSave,
@@ -41,221 +32,119 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
     lastSaveSuccess,
-    hasUnsavedChanges,
-    loadFiscalData
+    hasUnsavedChanges
   } = useObligationsFiscales(selectedClient);
 
-  // Use the useBulkFiscalUpdate hook correctly
-  const bulkUpdateHook = useBulkFiscalUpdate(selectedClient?.id);
-
-  const handleToggleIgsDetails = () => {
-    setIgsDetailsOpen(!igsDetailsOpen);
+  // Function to handle page refresh
+  const handleRefreshPage = () => {
+    window.location.reload();
   };
 
-  const handleBulkUpdate = async () => {
-    if (obligationStatuses) {
-      const fiscalData: ClientFiscalData = {
-        attestation: {
-          creationDate,
-          validityEndDate,
-          showInAlert
-        },
-        obligations: obligationStatuses,
-        hiddenFromDashboard
-      };
+  // Auto-save visual indicator
+  useEffect(() => {
+    if (hasUnsavedChanges && !isSaving) {
+      const saveTimeout = setTimeout(() => {
+        if (hasUnsavedChanges && !isSaving) {
+          handleSave();
+        }
+      }, 120000); // 2 minutes
       
-      // Use the appropriate function from the hook
-      await bulkUpdateHook.updateClientsfiscalData([selectedClient]);
+      return () => clearTimeout(saveTimeout);
     }
-  };
+  }, [hasUnsavedChanges, isSaving, handleSave]);
 
-  const handleSaveButtonClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (obligationStatuses) {
-      const fiscalData: ClientFiscalData = {
-        attestation: {
-          creationDate,
-          validityEndDate,
-          showInAlert
-        },
-        obligations: obligationStatuses,
-        hiddenFromDashboard
-      };
-      
-      await handleSave(fiscalData);
-    }
-  };
-
-  const refreshData = () => {
-    loadFiscalData(true);
-  };
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex items-center justify-center h-60">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
-        <div>
-          <CardTitle>Obligations Fiscales</CardTitle>
-          <CardDescription>
-            Suivi et gestion des obligations fiscales pour {selectedClient?.nom || selectedClient?.raisonsociale}
-          </CardDescription>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={refreshData} disabled={isLoading}>
-            <RefreshCcw className="mr-2 h-4 w-4" />
-            Actualiser
-          </Button>
-          <Button 
-            onClick={handleSaveButtonClick} 
-            disabled={isSaving || isLoading || !hasUnsavedChanges}
-          >
-            <Save className="mr-2 h-4 w-4" />
-            Enregistrer
-          </Button>
-        </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Obligations fiscales</CardTitle>
+        <CardDescription>
+          Suivi des obligations fiscales de l'entreprise
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-              <p className="text-sm text-muted-foreground">Chargement des données fiscales...</p>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-medium">Attestation de Situation Fiscale</h3>
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2">
-                  <Switch 
-                    id="alert-toggle"
-                    checked={showInAlert}
-                    onCheckedChange={handleToggleAlert}
-                  />
-                  <Label htmlFor="alert-toggle" className="text-sm">Afficher dans les alertes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch 
-                    id="dashboard-toggle"
-                    checked={!hiddenFromDashboard}
-                    onCheckedChange={handleToggleDashboardVisibility}
-                  />
-                  <Label htmlFor="dashboard-toggle" className="text-sm">Visible au tableau de bord</Label>
-                </div>
-              </div>
-            </div>
-
-            <FiscalAttestationSection 
-              creationDate={creationDate}
-              validityEndDate={validityEndDate}
-              setCreationDate={setCreationDate}
-              showInAlert={showInAlert}
-              onToggleAlert={handleToggleAlert}
-              hiddenFromDashboard={hiddenFromDashboard}
-              onToggleDashboardVisibility={handleToggleDashboardVisibility}
-            />
-
-            <Separator className="my-6" />
-
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium">Obligations annuelles</h3>
-                <FiscalBulkUpdateButton 
-                  isLoading={bulkUpdateHook.isUpdating} 
-                  onClick={handleBulkUpdate} 
-                />
-              </div>
-              
-              {obligationStatuses && (
-                <div className="space-y-4 mt-4">
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <h4 className="font-medium mb-2">Impôts</h4>
-                      <div className="space-y-3">
-                        <TaxObligationItem
-                          label="Impôt Global sur les Revenus et IGS"
-                          status={obligationStatuses.igs as TaxObligationStatus}
-                          onStatusChange={(field, value) => handleStatusChange('igs', field, value)}
-                          showDetails={igsDetailsOpen}
-                          onToggleDetails={handleToggleIgsDetails}
-                        />
-                        <TaxObligationItem
-                          label="Patente"
-                          status={obligationStatuses.patente as TaxObligationStatus}
-                          onStatusChange={(field, value) => handleStatusChange('patente', field, value)}
-                        />
-                        <TaxObligationItem
-                          label="Impôts sur les Bénéfices (BAIC)"
-                          status={obligationStatuses.baic as TaxObligationStatus}
-                          onStatusChange={(field, value) => handleStatusChange('baic', field, value)}
-                        />
-                        <TaxObligationItem
-                          label="Impôts sur Traitements et Salaires"
-                          status={obligationStatuses.its as TaxObligationStatus}
-                          onStatusChange={(field, value) => handleStatusChange('its', field, value)}
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <h4 className="font-medium mb-2">Déclarations</h4>
-                      <div className="space-y-3">
-                        <DeclarationObligationItem
-                          label="Déclaration Statistique et Fiscale (DSF)"
-                          status={obligationStatuses.dsf as DeclarationObligationStatus}
-                          onStatusChange={(field, value) => handleStatusChange('dsf', field, value)}
-                        />
-                        <DeclarationObligationItem
-                          label="DARP (Déclaration Annuelle des Retenues à la Source)"
-                          status={obligationStatuses.darp as DeclarationObligationStatus}
-                          onStatusChange={(field, value) => handleStatusChange('darp', field, value)}
-                        />
-                        <DeclarationObligationItem
-                          label="Licence"
-                          status={obligationStatuses.licence as DeclarationObligationStatus}
-                          onStatusChange={(field, value) => handleStatusChange('licence', field, value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {igsDetailsOpen && (
-                    <IgsDetailPanel 
-                      taxStatus={obligationStatuses.igs as TaxObligationStatus} 
-                      onStatusChange={(field, value) => handleStatusChange('igs', field, value)}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
-
-            {saveAttempts > 0 && (
-              <div className={`mt-4 p-4 rounded-md flex items-center ${lastSaveSuccess ? 'bg-green-50' : 'bg-amber-50'}`}>
-                {lastSaveSuccess ? (
-                  <>
-                    <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
-                    <p className="text-sm text-green-700">
-                      Les modifications ont été enregistrées avec succès à {new Date().toLocaleString('fr-FR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}.
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <AlertTriangle className="h-5 w-5 text-amber-600 mr-2" />
-                    <p className="text-sm text-amber-700">
-                      Erreur lors de l'enregistrement des modifications. Veuillez réessayer.
-                    </p>
-                  </>
-                )}
-              </div>
-            )}
-          </>
+        {hasUnsavedChanges && (
+          <Alert className="bg-amber-50 border-amber-200">
+            <Clock className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-800">
+              Vous avez des modifications non enregistrées. Enregistrez avant de quitter cette page.
+            </AlertDescription>
+          </Alert>
         )}
+        
+        {lastSaveSuccess && saveAttempts > 0 && (
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800">
+              Les modifications ont été enregistrées avec succès.
+            </AlertDescription>
+          </Alert>
+        )}
+        
+        {!lastSaveSuccess && saveAttempts > 0 && (
+          <Alert className={saveAttempts >= 2 ? "bg-amber-50 border-amber-200" : "bg-yellow-50 border-yellow-200"}>
+            <AlertCircle className={`h-4 w-4 ${saveAttempts >= 2 ? "text-amber-600" : "text-yellow-600"}`} />
+            <AlertDescription className={saveAttempts >= 2 ? "text-amber-800" : "text-yellow-800"}>
+              {saveAttempts >= 2 
+                ? "Si les données ne sont pas visibles après enregistrement, veuillez actualiser la page." 
+                : "Pour voir les changements dans le tableau de bord, actualisez la page après l'enregistrement."}
+            </AlertDescription>
+            {saveAttempts >= 2 && (
+              <Button variant="outline" size="sm" className="ml-auto" onClick={handleRefreshPage}>
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Actualiser maintenant
+              </Button>
+            )}
+          </Alert>
+        )}
+        
+        <FiscalAttestationSection 
+          creationDate={creationDate}
+          validityEndDate={validityEndDate}
+          setCreationDate={setCreationDate}
+          showInAlert={showInAlert}
+          onToggleAlert={handleToggleAlert}
+          hiddenFromDashboard={hiddenFromDashboard}
+          onToggleDashboardVisibility={handleToggleDashboardVisibility}
+        />
+        
+        <AnnualObligationsSection 
+          obligationStatuses={obligationStatuses}
+          handleStatusChange={handleStatusChange}
+        />
       </CardContent>
+      <CardFooter className="flex flex-col gap-4">
+        <Button 
+          onClick={handleSave}
+          className={`w-full ${hasUnsavedChanges ? "bg-primary" : ""}`}
+          disabled={isSaving}
+        >
+          {isSaving ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Enregistrement en cours...
+            </>
+          ) : (
+            <>
+              <Save className="mr-2 h-4 w-4" />
+              {hasUnsavedChanges ? "Enregistrer les modifications" : "Enregistrer toutes les modifications"}
+            </>
+          )}
+        </Button>
+        
+        <div className="text-xs text-muted-foreground text-center w-full">
+          Vos modifications sont enregistrées automatiquement tous les 2 minutes et lors de la fermeture de la page.
+        </div>
+      </CardFooter>
     </Card>
   );
 }

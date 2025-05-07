@@ -1,4 +1,3 @@
-
 import { ClientFiscalData } from "../types";
 
 // Cache pour les données fiscales avec durée de validité optimisée
@@ -170,10 +169,36 @@ export const invalidateAllFiscalCaches = (): void => {
   }
 };
 
-// These are the aliases to maintain compatibility with existing import names
-export const getFiscalDataFromCache = getFromCache;
-export const storeFiscalDataInCache = updateCache;
-export const recoverCacheFromStorage = getFromCache;
+/**
+ * Try to recover cache from storage if available
+ */
+export const recoverCacheFromStorage = (clientId: string): ClientFiscalData | null => {
+  if (typeof window === 'undefined') return null;
+  
+  try {
+    const cacheKey = `fiscal_cache_${clientId}`;
+    const storedCache = window.localStorage.getItem(cacheKey);
+    
+    if (storedCache) {
+      const parsedCache = JSON.parse(storedCache);
+      const now = Date.now();
+      
+      if (now - parsedCache.timestamp < CACHE_DURATION) {
+        console.log(`[CacheService] Recovering cache from localStorage for ${clientId}`);
+        // Also restore to in-memory cache
+        fiscalDataCache.set(clientId, {
+          data: parsedCache.data,
+          timestamp: parsedCache.timestamp
+        });
+        return parsedCache.data;
+      }
+    }
+  } catch (e) {
+    console.error("[CacheService] Error recovering cache:", e);
+  }
+  
+  return null;
+};
 
 /**
  * Get debug info about cache state

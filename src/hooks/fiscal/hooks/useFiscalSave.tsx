@@ -1,55 +1,90 @@
 
-import { useState } from 'react';
-import { useToast } from '@/components/ui/use-toast';
-import { ClientFiscalData } from '../types';
-import { saveClientFiscalData } from '../services/saveService';
+import { useState, useCallback } from "react";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+import { ClientFiscalData } from "../types";
+import { saveFiscalData } from "../services/saveService";
+import { verifyAndNotifyFiscalChanges } from "../services/verifyService";
+import { updateCache, clearCache } from "../services/cacheService";
+import { invalidateDsfCache } from "@/services/unfiledDsfService";
+import { invalidatePatenteCache } from "@/services/unpaidPatenteService";
+import { invalidateIgsCache } from "@/services/unpaidIgsService";
 
-export const useFiscalSave = (clientId: string) => {
-  const { toast } = useToast();
-  const [saveAttempts, setSaveAttempts] = useState(0);
-  const [lastSaveSuccess, setLastSaveSuccess] = useState(false);
-  const [lastSaveTime, setLastSaveTime] = useState(0);
+export const useFiscalSave = (clientId: string | undefined, loadFiscalData: (force: boolean) => Promise<void>) => {
   const [isSaving, setIsSaving] = useState(false);
+  const [saveAttempts, setSaveAttempts] = useState(0);
+  const [lastSaveTime, setLastSaveTime] = useState<number | null>(null);
+  const [lastSaveSuccess, setLastSaveSuccess] = useState<boolean>(false);
+  const [saveRetryCount, setSaveRetryCount] = useState(0);
+  
+  const queryClient = useQueryClient();
 
-  const handleSave = async (fiscalData: ClientFiscalData): Promise<boolean> => {
-    if (!clientId) return false;
-    
+  const handleSave = useCallback(async (fiscalData: ClientFiscalData) => {
+    if (!clientId) {
+      toast.error("Cannot save data: no client selected");
+      return false;
+    }
+
     setIsSaving(true);
+    setSaveAttempts(prev => prev + 1);
+    setSaveRetryCount(0);
+
     try {
-      await saveClientFiscalData(clientId, fiscalData);
-      setSaveAttempts(prev => prev + 1);
-      setLastSaveSuccess(true);
-      setLastSaveTime(Date.now());
+      const saveSuccess = await saveFiscalData(clientId, fiscalData);
       
-      toast({
-        title: 'Enregistrement réussi',
-        description: 'Les données fiscales ont été mises à jour avec succès.',
-        variant: 'default',
-      });
+      if (saveSuccess) {
+        updateCache(clientId, fiscalData);
+        toast.success("Data saved, verification in progress...");
+        
+        const verified = await verifyAndNotifyFiscalChanges(clientId, fiscalData);
+        
+        if (verified) {
+          setLastSaveTime(Date.now());
+          setLastSaveSuccess(true);
+          
+          // Invalider tous les caches pertinents
+          invalidateDsfCache();
+          invalidatePatenteCache();
+          invalidateIgsCache();
+          
+          // Invalider toutes les requêtes pertinentes
+          queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
+          queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
+          queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
+          queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
+          queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
+          queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-section"] });
+          queryClient.invalidateQueries({ queryKey: ["client-stats"] });
+          
+          return true;
+        } else {
+          if (saveRetryCount < 2) {
+            setSaveRetryCount(prev => prev + 1);
+            return handleSave(fiscalData);
+          }
+        }
+      }
       
-      return true;
+      setLastSaveSuccess(false);
+      return false;
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde des données fiscales:', error);
-      setSaveAttempts(prev => prev + 1);
+      console.error("Error during fiscal data save:", error);
+      toast.error("Error during save. Please refresh and try again.");
       setLastSaveSuccess(false);
       
-      toast({
-        title: 'Erreur d\'enregistrement',
-        description: 'Un problème est survenu lors de la mise à jour des données fiscales.',
-        variant: 'destructive',
-      });
-      
+      clearCache(clientId);
+      loadFiscalData(true);
       return false;
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [clientId, saveRetryCount, queryClient, loadFiscalData]);
 
   return {
+    isSaving,
     saveAttempts,
     lastSaveSuccess,
     lastSaveTime,
-    isSaving,
     handleSave
   };
 };
