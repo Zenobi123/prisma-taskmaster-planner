@@ -53,7 +53,7 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
           <ReceiptFooter paiement={paiement} />
         </div>
         
-        <DialogFooter className="flex flex-col sm:flex-row gap-2 justify-between">
+        <DialogFooter className="flex gap-2 justify-between">
           <Button
             type="button"
             variant="outline"
@@ -64,7 +64,7 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
             <X className="h-4 w-4" /> Fermer
           </Button>
           
-          <div className="flex flex-wrap gap-2">
+          <div className="flex gap-2">
             <Button
               type="button"
               variant="outline"

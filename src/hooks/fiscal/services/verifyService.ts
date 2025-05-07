@@ -1,88 +1,115 @@
 
-import { ClientFiscalData } from '../types';
+import { supabase } from "@/integrations/supabase/client";
+import { ClientFiscalData } from "../types";
+import { Json } from "@/integrations/supabase/types";
+import { toast } from "sonner";
+import { compareObjects } from "./verification/compareUtils";
+import { verifyMainFields, verifyObligations } from "./verification/obligationsVerifier";
+import { verifyAttestation } from "./verification/attestationVerifier";
 
 /**
- * Verify fiscal data changes to determine if data needs to be saved
+ * Verify that fiscal data was saved correctly with enhanced checking
  */
-export const verifyFiscalDataChanges = (
-  currentData: ClientFiscalData | null,
-  newData: ClientFiscalData
-): boolean => {
-  if (!currentData) return true;
-
-  // Compare attestation data
-  const currentAttestation = currentData.attestation || {};
-  const newAttestation = newData.attestation || {};
-  
-  if (
-    currentAttestation.creationDate !== newAttestation.creationDate ||
-    currentAttestation.validityEndDate !== newAttestation.validityEndDate ||
-    currentAttestation.showInAlert !== newAttestation.showInAlert
-  ) {
-    return true;
-  }
-
-  // Compare visibility settings
-  if (currentData.hiddenFromDashboard !== newData.hiddenFromDashboard) {
-    return true;
-  }
-
-  // Compare obligations data
-  const currentObligations = currentData.obligations || {};
-  const newObligations = newData.obligations || {};
-
-  const allKeys = new Set([
-    ...Object.keys(currentObligations),
-    ...Object.keys(newObligations),
-  ]);
-
-  for (const key of allKeys) {
-    const currentStatus = currentObligations[key];
-    const newStatus = newObligations[key];
-
-    if (!currentStatus && newStatus) return true;
-    if (currentStatus && !newStatus) return true;
+export const verifyFiscalDataSave = async (clientId: string, expectedData: ClientFiscalData): Promise<boolean> => {
+  try {
+    console.log(`Verifying fiscal data save for client ${clientId}`);
     
-    if (currentStatus && newStatus) {
-      if (
-        currentStatus.status !== newStatus.status ||
-        currentStatus.lastFiled !== newStatus.lastFiled ||
-        currentStatus.nextDue !== newStatus.nextDue ||
-        currentStatus.montant !== newStatus.montant ||
-        currentStatus.notes !== newStatus.notes ||
-        currentStatus.isAssujetti !== newStatus.isAssujetti
-      ) {
-        return true;
-      }
-
-      // Check for changes in IGS quarterly payments
-      if (key === 'igs' && currentStatus.paiementsTrimestriels && newStatus.paiementsTrimestriels) {
-        const currentPayments = currentStatus.paiementsTrimestriels;
-        const newPayments = newStatus.paiementsTrimestriels;
-
-        for (const trimester of ['T1', 'T2', 'T3', 'T4']) {
-          const currentPayment = currentPayments[trimester];
-          const newPayment = newPayments[trimester];
-
-          if (!currentPayment && newPayment) return true;
-          if (currentPayment && !newPayment) return true;
-
-          if (currentPayment && newPayment) {
-            if (
-              currentPayment.paid !== newPayment.paid ||
-              currentPayment.date !== newPayment.date ||
-              currentPayment.amount !== newPayment.amount ||
-              currentPayment.receipt !== newPayment.receipt
-            ) {
-              return true;
-            }
-          }
-        }
-      }
+    // Pause for database consistency
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
+    const { data, error } = await supabase
+      .from('clients')
+      .select('fiscal_data')
+      .eq('id', clientId)
+      .single();
+    
+    if (error) {
+      console.error("Error during save verification:", error);
+      return false;
     }
+    
+    if (!data?.fiscal_data) {
+      console.error("No fiscal data found during verification");
+      return false;
+    }
+    
+    const savedData = data.fiscal_data as unknown as ClientFiscalData;
+    
+    // Vérification complète de toutes les données fiscales
+    return verifyAllFiscalData(savedData, expectedData);
+  } catch (error) {
+    console.error("Exception during save verification:", error);
+    return false;
   }
-
-  return false;
 };
 
-export const verifyFiscalDataSave = verifyFiscalDataChanges;
+/**
+ * Perform a deep verification of all fiscal data fields
+ */
+const verifyAllFiscalData = (savedData: ClientFiscalData, expectedData: ClientFiscalData): boolean => {
+  // Vérification rapide par comparaison JSON
+  const quickCheck = compareObjects(savedData, expectedData);
+  if (quickCheck) {
+    console.log("Quick verification passed - objects match");
+    return true;
+  }
+  
+  console.log("Quick verification failed - performing detailed checks");
+  
+  // Vérifier les champs principaux
+  const mainFieldsValid = verifyMainFields(savedData, expectedData);
+  if (!mainFieldsValid) {
+    console.error("Main fiscal data fields verification failed");
+    return false;
+  }
+  
+  // Vérifier les obligations fiscales
+  const obligationsValid = verifyObligations(savedData.obligations, expectedData.obligations);
+  if (!obligationsValid) {
+    console.error("Obligations verification failed");
+    return false;
+  }
+  
+  // Vérifier les données d'attestation
+  const attestationValid = verifyAttestation(savedData.attestation, expectedData.attestation);
+  if (!attestationValid) {
+    console.error("Attestation verification failed");
+    return false;
+  }
+  
+  console.log("All fiscal data verified successfully");
+  return true;
+};
+
+/**
+ * Verify all fiscal modifications for the client and display a toast with the result
+ */
+export const verifyAndNotifyFiscalChanges = async (clientId: string, expectedData: ClientFiscalData): Promise<boolean> => {
+  const isVerified = await verifyFiscalDataSave(clientId, expectedData);
+  
+  if (isVerified) {
+    console.log(`Modifications fiscales vérifiées et confirmées pour le client ${clientId}`);
+    toast.success("✅ Les modifications fiscales ont été enregistrées définitivement dans la base de données.", {
+      duration: 5000
+    });
+  } else {
+    console.error(`Échec de la vérification des modifications fiscales pour le client ${clientId}`);
+    toast.error("❌ Certaines modifications n'ont pas été enregistrées correctement. Nouvelle tentative en cours...", {
+      duration: 3000
+    });
+    
+    // Nouvelle tentative après un délai
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    const secondVerification = await verifyFiscalDataSave(clientId, expectedData);
+    
+    if (secondVerification) {
+      console.log(`Seconde vérification réussie pour le client ${clientId}`);
+      toast.success("✅ Les modifications ont été vérifiées et enregistrées définitivement.", {
+        duration: 5000
+      });
+      return true;
+    }
+  }
+  
+  return isVerified;
+};

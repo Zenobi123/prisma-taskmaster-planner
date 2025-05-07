@@ -20,7 +20,7 @@ export interface Paie {
   cac?: number;
   cfc?: number;
   tdl?: number;
-  rav?: number; // Redevance Audiovisuelle
+  rav?: number; // Nouvelle propriété pour la Redevance Audiovisuelle
   autres_retenues?: any[];
   total_retenues?: number;
   salaire_net: number;
@@ -86,8 +86,7 @@ export const getFichesPaie = async (clientId: string, options?: { mois?: number,
   return data ? data.map(paie => ({
     ...paie,
     primes: paie.primes ? (typeof paie.primes === 'string' ? JSON.parse(paie.primes) : paie.primes) : [],
-    autres_retenues: paie.autres_retenues ? (typeof paie.autres_retenues === 'string' ? JSON.parse(paie.autres_retenues) : paie.autres_retenues) : [],
-    statut: paie.statut as 'En cours' | 'Payé' | 'Annulé'
+    autres_retenues: paie.autres_retenues ? (typeof paie.autres_retenues === 'string' ? JSON.parse(paie.autres_retenues) : paie.autres_retenues) : []
   })) : [];
 };
 
@@ -107,8 +106,7 @@ export const getFichesPaieEmploye = async (employeId: string): Promise<Paie[]> =
   return data ? data.map(paie => ({
     ...paie,
     primes: paie.primes ? (typeof paie.primes === 'string' ? JSON.parse(paie.primes) : paie.primes) : [],
-    autres_retenues: paie.autres_retenues ? (typeof paie.autres_retenues === 'string' ? JSON.parse(paie.autres_retenues) : paie.autres_retenues) : [],
-    statut: paie.statut as 'En cours' | 'Payé' | 'Annulé'
+    autres_retenues: paie.autres_retenues ? (typeof paie.autres_retenues === 'string' ? JSON.parse(paie.autres_retenues) : paie.autres_retenues) : []
   })) : [];
 };
 
@@ -127,16 +125,15 @@ export const getFichePaie = async (id: string): Promise<Paie> => {
   return {
     ...data,
     primes: data.primes ? (typeof data.primes === 'string' ? JSON.parse(data.primes) : data.primes) : [],
-    autres_retenues: data.autres_retenues ? (typeof data.autres_retenues === 'string' ? JSON.parse(data.autres_retenues) : data.autres_retenues) : [],
-    statut: data.statut as 'En cours' | 'Payé' | 'Annulé'
+    autres_retenues: data.autres_retenues ? (typeof data.autres_retenues === 'string' ? JSON.parse(data.autres_retenues) : data.autres_retenues) : []
   };
 };
 
 export const addFichePaie = async (fichePaie: Omit<Paie, 'id' | 'created_at' | 'updated_at'>): Promise<Paie> => {
   const paieToInsert = {
     ...fichePaie,
-    primes: JSON.stringify(fichePaie.primes || []),
-    autres_retenues: JSON.stringify(fichePaie.autres_retenues || [])
+    primes: fichePaie.primes ? JSON.stringify(fichePaie.primes) : JSON.stringify([]),
+    autres_retenues: fichePaie.autres_retenues ? JSON.stringify(fichePaie.autres_retenues) : JSON.stringify([])
   };
 
   const { data, error } = await supabase
@@ -153,8 +150,7 @@ export const addFichePaie = async (fichePaie: Omit<Paie, 'id' | 'created_at' | '
   return {
     ...data,
     primes: data.primes ? (typeof data.primes === 'string' ? JSON.parse(data.primes) : data.primes) : [],
-    autres_retenues: data.autres_retenues ? (typeof data.autres_retenues === 'string' ? JSON.parse(data.autres_retenues) : data.autres_retenues) : [],
-    statut: data.statut as 'En cours' | 'Payé' | 'Annulé'
+    autres_retenues: data.autres_retenues ? (typeof data.autres_retenues === 'string' ? JSON.parse(data.autres_retenues) : data.autres_retenues) : []
   };
 };
 
@@ -185,8 +181,7 @@ export const updateFichePaie = async (id: string, updates: Partial<Paie>): Promi
   return {
     ...data,
     primes: data.primes ? (typeof data.primes === 'string' ? JSON.parse(data.primes) : data.primes) : [],
-    autres_retenues: data.autres_retenues ? (typeof data.autres_retenues === 'string' ? JSON.parse(data.autres_retenues) : data.autres_retenues) : [],
-    statut: data.statut as 'En cours' | 'Payé' | 'Annulé'
+    autres_retenues: data.autres_retenues ? (typeof data.autres_retenues === 'string' ? JSON.parse(data.autres_retenues) : data.autres_retenues) : []
   };
 };
 
