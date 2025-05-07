@@ -1,7 +1,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useToast } from '@/components/ui/use-toast';
-import { getClientFiscalData } from '../services';
+import { getClientFiscalData } from '../services/fetchService';
 
 export const useFiscalAttestation = (clientId: string) => {
   const [creationDate, setCreationDate] = useState<string>('');

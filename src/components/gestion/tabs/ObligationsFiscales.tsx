@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DatePickerSelector } from './fiscal/DatePickerSelector';
+import DatePickerSelector from './fiscal/DatePickerSelector';
 import { TaxObligationItem } from './fiscal/TaxObligationItem';
 import { DeclarationObligationItem } from './fiscal/DeclarationObligationItem';
 import { FiscalAttestationSection } from './fiscal/FiscalAttestationSection';
@@ -45,25 +45,28 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     loadFiscalData
   } = useObligationsFiscales(selectedClient);
 
-  const { bulkUpdate, isBulkUpdating } = useBulkFiscalUpdate(selectedClient?.id);
-
-  // Fonction pour formater la date d'enregistrement
-  const formattedSaveDate = () => {
-    return new Date().toLocaleString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+  // Use the useBulkFiscalUpdate hook correctly
+  const bulkUpdateHook = useBulkFiscalUpdate(selectedClient?.id);
 
   const handleToggleIgsDetails = () => {
     setIgsDetailsOpen(!igsDetailsOpen);
   };
 
-  const handleBulkUpdate = async (fiscalData: ClientFiscalData) => {
-    await bulkUpdate(fiscalData);
+  const handleBulkUpdate = async () => {
+    if (obligationStatuses) {
+      const fiscalData: ClientFiscalData = {
+        attestation: {
+          creationDate,
+          validityEndDate,
+          showInAlert
+        },
+        obligations: obligationStatuses,
+        hiddenFromDashboard
+      };
+      
+      // Use the appropriate function from the hook
+      await bulkUpdateHook.updateClientsfiscalData([selectedClient]);
+    }
   };
 
   const handleSaveButtonClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -143,9 +146,12 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
 
             <FiscalAttestationSection 
               creationDate={creationDate}
-              setCreationDate={setCreationDate}
               validityEndDate={validityEndDate}
-              setValidityEndDate={setValidityEndDate}
+              setCreationDate={setCreationDate}
+              showInAlert={showInAlert}
+              onToggleAlert={handleToggleAlert}
+              hiddenFromDashboard={hiddenFromDashboard}
+              onToggleDashboardVisibility={handleToggleDashboardVisibility}
             />
 
             <Separator className="my-6" />
@@ -153,7 +159,10 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-medium">Obligations annuelles</h3>
-                <FiscalBulkUpdateButton onBulkUpdate={handleBulkUpdate} isBulkUpdating={isBulkUpdating} />
+                <FiscalBulkUpdateButton 
+                  isLoading={bulkUpdateHook.isUpdating} 
+                  onClick={handleBulkUpdate} 
+                />
               </div>
               
               {obligationStatuses && (
@@ -163,8 +172,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
                       <h4 className="font-medium mb-2">Impôts</h4>
                       <div className="space-y-3">
                         <TaxObligationItem
-                          key="igs"
-                          id="igs"
                           label="Impôt Global sur les Revenus et IGS"
                           status={obligationStatuses.igs as TaxObligationStatus}
                           onStatusChange={(field, value) => handleStatusChange('igs', field, value)}
@@ -172,22 +179,16 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
                           onToggleDetails={handleToggleIgsDetails}
                         />
                         <TaxObligationItem
-                          key="patente"
-                          id="patente"
                           label="Patente"
                           status={obligationStatuses.patente as TaxObligationStatus}
                           onStatusChange={(field, value) => handleStatusChange('patente', field, value)}
                         />
                         <TaxObligationItem
-                          key="baic"
-                          id="baic"
                           label="Impôts sur les Bénéfices (BAIC)"
                           status={obligationStatuses.baic as TaxObligationStatus}
                           onStatusChange={(field, value) => handleStatusChange('baic', field, value)}
                         />
                         <TaxObligationItem
-                          key="its"
-                          id="its"
                           label="Impôts sur Traitements et Salaires"
                           status={obligationStatuses.its as TaxObligationStatus}
                           onStatusChange={(field, value) => handleStatusChange('its', field, value)}
@@ -199,22 +200,16 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
                       <h4 className="font-medium mb-2">Déclarations</h4>
                       <div className="space-y-3">
                         <DeclarationObligationItem
-                          key="dsf"
-                          id="dsf"
                           label="Déclaration Statistique et Fiscale (DSF)"
                           status={obligationStatuses.dsf as DeclarationObligationStatus}
                           onStatusChange={(field, value) => handleStatusChange('dsf', field, value)}
                         />
                         <DeclarationObligationItem
-                          key="darp"
-                          id="darp"
                           label="DARP (Déclaration Annuelle des Retenues à la Source)"
                           status={obligationStatuses.darp as DeclarationObligationStatus}
                           onStatusChange={(field, value) => handleStatusChange('darp', field, value)}
                         />
                         <DeclarationObligationItem
-                          key="licence"
-                          id="licence"
                           label="Licence"
                           status={obligationStatuses.licence as DeclarationObligationStatus}
                           onStatusChange={(field, value) => handleStatusChange('licence', field, value)}
@@ -225,7 +220,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
                   
                   {igsDetailsOpen && (
                     <IgsDetailPanel 
-                      status={obligationStatuses.igs as TaxObligationStatus} 
+                      taxStatus={obligationStatuses.igs as TaxObligationStatus} 
                       onStatusChange={(field, value) => handleStatusChange('igs', field, value)}
                     />
                   )}
@@ -239,7 +234,13 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
                   <>
                     <CheckCircle className="h-5 w-5 text-green-600 mr-2" />
                     <p className="text-sm text-green-700">
-                      Les modifications ont été enregistrées avec succès à {formattedSaveDate()}.
+                      Les modifications ont été enregistrées avec succès à {new Date().toLocaleString('fr-FR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}.
                     </p>
                   </>
                 ) : (

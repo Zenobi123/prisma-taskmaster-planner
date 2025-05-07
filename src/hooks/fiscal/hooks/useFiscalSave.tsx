@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useToast } from '@/components/ui/use-toast';
 import { ClientFiscalData } from '../types';
-import { saveClientFiscalData } from '../services';
+import { saveClientFiscalData } from '../services/saveService';
 
 export const useFiscalSave = (clientId: string) => {
   const { toast } = useToast();
