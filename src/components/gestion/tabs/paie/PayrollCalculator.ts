@@ -19,8 +19,11 @@ export class PayrollCalculator {
       risqueMoyen: 2.50,
       risqueEleve: 5.0
     },
-    // Autres
-    fne: 1.0 // Fonds National de l'Emploi
+    // Fonds National de l'Emploi
+    fne: 1.0,
+    // Crédit Foncier du Cameroun (CFC)
+    cfcEmploye: 1.0,
+    cfcEmployeur: 1.5
   };
   
   private static CHARGES_FISCALES = {
@@ -36,8 +39,6 @@ export class PayrollCalculator {
     ],
     // Centimes Additionnels Communaux (CAC)
     tauxCAC: 10, // 10% de l'IRPP
-    // Crédit Foncier du Cameroun (CFC)
-    tauxCFC: 1.0, // 1% du salaire brut
     // Redevance Audiovisuelle (RAV)
     baremesRAV: [
       { min: 0, max: 50000, montant: 0 },
@@ -103,9 +104,30 @@ export class PayrollCalculator {
     const cotisationPV = (baseCotisation * tauxPV) / 100;
     const cotisationPF = (baseCotisation * tauxPF) / 100;
     const cotisationAT = (baseCotisation * tauxAT) / 100;
-    const cotisationFNE = (baseCotisation * this.CHARGES_SOCIALES.fne) / 100;
+    const cotisationFNE = (grossSalary * this.CHARGES_SOCIALES.fne) / 100;
     
     return Math.round(cotisationPV + cotisationPF + cotisationAT + cotisationFNE);
+  }
+
+  /**
+   * Calcule la contribution au CFC à payer par l'employé
+   */
+  static calculateCFCEmployee(grossSalary: number): number {
+    return Math.round((grossSalary * this.CHARGES_SOCIALES.cfcEmploye) / 100);
+  }
+
+  /**
+   * Calcule la contribution au CFC à payer par l'employeur
+   */
+  static calculateCFCEmployer(grossSalary: number): number {
+    return Math.round((grossSalary * this.CHARGES_SOCIALES.cfcEmployeur) / 100);
+  }
+
+  /**
+   * Calcule la contribution au FNE à payer par l'employeur
+   */
+  static calculateFNE(grossSalary: number): number {
+    return Math.round((grossSalary * this.CHARGES_SOCIALES.fne) / 100);
   }
 
   /**
@@ -134,12 +156,14 @@ export class PayrollCalculator {
     }
     
     // Conversion en mensuel
-    const irppMensuel = irppAnnuel / 12;
-    
-    // Ajout des centimes additionnels communaux
-    const cac = (irppMensuel * this.CHARGES_FISCALES.tauxCAC) / 100;
-    
-    return Math.round(irppMensuel + cac);
+    return Math.round(irppAnnuel / 12);
+  }
+
+  /**
+   * Calcule les Centimes Additionnels Communaux (CAC)
+   */
+  static calculateCAC(irpp: number): number {
+    return Math.round((irpp * this.CHARGES_FISCALES.tauxCAC) / 100);
   }
 
   /**
@@ -172,11 +196,33 @@ export class PayrollCalculator {
   static calculateNetSalary(grossSalary: number): number {
     const cnpsEmployee = this.calculateCNPSEmployee(grossSalary);
     const irpp = this.calculateIRPP(grossSalary);
+    const cac = this.calculateCAC(irpp);
     const tdl = this.calculateTDL(grossSalary);
     const rav = this.calculateRAV(grossSalary);
-    const cfc = Math.round((grossSalary * this.CHARGES_FISCALES.tauxCFC) / 100);
+    const cfc = this.calculateCFCEmployee(grossSalary);
     
-    const totalCharges = cnpsEmployee + irpp + tdl + rav + cfc;
+    const totalCharges = cnpsEmployee + irpp + cac + tdl + rav + cfc;
     return grossSalary - totalCharges;
+  }
+
+  /**
+   * Calcule les charges patronales totales
+   */
+  static calculateEmployerCharges(grossSalary: number, risque: 'faible' | 'moyen' | 'eleve' = 'moyen'): {
+    cnps: number;
+    fne: number;
+    cfc: number;
+    total: number;
+  } {
+    const cnps = this.calculateCNPSEmployer(grossSalary, risque);
+    const fne = this.calculateFNE(grossSalary);
+    const cfc = this.calculateCFCEmployer(grossSalary);
+    
+    return {
+      cnps,
+      fne,
+      cfc,
+      total: cnps + fne + cfc
+    };
   }
 }
