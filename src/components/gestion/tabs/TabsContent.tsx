@@ -52,7 +52,7 @@ export const TabsContent = {
     <GestionDossier selectedClient={selectedClient} />
   ),
   
-  // Modules RH, Administration et Paie
+  // Ajout des nouveaux modules
   GestionAdmin: ({ selectedClient }: { selectedClient: Client }) => (
     <GestionAdmin client={selectedClient} />
   ),
