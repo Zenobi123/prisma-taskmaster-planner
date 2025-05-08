@@ -1,139 +1,129 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { v4 as uuidv4 } from "uuid";
-import { toast } from "sonner";
 
-// Define types for attachment management
-export type AttachmentType = "declaration" | "receipt" | "payment" | "additional";
+const BUCKET_NAME = 'fiscal_attachments';
 
-export interface FiscalAttachment {
-  path: string;
-  fileName: string;
-  type: AttachmentType;
-  uploadedAt: string;
-  size?: number;
-  url?: string;
-}
+export const fiscalAttachmentService = {
+  /**
+   * Upload a file to the fiscal attachments bucket
+   */
+  uploadFile: async (
+    clientId: string,
+    year: string,
+    obligationType: string,
+    attachmentType: string,
+    file: File
+  ): Promise<{ path: string; error: Error | null }> => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${clientId}/${year}/${obligationType}/${attachmentType}_${uuidv4()}.${fileExt}`;
+      
+      const { error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true,
+        });
 
-// Helper to generate structured file paths
-const generateFilePath = (
-  clientId: string,
-  year: string,
-  obligationType: string,
-  attachmentType: AttachmentType,
-  originalFileName: string
-) => {
-  const fileExt = originalFileName.split('.').pop();
-  const uniqueId = uuidv4().substring(0, 8);
-  return `${clientId}/${year}/${obligationType}/${attachmentType}_${uniqueId}.${fileExt}`;
-};
+      if (error) {
+        console.error("Error uploading file:", error);
+        return { path: '', error };
+      }
 
-export const uploadFiscalAttachment = async (
-  file: File,
-  clientId: string,
-  year: string,
-  obligationType: string,
-  attachmentType: AttachmentType
-): Promise<string | null> => {
-  try {
-    const filePath = generateFilePath(
-      clientId,
-      year,
-      obligationType,
-      attachmentType,
-      file.name
-    );
-
-    const { error } = await supabase.storage
-      .from('fiscal_attachments')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      });
-
-    if (error) {
-      console.error("Upload error:", error);
-      toast.error(`Erreur lors du téléchargement: ${error.message}`);
-      return null;
+      return { path: filePath, error: null };
+    } catch (error) {
+      console.error("Error in uploadFile:", error);
+      return { path: '', error: error as Error };
     }
+  },
 
-    return filePath;
-  } catch (error) {
-    console.error("Upload error:", error);
-    toast.error("Erreur lors du téléchargement du fichier");
-    return null;
+  /**
+   * Get a signed URL for downloading a file
+   */
+  getFileUrl: async (filePath: string): Promise<{ url: string; error: Error | null }> => {
+    try {
+      if (!filePath) {
+        return { url: '', error: new Error("No file path provided") };
+      }
+      
+      const { data, error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .createSignedUrl(filePath, 60); // URL valid for 60 seconds
+
+      if (error) {
+        console.error("Error getting signed URL:", error);
+        return { url: '', error };
+      }
+
+      return { url: data.signedUrl, error: null };
+    } catch (error) {
+      console.error("Error in getFileUrl:", error);
+      return { url: '', error: error as Error };
+    }
+  },
+
+  /**
+   * Delete a file from storage
+   */
+  deleteFile: async (filePath: string): Promise<{ success: boolean; error: Error | null }> => {
+    try {
+      if (!filePath) {
+        return { success: false, error: new Error("No file path provided") };
+      }
+      
+      const { error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .remove([filePath]);
+
+      if (error) {
+        console.error("Error deleting file:", error);
+        return { success: false, error };
+      }
+
+      return { success: true, error: null };
+    } catch (error) {
+      console.error("Error in deleteFile:", error);
+      return { success: false, error: error as Error };
+    }
+  },
+
+  /**
+   * List files in a directory
+   */
+  listFiles: async (
+    clientId: string,
+    year: string,
+    obligationType: string
+  ): Promise<{ files: string[]; error: Error | null }> => {
+    try {
+      const path = `${clientId}/${year}/${obligationType}`;
+      
+      const { data, error } = await supabase.storage
+        .from(BUCKET_NAME)
+        .list(path);
+
+      if (error) {
+        console.error("Error listing files:", error);
+        return { files: [], error };
+      }
+
+      const files = data.map(file => `${path}/${file.name}`);
+      return { files, error: null };
+    } catch (error) {
+      console.error("Error in listFiles:", error);
+      return { files: [], error: error as Error };
+    }
+  },
+
+  /**
+   * Get filename from path
+   */
+  getFileName: (path: string): string => {
+    if (!path) return "";
+    const parts = path.split('/');
+    return parts[parts.length - 1];
   }
 };
 
-export const getFiscalAttachmentUrl = async (filePath: string): Promise<string | null> => {
-  try {
-    const { data, error } = await supabase.storage
-      .from('fiscal_attachments')
-      .createSignedUrl(filePath, 3600); // URL valid for 1 hour
-
-    if (error) {
-      console.error("Error creating signed URL:", error);
-      return null;
-    }
-
-    return data?.signedUrl || null;
-  } catch (error) {
-    console.error("Error getting file URL:", error);
-    return null;
-  }
-};
-
-export const deleteFiscalAttachment = async (filePath: string): Promise<boolean> => {
-  try {
-    const { error } = await supabase.storage
-      .from('fiscal_attachments')
-      .remove([filePath]);
-
-    if (error) {
-      console.error("Delete error:", error);
-      toast.error(`Erreur lors de la suppression: ${error.message}`);
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Delete error:", error);
-    toast.error("Erreur lors de la suppression du fichier");
-    return false;
-  }
-};
-
-export const getAttachmentMetadata = async (filePath: string): Promise<FiscalAttachment | null> => {
-  try {
-    const { data, error } = await supabase.storage
-      .from('fiscal_attachments')
-      .list(filePath.substring(0, filePath.lastIndexOf('/')), {
-        limit: 100,
-        offset: 0,
-        search: filePath.substring(filePath.lastIndexOf('/') + 1)
-      });
-
-    if (error || !data || data.length === 0) {
-      console.error("Metadata error:", error);
-      return null;
-    }
-
-    const file = data[0];
-    const url = await getFiscalAttachmentUrl(filePath);
-    
-    const pathParts = filePath.split('/');
-    const typeInfo = pathParts[pathParts.length - 1].split('_')[0];
-    
-    return {
-      path: filePath,
-      fileName: file.name,
-      type: typeInfo as AttachmentType,
-      uploadedAt: file.created_at || new Date().toISOString(),
-      size: file.metadata?.size,
-      url
-    };
-  } catch (error) {
-    console.error("Metadata error:", error);
-    return null;
-  }
-};
+export default fiscalAttachmentService;

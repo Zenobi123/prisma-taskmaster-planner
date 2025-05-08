@@ -21,7 +21,7 @@ export const useFiscalData = (clientId: string) => {
       if (error) throw error;
       
       // Initialize fiscal data with default values if not exist
-      let clientFiscalData = data?.fiscal_data || {
+      let clientFiscalData: ClientFiscalData = data?.fiscal_data || {
         attestation: {
           creationDate: null,
           validityEndDate: null,
@@ -33,9 +33,11 @@ export const useFiscalData = (clientId: string) => {
       };
       
       // Ensure the year is tracked in the fiscal data
-      clientFiscalData.selectedYear = selectedYear;
+      if (typeof clientFiscalData === 'object') {
+        clientFiscalData.selectedYear = selectedYear;
+      }
       
-      setFiscalData(clientFiscalData);
+      setFiscalData(clientFiscalData as ClientFiscalData);
       return clientFiscalData;
     } catch (err) {
       console.error("Error fetching fiscal data:", err);
