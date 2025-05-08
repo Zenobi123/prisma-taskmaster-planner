@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { DeclarationObligationStatus } from "@/hooks/fiscal/types";
@@ -30,16 +30,33 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   expanded = false,
   onToggleExpand,
   clientId,
-  selectedYear,
+  selectedYear
 }) => {
+  // Debug the expanded state
+  useEffect(() => {
+    console.log(`DeclarationObligationItem ${label} expanded state:`, expanded);
+  }, [expanded, label]);
+
+  // Debug actual status
+  useEffect(() => {
+    console.log(`DeclarationObligationItem ${label} status:`, {
+      assujetti: status?.assujetti, 
+      type: typeof status?.assujetti,
+      depose: status?.depose,
+      deposeType: typeof status?.depose
+    });
+  }, [status, label]);
+
   const handleAssujettiChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
+      console.log(`${obligationKey} assujetti change:`, checked);
       onChange(obligationKey, "assujetti", checked);
     }
   };
 
   const handleDeposeChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
+      console.log(`${obligationKey} depose change:`, checked);
       onChange(obligationKey, "depose", checked);
     }
   };
@@ -52,8 +69,9 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
     onChange(obligationKey, "observations", e.target.value);
   };
 
-  // Handle expansion click
+  // Handle expansion click with proper event stopping
   const handleExpandClick = (e: React.MouseEvent) => {
+    console.log("Expansion button clicked for Declaration item");
     e.preventDefault();
     e.stopPropagation();
     if (onToggleExpand) {
@@ -61,7 +79,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
     }
   };
 
-  // Handle file upload
+  // Handle file upload for declaration items
   const handleFileUpload = (attachmentType: string, filePath: string | null) => {
     if (onAttachmentChange) {
       onAttachmentChange(obligationKey, attachmentType, filePath);
@@ -74,7 +92,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
         <div className="flex items-center space-x-2">
           <Checkbox 
             id={`${obligationKey}-assujetti`}
-            checked={status?.assujetti}
+            checked={Boolean(status?.assujetti)}
             onCheckedChange={handleAssujettiChange}
           />
           <label
@@ -91,6 +109,8 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
             size="sm" 
             onClick={handleExpandClick}
             className="h-8 w-8 p-0"
+            type="button"
+            aria-label={expanded ? "Réduire" : "Développer"}
           >
             {expanded ? (
               <ChevronUp className="h-4 w-4" />
@@ -106,7 +126,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
           <div className="flex items-center space-x-2">
             <Checkbox 
               id={`${obligationKey}-depose`}
-              checked={status?.depose}
+              checked={Boolean(status?.depose)}
               onCheckedChange={handleDeposeChange}
             />
             <label
@@ -147,7 +167,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
                 />
               </div>
 
-              {/* File attachments section - Now with 4 different types */}
+              {/* File attachments section */}
               <div className="pt-2 border-t mt-4">
                 <h4 className="text-sm font-medium mb-3">Pièces jointes</h4>
                 
@@ -180,7 +200,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
                     year={selectedYear}
                     obligationType={obligationKey}
                     attachmentType="payment"
-                    attachmentLabel="Solde"
+                    attachmentLabel="Justificatif de paiement"
                     filePath={status.attachments?.payment}
                     onFileUploaded={(filePath) => handleFileUpload("payment", filePath)}
                   />
@@ -191,7 +211,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
                     year={selectedYear}
                     obligationType={obligationKey}
                     attachmentType="additional"
-                    attachmentLabel="Document complémentaire"
+                    attachmentLabel="Document supplémentaire"
                     filePath={status.attachments?.additional}
                     onFileUploaded={(filePath) => handleFileUpload("additional", filePath)}
                   />
@@ -203,4 +223,4 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
       )}
     </div>
   );
-};
+}

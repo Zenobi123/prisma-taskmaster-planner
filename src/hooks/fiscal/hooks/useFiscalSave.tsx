@@ -23,12 +23,9 @@ export const useFiscalSave = (clientId: string, setHasUnsavedChanges: (value: bo
         updatedAt: new Date().toISOString()
       };
 
-      // Convert to plain object to ensure compatibility with Supabase
-      const fiscalDataObject = JSON.parse(JSON.stringify(dataToSave));
-
       const { error } = await supabase
         .from("clients")
-        .update({ fiscal_data: fiscalDataObject })
+        .update({ fiscal_data: dataToSave })
         .eq("id", clientId);
 
       if (error) {

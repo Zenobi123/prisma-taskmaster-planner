@@ -48,34 +48,32 @@ export function useObligationsFiscales(selectedClient: Client) {
       fetchFiscalData()
         .then((data) => {
           if (data) {
-            if (typeof data === 'object') {
-              // Set creation date
-              const creationDateValue = data.attestation?.creationDate || "";
-              setCreationDate(creationDateValue);
-              
-              // Calculate validity end date (usually 3 months)
-              if (creationDateValue) {
-                try {
-                  const parts = creationDateValue.split('/');
-                  if (parts.length === 3) {
-                    const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-                    date.setMonth(date.getMonth() + 3);
-                    setValidityEndDate(`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`);
-                  }
-                } catch (err) {
-                  console.error("Error calculating validity end date:", err);
+            // Set creation date
+            const creationDateValue = data.attestation?.creationDate || "";
+            setCreationDate(creationDateValue);
+            
+            // Calculate validity end date (usually 3 months)
+            if (creationDateValue) {
+              try {
+                const parts = creationDateValue.split('/');
+                if (parts.length === 3) {
+                  const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+                  date.setMonth(date.getMonth() + 3);
+                  setValidityEndDate(`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`);
                 }
+              } catch (err) {
+                console.error("Error calculating validity end date:", err);
               }
-              
-              // Set obligation statuses
-              if (data.obligations) {
-                setObligationStatuses(data.obligations);
-              }
-              
-              // Set alert and dashboard visibility settings
-              setShowInAlert(data.attestation?.showInAlert !== false);
-              setHiddenFromDashboard(data.hiddenFromDashboard === true);
             }
+            
+            // Set obligation statuses
+            if (data.obligations) {
+              setObligationStatuses(data.obligations);
+            }
+            
+            // Set alert and dashboard visibility settings
+            setShowInAlert(data.attestation?.showInAlert !== false);
+            setHiddenFromDashboard(data.hiddenFromDashboard === true);
             
             setDataLoaded(true);
           }
@@ -209,22 +207,19 @@ export function useObligationsFiscales(selectedClient: Client) {
       setIsSaving(true);
       setSaveAttempts(prev => prev + 1);
       
-      // Create a deep clone to ensure we're not modifying the original data
-      const updatedFiscalData: ClientFiscalData = JSON.parse(JSON.stringify(fiscalData));
-      
       // Update attestation data in fiscal data
-      if (typeof updatedFiscalData === 'object') {
-        updatedFiscalData.attestation = {
-          ...updatedFiscalData.attestation,
+      const updatedFiscalData: ClientFiscalData = {
+        ...fiscalData,
+        attestation: {
+          ...fiscalData.attestation,
           creationDate,
           validityEndDate,
           showInAlert
-        };
-        
-        updatedFiscalData.obligations = obligationStatuses || updatedFiscalData.obligations;
-        updatedFiscalData.hiddenFromDashboard = hiddenFromDashboard;
-        updatedFiscalData.selectedYear = selectedYear;
-      }
+        },
+        obligations: obligationStatuses || fiscalData.obligations,
+        hiddenFromDashboard,
+        selectedYear
+      };
       
       try {
         const success = await saveFiscalData(updatedFiscalData);
