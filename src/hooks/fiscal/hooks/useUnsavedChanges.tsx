@@ -1,61 +1,30 @@
 
-import { useState, useEffect, useCallback } from "react";
-import { useBeforeUnload } from "react-router-dom";
+import { useState, useCallback, useEffect } from "react";
 
-interface UseUnsavedChangesProps {
-  dataLoaded: boolean;
-  lastSaveSuccess: boolean;
-  isSaving: boolean;
-  handleSave: () => Promise<boolean>;
-}
-
-export const useUnsavedChanges = ({
-  dataLoaded,
-  lastSaveSuccess,
-  isSaving,
-  handleSave
-}: UseUnsavedChangesProps) => {
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
-  useBeforeUnload(
-    useCallback(
-      (event) => {
-        if (hasUnsavedChanges && !lastSaveSuccess) {
-          const message = "You have unsaved changes. Are you sure you want to leave this page?";
-          event.preventDefault();
-          event.returnValue = message;
-          return message;
-        }
-      },
-      [hasUnsavedChanges, lastSaveSuccess]
-    )
-  );
+export const useUnsavedChanges = () => {
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  
+  // Handle beforeunload event to warn about unsaved changes
+  const handleBeforeUnload = useCallback((e: BeforeUnloadEvent) => {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      e.returnValue = "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?";
+      return e.returnValue;
+    }
+  }, [hasUnsavedChanges]);
 
   useEffect(() => {
-    if (dataLoaded) {
-      setHasUnsavedChanges(true);
-    }
-  }, [dataLoaded]);
-
-  useEffect(() => {
-    let autoSaveInterval: NodeJS.Timeout;
-
-    if (dataLoaded && hasUnsavedChanges && !isSaving) {
-      autoSaveInterval = setInterval(() => {
-        console.log("Auto-saving fiscal data...");
-        handleSave();
-      }, 120000); // 2 minutes
-    }
-
+    window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
-      if (autoSaveInterval) {
-        clearInterval(autoSaveInterval);
-      }
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [dataLoaded, hasUnsavedChanges, isSaving, handleSave]);
+  }, [handleBeforeUnload]);
 
   return {
     hasUnsavedChanges,
-    setHasUnsavedChanges
+    setHasUnsavedChanges,
+    handleBeforeUnload
   };
 };
+
+export default useUnsavedChanges;

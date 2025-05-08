@@ -1,148 +1,111 @@
 
 import { useState, useCallback, useEffect } from "react";
-import { Client } from "@/types/client";
-import { ClientFiscalData } from "../types";
-import { getFromCache, updateCache, clearCache, getDebugInfo, recoverCacheFromStorage } from "../services/cacheService";
-import { fetchFiscalData } from "../services/fetchService";
-import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { ClientFiscalData, ObligationStatuses } from "../types";
 
-export const useFiscalData = (selectedClient: Client) => {
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
+export const useFiscalData = (clientId: string) => {
+  const [fiscalData, setFiscalData] = useState<ClientFiscalData | null>(null);
+  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   
-  const [dataLoaded, setDataLoaded] = useState<boolean>(false);
-  const [loadRetries, setLoadRetries] = useState<number>(0);
-  const [lastSuccessfulLoad, setLastSuccessfulLoad] = useState<number | null>(null);
-
-  const loadFiscalData = useCallback(async (force = false) => {
-    if (!selectedClient?.id) return;
-    
-    setIsLoading(true);
+  // Fetch fiscal data for the selected client
+  const fetchFiscalData = useCallback(async () => {
     try {
-      console.log(`Loading fiscal data for client ${selectedClient.id}`);
-      console.log("Current cache state:", getDebugInfo());
-      
-      if (force || loadRetries > 0) {
-        console.log(`${force ? 'Forcing' : `Attempt ${loadRetries}`}: clearing cache for fresh data`);
-        clearCache(selectedClient.id);
-      }
-      
-      // First try in-memory cache
-      let cachedData = null;
-      if (!force) {
-        cachedData = getFromCache(selectedClient.id);
-        if (cachedData) {
-          console.log(`Using in-memory cached fiscal data for client ${selectedClient.id}`);
-          setFiscalDataFromResponse(cachedData);
-          setIsLoading(false);
-          setLastSuccessfulLoad(Date.now());
-          setDataLoaded(true);
-          return;
-        }
-      }
-      
-      // Then try localStorage cache
-      if (!force && !cachedData) {
-        const storedCache = recoverCacheFromStorage(selectedClient.id);
-        if (storedCache) {
-          console.log(`Using localStorage fiscal data for client ${selectedClient.id}`);
-          setFiscalDataFromResponse(storedCache);
-          setIsLoading(false);
-          setLastSuccessfulLoad(Date.now());
-          setDataLoaded(true);
-          return;
-        }
-      }
+      if (!clientId) return null;
 
-      // Finally, fetch from database
-      console.log(`Fetching fiscal data from database for client ${selectedClient.id}`);
-      const fiscalData = await fetchFiscalData(selectedClient.id);
+      const { data, error } = await supabase
+        .from("clients")
+        .select("fiscal_data")
+        .eq("id", clientId)
+        .single();
+
+      if (error) throw error;
       
-      if (fiscalData) {
-        console.log(`Fiscal data received from database for client ${selectedClient.id}`);
-        setFiscalDataFromResponse(fiscalData);
-        updateCache(selectedClient.id, fiscalData);
-        setLastSuccessfulLoad(Date.now());
-        setDataLoaded(true);
+      // Initialize fiscal data with default values if not exist
+      let clientFiscalData = data?.fiscal_data || {
+        attestation: {
+          creationDate: null,
+          validityEndDate: null,
+          showInAlert: true
+        },
+        obligations: getDefaultObligationStatuses(),
+        hiddenFromDashboard: false,
+        selectedYear
+      };
+      
+      // Ensure the year is tracked in the fiscal data
+      clientFiscalData.selectedYear = selectedYear;
+      
+      setFiscalData(clientFiscalData);
+      return clientFiscalData;
+    } catch (err) {
+      console.error("Error fetching fiscal data:", err);
+      return null;
+    }
+  }, [clientId, selectedYear]);
+
+  // Update a specific field in the fiscal data
+  const updateFiscalDataField = useCallback((field: string, value: any) => {
+    setFiscalData((prevData) => {
+      if (!prevData) return null;
+      
+      // Create a deep clone to avoid reference issues
+      const newData = JSON.parse(JSON.stringify(prevData));
+      
+      // Handle nested fields with dot notation
+      if (field.includes('.')) {
+        const parts = field.split('.');
+        let current = newData;
+        
+        // Navigate to the nested object
+        for (let i = 0; i < parts.length - 1; i++) {
+          if (!current[parts[i]]) current[parts[i]] = {};
+          current = current[parts[i]];
+        }
+        
+        // Set the value
+        current[parts[parts.length - 1]] = value;
       } else {
-        console.log(`No fiscal data found for client ${selectedClient.id}`);
-        setHiddenFromDashboard(false);
-        setDataLoaded(true);
+        newData[field] = value;
       }
-    } catch (error) {
-      console.error("Error loading fiscal data:", error);
-      toast.error("Error loading fiscal data");
-      setDataLoaded(false);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedClient?.id, loadRetries]);
-
-  const setFiscalDataFromResponse = (data: ClientFiscalData) => {
-    setHiddenFromDashboard(data.hiddenFromDashboard || false);
-    setDataLoaded(true);
-  };
-
-  useEffect(() => {
-    if (selectedClient?.id) {
-      setIsLoading(true);
-      setHiddenFromDashboard(false);
-      setDataLoaded(false);
-      setLoadRetries(0);
-      setLastSuccessfulLoad(null);
       
-      loadFiscalData();
-    }
-  }, [selectedClient?.id, loadFiscalData]);
+      return newData;
+    });
+  }, []);
 
+  // Initialize fiscal data on mount and when clientId changes
   useEffect(() => {
-    let retryTimeout: NodeJS.Timeout;
-    
-    if (selectedClient?.id && !dataLoaded && loadRetries < 3 && !isLoading) {
-      console.log(`Planning attempt #${loadRetries + 1} to load fiscal data`);
-      retryTimeout = setTimeout(() => {
-        console.log(`Executing attempt #${loadRetries + 1} to load fiscal data`);
-        setLoadRetries(prev => prev + 1);
-        loadFiscalData(true);
-      }, 2000 + loadRetries * 1000);
+    if (clientId) {
+      fetchFiscalData();
     }
-    
-    return () => {
-      if (retryTimeout) {
-        clearTimeout(retryTimeout);
-      }
-    };
-  }, [selectedClient?.id, dataLoaded, loadRetries, isLoading, loadFiscalData]);
-
-  useEffect(() => {
-    let refreshInterval: NodeJS.Timeout;
-
-    if (selectedClient?.id && dataLoaded && lastSuccessfulLoad) {
-      refreshInterval = setInterval(() => {
-        const timeSinceLoad = Date.now() - lastSuccessfulLoad;
-        if (timeSinceLoad > 300000) {
-          console.log("Periodic refresh of fiscal data");
-          loadFiscalData(true);
-        }
-      }, 120000);
-    }
-
-    return () => {
-      if (refreshInterval) {
-        clearInterval(refreshInterval);
-      }
-    };
-  }, [selectedClient?.id, dataLoaded, lastSuccessfulLoad, loadFiscalData]);
-
-  const handleToggleDashboardVisibility = () => {
-    setHiddenFromDashboard(prev => !prev);
-  };
+  }, [clientId, fetchFiscalData]);
 
   return {
-    isLoading,
-    dataLoaded,
-    hiddenFromDashboard,
-    handleToggleDashboardVisibility,
-    loadFiscalData
+    fiscalData,
+    selectedYear,
+    setSelectedYear,
+    fetchFiscalData,
+    updateFiscalDataField
   };
 };
+
+// Helper function to create default obligation statuses
+function getDefaultObligationStatuses(): ObligationStatuses {
+  return {
+    igs: { assujetti: false, paye: false },
+    patente: { assujetti: false, paye: false },
+    dsf: { assujetti: false, depose: false },
+    darp: { assujetti: false, depose: false },
+    iba: { assujetti: false, paye: false },
+    baic: { assujetti: false, paye: false },
+    ibnc: { assujetti: false, paye: false },
+    ircm: { assujetti: false, paye: false },
+    irf: { assujetti: false, paye: false },
+    its: { assujetti: false, paye: false },
+    licence: { assujetti: false, depose: false },
+    precompte: { assujetti: false, paye: false },
+    taxeSejour: { assujetti: false, paye: false },
+    baillCommercial: { assujetti: false, paye: false }
+  };
+}
+
+export default useFiscalData;

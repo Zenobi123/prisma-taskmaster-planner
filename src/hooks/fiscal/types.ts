@@ -1,3 +1,4 @@
+
 export type ObligationType = "tax" | "declaration";
 
 export interface IgsPaymentStatus {
@@ -20,6 +21,11 @@ export interface TaxObligationStatus {
     T3?: IgsPaymentStatus; // 15 juillet
     T4?: IgsPaymentStatus; // 15 octobre
   };
+  // New attachment fields for payments
+  payment_attachments?: {
+    declaration?: string;
+    receipt?: string;
+  };
 }
 
 export interface DeclarationObligationStatus {
@@ -27,6 +33,13 @@ export interface DeclarationObligationStatus {
   depose: boolean;
   dateDepot?: string;
   observations?: string;
+  // New attachment fields for declarations
+  attachments?: {
+    declaration?: string;
+    receipt?: string;
+    payment?: string;
+    additional?: string;
+  };
 }
 
 export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
@@ -58,4 +71,17 @@ export interface ClientFiscalData {
   obligations?: ObligationStatuses;
   hiddenFromDashboard?: boolean;
   updatedAt?: string;
+  selectedYear?: string;
+}
+
+export interface FiscalData {
+  attestation?: {
+    creationDate: string | null;
+    validityEndDate: string | null;
+    showInAlert: boolean;
+  };
+  obligations?: ObligationStatuses;
+  hiddenFromDashboard?: boolean;
+  updatedAt?: string;
+  selectedYear?: string;
 }

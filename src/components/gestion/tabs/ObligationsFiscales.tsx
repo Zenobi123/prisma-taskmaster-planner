@@ -8,6 +8,14 @@ import { Client } from "@/types/client";
 import { Loader2, Save, AlertCircle, RefreshCw, CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 
 export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "@/hooks/fiscal/types";
 
@@ -22,6 +30,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     validityEndDate,
     obligationStatuses,
     handleStatusChange,
+    handleAttachmentUpdate,
     handleSave,
     isLoading,
     dataLoaded,
@@ -32,8 +41,14 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
     lastSaveSuccess,
-    hasUnsavedChanges
+    hasUnsavedChanges,
+    selectedYear,
+    setSelectedYear
   } = useObligationsFiscales(selectedClient);
+
+  // Generate year options for the last 5 years and next 2 years
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 7 }, (_, i) => (currentYear - 4 + i).toString());
 
   // Function to handle page refresh
   const handleRefreshPage = () => {
@@ -66,10 +81,35 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Obligations fiscales</CardTitle>
-        <CardDescription>
-          Suivi des obligations fiscales de l'entreprise
-        </CardDescription>
+        <div className="flex justify-between items-center">
+          <div>
+            <CardTitle>Obligations fiscales</CardTitle>
+            <CardDescription>
+              Suivi des obligations fiscales de l'entreprise
+            </CardDescription>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="year-select" className="text-sm font-medium">
+              Année fiscale:
+            </Label>
+            <Select
+              value={selectedYear}
+              onValueChange={setSelectedYear}
+            >
+              <SelectTrigger className="w-[120px]" id="year-select">
+                <SelectValue placeholder="Année" />
+              </SelectTrigger>
+              <SelectContent>
+                {yearOptions.map(year => (
+                  <SelectItem key={year} value={year}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
         {hasUnsavedChanges && (
@@ -120,6 +160,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         <AnnualObligationsSection 
           obligationStatuses={obligationStatuses}
           handleStatusChange={handleStatusChange}
+          onAttachmentChange={handleAttachmentUpdate}
+          clientId={selectedClient.id}
+          selectedYear={selectedYear}
         />
       </CardContent>
       <CardFooter className="flex flex-col gap-4">

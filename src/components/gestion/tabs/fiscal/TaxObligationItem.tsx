@@ -7,14 +7,18 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AttachmentUploader } from "./AttachmentUploader";
 
 interface TaxObligationItemProps {
   label: string;
   status: TaxObligationStatus;
   obligationKey: string;
   onChange: (obligation: string, field: string, value: boolean | string | number) => void;
+  onAttachmentChange?: (obligation: string, attachmentType: string, filePath: string | null) => void;
   expanded?: boolean;
   onToggleExpand?: () => void;
+  clientId: string;
+  selectedYear: string;
 }
 
 export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
@@ -22,8 +26,11 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
   status,
   obligationKey,
   onChange,
+  onAttachmentChange,
   expanded = false,
-  onToggleExpand
+  onToggleExpand,
+  clientId,
+  selectedYear
 }) => {
   // Debug the expanded state
   useEffect(() => {
@@ -74,6 +81,13 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
     e.stopPropagation();
     if (onToggleExpand) {
       onToggleExpand();
+    }
+  };
+
+  // Handle file upload for tax items
+  const handleFileUpload = (attachmentType: string, filePath: string | null) => {
+    if (onAttachmentChange) {
+      onAttachmentChange(obligationKey, attachmentType, filePath);
     }
   };
 
@@ -170,10 +184,39 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
                   className="h-20"
                 />
               </div>
+
+              {/* File attachments section for tax items */}
+              <div className="pt-2 border-t mt-4">
+                <h4 className="text-sm font-medium mb-3">Pièces jointes</h4>
+                
+                <div className="space-y-4">
+                  {/* Declaration document */}
+                  <AttachmentUploader
+                    clientId={clientId}
+                    year={selectedYear}
+                    obligationType={obligationKey}
+                    attachmentType="declaration"
+                    attachmentLabel="Déclaration"
+                    filePath={status.payment_attachments?.declaration}
+                    onFileUploaded={(filePath) => handleFileUpload("declaration", filePath)}
+                  />
+                  
+                  {/* Receipt document */}
+                  <AttachmentUploader
+                    clientId={clientId}
+                    year={selectedYear}
+                    obligationType={obligationKey}
+                    attachmentType="receipt"
+                    attachmentLabel="Justificatif de paiement"
+                    filePath={status.payment_attachments?.receipt}
+                    onFileUploaded={(filePath) => handleFileUpload("receipt", filePath)}
+                  />
+                </div>
+              </div>
             </>
           )}
         </div>
       )}
     </div>
   );
-};
+}

@@ -7,14 +7,18 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AttachmentUploader } from "./AttachmentUploader";
 
 interface DeclarationObligationItemProps {
   label: string;
   status: DeclarationObligationStatus;
   obligationKey: string;
   onChange: (obligation: string, field: string, value: boolean | string) => void;
+  onAttachmentChange?: (obligation: string, attachmentType: string, filePath: string | null) => void;
   expanded?: boolean;
   onToggleExpand?: () => void;
+  clientId: string;
+  selectedYear: string;
 }
 
 export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps> = ({
@@ -22,8 +26,11 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   status,
   obligationKey,
   onChange,
+  onAttachmentChange,
   expanded = false,
-  onToggleExpand
+  onToggleExpand,
+  clientId,
+  selectedYear
 }) => {
   // Debug the expanded state
   useEffect(() => {
@@ -69,6 +76,13 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
     e.stopPropagation();
     if (onToggleExpand) {
       onToggleExpand();
+    }
+  };
+
+  // Handle file upload for declaration items
+  const handleFileUpload = (attachmentType: string, filePath: string | null) => {
+    if (onAttachmentChange) {
+      onAttachmentChange(obligationKey, attachmentType, filePath);
     }
   };
 
@@ -152,10 +166,61 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
                   className="h-20"
                 />
               </div>
+
+              {/* File attachments section */}
+              <div className="pt-2 border-t mt-4">
+                <h4 className="text-sm font-medium mb-3">Pièces jointes</h4>
+                
+                <div className="space-y-4">
+                  {/* Declaration document */}
+                  <AttachmentUploader
+                    clientId={clientId}
+                    year={selectedYear}
+                    obligationType={obligationKey}
+                    attachmentType="declaration"
+                    attachmentLabel="Déclaration"
+                    filePath={status.attachments?.declaration}
+                    onFileUploaded={(filePath) => handleFileUpload("declaration", filePath)}
+                  />
+                  
+                  {/* Receipt document */}
+                  <AttachmentUploader
+                    clientId={clientId}
+                    year={selectedYear}
+                    obligationType={obligationKey}
+                    attachmentType="receipt"
+                    attachmentLabel="Accusé de réception"
+                    filePath={status.attachments?.receipt}
+                    onFileUploaded={(filePath) => handleFileUpload("receipt", filePath)}
+                  />
+                  
+                  {/* Payment document */}
+                  <AttachmentUploader
+                    clientId={clientId}
+                    year={selectedYear}
+                    obligationType={obligationKey}
+                    attachmentType="payment"
+                    attachmentLabel="Justificatif de paiement"
+                    filePath={status.attachments?.payment}
+                    onFileUploaded={(filePath) => handleFileUpload("payment", filePath)}
+                  />
+                  
+                  {/* Additional document */}
+                  <AttachmentUploader
+                    clientId={clientId}
+                    year={selectedYear}
+                    obligationType={obligationKey}
+                    attachmentType="additional"
+                    attachmentLabel="Document supplémentaire"
+                    filePath={status.attachments?.additional}
+                    onFileUploaded={(filePath) => handleFileUpload("additional", filePath)}
+                  />
+                </div>
+              </div>
             </>
           )}
         </div>
       )}
     </div>
   );
-};
+}
