@@ -69,7 +69,7 @@ export function AnnualObligationsSection({
               selectedYear={selectedYear}
             />
             <DeclarationObligationItem
-              label="DARP (Déclaration Annuelle des Revenus Professionnels)"
+              label="DARP (Déclaration Annuelle des Revenus des Particuliers)"
               status={obligationStatuses.darp}
               obligationKey="darp"
               onChange={handleStatusChange}
