@@ -83,7 +83,7 @@ export function AnnualObligationsSection({
 
           <TabsContent value="impots" className="space-y-4">
             <TaxObligationItem
-              label="IGS (Impôt Global sur les Revenus)"
+              label="IGS (Impôt Général Synthétique)"
               status={obligationStatuses.igs}
               obligationKey="igs"
               onChange={handleStatusChange}
