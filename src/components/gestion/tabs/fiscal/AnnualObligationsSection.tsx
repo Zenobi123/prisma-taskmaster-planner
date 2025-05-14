@@ -1,134 +1,194 @@
 
-import { useState } from "react";
-import { DeclarationObligationItem } from "./DeclarationObligationItem";
-import { TaxObligationItem } from "./TaxObligationItem";
-import { ObligationStatuses } from "@/hooks/fiscal/types";
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { TaxObligationItem } from "./TaxObligationItem";
+import { DeclarationObligationItem } from "./DeclarationObligationItem";
+import { ObligationStatuses, TaxObligationStatus, DeclarationObligationStatus } from "@/hooks/fiscal/types";
 
 interface AnnualObligationsSectionProps {
-  obligationStatuses: ObligationStatuses | null;
-  handleStatusChange: (obligation: string, field: string, value: boolean | string | number) => void;
-  onAttachmentChange?: (obligation: string, isDeclaration: boolean, attachmentType: string, filePath: string | null) => void;
+  obligationStatuses: ObligationStatuses;
+  handleStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
+  onAttachmentChange: (obligation: string, isDeclaration: boolean, attachmentType: string, filePath: string) => void;
   clientId: string;
   selectedYear: string;
 }
 
-export function AnnualObligationsSection({
+export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> = ({
   obligationStatuses,
   handleStatusChange,
   onAttachmentChange,
   clientId,
   selectedYear
-}: AnnualObligationsSectionProps) {
-  const [activeTab, setActiveTab] = useState("declarations");
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-
-  if (!obligationStatuses) {
-    return <div>Chargement des obligations...</div>;
-  }
-
-  // Toggle expanded state for an obligation item
-  const toggleExpanded = (key: string) => {
-    setExpandedItems(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+}) => {
+  // Adapter for status change - convert parameter types
+  const handleStatusChangeAdapter = (key: string, field: string, value: any) => {
+    handleStatusChange(key, field, value);
   };
 
-  // Handle attachment changes with type differentiation
-  const handleAttachmentUpdate = (obligation: string, attachmentType: string, filePath: string | null) => {
-    if (onAttachmentChange) {
-      const isDeclaration = ["dsf", "darp", "licence"].includes(obligation);
-      onAttachmentChange(obligation, isDeclaration, attachmentType, filePath);
-    }
+  // Adapter for attachment - convert parameter types
+  const handleAttachmentChangeAdapter = (key: string, isDeclaration: boolean, attachmentType: string, filePath: string) => {
+    onAttachmentChange(key, isDeclaration, attachmentType, filePath);
   };
 
   return (
-    <Card className="bg-white border-gray-200">
+    <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Obligations Fiscales Annuelles</CardTitle>
+        <CardTitle className="text-base">Obligations fiscales {selectedYear}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="w-full mb-4 grid grid-cols-2">
-            <TabsTrigger value="declarations">Déclarations</TabsTrigger>
-            <TabsTrigger value="impots">Impôts</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="declarations" className="space-y-4">
-            <DeclarationObligationItem
-              label="DSF (Déclaration Statistique et Fiscale)"
-              status={obligationStatuses.dsf}
-              obligationKey="dsf"
-              onChange={handleStatusChange}
-              onAttachmentChange={handleAttachmentUpdate}
-              expanded={!!expandedItems["dsf"]}
-              onToggleExpand={() => toggleExpanded("dsf")}
-              clientId={clientId}
-              selectedYear={selectedYear}
-            />
-            <DeclarationObligationItem
-              label="DARP (Déclaration Annuelle des Revenus des Particuliers)"
-              status={obligationStatuses.darp}
-              obligationKey="darp"
-              onChange={handleStatusChange}
-              onAttachmentChange={handleAttachmentUpdate}
-              expanded={!!expandedItems["darp"]}
-              onToggleExpand={() => toggleExpanded("darp")}
-              clientId={clientId}
-              selectedYear={selectedYear}
-            />
-          </TabsContent>
-
-          <TabsContent value="impots" className="space-y-4">
+      <CardContent className="space-y-6">
+        <div className="space-y-4">
+          <h3 className="font-medium text-sm">Taxes et impôts</h3>
+          
+          <div className="grid gap-4 md:grid-cols-2">
             <TaxObligationItem
-              label="IGS (Impôt Général Synthétique)"
+              title="IGS (Impôt Général Synthétique)"
+              keyName="igs"
               status={obligationStatuses.igs}
-              obligationKey="igs"
-              onChange={handleStatusChange}
-              onAttachmentChange={handleAttachmentUpdate}
-              expanded={!!expandedItems["igs"]}
-              onToggleExpand={() => toggleExpanded("igs")}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
               clientId={clientId}
               selectedYear={selectedYear}
+              showIGSPanel={true}
             />
+            
             <TaxObligationItem
-              label="Patente"
+              title="Patente"
+              keyName="patente"
               status={obligationStatuses.patente}
-              obligationKey="patente"
-              onChange={handleStatusChange}
-              onAttachmentChange={handleAttachmentUpdate}
-              expanded={!!expandedItems["patente"]}
-              onToggleExpand={() => toggleExpanded("patente")}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
               clientId={clientId}
               selectedYear={selectedYear}
             />
+
             <TaxObligationItem
-              label="IS (Impôt sur les Sociétés)"
+              title="BAIC (Impôts sur les Bénéfices Artisanaux, Industriels et Commerciaux)"
+              keyName="baic"
               status={obligationStatuses.baic}
-              obligationKey="baic"
-              onChange={handleStatusChange}
-              onAttachmentChange={handleAttachmentUpdate}
-              expanded={!!expandedItems["baic"]}
-              onToggleExpand={() => toggleExpanded("baic")}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
               clientId={clientId}
               selectedYear={selectedYear}
             />
+
             <TaxObligationItem
-              label="IBA (Impôt sur les Bénéfices Agricoles)"
+              title="IBA (Impôts sur les Bénéfices Agricoles)"
+              keyName="iba"
               status={obligationStatuses.iba}
-              obligationKey="iba"
-              onChange={handleStatusChange}
-              onAttachmentChange={handleAttachmentUpdate}
-              expanded={!!expandedItems["iba"]}
-              onToggleExpand={() => toggleExpanded("iba")}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
               clientId={clientId}
               selectedYear={selectedYear}
             />
-          </TabsContent>
-        </Tabs>
+
+            <TaxObligationItem
+              title="IBNC (Impôts sur les Bénéfices des Professions Non Commerciales)"
+              keyName="ibnc"
+              status={obligationStatuses.ibnc}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+
+            <TaxObligationItem
+              title="IRCM (Impôts sur les Revenus des Capitaux Mobiliers)"
+              keyName="ircm"
+              status={obligationStatuses.ircm}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+
+            <TaxObligationItem
+              title="IRF (Impôts sur les Revenus Fonciers)"
+              keyName="irf"
+              status={obligationStatuses.irf}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+
+            <TaxObligationItem
+              title="ITS (Impôts sur les traitements, salaires et rentes viagères)"
+              keyName="its"
+              status={obligationStatuses.its}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+
+            <TaxObligationItem
+              title="Précompte sur loyer"
+              keyName="precompte"
+              status={obligationStatuses.precompte}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+
+            <TaxObligationItem
+              title="Taxe de séjour"
+              keyName="taxeSejour"
+              status={obligationStatuses.taxeSejour}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+
+            <TaxObligationItem
+              title="Bail Commercial"
+              keyName="baillCommercial"
+              status={obligationStatuses.baillCommercial}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          <h3 className="font-medium text-sm">Déclarations obligatoires</h3>
+          
+          <div className="grid gap-4 md:grid-cols-2">
+            <DeclarationObligationItem
+              title="DSF (Déclaration Statistique et Fiscale)"
+              keyName="dsf"
+              status={obligationStatuses.dsf as DeclarationObligationStatus}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+            
+            <DeclarationObligationItem
+              title="DARP (Déclaration Annuelle des Revenus des Particuliers)"
+              keyName="darp"
+              status={obligationStatuses.darp as DeclarationObligationStatus}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+            
+            <DeclarationObligationItem
+              title="Licence"
+              keyName="licence"
+              status={obligationStatuses.licence as DeclarationObligationStatus}
+              onStatusChange={handleStatusChangeAdapter}
+              onAttachmentChange={handleAttachmentChangeAdapter}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
-}
+};

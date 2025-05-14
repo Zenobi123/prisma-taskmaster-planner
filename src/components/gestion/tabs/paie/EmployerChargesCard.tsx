@@ -14,7 +14,7 @@ interface EmployerChargesCardProps {
 export function EmployerChargesCard({
   totalGrossSalary,
   cnpsEmployer,
-  fne,
+  fne = 0,
   cfcEmployer,
 }: EmployerChargesCardProps) {
   const totalCharges = cnpsEmployer + fne + cfcEmployer;

@@ -1,30 +1,40 @@
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 export const useUnsavedChanges = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  
-  // Handle beforeunload event to warn about unsaved changes
+
+  // Function to mark the state as changed
+  const markAsChanged = useCallback(() => {
+    setHasUnsavedChanges(true);
+  }, []);
+
+  // Handle page unload to warn user of unsaved changes
   const handleBeforeUnload = useCallback((e: BeforeUnloadEvent) => {
     if (hasUnsavedChanges) {
       e.preventDefault();
-      e.returnValue = "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter?";
+      e.returnValue = "Vous avez des modifications non enregistrées. Êtes-vous sûr de vouloir quitter ?";
       return e.returnValue;
     }
   }, [hasUnsavedChanges]);
 
+  // Add beforeunload event listener when hasUnsavedChanges is true
   useEffect(() => {
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    if (hasUnsavedChanges) {
+      window.addEventListener("beforeunload", handleBeforeUnload);
+    } else {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    }
+    
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
-  }, [handleBeforeUnload]);
+  }, [hasUnsavedChanges, handleBeforeUnload]);
 
-  return {
-    hasUnsavedChanges,
+  return { 
+    hasUnsavedChanges, 
     setHasUnsavedChanges,
+    markAsChanged,
     handleBeforeUnload
   };
 };
-
-export default useUnsavedChanges;

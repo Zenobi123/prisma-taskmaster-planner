@@ -35,7 +35,7 @@ export const addWatermark = (doc: jsPDF, options: WatermarkOptions): void => {
     // Configure le texte
     doc.setTextColor(color);
     doc.setFontSize(fontSize);
-    doc.setGState(new doc.GState({ opacity }));
+    doc.setGState(doc.GState({opacity}));
     
     // Position centrée
     const textWidth = doc.getTextWidth(text);
@@ -43,8 +43,9 @@ export const addWatermark = (doc: jsPDF, options: WatermarkOptions): void => {
     const y = pageHeight / 2;
     
     // Applique la rotation
-    doc.translate(x, y);
-    doc.rotate(angle);
+    doc.translateY(y);
+    doc.translateX(x);
+    doc.rotate(angle, {origin: [0, 0]});
     
     // Dessine le texte
     doc.text(text, 0, 0);
@@ -53,3 +54,6 @@ export const addWatermark = (doc: jsPDF, options: WatermarkOptions): void => {
     doc.restoreGraphicsState();
   }
 };
+
+// Alias for compatibility with existing code
+export const addDocumentWatermark = addWatermark;

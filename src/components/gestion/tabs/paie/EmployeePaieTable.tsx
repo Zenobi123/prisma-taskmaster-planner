@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -115,8 +116,9 @@ export function EmployeePaieTable({ paies, title = "Fiches de paie", onDelete, o
                           
                           <EmployerChargesCard
                             totalGrossSalary={paie.salaire_brut}
-                            cnpsEmployer={paie.cnps_employeur}
-                            cfcEmployer={paie.cfc_employeur}
+                            cnpsEmployer={paie.cnps_employeur || 0}
+                            fne={paie.salaire_brut * 0.01} // Calcul du FNE comme 1% du salaire brut
+                            cfcEmployer={paie.cfc || 0}
                           />
                         </div>
                       </DialogContent>

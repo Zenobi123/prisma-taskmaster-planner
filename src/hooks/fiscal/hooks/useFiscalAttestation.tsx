@@ -1,37 +1,64 @@
-import { useState, useEffect } from "react";
-import { calculateValidityEndDate, checkAttestationExpiration } from "../utils/dateUtils";
 
-export const useFiscalAttestation = (initialCreationDate: string = "", initialShowInAlert: boolean = true) => {
-  const [creationDate, setCreationDate] = useState<string>(initialCreationDate);
-  const [validityEndDate, setValidityEndDate] = useState<string>("");
-  const [showInAlert, setShowInAlert] = useState<boolean>(initialShowInAlert);
+import { useState, useEffect, useCallback } from "react";
+import { ClientFiscalData } from "../types";
 
-  // Calculate validity end date whenever creation date changes
+export const useFiscalAttestation = (
+  fiscalData: ClientFiscalData | null, 
+  markAsChanged: () => void
+) => {
+  const [creationDate, setCreationDate] = useState<string | null>(null);
+  const [validityEndDate, setValidityEndDate] = useState<string | null>(null);
+  const [showInAlert, setShowInAlert] = useState<boolean>(true);
+  const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
+
+  // Initialize state from fiscal data
   useEffect(() => {
-    if (creationDate) {
-      const endDate = calculateValidityEndDate(creationDate);
-      setValidityEndDate(endDate);
+    if (!fiscalData) return;
+
+    if (fiscalData.attestation) {
+      setCreationDate(fiscalData.attestation.creationDate);
+      setValidityEndDate(fiscalData.attestation.validityEndDate);
+      setShowInAlert(fiscalData.attestation.showInAlert ?? true);
+    }
+
+    if (typeof fiscalData.hiddenFromDashboard !== 'undefined') {
+      setHiddenFromDashboard(!!fiscalData.hiddenFromDashboard);
     } else {
-      setValidityEndDate("");
+      setHiddenFromDashboard(false);
     }
-  }, [creationDate]);
+  }, [fiscalData]);
 
-  useEffect(() => {
-    if (creationDate && validityEndDate) {
-      checkAttestationExpiration(creationDate, validityEndDate);
+  // Toggle alert visibility
+  const handleToggleAlert = useCallback(() => {
+    setShowInAlert(prev => {
+      const newValue = !prev;
+      markAsChanged();
+      return newValue;
+    });
+  }, [markAsChanged]);
+
+  // Toggle dashboard visibility
+  const handleToggleDashboardVisibility = useCallback((value: boolean, triggerChange: boolean = true) => {
+    setHiddenFromDashboard(value);
+    if (triggerChange) {
+      markAsChanged();
     }
-  }, [creationDate, validityEndDate]);
-
-  const handleToggleAlert = () => {
-    setShowInAlert(prev => !prev);
-  };
+  }, [markAsChanged]);
 
   return {
     creationDate,
-    setCreationDate,
     validityEndDate,
-    setValidityEndDate,
     showInAlert,
-    handleToggleAlert
+    hiddenFromDashboard,
+    setCreationDate: (date: string | null) => {
+      setCreationDate(date);
+      markAsChanged();
+    },
+    setValidityEndDate: (date: string | null) => {
+      setValidityEndDate(date);
+      markAsChanged();
+    },
+    handleToggleAlert,
+    handleToggleDashboardVisibility
   };
 };

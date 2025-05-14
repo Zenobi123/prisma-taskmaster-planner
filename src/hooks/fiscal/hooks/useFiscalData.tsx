@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { ClientFiscalData } from "../types";
 import { fetchFiscalData } from "../services/fetchService";
 import { saveFiscalData } from "../services/saveService";
-import { verifyFiscalData } from "../services/verifyService";
+import { verifyFiscalDataSave } from "../services/verifyService";
 
 export const useFiscalData = (clientId: string) => {
   const [fiscalData, setFiscalData] = useState<ClientFiscalData | null>(null);
@@ -23,7 +23,7 @@ export const useFiscalData = (clientId: string) => {
         
         if (data) {
           // Vérification et correction des données
-          const verifiedData = verifyFiscalData(data);
+          const verifiedData = verifyFiscalDataSave(data);
           
           // Si l'année sélectionnée existe dans les données, utilisez-la
           if (typeof verifiedData === 'object' && verifiedData && 'selectedYear' in verifiedData) {
@@ -40,7 +40,23 @@ export const useFiscalData = (clientId: string) => {
               validityEndDate: null,
               showInAlert: true
             },
-            obligations: {},
+            obligations: {
+              // Initialize with empty required structure
+              igs: { assujetti: false, paye: false },
+              patente: { assujetti: false, paye: false },
+              dsf: { assujetti: false, depose: false },
+              darp: { assujetti: false, depose: false },
+              iba: { assujetti: false, paye: false },
+              baic: { assujetti: false, paye: false },
+              ibnc: { assujetti: false, paye: false },
+              ircm: { assujetti: false, paye: false },
+              irf: { assujetti: false, paye: false },
+              its: { assujetti: false, paye: false },
+              licence: { assujetti: false, depose: false },
+              precompte: { assujetti: false, paye: false },
+              taxeSejour: { assujetti: false, paye: false },
+              baillCommercial: { assujetti: false, paye: false }
+            },
             hiddenFromDashboard: false,
             selectedYear: currentYear
           };

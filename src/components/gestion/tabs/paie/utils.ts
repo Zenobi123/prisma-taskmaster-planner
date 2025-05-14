@@ -9,6 +9,15 @@ export function formatMoney(amount: number): string {
 }
 
 /**
+ * Formatte un montant en devise avec le symbole FCFA
+ * @param amount Le montant à formatter
+ * @returns La chaîne formatée avec le symbole FCFA
+ */
+export function formatCurrency(amount: number): string {
+  return `${formatMoney(amount)} FCFA`;
+}
+
+/**
  * Formatte une date ISO en format français (JJ/MM/AAAA)
  * @param dateString La chaîne de date ISO à formatter
  * @returns La date formattée
