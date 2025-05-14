@@ -1,90 +1,66 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Paie } from "@/types/paie";
-import { Employee } from "@/types/employee";
+import { Employee, Paie } from "@/types/paie";
 
-export const getPaieForEmployee = async (employeeId: string): Promise<Paie[]> => {
-  try {
+export const paieService = {
+  async getEmployeePayrolls(employeeId: string): Promise<Paie[]> {
     const { data, error } = await supabase
-      .from("paie")
-      .select("*")
-      .eq("employe_id", employeeId)
+      .from('paie')
+      .select('*')
+      .eq('employe_id', employeeId)
       .order('annee', { ascending: false })
       .order('mois', { ascending: false });
-
+    
     if (error) {
-      console.error("Error fetching payroll data:", error);
-      throw new Error(error.message);
+      console.error("Erreur lors de la récupération des fiches de paie:", error);
+      return [];
     }
-
+    
     return data as Paie[];
-  } catch (error) {
-    console.error("Error in getPaieForEmployee:", error);
-    return [];
-  }
-};
-
-export const savePaie = async (paieData: Paie): Promise<Paie | null> => {
-  try {
+  },
+  
+  async createPayroll(payrollData: Omit<Paie, 'id' | 'created_at' | 'updated_at'>): Promise<Paie | null> {
     const { data, error } = await supabase
-      .from("paie")
-      .upsert(paieData, { onConflict: 'id' })
+      .from('paie')
+      .insert(payrollData)
       .select()
       .single();
-
+    
     if (error) {
-      console.error("Error saving payroll data:", error);
-      throw new Error(error.message);
+      console.error("Erreur lors de la création de la fiche de paie:", error);
+      return null;
     }
-
+    
     return data as Paie;
-  } catch (error) {
-    console.error("Error in savePaie:", error);
-    return null;
-  }
-};
-
-export const deletePaie = async (paieId: string): Promise<boolean> => {
-  try {
-    const { error } = await supabase
-      .from("paie")
-      .delete()
-      .eq("id", paieId);
-
-    if (error) {
-      console.error("Error deleting payroll:", error);
-      throw new Error(error.message);
-    }
-
-    return true;
-  } catch (error) {
-    console.error("Error in deletePaie:", error);
-    return false;
-  }
-};
-
-export const getPayrollByMonthAndYear = async (
-  employeeId: string, 
-  month: number, 
-  year: number
-): Promise<Paie | null> => {
-  try {
+  },
+  
+  async updatePayroll(id: string, payrollData: Partial<Paie>): Promise<Paie | null> {
     const { data, error } = await supabase
-      .from("paie")
-      .select("*")
-      .eq("employe_id", employeeId)
-      .eq("mois", month)
-      .eq("annee", year)
-      .maybeSingle();
-
+      .from('paie')
+      .update(payrollData)
+      .eq('id', id)
+      .select()
+      .single();
+    
     if (error) {
-      console.error("Error fetching payroll data:", error);
-      throw new Error(error.message);
+      console.error("Erreur lors de la mise à jour de la fiche de paie:", error);
+      return null;
     }
-
+    
     return data as Paie;
-  } catch (error) {
-    console.error("Error in getPayrollByMonthAndYear:", error);
-    return null;
+  },
+  
+  async deletePayroll(id: string): Promise<boolean> {
+    const { error } = await supabase
+      .from('paie')
+      .delete()
+      .eq('id', id);
+    
+    if (error) {
+      console.error("Erreur lors de la suppression de la fiche de paie:", error);
+      return false;
+    }
+    
+    return true;
   }
 };

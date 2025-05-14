@@ -3,6 +3,7 @@ import { useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 export const useFiscalSave = (clientId: string, setHasUnsavedChanges: (value: boolean) => void) => {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
@@ -17,15 +18,18 @@ export const useFiscalSave = (clientId: string, setHasUnsavedChanges: (value: bo
 
       setSaveStatus('saving');
       
-      // Add timestamp to track updates
-      const dataToSave = {
+      // Add timestamp to track updates and prepare data for saving
+      const dataWithTimestamp = {
         ...data,
         updatedAt: new Date().toISOString()
       };
+      
+      // Conversion sécurisée pour respecter le type Json de Supabase
+      const safeData = JSON.parse(JSON.stringify(dataWithTimestamp)) as Json;
 
       const { error } = await supabase
         .from("clients")
-        .update({ fiscal_data: dataToSave })
+        .update({ fiscal_data: safeData })
         .eq("id", clientId);
 
       if (error) {

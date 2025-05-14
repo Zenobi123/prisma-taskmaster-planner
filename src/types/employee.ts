@@ -19,3 +19,9 @@ export interface Employee {
   banque?: string;
   numero_compte?: string;
 }
+
+// Type pour les options de genre
+export type Genre = 'Masculin' | 'Féminin' | 'Autre';
+
+// Type pour les types de contrat
+export type ContratType = 'CDI' | 'CDD' | 'Intérim' | 'Stage' | 'Consultant' | 'Autre';

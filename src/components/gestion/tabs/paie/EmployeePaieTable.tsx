@@ -1,11 +1,10 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Paie } from "@/types/paie";
-import { formatMoney } from "./utils";
+import { formatMoney, formatCurrency } from "./utils";
 import { Printer, Eye, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PayrollDetailsCard } from "./PayrollDetailsCard";
@@ -14,9 +13,11 @@ import { EmployerChargesCard } from "./EmployerChargesCard";
 interface EmployeePaieTableProps {
   paies: Paie[];
   title?: string;
+  onDelete?: (paie: Paie) => void;
+  onEdit?: (paie: Paie) => void;
 }
 
-export function EmployeePaieTable({ paies, title = "Fiches de paie" }: EmployeePaieTableProps) {
+export function EmployeePaieTable({ paies, title = "Fiches de paie", onDelete, onEdit }: EmployeePaieTableProps) {
   // Fonction pour obtenir le nom du mois
   const getMonthName = (monthNumber: number) => {
     const monthNames = [
@@ -36,6 +37,22 @@ export function EmployeePaieTable({ paies, title = "Fiches de paie" }: EmployeeP
         return <Badge variant="outline">En cours</Badge>;
     }
   };
+  
+  const renderEmployerCharges = (paie: Paie) => (
+    <div className="mt-3">
+      <h3 className="font-semibold text-sm mb-2">Charges patronales</h3>
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <span className="text-muted-foreground text-xs">CNPS (14%):</span>
+          <span className="font-medium ml-1 text-sm">{formatCurrency(paie.cnps_employeur || 0)}</span>
+        </div>
+        <div>
+          <span className="text-muted-foreground text-xs">CFC (1%):</span>
+          <span className="font-medium ml-1 text-sm">{formatCurrency(paie.cfc || 0)}</span>
+        </div>
+      </div>
+    </div>
+  );
   
   return (
     <Card>
@@ -99,7 +116,6 @@ export function EmployeePaieTable({ paies, title = "Fiches de paie" }: EmployeeP
                           <EmployerChargesCard
                             totalGrossSalary={paie.salaire_brut}
                             cnpsEmployer={paie.cnps_employeur}
-                            fne={paie.fne}
                             cfcEmployer={paie.cfc_employeur}
                           />
                         </div>

@@ -1,417 +1,461 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogTrigger 
-} from "@/components/ui/dialog";
-import { 
-  Form, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormControl, 
-  FormMessage 
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { calculationService } from "@/services/calculationService";
-import { Employe } from "@/types/paie";
-import { paieService } from "@/services/paieService";
-import { toast } from "sonner";
-
-const formSchema = z.object({
-  mois: z.coerce.number().min(1).max(12),
-  annee: z.coerce.number().min(2020).max(2050),
-  salaire_base: z.coerce.number().min(0),
-  heures_sup: z.coerce.number().min(0).optional(),
-  taux_horaire_sup: z.coerce.number().min(0).optional(),
-  primes: z.string().optional(),
-  statut: z.string(),
-  mode_paiement: z.string(),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { CalendarIcon, Plus, Trash2 } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Employee } from '@/types/employee';
+import { paieService } from '@/services/paieService';
+import { useToast } from '@/components/ui/use-toast';
 
 interface EmployeePaieFormProps {
-  employee: Employe;
-  clientId: string;
-  onSuccess: () => void;
+  employee: Employee;
+  onPaieCreated?: () => void;
+  onPaieUpdated?: () => void;
+  onClose: () => void;
 }
 
-export function EmployeePaieForm({ employee, clientId, onSuccess }: EmployeePaieFormProps) {
-  const [open, setOpen] = useState(false);
-  const [calculatedValues, setCalculatedValues] = useState({
-    salaireBrut: 0,
-    cnpsEmploye: 0,
-    cnpsEmployeur: 0,
-    irpp: 0,
-    cac: 0,
-    tdl: 0,
-    rav: 0,
-    cfc: 0,
-    cfcEmployeur: 0,
-    fne: 0,
-    salaireNet: 0,
-    coutEmployeur: 0,
-  });
+const EmployeePaieForm: React.FC<EmployeePaieFormProps> = ({ employee, onPaieCreated, onPaieUpdated, onClose }) => {
+  const { toast } = useToast();
+  const [mois, setMois] = useState<number>(new Date().getMonth() + 1);
+  const [annee, setAnnee] = useState<number>(new Date().getFullYear());
+  const [salaireBase, setSalaireBase] = useState<number>(employee.salaire_base || 0);
+  const [heuresSup, setHeuresSup] = useState<number>(0);
+  const [tauxHoraireSup, setTauxHoraireSup] = useState<number>(0);
+  const [montantHeuresSup, setMontantHeuresSup] = useState<number>(0);
+  const [primes, setPrimes] = useState<any[]>([]);
+  const [totalPrimes, setTotalPrimes] = useState<number>(0);
+  const [salaireBrut, setSalaireBrut] = useState<number>(0);
+  const [cnpsEmploye, setCnpsEmploye] = useState<number>(0);
+  const [cnpsEmployeur, setCnpsEmployeur] = useState<number>(0);
+  const [irpp, setIrpp] = useState<number>(0);
+  const [cac, setCac] = useState<number>(0);
+  const [cfc, setCfc] = useState<number>(0);
+  const [tdl, setTdl] = useState<number>(0);
+  const [autresRetenues, setAutresRetenues] = useState<any[]>([]);
+  const [totalRetenues, setTotalRetenues] = useState<number>(0);
+  const [salaireNet, setSalaireNet] = useState<number>(0);
+  const [datePaiement, setDatePaiement] = useState<Date | null>(null);
+  const [modePaiement, setModePaiement] = useState<string>('Virement bancaire');
+  const [referencePaiement, setReferencePaiement] = useState<string>('');
+  const [statut, setStatut] = useState<string>('Payé');
+  const [notes, setNotes] = useState<string>('');
+  const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
+  const [newPrimeLabel, setNewPrimeLabel] = useState<string>('');
+  const [newPrimeValue, setNewPrimeValue] = useState<number>(0);
+  const [newRetenueLabel, setNewRetenueLabel] = useState<string>('');
+  const [newRetenueValue, setNewRetenueValue] = useState<number>(0);
   
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      mois: new Date().getMonth() + 1,
-      annee: new Date().getFullYear(),
-      salaire_base: employee.salaire_base,
-      heures_sup: 0,
-      taux_horaire_sup: 0,
-      primes: "",
-      statut: "En cours",
-      mode_paiement: "Virement",
-    },
-  });
+  const moisOptions = [
+    { value: 1, label: 'Janvier' }, { value: 2, label: 'Février' }, { value: 3, label: 'Mars' },
+    { value: 4, label: 'Avril' }, { value: 5, label: 'Mai' }, { value: 6, label: 'Juin' },
+    { value: 7, label: 'Juillet' }, { value: 8, label: 'Août' }, { value: 9, label: 'Septembre' },
+    { value: 10, label: 'Octobre' }, { value: 11, label: 'Novembre' }, { value: 12, label: 'Décembre' }
+  ];
   
-  // Calculer les valeurs lorsque le salaire de base change
+  const calculateTotals = () => {
+    const calculatedTotalPrimes = primes.reduce((acc, prime) => acc + prime.value, 0);
+    const calculatedSalaireBrut = salaireBase + montantHeuresSup + calculatedTotalPrimes;
+    const calculatedCnpsEmploye = calculatedSalaireBrut * 0.048;
+    const calculatedCac = calculatedSalaireBrut * 0.01;
+    const calculatedCfc = calculatedSalaireBrut * 0.01;
+    const calculatedTdl = calculatedSalaireBrut * 0.015;
+    const calculatedTotalRetenues = cnpsEmploye + cac + cfc + tdl +
+      autresRetenues.reduce((acc, retenue) => acc + retenue.value, 0);
+    const calculatedSalaireNet = calculatedSalaireBrut - calculatedTotalRetenues;
+    
+    setTotalPrimes(calculatedTotalPrimes);
+    setSalaireBrut(calculatedSalaireBrut);
+    setCnpsEmploye(calculatedCnpsEmploye);
+    setCac(calculatedCac);
+    setCfc(calculatedCfc);
+    setTdl(calculatedTdl);
+    setTotalRetenues(calculatedTotalRetenues);
+    setSalaireNet(calculatedSalaireNet);
+  };
+  
   useEffect(() => {
-    const salaire_base = form.watch("salaire_base");
-    const heures_sup = form.watch("heures_sup") || 0;
-    const taux_horaire_sup = form.watch("taux_horaire_sup") || 0;
-    
-    const montantHeuresSup = heures_sup * taux_horaire_sup;
-    const primesValue = parseFloat(form.watch("primes") || "0");
-    
-    const salaireBrut = salaire_base + montantHeuresSup + (isNaN(primesValue) ? 0 : primesValue);
-    
-    // Calculer les déductions employé
-    const cnpsEmploye = calculationService.calculateCNPSEmployee(salaireBrut);
-    const irpp = calculationService.calculateIRPP(salaireBrut);
-    const cac = calculationService.calculateCAC(irpp);
-    const tdl = calculationService.calculateTDL(salaireBrut);
-    const rav = calculationService.calculateRAV(salaireBrut);
-    const cfc = calculationService.calculateCFCEmployee(salaireBrut);
-    const salaireNet = salaireBrut - cnpsEmploye - irpp - cac - tdl - rav - cfc;
-    
-    // Calculer les charges employeur
-    const cnpsEmployeur = calculationService.calculateCNPSEmployer(salaireBrut);
-    const fne = calculationService.calculateFNE(salaireBrut);
-    const cfcEmployeur = calculationService.calculateCFCEmployer(salaireBrut);
-    const coutEmployeur = salaireBrut + cnpsEmployeur + fne + cfcEmployeur;
-    
-    setCalculatedValues({
-      salaireBrut,
-      cnpsEmploye,
-      cnpsEmployeur,
-      irpp,
-      cac,
-      tdl,
-      rav,
-      cfc,
-      cfcEmployeur,
-      fne,
-      salaireNet,
-      coutEmployeur
-    });
-  }, [form.watch]);
+    calculateTotals();
+  }, [salaireBase, montantHeuresSup, primes, autresRetenues]);
   
-  const onSubmit = async (data: FormValues) => {
-    try {
-      // Préparer les primes en format JSON
-      let primesJSON = {};
-      try {
-        if (data.primes) {
-          primesJSON = JSON.parse(data.primes);
-        }
-      } catch (e) {
-        // Si ce n'est pas un JSON valide, le traiter comme un montant simple
-        const primeAmount = parseFloat(data.primes || "0");
-        if (!isNaN(primeAmount)) {
-          primesJSON = { "Prime générale": primeAmount };
-        }
-      }
-      
-      // Calculer le montant des heures supplémentaires
-      const montantHeuresSup = (data.heures_sup || 0) * (data.taux_horaire_sup || 0);
-      
-      // Calculer le total des primes
-      let totalPrimes = 0;
-      if (typeof primesJSON === "object") {
-        Object.values(primesJSON).forEach((value) => {
-          if (typeof value === "number") {
-            totalPrimes += value;
-          }
-        });
-      }
-      
-      // Calculer le salaire brut
-      const salaireBrut = data.salaire_base + montantHeuresSup + totalPrimes;
-      
-      // Créer l'enregistrement de paie
-      const paieRecord = {
-        client_id: clientId,
-        employe_id: employee.id,
-        mois: data.mois,
-        annee: data.annee,
-        salaire_base: data.salaire_base,
-        heures_sup: data.heures_sup || 0,
-        taux_horaire_sup: data.taux_horaire_sup || 0,
-        montant_heures_sup: montantHeuresSup,
-        primes: primesJSON,
-        total_primes: totalPrimes,
-        salaire_brut: salaireBrut,
-        cnps_employe: calculatedValues.cnpsEmploye,
-        cnps_employeur: calculatedValues.cnpsEmployeur,
-        irpp: calculatedValues.irpp,
-        cac: calculatedValues.cac,
-        tdl: calculatedValues.tdl,
-        rav: calculatedValues.rav,
-        cfc: calculatedValues.cfc,
-        autres_retenues: {},
-        total_retenues: calculatedValues.cnpsEmploye + calculatedValues.irpp + calculatedValues.cac + 
-                        calculatedValues.tdl + calculatedValues.rav + calculatedValues.cfc,
-        salaire_net: calculatedValues.salaireNet,
-        statut: data.statut as any,
-        mode_paiement: data.mode_paiement,
-      };
-      
-      // Enregistrer la paie
-      const result = await paieService.createPayroll(paieRecord as any);
-      
-      if (result) {
-        toast.success("Fiche de paie créée avec succès");
-        setOpen(false);
-        onSuccess();
-      } else {
-        toast.error("Erreur lors de la création de la fiche de paie");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-      toast.error("Une erreur s'est produite lors de la création");
+  const handleAddPrime = () => {
+    if (newPrimeLabel && newPrimeValue > 0) {
+      setPrimes([...primes, { label: newPrimeLabel, value: newPrimeValue }]);
+      setNewPrimeLabel('');
+      setNewPrimeValue(0);
+      setIsDialogOpen(false);
     }
   };
   
-  const formatMoney = (value: number) => {
-    return new Intl.NumberFormat('fr-FR').format(value);
+  const handleRemovePrime = (index: number) => {
+    const newPrimes = [...primes];
+    newPrimes.splice(index, 1);
+    setPrimes(newPrimes);
+  };
+  
+  const handleAddRetenue = () => {
+    if (newRetenueLabel && newRetenueValue > 0) {
+      setAutresRetenues([...autresRetenues, { label: newRetenueLabel, value: newRetenueValue }]);
+      setNewRetenueLabel('');
+      setNewRetenueValue(0);
+      setIsDialogOpen(false);
+    }
+  };
+  
+  const handleRemoveRetenue = (index: number) => {
+    const newRetenues = [...autresRetenues];
+    newRetenues.splice(index, 1);
+    setAutresRetenues(newRetenues);
+  };
+  
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const payrollData = {
+      employe_id: employee.id,
+      mois,
+      annee,
+      salaire_base: salaireBase,
+      heures_sup: heuresSup,
+      taux_horaire_sup: tauxHoraireSup,
+      montant_heures_sup: montantHeuresSup,
+      primes: primes,
+      total_primes: totalPrimes,
+      salaire_brut: salaireBrut,
+      cnps_employe: cnpsEmploye,
+      cnps_employeur: cnpsEmployeur,
+      irpp: irpp,
+      cac: cac,
+      cfc: cfc,
+      tdl: tdl,
+      autres_retenues: autresRetenues,
+      total_retenues: totalRetenues,
+      salaire_net: salaireNet,
+      date_paiement: datePaiement ? format(datePaiement, 'yyyy-MM-dd') : null,
+      mode_paiement: modePaiement,
+      reference_paiement: referencePaiement,
+      statut: statut,
+      notes: notes,
+    };
+    
+    try {
+      const createdPayroll = await paieService.createPayroll(payrollData);
+      
+      if (createdPayroll) {
+        toast({
+          title: "Fiche de paie créée",
+          description: "La fiche de paie a été créée avec succès.",
+        });
+        onPaieCreated?.();
+        onClose();
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Erreur lors de la création de la fiche de paie.",
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la création de la fiche de paie:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur s'est produite lors de la création de la fiche de paie.",
+      });
+    }
   };
   
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">Créer fiche de paie</Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
-          <DialogTitle>
-            Créer une fiche de paie pour {employee.prenom} {employee.nom}
-          </DialogTitle>
-        </DialogHeader>
-        
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="mois"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mois</FormLabel>
-                    <Select 
-                      onValueChange={(value) => field.onChange(parseInt(value))} 
-                      defaultValue={field.value.toString()}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un mois" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="1">Janvier</SelectItem>
-                        <SelectItem value="2">Février</SelectItem>
-                        <SelectItem value="3">Mars</SelectItem>
-                        <SelectItem value="4">Avril</SelectItem>
-                        <SelectItem value="5">Mai</SelectItem>
-                        <SelectItem value="6">Juin</SelectItem>
-                        <SelectItem value="7">Juillet</SelectItem>
-                        <SelectItem value="8">Août</SelectItem>
-                        <SelectItem value="9">Septembre</SelectItem>
-                        <SelectItem value="10">Octobre</SelectItem>
-                        <SelectItem value="11">Novembre</SelectItem>
-                        <SelectItem value="12">Décembre</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="annee"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Année</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
+    <Card>
+      <CardHeader>
+        <CardTitle>Créer une fiche de paie</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="mois">Mois</Label>
+              <Select value={mois.toString()} onValueChange={(value) => setMois(parseInt(value))}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un mois" />
+                </SelectTrigger>
+                <SelectContent>
+                  {moisOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value.toString()}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="annee">Année</Label>
+              <Input
+                type="number"
+                id="annee"
+                value={annee}
+                onChange={(e) => setAnnee(parseInt(e.target.value))}
               />
             </div>
-            
-            <FormField
-              control={form.control}
-              name="salaire_base"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Salaire de base (FCFA)</FormLabel>
-                  <FormControl>
-                    <Input type="number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          </div>
+          <div>
+            <Label htmlFor="salaireBase">Salaire de base</Label>
+            <Input
+              type="number"
+              id="salaireBase"
+              value={salaireBase}
+              onChange={(e) => setSalaireBase(parseFloat(e.target.value))}
             />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="heures_sup"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Heures supplémentaires</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="taux_horaire_sup"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Taux horaire (FCFA/heure)</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            <FormField
-              control={form.control}
-              name="primes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Primes (montant ou JSON)</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder='Montant ou JSON: {"Prime ancienneté": 15000}' />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="statut"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Statut</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un statut" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="En cours">En cours</SelectItem>
-                        <SelectItem value="Payé">Payé</SelectItem>
-                        <SelectItem value="Annulé">Annulé</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              
-              <FormField
-                control={form.control}
-                name="mode_paiement"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Mode de paiement</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Sélectionner un mode" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="Virement">Virement</SelectItem>
-                        <SelectItem value="Chèque">Chèque</SelectItem>
-                        <SelectItem value="Espèces">Espèces</SelectItem>
-                        <SelectItem value="Mobile Money">Mobile Money</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            
-            {/* Résumé des calculs */}
-            <div className="bg-muted/30 rounded-md p-4 space-y-2">
-              <h3 className="font-medium">Résumé des calculs</h3>
-              <div className="grid grid-cols-2 gap-2">
-                <div>Salaire brut:</div>
-                <div className="text-right">{formatMoney(calculatedValues.salaireBrut)} FCFA</div>
-                
-                <div>CNPS (employé):</div>
-                <div className="text-right">-{formatMoney(calculatedValues.cnpsEmploye)} FCFA</div>
-                
-                <div>IRPP:</div>
-                <div className="text-right">-{formatMoney(calculatedValues.irpp)} FCFA</div>
-                
-                <div>CAC:</div>
-                <div className="text-right">-{formatMoney(calculatedValues.cac)} FCFA</div>
-                
-                <div>TDL:</div>
-                <div className="text-right">-{formatMoney(calculatedValues.tdl)} FCFA</div>
-                
-                <div>RAV:</div>
-                <div className="text-right">-{formatMoney(calculatedValues.rav)} FCFA</div>
-                
-                <div>CFC (employé):</div>
-                <div className="text-right">-{formatMoney(calculatedValues.cfc)} FCFA</div>
-                
-                <div className="font-bold">Salaire net:</div>
-                <div className="text-right font-bold">{formatMoney(calculatedValues.salaireNet)} FCFA</div>
-                
-                <div className="border-t pt-2 font-medium">Coût total employeur:</div>
-                <div className="text-right border-t pt-2 font-medium">{formatMoney(calculatedValues.coutEmployeur)} FCFA</div>
+          </div>
+          <Tabs defaultValue="heures">
+            <TabsList>
+              <TabsTrigger value="heures">Heures supplémentaires</TabsTrigger>
+              <TabsTrigger value="primes">Primes</TabsTrigger>
+              <TabsTrigger value="retenues">Retenues</TabsTrigger>
+            </TabsList>
+            <TabsContent value="heures" className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="heuresSup">Nombre d'heures</Label>
+                  <Input
+                    type="number"
+                    id="heuresSup"
+                    value={heuresSup}
+                    onChange={(e) => setHeuresSup(parseFloat(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="tauxHoraireSup">Taux horaire</Label>
+                  <Input
+                    type="number"
+                    id="tauxHoraireSup"
+                    value={tauxHoraireSup}
+                    onChange={(e) => setTauxHoraireSup(parseFloat(e.target.value))}
+                  />
+                </div>
               </div>
+              <div>
+                <Label htmlFor="montantHeuresSup">Montant total</Label>
+                <Input
+                  type="number"
+                  id="montantHeuresSup"
+                  value={montantHeuresSup}
+                  onChange={(e) => setMontantHeuresSup(parseFloat(e.target.value))}
+                />
+              </div>
+            </TabsContent>
+            <TabsContent value="primes" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-medium">Liste des primes</h4>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Ajouter une prime
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Ajouter une prime</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="label" className="text-right">
+                          Label
+                        </Label>
+                        <Input id="label" value={newPrimeLabel} onChange={(e) => setNewPrimeLabel(e.target.value)} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="value" className="text-right">
+                          Value
+                        </Label>
+                        <Input
+                          type="number"
+                          id="value"
+                          value={newPrimeValue}
+                          onChange={(e) => setNewPrimeValue(parseFloat(e.target.value))}
+                          className="col-span-3"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" onClick={handleAddPrime}>
+                        Ajouter
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              {primes.length > 0 ? (
+                <ul className="list-none space-y-2">
+                  {primes.map((prime, index) => (
+                    <li key={index} className="flex items-center justify-between">
+                      <span>{prime.label}</span>
+                      <div className="flex items-center space-x-2">
+                        <span>{prime.value}</span>
+                        <Button variant="ghost" size="sm" onClick={() => handleRemovePrime(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted-foreground">Aucune prime ajoutée.</p>
+              )}
+            </TabsContent>
+            <TabsContent value="retenues" className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-medium">Liste des retenues</h4>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">
+                      <Plus className="mr-2 h-4 w-4" />
+                      Ajouter une retenue
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                      <DialogTitle>Ajouter une retenue</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="label" className="text-right">
+                          Label
+                        </Label>
+                        <Input id="label" value={newRetenueLabel} onChange={(e) => setNewRetenueLabel(e.target.value)} className="col-span-3" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="value" className="text-right">
+                          Value
+                        </Label>
+                        <Input
+                          type="number"
+                          id="value"
+                          value={newRetenueValue}
+                          onChange={(e) => setNewRetenueValue(parseFloat(e.target.value))}
+                          className="col-span-3"
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button type="button" onClick={handleAddRetenue}>
+                        Ajouter
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+              {autresRetenues.length > 0 ? (
+                <ul className="list-none space-y-2">
+                  {autresRetenues.map((retenue, index) => (
+                    <li key={index} className="flex items-center justify-between">
+                      <span>{retenue.label}</span>
+                      <div className="flex items-center space-x-2">
+                        <span>{retenue.value}</span>
+                        <Button variant="ghost" size="sm" onClick={() => handleRemoveRetenue(index)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-muted-foreground">Aucune retenue ajoutée.</p>
+              )}
+            </TabsContent>
+          </Tabs>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="datePaiement">Date de paiement</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={format(datePaiement || new Date(), 'PPP', { locale: fr })}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    <span>{datePaiement ? format(datePaiement, 'PPP', { locale: fr }) : <span>Choisir une date</span>}</span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    locale={fr}
+                    selected={datePaiement}
+                    onSelect={setDatePaiement}
+                    disabled={(date) =>
+                      date > new Date() || date < new Date('2020-01-01')
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-            
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-                Annuler
-              </Button>
-              <Button type="submit">Créer la fiche de paie</Button>
+            <div>
+              <Label htmlFor="modePaiement">Mode de paiement</Label>
+              <Select value={modePaiement} onValueChange={setModePaiement}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un mode de paiement" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Virement bancaire">Virement bancaire</SelectItem>
+                  <SelectItem value="Chèque">Chèque</SelectItem>
+                  <SelectItem value="Espèces">Espèces</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+          </div>
+          <div>
+            <Label htmlFor="referencePaiement">Référence de paiement</Label>
+            <Input
+              type="text"
+              id="referencePaiement"
+              value={referencePaiement}
+              onChange={(e) => setReferencePaiement(e.target.value)}
+            />
+          </div>
+          <div>
+            <Label htmlFor="statut">Statut</Label>
+            <Select value={statut} onValueChange={setStatut}>
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionner un statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Payé">Payé</SelectItem>
+                <SelectItem value="En attente">En attente</SelectItem>
+                <SelectItem value="Non payé">Non payé</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="notes">Notes</Label>
+            <Input
+              type="text"
+              id="notes"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
+          </div>
+          <CardFooter>
+            <Button type="submit">Créer la fiche de paie</Button>
+          </CardFooter>
+        </form>
+      </CardContent>
+    </Card>
   );
-}
+};
+
+export default EmployeePaieForm;

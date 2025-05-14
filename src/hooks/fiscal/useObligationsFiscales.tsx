@@ -1,270 +1,197 @@
 
-import { useEffect, useState, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Client } from "@/types/client";
-import { ClientFiscalData, ObligationStatuses } from "./types";
+import { useToast } from "@/components/ui/use-toast";
+import { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatuses } from "./types";
 import { useFiscalData } from "./hooks/useFiscalData";
 import { useFiscalSave } from "./hooks/useFiscalSave";
 import { useUnsavedChanges } from "./hooks/useUnsavedChanges";
+import { useFiscalAttestation } from "./hooks/useFiscalAttestation";
 
-export function useObligationsFiscales(selectedClient: Client) {
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [saveAttempts, setSaveAttempts] = useState(0);
-  const [lastSaveSuccess, setLastSaveSuccess] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [creationDate, setCreationDate] = useState("");
-  const [validityEndDate, setValidityEndDate] = useState("");
-  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses | null>(null);
-  const [showInAlert, setShowInAlert] = useState(true);
-  const [hiddenFromDashboard, setHiddenFromDashboard] = useState(false);
+export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "./types";
 
-  // Utiliser les hooks spécifiques
-  const {
-    fiscalData,
+export const useObligationsFiscales = (selectedClient: Client) => {
+  const { toast } = useToast();
+  const { 
+    fiscalData, 
+    setFiscalData, 
+    isLoading, 
     selectedYear,
-    setSelectedYear,
-    fetchFiscalData,
-    updateFiscalDataField
+    setSelectedYear 
   } = useFiscalData(selectedClient.id);
+  
+  const { hasUnsavedChanges, setHasUnsavedChanges, markAsChanged } = useUnsavedChanges();
+  const { saveFiscalData, saveStatus } = useFiscalSave(selectedClient.id, setHasUnsavedChanges);
+  const [lastSaveSuccess, setLastSaveSuccess] = useState<boolean>(false);
+  const [saveAttempts, setSaveAttempts] = useState<number>(0);
+  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({});
 
+  // Fiscal attestation state and handlers
   const {
-    hasUnsavedChanges,
-    setHasUnsavedChanges,
-    handleBeforeUnload
-  } = useUnsavedChanges();
+    creationDate,
+    validityEndDate,
+    showInAlert,
+    hiddenFromDashboard,
+    setCreationDate,
+    setValidityEndDate,
+    handleToggleAlert,
+    handleToggleDashboardVisibility
+  } = useFiscalAttestation(fiscalData, markAsChanged);
 
-  const {
-    saveFiscalData,
-    saveStatus
-  } = useFiscalSave(selectedClient.id, setHasUnsavedChanges);
-
-  // Charger les données fiscales au chargement et quand le client ou l'année change
+  // Initialize the state from the fiscal data
   useEffect(() => {
-    if (selectedClient?.id) {
-      setLoading(true);
-      setError(null);
+    if (fiscalData && typeof fiscalData === 'object') {
+      // Attestation data
+      if (fiscalData.attestation) {
+        const attestation = fiscalData.attestation;
+        setCreationDate(attestation.creationDate || null);
+        setValidityEndDate(attestation.validityEndDate || null);
+      }
       
-      fetchFiscalData()
-        .then((data) => {
-          if (data) {
-            // Set creation date
-            const creationDateValue = data.attestation?.creationDate || "";
-            setCreationDate(creationDateValue);
-            
-            // Calculate validity end date (usually 3 months)
-            if (creationDateValue) {
-              try {
-                const parts = creationDateValue.split('/');
-                if (parts.length === 3) {
-                  const date = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-                  date.setMonth(date.getMonth() + 3);
-                  setValidityEndDate(`${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`);
-                }
-              } catch (err) {
-                console.error("Error calculating validity end date:", err);
-              }
-            }
-            
-            // Set obligation statuses
-            if (data.obligations) {
-              setObligationStatuses(data.obligations);
-            }
-            
-            // Set alert and dashboard visibility settings
-            setShowInAlert(data.attestation?.showInAlert !== false);
-            setHiddenFromDashboard(data.hiddenFromDashboard === true);
-            
-            setDataLoaded(true);
-          }
-          setLoading(false);
-        })
-        .catch(err => {
-          setError("Erreur lors du chargement des données fiscales");
-          console.error(err);
-          setLoading(false);
-        });
+      // Obligations for the selected year
+      if (fiscalData.obligations && typeof fiscalData.obligations === 'object') {
+        const yearObligations = fiscalData.obligations[selectedYear as string] || {};
+        setObligationStatuses(yearObligations);
+      } else {
+        setObligationStatuses({});
+      }
+      
+      // Dashboard visibility
+      if (fiscalData.hiddenFromDashboard !== undefined) {
+        handleToggleDashboardVisibility(!!fiscalData.hiddenFromDashboard, false);
+      }
     }
-  }, [selectedClient.id, selectedYear, fetchFiscalData]);
+  }, [fiscalData, selectedYear]);
 
-  // Update creation date and recalculate validity end date
-  const handleCreationDateChange = (date: string) => {
-    setCreationDate(date);
+  // Update the year and reset the obligation statuses
+  const handleYearChange = useCallback((year: string) => {
+    setSelectedYear(year);
+    
+    if (fiscalData && typeof fiscalData === 'object' && fiscalData.obligations) {
+      // Get the obligations for the selected year or initialize an empty object
+      const yearObligations = fiscalData.obligations[year] || {};
+      setObligationStatuses(yearObligations);
+    } else {
+      setObligationStatuses({});
+    }
+  }, [fiscalData, setSelectedYear]);
+
+  // Handle status change for an obligation
+  const handleStatusChange = useCallback((key: string, status: TaxObligationStatus | DeclarationObligationStatus) => {
+    setObligationStatuses(prev => {
+      const newStatuses = { ...prev, [key]: status };
+      markAsChanged();
+      return newStatuses;
+    });
+  }, [markAsChanged]);
+
+  // Handle attachment update
+  const handleAttachmentUpdate = useCallback((key: string, attachmentUrl: string | null) => {
+    setObligationStatuses(prev => {
+      // Get the current status
+      const currentStatus = prev[key];
+      
+      // Only update if the status exists and is an object
+      if (currentStatus && typeof currentStatus === 'object') {
+        // Create a new object with attachment updated
+        const newStatus = {
+          ...currentStatus,
+          attachmentUrl
+        };
+        
+        markAsChanged();
+        return { ...prev, [key]: newStatus };
+      }
+      
+      return prev;
+    });
+  }, [markAsChanged]);
+
+  // Save all changes
+  const handleSave = useCallback(async () => {
+    if (!fiscalData || !selectedClient.id) return;
+    
+    // Mise à jour des données fiscales
+    const updatedFiscalData = {
+      ...fiscalData,
+      attestation: {
+        creationDate,
+        validityEndDate,
+        showInAlert
+      },
+      obligations: {
+        ...(typeof fiscalData === 'object' && fiscalData.obligations ? fiscalData.obligations : {}),
+        [selectedYear]: obligationStatuses
+      },
+      hiddenFromDashboard,
+      selectedYear
+    };
     
     try {
-      if (date) {
-        const parts = date.split('/');
-        if (parts.length === 3) {
-          const dateObj = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-          dateObj.setMonth(dateObj.getMonth() + 3);
-          setValidityEndDate(`${dateObj.getDate().toString().padStart(2, '0')}/${(dateObj.getMonth() + 1).toString().padStart(2, '0')}/${dateObj.getFullYear()}`);
-        }
-      } else {
-        setValidityEndDate("");
-      }
-    } catch (err) {
-      console.error("Error calculating validity end date:", err);
-    }
-    
-    // Update the fiscal data
-    updateFiscalDataField('attestation.creationDate', date);
-    setHasUnsavedChanges(true);
-  };
-
-  // Handle toggle alert visibility
-  const handleToggleAlert = () => {
-    const newValue = !showInAlert;
-    setShowInAlert(newValue);
-    updateFiscalDataField('attestation.showInAlert', newValue);
-    setHasUnsavedChanges(true);
-  };
-
-  // Handle toggle dashboard visibility
-  const handleToggleDashboardVisibility = () => {
-    const newValue = !hiddenFromDashboard;
-    setHiddenFromDashboard(newValue);
-    updateFiscalDataField('hiddenFromDashboard', newValue);
-    setHasUnsavedChanges(true);
-  };
-
-  // Handle status changes for obligations
-  const handleStatusChange = useCallback((obligation: string, field: string, value: boolean | string | number) => {
-    if (!obligationStatuses) return;
-    
-    // Update the local state
-    setObligationStatuses((prevStatuses) => {
-      if (!prevStatuses) return null;
-      
-      const newStatuses = { ...prevStatuses };
-      
-      // Handle nested fields with dot notation
-      if (field.includes('.')) {
-        const parts = field.split('.');
-        let current: any = newStatuses[obligation];
-        
-        // Navigate to the nested object
-        for (let i = 0; i < parts.length - 1; i++) {
-          if (!current[parts[i]]) current[parts[i]] = {};
-          current = current[parts[i]];
-        }
-        
-        // Set the value
-        current[parts[parts.length - 1]] = value;
-      } else {
-        (newStatuses[obligation] as any)[field] = value;
-      }
-      
-      return newStatuses;
-    });
-    
-    // Update the fiscal data
-    updateFiscalDataField(`obligations.${obligation}.${field}`, value);
-    setHasUnsavedChanges(true);
-  }, [obligationStatuses, updateFiscalDataField, setHasUnsavedChanges]);
-
-  // Handle attachment updates
-  const handleAttachmentUpdate = useCallback((
-    obligation: string, 
-    isDeclaration: boolean, 
-    attachmentType: string, 
-    filePath: string | null
-  ) => {
-    if (!obligationStatuses) return;
-    
-    // Determine the correct path based on obligation type
-    const fieldPath = isDeclaration 
-      ? `obligations.${obligation}.attachments.${attachmentType}` 
-      : `obligations.${obligation}.payment_attachments.${attachmentType}`;
-    
-    // Update the fiscal data
-    updateFiscalDataField(fieldPath, filePath);
-    setHasUnsavedChanges(true);
-    
-    // Update local state for UI
-    setObligationStatuses((prevStatuses) => {
-      if (!prevStatuses) return null;
-      
-      const newStatuses = JSON.parse(JSON.stringify(prevStatuses));
-      const parts = fieldPath.split('.');
-      
-      // Navigate to the nested object
-      let current: any = newStatuses;
-      for (let i = 0; i < parts.length - 1; i++) {
-        if (!current[parts[i]]) current[parts[i]] = {};
-        current = current[parts[i]];
-      }
-      
-      // Set the value
-      current[parts[parts.length - 1]] = filePath;
-      
-      return newStatuses;
-    });
-  }, [obligationStatuses, updateFiscalDataField, setHasUnsavedChanges]);
-
-  // Gestionnaire pour sauvegarder les données
-  const handleSave = useCallback(async () => {
-    if (fiscalData) {
-      setIsSaving(true);
+      const success = await saveFiscalData(updatedFiscalData);
+      setLastSaveSuccess(success);
       setSaveAttempts(prev => prev + 1);
       
-      // Update attestation data in fiscal data
-      const updatedFiscalData: ClientFiscalData = {
-        ...fiscalData,
-        attestation: {
-          ...fiscalData.attestation,
-          creationDate,
-          validityEndDate,
-          showInAlert
-        },
-        obligations: obligationStatuses || fiscalData.obligations,
-        hiddenFromDashboard,
-        selectedYear
-      };
-      
-      try {
-        const success = await saveFiscalData(updatedFiscalData);
-        setLastSaveSuccess(success);
-      } finally {
-        setIsSaving(false);
+      if (success) {
+        setFiscalData(updatedFiscalData);
       }
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de la sauvegarde."
+      });
+      setLastSaveSuccess(false);
+      setSaveAttempts(prev => prev + 1);
     }
   }, [
     fiscalData, 
+    selectedClient.id, 
     creationDate, 
     validityEndDate, 
     showInAlert, 
     obligationStatuses, 
     hiddenFromDashboard, 
-    selectedYear,
-    saveFiscalData
+    selectedYear, 
+    saveFiscalData, 
+    setFiscalData, 
+    toast
   ]);
 
+  // Determine dataLoaded state for UI purposes
+  const dataLoaded = !isLoading && fiscalData !== null;
+
+  // Auto-save on component unmount
+  useEffect(() => {
+    return () => {
+      if (hasUnsavedChanges) {
+        handleSave();
+      }
+    };
+  }, [hasUnsavedChanges, handleSave]);
+  
+  const isSaving = saveStatus === 'saving';
+
   return {
-    fiscalData,
-    loading,
-    error,
-    selectedYear,
-    setSelectedYear,
-    updateFiscalDataField,
-    handleSave,
-    hasUnsavedChanges,
-    saveStatus,
     creationDate,
-    setCreationDate: handleCreationDateChange,
     validityEndDate,
+    showInAlert,
     obligationStatuses,
+    setCreationDate,
     handleStatusChange,
     handleAttachmentUpdate,
-    isLoading: loading,
+    handleSave,
+    isLoading,
     dataLoaded,
     isSaving,
     saveAttempts,
+    lastSaveSuccess,
     showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
-    lastSaveSuccess
+    hasUnsavedChanges,
+    selectedYear,
+    setSelectedYear: handleYearChange
   };
-}
-
-export default useObligationsFiscales;
+};
