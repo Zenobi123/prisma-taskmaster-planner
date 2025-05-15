@@ -1,72 +1,99 @@
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { useBulkFiscalUpdate } from '@/hooks/fiscal/useBulkFiscalUpdate';
-import { RefreshCw } from 'lucide-react';
-import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { CheckCheck, AlertCircle } from "lucide-react";
+import { ObligationStatuses } from "@/hooks/fiscal/types";
 
-export const FiscalBulkUpdateButton = () => {
-  const { updateClientsfiscalData, updatingClients, isLoading, isUpdating } = useBulkFiscalUpdate();
+interface FiscalBulkUpdateButtonProps {
+  obligationStatuses: ObligationStatuses;
+  handleStatusChange: (obligation: string, field: string, value: boolean) => void;
+  isDeclarationObligation: (obligation: string) => boolean;
+}
 
-  const progressPercentage = updatingClients.total > 0 
-    ? (updatingClients.processed / updatingClients.total) * 100 
-    : 0;
+export function FiscalBulkUpdateButton({
+  obligationStatuses,
+  handleStatusChange,
+  isDeclarationObligation
+}: FiscalBulkUpdateButtonProps) {
+  const markAllAsAssujetti = () => {
+    Object.keys(obligationStatuses).forEach((key) => {
+      handleStatusChange(key, "assujetti", true);
+    });
+  };
 
-  // Create a click handler that doesn't need parameters
-  const handleButtonClick = () => {
-    updateClientsfiscalData();
+  const markAllAsNotAssujetti = () => {
+    Object.keys(obligationStatuses).forEach((key) => {
+      handleStatusChange(key, "assujetti", false);
+      
+      // Also reset the completed status
+      if (isDeclarationObligation(key)) {
+        handleStatusChange(key, "depose", false);
+      } else {
+        handleStatusChange(key, "paye", false);
+      }
+    });
+  };
+
+  const markAllAsComplete = () => {
+    Object.keys(obligationStatuses).forEach((key) => {
+      // Only mark as complete if they are subject to (assujetti)
+      if (obligationStatuses[key].assujetti) {
+        if (isDeclarationObligation(key)) {
+          handleStatusChange(key, "depose", true);
+        } else {
+          handleStatusChange(key, "paye", true);
+        }
+      }
+    });
+  };
+
+  const markAllAsIncomplete = () => {
+    Object.keys(obligationStatuses).forEach((key) => {
+      if (obligationStatuses[key].assujetti) {
+        if (isDeclarationObligation(key)) {
+          handleStatusChange(key, "depose", false);
+        } else {
+          handleStatusChange(key, "paye", false);
+        }
+      }
+    });
   };
 
   return (
-    <Card className="mb-6">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg">Mise à jour des obligations fiscales</CardTitle>
-        <CardDescription>
-          Met à jour les données fiscales pour tous les clients en gestion externalisée
-          <span className="text-xs block mt-1 text-muted-foreground">Les mises à jour sont également effectuées automatiquement</span>
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col space-y-4">
-          <Button 
-            onClick={handleButtonClick} 
-            disabled={isLoading || isUpdating}
-            className="w-full"
-            size="lg"
-            variant={isUpdating ? "outline" : "default"}
-          >
-            {isUpdating ? (
-              <>
-                <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
-                Mise à jour en cours...
-              </>
-            ) : (
-              "Mettre à jour les obligations fiscales pour tous les clients"
-            )}
-          </Button>
-          
-          {isUpdating && (
-            <div className="space-y-3">
-              <Progress value={progressPercentage} className="w-full h-2" />
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>
-                  Progression : {updatingClients.processed}/{updatingClients.total}
-                </span>
-                <span>
-                  {updatingClients.successful} succès • {updatingClients.failed} échecs
-                </span>
-              </div>
-            </div>
-          )}
-          
-          {!isUpdating && updatingClients.processed > 0 && (
-            <div className="text-sm text-muted-foreground text-center">
-              Dernière mise à jour : {updatingClients.successful} succès, {updatingClients.failed} échecs
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm">
+          Mise à jour groupée
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel>Mise à jour groupée</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={markAllAsAssujetti}>
+          <AlertCircle className="mr-2 h-4 w-4" />
+          Marquer tout comme assujetti
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={markAllAsNotAssujetti}>
+          <AlertCircle className="mr-2 h-4 w-4" />
+          Marquer tout comme non assujetti
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={markAllAsComplete}>
+          <CheckCheck className="mr-2 h-4 w-4" />
+          Marquer tout comme complété
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={markAllAsIncomplete}>
+          <CheckCheck className="mr-2 h-4 w-4" />
+          Marquer tout comme incomplet
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
-};
+}

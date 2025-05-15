@@ -34,7 +34,7 @@ export interface DeclarationObligationStatus {
   depose: boolean;
   dateDepot?: string;
   observations?: string;
-  periodicity: DeclarationPeriodicity; // Required property with proper type
+  periodicity: DeclarationPeriodicity; // Required property
   // Attachment fields for declarations
   attachments?: {
     declaration?: string;

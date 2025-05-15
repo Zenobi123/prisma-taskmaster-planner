@@ -5,7 +5,7 @@ import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
-import { Loader2, Save, AlertCircle, RefreshCw, CheckCircle2, Clock } from "lucide-react";
+import { Loader2, Save, AlertCircle, CheckCircle2, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
@@ -43,7 +43,8 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     lastSaveSuccess,
     hasUnsavedChanges,
     selectedYear,
-    setSelectedYear
+    setSelectedYear,
+    isDeclarationObligation
   } = useObligationsFiscales(selectedClient);
 
   // Generate year options for the last 5 years and next 2 years
@@ -153,6 +154,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
             handleAttachmentUpdate(obligation, isDeclaration, attachmentType, filePath)}
           clientId={selectedClient.id}
           selectedYear={selectedYear}
+          isDeclarationObligation={isDeclarationObligation}
         />
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
