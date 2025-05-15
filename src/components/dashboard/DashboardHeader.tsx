@@ -24,15 +24,7 @@ const DashboardHeader = ({ lastRefresh, onRefresh }: DashboardHeaderProps) => {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            className="flex items-center gap-1"
-          >
-            <RefreshCw className="h-4 w-4 mr-1" />
-            Actualiser
-          </Button>
+          {/* Bouton d'actualisation supprimé car l'actualisation est automatique */}
           <NewTaskDialog />
         </div>
       </div>

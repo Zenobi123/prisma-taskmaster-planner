@@ -24,6 +24,7 @@ export const FiscalBulkUpdateButton = () => {
         <CardTitle className="text-lg">Mise à jour des obligations fiscales</CardTitle>
         <CardDescription>
           Met à jour les données fiscales pour tous les clients en gestion externalisée
+          <span className="text-xs block mt-1 text-muted-foreground">Les mises à jour sont également effectuées automatiquement</span>
         </CardDescription>
       </CardHeader>
       <CardContent>
