@@ -45,7 +45,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="igs"
               status={obligationStatuses.igs}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
               showIGSPanel={true}
@@ -56,7 +57,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="patente"
               status={obligationStatuses.patente}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -66,7 +68,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="baic"
               status={obligationStatuses.baic}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -76,7 +79,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="iba"
               status={obligationStatuses.iba}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -86,7 +90,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="ibnc"
               status={obligationStatuses.ibnc}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -96,7 +101,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="ircm"
               status={obligationStatuses.ircm}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -106,7 +112,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="irf"
               status={obligationStatuses.irf}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -116,7 +123,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="its"
               status={obligationStatuses.its}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -126,7 +134,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="precompte"
               status={obligationStatuses.precompte}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -136,7 +145,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="taxeSejour"
               status={obligationStatuses.taxeSejour}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -146,7 +156,8 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="baillCommercial"
               status={obligationStatuses.baillCommercial}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, false, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -154,7 +165,7 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
         </div>
         
         <div className="space-y-4">
-          <h3 className="font-medium text-sm">Déclarations obligatoires</h3>
+          <h3 className="font-medium text-sm">Déclarations obligatoires annuelles</h3>
           
           <div className="grid gap-4 md:grid-cols-2">
             <DeclarationObligationItem
@@ -162,9 +173,11 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="dsf"
               status={obligationStatuses.dsf as DeclarationObligationStatus}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, true, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
+              periodicity="annual"
             />
             
             <DeclarationObligationItem
@@ -172,9 +185,11 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="darp"
               status={obligationStatuses.darp as DeclarationObligationStatus}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, true, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
+              periodicity="annual"
             />
             
             <DeclarationObligationItem
@@ -182,10 +197,25 @@ export const AnnualObligationsSection: React.FC<AnnualObligationsSectionProps> =
               keyName="licence"
               status={obligationStatuses.licence as DeclarationObligationStatus}
               onStatusChange={handleStatusChangeAdapter}
-              onAttachmentChange={handleAttachmentChangeAdapter}
+              onAttachmentChange={(key, attachmentType, filePath) => 
+                handleAttachmentChangeAdapter(key, true, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
+              periodicity="annual"
             />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <h3 className="font-medium text-sm">Déclarations obligatoires mensuelles</h3>
+          
+          <div className="grid gap-4 md:grid-cols-2">
+            {/* Aucune déclaration mensuelle pour l'instant - sera ajoutée ultérieurement si nécessaire */}
+            <div className="p-4 border border-dashed rounded-lg bg-muted/20 flex items-center justify-center">
+              <p className="text-sm text-muted-foreground">
+                Les déclarations mensuelles seront ajoutées prochainement
+              </p>
+            </div>
           </div>
         </div>
       </CardContent>

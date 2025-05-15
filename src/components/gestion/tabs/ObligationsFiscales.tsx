@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
-export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses } from "@/hooks/fiscal/types";
+export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses, DeclarationPeriodicity } from "@/hooks/fiscal/types";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
@@ -160,8 +160,8 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         <AnnualObligationsSection 
           obligationStatuses={obligationStatuses}
           handleStatusChange={handleStatusChange}
-          onAttachmentChange={(obligation, attachmentType, filePath) => 
-            handleAttachmentUpdate(obligation, true, attachmentType, filePath)}
+          onAttachmentChange={(obligation, isDeclaration, attachmentType, filePath) => 
+            handleAttachmentUpdate(obligation, isDeclaration, attachmentType, filePath)}
           clientId={selectedClient.id}
           selectedYear={selectedYear}
         />

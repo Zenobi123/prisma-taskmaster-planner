@@ -1,5 +1,6 @@
 
 export type ObligationType = "tax" | "declaration";
+export type DeclarationPeriodicity = "monthly" | "annual";
 
 export interface IgsPaymentStatus {
   isPaid: boolean;
@@ -33,6 +34,7 @@ export interface DeclarationObligationStatus {
   depose: boolean;
   dateDepot?: string;
   observations?: string;
+  periodicity?: DeclarationPeriodicity; // Nouvelle propriété pour indiquer la périodicité
   // New attachment fields for declarations
   attachments?: {
     declaration?: string;
@@ -68,7 +70,9 @@ export interface ClientFiscalData {
     validityEndDate: string | null;
     showInAlert: boolean;
   };
-  obligations?: ObligationStatuses;
+  obligations?: {
+    [year: string]: ObligationStatuses;
+  };
   hiddenFromDashboard?: boolean;
   updatedAt?: string;
   selectedYear?: string;
@@ -80,7 +84,9 @@ export interface FiscalData {
     validityEndDate: string | null;
     showInAlert: boolean;
   };
-  obligations?: ObligationStatuses;
+  obligations?: {
+    [year: string]: ObligationStatuses;
+  };
   hiddenFromDashboard?: boolean;
   updatedAt?: string;
   selectedYear?: string;

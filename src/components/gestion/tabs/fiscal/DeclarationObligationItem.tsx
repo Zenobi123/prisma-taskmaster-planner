@@ -2,87 +2,74 @@
 import React, { useEffect } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { DeclarationObligationStatus } from "@/hooks/fiscal/types";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { DeclarationObligationStatus, DeclarationPeriodicity } from "@/hooks/fiscal/types";
+import { ChevronDown, ChevronUp, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { AttachmentUploader } from "./AttachmentUploader";
+import { Badge } from "@/components/ui/badge";
 
 interface DeclarationObligationItemProps {
-  label: string;
+  title: string;
+  keyName: string;
   status: DeclarationObligationStatus;
-  obligationKey: string;
-  onChange: (obligation: string, field: string, value: boolean | string) => void;
-  onAttachmentChange?: (obligation: string, attachmentType: string, filePath: string | null) => void;
-  expanded?: boolean;
-  onToggleExpand?: () => void;
+  onStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
+  onAttachmentChange: (obligation: string, attachmentType: string, filePath: string | null) => void;
   clientId: string;
   selectedYear: string;
+  periodicity?: DeclarationPeriodicity;
 }
 
 export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps> = ({
-  label,
+  title,
+  keyName,
   status,
-  obligationKey,
-  onChange,
+  onStatusChange,
   onAttachmentChange,
-  expanded = false,
-  onToggleExpand,
   clientId,
-  selectedYear
+  selectedYear,
+  periodicity = "annual"
 }) => {
-  // Debug the expanded state
-  useEffect(() => {
-    console.log(`DeclarationObligationItem ${label} expanded state:`, expanded);
-  }, [expanded, label]);
+  const [expanded, setExpanded] = React.useState(false);
 
-  // Debug actual status
+  // Met à jour la périodicité quand le composant est monté ou lorsque la périodicité change
   useEffect(() => {
-    console.log(`DeclarationObligationItem ${label} status:`, {
-      assujetti: status?.assujetti, 
-      type: typeof status?.assujetti,
-      depose: status?.depose,
-      deposeType: typeof status?.depose
-    });
-  }, [status, label]);
+    if (status?.periodicity !== periodicity) {
+      onStatusChange(keyName, "periodicity", periodicity);
+    }
+  }, [keyName, status, periodicity, onStatusChange]);
 
   const handleAssujettiChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
-      console.log(`${obligationKey} assujetti change:`, checked);
-      onChange(obligationKey, "assujetti", checked);
+      console.log(`${keyName} assujetti change:`, checked);
+      onStatusChange(keyName, "assujetti", checked);
     }
   };
 
   const handleDeposeChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
-      console.log(`${obligationKey} depose change:`, checked);
-      onChange(obligationKey, "depose", checked);
+      console.log(`${keyName} depose change:`, checked);
+      onStatusChange(keyName, "depose", checked);
     }
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(obligationKey, "dateDepot", e.target.value);
+    onStatusChange(keyName, "dateDepot", e.target.value);
   };
 
   const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onChange(obligationKey, "observations", e.target.value);
+    onStatusChange(keyName, "observations", e.target.value);
   };
 
-  // Handle expansion click with proper event stopping
-  const handleExpandClick = (e: React.MouseEvent) => {
-    console.log("Expansion button clicked for Declaration item");
-    e.preventDefault();
-    e.stopPropagation();
-    if (onToggleExpand) {
-      onToggleExpand();
-    }
+  const handleToggleExpand = () => {
+    setExpanded(!expanded);
   };
 
   // Handle file upload for declaration items
   const handleFileUpload = (attachmentType: string, filePath: string | null) => {
     if (onAttachmentChange) {
-      onAttachmentChange(obligationKey, attachmentType, filePath);
+      onAttachmentChange(keyName, attachmentType, filePath);
     }
   };
 
@@ -91,23 +78,31 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Checkbox 
-            id={`${obligationKey}-assujetti`}
+            id={`${keyName}-assujetti`}
             checked={Boolean(status?.assujetti)}
             onCheckedChange={handleAssujettiChange}
           />
-          <label
-            htmlFor={`${obligationKey}-assujetti`}
-            className="font-medium cursor-pointer"
-          >
-            {label}
-          </label>
+          <div>
+            <label
+              htmlFor={`${keyName}-assujetti`}
+              className="font-medium cursor-pointer"
+            >
+              {title}
+            </label>
+            <Badge 
+              variant={periodicity === "monthly" ? "outline" : "secondary"} 
+              className="ml-2 text-xs"
+            >
+              {periodicity === "monthly" ? "Mensuelle" : "Annuelle"}
+            </Badge>
+          </div>
         </div>
         
-        {status?.assujetti && onToggleExpand && (
+        {status?.assujetti && (
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={handleExpandClick}
+            onClick={handleToggleExpand}
             className="h-8 w-8 p-0"
             type="button"
             aria-label={expanded ? "Réduire" : "Développer"}
@@ -125,12 +120,12 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
         <div className="mt-4 pl-6 space-y-3">
           <div className="flex items-center space-x-2">
             <Checkbox 
-              id={`${obligationKey}-depose`}
+              id={`${keyName}-depose`}
               checked={Boolean(status?.depose)}
               onCheckedChange={handleDeposeChange}
             />
             <label
-              htmlFor={`${obligationKey}-depose`}
+              htmlFor={`${keyName}-depose`}
               className="text-sm cursor-pointer"
             >
               Déposé
@@ -141,11 +136,11 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
             <>
               {status?.depose && (
                 <div className="space-y-1.5">
-                  <Label htmlFor={`${obligationKey}-date`} className="text-sm">
-                    Date de dépôt
+                  <Label htmlFor={`${keyName}-date`} className="text-sm flex items-center">
+                    <Calendar className="h-3.5 w-3.5 mr-1.5" /> Date de dépôt
                   </Label>
                   <Input
-                    id={`${obligationKey}-date`}
+                    id={`${keyName}-date`}
                     type="date"
                     value={status?.dateDepot || ""}
                     onChange={handleDateChange}
@@ -155,11 +150,11 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
               )}
               
               <div className="space-y-1.5">
-                <Label htmlFor={`${obligationKey}-observations`} className="text-sm">
+                <Label htmlFor={`${keyName}-observations`} className="text-sm">
                   Observations
                 </Label>
                 <Textarea
-                  id={`${obligationKey}-observations`}
+                  id={`${keyName}-observations`}
                   value={status?.observations || ""}
                   onChange={handleObservationsChange}
                   placeholder="Ajoutez des observations concernant cette obligation..."
@@ -176,7 +171,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
                   <AttachmentUploader
                     clientId={clientId}
                     year={selectedYear}
-                    obligationType={obligationKey}
+                    obligationType={keyName}
                     attachmentType="declaration"
                     attachmentLabel="Déclaration"
                     filePath={status.attachments?.declaration}
@@ -187,7 +182,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
                   <AttachmentUploader
                     clientId={clientId}
                     year={selectedYear}
-                    obligationType={obligationKey}
+                    obligationType={keyName}
                     attachmentType="receipt"
                     attachmentLabel="Accusé de réception"
                     filePath={status.attachments?.receipt}
@@ -198,7 +193,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
                   <AttachmentUploader
                     clientId={clientId}
                     year={selectedYear}
-                    obligationType={obligationKey}
+                    obligationType={keyName}
                     attachmentType="payment"
                     attachmentLabel="Justificatif de paiement"
                     filePath={status.attachments?.payment}
@@ -209,7 +204,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
                   <AttachmentUploader
                     clientId={clientId}
                     year={selectedYear}
-                    obligationType={obligationKey}
+                    obligationType={keyName}
                     attachmentType="additional"
                     attachmentLabel="Document supplémentaire"
                     filePath={status.attachments?.additional}
@@ -223,4 +218,4 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
       )}
     </div>
   );
-}
+};
