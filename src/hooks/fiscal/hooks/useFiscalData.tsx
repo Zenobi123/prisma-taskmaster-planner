@@ -2,7 +2,6 @@
 import { useState, useEffect } from "react";
 import { ClientFiscalData } from "../types";
 import { fetchFiscalData } from "../services/fetchService";
-import { saveFiscalData } from "../services/saveService";
 import { verifyFiscalDataSave } from "../services/verifyService";
 
 export const useFiscalData = (clientId: string) => {
@@ -22,17 +21,17 @@ export const useFiscalData = (clientId: string) => {
         const data = await fetchFiscalData(clientId);
         
         if (data) {
-          // Vérification et correction des données
+          // Verify and correct data
           const verifiedData = verifyFiscalDataSave(data);
           
-          // Si l'année sélectionnée existe dans les données, utilisez-la
+          // Use selected year from data if it exists
           if (typeof verifiedData === 'object' && verifiedData && 'selectedYear' in verifiedData) {
             setSelectedYear(verifiedData.selectedYear as string);
           }
           
           setFiscalData(verifiedData);
         } else {
-          // Initialisation des données par défaut si aucune n'existe
+          // Initialize default data if none exists
           const currentYear = new Date().getFullYear().toString();
           const defaultData: ClientFiscalData = {
             attestation: {
@@ -41,21 +40,22 @@ export const useFiscalData = (clientId: string) => {
               showInAlert: true
             },
             obligations: {
-              // Initialize with empty required structure
-              igs: { assujetti: false, paye: false },
-              patente: { assujetti: false, paye: false },
-              dsf: { assujetti: false, depose: false },
-              darp: { assujetti: false, depose: false },
-              iba: { assujetti: false, paye: false },
-              baic: { assujetti: false, paye: false },
-              ibnc: { assujetti: false, paye: false },
-              ircm: { assujetti: false, paye: false },
-              irf: { assujetti: false, paye: false },
-              its: { assujetti: false, paye: false },
-              licence: { assujetti: false, depose: false },
-              precompte: { assujetti: false, paye: false },
-              taxeSejour: { assujetti: false, paye: false },
-              baillCommercial: { assujetti: false, paye: false }
+              [currentYear]: {
+                igs: { assujetti: false, paye: false },
+                patente: { assujetti: false, paye: false },
+                dsf: { assujetti: false, depose: false, periodicity: "annual" },
+                darp: { assujetti: false, depose: false, periodicity: "annual" },
+                iba: { assujetti: false, paye: false },
+                baic: { assujetti: false, paye: false },
+                ibnc: { assujetti: false, paye: false },
+                ircm: { assujetti: false, paye: false },
+                irf: { assujetti: false, paye: false },
+                its: { assujetti: false, paye: false },
+                licence: { assujetti: false, depose: false, periodicity: "annual" },
+                precompte: { assujetti: false, paye: false },
+                taxeSejour: { assujetti: false, paye: false },
+                baillCommercial: { assujetti: false, paye: false }
+              }
             },
             hiddenFromDashboard: false,
             selectedYear: currentYear
@@ -65,8 +65,8 @@ export const useFiscalData = (clientId: string) => {
           setSelectedYear(currentYear);
         }
       } catch (error) {
-        console.error("Erreur lors du chargement des données fiscales:", error);
-        setLoadError("Impossible de charger les données fiscales");
+        console.error("Error loading fiscal data:", error);
+        setLoadError("Could not load fiscal data");
       } finally {
         setIsLoading(false);
       }

@@ -50,11 +50,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => (currentYear - 4 + i).toString());
 
-  // Function to handle page refresh
-  const handleRefreshPage = () => {
-    window.location.reload();
-  };
-
   // Auto-save visual indicator
   useEffect(() => {
     if (hasUnsavedChanges && !isSaving) {
@@ -138,12 +133,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
                 ? "Si les données ne sont pas visibles après enregistrement, veuillez actualiser la page." 
                 : "Pour voir les changements dans le tableau de bord, actualisez la page après l'enregistrement."}
             </AlertDescription>
-            {saveAttempts >= 2 && (
-              <Button variant="outline" size="sm" className="ml-auto" onClick={handleRefreshPage}>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Actualiser maintenant
-              </Button>
-            )}
           </Alert>
         )}
         
@@ -152,9 +141,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           validityEndDate={validityEndDate}
           setCreationDate={setCreationDate}
           showInAlert={showInAlert}
-          onToggleAlert={() => handleToggleAlert(true)}
+          onToggleAlert={handleToggleAlert}
           hiddenFromDashboard={hiddenFromDashboard}
-          onToggleDashboardVisibility={() => handleToggleDashboardVisibility(true)}
+          onToggleDashboardVisibility={handleToggleDashboardVisibility}
         />
         
         <AnnualObligationsSection 

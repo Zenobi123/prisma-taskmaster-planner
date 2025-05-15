@@ -33,7 +33,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
 }) => {
   const [expanded, setExpanded] = React.useState(false);
 
-  // Met à jour la périodicité quand le composant est monté ou lorsque la périodicité change
+  // Update periodicity when component mounts or when periodicity changes
   useEffect(() => {
     if (status?.periodicity !== periodicity) {
       onStatusChange(keyName, "periodicity", periodicity);

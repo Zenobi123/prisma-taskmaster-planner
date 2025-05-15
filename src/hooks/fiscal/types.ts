@@ -22,7 +22,7 @@ export interface TaxObligationStatus {
     T3?: IgsPaymentStatus; // 15 juillet
     T4?: IgsPaymentStatus; // 15 octobre
   };
-  // New attachment fields for payments
+  // Attachment fields for payments
   payment_attachments?: {
     declaration?: string;
     receipt?: string;
@@ -34,8 +34,8 @@ export interface DeclarationObligationStatus {
   depose: boolean;
   dateDepot?: string;
   observations?: string;
-  periodicity?: DeclarationPeriodicity; // Nouvelle propriété pour indiquer la périodicité
-  // New attachment fields for declarations
+  periodicity: DeclarationPeriodicity; // Required property with proper type
+  // Attachment fields for declarations
   attachments?: {
     declaration?: string;
     receipt?: string;
@@ -61,7 +61,7 @@ export interface ObligationStatuses {
   licence: DeclarationObligationStatus; // Licence
   precompte: TaxObligationStatus; // Précompte sur loyer
   taxeSejour: TaxObligationStatus; // Taxe de séjour dans les établissements d'hébergement
-  baillCommercial: TaxObligationStatus; // Add the new Bail Commercial obligation
+  baillCommercial: TaxObligationStatus; // Bail Commercial obligation
 }
 
 export interface ClientFiscalData {
