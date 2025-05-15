@@ -18,9 +18,6 @@ const DashboardHeader = ({ lastRefresh, onRefresh }: DashboardHeaderProps) => {
           </h1>
           <p className="text-neutral-600 mt-1">
             Bienvenue sur votre espace de gestion
-            <span className="text-xs ml-2 text-neutral-400">
-              Actualisé à {lastRefresh.toLocaleTimeString()}
-            </span>
           </p>
         </div>
         <div className="flex gap-2">

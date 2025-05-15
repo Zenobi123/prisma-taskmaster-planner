@@ -152,15 +152,16 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           validityEndDate={validityEndDate}
           setCreationDate={setCreationDate}
           showInAlert={showInAlert}
-          onToggleAlert={handleToggleAlert}
+          onToggleAlert={() => handleToggleAlert(true)}
           hiddenFromDashboard={hiddenFromDashboard}
-          onToggleDashboardVisibility={handleToggleDashboardVisibility}
+          onToggleDashboardVisibility={() => handleToggleDashboardVisibility(true)}
         />
         
         <AnnualObligationsSection 
           obligationStatuses={obligationStatuses}
           handleStatusChange={handleStatusChange}
-          onAttachmentChange={handleAttachmentUpdate}
+          onAttachmentChange={(obligation, attachmentType, filePath) => 
+            handleAttachmentUpdate(obligation, true, attachmentType, filePath)}
           clientId={selectedClient.id}
           selectedYear={selectedYear}
         />
