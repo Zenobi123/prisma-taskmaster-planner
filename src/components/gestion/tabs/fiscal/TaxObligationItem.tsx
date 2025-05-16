@@ -10,14 +10,13 @@ import { AttachmentUploader } from './AttachmentUploader';
 import { IgsDetailPanel } from './IgsDetailPanel';
 import { Separator } from '@/components/ui/separator';
 import { ObservationsSection } from './components/ObservationsSection';
-import { PaymentStatus } from './components/PaymentStatus';
 
 interface TaxObligationItemProps {
   name: string;
   nameLabel: string;
   status: TaxObligationStatus;
   onChange: (field: string, value: any) => void;
-  isIgsObligation: boolean;
+  isIgsObligation?: boolean;
   clientId: string;
   selectedYear: string;
 }
@@ -27,7 +26,7 @@ export const TaxObligationItem = ({
   nameLabel,
   status,
   onChange,
-  isIgsObligation,
+  isIgsObligation = false,
   clientId,
   selectedYear,
 }: TaxObligationItemProps) => {
@@ -111,8 +110,6 @@ export const TaxObligationItem = ({
                   <IgsDetailPanel 
                     igsStatus={status}
                     onStatusChange={onChange}
-                    showPanel={showPanel}
-                    onTogglePanel={handleTogglePanel}
                   />
                 )}
               </div>
@@ -132,23 +129,23 @@ export const TaxObligationItem = ({
               <Label className="text-sm mb-2 block">Pièces justificatives</Label>
               <div className="space-y-2">
                 <AttachmentUploader
-                  label="Attestation de paiement"
-                  fileType="attestation"
+                  obligationType={name}
+                  attachmentType="attestation"
+                  attachmentLabel="Attestation de paiement"
                   clientId={clientId}
-                  obligationName={name}
-                  filePath={status.attachments?.attestation || ''}
                   year={selectedYear}
-                  onChange={(filePath) => handleAttachmentChange('attestation', filePath)}
+                  filePath={status.attachments?.attestation || ''}
+                  onFileUploaded={(filePath) => handleAttachmentChange('attestation', filePath)}
                 />
                 
                 <AttachmentUploader
-                  label="Reçu de paiement"
-                  fileType="receipt"
+                  obligationType={name}
+                  attachmentType="receipt"
+                  attachmentLabel="Reçu de paiement"
                   clientId={clientId}
-                  obligationName={name}
-                  filePath={status.attachments?.receipt || ''}
                   year={selectedYear}
-                  onChange={(filePath) => handleAttachmentChange('receipt', filePath)}
+                  filePath={status.attachments?.receipt || ''}
+                  onFileUploaded={(filePath) => handleAttachmentChange('receipt', filePath)}
                 />
               </div>
             </div>

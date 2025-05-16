@@ -129,10 +129,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     loadFiscalData
   ]);
 
-  // Supprimer l'auto-sauvegarde toutes les 2 minutes
-
-  // Supprimer l'auto-sauvegarde lors de la fermeture du composant
-  
   // Determine dataLoaded state for UI purposes
   const dataLoaded = !isLoading && fiscalData !== null;
 
@@ -150,7 +146,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     isSaving,
     saveAttempts,
     lastSaveSuccess,
-    showInAlert: showInAlert, // Correction de la duplication
+    showInAlert, 
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,

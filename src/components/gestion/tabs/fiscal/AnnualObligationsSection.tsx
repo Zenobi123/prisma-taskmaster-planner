@@ -23,8 +23,6 @@ export function AnnualObligationsSection({
   selectedYear,
   isDeclarationObligation = (obligation) => ['dsf', 'darp', 'licence'].includes(obligation)
 }: AnnualObligationsSectionProps) {
-  const [showIGSPanel, setShowIGSPanel] = useState<boolean>(false);
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -41,103 +39,91 @@ export function AnnualObligationsSection({
           <AccordionTrigger className="text-base font-medium">Impôts directs</AccordionTrigger>
           <AccordionContent className="space-y-4">
             <TaxObligationItem
-              keyName="igs"
-              title="Impôt Général sur les Sociétés (IGS)"
+              name="igs"
+              nameLabel="Impôt Général sur les Sociétés (IGS)"
               status={obligationStatuses.igs as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("igs", field, value)}
+              isIgsObligation={true}
               clientId={clientId}
               selectedYear={selectedYear}
-              showIGSPanel={showIGSPanel}
-              onToggleIGSPanel={() => setShowIGSPanel(!showIGSPanel)}
             />
             <TaxObligationItem
-              keyName="patente"
-              title="Patente"
+              name="patente"
+              nameLabel="Patente"
               status={obligationStatuses.patente as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("patente", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
             <TaxObligationItem
-              keyName="iba"
-              title="Impôts sur les Bénéfices Agricoles (IBA)"
+              name="iba"
+              nameLabel="Impôts sur les Bénéfices Agricoles (IBA)"
               status={obligationStatuses.iba as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("iba", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
             <TaxObligationItem
-              keyName="baic"
-              title="Impôts sur les Bénéfices Artisanaux, Industriels et Commerciaux (BAIC)"
+              name="baic"
+              nameLabel="Impôts sur les Bénéfices Artisanaux, Industriels et Commerciaux (BAIC)"
               status={obligationStatuses.baic as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("baic", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
             <TaxObligationItem
-              keyName="ibnc"
-              title="Impôts sur les Bénéfices des Professions Non Commerciales (IBNC)"
+              name="ibnc"
+              nameLabel="Impôts sur les Bénéfices des Professions Non Commerciales (IBNC)"
               status={obligationStatuses.ibnc as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("ibnc", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
             <TaxObligationItem
-              keyName="ircm"
-              title="Impôts sur les Revenus des Capitaux Mobiliers (IRCM)"
+              name="ircm"
+              nameLabel="Impôts sur les Revenus des Capitaux Mobiliers (IRCM)"
               status={obligationStatuses.ircm as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("ircm", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
             <TaxObligationItem
-              keyName="irf"
-              title="Impôts sur les Revenus Fonciers (IRF)"
+              name="irf"
+              nameLabel="Impôts sur les Revenus Fonciers (IRF)"
               status={obligationStatuses.irf as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("irf", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
             <TaxObligationItem
-              keyName="its"
-              title="Impôts sur les Traitements, Salaires (ITS)"
+              name="its"
+              nameLabel="Impôts sur les Traitements, Salaires (ITS)"
               status={obligationStatuses.its as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("its", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
             <TaxObligationItem
-              keyName="precompte"
-              title="Précompte sur Loyer"
+              name="precompte"
+              nameLabel="Précompte sur Loyer"
               status={obligationStatuses.precompte as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("precompte", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
             <TaxObligationItem
-              keyName="taxeSejour"
-              title="Taxe de Séjour"
+              name="taxeSejour"
+              nameLabel="Taxe de Séjour"
               status={obligationStatuses.taxeSejour as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("taxeSejour", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
             <TaxObligationItem
-              keyName="baillCommercial"
-              title="Bail Commercial"
+              name="baillCommercial"
+              nameLabel="Bail Commercial"
               status={obligationStatuses.baillCommercial as TaxObligationStatus}
-              onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, false, attachmentType, filePath)}
+              onChange={(field, value) => handleStatusChange("baillCommercial", field, value)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -152,7 +138,8 @@ export function AnnualObligationsSection({
               title="Déclaration Statistique et Fiscale (DSF)"
               status={obligationStatuses.dsf as DeclarationObligationStatus}
               onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, true, attachmentType, filePath)}
+              onAttachmentChange={(obligation, attachmentType, filePath) => 
+                onAttachmentChange(obligation, true, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -161,7 +148,8 @@ export function AnnualObligationsSection({
               title="Déclaration Annuelle des Retenues à la Source (DARS)"
               status={obligationStatuses.darp as DeclarationObligationStatus}
               onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, true, attachmentType, filePath)}
+              onAttachmentChange={(obligation, attachmentType, filePath) => 
+                onAttachmentChange(obligation, true, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />
@@ -170,7 +158,8 @@ export function AnnualObligationsSection({
               title="Licence"
               status={obligationStatuses.licence as DeclarationObligationStatus}
               onStatusChange={handleStatusChange}
-              onAttachmentChange={(key, attachmentType, filePath) => onAttachmentChange(key, true, attachmentType, filePath)}
+              onAttachmentChange={(obligation, attachmentType, filePath) => 
+                onAttachmentChange(obligation, true, attachmentType, filePath)}
               clientId={clientId}
               selectedYear={selectedYear}
             />

@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 export const useUnsavedChanges = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
-  // Function to mark the state as changed
+  // Fonction pour marquer l'état comme modifié
   const markAsChanged = useCallback(() => {
     setHasUnsavedChanges(true);
   }, []);
