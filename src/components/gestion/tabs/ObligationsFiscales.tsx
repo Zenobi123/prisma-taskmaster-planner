@@ -51,7 +51,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => (currentYear - 4 + i).toString());
 
-  // Auto-save visual indicator
+  // Auto-save toutes les 2 minutes seulement, pas d'actualisation continue
   useEffect(() => {
     if (hasUnsavedChanges && !isSaving) {
       const saveTimeout = setTimeout(() => {
@@ -63,6 +63,11 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
       return () => clearTimeout(saveTimeout);
     }
   }, [hasUnsavedChanges, isSaving, handleSave]);
+  
+  // Fonction pour gérer l'enregistrement manuel
+  const handleManualSave = async () => {
+    await handleSave();
+  };
 
   if (isLoading) {
     return (
@@ -127,12 +132,10 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         )}
         
         {!lastSaveSuccess && saveAttempts > 0 && (
-          <Alert className={saveAttempts >= 2 ? "bg-amber-50 border-amber-200" : "bg-yellow-50 border-yellow-200"}>
-            <AlertCircle className={`h-4 w-4 ${saveAttempts >= 2 ? "text-amber-600" : "text-yellow-600"}`} />
-            <AlertDescription className={saveAttempts >= 2 ? "text-amber-800" : "text-yellow-800"}>
-              {saveAttempts >= 2 
-                ? "Si les données ne sont pas visibles après enregistrement, veuillez actualiser la page." 
-                : "Pour voir les changements dans le tableau de bord, actualisez la page après l'enregistrement."}
+          <Alert className="bg-red-50 border-red-200">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              Une erreur est survenue lors de l'enregistrement des données.
             </AlertDescription>
           </Alert>
         )}
@@ -142,9 +145,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           validityEndDate={validityEndDate}
           setCreationDate={setCreationDate}
           showInAlert={showInAlert}
-          onToggleAlert={handleToggleAlert}
+          onToggleAlert={() => handleToggleAlert()}
           hiddenFromDashboard={hiddenFromDashboard}
-          onToggleDashboardVisibility={handleToggleDashboardVisibility}
+          onToggleDashboardVisibility={(value: boolean) => handleToggleDashboardVisibility(value)}
         />
         
         <AnnualObligationsSection 
@@ -159,19 +162,19 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
         <Button 
-          onClick={handleSave}
+          onClick={handleManualSave}
           className={`w-full ${hasUnsavedChanges ? "bg-primary" : ""}`}
           disabled={isSaving}
         >
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Enregistrement en cours...
+              Enregistrement et actualisation en cours...
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {hasUnsavedChanges ? "Enregistrer les modifications" : "Enregistrer toutes les modifications"}
+              {hasUnsavedChanges ? "Enregistrer et actualiser" : "Enregistrer toutes les modifications"}
             </>
           )}
         </Button>

@@ -1,9 +1,7 @@
 
 import { useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData } from "../types";
 import { toast } from "sonner";
-import { Json } from "@/integrations/supabase/types";
 import { saveFiscalData as saveFiscalDataService } from "../services/saveService";
 
 export const useFiscalSave = (clientId: string, setHasUnsavedChanges: (value: boolean) => void) => {

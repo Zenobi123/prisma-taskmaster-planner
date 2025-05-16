@@ -8,6 +8,7 @@ import { useFiscalAttestation } from "./hooks/useFiscalAttestation";
 import { useObligationManagement } from "./hooks/useObligationManagement";
 import { useYearSelector } from "./hooks/useYearSelector";
 import { useSavingState } from "./hooks/useSavingState";
+import { useObligationPeriodicity } from "./hooks/useObligationPeriodicity";
 
 export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses, DeclarationPeriodicity } from "./types";
 
@@ -17,6 +18,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     fiscalData, 
     setFiscalData, 
     isLoading, 
+    loadFiscalData, // Exposé pour permettre le rechargement manuel
     selectedYear: dataYear,
     setSelectedYear: setDataYear 
   } = useFiscalData(selectedClient.id);
@@ -24,14 +26,16 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   // Track unsaved changes
   const { hasUnsavedChanges, setHasUnsavedChanges, markAsChanged } = useUnsavedChanges();
   
+  // Import obligation periodicity hook
+  const { isDeclarationObligation, updatePeriodicity } = useObligationPeriodicity();
+  
   // Manage obligations
   const {
     obligationStatuses,
     handleStatusChange,
     handleAttachmentUpdate,
     initializeObligationStatuses,
-    isDeclarationObligation
-  } = useObligationManagement(markAsChanged);
+  } = useObligationManagement(markAsChanged, updatePeriodicity);
 
   // Year selection
   const { 
@@ -86,7 +90,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
 
   // Save all changes
   const handleSave = useCallback(async () => {
-    if (!fiscalData || !selectedClient.id) return;
+    if (!fiscalData || !selectedClient.id) return false;
     
     // Update fiscal data
     const updatedFiscalData = {
@@ -107,7 +111,10 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     const success = await handleSaveData(updatedFiscalData);
     if (success) {
       setFiscalData(updatedFiscalData);
+      // Rechargement manuel des données après sauvegarde
+      await loadFiscalData();
     }
+    return success;
   }, [
     fiscalData, 
     selectedClient.id, 
@@ -118,7 +125,8 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     hiddenFromDashboard, 
     selectedYear, 
     handleSaveData, 
-    setFiscalData
+    setFiscalData,
+    loadFiscalData
   ]);
 
   // Auto-save on component unmount
@@ -147,13 +155,13 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     isSaving,
     saveAttempts,
     lastSaveSuccess,
-    showInAlert: showInAlert,
+    showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
     hasUnsavedChanges,
     selectedYear,
     setSelectedYear: handleYearChange,
-    isDeclarationObligation
+    isDeclarationObligation,
   };
 };

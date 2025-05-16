@@ -1,95 +1,75 @@
 
-import { useState } from "react";
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
-  CardTitle
-} from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
+import React from "react";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
-import DatePickerSelector from "./DatePickerSelector";
+import { Switch } from "@/components/ui/switch";
+import { DatePickerSelector } from "./DatePickerSelector";
 
 interface FiscalAttestationSectionProps {
-  creationDate: string;
-  validityEndDate: string;
-  setCreationDate: (date: string) => void;
-  handleSave?: () => Promise<void>;  // Make handleSave optional
-  showInAlert?: boolean;
-  onToggleAlert?: () => void;
-  hiddenFromDashboard?: boolean;
-  onToggleDashboardVisibility?: () => void;
+  creationDate: string | null;
+  validityEndDate: string | null;
+  setCreationDate: (date: string | null) => void;
+  showInAlert: boolean;
+  onToggleAlert: () => void;
+  hiddenFromDashboard: boolean;
+  onToggleDashboardVisibility: (value: boolean) => void;
 }
 
-export function FiscalAttestationSection({ 
-  creationDate, 
-  validityEndDate, 
-  setCreationDate, 
-  showInAlert = true,
+export function FiscalAttestationSection({
+  creationDate,
+  validityEndDate,
+  setCreationDate,
+  showInAlert,
   onToggleAlert,
-  hiddenFromDashboard = false,
+  hiddenFromDashboard,
   onToggleDashboardVisibility
 }: FiscalAttestationSectionProps) {
-  // Helper function to validate date format (DD/MM/YYYY)
-  const isValidDateFormat = (date: string): boolean => {
-    const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
-    return regex.test(date);
-  };
-
-  const isDateInvalid = creationDate && !isValidDateFormat(creationDate);
-
   return (
-    <Card className="border-[#E8FDF5] bg-[#F4FEFA]">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg font-semibold text-[#336755]">
-          Attestation de Conformité Fiscale
-        </CardTitle>
+    <Card>
+      <CardHeader>
+        <CardTitle>Attestation fiscale</CardTitle>
+        <CardDescription>
+          Informations sur l'attestation fiscale
+        </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <DatePickerSelector
-            id="creationDate"
-            label="Date de délivrance"
+      <CardContent className="space-y-6">
+        <div>
+          <Label className="text-sm font-medium block mb-2">Date de création</Label>
+          <DatePickerSelector 
             date={creationDate}
-            onChange={setCreationDate}
-            error={isDateInvalid}
+            onSelect={setCreationDate}
+            placeholder="Sélectionner la date de création"
           />
-          
-          <DatePickerSelector
-            id="validityEndDate"
-            label="Date d'expiration"
+        </div>
+        <div>
+          <Label className="text-sm font-medium block mb-2">Date d'expiration</Label>
+          <DatePickerSelector 
             date={validityEndDate}
-            onChange={() => {}} // This date is calculated automatically
-            readOnly={true}
+            onSelect={setCreationDate}
+            placeholder="Sélectionner la date d'expiration"
           />
         </div>
-
-        {isDateInvalid && (
-          <p className="text-red-500 text-xs mt-1">
-            Format invalide. Utilisez JJ/MM/AAAA
-          </p>
-        )}
-
-        <div className="flex items-center space-x-2 mt-4">
-          <Switch 
-            id="show-alerts" 
-            checked={showInAlert} 
-            onCheckedChange={onToggleAlert}
-          />
-          <Label htmlFor="show-alerts" className="text-[#336755]">
-            Afficher les alertes d'expiration
+        <Separator className="my-4" />
+        <div className="flex items-center justify-between">
+          <Label htmlFor="show-alert" className="text-sm font-medium cursor-pointer">
+            Afficher dans les alertes du tableau de bord
           </Label>
-        </div>
-
-        <div className="flex items-center space-x-2 mt-2">
-          <Switch 
-            id="hide-dashboard" 
-            checked={hiddenFromDashboard} 
-            onCheckedChange={onToggleDashboardVisibility}
+          <Switch
+            id="show-alert"
+            checked={showInAlert}
+            onCheckedChange={() => onToggleAlert()}
           />
-          <Label htmlFor="hide-dashboard" className="text-[#336755]">
+        </div>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="dashboard-visibility" className="text-sm font-medium cursor-pointer">
             Masquer du tableau de bord
           </Label>
+          <Switch
+            id="dashboard-visibility"
+            checked={hiddenFromDashboard}
+            onCheckedChange={(checked) => onToggleDashboardVisibility(checked)}
+          />
         </div>
       </CardContent>
     </Card>
