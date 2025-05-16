@@ -1,11 +1,11 @@
 
-import React, { useEffect } from "react";
+import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
-import { Loader2, Save, AlertCircle, CheckCircle2, Clock } from "lucide-react";
+import { Loader2, Save, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
@@ -50,19 +50,6 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
   // Generate year options for the last 5 years and next 2 years
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => (currentYear - 4 + i).toString());
-
-  // Auto-save toutes les 2 minutes seulement
-  useEffect(() => {
-    if (hasUnsavedChanges && !isSaving) {
-      const saveTimeout = setTimeout(() => {
-        if (hasUnsavedChanges && !isSaving) {
-          handleSave();
-        }
-      }, 120000); // 2 minutes
-      
-      return () => clearTimeout(saveTimeout);
-    }
-  }, [hasUnsavedChanges, isSaving, handleSave]);
   
   // Fonction pour gérer l'enregistrement et l'actualisation manuelle
   const handleManualSaveAndRefresh = async () => {
@@ -115,9 +102,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
       <CardContent className="space-y-6">
         {hasUnsavedChanges && (
           <Alert className="bg-amber-50 border-amber-200">
-            <Clock className="h-4 w-4 text-amber-600" />
+            <AlertCircle className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-amber-800">
-              Vous avez des modifications non enregistrées. Enregistrez avant de quitter cette page.
+              Vous avez des modifications non enregistrées. Utilisez le bouton d'enregistrement pour les sauvegarder.
             </AlertDescription>
           </Alert>
         )}
@@ -180,7 +167,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         </Button>
         
         <div className="text-xs text-muted-foreground text-center w-full">
-          Vos modifications sont enregistrées automatiquement tous les 2 minutes et lors de la fermeture de la page.
+          Utilisez le bouton ci-dessus pour enregistrer vos modifications.
         </div>
       </CardFooter>
     </Card>
