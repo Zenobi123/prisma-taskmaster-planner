@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client, ClientType, FormeJuridique, Sexe, EtatCivil, SituationImmobiliere } from "@/types/client";
-import { ClientFiscalData } from "@/hooks/fiscal/types";
+import { ClientFiscalData, DeclarationObligationStatus } from "@/hooks/fiscal/types";
 
 // Cache pour les données DSF
 let dsfCache: {
@@ -59,9 +59,13 @@ const fetchClientsWithUnfiledDsf = async (forceRefresh = false): Promise<Client[
           return false;
         }
 
-        if (fiscalData.obligations?.dsf) {
-          return fiscalData.obligations.dsf.assujetti === true &&
-            fiscalData.obligations.dsf.depose === false;
+        const currentYear = new Date().getFullYear().toString();
+        const yearToCheck = fiscalData.selectedYear || currentYear;
+
+        if (fiscalData.obligations && fiscalData.obligations[yearToCheck] && 
+            fiscalData.obligations[yearToCheck].dsf) {
+          const dsfStatus = fiscalData.obligations[yearToCheck].dsf as DeclarationObligationStatus;
+          return dsfStatus.assujetti === true && dsfStatus.depose === false;
         }
       }
       return false;

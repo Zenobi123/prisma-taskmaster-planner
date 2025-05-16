@@ -1,9 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client, ClientType, FormeJuridique, Sexe, EtatCivil, SituationImmobiliere } from "@/types/client";
-import { ClientFiscalData } from "@/hooks/fiscal/types";
+import { ClientFiscalData, TaxObligationStatus } from "@/hooks/fiscal/types";
 
-// Cache pour les données Patente
+// Cache pour les données patente
 let patenteCache: {
   data: Client[] | null;
   timestamp: number;
@@ -13,32 +13,7 @@ let patenteCache: {
 };
 
 // Durée du cache en millisecondes (10 minutes)
-const CACHE_DURATION = 600000; // Augmenté de 2min à 10min pour équilibrer réactivité et performances
-
-// Ajouter une référence globale au timestamp du cache patente pour invalidation
-if (typeof window !== 'undefined') {
-  window.__patenteCacheTimestamp = window.__patenteCacheTimestamp || 0;
-  
-  // Mettre à jour la référence chaque fois que le cache est mis à jour
-  Object.defineProperty(patenteCache, 'timestamp', {
-    get: function() { return window.__patenteCacheTimestamp || 0; },
-    set: function(value) { window.__patenteCacheTimestamp = value; }
-  });
-  
-  // S'assurer que la fonction d'invalidation existe
-  window.__invalidateFiscalCaches = window.__invalidateFiscalCaches || function() {
-    console.log("Invalidation des caches IGS et Patente");
-    // Réinitialiser les timestamps du cache
-    window.__patenteCacheTimestamp = 0;
-    patenteCache.data = null;
-    
-    // Invalider également le cache IGS s'il existe
-    if (window.__igsCache) {
-      window.__igsCache.timestamp = 0;
-      window.__igsCache.data = null;
-    }
-  };
-}
+const CACHE_DURATION = 600000;
 
 // Version compatible avec React Query (pas de paramètre)
 export const getClientsWithUnpaidPatente = async () => {
@@ -66,7 +41,7 @@ const fetchClientsWithUnpaidPatente = async (forceRefresh = false): Promise<Clie
       console.error("Erreur lors de la récupération des clients:", error);
       throw error;
     }
-
+    
     const clientsWithUnpaidPatente = allClients.filter(client => {
       if (client.fiscal_data && typeof client.fiscal_data === 'object') {
         const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
@@ -75,9 +50,13 @@ const fetchClientsWithUnpaidPatente = async (forceRefresh = false): Promise<Clie
           return false;
         }
         
-        if (fiscalData.obligations?.patente) {
-          return fiscalData.obligations.patente.assujetti === true && 
-                fiscalData.obligations.patente.paye === false;
+        const currentYear = new Date().getFullYear().toString();
+        const yearToCheck = fiscalData.selectedYear || currentYear;
+        
+        if (fiscalData.obligations && fiscalData.obligations[yearToCheck] && 
+            fiscalData.obligations[yearToCheck].patente) {
+          const patenteStatus = fiscalData.obligations[yearToCheck].patente as TaxObligationStatus;
+          return patenteStatus.assujetti === true && patenteStatus.paye === false;
         }
       }
       return false;
@@ -96,7 +75,7 @@ const fetchClientsWithUnpaidPatente = async (forceRefresh = false): Promise<Clie
           loyer: typeof si.loyer === 'number' ? si.loyer : undefined
         };
       }
-
+      
       // Utiliser type assertion pour éviter les erreurs de TypeScript
       return {
         ...client,
@@ -112,7 +91,7 @@ const fetchClientsWithUnpaidPatente = async (forceRefresh = false): Promise<Clie
         situationimmobiliere
       } as Client;
     });
-
+    
     // Mettre à jour le cache avec nouvel horodatage
     patenteCache = {
       data: typedClients,
@@ -121,7 +100,7 @@ const fetchClientsWithUnpaidPatente = async (forceRefresh = false): Promise<Clie
     
     return typedClients;
   } catch (error) {
-    console.error("Erreur critique lors de la récupération des clients Patente:", error);
+    console.error("Erreur critique lors de la récupération des clients patente:", error);
     // En cas d'erreur, essayer de retourner le cache même expiré
     if (patenteCache.data) {
       console.log("Utilisation du cache expiré en cas d'erreur");
@@ -132,10 +111,8 @@ const fetchClientsWithUnpaidPatente = async (forceRefresh = false): Promise<Clie
 };
 
 // Fonction d'invalidation manuelle du cache
-export const invalidatePatenteCache = () => {
-  if (typeof window !== 'undefined') {
-    window.__patenteCacheTimestamp = 0;
-    patenteCache.data = null;
-    console.log("Cache patente invalidé manuellement");
-  }
+export const invalidatePatentCache = () => {
+  patenteCache.timestamp = 0;
+  patenteCache.data = null;
+  console.log("Cache Patente invalidé manuellement");
 };

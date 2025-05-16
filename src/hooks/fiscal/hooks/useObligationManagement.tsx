@@ -42,15 +42,17 @@ export function useObligationManagement(markAsChanged: () => void) {
       
       // Handle different attachment types based on declaration vs tax obligations
       if (isDeclaration) {
-        if (!currentStatus.attachments) {
-          (currentStatus as DeclarationObligationStatus).attachments = {};
+        const declarationStatus = currentStatus as DeclarationObligationStatus;
+        if (!declarationStatus.attachments) {
+          declarationStatus.attachments = {};
         }
-        (currentStatus as DeclarationObligationStatus).attachments![attachmentType] = filePath;
+        declarationStatus.attachments[attachmentType as keyof typeof declarationStatus.attachments] = filePath;
       } else {
-        if (!currentStatus.payment_attachments) {
-          (currentStatus as TaxObligationStatus).payment_attachments = {};
+        const taxStatus = currentStatus as TaxObligationStatus;
+        if (!taxStatus.payment_attachments) {
+          taxStatus.payment_attachments = {};
         }
-        (currentStatus as TaxObligationStatus).payment_attachments![attachmentType] = filePath;
+        taxStatus.payment_attachments[attachmentType as keyof typeof taxStatus.payment_attachments] = filePath;
       }
       
       markAsChanged();

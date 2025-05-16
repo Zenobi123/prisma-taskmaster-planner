@@ -1,5 +1,5 @@
 
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { ObligationStatus, DeclarationObligationStatus } from '../types';
 
 export function useObligationPeriodicity() {

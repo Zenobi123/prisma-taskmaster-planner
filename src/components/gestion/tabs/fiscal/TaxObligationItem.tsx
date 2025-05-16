@@ -72,15 +72,14 @@ export function TaxObligationItem({
           {status.assujetti && (
             <>
               <PaymentStatus
-                keyName={keyName}
                 status={status}
-                onStatusChange={onStatusChange}
+                onStatusChange={(field, value) => onStatusChange(keyName, field, value)}
                 onPaymentChange={handlePayment}
               />
               
               {isIGS && onToggleIGSPanel && (
                 <IgsDetailPanel 
-                  status={status} 
+                  igStatus={status}
                   onStatusChange={(field, value) => onStatusChange(keyName, field, value)} 
                   showPanel={showIGSPanel}
                   onTogglePanel={onToggleIGSPanel}
@@ -90,28 +89,28 @@ export function TaxObligationItem({
               {/* Attachments section */}
               <div className="grid sm:grid-cols-2 gap-4 mt-2">
                 <AttachmentUploader
-                  label="Déclaration"
-                  keyName={keyName}
                   clientId={clientId}
+                  year={selectedYear}
+                  obligationType={keyName}
                   attachmentType="declaration"
-                  selectedYear={selectedYear}
-                  existingFile={status.payment_attachments?.declaration}
-                  onAttachmentChange={onAttachmentChange}
+                  attachmentLabel="Déclaration"
+                  filePath={status.payment_attachments?.declaration}
+                  onFileUploaded={(filePath) => onAttachmentChange(keyName, "declaration", filePath || "")}
                 />
                 <AttachmentUploader
-                  label="Reçu de paiement"
-                  keyName={keyName}
                   clientId={clientId}
+                  year={selectedYear}
+                  obligationType={keyName}
                   attachmentType="receipt"
-                  selectedYear={selectedYear}
-                  existingFile={status.payment_attachments?.receipt}
-                  onAttachmentChange={onAttachmentChange}
+                  attachmentLabel="Reçu de paiement"
+                  filePath={status.payment_attachments?.receipt}
+                  onFileUploaded={(filePath) => onAttachmentChange(keyName, "receipt", filePath || "")}
                 />
               </div>
 
               <ObservationsSection
-                observations={status.observations || ""}
-                onChange={(value) => onStatusChange(keyName, "observations", value)}
+                value={status.observations || ""}
+                onValueChange={(value) => onStatusChange(keyName, "observations", value)}
               />
             </>
           )}

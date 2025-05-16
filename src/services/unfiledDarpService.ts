@@ -1,10 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { Client, Interaction } from "@/types/client";
-import { ClientFiscalData } from "@/hooks/fiscal/types";
-import { Json } from "@/integrations/supabase/types";
+import { Client, ClientType, FormeJuridique, Sexe, EtatCivil, SituationImmobiliere } from "@/types/client";
+import { ClientFiscalData, DeclarationObligationStatus } from "@/hooks/fiscal/types";
 
-// Cache pour les données DARP avec durée de validité optimisée
+// Cache pour les données DARP
 let darpCache: {
   data: Client[] | null;
   timestamp: number;
@@ -16,48 +15,28 @@ let darpCache: {
 // Durée du cache en millisecondes (10 minutes)
 const CACHE_DURATION = 600000;
 
-// Ajouter une référence globale au timestamp du cache DARP pour invalidation
-if (typeof window !== 'undefined') {
-  window.__darpCacheTimestamp = window.__darpCacheTimestamp || 0;
-  
-  // Mettre à jour la référence chaque fois que le cache est mis à jour
-  Object.defineProperty(darpCache, 'timestamp', {
-    get: function() { return window.__darpCacheTimestamp || 0; },
-    set: function(value) { window.__darpCacheTimestamp = value; }
-  });
-  
-  // Créer la fonction unifiée d'invalidation de tous les caches si elle n'existe pas
-  if (!window.__invalidateAllCaches) {
-    window.__invalidateAllCaches = () => {
-      console.log("Invalidation de tous les caches");
-      // Réinitialiser tous les timestamps de cache à 0
-      window.__patenteCacheTimestamp = 0;
-      window.__dsfCacheTimestamp = 0;
-      window.__darpCacheTimestamp = 0;
-      if (window.__igsCache) window.__igsCache.timestamp = 0;
-      
-      // Si d'autres fonctions d'invalidation existent, les appeler
-      if (window.__invalidateFiscalCaches) window.__invalidateFiscalCaches();
-    };
-  }
-}
+// Version compatible avec React Query (pas de paramètre)
+export const getClientsWithUnfiledDarp = async () => {
+  return fetchClientsWithUnfiledDarp();
+};
 
-export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
+// Fonction interne qui peut accepter le forceRefresh
+const fetchClientsWithUnfiledDarp = async (forceRefresh = false): Promise<Client[]> => {
   const now = Date.now();
-  
-  // Retourner les données en cache si valides
-  if (darpCache.data && now - darpCache.timestamp < CACHE_DURATION) {
+
+  // Retourner les données en cache si valides et pas de forçage de rafraîchissement
+  if (!forceRefresh && darpCache.data && now - darpCache.timestamp < CACHE_DURATION) {
     console.log("Utilisation des données DARP en cache");
     return darpCache.data;
   }
-  
+
   console.log("Service: Récupération des clients avec DARP non déposées...");
-  
+
   try {
     const { data: allClients, error } = await supabase
       .from("clients")
       .select("*");
-    
+
     if (error) {
       console.error("Erreur lors de la récupération des clients:", error);
       throw error;
@@ -65,76 +44,63 @@ export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
 
     const clientsWithUnfiledDarp = allClients.filter(client => {
       if (client.fiscal_data && typeof client.fiscal_data === 'object') {
-        const fiscalData = client.fiscal_data as ClientFiscalData;
-        
+        const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
+
         if (fiscalData.hiddenFromDashboard === true) {
           return false;
         }
-        
-        if (fiscalData.obligations?.darp) {
-          return fiscalData.obligations.darp.assujetti === true && 
-                 fiscalData.obligations.darp.depose === false;
+
+        const currentYear = new Date().getFullYear().toString();
+        const yearToCheck = fiscalData.selectedYear || currentYear;
+
+        if (fiscalData.obligations && fiscalData.obligations[yearToCheck] && 
+            fiscalData.obligations[yearToCheck].darp) {
+          const darpStatus = fiscalData.obligations[yearToCheck].darp as DeclarationObligationStatus;
+          return darpStatus.assujetti === true && darpStatus.depose === false;
         }
       }
       return false;
     });
 
-    // Transform the raw data to match the Client interface with correct typing
-    const typedClients: Client[] = clientsWithUnfiledDarp.map(client => {
-      // Create properly typed interactions array
-      const interactions: Interaction[] = Array.isArray(client.interactions) 
-        ? client.interactions.map((interaction: any) => ({
-            id: interaction.id || '',
-            date: interaction.date || '',
-            description: interaction.description || ''
-          }))
-        : [];
+    // Convertir au type client avec le bon casting de type
+    const typedClients = clientsWithUnfiledDarp.map(client => {
+      // S'assurer que la propriété situationimmobiliere est correctement traitée
+      let situationimmobiliere: Client['situationimmobiliere'] = { type: 'locataire' };
+      
+      if (client.situationimmobiliere && typeof client.situationimmobiliere === 'object') {
+        const si = client.situationimmobiliere as any;
+        situationimmobiliere = {
+          type: (si.type as SituationImmobiliere) || 'locataire',
+          valeur: typeof si.valeur === 'number' ? si.valeur : undefined,
+          loyer: typeof si.loyer === 'number' ? si.loyer : undefined
+        };
+      }
 
+      // Utiliser type assertion pour éviter les erreurs de TypeScript
       return {
-        id: client.id,
-        type: client.type as "physique" | "morale",
-        nom: client.nom || undefined,
-        raisonsociale: client.raisonsociale || undefined,
-        sigle: client.sigle || undefined,
-        datecreation: client.datecreation || undefined,
-        lieucreation: client.lieucreation || undefined,
-        nomdirigeant: client.nomdirigeant || undefined,
-        formejuridique: client.formejuridique as any || undefined,
-        niu: client.niu,
-        centrerattachement: client.centrerattachement,
-        adresse: {
-          ville: typeof client.adresse === 'object' ? (client.adresse as any)?.ville || "" : "",
-          quartier: typeof client.adresse === 'object' ? (client.adresse as any)?.quartier || "" : "",
-          lieuDit: typeof client.adresse === 'object' ? (client.adresse as any)?.lieuDit || "" : ""
-        },
-        contact: {
-          telephone: typeof client.contact === 'object' ? (client.contact as any)?.telephone || "" : "",
-          email: typeof client.contact === 'object' ? (client.contact as any)?.email || "" : ""
-        },
-        secteuractivite: client.secteuractivite,
-        numerocnps: client.numerocnps || undefined,
-        interactions: interactions,
-        statut: client.statut as "actif" | "inactif" | "archive",
-        gestionexternalisee: client.gestionexternalisee || false,
+        ...client,
+        type: client.type as ClientType,
+        formejuridique: (client.formejuridique || 'autre') as FormeJuridique,
+        sexe: client.sexe as Sexe,
+        etatcivil: client.etatcivil as EtatCivil,
+        adresse: client.adresse as Client['adresse'],
+        contact: client.contact as Client['contact'],
+        interactions: (client.interactions || []) as unknown as Client['interactions'],
         fiscal_data: client.fiscal_data,
-        sexe: client.sexe as any || undefined,
-        etatcivil: client.etatcivil as any || undefined,
-        regimefiscal: client.regimefiscal as any || undefined,
-        situationimmobiliere: client.situationimmobiliere as any || { type: "locataire" },
-        created_at: client.created_at
-      };
+        statut: client.statut as Client['statut'],
+        situationimmobiliere
+      } as Client;
     });
 
-    // Mettre à jour le cache avec horodatage
+    // Mettre à jour le cache avec nouvel horodatage
     darpCache = {
       data: typedClients,
       timestamp: now
     };
-    
+
     return typedClients;
   } catch (error) {
     console.error("Erreur critique lors de la récupération des clients DARP:", error);
-    
     // En cas d'erreur, essayer de retourner le cache même expiré
     if (darpCache.data) {
       console.log("Utilisation du cache expiré en cas d'erreur");
@@ -144,10 +110,10 @@ export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
   }
 };
 
-// Fonction d'invalidation manuelle du cache DARP
+// Fonction d'invalidation manuelle du cache
 export const invalidateDarpCache = () => {
   if (typeof window !== 'undefined') {
-    window.__darpCacheTimestamp = 0;
+    darpCache.timestamp = 0;
     darpCache.data = null;
     console.log("Cache DARP invalidé manuellement");
   }

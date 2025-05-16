@@ -9,7 +9,7 @@ const DsfSection = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
   // Utiliser le service pour récupérer les données avec les mêmes paramètres que les autres sections
-  const { data: clients = [] } = useQuery({
+  const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients-unfiled-dsf-section"],
     queryFn: getClientsWithUnfiledDsf,
     refetchInterval: 10000,        // Rafraîchissement toutes les 10 secondes
@@ -21,7 +21,11 @@ const DsfSection = () => {
   return (
     <div className="p-4 space-y-6">
       {/* Résumé des DSF non déposées */}
-      <UnfiledDsfSummary onViewAllClick={() => setIsDialogOpen(true)} />
+      <UnfiledDsfSummary 
+        clients={clients} 
+        isLoading={isLoading} 
+        onViewAllClick={() => setIsDialogOpen(true)} 
+      />
       
       {/* Dialog pour la vue complète */}
       <UnfiledDsfDialog 
