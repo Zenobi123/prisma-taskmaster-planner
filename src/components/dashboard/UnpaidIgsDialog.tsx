@@ -1,104 +1,89 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnpaidIGS } from "@/services/unpaidIgsService";
-import { FileText, AlertTriangle, FileWarning, Phone, Building } from "lucide-react";
-import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { getClientsWithUnpaidIgs } from '@/services/unpaidIgsService';
+import { useQuery } from '@tanstack/react-query';
+import { LoaderCircle, X } from 'lucide-react';
+import { Client } from '@/types/client';
+import { useNavigate } from 'react-router-dom';
+import { Separator } from '@/components/ui/separator';
 
 interface UnpaidIgsDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  clients: Client[];
 }
 
-export const UnpaidIgsDialog = ({ open, onOpenChange }: UnpaidIgsDialogProps) => {
+export const UnpaidIgsDialog = ({ isOpen, onClose, clients }: UnpaidIgsDialogProps) => {
   const navigate = useNavigate();
   
-  const { data: clients = [], isLoading } = useQuery({
-    queryKey: ["clients-unpaid-igs-dialog"],
-    queryFn: getClientsWithUnpaidIGS,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
-  });
-
-  const handleNavigateToClient = (clientId: string) => {
+  const handleViewClient = (clientId: string) => {
     navigate(`/gestion?client=${clientId}&tab=obligations-fiscales`);
-    onOpenChange(false);
+    onClose();
   };
-
+  
+  // Fonction pour afficher le nom du client
+  const getClientName = (client: Client) => {
+    return client.nom || client.raisonsociale || 'Client sans nom';
+  };
+  
+  // Si la liste est vide, proposer un contenu alternatif
+  if (clients && clients.length === 0) {
+    return (
+      <Dialog open={isOpen} onOpenChange={() => onClose()}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Aucun client en attente de paiement IGS</DialogTitle>
+            <DialogDescription>
+              Tous les clients ayant une obligation IGS sont à jour.
+            </DialogDescription>
+          </DialogHeader>
+          <Separator />
+          <div className="flex justify-end">
+            <Button variant="outline" onClick={onClose}>Fermer</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+  
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[900px] max-h-[80vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={() => onClose()}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center text-xl">
-            <FileText className="h-5 w-5 mr-2 text-yellow-500" />
-            IGS non payés ({clients.length})
+          <DialogTitle>
+            Clients n'ayant pas payé leur IGS
           </DialogTitle>
+          <DialogDescription>
+            {clients ? clients.length : 0} clients ont un IGS non payé.
+          </DialogDescription>
         </DialogHeader>
+        <Separator />
         
-        {isLoading ? (
-          <div className="py-8 text-center">
-            <div className="animate-spin h-8 w-8 border-2 border-yellow-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement des données...</p>
-          </div>
-        ) : clients.length > 0 ? (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Client</TableHead>
-                  <TableHead>NIU</TableHead>
-                  <TableHead>
-                    <div className="flex items-center gap-1">
-                      <Building className="h-4 w-4" />
-                      <span>Centre des impôts</span>
-                    </div>
-                  </TableHead>
-                  <TableHead>
-                    <div className="flex items-center gap-1">
-                      <Phone className="h-4 w-4" />
-                      <span>Contact</span>
-                    </div>
-                  </TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {clients.map((client) => (
-                  <TableRow key={client.id} className="hover:bg-yellow-50">
-                    <TableCell className="font-medium">
-                      {client.type === "physique" ? client.nom : client.raisonsociale}
-                    </TableCell>
-                    <TableCell>{client.niu}</TableCell>
-                    <TableCell>{client.centrerattachement}</TableCell>
-                    <TableCell>{client.contact.telephone}</TableCell>
-                    <TableCell className="text-right">
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleNavigateToClient(client.id)}
-                        className="border-yellow-300 hover:bg-yellow-50 hover:text-yellow-700"
-                      >
-                        Gérer
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        ) : (
-          <div className="py-8 text-center border-2 border-yellow-200 rounded-md bg-yellow-50 my-4">
-            <FileWarning className="h-12 w-12 mx-auto text-yellow-500 mb-3" />
-            <p className="text-gray-700 font-medium text-lg mb-2">
-              Aucun client avec IGS non payé
-            </p>
-            <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
-              Tous les clients assujettis à l'IGS sont à jour avec leurs paiements.
-            </p>
-          </div>
-        )}
+        <div className="max-h-96 overflow-y-auto">
+          {clients && clients.map((client) => (
+            <div key={client.id} className="py-2">
+              <div className="flex justify-between items-center">
+                <div>
+                  <p className="text-sm font-medium">{getClientName(client)}</p>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleViewClient(client.id)}
+                >
+                  Gérer
+                </Button>
+              </div>
+              <Separator className="mt-2" />
+            </div>
+          ))}
+        </div>
+        
+        <div className="flex justify-end">
+          <Button variant="outline" onClick={onClose}>Fermer</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

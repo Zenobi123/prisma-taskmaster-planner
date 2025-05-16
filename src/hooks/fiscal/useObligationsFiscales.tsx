@@ -129,14 +129,28 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     loadFiscalData
   ]);
 
+  // Auto-save on component unmount et toutes les 2 minutes
+  useEffect(() => {
+    // Auto-save toutes les 2 minutes
+    if (hasUnsavedChanges && !isSaving) {
+      const saveTimeout = setTimeout(() => {
+        if (hasUnsavedChanges && !isSaving) {
+          handleSave();
+        }
+      }, 120000); // 2 minutes
+      
+      return () => clearTimeout(saveTimeout);
+    }
+  }, [hasUnsavedChanges, isSaving, handleSave]);
+  
   // Auto-save on component unmount
   useEffect(() => {
     return () => {
-      if (hasUnsavedChanges) {
+      if (hasUnsavedChanges && !isSaving) {
         handleSave();
       }
     };
-  }, [hasUnsavedChanges, handleSave]);
+  }, [hasUnsavedChanges, isSaving, handleSave]);
   
   // Determine dataLoaded state for UI purposes
   const dataLoaded = !isLoading && fiscalData !== null;
@@ -155,7 +169,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     isSaving,
     saveAttempts,
     lastSaveSuccess,
-    showInAlert,
+    showInAlert: showInAlert, // Correction de la duplication
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,

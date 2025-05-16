@@ -1,43 +1,38 @@
 
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Check, Clock } from "lucide-react";
 
-interface PaymentStatusProps {
-  totalPaidQuarters: number;
-  totalDueQuarters: number;
-  expectedQuartersPaid: number;
+export interface PaymentStatusProps {
+  totalPaid: number;
+  totalDue: number;
+  expectedPaid: number;
   isLate: boolean;
 }
 
-export const PaymentStatus = ({
-  totalPaidQuarters,
-  totalDueQuarters,
-  expectedQuartersPaid,
-  isLate,
+export const PaymentStatus = ({ 
+  totalPaid, 
+  totalDue, 
+  expectedPaid, 
+  isLate 
 }: PaymentStatusProps) => {
-  if (totalPaidQuarters === totalDueQuarters) {
-    return (
-      <Badge variant="success" className="gap-1">
-        <Check className="h-3.5 w-3.5" />
-        IGS entièrement payé
-      </Badge>
-    );
-  }
+  // Définir le statut et les classes en fonction des paiements
+  let status: string;
+  let variant: "outline" | "secondary" | "destructive" | "default" = "default";
   
-  if (isLate) {
-    return (
-      <Badge variant="destructive" className="gap-1">
-        <AlertCircle className="h-3.5 w-3.5" />
-        {`Retard de paiement (${totalPaidQuarters}/${expectedQuartersPaid} trimestres)`}
-      </Badge>
-    );
+  if (totalPaid === totalDue) {
+    status = "Payé intégralement";
+    variant = "default";
+  } else if (totalPaid === 0) {
+    status = isLate ? "En retard" : "Non payé";
+    variant = isLate ? "destructive" : "outline";
+  } else {
+    status = isLate ? "Paiement partiel (en retard)" : "Paiement partiel";
+    variant = isLate ? "destructive" : "secondary";
   }
   
   return (
-    <Badge variant="secondary" className="gap-1">
-      <Clock className="h-3.5 w-3.5" />
-      {`${totalPaidQuarters}/${totalDueQuarters} trimestres payés`}
+    <Badge variant={variant}>
+      {status} ({totalPaid}/{totalDue})
     </Badge>
   );
 };

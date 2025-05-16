@@ -1,102 +1,83 @@
 
-import React, { useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { TaxObligationStatus } from "@/hooks/fiscal/types";
-import { calculateIGSClass } from "./utils/igsCalculations";
-import { IGSCalculation } from "./components/IGSCalculation";
-import { QuarterlyPaymentsSection } from "./components/QuarterlyPaymentsSection";
-import { ObservationsSection } from "./components/ObservationsSection";
+import React from 'react';
+import { TaxObligationStatus } from '@/hooks/fiscal/types';
+import { Card, CardContent } from '@/components/ui/card';
+import { QuarterlyPaymentsSection } from './components/QuarterlyPaymentsSection';
 
-interface IgsDetailPanelProps {
+export interface IgsDetailPanelProps {
   igsStatus: TaxObligationStatus;
-  onUpdate?: (field: string, value: any) => void;
+  onStatusChange: (field: string, value: any) => void;
+  showPanel: boolean;
+  onTogglePanel: () => void;
 }
 
-export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => {
-  if (!igsStatus || !igsStatus.assujetti) {
-    return null;
-  }
-
-  // Safe access to revenue with fallback to 0
-  const revenue = igsStatus.chiffreAffaires ?? 0;
-  const { classNumber, amount } = calculateIGSClass(revenue);
-  
-  // Apply CGA reduction if applicable
-  const finalAmount = igsStatus.reductionCGA ? amount / 2 : amount;
-  const quarterlyAmount = Math.ceil(finalAmount / 4);
-
-  // Initialize payments object if it doesn't exist
+export const IgsDetailPanel = ({ 
+  igsStatus, 
+  onStatusChange,
+  showPanel,
+  onTogglePanel
+}: IgsDetailPanelProps) => {
+  // Initialiser les variables d'état pour l'IGS
+  const annualAmount = igsStatus.annualAmount || 0;
+  const quarterlyAmount = Math.ceil(annualAmount / 4);
   const paiementsTrimestriels = igsStatus.paiementsTrimestriels || {};
   
-  // Debug the payment statuses for each trimester
-  useEffect(() => {
-    console.log("Current paiementsTrimestriels:", JSON.stringify(paiementsTrimestriels, null, 2));
-  }, [paiementsTrimestriels]);
+  // Total des trimestres payés
+  const totalPaidQuarters = Object.values(paiementsTrimestriels).filter(
+    quarter => quarter && quarter.isPaid === true
+  ).length;
   
-  // Calculate payment status with strict boolean comparison
-  const totalPaidQuarters = Object.values(paiementsTrimestriels).filter(p => p?.isPaid === true).length;
-  const totalDueQuarters = 4; // There are always 4 quarters in a year
+  // Total des trimestres dus
+  const totalDueQuarters = 4; // 4 trimestres par an
   
-  // Calculate remaining amount to pay
-  const remainingAmount = finalAmount - (quarterlyAmount * totalPaidQuarters);
-  
-  // Determine if payments are late based on current date
+  // Calculer combien de trimestres devraient être payés à cette date
   const currentDate = new Date();
-  const currentMonth = currentDate.getMonth() + 1;
-  const expectedQuartersPaid = Math.ceil(currentMonth / 3);
-  const isLate = totalPaidQuarters < expectedQuartersPaid;
-
-  // Handle quarterly payment updates
+  const currentMonth = currentDate.getMonth() + 1; // getMonth() est 0-indexé
+  const currentYear = currentDate.getFullYear().toString();
+  const selectedYear = Number(currentYear);
+  
+  // Si l'année sélectionnée est antérieure à l'année en cours, tous les trimestres sont dus
+  // Si l'année sélectionnée est l'année en cours, calculer en fonction du mois actuel
+  let expectedQuartersPaid = 0;
+  
+  if (selectedYear < currentYear) {
+    expectedQuartersPaid = 4; // Tous les trimestres sont attendus
+  } else if (selectedYear === currentYear) {
+    if (currentMonth >= 10) expectedQuartersPaid = 4; // T4 attendu en octobre
+    else if (currentMonth >= 7) expectedQuartersPaid = 3; // T3 attendu en juillet
+    else if (currentMonth >= 4) expectedQuartersPaid = 2; // T2 attendu en avril
+    else if (currentMonth >= 1) expectedQuartersPaid = 1; // T1 attendu en janvier
+  }
+  
+  // Déterminer si le paiement est en retard
+  const isLate = igsStatus.assujetti && totalPaidQuarters < expectedQuartersPaid;
+  
+  // Mettre à jour un paiement trimestriel
   const handleQuarterlyPaymentUpdate = (trimester: string, field: string, value: any) => {
-    if (!onUpdate) {
-      console.warn("No update handler provided to IgsDetailPanel");
-      return;
-    }
+    // Cloner l'objet pour éviter la mutation directe
+    const updatedPayments = { 
+      ...paiementsTrimestriels,
+      [trimester]: {
+        ...(paiementsTrimestriels[trimester] || {}),
+        [field]: value
+      }
+    };
     
-    // Create the nested path for the update
-    const updatePath = `paiementsTrimestriels.${trimester}.${field}`;
-    console.log(`IgsDetailPanel: Updating IGS: ${updatePath} = ${JSON.stringify(value)}`);
+    onStatusChange('paiementsTrimestriels', updatedPayments);
     
-    // Check if the payment object for this trimester exists
-    if (!paiementsTrimestriels[trimester]) {
-      // First initialize the object structure
-      onUpdate(`paiementsTrimestriels.${trimester}`, { isPaid: false });
-      
-      // Short delay to ensure initialization completes
-      setTimeout(() => {
-        console.log(`IgsDetailPanel: Delayed update after initialization: ${updatePath} = ${JSON.stringify(value)}`);
-        onUpdate(updatePath, value);
-      }, 100);
-    } else {
-      // If object already exists, update directly
-      console.log(`IgsDetailPanel: Direct update: ${updatePath} = ${JSON.stringify(value)}`);
-      onUpdate(updatePath, value);
+    // Mettre à jour automatiquement le statut global de paiement si tous les trimestres sont payés
+    const allPaid = Object.values(updatedPayments).every(
+      payment => payment && payment.isPaid === true
+    );
+    
+    if (allPaid) {
+      onStatusChange('paye', true);
     }
   };
-
-  // Event handlers with null checks
-  const handleRevenueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = parseFloat(e.target.value) || 0;
-    onUpdate?.("chiffreAffaires", value);
-  };
-
-  const handleCGAChange = (checked: boolean) => {
-    onUpdate?.("reductionCGA", checked);
-  };
-
+  
   return (
-    <Card className="mt-2 border-dashed">
-      <CardContent className="pt-4 pb-3 space-y-4">
-        <IGSCalculation
-          revenue={revenue}
-          reductionCGA={igsStatus.reductionCGA || false}
-          classNumber={classNumber}
-          finalAmount={finalAmount}
-          remainingAmount={remainingAmount}
-          onRevenueChange={handleRevenueChange}
-          onCGAChange={handleCGAChange}
-        />
-
+    <Card className="mt-4 border-dashed">
+      <CardContent className="pt-6 space-y-4">
         <QuarterlyPaymentsSection
           paiementsTrimestriels={paiementsTrimestriels}
           totalPaidQuarters={totalPaidQuarters}
@@ -107,8 +88,6 @@ export const IgsDetailPanel = ({ igsStatus, onUpdate }: IgsDetailPanelProps) => 
           isAssujetti={igsStatus.assujetti}
           onQuarterlyPaymentUpdate={handleQuarterlyPaymentUpdate}
         />
-
-        <ObservationsSection observations={igsStatus.observations} />
       </CardContent>
     </Card>
   );

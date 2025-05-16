@@ -4,7 +4,7 @@ import { Client } from "@/types/client";
 
 export async function getClientsWithUnpaidIgs(): Promise<Client[]> {
   try {
-    const { data: clients, error } = await supabase
+    const { data: clientsData, error } = await supabase
       .from('clients')
       .select('*')
       .eq('statut', 'actif')
@@ -12,6 +12,9 @@ export async function getClientsWithUnpaidIgs(): Promise<Client[]> {
 
     if (error) throw error;
 
+    // Convertir les données en Client[] et filtrer
+    const clients = clientsData as unknown as Client[];
+    
     // Filter clients with unpaid IGS
     return clients.filter(client => {
       const fiscalData = client.fiscal_data;
@@ -20,15 +23,18 @@ export async function getClientsWithUnpaidIgs(): Promise<Client[]> {
       // Get current year
       const currentYear = new Date().getFullYear().toString();
       
-      // Check if client has fiscal data for current year
-      if (!fiscalData.obligations || !fiscalData.obligations[currentYear]) return false;
+      // Vérifier que fiscal_data est un objet et contient obligations
+      if (typeof fiscalData !== 'object' || !fiscalData.obligations) return false;
+      
+      // Vérifier que l'année courante existe dans obligations
+      if (!fiscalData.obligations[currentYear]) return false;
       
       // Get IGS obligation status
       const igsStatus = fiscalData.obligations[currentYear]?.igs;
       
       // Return true if IGS is required but not paid
       return igsStatus && igsStatus.assujetti === true && igsStatus.paye === false;
-    }) as Client[];
+    });
   } catch (error) {
     console.error('Error fetching clients with unpaid IGS:', error);
     return [];

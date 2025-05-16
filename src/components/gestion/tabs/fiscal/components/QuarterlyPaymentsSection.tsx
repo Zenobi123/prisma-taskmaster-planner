@@ -56,9 +56,9 @@ export const QuarterlyPaymentsSection = ({
         <div className="flex items-center justify-between">
           <Label className="text-sm font-medium">Montant total IGS</Label>
           <PaymentStatus
-            totalPaidQuarters={totalPaidQuarters}
-            totalDueQuarters={totalDueQuarters}
-            expectedQuartersPaid={expectedQuartersPaid}
+            totalPaid={totalPaidQuarters}
+            totalDue={totalDueQuarters}
+            expectedPaid={expectedQuartersPaid}
             isLate={isLate}
           />
         </div>

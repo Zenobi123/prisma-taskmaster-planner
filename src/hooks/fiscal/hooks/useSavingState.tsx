@@ -2,10 +2,9 @@
 import { useState, useCallback } from 'react';
 import { ClientFiscalData } from '../types';
 import { useFiscalSave } from './useFiscalSave';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 
 export function useSavingState(clientId: string, setHasUnsavedChanges: (value: boolean) => void) {
-  const { toast } = useToast();
   const [lastSaveSuccess, setLastSaveSuccess] = useState<boolean>(false);
   const [saveAttempts, setSaveAttempts] = useState<number>(0);
   
@@ -22,15 +21,12 @@ export function useSavingState(clientId: string, setHasUnsavedChanges: (value: b
       return success;
     } catch (error) {
       console.error("Erreur lors de la sauvegarde:", error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la sauvegarde."
-      });
+      toast.error("Une erreur est survenue lors de la sauvegarde.");
       setLastSaveSuccess(false);
       setSaveAttempts(prev => prev + 1);
       return false;
     }
-  }, [saveFiscalData, toast]);
+  }, [saveFiscalData]);
 
   return {
     lastSaveSuccess,

@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { DatePickerSelector } from "./DatePickerSelector";
+import DatePickerSelector from "./DatePickerSelector";
 
 interface FiscalAttestationSectionProps {
   creationDate: string | null;

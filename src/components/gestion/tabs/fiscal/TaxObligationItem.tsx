@@ -1,121 +1,160 @@
 
-import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { TaxObligationStatus } from "@/hooks/fiscal/types";
+import React, { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { TaxObligationStatus } from '@/hooks/fiscal/types';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { AttachmentUploader } from './AttachmentUploader';
 import { IgsDetailPanel } from './IgsDetailPanel';
+import { Separator } from '@/components/ui/separator';
 import { ObservationsSection } from './components/ObservationsSection';
 import { PaymentStatus } from './components/PaymentStatus';
 
 interface TaxObligationItemProps {
-  keyName: string;
-  title: string;
+  name: string;
+  nameLabel: string;
   status: TaxObligationStatus;
-  onStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
-  onAttachmentChange: (key: string, attachmentType: string, filePath: string) => void;
+  onChange: (field: string, value: any) => void;
+  isIgsObligation: boolean;
   clientId: string;
   selectedYear: string;
-  showIGSPanel?: boolean;
-  onToggleIGSPanel?: () => void;
 }
 
-export function TaxObligationItem({
-  keyName,
-  title,
+export const TaxObligationItem = ({
+  name,
+  nameLabel,
   status,
-  onStatusChange,
-  onAttachmentChange,
+  onChange,
+  isIgsObligation,
   clientId,
   selectedYear,
-  showIGSPanel = false,
-  onToggleIGSPanel
-}: TaxObligationItemProps) {
-  const handleAssujetti = (checked: boolean) => {
-    onStatusChange(keyName, "assujetti", checked);
+}: TaxObligationItemProps) => {
+  const [showPanel, setShowPanel] = useState(false);
+
+  // Fonction permettant de mettre à jour le statut d'assujettissement 
+  const handleAssujettissement = (checked: boolean) => {
+    onChange('assujetti', checked);
+    
+    // Si désactivé, réinitialiser aussi le statut de paiement
     if (!checked) {
-      onStatusChange(keyName, "paye", false);
+      onChange('paye', false);
     }
   };
-
-  const handlePayment = (checked: boolean) => {
-    onStatusChange(keyName, "paye", checked);
-    if (checked && !status.datePaiement) {
-      onStatusChange(keyName, "datePaiement", new Date().toISOString().split('T')[0]);
-    }
+  
+  // Fonction permettant de mettre à jour le statut de paiement
+  const handlePaymentChange = (checked: boolean) => {
+    onChange('paye', checked);
   };
 
-  const isIGS = keyName === "igs";
+  // Fonction permettant d'ajouter ou mettre à jour un fichier d'attestation
+  const handleAttachmentChange = (attachmentType: string, filePath: string) => {
+    const attachmentsField = 'attachments';
+    
+    // Initialiser le champ s'il n'existe pas
+    if (!status[attachmentsField]) {
+      onChange(attachmentsField, {});
+    }
+    
+    // Mettre à jour le fichier d'attestation
+    onChange(`${attachmentsField}.${attachmentType}`, filePath);
+  };
+  
+  // Fonctionnalité spécifique à l'IGS
+  const handleTogglePanel = () => {
+    setShowPanel(!showPanel);
+  };
 
   return (
-    <Card className={`overflow-hidden ${status.assujetti ? "border-green-100" : ""}`}>
-      <CardContent className="p-4">
-        <div className="flex flex-col space-y-4">
-          {/* Header section */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id={`${keyName}-assujetti`}
-                checked={status.assujetti}
-                onCheckedChange={handleAssujetti}
-              />
-              <label
-                htmlFor={`${keyName}-assujetti`}
-                className={`text-base font-medium ${status.assujetti ? "text-primary" : "text-gray-500"}`}
-              >
-                {title}
-              </label>
-            </div>
+    <Card className="relative">
+      <CardContent className="pt-6">
+        <div className="flex items-center justify-between">
+          <Label htmlFor={`${name}-assujetti`} className="font-medium">
+            {nameLabel}
+          </Label>
+          <div className="flex items-center gap-2">
+            <Switch 
+              id={`${name}-assujetti`}
+              checked={status.assujetti}
+              onCheckedChange={handleAssujettissement}
+            />
           </div>
-
-          {/* Content that shows only if assujetti is true */}
-          {status.assujetti && (
-            <>
-              <PaymentStatus
-                status={status}
-                onStatusChange={(field, value) => onStatusChange(keyName, field, value)}
-                onPaymentChange={handlePayment}
+        </div>
+        
+        {status.assujetti && (
+          <>
+            <div className="mt-4 flex items-center justify-between">
+              <Label htmlFor={`${name}-paye`} className="text-sm">
+                Payé
+              </Label>
+              <Switch 
+                id={`${name}-paye`}
+                checked={status.paye}
+                onCheckedChange={handlePaymentChange}
               />
-              
-              {isIGS && onToggleIGSPanel && (
-                <IgsDetailPanel 
-                  igStatus={status}
-                  onStatusChange={(field, value) => onStatusChange(keyName, field, value)} 
-                  showPanel={showIGSPanel}
-                  onTogglePanel={onToggleIGSPanel}
-                />
-              )}
-
-              {/* Attachments section */}
-              <div className="grid sm:grid-cols-2 gap-4 mt-2">
+            </div>
+            
+            {isIgsObligation && (
+              <div className="mt-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full flex justify-between items-center"
+                  onClick={handleTogglePanel}
+                >
+                  Détails IGS
+                  {showPanel ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+                </Button>
+                
+                {showPanel && (
+                  <IgsDetailPanel 
+                    igsStatus={status}
+                    onStatusChange={onChange}
+                    showPanel={showPanel}
+                    onTogglePanel={handleTogglePanel}
+                  />
+                )}
+              </div>
+            )}
+            
+            <Separator className="my-4" />
+            
+            <div className="mt-4">
+              <Label className="text-sm mb-2 block">Observations</Label>
+              <ObservationsSection 
+                observations={status.observations || ''}
+                onObservationsChange={(value) => onChange('observations', value)}
+              />
+            </div>
+            
+            <div className="mt-4">
+              <Label className="text-sm mb-2 block">Pièces justificatives</Label>
+              <div className="space-y-2">
                 <AttachmentUploader
+                  label="Attestation de paiement"
+                  fileType="attestation"
                   clientId={clientId}
+                  obligationName={name}
+                  filePath={status.attachments?.attestation || ''}
                   year={selectedYear}
-                  obligationType={keyName}
-                  attachmentType="declaration"
-                  attachmentLabel="Déclaration"
-                  filePath={status.payment_attachments?.declaration}
-                  onFileUploaded={(filePath) => onAttachmentChange(keyName, "declaration", filePath || "")}
+                  onChange={(filePath) => handleAttachmentChange('attestation', filePath)}
                 />
+                
                 <AttachmentUploader
+                  label="Reçu de paiement"
+                  fileType="receipt"
                   clientId={clientId}
+                  obligationName={name}
+                  filePath={status.attachments?.receipt || ''}
                   year={selectedYear}
-                  obligationType={keyName}
-                  attachmentType="receipt"
-                  attachmentLabel="Reçu de paiement"
-                  filePath={status.payment_attachments?.receipt}
-                  onFileUploaded={(filePath) => onAttachmentChange(keyName, "receipt", filePath || "")}
+                  onChange={(filePath) => handleAttachmentChange('receipt', filePath)}
                 />
               </div>
-
-              <ObservationsSection
-                value={status.observations || ""}
-                onValueChange={(value) => onStatusChange(keyName, "observations", value)}
-              />
-            </>
-          )}
-        </div>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
-}
+};

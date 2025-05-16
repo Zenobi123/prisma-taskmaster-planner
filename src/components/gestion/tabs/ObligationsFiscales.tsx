@@ -51,7 +51,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => (currentYear - 4 + i).toString());
 
-  // Auto-save toutes les 2 minutes seulement, pas d'actualisation continue
+  // Auto-save toutes les 2 minutes seulement
   useEffect(() => {
     if (hasUnsavedChanges && !isSaving) {
       const saveTimeout = setTimeout(() => {
@@ -64,8 +64,8 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     }
   }, [hasUnsavedChanges, isSaving, handleSave]);
   
-  // Fonction pour gérer l'enregistrement manuel
-  const handleManualSave = async () => {
+  // Fonction pour gérer l'enregistrement et l'actualisation manuelle
+  const handleManualSaveAndRefresh = async () => {
     await handleSave();
   };
 
@@ -162,7 +162,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
         <Button 
-          onClick={handleManualSave}
+          onClick={handleManualSaveAndRefresh}
           className={`w-full ${hasUnsavedChanges ? "bg-primary" : ""}`}
           disabled={isSaving}
         >

@@ -1,59 +1,59 @@
 
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnpaidIGS } from "@/services/unpaidIgsService";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { FileText } from "lucide-react";
-import { UnpaidIgsDialog } from "../UnpaidIgsDialog";
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { UnpaidIgsDialog } from '../UnpaidIgsDialog';
+import { getClientsWithUnpaidIgs } from '@/services/unpaidIgsService';
+import { useQuery } from '@tanstack/react-query';
+import { LoaderCircle, AlertTriangle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Client } from '@/types/client';
 
-const IgsSection = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+export const IgsSection = () => {
+  const [dialogOpen, setDialogOpen] = React.useState(false);
   
-  const { data: clients = [], isLoading } = useQuery({
-    queryKey: ["clients-unpaid-igs-section"],
-    queryFn: getClientsWithUnpaidIGS,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
+  const { data: unpaidIgsClients = [], isLoading } = useQuery({
+    queryKey: ['unpaidIgsClients'],
+    queryFn: getClientsWithUnpaidIgs,
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 5 * 60 * 1000 // 5 minutes
   });
+  
+  const handleOpenDialog = () => setDialogOpen(true);
+  const handleCloseDialog = () => setDialogOpen(false);
 
   return (
-    <div className="p-4 space-y-6">
-      <Card className="bg-white shadow-md border-2 border-yellow-200">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
-            <div>
-              <h3 className="text-xl font-semibold text-neutral-800 flex items-center">
-                <FileText className="h-5 w-5 mr-2 text-yellow-500" />
-                IGS non payés
-              </h3>
-              <div className="flex items-center mt-3">
-                <span className="text-4xl font-semibold text-yellow-600">{clients.length}</span>
-                <div className="ml-4">
-                  <span className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-medium">
-                    À régulariser
-                  </span>
-                  <p className="text-neutral-500 mt-1">Clients assujettis</p>
-                </div>
-              </div>
-            </div>
-            <Button 
-              variant="outline" 
-              className="mt-4 md:mt-0 border-yellow-300 hover:bg-yellow-50 hover:text-yellow-700" 
-              onClick={() => setIsDialogOpen(true)}
-            >
-              Voir tous
+    <Card>
+      <CardHeader className="pb-2 pt-6">
+        <CardTitle className="text-xl flex items-center">
+          <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
+          Impôt Global Synthétique (IGS)
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {isLoading ? (
+          <div className="flex items-center justify-center p-4">
+            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : unpaidIgsClients && unpaidIgsClients.length > 0 ? (
+          <div className="space-y-4">
+            <p className="text-sm">
+              <span className="font-bold text-yellow-600">{unpaidIgsClients.length}</span> clients ont 
+              un IGS non payé pour l'année en cours.
+            </p>
+            <Button variant="outline" className="w-full" onClick={handleOpenDialog}>
+              Voir les clients concernés
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        ) : (
+          <p className="text-sm">Aucun client n'a d'IGS non payé pour l'année en cours.</p>
+        )}
+      </CardContent>
       
       <UnpaidIgsDialog 
-        open={isDialogOpen} 
-        onOpenChange={setIsDialogOpen} 
+        isOpen={dialogOpen}
+        onClose={handleCloseDialog}
+        clients={unpaidIgsClients as Client[]}
       />
-    </div>
+    </Card>
   );
 };
-
-export default IgsSection;
