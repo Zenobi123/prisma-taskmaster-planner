@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { TaxObligationStatus } from '@/hooks/fiscal/types';
+import { TaxObligationStatus, AttachmentType } from '@/hooks/fiscal/types';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { ChevronDown, ChevronUp } from 'lucide-react';
@@ -48,7 +48,7 @@ export const TaxObligationItem = ({
   };
 
   // Function to add or update an attestation file
-  const handleAttachmentChange = (attachmentType: string, filePath: string) => {
+  const handleAttachmentChange = (attachmentType: AttachmentType, filePath: string) => {
     // Initialize attachments field if it doesn't exist
     if (!status.attachments) {
       onChange('attachments', {});

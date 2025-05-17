@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import RecentTasks from "./RecentTasks";
 import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations";
 import PatenteSection from "./sections/PatenteSection";
-import IgsSection from "./sections/IgsSection";
+import { IgsSection } from "./sections/IgsSection";
 import DsfSection from "./sections/DsfSection";
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations";
 

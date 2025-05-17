@@ -2,7 +2,6 @@
 import { useState, useCallback } from 'react';
 import { ClientFiscalData } from '../types';
 import { saveFiscalData } from '../services/saveService';
-import { toast } from 'sonner';
 
 export function useSavingState(clientId: string, setHasUnsavedChanges: (value: boolean) => void) {
   const [lastSaveSuccess, setLastSaveSuccess] = useState<boolean>(false);

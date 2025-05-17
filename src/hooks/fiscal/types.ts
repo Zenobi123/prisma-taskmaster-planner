@@ -1,87 +1,73 @@
-export type ObligationType = "tax" | "declaration";
-export type DeclarationPeriodicity = "monthly" | "annual";
 
-export interface IgsPaymentStatus {
-  isPaid: boolean;
-  datePayment?: string;
-}
+import { Client } from "@/types/client";
 
-export interface TaxObligationStatus extends ObligationStatus {
+// Types pour les obligations fiscales
+export type ObligationType = 'taxe' | 'declaration';
+
+export type AttachmentType = 'attestation' | 'declaration' | 'receipt' | 'other';
+
+// État d'une obligation fiscale de type taxe (impôt)
+export interface TaxObligationStatus {
   assujetti: boolean;
   paye: boolean;
   observations?: string;
-  attachments?: {
-    attestation?: string;
-    receipt?: string;
-    [key: string]: string | undefined;
-  };
+  attachments?: Record<string, string>;
+  
+  // Champs spécifiques pour IGS
   montantAnnuel?: number;
   q1Paye?: boolean;
   q2Paye?: boolean;
   q3Paye?: boolean;
   q4Paye?: boolean;
-  [key: string]: any;
 }
 
+export type DeclarationPeriodicity = 'mensuelle' | 'trimestrielle' | 'annuelle';
+
+// État d'une obligation fiscale de type déclaration
 export interface DeclarationObligationStatus {
-  assujetti: boolean;
-  depose: boolean;
-  dateDepot?: string;
+  applicable: boolean;
+  submitted: boolean;
+  approved?: boolean;
   observations?: string;
-  periodicity: DeclarationPeriodicity; // Required property
-  // Attachment fields for declarations
-  attachments?: {
-    declaration?: string;
-    receipt?: string;
-    payment?: string;
-    additional?: string;
-  };
+  attachments?: Record<string, string>;
+  periodicity?: DeclarationPeriodicity;
 }
 
+// Union type pour les deux types d'obligations
 export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
 
+// Statuts de toutes les obligations fiscales
 export interface ObligationStatuses {
   [key: string]: ObligationStatus;
   igs: TaxObligationStatus;
   patente: TaxObligationStatus;
-  dsf: DeclarationObligationStatus;
-  darp: DeclarationObligationStatus;
-  iba: TaxObligationStatus; // Impôts sur les Bénéfices Agricoles
-  baic: TaxObligationStatus; // Impôts sur les Bénéfices Artisanaux, Industriels et Commerciaux
-  ibnc: TaxObligationStatus; // Impôts sur les Bénéfices des Professions Non Commerciales
-  ircm: TaxObligationStatus; // Impôts sur les Revenus des Capitaux Mobiliers
-  irf: TaxObligationStatus; // Impôts sur les Revenus Foncier
-  its: TaxObligationStatus; // Impôts sur les traitements, salaires et rentes viagères
-  licence: DeclarationObligationStatus; // Licence
-  precompte: TaxObligationStatus; // Précompte sur loyer
-  taxeSejour: TaxObligationStatus; // Taxe de séjour dans les établissements d'hébergement
-  baillCommercial: TaxObligationStatus; // Bail Commercial obligation
+  iba?: TaxObligationStatus;
+  baic?: TaxObligationStatus;
+  ibnc?: TaxObligationStatus;
+  ircm?: TaxObligationStatus;
+  irf?: TaxObligationStatus;
+  its?: TaxObligationStatus;
+  precompte?: TaxObligationStatus;
+  taxeSejour?: TaxObligationStatus;
+  baillCommercial?: TaxObligationStatus;
+  
+  // Déclarations
+  dsf?: DeclarationObligationStatus;
+  darp?: DeclarationObligationStatus;
+  licence?: DeclarationObligationStatus;
 }
 
+// Structure des données fiscales d'un client
 export interface ClientFiscalData {
   attestation?: {
-    creationDate: string | null;
-    validityEndDate: string | null;
+    creationDate: string;
+    validityEndDate: string;
     showInAlert: boolean;
   };
   obligations?: {
     [year: string]: ObligationStatuses;
   };
   hiddenFromDashboard?: boolean;
-  updatedAt?: string;
   selectedYear?: string;
-}
-
-export interface FiscalData {
-  attestation?: {
-    creationDate: string | null;
-    validityEndDate: string | null;
-    showInAlert: boolean;
-  };
-  obligations?: {
-    [year: string]: ObligationStatuses;
-  };
-  hiddenFromDashboard?: boolean;
   updatedAt?: string;
-  selectedYear?: string;
 }

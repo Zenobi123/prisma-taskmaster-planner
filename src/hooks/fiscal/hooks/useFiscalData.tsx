@@ -2,7 +2,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ClientFiscalData } from '../types';
 import { fetchFiscalData } from '../services/fetchService';
-import { toast } from 'sonner';
 
 export const useFiscalData = (clientId: string) => {
   const [fiscalData, setFiscalData] = useState<ClientFiscalData | null>(null);
@@ -26,10 +25,6 @@ export const useFiscalData = (clientId: string) => {
         if (data.selectedYear) {
           setSelectedYear(data.selectedYear);
         }
-        
-        if (showToast) {
-          toast.success("Données fiscales chargées avec succès");
-        }
       } else {
         console.log("No fiscal data found for client", clientId);
         // Initialize with empty data if nothing is found
@@ -45,9 +40,6 @@ export const useFiscalData = (clientId: string) => {
       }
     } catch (err) {
       console.error("Error loading fiscal data:", err);
-      if (showToast) {
-        toast.error("Erreur lors du chargement des données fiscales");
-      }
     } finally {
       setIsLoading(false);
     }
