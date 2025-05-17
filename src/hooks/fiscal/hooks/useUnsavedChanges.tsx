@@ -9,9 +9,15 @@ export const useUnsavedChanges = () => {
     setHasUnsavedChanges(true);
   }, []);
 
+  // Fonction pour réinitialiser l'état des changements
+  const resetChanges = useCallback(() => {
+    setHasUnsavedChanges(false);
+  }, []);
+
   return { 
     hasUnsavedChanges, 
     setHasUnsavedChanges,
-    markAsChanged
+    markAsChanged,
+    resetChanges
   };
 };

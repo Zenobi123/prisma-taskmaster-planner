@@ -24,7 +24,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   } = useFiscalData(selectedClient.id);
   
   // Track unsaved changes
-  const { hasUnsavedChanges, setHasUnsavedChanges, markAsChanged } = useUnsavedChanges();
+  const { hasUnsavedChanges, setHasUnsavedChanges, markAsChanged, resetChanges } = useUnsavedChanges();
   
   // Import obligation periodicity hook
   const { isDeclarationObligation, updatePeriodicity } = useObligationPeriodicity();
@@ -43,7 +43,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     handleYearChange 
   } = useYearSelector(fiscalData, initializeObligationStatuses);
 
-  // Saving state
+  // Saving state - Manual only
   const {
     lastSaveSuccess,
     saveAttempts,
@@ -63,7 +63,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     handleToggleDashboardVisibility
   } = useFiscalAttestation(fiscalData, markAsChanged);
 
-  // Initialize the state from the fiscal data
+  // Initialize the state from the fiscal data - once only
   useEffect(() => {
     if (fiscalData && typeof fiscalData === 'object') {
       // Attestation data
@@ -88,7 +88,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     }
   }, [fiscalData, setCreationDate, setValidityEndDate, handleToggleDashboardVisibility, setDataYear, handleYearChange, selectedYear]);
 
-  // Save all changes
+  // Save all changes - Manual only
   const handleSave = useCallback(async () => {
     if (!fiscalData || !selectedClient.id) return false;
     
@@ -111,8 +111,9 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     const success = await handleSaveData(updatedFiscalData);
     if (success) {
       setFiscalData(updatedFiscalData);
-      // Rechargement manuel des données après sauvegarde
-      await loadFiscalData();
+      // Rechargement manuel des données après sauvegarde avec notification
+      await loadFiscalData(true);
+      resetChanges();
     }
     return success;
   }, [
@@ -126,7 +127,8 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     selectedYear, 
     handleSaveData, 
     setFiscalData,
-    loadFiscalData
+    loadFiscalData,
+    resetChanges
   ]);
 
   // Determine dataLoaded state for UI purposes

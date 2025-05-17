@@ -17,16 +17,15 @@ export const IgsDetailPanel = ({
   onStatusChange
 }: IgsDetailPanelProps) => {
   // État local pour le montant annuel
-  const [annualAmount, setAnnualAmount] = useState<number>(
-    igsStatus.montantAnnuel ? Number(igsStatus.montantAnnuel) : 0
-  );
+  const [annualAmount, setAnnualAmount] = useState<number>(0);
 
   // Mettre à jour le montant annuel lorsque l'état externe change
   useEffect(() => {
-    if (igsStatus.montantAnnuel !== undefined) {
+    // Vérifier si le montant annuel existe et le convertir en nombre
+    if (igsStatus && typeof igsStatus.montantAnnuel !== 'undefined') {
       setAnnualAmount(Number(igsStatus.montantAnnuel));
     }
-  }, [igsStatus.montantAnnuel]);
+  }, [igsStatus]);
 
   // Gère le changement du montant annuel
   const handleAnnualAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {

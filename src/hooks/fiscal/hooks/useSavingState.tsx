@@ -11,22 +11,53 @@ export function useSavingState(clientId: string, setHasUnsavedChanges: (value: b
   const { saveFiscalData, saveStatus } = useFiscalSave(clientId, setHasUnsavedChanges);
   const isSaving = saveStatus === 'saving';
 
-  // Save all fiscal data
+  // Save all fiscal data - Manual save only
   const handleSaveData = useCallback(async (updatedFiscalData: ClientFiscalData) => {
     try {
-      const success = await saveFiscalData(updatedFiscalData);
-      setLastSaveSuccess(success);
-      setSaveAttempts(prev => prev + 1);
+      if (!clientId) {
+        toast.error("Erreur: Identifiant de client non fourni");
+        setSaveStatus('error');
+        return false;
+      }
+
+      setSaveStatus('saving');
       
-      return success;
-    } catch (error) {
-      console.error("Erreur lors de la sauvegarde:", error);
-      toast.error("Une erreur est survenue lors de la sauvegarde.");
-      setLastSaveSuccess(false);
-      setSaveAttempts(prev => prev + 1);
+      // Add timestamp to track updates and prepare data for saving
+      const dataWithTimestamp = {
+        ...updatedFiscalData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      const success = await saveFiscalData(dataWithTimestamp);
+
+      if (success) {
+        toast.success("Données fiscales enregistrées avec succès");
+        setHasUnsavedChanges(false);
+        setSaveStatus('success');
+        return true;
+      } else {
+        console.error("Error saving fiscal data");
+        toast.error("Erreur lors de l'enregistrement des données");
+        setSaveStatus('error');
+        return false;
+      }
+    } catch (err) {
+      console.error("Error in saveFiscalData:", err);
+      toast.error("Erreur lors de l'enregistrement des données");
+      setSaveStatus('error');
       return false;
     }
-  }, [saveFiscalData]);
+  }, [clientId, setHasUnsavedChanges, saveFiscalData]);
+
+  const setSaveStatus = (status: 'idle' | 'saving' | 'success' | 'error') => {
+    if (status === 'success') {
+      setLastSaveSuccess(true);
+      setSaveAttempts(prev => prev + 1);
+    } else if (status === 'error') {
+      setLastSaveSuccess(false);
+      setSaveAttempts(prev => prev + 1);
+    }
+  };
 
   return {
     lastSaveSuccess,

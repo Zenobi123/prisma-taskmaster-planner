@@ -51,8 +51,8 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => (currentYear - 4 + i).toString());
   
-  // Fonction pour gérer l'enregistrement et l'actualisation manuelle
-  const handleManualSaveAndRefresh = async () => {
+  // Fonction pour gérer l'enregistrement manuel uniquement
+  const handleManualSave = async () => {
     await handleSave();
   };
 
@@ -104,7 +104,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           <Alert className="bg-amber-50 border-amber-200">
             <AlertCircle className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-amber-800">
-              Vous avez des modifications non enregistrées. Utilisez le bouton d'enregistrement pour les sauvegarder.
+              Vous avez des modifications non enregistrées. Utilisez le bouton d'enregistrement ci-dessous pour les sauvegarder.
             </AlertDescription>
           </Alert>
         )}
@@ -149,25 +149,25 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
       </CardContent>
       <CardFooter className="flex flex-col gap-4">
         <Button 
-          onClick={handleManualSaveAndRefresh}
+          onClick={handleManualSave}
           className={`w-full ${hasUnsavedChanges ? "bg-primary" : ""}`}
           disabled={isSaving}
         >
           {isSaving ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Enregistrement et actualisation en cours...
+              Enregistrement en cours...
             </>
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {hasUnsavedChanges ? "Enregistrer et actualiser" : "Enregistrer toutes les modifications"}
+              {hasUnsavedChanges ? "Enregistrer les modifications" : "Enregistrer"}
             </>
           )}
         </Button>
         
         <div className="text-xs text-muted-foreground text-center w-full">
-          Utilisez le bouton ci-dessus pour enregistrer vos modifications.
+          Les données ne sont enregistrées que lorsque vous cliquez sur le bouton "Enregistrer".
         </div>
       </CardFooter>
     </Card>

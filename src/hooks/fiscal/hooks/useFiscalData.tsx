@@ -9,8 +9,8 @@ export const useFiscalData = (clientId: string) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   
-  // Fonction pour charger les données fiscales
-  const loadFiscalData = useCallback(async () => {
+  // Fonction pour charger les données fiscales sans notification
+  const loadFiscalData = useCallback(async (showToast: boolean = false) => {
     try {
       if (!clientId) return;
       
@@ -25,6 +25,10 @@ export const useFiscalData = (clientId: string) => {
         // Si l'année est stockée, on l'utilise
         if (data.selectedYear) {
           setSelectedYear(data.selectedYear);
+        }
+        
+        if (showToast) {
+          toast.success("Données fiscales chargées avec succès");
         }
       } else {
         console.log("Aucune donnée fiscale trouvée pour le client", clientId);
@@ -41,15 +45,17 @@ export const useFiscalData = (clientId: string) => {
       }
     } catch (err) {
       console.error("Erreur lors du chargement des données fiscales:", err);
-      toast.error("Erreur lors du chargement des données fiscales");
+      if (showToast) {
+        toast.error("Erreur lors du chargement des données fiscales");
+      }
     } finally {
       setIsLoading(false);
     }
   }, [clientId]);
   
-  // Charger les données au montage du composant
+  // Charger les données au montage du composant, une seule fois, sans notification
   useEffect(() => {
-    loadFiscalData();
+    loadFiscalData(false);
   }, [loadFiscalData]);
 
   return {
