@@ -5,7 +5,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import IgsSection from "./sections/IgsSection"
+import { IgsSection } from "./sections/IgsSection"
 import DsfSection from "./sections/DsfSection"
 import PatenteSection from "./sections/PatenteSection"
 import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations"
