@@ -9,7 +9,7 @@ export const useFiscalData = (clientId: string) => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   
-  // Fonction pour charger les données fiscales sans notification
+  // Function to load fiscal data without notification
   const loadFiscalData = useCallback(async (showToast: boolean = false) => {
     try {
       if (!clientId) return;
@@ -19,10 +19,10 @@ export const useFiscalData = (clientId: string) => {
       const data = await fetchFiscalData(clientId);
       
       if (data) {
-        console.log("Données fiscales chargées:", data);
+        console.log("Fiscal data loaded:", data);
         setFiscalData(data);
         
-        // Si l'année est stockée, on l'utilise
+        // If year is stored, use it
         if (data.selectedYear) {
           setSelectedYear(data.selectedYear);
         }
@@ -31,8 +31,8 @@ export const useFiscalData = (clientId: string) => {
           toast.success("Données fiscales chargées avec succès");
         }
       } else {
-        console.log("Aucune donnée fiscale trouvée pour le client", clientId);
-        // Initialiser avec des données vides si rien n'est trouvé
+        console.log("No fiscal data found for client", clientId);
+        // Initialize with empty data if nothing is found
         setFiscalData({
           attestation: {
             creationDate: '',
@@ -44,7 +44,7 @@ export const useFiscalData = (clientId: string) => {
         });
       }
     } catch (err) {
-      console.error("Erreur lors du chargement des données fiscales:", err);
+      console.error("Error loading fiscal data:", err);
       if (showToast) {
         toast.error("Erreur lors du chargement des données fiscales");
       }
@@ -53,7 +53,7 @@ export const useFiscalData = (clientId: string) => {
     }
   }, [clientId]);
   
-  // Charger les données au montage du composant, une seule fois, sans notification
+  // Load data on component mount, once only, without notification
   useEffect(() => {
     loadFiscalData(false);
   }, [loadFiscalData]);

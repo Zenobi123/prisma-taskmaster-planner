@@ -16,21 +16,20 @@ export const IgsDetailPanel = ({
   igsStatus, 
   onStatusChange
 }: IgsDetailPanelProps) => {
-  // État local pour le montant annuel
+  // Local state for annual amount
   const [annualAmount, setAnnualAmount] = useState<number>(0);
 
-  // Mettre à jour le montant annuel lorsque l'état externe change
+  // Update annual amount when external state changes
   useEffect(() => {
-    // Vérifier si le montant annuel existe et le convertir en nombre
-    if (igsStatus && typeof igsStatus.montantAnnuel !== 'undefined') {
-      setAnnualAmount(Number(igsStatus.montantAnnuel));
-    }
+    // Check if annual amount exists and convert to number
+    const montantAnnuel = igsStatus?.montantAnnuel !== undefined ? Number(igsStatus.montantAnnuel) : 0;
+    setAnnualAmount(montantAnnuel);
   }, [igsStatus]);
 
-  // Gère le changement du montant annuel
+  // Handle annual amount change
   const handleAnnualAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Vérifier si la valeur est un nombre valide
+    // Check if value is a valid number
     if (!isNaN(Number(value))) {
       const numValue = Number(value);
       setAnnualAmount(numValue);
@@ -38,7 +37,7 @@ export const IgsDetailPanel = ({
     }
   };
 
-  // Calcul du montant trimestriel (25% du montant annuel)
+  // Calculate quarterly amount (25% of annual amount)
   const quarterlyAmount = annualAmount > 0 ? Math.round(annualAmount * 0.25 * 100) / 100 : 0;
 
   return (
@@ -62,13 +61,13 @@ export const IgsDetailPanel = ({
           {annualAmount > 0 && (
             <>
               <IGSCalculation 
-                annualAmount={annualAmount} 
+                amount={annualAmount} 
                 quarterlyAmount={quarterlyAmount}
               />
               
               <QuarterlyPaymentsSection 
                 quarterlyAmount={quarterlyAmount}
-                igsStatus={igsStatus}
+                status={igsStatus}
                 onStatusChange={onStatusChange}
               />
             </>

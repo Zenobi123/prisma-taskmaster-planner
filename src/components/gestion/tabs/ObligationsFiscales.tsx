@@ -5,9 +5,8 @@ import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
-import { Loader2, Save, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Select, 
   SelectContent, 
@@ -35,12 +34,10 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
     isLoading,
     dataLoaded,
     isSaving,
-    saveAttempts,
     showInAlert,
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,
-    lastSaveSuccess,
     hasUnsavedChanges,
     selectedYear,
     setSelectedYear,
@@ -51,7 +48,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
   const currentYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 7 }, (_, i) => (currentYear - 4 + i).toString());
   
-  // Fonction pour gérer l'enregistrement manuel uniquement
+  // Function for manual save only
   const handleManualSave = async () => {
     await handleSave();
   };
@@ -101,30 +98,9 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
       </CardHeader>
       <CardContent className="space-y-6">
         {hasUnsavedChanges && (
-          <Alert className="bg-amber-50 border-amber-200">
-            <AlertCircle className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-amber-800">
-              Vous avez des modifications non enregistrées. Utilisez le bouton d'enregistrement ci-dessous pour les sauvegarder.
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {lastSaveSuccess && saveAttempts > 0 && (
-          <Alert className="bg-green-50 border-green-200">
-            <CheckCircle2 className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              Les modifications ont été enregistrées avec succès.
-            </AlertDescription>
-          </Alert>
-        )}
-        
-        {!lastSaveSuccess && saveAttempts > 0 && (
-          <Alert className="bg-red-50 border-red-200">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
-              Une erreur est survenue lors de l'enregistrement des données.
-            </AlertDescription>
-          </Alert>
+          <div className="p-4 border rounded-md bg-amber-50 border-amber-200 text-amber-800">
+            Vous avez des modifications non enregistrées. Utilisez le bouton d'enregistrement ci-dessous pour les sauvegarder.
+          </div>
         )}
         
         <FiscalAttestationSection 
@@ -150,7 +126,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
       <CardFooter className="flex flex-col gap-4">
         <Button 
           onClick={handleManualSave}
-          className={`w-full ${hasUnsavedChanges ? "bg-primary" : ""}`}
+          className="w-full"
           disabled={isSaving}
         >
           {isSaving ? (
@@ -161,7 +137,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           ) : (
             <>
               <Save className="mr-2 h-4 w-4" />
-              {hasUnsavedChanges ? "Enregistrer les modifications" : "Enregistrer"}
+              Enregistrer
             </>
           )}
         </Button>

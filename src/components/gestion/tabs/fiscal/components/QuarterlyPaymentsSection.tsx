@@ -1,87 +1,57 @@
 
-import React, { useEffect } from "react";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { QuarterlyPayment } from "./QuarterlyPayment";
-import { PaymentStatus } from "./PaymentStatus";
-import { IgsPaymentStatus } from "@/hooks/fiscal/types";
+import React from 'react';
+import { TaxObligationStatus } from '@/hooks/fiscal/types';
+import { QuarterlyPayment } from './QuarterlyPayment';
 
 interface QuarterlyPaymentsSectionProps {
-  paiementsTrimestriels: { [key: string]: IgsPaymentStatus | undefined };
-  totalPaidQuarters: number;
-  totalDueQuarters: number;
-  expectedQuartersPaid: number;
-  isLate: boolean;
   quarterlyAmount: number;
-  isAssujetti: boolean;
-  onQuarterlyPaymentUpdate: (trimester: string, field: string, value: any) => void;
+  status: TaxObligationStatus;
+  onStatusChange: (field: string, value: any) => void;
 }
 
-// Define trimester dates with due dates for each quarter
-const TRIMESTER_DATES = {
-  T1: "15 janvier",
-  T2: "15 avril",
-  T3: "15 juillet",
-  T4: "15 octobre"
-};
-
-export const QuarterlyPaymentsSection = ({
-  paiementsTrimestriels,
-  totalPaidQuarters,
-  totalDueQuarters,
-  expectedQuartersPaid,
-  isLate,
-  quarterlyAmount,
-  isAssujetti,
-  onQuarterlyPaymentUpdate,
+export const QuarterlyPaymentsSection = ({ 
+  quarterlyAmount, 
+  status, 
+  onStatusChange 
 }: QuarterlyPaymentsSectionProps) => {
-  // Ensure paiementsTrimestriels is always an object
-  const safePayments = paiementsTrimestriels || {};
-  
-  // Debug payments object
-  useEffect(() => {
-    console.log("Quarterly payments section rendering with payments:", 
-      JSON.stringify(safePayments, null, 2));
-  }, [safePayments]);
-  
-  // Handle quarterly payment updates with structured approach
-  const handlePaymentUpdate = (trimester: string, field: string, value: any) => {
-    console.log(`QuarterlyPaymentsSection: Updating ${trimester} - ${field}: ${value}`);
-    onQuarterlyPaymentUpdate(trimester, field, value);
+  // Handle quarterly payment status change
+  const handleQuarterPaymentChange = (quarter: string, isPaid: boolean) => {
+    onStatusChange(quarter, isPaid);
   };
-  
-  return (
-    <>
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-sm font-medium">Montant total IGS</Label>
-          <PaymentStatus
-            totalPaid={totalPaidQuarters}
-            totalDue={totalDueQuarters}
-            expectedPaid={expectedQuartersPaid}
-            isLate={isLate}
-          />
-        </div>
-      </div>
 
-      <Separator className="my-4" />
-      
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Échéancier de paiement</Label>
-        <div className="grid gap-3">
-          {(Object.keys(TRIMESTER_DATES) as Array<keyof typeof TRIMESTER_DATES>).map(trimester => (
-            <QuarterlyPayment
-              key={trimester}
-              trimester={trimester}
-              dueDate={TRIMESTER_DATES[trimester]}
-              payment={safePayments[trimester]}
-              quarterlyAmount={quarterlyAmount}
-              isQuarterDue={isAssujetti}
-              onPaymentUpdate={(field, value) => handlePaymentUpdate(trimester, field, value)}
-            />
-          ))}
-        </div>
+  return (
+    <div>
+      <div className="text-sm font-medium mb-2">Paiements trimestriels:</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <QuarterlyPayment 
+          quarter="q1Paye" 
+          label="1er Trimestre" 
+          amount={quarterlyAmount} 
+          isPaid={status.q1Paye || false}
+          onChange={handleQuarterPaymentChange}
+        />
+        <QuarterlyPayment 
+          quarter="q2Paye" 
+          label="2ème Trimestre" 
+          amount={quarterlyAmount} 
+          isPaid={status.q2Paye || false}
+          onChange={handleQuarterPaymentChange}
+        />
+        <QuarterlyPayment 
+          quarter="q3Paye" 
+          label="3ème Trimestre" 
+          amount={quarterlyAmount} 
+          isPaid={status.q3Paye || false}
+          onChange={handleQuarterPaymentChange}
+        />
+        <QuarterlyPayment 
+          quarter="q4Paye" 
+          label="4ème Trimestre" 
+          amount={quarterlyAmount} 
+          isPaid={status.q4Paye || false}
+          onChange={handleQuarterPaymentChange}
+        />
       </div>
-    </>
+    </div>
   );
 };

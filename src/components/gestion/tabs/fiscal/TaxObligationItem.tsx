@@ -32,35 +32,33 @@ export const TaxObligationItem = ({
 }: TaxObligationItemProps) => {
   const [showPanel, setShowPanel] = useState(false);
 
-  // Fonction permettant de mettre à jour le statut d'assujettissement 
+  // Function to update the tax liability status
   const handleAssujettissement = (checked: boolean) => {
     onChange('assujetti', checked);
     
-    // Si désactivé, réinitialiser aussi le statut de paiement
+    // If disabled, also reset payment status
     if (!checked) {
       onChange('paye', false);
     }
   };
   
-  // Fonction permettant de mettre à jour le statut de paiement
+  // Function to update payment status
   const handlePaymentChange = (checked: boolean) => {
     onChange('paye', checked);
   };
 
-  // Fonction permettant d'ajouter ou mettre à jour un fichier d'attestation
+  // Function to add or update an attestation file
   const handleAttachmentChange = (attachmentType: string, filePath: string) => {
-    const attachmentsField = 'attachments';
-    
-    // Initialiser le champ s'il n'existe pas
-    if (!status[attachmentsField]) {
-      onChange(attachmentsField, {});
+    // Initialize attachments field if it doesn't exist
+    if (!status.attachments) {
+      onChange('attachments', {});
     }
     
-    // Mettre à jour le fichier d'attestation
-    onChange(`${attachmentsField}.${attachmentType}`, filePath);
+    // Update attachment file
+    onChange(`attachments.${attachmentType}`, filePath);
   };
   
-  // Fonctionnalité spécifique à l'IGS
+  // IGS specific functionality
   const handleTogglePanel = () => {
     setShowPanel(!showPanel);
   };

@@ -1,4 +1,3 @@
-
 export type ObligationType = "tax" | "declaration";
 export type DeclarationPeriodicity = "monthly" | "annual";
 
@@ -7,26 +6,21 @@ export interface IgsPaymentStatus {
   datePayment?: string;
 }
 
-export interface TaxObligationStatus {
+export interface TaxObligationStatus extends ObligationStatus {
   assujetti: boolean;
   paye: boolean;
-  montant?: number;
-  datePaiement?: string;
   observations?: string;
-  chiffreAffaires?: number;
-  classeIGS?: number;
-  reductionCGA?: boolean;
-  paiementsTrimestriels?: {
-    T1?: IgsPaymentStatus; // 15 janvier
-    T2?: IgsPaymentStatus; // 15 avril
-    T3?: IgsPaymentStatus; // 15 juillet
-    T4?: IgsPaymentStatus; // 15 octobre
-  };
-  // Attachment fields for payments
-  payment_attachments?: {
-    declaration?: string;
+  attachments?: {
+    attestation?: string;
     receipt?: string;
+    [key: string]: string | undefined;
   };
+  montantAnnuel?: number;
+  q1Paye?: boolean;
+  q2Paye?: boolean;
+  q3Paye?: boolean;
+  q4Paye?: boolean;
+  [key: string]: any;
 }
 
 export interface DeclarationObligationStatus {

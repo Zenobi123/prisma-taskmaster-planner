@@ -35,7 +35,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     handleStatusChange,
     handleAttachmentUpdate,
     initializeObligationStatuses,
-  } = useObligationManagement(markAsChanged, updatePeriodicity);
+  } = useObligationManagement(markAsChanged);
 
   // Year selection
   const { 
@@ -111,7 +111,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     const success = await handleSaveData(updatedFiscalData);
     if (success) {
       setFiscalData(updatedFiscalData);
-      // Rechargement manuel des données après sauvegarde avec notification
+      // Manual reload of data after save with notification
       await loadFiscalData(true);
       resetChanges();
     }
@@ -148,7 +148,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     isSaving,
     saveAttempts,
     lastSaveSuccess,
-    showInAlert, 
     handleToggleAlert,
     hiddenFromDashboard,
     handleToggleDashboardVisibility,

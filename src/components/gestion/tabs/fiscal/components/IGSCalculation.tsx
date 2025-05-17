@@ -1,70 +1,28 @@
 
-import React from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
+import React from 'react';
 
 interface IGSCalculationProps {
-  revenue: number;
-  reductionCGA: boolean;
-  classNumber: number;
-  finalAmount: number;
-  remainingAmount: number;
-  onRevenueChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onCGAChange: (checked: boolean) => void;
+  amount: number;
+  quarterlyAmount: number;
 }
 
-export const IGSCalculation = ({
-  revenue,
-  reductionCGA,
-  classNumber,
-  finalAmount,
-  remainingAmount,
-  onRevenueChange,
-  onCGAChange,
+export const IGSCalculation = ({ 
+  amount, 
+  quarterlyAmount 
 }: IGSCalculationProps) => {
   return (
-    <div className="space-y-4">
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Chiffre d'affaires</Label>
-        <Input
-          type="number"
-          value={revenue || ""}
-          onChange={onRevenueChange}
-          placeholder="Entrer le chiffre d'affaires"
-        />
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Switch
-          checked={reductionCGA}
-          onCheckedChange={onCGAChange}
-          id="cga-switch"
-        />
-        <Label htmlFor="cga-switch" className="text-sm">
-          Adhérant au Centre de Gestion Agréé (-50%)
-        </Label>
-      </div>
-
-      <div className="text-sm text-muted-foreground">
-        {reductionCGA ? "(avec réduction CGA)" : ""}
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Badge variant="secondary" className="text-lg">
-          Classe {classNumber}
-        </Badge>
-        <span className="text-sm text-muted-foreground">
-          ({finalAmount.toLocaleString()} FCFA {reductionCGA ? "avec réduction CGA" : ""})
-        </span>
-      </div>
-
-      {remainingAmount > 0 && (
-        <div className="text-sm text-amber-600 font-medium">
-          Reste à payer : {remainingAmount.toLocaleString()} FCFA
+    <div className="bg-muted p-4 rounded-md text-sm">
+      <div className="font-medium mb-2">Calcul IGS:</div>
+      <div className="space-y-1">
+        <div className="flex justify-between">
+          <span>Montant annuel:</span>
+          <span className="font-medium">{amount.toLocaleString()} FCFA</span>
         </div>
-      )}
+        <div className="flex justify-between">
+          <span>Paiement trimestriel (25%):</span>
+          <span className="font-medium">{quarterlyAmount.toLocaleString()} FCFA</span>
+        </div>
+      </div>
     </div>
   );
 };

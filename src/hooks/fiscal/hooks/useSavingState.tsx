@@ -1,22 +1,24 @@
 
 import { useState, useCallback } from 'react';
 import { ClientFiscalData } from '../types';
-import { useFiscalSave } from './useFiscalSave';
+import { saveFiscalData } from '../services/saveService';
 import { toast } from 'sonner';
 
 export function useSavingState(clientId: string, setHasUnsavedChanges: (value: boolean) => void) {
   const [lastSaveSuccess, setLastSaveSuccess] = useState<boolean>(false);
   const [saveAttempts, setSaveAttempts] = useState<number>(0);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'success' | 'error'>('idle');
   
-  const { saveFiscalData, saveStatus } = useFiscalSave(clientId, setHasUnsavedChanges);
   const isSaving = saveStatus === 'saving';
 
   // Save all fiscal data - Manual save only
   const handleSaveData = useCallback(async (updatedFiscalData: ClientFiscalData) => {
     try {
       if (!clientId) {
-        toast.error("Erreur: Identifiant de client non fourni");
+        console.error("Missing client ID");
         setSaveStatus('error');
+        setLastSaveSuccess(false);
+        setSaveAttempts(prev => prev + 1);
         return false;
       }
 
@@ -28,36 +30,29 @@ export function useSavingState(clientId: string, setHasUnsavedChanges: (value: b
         updatedAt: new Date().toISOString()
       };
       
-      const success = await saveFiscalData(dataWithTimestamp);
+      const success = await saveFiscalData(clientId, dataWithTimestamp);
 
       if (success) {
-        toast.success("Données fiscales enregistrées avec succès");
-        setHasUnsavedChanges(false);
         setSaveStatus('success');
+        setLastSaveSuccess(true);
+        setSaveAttempts(prev => prev + 1);
+        setHasUnsavedChanges(false);
         return true;
       } else {
         console.error("Error saving fiscal data");
-        toast.error("Erreur lors de l'enregistrement des données");
         setSaveStatus('error');
+        setLastSaveSuccess(false);
+        setSaveAttempts(prev => prev + 1);
         return false;
       }
     } catch (err) {
       console.error("Error in saveFiscalData:", err);
-      toast.error("Erreur lors de l'enregistrement des données");
       setSaveStatus('error');
-      return false;
-    }
-  }, [clientId, setHasUnsavedChanges, saveFiscalData]);
-
-  const setSaveStatus = (status: 'idle' | 'saving' | 'success' | 'error') => {
-    if (status === 'success') {
-      setLastSaveSuccess(true);
-      setSaveAttempts(prev => prev + 1);
-    } else if (status === 'error') {
       setLastSaveSuccess(false);
       setSaveAttempts(prev => prev + 1);
+      return false;
     }
-  };
+  }, [clientId, setHasUnsavedChanges]);
 
   return {
     lastSaveSuccess,
