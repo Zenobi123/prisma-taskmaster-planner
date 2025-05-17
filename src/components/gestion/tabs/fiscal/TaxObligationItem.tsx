@@ -11,8 +11,6 @@ import { IgsDetailPanel } from './IgsDetailPanel';
 import { Separator } from '@/components/ui/separator';
 import { ObservationsSection } from './components/ObservationsSection';
 
-type AttachmentType = "attestation" | "receipt";
-
 interface TaxObligationItemProps {
   name: string;
   nameLabel: string;
@@ -50,7 +48,7 @@ export const TaxObligationItem = ({
   };
 
   // Function to add or update an attestation file
-  const handleAttachmentChange = (attachmentType: AttachmentType, filePath: string) => {
+  const handleAttachmentChange = (attachmentType: string, filePath: string) => {
     // Initialize attachments field if it doesn't exist
     if (!status.attachments) {
       onChange('attachments', {});
