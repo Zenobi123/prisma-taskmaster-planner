@@ -1,73 +1,83 @@
 
-export type DeclarationPeriodicity = "annuelle" | "mensuelle";
+import { Client } from '@/types/client';
 
-export interface AttachmentType {
-  declaration?: string;
-  receipt?: string;
-  payment?: string;
-  additional?: string;
-  attestation?: string;
-}
+export type ObligationType = 'dsf' | 'darp' | 'licence' | 'patente' | 'cntps' | 'igs' | 'precomptes';
+
+export type DeclarationPeriodicity = 'annuelle' | 'trimestrielle' | 'mensuelle';
 
 export interface TaxObligationStatus {
   assujetti: boolean;
-  paye: boolean;
+  payee: boolean;
+  dateEcheance?: string;
+  datePaiement?: string;
+  montant?: number;
+  montantPenalite?: number;
+  montantTotal?: number;
+  methodePaiement?: string;
+  referencePaiement?: string;
+  attachements?: Record<string, string | null>;
   observations?: string;
-  dateReglement?: string;
-  montantAnnuel?: number;
-  q1Paye?: boolean;
-  q2Paye?: boolean;
-  q3Paye?: boolean;
-  q4Paye?: boolean;
-  attachments?: Record<string, string>;
-  payment_attachments?: Record<string, string>;
 }
 
 export interface DeclarationObligationStatus {
   assujetti: boolean;
   depose: boolean;
-  periodicity: DeclarationPeriodicity;
   dateDepot?: string;
+  periodicity: DeclarationPeriodicity;
+  attachements?: Record<string, string | null>;
   observations?: string;
-  attachments?: Record<string, string>;
-  applicable?: boolean;
-  submitted?: boolean;
-  approved?: boolean;
 }
 
-export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
+export interface IgsObligationStatus extends TaxObligationStatus {
+  chiffreAffaires?: number;
+  tauxImposition?: number;
+  paiementsTrimestriels: {
+    Q1?: {
+      payee: boolean;
+      montant?: number;
+      datePaiement?: string;
+    };
+    Q2?: {
+      payee: boolean;
+      montant?: number;
+      datePaiement?: string;
+    };
+    Q3?: {
+      payee: boolean;
+      montant?: number;
+      datePaiement?: string;
+    };
+    Q4?: {
+      payee: boolean;
+      montant?: number;
+      datePaiement?: string;
+    };
+  };
+}
+
+export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus | IgsObligationStatus;
 
 export interface ObligationStatuses {
-  igs: TaxObligationStatus;
-  patente: TaxObligationStatus;
   dsf: DeclarationObligationStatus;
   darp: DeclarationObligationStatus;
-  iba: TaxObligationStatus;
-  baic: TaxObligationStatus;
-  ibnc: TaxObligationStatus;
-  ircm: TaxObligationStatus;
-  irf: TaxObligationStatus;
-  its: TaxObligationStatus;
   licence: DeclarationObligationStatus;
-  precompte: TaxObligationStatus;
-  taxeSejour: TaxObligationStatus;
-  baillCommercial: TaxObligationStatus;
+  patente: TaxObligationStatus;
+  cntps: TaxObligationStatus;
+  igs: IgsObligationStatus;
+  precomptes: TaxObligationStatus;
 }
 
-// Update the rest of the types to be consistent
-export type TaxObligationType = keyof Omit<ObligationStatuses, 'dsf' | 'darp' | 'licence'>;
-export type DeclarationObligationType = 'dsf' | 'darp' | 'licence';
-export type ObligationType = TaxObligationType | DeclarationObligationType;
-
-// Add the ClientFiscalData type which was missing
 export interface ClientFiscalData {
-  attestation?: {
-    creationDate: string | null;
-    validityEndDate: string | null;
-    showInAlert?: boolean;
-  };
-  obligations?: Record<string, ObligationStatuses>;
-  selectedYear?: string;
+  clientId: string;
+  year: string;
+  attestationCreatedAt?: string;
+  attestationValidUntil?: string;
+  showInAlert?: boolean;
   hiddenFromDashboard?: boolean;
-  updatedAt?: string;
+  obligations: ObligationStatuses;
+}
+
+export interface FiscalDataProps {
+  client: Client;
+  selectedYear: string;
 }

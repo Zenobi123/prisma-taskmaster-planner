@@ -1,6 +1,6 @@
 
 import { jsPDF } from "jspdf";
-import { WatermarkOptions } from "./watermark/documentWatermark";
+import { DocumentWatermark, WatermarkOptions } from "./watermark/documentWatermark";
 
 export class ReceiptFooter {
   private doc: jsPDF;
@@ -36,7 +36,7 @@ export class ReceiptFooter {
   /**
    * Adds a watermark to the document
    */
-  public addWatermark(watermarkService: any): void {
+  public addWatermark(watermarkService: DocumentWatermark): void {
     const watermarkOptions: WatermarkOptions = {
       text: "REÇU",
       angle: -40,

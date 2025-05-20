@@ -1,12 +1,12 @@
 
-import { jsPDF } from "jspdf";
+import { jsPDF } from 'jspdf';
 
 export interface WatermarkOptions {
   text: string;
-  angle?: number;
-  fontSize?: number;
-  opacity?: number;
-  color?: string;
+  angle: number;
+  fontSize: number;
+  opacity: number;
+  color: string;
 }
 
 export class DocumentWatermark {
@@ -17,59 +17,52 @@ export class DocumentWatermark {
   }
 
   /**
-   * Adds a watermark to the document
-   * @param options Watermark options or text string
+   * Adds a text watermark that spans across the entire page
+   * @param options The watermark options
    */
-  public addWatermark(options: WatermarkOptions | string): void {
-    // If options is a string, convert it to WatermarkOptions
-    const watermarkOptions: WatermarkOptions = typeof options === 'string' 
-      ? { text: options } 
-      : options;
-    
-    const {
-      text,
-      angle = -45,
-      fontSize = 60,
-      opacity = 0.2,
-      color = '#888888'
-    } = watermarkOptions;
-    
-    const pageHeight = this.doc.internal.pageSize.height;
+  public addWatermark(options: WatermarkOptions): void {
+    const { text, angle = -45, fontSize = 60, opacity = 0.15, color = '#888888' } = options;
     const pageWidth = this.doc.internal.pageSize.width;
+    const pageHeight = this.doc.internal.pageSize.height;
     
-    // Save the current state
+    // Calculate center positions
+    const centerX = pageWidth / 2;
+    const centerY = pageHeight / 2;
+
+    // Save current state
     this.doc.saveGraphicsState();
     
-    // Set the text properties
-    this.doc.setTextColor(color);
+    // Set text properties
     this.doc.setFontSize(fontSize);
-    this.doc.setGState(this.doc.addGState({ opacity }));
+    this.doc.setTextColor(color);
+    this.doc.setGState(new this.doc.GState({ opacity: opacity }));
     
-    // Position in the center of the page
-    const x = pageWidth / 2;
-    const y = pageHeight / 2;
+    // Start a new transformation matrix
+    this.doc.beginFormObject(0, 0, pageWidth, pageHeight);
     
-    // Save transform state
-    this.doc.saveGraphicsState();
+    // Apply transformations for rotation
+    // Use matrix transformation for rotation around center
+    const radians = angle * Math.PI / 180;
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
     
-    // Apply transformations manually for jsPDF v3+
-    // Using matrix transformations instead of translateY/translateX/rotate
-    const radians = angle * (Math.PI / 180);
-    this.doc.applyTransformation({
-      a: Math.cos(radians),
-      b: Math.sin(radians),
-      c: -Math.sin(radians),
-      d: Math.cos(radians),
-      e: x,
-      f: y
-    });
+    // Transform matrix for rotation around center
+    this.doc.setTransformation(
+      cos, sin, -sin, cos, centerX, centerY
+    );
+    
+    // Calculate text width to center it
+    const textWidth = this.doc.getTextWidth(text);
     
     // Draw the text
-    const textWidth = this.doc.getStringUnitWidth(text) * fontSize / this.doc.internal.scaleFactor;
-    this.doc.text(text, -textWidth / 2, 0, { align: 'center' });
+    this.doc.text(text, -textWidth / 2, 0, {
+      align: 'center'
+    });
     
-    // Restore the states
-    this.doc.restoreGraphicsState();
+    // End form object
+    this.doc.endFormObject();
+    
+    // Restore graphics state
     this.doc.restoreGraphicsState();
   }
 }
