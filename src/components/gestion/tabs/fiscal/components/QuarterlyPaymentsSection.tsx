@@ -7,25 +7,30 @@ interface QuarterlyPaymentsSectionProps {
   status: TaxObligationStatus;
   keyName: string;
   onStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
+  obligation?: string; // Add obligation prop to match usage in TaxObligationItem
 }
 
 export const QuarterlyPaymentsSection: React.FC<QuarterlyPaymentsSectionProps> = ({
   status,
   keyName,
-  onStatusChange
+  onStatusChange,
+  obligation
 }) => {
+  // Use obligation if provided, otherwise use keyName
+  const obligationKey = obligation || keyName;
+  
   // Calculate quarterly amount (25% of annual amount)
   const quarterlyAmount = Math.round((status.montantAnnuel || 0) * 0.25);
   
   const handlePaymentChange = (quarter: string, isPaid: boolean) => {
     if (quarter === "1er Trimestre") {
-      onStatusChange(keyName, "q1Payee", isPaid);
+      onStatusChange(obligationKey, "q1Payee", isPaid);
     } else if (quarter === "2e Trimestre") {
-      onStatusChange(keyName, "q2Payee", isPaid);
+      onStatusChange(obligationKey, "q2Payee", isPaid);
     } else if (quarter === "3e Trimestre") {
-      onStatusChange(keyName, "q3Payee", isPaid);
+      onStatusChange(obligationKey, "q3Payee", isPaid);
     } else if (quarter === "4e Trimestre") {
-      onStatusChange(keyName, "q4Payee", isPaid);
+      onStatusChange(obligationKey, "q4Payee", isPaid);
     }
   };
   

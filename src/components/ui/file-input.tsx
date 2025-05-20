@@ -1,64 +1,55 @@
 
-import React, { useState, useRef } from "react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
+import { Button } from "./button";
 import { Upload } from "lucide-react";
 
 interface FileInputProps {
-  id?: string;
+  id: string;
   accept?: string;
   onUpload: (file: File | null) => void;
   uploading?: boolean;
-  className?: string;
 }
 
-export const FileInput: React.FC<FileInputProps> = ({ 
-  id, 
-  accept = "*", 
-  onUpload, 
-  uploading = false,
-  className
+export const FileInput: React.FC<FileInputProps> = ({
+  id,
+  accept = "*",
+  onUpload,
+  uploading = false
 }) => {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    setSelectedFile(file);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0] || null;
     if (file) {
+      setFileName(file.name);
       onUpload(file);
     }
   };
 
-  const handleButtonClick = () => {
-    fileInputRef.current?.click();
-  };
-
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
+    <div className="flex items-center space-x-2">
       <input
-        type="file"
         id={id}
-        className="hidden"
+        type="file"
         accept={accept}
         onChange={handleFileChange}
-        ref={fileInputRef}
+        className="hidden"
+        disabled={uploading}
       />
-      
       <Button
         type="button"
         variant="outline"
         size="sm"
-        onClick={handleButtonClick}
+        onClick={() => document.getElementById(id)?.click()}
         disabled={uploading}
-        className="flex items-center gap-2"
+        className="flex items-center"
       >
-        <Upload className="h-4 w-4" />
-        {uploading ? "Téléversement..." : "Téléverser"}
+        <Upload className="mr-2 h-4 w-4" />
+        {uploading ? "Envoi en cours..." : "Choisir un fichier"}
       </Button>
-      
-      {selectedFile && (
+      {fileName && !uploading && (
         <span className="text-sm text-muted-foreground truncate max-w-[150px]">
-          {selectedFile.name}
+          {fileName}
         </span>
       )}
     </div>

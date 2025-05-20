@@ -93,11 +93,12 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
               />
 
               <AttachmentSection
-                status={status}
-                keyName={keyName}
+                obligationName={keyName}
                 clientId={clientId}
                 selectedYear={selectedYear}
-                onAttachmentChange={onAttachmentChange}
+                existingAttachments={status?.attachements}
+                onAttachmentUpload={(obligation, attachmentType, filePath) => onAttachmentChange(obligation, attachmentType, filePath)}
+                onAttachmentDelete={(obligation, attachmentType) => onAttachmentChange(obligation, attachmentType, null)}
               />
             </>
           )}

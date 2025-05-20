@@ -1,7 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
-import { FileInput } from "@/components/ui/file-input";
 import { storageService } from '@/services/storageService';
 import { useToast } from "@/components/ui/use-toast";
 import { X } from 'lucide-react';
@@ -11,6 +10,9 @@ interface AttachmentSectionProps {
   existingAttachments?: Record<string, string>;
   onAttachmentUpload: (obligationName: string, attachmentType: string, filePath: string) => void;
   onAttachmentDelete: (obligationName: string, attachmentType: string) => void;
+  clientId?: string;
+  selectedYear?: string;
+  status?: any; // Add status prop to match usage in DeclarationObligationItem
 }
 
 type AttachmentType = "receipt" | "document" | "form";
@@ -69,12 +71,17 @@ const AttachmentSection: React.FC<AttachmentSectionProps> = ({
         <div key={type} className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <label htmlFor={`attachment-${type}`} className="text-sm font-medium text-gray-700">{label}:</label>
-            <FileInput
-              id={`attachment-${type}`}
-              accept=".pdf,.jpg,.jpeg,.png"
-              onUpload={(file) => handleUpload(file, type as AttachmentType)}
-              uploading={uploading}
-            />
+            <div className="flex items-center">
+              <input 
+                id={`attachment-${type}`}
+                type="file"
+                accept=".pdf,.jpg,.jpeg,.png"
+                onChange={(e) => handleUpload(e.target.files?.[0] || null, type as AttachmentType)}
+                className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary hover:file:bg-primary-100"
+                disabled={uploading}
+              />
+              {uploading && <span className="ml-2 text-xs text-muted-foreground">Envoi en cours...</span>}
+            </div>
           </div>
           {existingAttachments && existingAttachments[type] ? (
             <div className="flex items-center space-x-2">

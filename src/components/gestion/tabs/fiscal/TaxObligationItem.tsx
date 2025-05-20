@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { Switch } from "@/components/ui/switch";
@@ -86,12 +87,15 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             <QuarterlyPaymentsSection
               status={status}
               onStatusChange={onStatusChange}
-              obligation={keyName}
+              keyName={keyName}
             />
           )}
 
           <PaymentStatus
-            keyName={keyName}
+            totalPaid={0}  // Provide required props
+            totalDue={Number(status?.montant) || 0}
+            expectedPaid={0}
+            isLate={false}
             isPayee={Boolean(status?.payee)}
             onPayeeChange={handlePayeeChange}
           />

@@ -7,13 +7,20 @@ export interface PaymentStatusProps {
   totalDue: number;
   expectedPaid: number;
   isLate: boolean;
+  keyName?: string;  // Add keyName prop to match usage in TaxObligationItem
+  isPayee?: boolean; // Add isPayee prop to match usage in TaxObligationItem
+  onPayeeChange?: (checked: boolean | "indeterminate") => void; // Add onPayeeChange prop
 }
 
 export const PaymentStatus = ({ 
   totalPaid, 
   totalDue, 
   expectedPaid, 
-  isLate 
+  isLate,
+  // The following props might be used elsewhere
+  keyName,
+  isPayee,
+  onPayeeChange
 }: PaymentStatusProps) => {
   // Définir le statut et les classes en fonction des paiements
   let status: string;
