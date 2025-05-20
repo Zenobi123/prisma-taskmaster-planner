@@ -13,6 +13,7 @@ export interface DatePickerSelectorProps {
   onChange: (date: string) => void;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
 const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
@@ -20,6 +21,7 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
   onChange,
   placeholder = "Sélectionner une date",
   className,
+  disabled = false
 }) => {
   const handleSelect = (date: Date | undefined) => {
     if (date) {
@@ -35,8 +37,10 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
           className={cn(
             "w-full justify-start text-left font-normal",
             !value && "text-muted-foreground",
+            disabled && "opacity-50 cursor-not-allowed",
             className
           )}
+          disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {value ? (
@@ -53,6 +57,7 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
           onSelect={handleSelect}
           initialFocus
           className="p-3 pointer-events-auto"
+          disabled={disabled}
         />
       </PopoverContent>
     </Popover>

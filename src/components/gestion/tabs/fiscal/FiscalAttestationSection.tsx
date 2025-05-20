@@ -1,9 +1,10 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import DatePickerSelector from "./DatePickerSelector";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { addDays, format } from "date-fns";
 
 interface FiscalAttestationSectionProps {
   creationDate: string;
@@ -26,10 +27,28 @@ export function FiscalAttestationSection({
   hiddenFromDashboard,
   onToggleDashboardVisibility,
 }: FiscalAttestationSectionProps) {
+  // Calculer automatiquement la date de fin de validité lorsque la date de création change
+  useEffect(() => {
+    if (creationDate) {
+      // Conversion de la chaîne de date en objet Date
+      const creationDateObj = new Date(creationDate);
+      // Ajout de 90 jours pour la date de fin de validité
+      const endDateObj = addDays(creationDateObj, 90);
+      // Formatage de la date en chaîne au format ISO
+      const formattedEndDate = format(endDateObj, "yyyy-MM-dd");
+      setValidityEndDate(formattedEndDate);
+    }
+  }, [creationDate, setValidityEndDate]);
+
+  const handleDateChange = (date: string) => {
+    setCreationDate(date);
+    // La date de fin sera calculée automatiquement grâce à l'effet
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Attestation fiscale</CardTitle>
+        <CardTitle className="text-lg">Attestation de conformité fiscale</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -37,14 +56,15 @@ export function FiscalAttestationSection({
             <Label htmlFor="creationDate">Date de création</Label>
             <DatePickerSelector
               value={creationDate}
-              onChange={setCreationDate}
+              onChange={handleDateChange}
             />
           </div>
           <div>
-            <Label htmlFor="validityEndDate">Date de validité</Label>
+            <Label htmlFor="validityEndDate">Date de fin validité</Label>
             <DatePickerSelector
               value={validityEndDate}
               onChange={setValidityEndDate}
+              disabled={true}
             />
           </div>
         </div>
