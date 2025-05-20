@@ -6,20 +6,22 @@ import { useObligationPeriodicity } from './useObligationPeriodicity';
 export function useObligationManagement(markAsChanged: () => void) {
   // Initialize with default obligation statuses
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
-    igs: { assujetti: false, paye: false },
-    patente: { assujetti: false, paye: false },
-    dsf: { assujetti: false, depose: false, periodicity: "annuelle", applicable: false, submitted: false },
-    darp: { assujetti: false, depose: false, periodicity: "annuelle", applicable: false, submitted: false },
-    iba: { assujetti: false, paye: false },
-    baic: { assujetti: false, paye: false },
-    ibnc: { assujetti: false, paye: false },
-    ircm: { assujetti: false, paye: false },
-    irf: { assujetti: false, paye: false },
-    its: { assujetti: false, paye: false },
-    licence: { assujetti: false, depose: false, periodicity: "annuelle", applicable: false, submitted: false },
-    precompte: { assujetti: false, paye: false },
-    taxeSejour: { assujetti: false, paye: false },
-    baillCommercial: { assujetti: false, paye: false }
+    igs: { 
+      assujetti: false, 
+      payee: false,
+      paiementsTrimestriels: {
+        Q1: { payee: false },
+        Q2: { payee: false },
+        Q3: { payee: false },
+        Q4: { payee: false }
+      }
+    },
+    patente: { assujetti: false, payee: false },
+    dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
+    darp: { assujetti: false, depose: false, periodicity: "annuelle" },
+    licence: { assujetti: false, depose: false, periodicity: "annuelle" },
+    cntps: { assujetti: false, payee: false },
+    precomptes: { assujetti: false, payee: false }
   });
 
   const { isDeclarationObligation } = useObligationPeriodicity();
@@ -41,10 +43,10 @@ export function useObligationManagement(markAsChanged: () => void) {
       const currentStatus = { ...prev[obligation as keyof ObligationStatuses] };
       
       // Handle different attachment types based on declaration vs tax obligations
-      if (!currentStatus.attachments) {
-        currentStatus.attachments = {};
+      if (!currentStatus.attachements) {
+        currentStatus.attachements = {};
       }
-      currentStatus.attachments[attachmentType] = filePath;
+      currentStatus.attachements[attachmentType] = filePath;
       
       markAsChanged();
       return { ...prev, [obligation]: currentStatus };
@@ -57,20 +59,22 @@ export function useObligationManagement(markAsChanged: () => void) {
       setObligationStatuses(yearObligations);
     } else {
       setObligationStatuses({
-        igs: { assujetti: false, paye: false },
-        patente: { assujetti: false, paye: false },
-        dsf: { assujetti: false, depose: false, periodicity: "annuelle", applicable: false, submitted: false },
-        darp: { assujetti: false, depose: false, periodicity: "annuelle", applicable: false, submitted: false },
-        iba: { assujetti: false, paye: false },
-        baic: { assujetti: false, paye: false },
-        ibnc: { assujetti: false, paye: false },
-        ircm: { assujetti: false, paye: false },
-        irf: { assujetti: false, paye: false },
-        its: { assujetti: false, paye: false },
-        licence: { assujetti: false, depose: false, periodicity: "annuelle", applicable: false, submitted: false },
-        precompte: { assujetti: false, paye: false },
-        taxeSejour: { assujetti: false, paye: false },
-        baillCommercial: { assujetti: false, paye: false }
+        igs: { 
+          assujetti: false, 
+          payee: false,
+          paiementsTrimestriels: {
+            Q1: { payee: false },
+            Q2: { payee: false },
+            Q3: { payee: false },
+            Q4: { payee: false }
+          }
+        },
+        patente: { assujetti: false, payee: false },
+        dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
+        darp: { assujetti: false, depose: false, periodicity: "annuelle" },
+        licence: { assujetti: false, depose: false, periodicity: "annuelle" },
+        cntps: { assujetti: false, payee: false },
+        precomptes: { assujetti: false, payee: false }
       });
     }
   }, []);

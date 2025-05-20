@@ -7,14 +7,12 @@ export const useObligationStatus = () => {
     return {
       tax: { 
         assujetti: false, 
-        paye: false 
+        payee: false 
       } as TaxObligationStatus,
       declaration: { 
         assujetti: false, 
         depose: false, 
-        periodicity: "annuelle" as DeclarationPeriodicity,
-        applicable: false,
-        submitted: false
+        periodicity: "annuelle" as DeclarationPeriodicity
       } as DeclarationObligationStatus
     };
   }, []);

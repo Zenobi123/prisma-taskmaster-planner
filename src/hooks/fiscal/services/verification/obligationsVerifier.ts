@@ -28,34 +28,45 @@ export const verifyObligations = (
   savedObligations: ClientFiscalData['obligations'], 
   expectedObligations: ClientFiscalData['obligations']
 ): boolean => {
-  const obligationTypes = ['patente', 'igs', 'bail', 'taxeFonciere', 'dsf', 'darp'] as const;
-  
-  for (const type of obligationTypes) {
-    if (expectedObligations[type]) {
-      if (!savedObligations[type]) {
-        console.error(`Missing obligation type ${type} in saved data`);
+  // Compare by year
+  for (const year in expectedObligations) {
+    if (!savedObligations[year]) {
+      console.error(`Missing year ${year} in saved obligations`);
+      return false;
+    }
+
+    const savedYearData = savedObligations[year];
+    const expectedYearData = expectedObligations[year];
+    
+    const obligationTypes = ['patente', 'igs', 'dsf', 'darp', 'licence', 'cntps', 'precomptes'] as const;
+    
+    for (const type of obligationTypes) {
+      if (expectedYearData[type] && !savedYearData[type]) {
+        console.error(`Missing obligation type ${type} for year ${year} in saved data`);
         return false;
       }
       
-      const saved = savedObligations[type];
-      const expected = expectedObligations[type];
-      
-      if (saved.assujetti !== expected.assujetti) {
-        console.error(`Mismatch in ${type}.assujetti: saved=${saved.assujetti}, expected=${expected.assujetti}`);
-        return false;
-      }
-      
-      if ('paye' in expected && 'paye' in saved) {
-        if (saved.paye !== expected.paye) {
-          console.error(`Mismatch in ${type}.paye: saved=${saved.paye}, expected=${expected.paye}`);
+      if (expectedYearData[type]) {
+        const saved = savedYearData[type];
+        const expected = expectedYearData[type];
+        
+        if (saved.assujetti !== expected.assujetti) {
+          console.error(`Mismatch in ${type}.assujetti for year ${year}: saved=${saved.assujetti}, expected=${expected.assujetti}`);
           return false;
         }
-      }
-      
-      if ('depose' in expected && 'depose' in saved) {
-        if (saved.depose !== expected.depose) {
-          console.error(`Mismatch in ${type}.depose: saved=${saved.depose}, expected=${expected.depose}`);
-          return false;
+        
+        if ('payee' in expected && 'payee' in saved) {
+          if (saved.payee !== expected.payee) {
+            console.error(`Mismatch in ${type}.payee for year ${year}: saved=${saved.payee}, expected=${expected.payee}`);
+            return false;
+          }
+        }
+        
+        if ('depose' in expected && 'depose' in saved) {
+          if (saved.depose !== expected.depose) {
+            console.error(`Mismatch in ${type}.depose for year ${year}: saved=${saved.depose}, expected=${expected.depose}`);
+            return false;
+          }
         }
       }
     }

@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { ClientFiscalData } from '../types';
+import { ClientFiscalData, ObligationStatuses } from '../types';
 import { fetchFiscalData } from '../services/fetchService';
 
 export const useFiscalData = (clientId: string) => {
@@ -28,7 +28,10 @@ export const useFiscalData = (clientId: string) => {
       } else {
         console.log("No fiscal data found for client", clientId);
         // Initialize with empty data if nothing is found
+        const currentYear = new Date().getFullYear().toString();
         setFiscalData({
+          clientId,
+          year: currentYear,
           attestation: {
             creationDate: '',
             validityEndDate: '',

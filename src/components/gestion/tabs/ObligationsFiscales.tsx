@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
@@ -116,8 +115,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         <AnnualObligationsSection 
           obligationStatuses={obligationStatuses}
           handleStatusChange={handleStatusChange}
-          handleAttachmentChange={(obligation, attachmentType, filePath) => 
-            handleAttachmentUpdate(obligation, false, attachmentType, filePath)}
+          handleAttachmentChange={handleAttachmentUpdate}
           clientId={selectedClient.id}
           selectedYear={selectedYear}
           isDeclarationObligation={isDeclarationObligation}

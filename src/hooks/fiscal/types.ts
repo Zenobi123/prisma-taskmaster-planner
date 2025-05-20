@@ -10,13 +10,19 @@ export interface TaxObligationStatus {
   payee: boolean;
   dateEcheance?: string;
   datePaiement?: string;
+  dateReglement?: string;
   montant?: number;
+  montantAnnuel?: number;
   montantPenalite?: number;
   montantTotal?: number;
   methodePaiement?: string;
   referencePaiement?: string;
   attachements?: Record<string, string | null>;
   observations?: string;
+  q1Paye?: boolean;
+  q2Paye?: boolean;
+  q3Paye?: boolean;
+  q4Paye?: boolean;
 }
 
 export interface DeclarationObligationStatus {
@@ -70,11 +76,20 @@ export interface ObligationStatuses {
 export interface ClientFiscalData {
   clientId: string;
   year: string;
+  selectedYear?: string;
+  attestation?: {
+    creationDate: string | null;
+    validityEndDate: string | null;
+    showInAlert: boolean;
+  };
+  updatedAt?: string;
   attestationCreatedAt?: string;
   attestationValidUntil?: string;
   showInAlert?: boolean;
   hiddenFromDashboard?: boolean;
-  obligations: ObligationStatuses;
+  obligations: {
+    [year: string]: ObligationStatuses;
+  };
 }
 
 export interface FiscalDataProps {

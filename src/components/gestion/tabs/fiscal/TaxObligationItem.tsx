@@ -40,7 +40,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
 
   const handlePayeChange = (checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
-      onStatusChange(keyName, "paye", checked);
+      onStatusChange(keyName, "payee", checked);
     }
   };
 
@@ -112,18 +112,18 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
         <div className="mt-4 pl-6 space-y-3">
           <div className="flex items-center space-x-2">
             <Checkbox
-              id={`${keyName}-paye`}
-              checked={Boolean(status?.paye)}
+              id={`${keyName}-payee`}
+              checked={Boolean(status?.payee)}
               onCheckedChange={handlePayeChange}
             />
-            <label htmlFor={`${keyName}-paye`} className="text-sm cursor-pointer">
+            <label htmlFor={`${keyName}-payee`} className="text-sm cursor-pointer">
               Payé
             </label>
           </div>
 
           {expanded && (
             <>
-              {status?.paye && (
+              {status?.payee && (
                 <div className="space-y-1.5">
                   <Label htmlFor={`${keyName}-date`} className="text-sm">
                     Date de règlement
@@ -179,7 +179,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
                     obligationType={keyName}
                     attachmentType="payment"
                     attachmentLabel="Justificatif de paiement"
-                    filePath={status.attachments?.payment}
+                    filePath={status.attachements?.payment}
                     onFileUploaded={(filePath) => handleFileUpload("payment", filePath)}
                   />
 
@@ -190,7 +190,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
                     obligationType={keyName}
                     attachmentType="declaration"
                     attachmentLabel="Avis d'imposition"
-                    filePath={status.attachments?.declaration}
+                    filePath={status.attachements?.declaration}
                     onFileUploaded={(filePath) =>
                       handleFileUpload("declaration", filePath)
                     }
@@ -203,7 +203,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
                     obligationType={keyName}
                     attachmentType="additional"
                     attachmentLabel="Document supplémentaire"
-                    filePath={status.attachments?.additional}
+                    filePath={status.attachements?.additional}
                     onFileUploaded={(filePath) =>
                       handleFileUpload("additional", filePath)
                     }

@@ -19,6 +19,11 @@ export const useFiscalAttestation = (
       setCreationDate(fiscalData.attestation.creationDate);
       setValidityEndDate(fiscalData.attestation.validityEndDate);
       setShowInAlert(fiscalData.attestation.showInAlert ?? true);
+    } else if (fiscalData.attestationCreatedAt || fiscalData.attestationValidUntil || fiscalData.showInAlert !== undefined) {
+      // Legacy support for old format
+      setCreationDate(fiscalData.attestationCreatedAt || null);
+      setValidityEndDate(fiscalData.attestationValidUntil || null);
+      setShowInAlert(fiscalData.showInAlert ?? true);
     }
 
     if (typeof fiscalData.hiddenFromDashboard !== 'undefined') {

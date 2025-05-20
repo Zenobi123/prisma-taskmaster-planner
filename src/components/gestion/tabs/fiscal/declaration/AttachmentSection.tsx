@@ -1,7 +1,7 @@
 
 import React from "react";
-import { AttachmentUploader } from "../AttachmentUploader";
 import { DeclarationObligationStatus } from "@/hooks/fiscal/types";
+import { AttachmentUploader } from "../AttachmentUploader";
 
 interface AttachmentSectionProps {
   status: DeclarationObligationStatus;
@@ -18,15 +18,14 @@ export const AttachmentSection: React.FC<AttachmentSectionProps> = ({
   selectedYear,
   onAttachmentChange
 }) => {
-  // Handle file upload for declaration items
-  const handleFileUpload = (attachmentType: string, filePath: string | null) => {
+  // Handle file upload for declarations
+  const handleAttachmentChange = (attachmentType: string, filePath: string | null) => {
     onAttachmentChange(keyName, attachmentType, filePath);
   };
 
   return (
     <div className="pt-2 border-t mt-4">
       <h4 className="text-sm font-medium mb-3">Pièces jointes</h4>
-      
       <div className="space-y-4">
         {/* Declaration document */}
         <AttachmentUploader
@@ -34,33 +33,39 @@ export const AttachmentSection: React.FC<AttachmentSectionProps> = ({
           year={selectedYear}
           obligationType={keyName}
           attachmentType="declaration"
-          attachmentLabel="Déclaration"
-          filePath={status.attachments?.declaration}
-          onFileUploaded={(filePath) => handleFileUpload("declaration", filePath)}
+          attachmentLabel="Déclaration déposée"
+          filePath={status.attachements?.declaration}
+          onFileUploaded={(filePath) => 
+            handleAttachmentChange("declaration", filePath)
+          }
         />
-        
+
         {/* Receipt document */}
         <AttachmentUploader
           clientId={clientId}
           year={selectedYear}
           obligationType={keyName}
           attachmentType="receipt"
-          attachmentLabel="Accusé de réception"
-          filePath={status.attachments?.receipt}
-          onFileUploaded={(filePath) => handleFileUpload("receipt", filePath)}
+          attachmentLabel="Reçu de dépôt"
+          filePath={status.attachements?.receipt}
+          onFileUploaded={(filePath) => 
+            handleAttachmentChange("receipt", filePath)
+          }
         />
-        
-        {/* Payment document */}
+
+        {/* Proof document */}
         <AttachmentUploader
           clientId={clientId}
           year={selectedYear}
           obligationType={keyName}
-          attachmentType="payment"
-          attachmentLabel="Justificatif de paiement"
-          filePath={status.attachments?.payment}
-          onFileUploaded={(filePath) => handleFileUpload("payment", filePath)}
+          attachmentType="proof"
+          attachmentLabel="Attestation de non-redevance"
+          filePath={status.attachements?.proof}
+          onFileUploaded={(filePath) => 
+            handleAttachmentChange("proof", filePath)
+          }
         />
-        
+
         {/* Additional document */}
         <AttachmentUploader
           clientId={clientId}
@@ -68,8 +73,10 @@ export const AttachmentSection: React.FC<AttachmentSectionProps> = ({
           obligationType={keyName}
           attachmentType="additional"
           attachmentLabel="Document supplémentaire"
-          filePath={status.attachments?.additional}
-          onFileUploaded={(filePath) => handleFileUpload("additional", filePath)}
+          filePath={status.attachements?.additional}
+          onFileUploaded={(filePath) => 
+            handleAttachmentChange("additional", filePath)
+          }
         />
       </div>
     </div>

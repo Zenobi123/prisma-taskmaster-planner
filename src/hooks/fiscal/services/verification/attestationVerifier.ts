@@ -5,9 +5,12 @@ import { ClientFiscalData } from "../../types";
  * Verify attestation data
  */
 export const verifyAttestation = (
-  savedAttestation: ClientFiscalData['attestation'],
-  expectedAttestation: ClientFiscalData['attestation']
+  savedData: ClientFiscalData,
+  expectedData: ClientFiscalData
 ): boolean => {
+  const savedAttestation = savedData.attestation;
+  const expectedAttestation = expectedData.attestation;
+  
   if (!savedAttestation && !expectedAttestation) {
     return true;
   }

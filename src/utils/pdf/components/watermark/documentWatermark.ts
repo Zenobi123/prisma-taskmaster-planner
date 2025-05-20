@@ -47,8 +47,9 @@ export class DocumentWatermark {
     const sin = Math.sin(radians);
     
     // Transform matrix for rotation around center
-    this.doc.setTransformation(
-      cos, sin, -sin, cos, centerX, centerY
+    this.doc.setTransform(
+      cos, sin, -sin, cos, centerX - (centerX * cos - centerY * sin), 
+      centerY - (centerX * sin + centerY * cos)
     );
     
     // Calculate text width to center it
