@@ -1,219 +1,226 @@
-
 import React, { useState } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { TaxObligationStatus } from "@/hooks/fiscal/types";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { AttachmentUploader } from "./AttachmentUploader";
+import { Input } from "@/components/ui/input";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { CalendarIcon, CheckCircle, CircleX, Coins } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AttachmentSection } from "./declaration/AttachmentSection";
+import { TaxObligationStatus } from "@/hooks/fiscal/types";
+import { PaymentDetailsSection } from "./components/PaymentDetailsSection";
+import { ObservationsSection } from "./components/ObservationsSection";
 
 interface TaxObligationItemProps {
+  obligationName: string;
   title: string;
-  keyName: string;
   status: TaxObligationStatus;
-  onStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
-  onAttachmentChange: (obligation: string, attachmentType: string, filePath: string | null) => void;
-  clientId: string;
-  selectedYear: string;
-  showPaymentDetails?: boolean;
+  onStatusChange: (obligation: string, field: string, value: string | number | boolean | undefined) => void;
+  onAttachmentUpload: (obligation: string, attachmentType: string, filePath: string) => void;
 }
 
 export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
+  obligationName,
   title,
-  keyName,
   status,
   onStatusChange,
-  onAttachmentChange,
-  clientId,
-  selectedYear,
-  showPaymentDetails = false,
+  onAttachmentUpload,
 }) => {
-  const [expanded, setExpanded] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
-  const handleAssujettiChange = (checked: boolean | "indeterminate") => {
-    if (typeof checked === "boolean") {
-      onStatusChange(keyName, "assujetti", checked);
-    }
+  const handleStatusChange = (field: string, value: string | number | boolean | undefined) => {
+    onStatusChange(obligationName, field, value);
   };
 
-  const handlePayeChange = (checked: boolean | "indeterminate") => {
-    if (typeof checked === "boolean") {
-      onStatusChange(keyName, "payee", checked);
-    }
-  };
+  const dateEcheanceFormatted = status.dateEcheance
+    ? new Date(status.dateEcheance).toLocaleDateString()
+    : "Non renseignée";
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onStatusChange(keyName, "dateReglement", e.target.value);
-  };
-
-  const handleObservationsChange = (
-    e: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
-    onStatusChange(keyName, "observations", e.target.value);
-  };
-
-  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only update if the value is a valid number or empty
-    const value = e.target.value;
-    if (value === "" || !isNaN(Number(value))) {
-      onStatusChange(keyName, "montantAnnuel", value === "" ? 0 : Number(value));
-    }
-  };
-
-  const handleToggleExpand = () => {
-    setExpanded(!expanded);
-  };
-
-  // Handle file upload for tax obligations
-  const handleFileUpload = (attachmentType: string, filePath: string | null) => {
-    onAttachmentChange(keyName, attachmentType, filePath);
-  };
+  const datePaiementFormatted = status.datePaiement
+    ? new Date(status.datePaiement).toLocaleDateString()
+    : "Non renseignée";
 
   return (
-    <div className="border p-4 rounded-md bg-background">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id={`${keyName}-assujetti`}
-            checked={status?.assujetti}
-            onCheckedChange={handleAssujettiChange}
-          />
-          <div>
-            <label
-              htmlFor={`${keyName}-assujetti`}
-              className="font-medium cursor-pointer"
-            >
-              {title}
-            </label>
-          </div>
-        </div>
-
-        {status?.assujetti && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleToggleExpand}
-            className="h-8 w-8 p-0"
-            type="button"
-            aria-label={expanded ? "Réduire" : "Développer"}
-          >
-            {expanded ? (
-              <ChevronUp className="h-4 w-4" />
-            ) : (
-              <ChevronDown className="h-4 w-4" />
-            )}
-          </Button>
-        )}
-      </div>
-
-      {status?.assujetti && (
-        <div className="mt-4 pl-6 space-y-3">
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex justify-between items-start">
+          {title}
           <div className="flex items-center space-x-2">
-            <Checkbox
-              id={`${keyName}-payee`}
-              checked={Boolean(status?.payee)}
-              onCheckedChange={handlePayeChange}
+            <span className="text-sm text-muted-foreground">Assujetti</span>
+            <Switch
+              checked={status.assujetti}
+              onCheckedChange={(checked) => handleStatusChange("assujetti", checked)}
             />
-            <label htmlFor={`${keyName}-payee`} className="text-sm cursor-pointer">
-              Payé
-            </label>
           </div>
-
-          {expanded && (
-            <>
-              {status?.payee && (
-                <div className="space-y-1.5">
-                  <Label htmlFor={`${keyName}-date`} className="text-sm">
-                    Date de règlement
-                  </Label>
-                  <Input
-                    id={`${keyName}-date`}
-                    type="date"
-                    value={status?.dateReglement || ""}
-                    onChange={handleDateChange}
-                    className="max-w-[200px]"
-                  />
-                </div>
-              )}
-
-              {showPaymentDetails && (
-                <div className="space-y-1.5">
-                  <Label htmlFor={`${keyName}-montant`} className="text-sm">
-                    Montant annuel
-                  </Label>
-                  <Input
-                    id={`${keyName}-montant`}
-                    type="number"
-                    value={status?.montantAnnuel || ""}
-                    onChange={handleAmountChange}
-                    className="max-w-[200px]"
-                    placeholder="0"
-                  />
-                </div>
-              )}
-
-              <div className="space-y-1.5">
-                <Label htmlFor={`${keyName}-observations`} className="text-sm">
-                  Observations
+        </CardTitle>
+        <CardDescription>
+          {status.assujetti ? (
+            <div className="grid gap-4">
+              <div className="flex items-center space-x-2">
+                <Label htmlFor={`${obligationName}-payee`} className="text-sm">
+                  Payée
                 </Label>
-                <Textarea
-                  id={`${keyName}-observations`}
-                  value={status?.observations || ""}
-                  onChange={handleObservationsChange}
-                  placeholder="Ajoutez des observations concernant cette obligation..."
-                  className="h-20"
+                <Switch
+                  id={`${obligationName}-payee`}
+                  checked={status.payee}
+                  onCheckedChange={(checked) => handleStatusChange("payee", checked)}
                 />
+                {status.payee ? (
+                  <CheckCircle className="text-green-500 h-4 w-4" />
+                ) : (
+                  <CircleX className="text-red-500 h-4 w-4" />
+                )}
               </div>
 
-              {/* File attachments section */}
-              <div className="pt-2 border-t mt-4">
-                <h4 className="text-sm font-medium mb-3">Pièces jointes</h4>
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor={`${obligationName}-dateEcheance`}>Date d'échéance</Label>
+                    <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !status.dateEcheance && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {dateEcheanceFormatted}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="center">
+                        <Calendar
+                          mode="single"
+                          selected={status.dateEcheance ? new Date(status.dateEcheance) : undefined}
+                          onSelect={(date) => {
+                            handleStatusChange("dateEcheance", date?.toISOString());
+                            setIsCalendarOpen(false);
+                          }}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
 
-                <div className="space-y-4">
-                  {/* Payment document */}
-                  <AttachmentUploader
-                    clientId={clientId}
-                    year={selectedYear}
-                    obligationType={keyName}
-                    attachmentType="payment"
-                    attachmentLabel="Justificatif de paiement"
-                    filePath={status.attachements?.payment}
-                    onFileUploaded={(filePath) => handleFileUpload("payment", filePath)}
-                  />
+                  <div>
+                    <Label htmlFor={`${obligationName}-datePaiement`}>Date de règlement</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !status.datePaiement && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {datePaiementFormatted}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="center">
+                        <Calendar
+                          mode="single"
+                          selected={status.datePaiement ? new Date(status.datePaiement) : undefined}
+                          onSelect={(date) => {
+                            handleStatusChange("datePaiement", date?.toISOString());
+                          }}
+                          disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+                </div>
 
-                  {/* Notice document */}
-                  <AttachmentUploader
-                    clientId={clientId}
-                    year={selectedYear}
-                    obligationType={keyName}
-                    attachmentType="declaration"
-                    attachmentLabel="Avis d'imposition"
-                    filePath={status.attachements?.declaration}
-                    onFileUploaded={(filePath) =>
-                      handleFileUpload("declaration", filePath)
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor={`${obligationName}-montant`} className="flex items-center">
+                      Montant
+                      <Coins className="h-3 w-3 ml-1" />
+                    </Label>
+                    <Input
+                      type="number"
+                      id={`${obligationName}-montant`}
+                      value={status.montant?.toString() || ""}
+                      onChange={(e) =>
+                        handleStatusChange("montant", parseFloat(e.target.value))
+                      }
+                      placeholder="Montant à payer"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor={`${obligationName}-montantPenalite`} className="flex items-center">
+                      Pénalités
+                      <Coins className="h-3 w-3 ml-1" />
+                    </Label>
+                    <Input
+                      type="number"
+                      id={`${obligationName}-montantPenalite`}
+                      value={status.montantPenalite?.toString() || ""}
+                      onChange={(e) =>
+                        handleStatusChange("montantPenalite", parseFloat(e.target.value))
+                      }
+                      placeholder="Montant des pénalités"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <Label htmlFor={`${obligationName}-montantTotal`} className="flex items-center">
+                    Montant total
+                    <Coins className="h-3 w-3 ml-1" />
+                  </Label>
+                  <Input
+                    type="number"
+                    id={`${obligationName}-montantTotal`}
+                    value={status.montantTotal?.toString() || ""}
+                    onChange={(e) =>
+                      handleStatusChange("montantTotal", parseFloat(e.target.value))
                     }
-                  />
-
-                  {/* Additional document */}
-                  <AttachmentUploader
-                    clientId={clientId}
-                    year={selectedYear}
-                    obligationType={keyName}
-                    attachmentType="additional"
-                    attachmentLabel="Document supplémentaire"
-                    filePath={status.attachements?.additional}
-                    onFileUploaded={(filePath) =>
-                      handleFileUpload("additional", filePath)
-                    }
+                    placeholder="Montant total à payer"
                   />
                 </div>
               </div>
-            </>
+
+              <PaymentDetailsSection
+                status={status}
+                obligationName={obligationName}
+                onStatusChange={handleStatusChange}
+              />
+
+              <ObservationsSection
+                status={status}
+                obligationName={obligationName}
+                onStatusChange={handleStatusChange}
+              />
+
+              <AttachmentSection
+                obligationName={obligationName}
+                onAttachmentUpload={onAttachmentUpload}
+              />
+            </div>
+          ) : (
+            <p className="text-muted-foreground">Non assujetti à cette obligation.</p>
           )}
-        </div>
-      )}
-    </div>
+        </CardDescription>
+      </CardHeader>
+      <CardContent></CardContent>
+    </Card>
   );
 };

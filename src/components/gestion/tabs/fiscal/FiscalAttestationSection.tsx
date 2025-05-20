@@ -1,7 +1,6 @@
-
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { DatePickerSelector } from "./DatePickerSelector";
+import DatePickerSelector from "./DatePickerSelector";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 

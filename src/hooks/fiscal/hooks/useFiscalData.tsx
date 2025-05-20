@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { ClientFiscalData, ObligationStatuses } from '../types';
 import { fetchFiscalData } from '../services/fetchService';
@@ -33,12 +32,10 @@ export const useFiscalData = (clientId: string) => {
           igs: { 
             assujetti: false, 
             payee: false,
-            paiementsTrimestriels: {
-              Q1: { payee: false },
-              Q2: { payee: false },
-              Q3: { payee: false },
-              Q4: { payee: false }
-            }
+            q1Payee: false,
+            q2Payee: false,
+            q3Payee: false,
+            q4Payee: false
           },
           patente: { assujetti: false, payee: false },
           dsf: { assujetti: false, depose: false, periodicity: "annuelle" },

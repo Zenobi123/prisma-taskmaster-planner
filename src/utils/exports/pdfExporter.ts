@@ -1,4 +1,3 @@
-
 import { Event } from "@/types/event";
 import { DocumentService } from '../pdf/services/DocumentService';
 import autoTable from 'jspdf-autotable';
@@ -14,11 +13,11 @@ export const exportToPDF = (events: Event[], date: Date | undefined): void => {
     const dateFilename = date ? date.toISOString().split('T')[0] : 'all';
     
     // Create document service for high quality PDF
-    const docService = new DocumentService();
-    const doc = docService.getDocument();
+    const documentService = new DocumentService();
+    const doc = documentService.getDocument();
     
     // Add header with date
-    docService.addStandardHeader('Planning');
+    documentService.addStandardHeader('Planning');
     
     // Add title with the date
     doc.setFontSize(16);
@@ -67,8 +66,8 @@ export const exportToPDF = (events: Event[], date: Date | undefined): void => {
     doc.text(`Nombre total d'événements: ${events.length}`, 15, finalY + 15);
     
     // Add footer and generate
-    docService.addStandardFooter();
-    docService.save(`planning_${dateFilename}.pdf`);
+    documentService.addStandardFooter();
+    documentService.save(`planning_${dateFilename}.pdf`);
     
   } catch (error) {
     console.error("Erreur lors de l'exportation en PDF:", error);
@@ -81,10 +80,10 @@ export const exportToPDF = (events: Event[], date: Date | undefined): void => {
  */
 export const exportToPdf = (title: string, data: any[], filename: string): void => {
   try {
-    const docService = new DocumentService();
-    const doc = docService.getDocument();
+    const documentService = new DocumentService();
+    const doc = documentService.getDocument();
     
-    docService.addStandardHeader(title);
+    documentService.addStandardHeader(title);
     
     doc.setFontSize(16);
     doc.setFont('helvetica', 'bold');
@@ -94,8 +93,8 @@ export const exportToPdf = (title: string, data: any[], filename: string): void 
       doc.setFontSize(12);
       doc.setFont('helvetica', 'italic');
       doc.text("Aucune donnée disponible", 15, 80);
-      docService.addStandardFooter();
-      docService.save(`${filename}.pdf`);
+      documentService.addStandardFooter();
+      documentService.save(`${filename}.pdf`);
       return;
     }
     
@@ -136,8 +135,8 @@ export const exportToPdf = (title: string, data: any[], filename: string): void 
     const dateStr = today.toLocaleDateString('fr-FR');
     doc.text(`Date d'exportation: ${dateStr}`, 15, finalY + 25);
     
-    docService.addStandardFooter();
-    docService.save(`${filename}.pdf`);
+    documentService.addStandardFooter();
+    documentService.save(`${filename}.pdf`);
     
   } catch (error) {
     console.error("Erreur lors de l'exportation en PDF:", error);

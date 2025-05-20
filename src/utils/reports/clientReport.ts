@@ -1,4 +1,3 @@
-
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ClientFinancialDetails } from '@/types/clientFinancial';
@@ -18,12 +17,12 @@ export const generateClientReport = (clientDetails: ClientFinancialDetails): voi
     }
 
     // Use DocumentService for consistent styling and structure
-    const docService = new DocumentService();
-    const doc = docService.getDocument();
+    const documentService = new DocumentService();
+    const doc = documentService.getDocument();
 
     // Add standard header and footer
-    docService.addStandardHeader('Situation Financière Client');
-    docService.addStandardFooter();
+    documentService.addStandardHeader('Situation Financière Client');
+    documentService.addStandardFooter();
 
     // Title
     doc.setFontSize(18);
@@ -107,7 +106,7 @@ export const generateClientReport = (clientDetails: ClientFinancialDetails): voi
     );
 
     // Generate and download the PDF
-    docService.save('rapport_client.pdf');
+    documentService.save('rapport_client.pdf');
 
   } catch (error) {
     console.error("Error generating client report:", error);
