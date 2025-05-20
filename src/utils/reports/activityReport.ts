@@ -1,5 +1,5 @@
 
-import { exportToPdf } from "@/utils/exportUtils";
+import { exportToPdf } from "@/utils/exports";
 
 export function generateActivityReport() {
   const activityData = [

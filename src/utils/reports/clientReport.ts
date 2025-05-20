@@ -1,6 +1,8 @@
+
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Client } from '@/types/client';
+import { exportToPdf } from '@/utils/exports';
 
 export const generateClientReport = () => {
   const doc = new jsPDF();

@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { Client } from '@/types/client';
@@ -89,4 +90,45 @@ export const exportClientDetailsToPdf = (client: Client) => {
   
   // Save the PDF
   doc.save(`client-${client.id}.pdf`);
+};
+
+// Add a more generic export function that can be used by other modules
+export const exportToPdf = (title: string, data: any[], filename: string) => {
+  const doc = new jsPDF();
+  
+  // Set title
+  doc.setFontSize(18);
+  doc.text(title, 14, 22);
+  
+  // Add date
+  doc.setFontSize(10);
+  doc.text(`Date d'export: ${new Date().toLocaleDateString()}`, 14, 30);
+  
+  // If we have data and it's an array with objects
+  if (data && Array.isArray(data) && data.length > 0) {
+    // Extract headers from first object
+    const headers = Object.keys(data[0]);
+    
+    // Format data for table
+    const formattedData = data.map(item => 
+      headers.map(header => item[header] !== undefined ? item[header] : 'N/A')
+    );
+    
+    // Add table
+    (doc as any).autoTable({
+      head: [headers],
+      body: formattedData,
+      startY: 40,
+      margin: { top: 35 },
+      styles: { fontSize: 9, cellPadding: 3 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 }
+    });
+  } else {
+    // Add a placeholder text if no data
+    doc.setFontSize(12);
+    doc.text('Aucune donnée à afficher', 14, 50);
+  }
+  
+  // Save the PDF with custom filename
+  doc.save(`${filename}.pdf`);
 };
