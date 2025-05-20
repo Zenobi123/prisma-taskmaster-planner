@@ -30,20 +30,23 @@ export function FiscalAttestationSection({
   // Calculer automatiquement la date de fin de validité lorsque la date de création change
   useEffect(() => {
     if (creationDate) {
-      // Conversion de la chaîne de date en objet Date
-      const creationDateObj = new Date(creationDate);
-      // Ajout de 90 jours pour la date de fin de validité
-      const endDateObj = addDays(creationDateObj, 90);
-      // Formatage de la date en chaîne au format ISO
-      const formattedEndDate = format(endDateObj, "yyyy-MM-dd");
-      setValidityEndDate(formattedEndDate);
+      try {
+        // Conversion de la chaîne de date en objet Date
+        const creationDateObj = new Date(creationDate);
+        
+        // Vérification que la date est valide
+        if (!isNaN(creationDateObj.getTime())) {
+          // Ajout de 90 jours pour la date de fin de validité
+          const endDateObj = addDays(creationDateObj, 90);
+          // Formatage de la date en chaîne au format ISO
+          const formattedEndDate = format(endDateObj, "yyyy-MM-dd");
+          setValidityEndDate(formattedEndDate);
+        }
+      } catch (error) {
+        console.error("Erreur lors du calcul de la date de fin de validité:", error);
+      }
     }
   }, [creationDate, setValidityEndDate]);
-
-  const handleDateChange = (date: string) => {
-    setCreationDate(date);
-    // La date de fin sera calculée automatiquement grâce à l'effet
-  };
 
   return (
     <Card>
@@ -56,7 +59,7 @@ export function FiscalAttestationSection({
             <Label htmlFor="creationDate">Date de création</Label>
             <DatePickerSelector
               value={creationDate}
-              onChange={handleDateChange}
+              onChange={setCreationDate}
             />
           </div>
           <div>

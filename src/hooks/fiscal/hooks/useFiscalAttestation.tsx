@@ -29,14 +29,19 @@ export const useFiscalAttestation = (
   
   // Handler for creation date update
   const handleCreationDateChange = (date: string) => {
-    setCreationDate(date);
-    onMarkAsChanged();
+    // Vérification que la date est valide avant de la définir
+    if (date) {
+      setCreationDate(date);
+      onMarkAsChanged();
+    }
   };
 
   // Handler for validity end date update
   const handleValidityEndDateChange = (date: string) => {
-    setValidityEndDate(date);
-    onMarkAsChanged();
+    if (date) {
+      setValidityEndDate(date);
+      onMarkAsChanged();
+    }
   };
   
   // Handler for alert toggle
