@@ -6,7 +6,7 @@ import { QuarterlyPayment } from "./QuarterlyPayment";
 interface QuarterlyPaymentsSectionProps {
   status: TaxObligationStatus;
   keyName: string;
-  onStatusChange: (obligation: string, field: string, value: boolean) => void;
+  onStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
 }
 
 export const QuarterlyPaymentsSection: React.FC<QuarterlyPaymentsSectionProps> = ({
@@ -14,27 +14,18 @@ export const QuarterlyPaymentsSection: React.FC<QuarterlyPaymentsSectionProps> =
   keyName,
   onStatusChange
 }) => {
-  const handleQ1PaymentChange = (checked: boolean) => {
-    if (status.paiementsTrimestriels) {
-      onStatusChange(keyName, "paiementsTrimestriels.Q1.payee", checked);
-    }
-  };
+  // Calculate quarterly amount (25% of annual amount)
+  const quarterlyAmount = Math.round((status.montantAnnuel || 0) * 0.25);
   
-  const handleQ2PaymentChange = (checked: boolean) => {
-    if (status.paiementsTrimestriels) {
-      onStatusChange(keyName, "paiementsTrimestriels.Q2.payee", checked);
-    }
-  };
-  
-  const handleQ3PaymentChange = (checked: boolean) => {
-    if (status.paiementsTrimestriels) {
-      onStatusChange(keyName, "paiementsTrimestriels.Q3.payee", checked);
-    }
-  };
-  
-  const handleQ4PaymentChange = (checked: boolean) => {
-    if (status.paiementsTrimestriels) {
-      onStatusChange(keyName, "paiementsTrimestriels.Q4.payee", checked);
+  const handlePaymentChange = (quarter: string, isPaid: boolean) => {
+    if (quarter === "1er Trimestre") {
+      onStatusChange(keyName, "q1Payee", isPaid);
+    } else if (quarter === "2e Trimestre") {
+      onStatusChange(keyName, "q2Payee", isPaid);
+    } else if (quarter === "3e Trimestre") {
+      onStatusChange(keyName, "q3Payee", isPaid);
+    } else if (quarter === "4e Trimestre") {
+      onStatusChange(keyName, "q4Payee", isPaid);
     }
   };
   
@@ -44,23 +35,31 @@ export const QuarterlyPaymentsSection: React.FC<QuarterlyPaymentsSectionProps> =
       <div className="grid grid-cols-2 gap-3">
         <QuarterlyPayment
           quarter="1er Trimestre"
-          isPaid={status.paiementsTrimestriels?.Q1.payee || false}
-          onPaymentChange={handleQ1PaymentChange}
+          label="1er Trimestre"
+          amount={quarterlyAmount}
+          isPaid={status.q1Payee || false}
+          onChange={handlePaymentChange}
         />
         <QuarterlyPayment
           quarter="2e Trimestre"
-          isPaid={status.paiementsTrimestriels?.Q2.payee || false}
-          onPaymentChange={handleQ2PaymentChange}
+          label="2e Trimestre"
+          amount={quarterlyAmount}
+          isPaid={status.q2Payee || false}
+          onChange={handlePaymentChange}
         />
         <QuarterlyPayment
           quarter="3e Trimestre"
-          isPaid={status.paiementsTrimestriels?.Q3.payee || false}
-          onPaymentChange={handleQ3PaymentChange}
+          label="3e Trimestre"
+          amount={quarterlyAmount}
+          isPaid={status.q3Payee || false}
+          onChange={handlePaymentChange}
         />
         <QuarterlyPayment
           quarter="4e Trimestre"
-          isPaid={status.paiementsTrimestriels?.Q4.payee || false}
-          onPaymentChange={handleQ4PaymentChange}
+          label="4e Trimestre"
+          amount={quarterlyAmount}
+          isPaid={status.q4Payee || false}
+          onChange={handlePaymentChange}
         />
       </div>
     </div>

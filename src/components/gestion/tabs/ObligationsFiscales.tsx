@@ -26,6 +26,7 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
   const {
     creationDate,
     setCreationDate,
+    setValidityEndDate,
     validityEndDate,
     obligationStatuses,
     handleStatusChange,
@@ -107,10 +108,11 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           creationDate={creationDate}
           validityEndDate={validityEndDate}
           setCreationDate={setCreationDate}
+          setValidityEndDate={setValidityEndDate}
           showInAlert={showInAlert}
-          onToggleAlert={() => handleToggleAlert()}
+          onToggleAlert={handleToggleAlert}
           hiddenFromDashboard={hiddenFromDashboard}
-          onToggleDashboardVisibility={(value: boolean) => handleToggleDashboardVisibility(value)}
+          onToggleDashboardVisibility={handleToggleDashboardVisibility}
         />
         
         <AnnualObligationsSection 

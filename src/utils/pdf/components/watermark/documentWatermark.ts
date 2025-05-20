@@ -40,21 +40,16 @@ export class DocumentWatermark {
     const gState = new (this.doc as any).GState({ opacity: opacity });
     this.doc.setGState(gState);
     
-    // Convert angle to radians
-    const radians = angle * Math.PI / 180;
-    
-    // Save current transformation
-    this.doc.saveGraphicsState();
-    
-    // Move to center, rotate, then draw text
-    this.doc.translate(centerX, centerY);
-    this.doc.rotate(angle);
-    
     // Calculate text width to center it
     const textWidth = this.doc.getTextWidth(text);
     
-    // Draw the text
-    this.doc.text(text, -textWidth / 2, 0, { align: 'center' });
+    // Add the text with transform directly in the text method
+    // Note: jspdf 3.0+ doesn't have translate/rotate methods, use text with transformation options
+    this.doc.text(text, centerX, centerY, {
+      align: 'center',
+      angle: angle,
+      renderingMode: 'fill',
+    });
     
     // Restore graphics state
     this.doc.restoreGraphicsState();

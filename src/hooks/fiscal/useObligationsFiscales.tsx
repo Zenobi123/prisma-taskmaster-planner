@@ -83,7 +83,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
       
       // Dashboard visibility
       if (fiscalData.hiddenFromDashboard !== undefined) {
-        handleToggleDashboardVisibility(!!fiscalData.hiddenFromDashboard, false);
+        handleToggleDashboardVisibility(!!fiscalData.hiddenFromDashboard);
       }
     }
   }, [fiscalData, setCreationDate, setValidityEndDate, handleToggleDashboardVisibility, setDataYear, handleYearChange, selectedYear]);
@@ -140,6 +140,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     showInAlert,
     obligationStatuses,
     setCreationDate,
+    setValidityEndDate,
     handleStatusChange,
     handleAttachmentUpdate,
     handleSave,

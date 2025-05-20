@@ -32,6 +32,12 @@ export const useFiscalAttestation = (
     setCreationDate(date);
     onMarkAsChanged();
   };
+
+  // Handler for validity end date update
+  const handleValidityEndDateChange = (date: string) => {
+    setValidityEndDate(date);
+    onMarkAsChanged();
+  };
   
   // Handler for alert toggle
   const handleToggleAlert = () => {
@@ -51,6 +57,7 @@ export const useFiscalAttestation = (
     showInAlert,
     hiddenFromDashboard,
     setCreationDate: handleCreationDateChange,
+    setValidityEndDate: handleValidityEndDateChange,
     handleToggleAlert,
     handleToggleDashboardVisibility
   };

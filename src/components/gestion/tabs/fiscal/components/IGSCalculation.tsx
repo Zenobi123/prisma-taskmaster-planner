@@ -4,11 +4,13 @@ import React from 'react';
 interface IGSCalculationProps {
   amount: number;
   quarterlyAmount: number;
+  onMontantChange?: (amount: number) => void;
 }
 
 export const IGSCalculation = ({ 
   amount, 
-  quarterlyAmount 
+  quarterlyAmount,
+  onMontantChange
 }: IGSCalculationProps) => {
   return (
     <div className="bg-muted p-4 rounded-md text-sm">

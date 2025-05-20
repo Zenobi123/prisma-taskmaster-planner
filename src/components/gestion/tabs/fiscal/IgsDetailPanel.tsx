@@ -18,12 +18,16 @@ export const IgsDetailPanel: React.FC<IgsDetailPanelProps> = ({
     onStatusChange("igs", "montantAnnuel", amount);
   };
 
+  // Calculate quarterly amount (25% of annual amount)
+  const quarterlyAmount = Math.round((igsStatus.montantAnnuel || 0) * 0.25);
+
   return (
     <div className="border-t pt-3 mt-3 space-y-4">
       {/* IGS Calculation section */}
       {igsStatus.montantAnnuel !== undefined && (
         <IGSCalculation
-          montantAnnuel={igsStatus.montantAnnuel || 0}
+          amount={igsStatus.montantAnnuel || 0}
+          quarterlyAmount={quarterlyAmount}
           onMontantChange={handleMontantChange}
         />
       )}
