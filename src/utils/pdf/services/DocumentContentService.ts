@@ -1,68 +1,164 @@
 
-import { BaseDocumentService, DocumentType } from './BaseDocumentService';
+import { jsPDF } from "jspdf";
+import { formatCurrency } from "@/utils/formatUtils";
 
-export class DocumentContentService extends BaseDocumentService {
-  constructor(documentType: DocumentType, title: string, reference: string) {
-    super(documentType, title, reference);
+/**
+ * Service pour gérer le contenu du document PDF
+ */
+export class DocumentContentService {
+  private doc: jsPDF;
+
+  constructor(doc: jsPDF) {
+    this.doc = doc;
   }
 
-  public addInfoSection(title: string, content: string | string[], startY: number): number {
+  /**
+   * Ajoute du texte au document avec le style spécifié
+   */
+  addText(text: string, marginTop: number = 10, fontSize: number = 12, style: 'normal' | 'bold' | 'italic' = 'normal'): void {
+    const y = this.getCurrentY() + marginTop;
+    this.doc.setFontSize(fontSize);
+    this.doc.setFont('helvetica', style);
+    this.doc.text(text, 15, y);
+  }
+
+  /**
+   * Ajoute une liste à puces
+   */
+  addList(items: string[], marginTop: number = 10): void {
+    let y = this.getCurrentY() + marginTop;
     this.doc.setFontSize(11);
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.text(title, 15, startY + 5);
-    
-    this.doc.setFontSize(10);
     this.doc.setFont('helvetica', 'normal');
     
-    let contentArray: string[];
-    if (typeof content === 'string') {
-      contentArray = this.doc.splitTextToSize(content, 180);
-    } else {
-      contentArray = content;
-    }
-    
-    this.doc.text(contentArray, 15, startY + 15);
-    
-    return startY + 15 + (contentArray.length * 5);
+    items.forEach(item => {
+      this.doc.text('• ', 15, y);
+      this.doc.text(item, 20, y);
+      y += 7; // Espacement entre les éléments de la liste
+    });
   }
 
-  public addNotesSection(notes: string, startY: number): number {
-    if (!notes || notes.trim() === '') return startY;
-    
-    this.doc.setFillColor(250, 250, 250);
-    this.doc.roundedRect(15, startY, 180, 20, 3, 3, 'F');
-    
-    this.doc.setFontSize(10);
-    this.doc.setFont('helvetica', 'bold');
-    this.doc.setTextColor(60, 60, 60);
-    this.doc.text("Notes:", 20, startY + 7);
-    
-    this.doc.setFont('helvetica', 'normal');
-    this.doc.setFontSize(9);
-    
-    const splitNotes = this.doc.splitTextToSize(notes, 160);
-    this.doc.text(splitNotes, 20, startY + 14);
-    
-    return startY + 22;
+  /**
+   * Obtient la position Y actuelle (dernière ligne écrite)
+   */
+  getCurrentY(): number {
+    return this.doc.lastAutoTable ? (this.doc as any).lastAutoTable.finalY : 40;
   }
 
-  public addAmountSection(label: string, montant: number, startY: number, withCurrency: boolean = true): number {
-    this.doc.setFillColor(this.backgroundColor[0], this.backgroundColor[1], this.backgroundColor[2]);
-    this.doc.roundedRect(15, startY + 10, 180, 30, 3, 3, 'F');
+  /**
+   * Ajoute une boîte d'informations avec titre et lignes de texte
+   */
+  addInfoBox(title: string, lines: string[], yPosition: number): number {
+    // Fond gris clair pour la boîte
+    this.doc.setFillColor(245, 245, 245);
+    this.doc.rect(15, yPosition, 180, 30 + (lines.length * 6), 'F');
     
+    // Titre de la boîte
     this.doc.setFontSize(12);
     this.doc.setFont('helvetica', 'bold');
     this.doc.setTextColor(60, 60, 60);
-    this.doc.text(label, 25, startY + 25);
+    this.doc.text(title, 20, yPosition + 10);
     
-    this.doc.setFontSize(16);
-    this.doc.setTextColor(this.primaryColor[0], this.primaryColor[1], this.primaryColor[2]);
+    // Lignes d'information
+    this.doc.setFontSize(10);
+    this.doc.setFont('helvetica', 'normal');
+    let y = yPosition + 20;
     
-    const formattedAmount = new Intl.NumberFormat('fr-FR').format(montant);
-    this.doc.text(`${formattedAmount}${withCurrency ? ' XAF' : ''}`, 110, startY + 25);
+    lines.forEach(line => {
+      if (line) { // Vérifier que la ligne n'est pas vide
+        this.doc.text(line, 20, y);
+        y += 6;
+      }
+    });
     
-    this.doc.setTextColor(60, 60, 60);
+    return y + 10; // Retourner la position Y finale + marge
+  }
+
+  /**
+   * Ajoute une boîte de montant avec mise en évidence optionnelle
+   */
+  addAmountBox(title: string, amount: number, yPosition: number, highlight: boolean = false): number {
+    // Couleur de fond selon l'option de mise en évidence
+    if (highlight) {
+      this.doc.setFillColor(70, 130, 180); // Bleu pour la mise en évidence
+    } else {
+      this.doc.setFillColor(245, 245, 245); // Gris clair par défaut
+    }
     
-    return startY + 40;
+    // Dessiner le rectangle de fond
+    this.doc.rect(15, yPosition, 180, 30, 'F');
+    
+    // Style du texte selon la mise en évidence
+    if (highlight) {
+      this.doc.setTextColor(255, 255, 255); // Texte blanc sur fond bleu
+    } else {
+      this.doc.setTextColor(60, 60, 60); // Texte gris foncé sur fond gris clair
+    }
+    
+    // Titre du montant
+    this.doc.setFontSize(12);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.text(title, 20, yPosition + 12);
+    
+    // Montant formaté
+    try {
+      const formattedAmount = formatCurrency(amount);
+      this.doc.setFontSize(16);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text(formattedAmount, 175, yPosition + 20, { align: 'right' });
+    } catch (error) {
+      // Fallback si le formatage échoue
+      this.doc.setFontSize(16);
+      this.doc.setFont('helvetica', 'bold');
+      this.doc.text(`${amount} XAF`, 175, yPosition + 20, { align: 'right' });
+    }
+    
+    // Réinitialiser la couleur du texte
+    this.doc.setTextColor(0, 0, 0);
+    
+    return yPosition + 40; // Retourner la position Y finale + marge
+  }
+
+  /**
+   * Ajoute une boîte de notes
+   */
+  addNotesBox(notes: string, yPosition: number): number {
+    if (!notes || notes.trim() === '') {
+      return yPosition; // Ne rien faire si pas de notes
+    }
+    
+    // Fond de la boîte de notes
+    this.doc.setFillColor(250, 250, 250);
+    
+    // Calculer la hauteur nécessaire (estimation)
+    const lineHeight = 6;
+    const maxWidth = 170; // Largeur max pour le texte
+    const noteLines = this.doc.splitTextToSize(notes, maxWidth);
+    const boxHeight = 20 + (noteLines.length * lineHeight);
+    
+    // Dessiner le fond
+    this.doc.rect(15, yPosition, 180, boxHeight, 'F');
+    
+    // Titre de la section
+    this.doc.setFontSize(11);
+    this.doc.setFont('helvetica', 'bold');
+    this.doc.setTextColor(80, 80, 80);
+    this.doc.text("Notes:", 20, yPosition + 10);
+    
+    // Contenu des notes
+    this.doc.setFontSize(10);
+    this.doc.setFont('helvetica', 'italic');
+    this.doc.setTextColor(100, 100, 100);
+    
+    // Ajouter chaque ligne de texte
+    let y = yPosition + 20;
+    noteLines.forEach(line => {
+      this.doc.text(line, 20, y);
+      y += lineHeight;
+    });
+    
+    // Réinitialiser les couleurs
+    this.doc.setTextColor(0, 0, 0);
+    
+    return yPosition + boxHeight + 10; // Position Y finale + marge
   }
 }

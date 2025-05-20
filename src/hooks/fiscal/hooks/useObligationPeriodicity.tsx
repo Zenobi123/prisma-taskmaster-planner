@@ -1,6 +1,6 @@
 
 import { useCallback } from 'react';
-import { ObligationStatus, DeclarationObligationStatus } from '../types';
+import { ObligationStatus, DeclarationObligationStatus, DeclarationPeriodicity } from '../types';
 
 export function useObligationPeriodicity() {
   // Function to check if an obligation is a declaration
@@ -9,8 +9,9 @@ export function useObligationPeriodicity() {
   }, []);
 
   // Function to update periodicity of declaration obligations
-  const updatePeriodicity = useCallback((obligation: string, status: ObligationStatus, periodicity: "mensuelle" | "trimestrielle" | "annuelle") => {
+  const updatePeriodicity = useCallback((obligation: string, status: ObligationStatus, periodicity: DeclarationPeriodicity) => {
     if (isDeclarationObligation(obligation)) {
+      // On utilise un cast explicite pour assurer la compatibilité des types
       const declStatus = status as DeclarationObligationStatus;
       return {
         ...declStatus,

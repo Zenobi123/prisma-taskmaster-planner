@@ -23,10 +23,14 @@ export class DocumentService {
   }
 
   /**
-   * Ajoute un en-tête standard au document
+   * Ajoute un en-tête standard au document avec logo optionnel
    */
-  addStandardHeader(title: string, logoUrl?: string): DocumentService {
-    this.headerFooterService.addStandardHeader(title, logoUrl);
+  addStandardHeader(title?: string, logoUrl?: string): DocumentService {
+    if (title) {
+      this.headerFooterService.addHeader(title, logoUrl);
+    } else {
+      this.headerFooterService.addHeader("Document", logoUrl);
+    }
     return this;
   }
 
@@ -34,7 +38,7 @@ export class DocumentService {
    * Ajoute un pied de page standard au document
    */
   addStandardFooter(pageText?: string): DocumentService {
-    this.headerFooterService.addStandardFooter(pageText);
+    this.headerFooterService.addFooter(pageText);
     return this;
   }
 
@@ -42,7 +46,7 @@ export class DocumentService {
    * Ajoute un titre au document
    */
   addTitle(title: string, marginTop: number = 40): DocumentService {
-    this.contentService.addTitle(title, marginTop);
+    this.contentService.addText(title, marginTop, 16, 'bold');
     return this;
   }
 
@@ -50,7 +54,7 @@ export class DocumentService {
    * Ajoute un sous-titre au document
    */
   addSubtitle(subtitle: string, marginTop: number = 5): DocumentService {
-    this.contentService.addSubtitle(subtitle, marginTop);
+    this.contentService.addText(subtitle, marginTop, 14, 'normal');
     return this;
   }
 
@@ -58,7 +62,7 @@ export class DocumentService {
    * Ajoute un paragraphe de texte
    */
   addParagraph(text: string, marginTop: number = 10): DocumentService {
-    this.contentService.addParagraph(text, marginTop);
+    this.contentService.addText(text, marginTop, 11, 'normal');
     return this;
   }
 
@@ -66,7 +70,7 @@ export class DocumentService {
    * Ajoute une liste à puces
    */
   addBulletList(items: string[], marginTop: number = 10): DocumentService {
-    this.contentService.addBulletList(items, marginTop);
+    this.contentService.addList(items, marginTop);
     return this;
   }
 
@@ -74,7 +78,8 @@ export class DocumentService {
    * Ajoute une section avec un titre et du contenu
    */
   addSection(title: string, content: string, marginTop: number = 10): DocumentService {
-    this.contentService.addSection(title, content, marginTop);
+    this.contentService.addText(title, marginTop, 12, 'bold');
+    this.contentService.addText(content, 5, 11, 'normal');
     return this;
   }
 
@@ -105,5 +110,48 @@ export class DocumentService {
    */
   output(): string {
     return this.doc.output('datauristring');
+  }
+
+  /**
+   * Méthodes complémentaires pour compatibilité avec le code existant
+   */
+  
+  // Méthode pour ajouter un en-tête de document
+  addHeader(title: string, logoUrl?: string): void {
+    this.headerFooterService.addHeader(title, logoUrl);
+  }
+
+  // Méthode pour ajouter un pied de page
+  addFooter(text?: string): void {
+    this.headerFooterService.addFooter(text);
+  }
+
+  // Méthode pour télécharger le document
+  download(filename: string): void {
+    this.doc.save(filename);
+  }
+
+  // Méthode pour générer le document (URL data ou téléchargement)
+  generate(download: boolean = false): string | void {
+    if (download) {
+      this.doc.save('document.pdf');
+      return;
+    }
+    return this.doc.output('datauristring');
+  }
+
+  // Méthode pour ajouter une section d'informations
+  addInfoSection(title: string, lines: string[], yPosition: number): number {
+    return this.contentService.addInfoBox(title, lines, yPosition);
+  }
+
+  // Méthode pour ajouter une section de montant
+  addAmountSection(title: string, amount: number, yPosition: number, highlight: boolean = false): number {
+    return this.contentService.addAmountBox(title, amount, yPosition, highlight);
+  }
+
+  // Méthode pour ajouter une section de notes
+  addNotesSection(notes: string, yPosition: number): number {
+    return this.contentService.addNotesBox(notes, yPosition);
   }
 }

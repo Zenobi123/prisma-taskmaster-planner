@@ -128,7 +128,7 @@ export const TaxObligationItem = ({
               <div className="space-y-2">
                 <AttachmentUploader
                   obligationType={name}
-                  attachmentType="attestation"
+                  attachmentType={"attestation" as AttachmentType}
                   attachmentLabel="Attestation de paiement"
                   clientId={clientId}
                   year={selectedYear}
@@ -138,7 +138,7 @@ export const TaxObligationItem = ({
                 
                 <AttachmentUploader
                   obligationType={name}
-                  attachmentType="receipt"
+                  attachmentType={"receipt" as AttachmentType}
                   attachmentLabel="Reçu de paiement"
                   clientId={clientId}
                   year={selectedYear}
