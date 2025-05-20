@@ -1,155 +1,219 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { TaxObligationStatus, AttachmentType } from '@/hooks/fiscal/types';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { AttachmentUploader } from './AttachmentUploader';
-import { IgsDetailPanel } from './IgsDetailPanel';
-import { Separator } from '@/components/ui/separator';
-import { ObservationsSection } from './components/ObservationsSection';
+import React, { useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { TaxObligationStatus } from "@/hooks/fiscal/types";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { AttachmentUploader } from "./AttachmentUploader";
 
 interface TaxObligationItemProps {
-  name: string;
-  nameLabel: string;
+  title: string;
+  keyName: string;
   status: TaxObligationStatus;
-  onChange: (field: string, value: any) => void;
-  isIgsObligation?: boolean;
+  onStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
+  onAttachmentChange: (obligation: string, attachmentType: string, filePath: string | null) => void;
   clientId: string;
   selectedYear: string;
+  showPaymentDetails?: boolean;
 }
 
-export const TaxObligationItem = ({
-  name,
-  nameLabel,
+export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
+  title,
+  keyName,
   status,
-  onChange,
-  isIgsObligation = false,
+  onStatusChange,
+  onAttachmentChange,
   clientId,
   selectedYear,
-}: TaxObligationItemProps) => {
-  const [showPanel, setShowPanel] = useState(false);
+  showPaymentDetails = false,
+}) => {
+  const [expanded, setExpanded] = useState(false);
 
-  // Function to update the tax liability status
-  const handleAssujettissement = (checked: boolean) => {
-    onChange('assujetti', checked);
-    
-    // If disabled, also reset payment status
-    if (!checked) {
-      onChange('paye', false);
+  const handleAssujettiChange = (checked: boolean | "indeterminate") => {
+    if (typeof checked === "boolean") {
+      onStatusChange(keyName, "assujetti", checked);
     }
   };
-  
-  // Function to update payment status
-  const handlePaymentChange = (checked: boolean) => {
-    onChange('paye', checked);
+
+  const handlePayeChange = (checked: boolean | "indeterminate") => {
+    if (typeof checked === "boolean") {
+      onStatusChange(keyName, "paye", checked);
+    }
   };
 
-  // Function to add or update an attestation file
-  const handleAttachmentChange = (attachmentType: string, filePath: string) => {
-    // Initialize attachments field if it doesn't exist
-    if (!status.attachments) {
-      onChange('attachments', {});
-    }
-    
-    // Update attachment file
-    onChange(`attachments.${attachmentType}`, filePath);
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    onStatusChange(keyName, "dateReglement", e.target.value);
   };
-  
-  // IGS specific functionality
-  const handleTogglePanel = () => {
-    setShowPanel(!showPanel);
+
+  const handleObservationsChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    onStatusChange(keyName, "observations", e.target.value);
+  };
+
+  const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Only update if the value is a valid number or empty
+    const value = e.target.value;
+    if (value === "" || !isNaN(Number(value))) {
+      onStatusChange(keyName, "montantAnnuel", value === "" ? 0 : Number(value));
+    }
+  };
+
+  const handleToggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  // Handle file upload for tax obligations
+  const handleFileUpload = (attachmentType: string, filePath: string | null) => {
+    onAttachmentChange(keyName, attachmentType, filePath);
   };
 
   return (
-    <Card className="relative">
-      <CardContent className="pt-6">
-        <div className="flex items-center justify-between">
-          <Label htmlFor={`${name}-assujetti`} className="font-medium">
-            {nameLabel}
-          </Label>
-          <div className="flex items-center gap-2">
-            <Switch 
-              id={`${name}-assujetti`}
-              checked={status.assujetti}
-              onCheckedChange={handleAssujettissement}
-            />
+    <div className="border p-4 rounded-md bg-background">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id={`${keyName}-assujetti`}
+            checked={status?.assujetti}
+            onCheckedChange={handleAssujettiChange}
+          />
+          <div>
+            <label
+              htmlFor={`${keyName}-assujetti`}
+              className="font-medium cursor-pointer"
+            >
+              {title}
+            </label>
           </div>
         </div>
-        
-        {status.assujetti && (
-          <>
-            <div className="mt-4 flex items-center justify-between">
-              <Label htmlFor={`${name}-paye`} className="text-sm">
-                Payé
-              </Label>
-              <Switch 
-                id={`${name}-paye`}
-                checked={status.paye}
-                onCheckedChange={handlePaymentChange}
-              />
-            </div>
-            
-            {isIgsObligation && (
-              <div className="mt-4">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="w-full flex justify-between items-center"
-                  onClick={handleTogglePanel}
-                >
-                  Détails IGS
-                  {showPanel ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                </Button>
-                
-                {showPanel && (
-                  <IgsDetailPanel 
-                    igsStatus={status}
-                    onStatusChange={onChange}
-                  />
-                )}
-              </div>
+
+        {status?.assujetti && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleToggleExpand}
+            className="h-8 w-8 p-0"
+            type="button"
+            aria-label={expanded ? "Réduire" : "Développer"}
+          >
+            {expanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
             )}
-            
-            <Separator className="my-4" />
-            
-            <div className="mt-4">
-              <Label className="text-sm mb-2 block">Observations</Label>
-              <ObservationsSection 
-                observations={status.observations || ''}
-                onObservationsChange={(value) => onChange('observations', value)}
-              />
-            </div>
-            
-            <div className="mt-4">
-              <Label className="text-sm mb-2 block">Pièces justificatives</Label>
-              <div className="space-y-2">
-                <AttachmentUploader
-                  obligationType={name}
-                  attachmentType={"attestation" as AttachmentType}
-                  attachmentLabel="Attestation de paiement"
-                  clientId={clientId}
-                  year={selectedYear}
-                  filePath={status.attachments?.attestation || ''}
-                  onFileUploaded={(filePath) => handleAttachmentChange('attestation', filePath)}
-                />
-                
-                <AttachmentUploader
-                  obligationType={name}
-                  attachmentType={"receipt" as AttachmentType}
-                  attachmentLabel="Reçu de paiement"
-                  clientId={clientId}
-                  year={selectedYear}
-                  filePath={status.attachments?.receipt || ''}
-                  onFileUploaded={(filePath) => handleAttachmentChange('receipt', filePath)}
+          </Button>
+        )}
+      </div>
+
+      {status?.assujetti && (
+        <div className="mt-4 pl-6 space-y-3">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id={`${keyName}-paye`}
+              checked={Boolean(status?.paye)}
+              onCheckedChange={handlePayeChange}
+            />
+            <label htmlFor={`${keyName}-paye`} className="text-sm cursor-pointer">
+              Payé
+            </label>
+          </div>
+
+          {expanded && (
+            <>
+              {status?.paye && (
+                <div className="space-y-1.5">
+                  <Label htmlFor={`${keyName}-date`} className="text-sm">
+                    Date de règlement
+                  </Label>
+                  <Input
+                    id={`${keyName}-date`}
+                    type="date"
+                    value={status?.dateReglement || ""}
+                    onChange={handleDateChange}
+                    className="max-w-[200px]"
+                  />
+                </div>
+              )}
+
+              {showPaymentDetails && (
+                <div className="space-y-1.5">
+                  <Label htmlFor={`${keyName}-montant`} className="text-sm">
+                    Montant annuel
+                  </Label>
+                  <Input
+                    id={`${keyName}-montant`}
+                    type="number"
+                    value={status?.montantAnnuel || ""}
+                    onChange={handleAmountChange}
+                    className="max-w-[200px]"
+                    placeholder="0"
+                  />
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <Label htmlFor={`${keyName}-observations`} className="text-sm">
+                  Observations
+                </Label>
+                <Textarea
+                  id={`${keyName}-observations`}
+                  value={status?.observations || ""}
+                  onChange={handleObservationsChange}
+                  placeholder="Ajoutez des observations concernant cette obligation..."
+                  className="h-20"
                 />
               </div>
-            </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+
+              {/* File attachments section */}
+              <div className="pt-2 border-t mt-4">
+                <h4 className="text-sm font-medium mb-3">Pièces jointes</h4>
+
+                <div className="space-y-4">
+                  {/* Payment document */}
+                  <AttachmentUploader
+                    clientId={clientId}
+                    year={selectedYear}
+                    obligationType={keyName}
+                    attachmentType="payment"
+                    attachmentLabel="Justificatif de paiement"
+                    filePath={status.attachments?.payment}
+                    onFileUploaded={(filePath) => handleFileUpload("payment", filePath)}
+                  />
+
+                  {/* Notice document */}
+                  <AttachmentUploader
+                    clientId={clientId}
+                    year={selectedYear}
+                    obligationType={keyName}
+                    attachmentType="declaration"
+                    attachmentLabel="Avis d'imposition"
+                    filePath={status.attachments?.declaration}
+                    onFileUploaded={(filePath) =>
+                      handleFileUpload("declaration", filePath)
+                    }
+                  />
+
+                  {/* Additional document */}
+                  <AttachmentUploader
+                    clientId={clientId}
+                    year={selectedYear}
+                    obligationType={keyName}
+                    attachmentType="additional"
+                    attachmentLabel="Document supplémentaire"
+                    filePath={status.attachments?.additional}
+                    onFileUploaded={(filePath) =>
+                      handleFileUpload("additional", filePath)
+                    }
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+    </div>
   );
 };

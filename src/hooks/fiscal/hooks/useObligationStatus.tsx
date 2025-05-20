@@ -1,15 +1,20 @@
 
 import { useState, useCallback } from "react";
-import { DeclarationObligationStatus, TaxObligationStatus, ObligationStatus } from "../types";
+import { DeclarationObligationStatus, TaxObligationStatus, ObligationStatus, DeclarationPeriodicity } from "../types";
 
 export const useObligationStatus = () => {
   const getDefaultObligations = useCallback(() => {
     return {
-      tax: { assujetti: false, paye: false } as TaxObligationStatus,
+      tax: { 
+        assujetti: false, 
+        paye: false 
+      } as TaxObligationStatus,
       declaration: { 
         assujetti: false, 
         depose: false, 
-        periodicity: "annuelle" 
+        periodicity: "annuelle" as DeclarationPeriodicity,
+        applicable: false,
+        submitted: false
       } as DeclarationObligationStatus
     };
   }, []);

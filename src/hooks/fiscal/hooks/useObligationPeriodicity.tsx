@@ -11,12 +11,13 @@ export function useObligationPeriodicity() {
   // Function to update periodicity of declaration obligations
   const updatePeriodicity = useCallback((obligation: string, status: ObligationStatus, periodicity: DeclarationPeriodicity) => {
     if (isDeclarationObligation(obligation)) {
-      // On utilise un cast explicite pour assurer la compatibilité des types
-      const declStatus = status as DeclarationObligationStatus;
-      return {
-        ...declStatus,
-        periodicity
-      } as DeclarationObligationStatus;
+      // Check if the status has the properties of a DeclarationObligationStatus
+      if ('depose' in status && 'periodicity' in status) {
+        return {
+          ...status,
+          periodicity
+        } as DeclarationObligationStatus;
+      }
     }
     return status;
   }, [isDeclarationObligation]);

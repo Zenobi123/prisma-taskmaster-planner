@@ -1,74 +1,60 @@
 
-import { Client } from "@/types/client";
+export type DeclarationPeriodicity = "annuelle" | "mensuelle";
 
-// Types pour les obligations fiscales
-export type ObligationType = 'taxe' | 'declaration';
+export interface AttachmentType {
+  declaration?: string;
+  receipt?: string;
+  payment?: string;
+  additional?: string;
+  attestation?: string;
+}
 
-export type AttachmentType = 'attestation' | 'declaration' | 'receipt' | 'payment' | 'other' | 'additional';
-
-// État d'une obligation fiscale de type taxe (impôt)
 export interface TaxObligationStatus {
   assujetti: boolean;
   paye: boolean;
   observations?: string;
-  attachments?: Record<string, string>;
-  
-  // Champs spécifiques pour IGS
+  dateReglement?: string;
   montantAnnuel?: number;
   q1Paye?: boolean;
   q2Paye?: boolean;
   q3Paye?: boolean;
   q4Paye?: boolean;
+  attachments?: Record<string, string>;
+  payment_attachments?: Record<string, string>;
 }
 
-export type DeclarationPeriodicity = 'mensuelle' | 'trimestrielle' | 'annuelle';
-
-// État d'une obligation fiscale de type déclaration
 export interface DeclarationObligationStatus {
   assujetti: boolean;
   depose: boolean;
+  periodicity: DeclarationPeriodicity;
   dateDepot?: string;
-  approved?: boolean;
   observations?: string;
   attachments?: Record<string, string>;
-  periodicity?: DeclarationPeriodicity;
+  applicable?: boolean;
+  submitted?: boolean;
+  approved?: boolean;
 }
 
-// Union type pour les deux types d'obligations
 export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
 
-// Statuts de toutes les obligations fiscales
 export interface ObligationStatuses {
-  [key: string]: ObligationStatus;
   igs: TaxObligationStatus;
   patente: TaxObligationStatus;
-  iba?: TaxObligationStatus;
-  baic?: TaxObligationStatus;
-  ibnc?: TaxObligationStatus;
-  ircm?: TaxObligationStatus;
-  irf?: TaxObligationStatus;
-  its?: TaxObligationStatus;
-  precompte?: TaxObligationStatus;
-  taxeSejour?: TaxObligationStatus;
-  baillCommercial?: TaxObligationStatus;
-  
-  // Déclarations
-  dsf?: DeclarationObligationStatus;
-  darp?: DeclarationObligationStatus;
-  licence?: DeclarationObligationStatus;
+  dsf: DeclarationObligationStatus;
+  darp: DeclarationObligationStatus;
+  iba: TaxObligationStatus;
+  baic: TaxObligationStatus;
+  ibnc: TaxObligationStatus;
+  ircm: TaxObligationStatus;
+  irf: TaxObligationStatus;
+  its: TaxObligationStatus;
+  licence: DeclarationObligationStatus;
+  precompte: TaxObligationStatus;
+  taxeSejour: TaxObligationStatus;
+  baillCommercial: TaxObligationStatus;
 }
 
-// Structure des données fiscales d'un client
-export interface ClientFiscalData {
-  attestation?: {
-    creationDate: string;
-    validityEndDate: string;
-    showInAlert: boolean;
-  };
-  obligations?: {
-    [year: string]: ObligationStatuses;
-  };
-  hiddenFromDashboard?: boolean;
-  selectedYear?: string;
-  updatedAt?: string;
-}
+// Update the rest of the types to be consistent
+export type TaxObligationType = keyof Omit<ObligationStatuses, 'dsf' | 'darp' | 'licence'>;
+export type DeclarationObligationType = 'dsf' | 'darp' | 'licence';
+export type ObligationType = TaxObligationType | DeclarationObligationType;
