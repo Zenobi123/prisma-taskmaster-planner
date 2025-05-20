@@ -1,115 +1,50 @@
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import { ClientFinancialDetails } from '@/types/clientFinancial';
-import { formatDateToString } from '../exportUtils';
-import { DocumentService } from '../pdf/services/DocumentService';
+import 'jspdf-autotable';
+import { Client } from '@/types/client';
 
-/**
- * Generates a detailed client financial report in PDF format.
- * @param clientDetails - The financial details of the client.
- */
-export const generateClientReport = (clientDetails: ClientFinancialDetails): void => {
-  try {
-    if (!clientDetails.client) {
-      console.error("Client details are missing.");
-      alert("Impossible de générer le rapport : informations sur le client manquantes.");
-      return;
-    }
+export const generateClientReport = () => {
+  const doc = new jsPDF();
+  
+  // Set document title
+  doc.setFontSize(18);
+  doc.text('Rapport Client', 14, 22);
+  
+  // Add date
+  doc.setFontSize(10);
+  doc.text(`Date du rapport: ${new Date().toLocaleDateString()}`, 14, 30);
+  
+  // Add content placeholder
+  doc.setFontSize(12);
+  doc.text('Contenu du rapport client', 14, 50);
+  
+  // Save the PDF
+  doc.save('rapport-client.pdf');
+};
 
-    // Use DocumentService for consistent styling and structure
-    const documentService = new DocumentService();
-    const doc = documentService.getDocument();
-
-    // Add standard header and footer
-    documentService.addStandardHeader('Situation Financière Client');
-    documentService.addStandardFooter();
-
-    // Title
-    doc.setFontSize(18);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Situation Financière de ${clientDetails.client.nom}`, 15, 60);
-
-    // Client Information
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`ID Client: ${clientDetails.client.id}`, 15, 70);
-    doc.text(`Solde Disponible: ${clientDetails.solde_disponible} XAF`, 15, 75);
-
-    // Start Y position for tables
-    let startY = 85;
-
-    // Function to add tables with dynamic headers and data
-    const addTable = (title: string, headers: string[], data: any[], yPos: number): number => {
-      doc.setFontSize(14);
-      doc.setFont('helvetica', 'bold');
-      doc.text(title, 15, yPos);
-
-      autoTable(doc, {
-        startY: yPos + 5,
-        head: [headers],
-        body: data,
-        theme: 'grid',
-        headStyles: { 
-          fillColor: [60, 98, 85], 
-          textColor: 255,
-          fontStyle: 'bold'
-        },
-        styles: {
-          fontSize: 10,
-          cellPadding: 5,
-        },
-        alternateRowStyles: {
-          fillColor: [248, 250, 249]
-        },
-      });
-
-      return (doc as any).lastAutoTable.finalY + 10;
-    };
-
-    // Format invoices for table
-    const formattedInvoices = clientDetails.factures.map(invoice => [
-      invoice.id,
-      formatDateToString(new Date(invoice.date)),
-      invoice.montant,
-      invoice.montant_paye,
-      invoice.montant_restant,
-      invoice.status,
-      invoice.status_paiement,
-      formatDateToString(new Date(invoice.echeance))
-    ]);
-
-    // Add invoices table
-    startY = addTable(
-      "Factures",
-      ["ID", "Date", "Montant", "Payé", "Restant", "Statut", "Statut Paiement", "Échéance"],
-      formattedInvoices,
-      startY
-    );
-
-    // Format payments for table
-    const formattedPayments = clientDetails.paiements.map(payment => [
-      payment.id,
-      formatDateToString(new Date(payment.date)),
-      payment.montant,
-      payment.mode,
-      payment.reference,
-      payment.facture_id || 'N/A',
-      payment.est_credit ? 'Oui' : 'Non'
-    ]);
-
-    // Add payments table
-    startY = addTable(
-      "Paiements",
-      ["ID", "Date", "Montant", "Mode", "Référence", "Facture ID", "Crédit"],
-      formattedPayments,
-      startY
-    );
-
-    // Generate and download the PDF
-    documentService.save('rapport_client.pdf');
-
-  } catch (error) {
-    console.error("Error generating client report:", error);
-    alert("Erreur lors de la génération du rapport client.");
+export const generateClientDetailReport = (client: Client) => {
+  const doc = new jsPDF();
+  
+  // Set document title
+  doc.setFontSize(18);
+  doc.text(`Rapport détaillé: ${client.nom || client.raisonsociale}`, 14, 22);
+  
+  // Add client info
+  doc.setFontSize(12);
+  doc.text('Informations client:', 14, 35);
+  doc.setFontSize(10);
+  doc.text(`ID: ${client.id}`, 20, 45);
+  doc.text(`NIU: ${client.niu || 'Non spécifié'}`, 20, 52);
+  doc.text(`Type: ${client.type}`, 20, 59);
+  doc.text(`Centre de rattachement: ${client.centrerattachement || 'Non spécifié'}`, 20, 66);
+  
+  // Add contact info if available
+  if (client.contact && client.contact.telephone) {
+    doc.text(`Téléphone: ${client.contact.telephone}`, 20, 73);
   }
+  
+  // Add gestion status
+  doc.text(`Gestion externalisée: ${client.gestionexternalisee ? 'Oui' : 'Non'}`, 20, 80);
+  
+  // Save the PDF
+  doc.save(`rapport-client-${client.id}.pdf`);
 };

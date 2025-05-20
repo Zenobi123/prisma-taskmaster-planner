@@ -4,7 +4,7 @@ import { DeclarationObligationStatus, DeclarationPeriodicity } from "@/hooks/fis
 import { DeclarationHeader } from "./declaration/DeclarationHeader";
 import { DeposeSection } from "./declaration/DeposeSection";
 import { ObservationsSection } from "./declaration/ObservationsSection";
-import { AttachmentSection } from "./declaration/AttachmentSection";
+import AttachmentSection from "./declaration/AttachmentSection";
 
 interface DeclarationObligationItemProps {
   title: string;

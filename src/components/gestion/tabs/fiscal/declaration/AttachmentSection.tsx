@@ -1,8 +1,9 @@
+
 import React, { useState, useCallback } from 'react';
 import { Button } from "@/components/ui/button";
-import { FileInput } from "@/components/ui/file-input"
+import { FileInput } from "@/components/ui/file-input";
 import { storageService } from '@/services/storageService';
-import { useToast } from "@/components/ui/use-toast"
+import { useToast } from "@/components/ui/use-toast";
 import { X } from 'lucide-react';
 
 interface AttachmentSectionProps {
@@ -21,7 +22,7 @@ const AttachmentSection: React.FC<AttachmentSectionProps> = ({
   onAttachmentDelete
 }) => {
   const [uploading, setUploading] = useState(false);
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const attachmentTypes: { [key: string]: string } = {
     receipt: "Reçu de paiement",
@@ -34,25 +35,25 @@ const AttachmentSection: React.FC<AttachmentSectionProps> = ({
       toast({
         title: "Erreur",
         description: "Veuillez sélectionner un fichier.",
-      })
+      });
       return;
     }
 
     setUploading(true);
     try {
       const filePath = await storageService.uploadFile(file, `attachments/${obligationName}/${attachmentType}`);
-      onAttachmentUpload(obligationName, "document", filePath);
+      onAttachmentUpload(obligationName, attachmentType, filePath);
       toast({
         title: "Succès",
         description: "Fichier envoyé avec succès.",
-      })
+      });
     } catch (error) {
       console.error("Erreur lors de l'upload:", error);
       toast({
         title: "Erreur",
         description: "Erreur lors de l'envoi du fichier. Veuillez réessayer.",
         variant: "destructive"
-      })
+      });
     } finally {
       setUploading(false);
     }

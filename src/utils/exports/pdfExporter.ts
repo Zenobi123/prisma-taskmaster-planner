@@ -1,148 +1,92 @@
-import { Event } from "@/types/event";
-import { DocumentService } from '../pdf/services/DocumentService';
-import autoTable from 'jspdf-autotable';
-import { formatDateToString } from './csvExporter';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { Client } from '@/types/client';
 
-/**
- * Exports events to a PDF file
- */
-export const exportToPDF = (events: Event[], date: Date | undefined): void => {
-  try {
-    // Format the date for display and filename
-    const dateStr = formatDateToString(date);
-    const dateFilename = date ? date.toISOString().split('T')[0] : 'all';
-    
-    // Create document service for high quality PDF
-    const documentService = new DocumentService();
-    const doc = documentService.getDocument();
-    
-    // Add header with date
-    documentService.addStandardHeader('Planning');
-    
-    // Add title with the date
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text(`Planning du ${dateStr}`, 15, 65);
-    
-    // Add events table using autoTable
-    autoTable(doc, {
-      startY: 75,
-      head: [["Titre", "Client", "Collaborateur", "Horaire", "Type"]],
-      body: events.map(event => [
-        event.title,
-        event.client,
-        event.collaborateur,
-        event.time,
-        event.type === "mission" ? "Mission" : "Réunion"
-      ]),
-      theme: 'grid',
-      headStyles: { 
-        fillColor: [60, 98, 85], 
-        textColor: 255,
-        fontStyle: 'bold'
-      },
-      styles: {
-        fontSize: 10,
-        cellPadding: 5,
-      },
-      columnStyles: {
-        0: { cellWidth: 50 },
-        1: { cellWidth: 40 },
-        2: { cellWidth: 40 },
-        3: { cellWidth: 30 },
-        4: { cellWidth: 25 }
-      },
-      alternateRowStyles: {
-        fillColor: [248, 250, 249]
-      },
-    });
-    
-    // Add number of events
-    // Access lastAutoTable safely using type assertion
-    const docWithTable = doc as any;
-    const finalY = docWithTable.lastAutoTable?.finalY || 100;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'italic');
-    doc.text(`Nombre total d'événements: ${events.length}`, 15, finalY + 15);
-    
-    // Add footer and generate
-    documentService.addStandardFooter();
-    documentService.save(`planning_${dateFilename}.pdf`);
-    
-  } catch (error) {
-    console.error("Erreur lors de l'exportation en PDF:", error);
-    alert("Une erreur est survenue lors de l'exportation en PDF.");
-  }
+export const exportClientsToPdf = (clients: Client[]) => {
+  // Create new PDF document
+  const doc = new jsPDF();
+  
+  // Set title
+  doc.setFontSize(18);
+  doc.text('Liste des clients', 14, 22);
+  
+  // Add date
+  doc.setFontSize(10);
+  doc.text(`Date d'export: ${new Date().toLocaleDateString()}`, 14, 30);
+  
+  // Define table columns
+  const columns = [
+    { header: 'Nom', dataKey: 'nom' },
+    { header: 'NIU', dataKey: 'niu' },
+    { header: 'Type', dataKey: 'type' },
+    { header: 'Téléphone', dataKey: 'telephone' },
+    { header: 'Centre', dataKey: 'centre' }
+  ];
+  
+  // Prepare data for table
+  const data = clients.map(client => ({
+    nom: client.raisonsociale || client.nom || 'N/A',
+    niu: client.niu || 'N/A',
+    type: client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
+    telephone: client.contact?.telephone || 'N/A',
+    centre: client.centrerattachement || 'N/A'
+  }));
+  
+  // Add table to document
+  (doc as any).autoTable({
+    head: [columns.map(col => col.header)],
+    body: data.map(item => columns.map(col => item[col.dataKey as keyof typeof item])),
+    startY: 40,
+    margin: { top: 35 },
+    styles: { fontSize: 9, cellPadding: 3 },
+    headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+    alternateRowStyles: { fillColor: [245, 245, 245] }
+  });
+  
+  // Save the PDF
+  doc.save('clients-list.pdf');
 };
 
-/**
- * Exports generic data to PDF format
- */
-export const exportToPdf = (title: string, data: any[], filename: string): void => {
-  try {
-    const documentService = new DocumentService();
-    const doc = documentService.getDocument();
-    
-    documentService.addStandardHeader(title);
-    
-    doc.setFontSize(16);
-    doc.setFont('helvetica', 'bold');
-    doc.text(title, 15, 65);
-    
-    if (data.length === 0) {
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'italic');
-      doc.text("Aucune donnée disponible", 15, 80);
-      documentService.addStandardFooter();
-      documentService.save(`${filename}.pdf`);
-      return;
+export const exportClientDetailsToPdf = (client: Client) => {
+  // Create new PDF document
+  const doc = new jsPDF();
+  
+  // Set title
+  doc.setFontSize(18);
+  doc.text('Fiche Client', 14, 22);
+  
+  // Add client name as subtitle
+  doc.setFontSize(14);
+  const clientName = client.raisonsociale || client.nom || 'Client sans nom';
+  doc.text(clientName, 14, 32);
+  
+  // Add date
+  doc.setFontSize(10);
+  doc.text(`Date d'édition: ${new Date().toLocaleDateString()}`, 14, 40);
+  
+  // Client details
+  doc.setFontSize(12);
+  doc.text('Informations générales', 14, 50);
+  
+  const details = [
+    ['NIU', client.niu || 'Non renseigné'],
+    ['Type', client.type === 'morale' ? 'Personne Morale' : 'Personne Physique'],
+    ['Téléphone', client.contact?.telephone || 'Non renseigné'],
+    ['Centre de rattachement', client.centrerattachement || 'Non renseigné'],
+    ['Gestion externalisée', client.gestionexternalisee ? 'Oui' : 'Non']
+  ];
+  
+  // Add details table
+  (doc as any).autoTable({
+    body: details,
+    startY: 55,
+    theme: 'plain',
+    styles: { fontSize: 10, cellPadding: 4 },
+    columnStyles: {
+      0: { fontStyle: 'bold', cellWidth: 60 }
     }
-    
-    const headers = Object.keys(data[0]);
-    const displayHeaders = headers.map(header => 
-      header.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())
-    );
-    
-    const tableData = data.map(row => headers.map(header => row[header]));
-    
-    autoTable(doc, {
-      startY: 75,
-      head: [displayHeaders],
-      body: tableData,
-      theme: 'grid',
-      headStyles: { 
-        fillColor: [60, 98, 85], 
-        textColor: 255,
-        fontStyle: 'bold'
-      },
-      styles: {
-        fontSize: 10,
-        cellPadding: 5,
-      },
-      alternateRowStyles: {
-        fillColor: [248, 250, 249]
-      },
-    });
-    
-    // Access lastAutoTable safely using type assertion
-    const docWithTable = doc as any;
-    const finalY = docWithTable.lastAutoTable?.finalY || 100;
-    doc.setFontSize(10);
-    doc.setFont('helvetica', 'italic');
-    doc.text(`Nombre total d'enregistrements: ${data.length}`, 15, finalY + 15);
-    
-    const today = new Date();
-    const dateStr = today.toLocaleDateString('fr-FR');
-    doc.text(`Date d'exportation: ${dateStr}`, 15, finalY + 25);
-    
-    documentService.addStandardFooter();
-    documentService.save(`${filename}.pdf`);
-    
-  } catch (error) {
-    console.error("Erreur lors de l'exportation en PDF:", error);
-    alert("Une erreur est survenue lors de l'exportation en PDF.");
-  }
+  });
+  
+  // Save the PDF
+  doc.save(`client-${client.id}.pdf`);
 };
-
-// Re-export formatDateToString from csvExporter
-export { formatDateToString } from './csvExporter';

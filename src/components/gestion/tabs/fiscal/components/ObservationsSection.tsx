@@ -1,22 +1,31 @@
 
 import React from 'react';
-import { Textarea } from '@/components/ui/textarea';
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
-interface ObservationsSectionProps {
-  observations: string;
-  onObservationsChange: (value: string) => void;
+export interface ObservationsSectionProps {
+  keyName: string;
+  observations?: string;
+  onObservationsChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
-export const ObservationsSection = ({ 
-  observations, 
-  onObservationsChange 
-}: ObservationsSectionProps) => {
+export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
+  keyName,
+  observations,
+  onObservationsChange
+}) => {
   return (
-    <Textarea
-      value={observations}
-      onChange={(e) => onObservationsChange(e.target.value)}
-      placeholder="Ajouter des observations..."
-      className="h-24"
-    />
+    <div className="space-y-2">
+      <Label htmlFor={`${keyName}-observations`} className="text-sm font-medium">
+        Observations
+      </Label>
+      <Textarea
+        id={`${keyName}-observations`}
+        value={observations || ""}
+        onChange={onObservationsChange}
+        placeholder="Notes et observations..."
+        className="w-full h-24 resize-y"
+      />
+    </div>
   );
 };

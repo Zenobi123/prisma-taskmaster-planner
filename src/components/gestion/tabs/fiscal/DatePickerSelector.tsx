@@ -1,64 +1,61 @@
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
+
+import React from "react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 export interface DatePickerSelectorProps {
-  date: string;
-  onDateSelect: (date: string | null) => void;
-  placeholder: string;
-  label?: string;
+  value: string;
+  onChange: (date: string) => void;
+  placeholder?: string;
+  className?: string;
 }
 
 const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
-  date,
-  onDateSelect,
-  placeholder,
-  label
+  value,
+  onChange,
+  placeholder = "Sélectionner une date",
+  className,
 }) => {
-  const handleSelect = (selectedDate: Date | undefined) => {
-    if (selectedDate) {
-      // Format the date as ISO string but only keep the date part
-      onDateSelect(format(selectedDate, 'yyyy-MM-dd'));
-    } else {
-      onDateSelect(null);
+  const handleSelect = (date: Date | undefined) => {
+    if (date) {
+      onChange(format(date, "yyyy-MM-dd"));
     }
   };
 
-  // Parse the date string to Date object if it exists
-  const parsedDate = date ? new Date(date) : undefined;
-
   return (
-    <div className="space-y-2">
-      {label && <Label className="text-sm">{label}</Label>}
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button
-            variant={"outline"}
-            className={cn(
-              "w-full justify-start text-left font-normal",
-              !date && "text-muted-foreground"
-            )}
-          >
-            <CalendarIcon className="mr-2 h-4 w-4" />
-            {date ? format(new Date(date), "dd MMMM yyyy", { locale: fr }) : <span>{placeholder}</span>}
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto p-0">
-          <Calendar
-            mode="single"
-            selected={parsedDate}
-            onSelect={handleSelect}
-            initialFocus
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            "w-full justify-start text-left font-normal",
+            !value && "text-muted-foreground",
+            className
+          )}
+        >
+          <CalendarIcon className="mr-2 h-4 w-4" />
+          {value ? (
+            format(new Date(value), "d MMMM yyyy", { locale: fr })
+          ) : (
+            <span>{placeholder}</span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={value ? new Date(value) : undefined}
+          onSelect={handleSelect}
+          initialFocus
+          className="p-3 pointer-events-auto"
+        />
+      </PopoverContent>
+    </Popover>
   );
 };
 

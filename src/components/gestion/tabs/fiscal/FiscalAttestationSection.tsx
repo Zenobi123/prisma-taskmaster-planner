@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import DatePickerSelector from "./DatePickerSelector";
@@ -35,7 +36,6 @@ export function FiscalAttestationSection({
           <div>
             <Label htmlFor="creationDate">Date de création</Label>
             <DatePickerSelector
-              id="creationDate"
               value={creationDate}
               onChange={setCreationDate}
             />
@@ -43,7 +43,6 @@ export function FiscalAttestationSection({
           <div>
             <Label htmlFor="validityEndDate">Date de validité</Label>
             <DatePickerSelector
-              id="validityEndDate"
               value={validityEndDate}
               onChange={setValidityEndDate}
             />
