@@ -38,14 +38,16 @@ export function useObligationManagement(markAsChanged: () => void) {
   }, [markAsChanged]);
 
   // Handle attachment update
-  const handleAttachmentUpdate = useCallback((obligation: string, isDeclaration: boolean, attachmentType: string, filePath: string) => {
+  const handleAttachmentUpdate = useCallback((obligation: string, attachmentType: string, filePath: string) => {
     setObligationStatuses(prev => {
       const currentStatus = { ...prev[obligation as keyof ObligationStatuses] };
       
-      // Handle different attachment types based on declaration vs tax obligations
+      // Initialize attachements if not exist
       if (!currentStatus.attachements) {
         currentStatus.attachements = {};
       }
+      
+      // Set the attachment
       currentStatus.attachements[attachmentType] = filePath;
       
       markAsChanged();

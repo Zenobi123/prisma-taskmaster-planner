@@ -1,68 +1,56 @@
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
+import { useUnsavedChanges } from "./useUnsavedChanges";
 import { ClientFiscalData } from "../types";
 
 export const useFiscalAttestation = (
-  fiscalData: ClientFiscalData | null, 
-  markAsChanged: () => void
+  fiscalData: ClientFiscalData | null,
+  onMarkAsChanged: () => void
 ) => {
-  const [creationDate, setCreationDate] = useState<string | null>(null);
-  const [validityEndDate, setValidityEndDate] = useState<string | null>(null);
+  const { setHasUnsavedChanges } = useUnsavedChanges();
+  
+  // State for attestation fields
+  const [creationDate, setCreationDate] = useState<string>("");
+  const [validityEndDate, setValidityEndDate] = useState<string>("");
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
-
-  // Initialize state from fiscal data
+  
+  // Initialize from fiscal data when it changes
   useEffect(() => {
-    if (!fiscalData) return;
-
-    if (fiscalData.attestation) {
-      setCreationDate(fiscalData.attestation.creationDate);
-      setValidityEndDate(fiscalData.attestation.validityEndDate);
-      setShowInAlert(fiscalData.attestation.showInAlert ?? true);
-    } else if (fiscalData.attestationCreatedAt || fiscalData.attestationValidUntil || fiscalData.showInAlert !== undefined) {
-      // Legacy support for old format
-      setCreationDate(fiscalData.attestationCreatedAt || null);
-      setValidityEndDate(fiscalData.attestationValidUntil || null);
-      setShowInAlert(fiscalData.showInAlert ?? true);
+    if (fiscalData) {
+      if (fiscalData.attestation) {
+        setCreationDate(fiscalData.attestation.creationDate || "");
+        setValidityEndDate(fiscalData.attestation.validityEndDate || "");
+        setShowInAlert(fiscalData.attestation.showInAlert !== false);
+      }
+      setHiddenFromDashboard(fiscalData.hiddenFromDashboard === true);
     }
-
-    if (typeof fiscalData.hiddenFromDashboard !== 'undefined') {
-      setHiddenFromDashboard(!!fiscalData.hiddenFromDashboard);
-    } else {
-      setHiddenFromDashboard(false);
-    }
-  }, [fiscalData]);
-
-  // Toggle alert visibility
-  const handleToggleAlert = useCallback(() => {
-    setShowInAlert(prev => {
-      const newValue = !prev;
-      markAsChanged();
-      return newValue;
-    });
-  }, [markAsChanged]);
-
-  // Toggle dashboard visibility
-  const handleToggleDashboardVisibility = useCallback((value: boolean, triggerChange: boolean = true) => {
+  }, [fiscalData, setHasUnsavedChanges]);
+  
+  // Handler for creation date update
+  const handleCreationDateChange = (date: string) => {
+    setCreationDate(date);
+    onMarkAsChanged();
+  };
+  
+  // Handler for alert toggle
+  const handleToggleAlert = () => {
+    setShowInAlert(prev => !prev);
+    onMarkAsChanged();
+  };
+  
+  // Handler for dashboard visibility toggle
+  const handleToggleDashboardVisibility = (value: boolean) => {
     setHiddenFromDashboard(value);
-    if (triggerChange) {
-      markAsChanged();
-    }
-  }, [markAsChanged]);
-
+    onMarkAsChanged();
+  };
+  
   return {
     creationDate,
     validityEndDate,
     showInAlert,
     hiddenFromDashboard,
-    setCreationDate: (date: string | null) => {
-      setCreationDate(date);
-      markAsChanged();
-    },
-    setValidityEndDate: (date: string | null) => {
-      setValidityEndDate(date);
-      markAsChanged();
-    },
+    setCreationDate: handleCreationDateChange,
     handleToggleAlert,
     handleToggleDashboardVisibility
   };

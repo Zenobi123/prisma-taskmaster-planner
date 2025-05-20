@@ -56,7 +56,7 @@ const fetchClientsWithUnpaidPatente = async (forceRefresh = false): Promise<Clie
         if (fiscalData.obligations && fiscalData.obligations[yearToCheck] && 
             fiscalData.obligations[yearToCheck].patente) {
           const patenteStatus = fiscalData.obligations[yearToCheck].patente as TaxObligationStatus;
-          return patenteStatus.assujetti === true && patenteStatus.paye === false;
+          return patenteStatus.assujetti === true && patenteStatus.payee === false;
         }
       }
       return false;

@@ -1,10 +1,10 @@
 
 import { jsPDF } from "jspdf";
 import { DocumentContentService, StandardDocumentContentService } from "./DocumentContentService";
-import { DocumentWatermark } from "../components/watermark/documentWatermark";
+import { DocumentWatermark, WatermarkOptions } from "../components/watermark/documentWatermark";
 
 export interface DocumentHeaderFooterService {
-  addStandardHeader(title?: string): void;
+  addStandardHeader(): void;
   addStandardFooter(): void;
 }
 
@@ -29,7 +29,7 @@ export class DocumentService implements DocumentHeaderFooterService {
   /**
    * Add a standard header to the document
    */
-  public addStandardHeader(title?: string): void {
+  public addStandardHeader(): void {
     // Add company logo at the top
     const pageWidth = this.doc.internal.pageSize.width;
     
@@ -47,13 +47,6 @@ export class DocumentService implements DocumentHeaderFooterService {
     // Draw a line separator
     this.doc.setLineWidth(0.5);
     this.doc.line(10, 30, pageWidth - 10, 30);
-
-    // Add title if provided
-    if (title) {
-      this.doc.setFontSize(14);
-      this.doc.setFont("helvetica", "bold");
-      this.doc.text(title.toUpperCase(), pageWidth / 2, 40, { align: 'center' });
-    }
   }
 
   /**
@@ -87,26 +80,25 @@ export class DocumentService implements DocumentHeaderFooterService {
   public getContentService(): DocumentContentService {
     return this.contentService;
   }
-
-  /**
-   * Get the watermark service
-   */
-  public getWatermarkService(): DocumentWatermark {
-    return this.watermarkService;
-  }
   
   /**
    * Add a title to the document
    */
   public addTitle(text: string): void {
-    this.contentService.addTitle(text);
+    const pageWidth = this.doc.internal.pageSize.width;
+    this.doc.setFontSize(14);
+    this.doc.setFont("helvetica", "bold");
+    this.doc.text(text.toUpperCase(), pageWidth / 2, 40, { align: 'center' });
   }
 
   /**
    * Add a subtitle to the document
    */
   public addSubtitle(text: string): void {
-    this.contentService.addSubtitle(text);
+    const pageWidth = this.doc.internal.pageSize.width;
+    this.doc.setFontSize(12);
+    this.doc.setFont("helvetica", "normal");
+    this.doc.text(text, pageWidth / 2, 48, { align: 'center' });
   }
 
   /**
@@ -133,7 +125,7 @@ export class DocumentService implements DocumentHeaderFooterService {
   /**
    * Add a watermark to the document
    */
-  public addWatermark(text: string): void {
-    this.watermarkService.addWatermark({ text });
+  public addWatermark(options: WatermarkOptions): void {
+    this.watermarkService.addWatermark(options);
   }
 }

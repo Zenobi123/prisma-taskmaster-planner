@@ -1,55 +1,66 @@
 
-import React from 'react';
-import { TaxObligationStatus } from '@/hooks/fiscal/types';
-import { QuarterlyPayment } from './QuarterlyPayment';
+import React from "react";
+import { TaxObligationStatus } from "@/hooks/fiscal/types";
+import { QuarterlyPayment } from "./QuarterlyPayment";
 
 interface QuarterlyPaymentsSectionProps {
-  quarterlyAmount: number;
   status: TaxObligationStatus;
-  onStatusChange: (field: string, value: any) => void;
+  keyName: string;
+  onStatusChange: (obligation: string, field: string, value: boolean) => void;
 }
 
-export const QuarterlyPaymentsSection = ({ 
-  quarterlyAmount, 
-  status, 
-  onStatusChange 
-}: QuarterlyPaymentsSectionProps) => {
-  // Handle quarterly payment status change
-  const handleQuarterPaymentChange = (quarter: string, isPaid: boolean) => {
-    onStatusChange(quarter, isPaid);
+export const QuarterlyPaymentsSection: React.FC<QuarterlyPaymentsSectionProps> = ({
+  status,
+  keyName,
+  onStatusChange
+}) => {
+  const handleQ1PaymentChange = (checked: boolean) => {
+    if (status.paiementsTrimestriels) {
+      onStatusChange(keyName, "paiementsTrimestriels.Q1.payee", checked);
+    }
   };
-
+  
+  const handleQ2PaymentChange = (checked: boolean) => {
+    if (status.paiementsTrimestriels) {
+      onStatusChange(keyName, "paiementsTrimestriels.Q2.payee", checked);
+    }
+  };
+  
+  const handleQ3PaymentChange = (checked: boolean) => {
+    if (status.paiementsTrimestriels) {
+      onStatusChange(keyName, "paiementsTrimestriels.Q3.payee", checked);
+    }
+  };
+  
+  const handleQ4PaymentChange = (checked: boolean) => {
+    if (status.paiementsTrimestriels) {
+      onStatusChange(keyName, "paiementsTrimestriels.Q4.payee", checked);
+    }
+  };
+  
   return (
-    <div>
-      <div className="text-sm font-medium mb-2">Paiements trimestriels:</div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-        <QuarterlyPayment 
-          quarter="q1Paye" 
-          label="1er Trimestre" 
-          amount={quarterlyAmount} 
-          isPaid={status.q1Paye || false}
-          onChange={handleQuarterPaymentChange}
+    <div className="mt-4 border-t pt-3">
+      <h4 className="text-sm font-medium mb-2">Paiements trimestriels</h4>
+      <div className="grid grid-cols-2 gap-3">
+        <QuarterlyPayment
+          quarter="1er Trimestre"
+          isPaid={status.paiementsTrimestriels?.Q1.payee || false}
+          onPaymentChange={handleQ1PaymentChange}
         />
-        <QuarterlyPayment 
-          quarter="q2Paye" 
-          label="2ème Trimestre" 
-          amount={quarterlyAmount} 
-          isPaid={status.q2Paye || false}
-          onChange={handleQuarterPaymentChange}
+        <QuarterlyPayment
+          quarter="2e Trimestre"
+          isPaid={status.paiementsTrimestriels?.Q2.payee || false}
+          onPaymentChange={handleQ2PaymentChange}
         />
-        <QuarterlyPayment 
-          quarter="q3Paye" 
-          label="3ème Trimestre" 
-          amount={quarterlyAmount} 
-          isPaid={status.q3Paye || false}
-          onChange={handleQuarterPaymentChange}
+        <QuarterlyPayment
+          quarter="3e Trimestre"
+          isPaid={status.paiementsTrimestriels?.Q3.payee || false}
+          onPaymentChange={handleQ3PaymentChange}
         />
-        <QuarterlyPayment 
-          quarter="q4Paye" 
-          label="4ème Trimestre" 
-          amount={quarterlyAmount} 
-          isPaid={status.q4Paye || false}
-          onChange={handleQuarterPaymentChange}
+        <QuarterlyPayment
+          quarter="4e Trimestre"
+          isPaid={status.paiementsTrimestriels?.Q4.payee || false}
+          onPaymentChange={handleQ4PaymentChange}
         />
       </div>
     </div>

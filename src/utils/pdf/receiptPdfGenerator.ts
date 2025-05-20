@@ -1,3 +1,4 @@
+
 import jsPDF from 'jspdf';
 import { Paiement } from '@/types/paiement';
 import { SimplifiedClient } from './types';
@@ -13,36 +14,53 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
   try {
     // Créer un nouveau service de document
     const reference = paiement.reference || paiement.id;
-    const docService = new DocumentService('reçu', 'Reçu de paiement', reference);
+    const docService = new DocumentService();
     const doc = docService.getDocument();
     
     // Ajouter l'en-tête standard
-    docService.addStandardHeader(paiement.date);
+    docService.addStandardHeader();
+    
+    // Ajouter un titre
+    docService.addTitle(`Reçu de paiement ${reference}`);
+    
+    // Ajouter une sous-titre avec la date
+    docService.addSubtitle(`Date: ${paiement.date}`);
     
     // Ajouter la section de détails du paiement
-    const paymentDetailsY = addReceiptPaymentDetails(doc, paiement);
+    addReceiptPaymentDetails(doc, paiement);
     
-    // Ajouter la section du montant avec arrière-plan vert
-    const amountSectionY = docService.addAmountSection(
-      'MONTANT PAYÉ:',
-      paiement.montant,
-      paymentDetailsY,
-      true
-    );
+    // Ajouter la section du montant
+    docService.addSection('MONTANT PAYÉ', [`${paiement.montant} FCFA`]);
     
     // Ajouter les notes si disponibles
-    const notesY = paiement.notes 
-      ? docService.addNotesSection(paiement.notes, amountSectionY)
-      : amountSectionY;
+    if (paiement.notes) {
+      docService.addSection('NOTES', [paiement.notes]);
+    }
     
     // Ajouter le texte légal
-    addLegalText(doc, notesY + 10);
+    addLegalText(doc, 200);
     
     // Ajouter le pied de page standard
     docService.addStandardFooter();
     
+    // Ajouter un filigrane
+    docService.addWatermark({
+      text: `REÇU ${reference}`,
+      angle: -45,
+      fontSize: 60,
+      opacity: 0.15,
+      color: '#888888'
+    });
+    
     // Générer le PDF
-    return docService.generate(download);
+    if (download) {
+      docService.save(`recu_${reference}.pdf`);
+      return null;
+    } else {
+      const blob = doc.output('blob');
+      window.open(URL.createObjectURL(blob));
+      return blob;
+    }
   } catch (error) {
     console.error("Erreur lors de la génération du reçu PDF:", error);
     throw error;

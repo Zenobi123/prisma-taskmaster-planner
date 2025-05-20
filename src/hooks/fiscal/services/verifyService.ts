@@ -71,7 +71,7 @@ const verifyAllFiscalData = (savedData: ClientFiscalData, expectedData: ClientFi
   }
   
   // Vérifier les données d'attestation
-  const attestationValid = verifyAttestation(savedData.attestation, expectedData.attestation);
+  const attestationValid = verifyAttestation(savedData, expectedData);
   if (!attestationValid) {
     console.error("Attestation verification failed");
     return false;

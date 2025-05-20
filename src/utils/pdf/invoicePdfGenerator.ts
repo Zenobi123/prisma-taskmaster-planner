@@ -10,24 +10,34 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     console.log("Début de génération PDF pour facture:", facture.id);
     
     // Create a new document service
-    const docService = new DocumentService('facture', 'Facture', facture.id);
+    const docService = new DocumentService();
     const doc = docService.getDocument();
     
     // Add standard header
-    docService.addStandardHeader(facture.date);
+    docService.addStandardHeader();
+    
+    // Add title
+    docService.addTitle(`Facture ${facture.id}`);
+    
+    // Add subtitle with date
+    docService.addSubtitle(`Date: ${facture.date}`);
     
     // Add info section for client
     const clientInfoLines = [
       facture.client.nom || facture.client.raisonsociale || '',
-      facture.client.adresse, // This is handled by DocumentService.addInfoSection to format correctly
-      facture.client.contact, // This is handled by DocumentService.addInfoSection to format correctly
+      facture.client.adresse ? (typeof facture.client.adresse === 'string' ? 
+          facture.client.adresse : 
+          `${facture.client.adresse.ville || ''}, ${facture.client.adresse.quartier || ''}`) : '',
+      facture.client.contact ? (typeof facture.client.contact === 'string' ? 
+          facture.client.contact : 
+          `${facture.client.contact.telephone || ''} ${facture.client.contact.email || ''}`) : '',
       facture.client.niu ? `NIU: ${facture.client.niu}` : ''
     ].filter(line => line); // Filter out empty lines
     
-    docService.addInfoSection('CLIENT', clientInfoLines, 50);
+    docService.addSection('CLIENT', clientInfoLines);
     
     // Add payment details section
-    docService.addAmountSection('TOTAL À PAYER', facture.montant, 90);
+    docService.addSection('TOTAL À PAYER', [`${facture.montant} FCFA`]);
     
     // Add horizontal separator
     doc.setDrawColor(220, 220, 220);
@@ -38,26 +48,41 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     const tableFinishY = generatePrestationsTable(doc, facture);
     
     // Add total section
-    const totalSectionY = docService.addAmountSection('TOTAL', facture.montant, tableFinishY);
+    docService.addSection('TOTAL', [`${facture.montant} FCFA`]);
     
     // Add payments section if available
-    let paymentsSectionY = totalSectionY;
     if (facture.paiements && facture.paiements.length > 0) {
-      paymentsSectionY = addPaymentsSection(doc, facture, totalSectionY);
+      addPaymentsSection(doc, facture, tableFinishY + 20);
     }
     
     // Add notes if available - pass the notes string directly, not the entire facture object
     if (facture.notes && typeof facture.notes === 'string') {
-      addNotesSection(doc, facture.notes, paymentsSectionY);
+      addNotesSection(doc, facture.notes, tableFinishY + 40);
     }
     
     // Add standard footer
     docService.addStandardFooter();
     
+    // Add watermark if needed
+    docService.addWatermark({
+      text: `FACTURE ${facture.id}`,
+      angle: -45,
+      fontSize: 60,
+      opacity: 0.15,
+      color: '#888888'
+    });
+    
     console.log("Génération PDF terminée avec succès pour facture:", facture.id);
     
     // Generate PDF
-    return docService.generate(download);
+    if (download) {
+      docService.save(`facture_${facture.id}.pdf`);
+      return null;
+    } else {
+      const blob = doc.output('blob');
+      window.open(URL.createObjectURL(blob));
+      return blob;
+    }
     
   } catch (error) {
     console.error("Erreur lors de la génération du PDF:", error);

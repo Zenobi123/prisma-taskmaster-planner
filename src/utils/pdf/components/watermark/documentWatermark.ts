@@ -3,10 +3,10 @@ import { jsPDF } from 'jspdf';
 
 export interface WatermarkOptions {
   text: string;
-  angle: number;
-  fontSize: number;
-  opacity: number;
-  color: string;
+  angle?: number;
+  fontSize?: number;
+  opacity?: number;
+  color?: string;
 }
 
 export class DocumentWatermark {
@@ -35,33 +35,26 @@ export class DocumentWatermark {
     // Set text properties
     this.doc.setFontSize(fontSize);
     this.doc.setTextColor(color);
-    this.doc.setGState(new this.doc.GState({ opacity: opacity }));
     
-    // Start a new transformation matrix
-    this.doc.beginFormObject(0, 0, pageWidth, pageHeight);
+    // Set opacity
+    const gState = new (this.doc as any).GState({ opacity: opacity });
+    this.doc.setGState(gState);
     
-    // Apply transformations for rotation
-    // Use matrix transformation for rotation around center
+    // Convert angle to radians
     const radians = angle * Math.PI / 180;
-    const cos = Math.cos(radians);
-    const sin = Math.sin(radians);
     
-    // Transform matrix for rotation around center
-    this.doc.setTransform(
-      cos, sin, -sin, cos, centerX - (centerX * cos - centerY * sin), 
-      centerY - (centerX * sin + centerY * cos)
-    );
+    // Save current transformation
+    this.doc.saveGraphicsState();
+    
+    // Move to center, rotate, then draw text
+    this.doc.translate(centerX, centerY);
+    this.doc.rotate(angle);
     
     // Calculate text width to center it
     const textWidth = this.doc.getTextWidth(text);
     
     // Draw the text
-    this.doc.text(text, -textWidth / 2, 0, {
-      align: 'center'
-    });
-    
-    // End form object
-    this.doc.endFormObject();
+    this.doc.text(text, -textWidth / 2, 0, { align: 'center' });
     
     // Restore graphics state
     this.doc.restoreGraphicsState();

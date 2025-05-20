@@ -29,15 +29,37 @@ export const useFiscalData = (clientId: string) => {
         console.log("No fiscal data found for client", clientId);
         // Initialize with empty data if nothing is found
         const currentYear = new Date().getFullYear().toString();
+        const emptyObligations: ObligationStatuses = {
+          igs: { 
+            assujetti: false, 
+            payee: false,
+            paiementsTrimestriels: {
+              Q1: { payee: false },
+              Q2: { payee: false },
+              Q3: { payee: false },
+              Q4: { payee: false }
+            }
+          },
+          patente: { assujetti: false, payee: false },
+          dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
+          darp: { assujetti: false, depose: false, periodicity: "annuelle" },
+          licence: { assujetti: false, depose: false, periodicity: "annuelle" },
+          cntps: { assujetti: false, payee: false },
+          precomptes: { assujetti: false, payee: false }
+        };
+        
         setFiscalData({
           clientId,
           year: currentYear,
+          selectedYear: currentYear,
           attestation: {
             creationDate: '',
             validityEndDate: '',
             showInAlert: true
           },
-          obligations: {},
+          obligations: {
+            [currentYear]: emptyObligations
+          },
           hiddenFromDashboard: false
         });
       }

@@ -3,6 +3,9 @@ import React from "react";
 import { DeclarationObligationStatus } from "@/hooks/fiscal/types";
 import { AttachmentUploader } from "../AttachmentUploader";
 
+// Define the allowed attachment types
+type AttachmentType = "declaration" | "receipt" | "additional" | "proof";
+
 interface AttachmentSectionProps {
   status: DeclarationObligationStatus;
   keyName: string;
