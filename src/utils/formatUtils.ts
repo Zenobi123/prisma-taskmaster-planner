@@ -25,3 +25,13 @@ export const formatDate = (date: string | Date): string => {
 export const formatNumberWithSeparator = (value: number): string => {
   return new Intl.NumberFormat('fr-FR').format(value);
 };
+
+// Format a number as currency (XAF)
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XAF',
+    currencyDisplay: 'symbol',
+    maximumFractionDigits: 0
+  }).format(amount);
+};

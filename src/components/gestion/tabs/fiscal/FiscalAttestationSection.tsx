@@ -38,7 +38,7 @@ export function FiscalAttestationSection({
           <Label className="text-sm font-medium block mb-2">Date de création</Label>
           <DatePickerSelector 
             date={creationDate}
-            onSelect={setCreationDate}
+            onDateSelect={setCreationDate}
             placeholder="Sélectionner la date de création"
           />
         </div>
@@ -46,7 +46,7 @@ export function FiscalAttestationSection({
           <Label className="text-sm font-medium block mb-2">Date d'expiration</Label>
           <DatePickerSelector 
             date={validityEndDate}
-            onSelect={setCreationDate}
+            onDateSelect={setCreationDate}
             placeholder="Sélectionner la date d'expiration"
           />
         </div>

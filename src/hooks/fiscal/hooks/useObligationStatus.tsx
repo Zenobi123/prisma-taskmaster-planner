@@ -6,7 +6,11 @@ export const useObligationStatus = () => {
   const getDefaultObligations = useCallback(() => {
     return {
       tax: { assujetti: false, paye: false } as TaxObligationStatus,
-      declaration: { assujetti: false, depose: false, periodicity: "annual" } as DeclarationObligationStatus
+      declaration: { 
+        assujetti: false, 
+        depose: false, 
+        periodicity: "annuelle" 
+      } as DeclarationObligationStatus
     };
   }, []);
 

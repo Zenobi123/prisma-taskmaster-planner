@@ -29,7 +29,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   onAttachmentChange,
   clientId,
   selectedYear,
-  periodicity = "annual"
+  periodicity = "annuelle"
 }) => {
   const [expanded, setExpanded] = React.useState(false);
 
@@ -90,10 +90,10 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
               {title}
             </label>
             <Badge 
-              variant={periodicity === "monthly" ? "outline" : "secondary"} 
+              variant={periodicity === "mensuelle" ? "outline" : "secondary"} 
               className="ml-2 text-xs"
             >
-              {periodicity === "monthly" ? "Mensuelle" : "Annuelle"}
+              {periodicity === "mensuelle" ? "Mensuelle" : "Annuelle"}
             </Badge>
           </div>
         </div>

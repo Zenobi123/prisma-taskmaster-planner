@@ -43,8 +43,10 @@ export function FiscalBulkUpdateButton({
 
   const markAllAsComplete = () => {
     Object.keys(obligationStatuses).forEach((key) => {
+      const status = obligationStatuses[key];
       // Only mark as complete if they are subject to (assujetti)
-      if (obligationStatuses[key].assujetti) {
+      // We need to check the type to avoid TypeScript errors
+      if ('assujetti' in status && status.assujetti) {
         if (isDeclarationObligation(key)) {
           handleStatusChange(key, "depose", true);
         } else {
@@ -56,7 +58,9 @@ export function FiscalBulkUpdateButton({
 
   const markAllAsIncomplete = () => {
     Object.keys(obligationStatuses).forEach((key) => {
-      if (obligationStatuses[key].assujetti) {
+      const status = obligationStatuses[key];
+      // We need to check the type to avoid TypeScript errors
+      if ('assujetti' in status && status.assujetti) {
         if (isDeclarationObligation(key)) {
           handleStatusChange(key, "depose", false);
         } else {

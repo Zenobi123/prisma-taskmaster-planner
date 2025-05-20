@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getTasks } from "@/services/taskService";
@@ -193,8 +194,9 @@ const QuickStats = () => {
       />
 
       <UnpaidIgsDialog
-        open={showUnpaidIgsDialog}
-        onOpenChange={setShowUnpaidIgsDialog}
+        isOpen={showUnpaidIgsDialog}
+        onClose={() => setShowUnpaidIgsDialog(false)}
+        clients={[]}
       />
 
       <UnfiledDarpDialog

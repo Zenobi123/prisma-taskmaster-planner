@@ -4,7 +4,7 @@ import { Client } from "@/types/client";
 // Types pour les obligations fiscales
 export type ObligationType = 'taxe' | 'declaration';
 
-export type AttachmentType = 'attestation' | 'declaration' | 'receipt' | 'other';
+export type AttachmentType = 'attestation' | 'declaration' | 'receipt' | 'payment' | 'other' | 'additional';
 
 // État d'une obligation fiscale de type taxe (impôt)
 export interface TaxObligationStatus {
@@ -25,8 +25,9 @@ export type DeclarationPeriodicity = 'mensuelle' | 'trimestrielle' | 'annuelle';
 
 // État d'une obligation fiscale de type déclaration
 export interface DeclarationObligationStatus {
-  applicable: boolean;
-  submitted: boolean;
+  assujetti: boolean;
+  depose: boolean;
+  dateDepot?: string;
   approved?: boolean;
   observations?: string;
   attachments?: Record<string, string>;

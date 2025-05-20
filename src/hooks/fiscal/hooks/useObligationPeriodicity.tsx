@@ -9,10 +9,11 @@ export function useObligationPeriodicity() {
   }, []);
 
   // Function to update periodicity of declaration obligations
-  const updatePeriodicity = useCallback((obligation: string, status: ObligationStatus, periodicity: "monthly" | "annual") => {
+  const updatePeriodicity = useCallback((obligation: string, status: ObligationStatus, periodicity: "mensuelle" | "trimestrielle" | "annuelle") => {
     if (isDeclarationObligation(obligation)) {
+      const declStatus = status as DeclarationObligationStatus;
       return {
-        ...status,
+        ...declStatus,
         periodicity
       } as DeclarationObligationStatus;
     }
