@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ObligationStatuses } from '@/hooks/fiscal/types';
-import { DeclarationObligationItem } from './DeclarationObligationItem';
+import { DeclarationObligationItem } from './declaration/DeclarationObligationItem';
 import { FiscalBulkUpdateButton } from './FiscalBulkUpdateButton';
 
 interface AnnualObligationsSectionProps {

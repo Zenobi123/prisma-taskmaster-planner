@@ -59,7 +59,9 @@ export const exportToPDF = (events: Event[], date: Date | undefined): void => {
     });
     
     // Add number of events
-    const finalY = (doc as any).lastAutoTable.finalY;
+    // Access lastAutoTable safely using type assertion
+    const docWithTable = doc as any;
+    const finalY = docWithTable.lastAutoTable?.finalY || 100;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'italic');
     doc.text(`Nombre total d'événements: ${events.length}`, 15, finalY + 15);
@@ -123,7 +125,9 @@ export const exportToPdf = (title: string, data: any[], filename: string): void 
       },
     });
     
-    const finalY = (doc as any).lastAutoTable.finalY;
+    // Access lastAutoTable safely using type assertion
+    const docWithTable = doc as any;
+    const finalY = docWithTable.lastAutoTable?.finalY || 100;
     doc.setFontSize(10);
     doc.setFont('helvetica', 'italic');
     doc.text(`Nombre total d'enregistrements: ${data.length}`, 15, finalY + 15);

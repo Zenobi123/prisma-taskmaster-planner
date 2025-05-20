@@ -1,157 +1,139 @@
 
 import { jsPDF } from "jspdf";
-import { DocumentHeaderFooterService } from "./DocumentHeaderFooterService";
-import { DocumentContentService } from "./DocumentContentService";
+import { DocumentContentService, StandardDocumentContentService } from "./DocumentContentService";
+import { DocumentWatermark } from "../components/watermark/documentWatermark";
 
-/**
- * Service principal pour la génération de documents PDF
- */
-export class DocumentService {
+export interface DocumentHeaderFooterService {
+  addStandardHeader(title?: string): void;
+  addStandardFooter(): void;
+}
+
+export class DocumentService implements DocumentHeaderFooterService {
   private doc: jsPDF;
-  private headerFooterService: DocumentHeaderFooterService;
   private contentService: DocumentContentService;
+  private watermarkService: DocumentWatermark;
 
-  constructor(orientation: 'portrait' | 'landscape' = 'portrait') {
+  constructor() {
+    // Create a new jsPDF document with portrait orientation
     this.doc = new jsPDF({
-      orientation,
-      unit: 'mm',
-      format: 'a4'
+      orientation: "portrait",
+      unit: "mm",
+      format: "a4"
     });
     
-    this.headerFooterService = new DocumentHeaderFooterService(this.doc);
-    this.contentService = new DocumentContentService(this.doc);
+    // Initialize services
+    this.contentService = new StandardDocumentContentService(this.doc);
+    this.watermarkService = new DocumentWatermark(this.doc);
   }
 
   /**
-   * Ajoute un en-tête standard au document avec logo optionnel
+   * Add a standard header to the document
    */
-  addStandardHeader(title?: string, logoUrl?: string): DocumentService {
+  public addStandardHeader(title?: string): void {
+    // Add company logo at the top
+    const pageWidth = this.doc.internal.pageSize.width;
+    
+    // Company name as header
+    this.doc.setFontSize(16);
+    this.doc.setFont("helvetica", "bold");
+    this.doc.text("CABINET COMPTABLE EXAMPLE", pageWidth / 2, 15, { align: 'center' });
+    
+    // Company address and contact
+    this.doc.setFontSize(8);
+    this.doc.setFont("helvetica", "normal");
+    this.doc.text("123 Avenue des Finances, Douala, Cameroun", pageWidth / 2, 22, { align: 'center' });
+    this.doc.text("Tel: +237 123 456 789 | Email: contact@example.com", pageWidth / 2, 26, { align: 'center' });
+    
+    // Draw a line separator
+    this.doc.setLineWidth(0.5);
+    this.doc.line(10, 30, pageWidth - 10, 30);
+
+    // Add title if provided
     if (title) {
-      this.headerFooterService.addHeader(title, logoUrl);
-    } else {
-      this.headerFooterService.addHeader("Document", logoUrl);
+      this.doc.setFontSize(14);
+      this.doc.setFont("helvetica", "bold");
+      this.doc.text(title.toUpperCase(), pageWidth / 2, 40, { align: 'center' });
     }
-    return this;
   }
 
   /**
-   * Ajoute un pied de page standard au document
+   * Add a standard footer to the document
    */
-  addStandardFooter(pageText?: string): DocumentService {
-    this.headerFooterService.addFooter(pageText);
-    return this;
+  public addStandardFooter(): void {
+    const pageHeight = this.doc.internal.pageSize.height;
+    const pageWidth = this.doc.internal.pageSize.width;
+    
+    // Draw a line separator
+    this.doc.setLineWidth(0.5);
+    this.doc.line(10, pageHeight - 15, pageWidth - 10, pageHeight - 15);
+    
+    // Add footer text
+    this.doc.setFontSize(8);
+    this.doc.setFont("helvetica", "normal");
+    this.doc.text("Cabinet Comptable Example - SARL au capital de 1 000 000 FCFA", pageWidth / 2, pageHeight - 10, { align: 'center' });
+    this.doc.text("RCCM: AB-XYZ-12-2023 | NIU: P123456789", pageWidth / 2, pageHeight - 6, { align: 'center' });
   }
 
   /**
-   * Ajoute un titre au document
+   * Get the document instance
    */
-  addTitle(title: string, marginTop: number = 40): DocumentService {
-    this.contentService.addText(title, marginTop, 16, 'bold');
-    return this;
+  public getDocument(): jsPDF {
+    return this.doc;
   }
 
   /**
-   * Ajoute un sous-titre au document
+   * Get the content service
    */
-  addSubtitle(subtitle: string, marginTop: number = 5): DocumentService {
-    this.contentService.addText(subtitle, marginTop, 14, 'normal');
-    return this;
+  public getContentService(): DocumentContentService {
+    return this.contentService;
   }
 
   /**
-   * Ajoute un paragraphe de texte
+   * Get the watermark service
    */
-  addParagraph(text: string, marginTop: number = 10): DocumentService {
-    this.contentService.addText(text, marginTop, 11, 'normal');
-    return this;
+  public getWatermarkService(): DocumentWatermark {
+    return this.watermarkService;
   }
-
-  /**
-   * Ajoute une liste à puces
-   */
-  addBulletList(items: string[], marginTop: number = 10): DocumentService {
-    this.contentService.addList(items, marginTop);
-    return this;
-  }
-
-  /**
-   * Ajoute une section avec un titre et du contenu
-   */
-  addSection(title: string, content: string, marginTop: number = 10): DocumentService {
-    this.contentService.addText(title, marginTop, 12, 'bold');
-    this.contentService.addText(content, 5, 11, 'normal');
-    return this;
-  }
-
-  /**
-   * Ajoute une nouvelle page au document
-   */
-  addPage(): DocumentService {
-    this.headerFooterService.addPage();
-    return this;
-  }
-
-  /**
-   * Obtient le document PDF généré
-   */
-  getDocument(): jsPDF {
-    return this.headerFooterService.getDocument();
-  }
-
-  /**
-   * Enregistre le document avec le nom spécifié
-   */
-  save(filename: string = 'document.pdf'): void {
-    this.doc.save(filename);
-  }
-
-  /**
-   * Génère l'URL du document
-   */
-  output(): string {
-    return this.doc.output('datauristring');
-  }
-
-  /**
-   * Méthodes complémentaires pour compatibilité avec le code existant
-   */
   
-  // Méthode pour ajouter un en-tête de document
-  addHeader(title: string, logoUrl?: string): void {
-    this.headerFooterService.addHeader(title, logoUrl);
+  /**
+   * Add a title to the document
+   */
+  public addTitle(text: string): void {
+    this.contentService.addTitle(text);
   }
 
-  // Méthode pour ajouter un pied de page
-  addFooter(text?: string): void {
-    this.headerFooterService.addFooter(text);
+  /**
+   * Add a subtitle to the document
+   */
+  public addSubtitle(text: string): void {
+    this.contentService.addSubtitle(text);
   }
 
-  // Méthode pour télécharger le document
-  download(filename: string): void {
+  /**
+   * Add a paragraph to the document
+   */
+  public addParagraph(text: string): void {
+    this.contentService.addParagraph(text);
+  }
+
+  /**
+   * Add a section to the document
+   */
+  public addSection(title: string, content: string[]): void {
+    this.contentService.addSection(title, content);
+  }
+
+  /**
+   * Save the document with the given filename
+   */
+  public save(filename: string): void {
     this.doc.save(filename);
   }
 
-  // Méthode pour générer le document (URL data ou téléchargement)
-  generate(download: boolean = false): string | void {
-    if (download) {
-      this.doc.save('document.pdf');
-      return;
-    }
-    return this.doc.output('datauristring');
-  }
-
-  // Méthode pour ajouter une section d'informations
-  addInfoSection(title: string, lines: string[], yPosition: number): number {
-    return this.contentService.addInfoBox(title, lines, yPosition);
-  }
-
-  // Méthode pour ajouter une section de montant
-  addAmountSection(title: string, amount: number, yPosition: number, highlight: boolean = false): number {
-    return this.contentService.addAmountBox(title, amount, yPosition, highlight);
-  }
-
-  // Méthode pour ajouter une section de notes
-  addNotesSection(notes: string, yPosition: number): number {
-    return this.contentService.addNotesBox(notes, yPosition);
+  /**
+   * Add a watermark to the document
+   */
+  public addWatermark(text: string): void {
+    this.watermarkService.addWatermark({ text });
   }
 }

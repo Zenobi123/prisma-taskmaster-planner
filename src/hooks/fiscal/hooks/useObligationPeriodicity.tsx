@@ -13,6 +13,7 @@ export function useObligationPeriodicity() {
     if (isDeclarationObligation(obligation)) {
       // Check if the status has the properties of a DeclarationObligationStatus
       if ('depose' in status && 'periodicity' in status) {
+        // Use type assertion to safely cast to DeclarationObligationStatus
         return {
           ...status,
           periodicity

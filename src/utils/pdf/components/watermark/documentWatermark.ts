@@ -1,59 +1,75 @@
 
 import { jsPDF } from "jspdf";
 
-export type WatermarkOptions = {
+export interface WatermarkOptions {
   text: string;
-  fontSize?: number;
-  color?: string;
-  opacity?: number;
   angle?: number;
-};
+  fontSize?: number;
+  opacity?: number;
+  color?: string;
+}
 
-/**
- * Ajoute un filigrane au document PDF
- */
-export const addWatermark = (doc: jsPDF, options: WatermarkOptions): void => {
-  const {
-    text,
-    fontSize = 60,
-    color = '#e0e0e0',
-    opacity = 0.3,
-    angle = -45
-  } = options;
-  
-  const pageCount = doc.getNumberOfPages();
-  
-  for (let i = 1; i <= pageCount; i++) {
-    doc.setPage(i);
+export class DocumentWatermark {
+  private doc: jsPDF;
+
+  constructor(doc: jsPDF) {
+    this.doc = doc;
+  }
+
+  /**
+   * Adds a watermark to the document
+   * @param options Watermark options or text string
+   */
+  public addWatermark(options: WatermarkOptions | string): void {
+    // If options is a string, convert it to WatermarkOptions
+    const watermarkOptions: WatermarkOptions = typeof options === 'string' 
+      ? { text: options } 
+      : options;
     
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
+    const {
+      text,
+      angle = -45,
+      fontSize = 60,
+      opacity = 0.2,
+      color = '#888888'
+    } = watermarkOptions;
     
-    // Sauvegarde l'état actuel
-    doc.saveGraphicsState();
+    const pageHeight = this.doc.internal.pageSize.height;
+    const pageWidth = this.doc.internal.pageSize.width;
     
-    // Configure le texte
-    doc.setTextColor(color);
-    doc.setFontSize(fontSize);
-    doc.setGState(doc.GState({opacity}));
+    // Save the current state
+    this.doc.saveGraphicsState();
     
-    // Position centrée
-    const textWidth = doc.getTextWidth(text);
-    const x = (pageWidth - textWidth) / 2;
+    // Set the text properties
+    this.doc.setTextColor(color);
+    this.doc.setFontSize(fontSize);
+    this.doc.setGState(this.doc.addGState({ opacity }));
+    
+    // Position in the center of the page
+    const x = pageWidth / 2;
     const y = pageHeight / 2;
     
-    // Applique la rotation
-    doc.translateY(y);
-    doc.translateX(x);
-    doc.rotate(angle, {origin: [0, 0]});
+    // Save transform state
+    this.doc.saveGraphicsState();
     
-    // Dessine le texte
-    doc.text(text, 0, 0);
+    // Apply transformations manually for jsPDF v3+
+    // Using matrix transformations instead of translateY/translateX/rotate
+    const radians = angle * (Math.PI / 180);
+    this.doc.applyTransformation({
+      a: Math.cos(radians),
+      b: Math.sin(radians),
+      c: -Math.sin(radians),
+      d: Math.cos(radians),
+      e: x,
+      f: y
+    });
     
-    // Restaure l'état
-    doc.restoreGraphicsState();
+    // Draw the text
+    const textWidth = this.doc.getStringUnitWidth(text) * fontSize / this.doc.internal.scaleFactor;
+    this.doc.text(text, -textWidth / 2, 0, { align: 'center' });
+    
+    // Restore the states
+    this.doc.restoreGraphicsState();
+    this.doc.restoreGraphicsState();
   }
-};
-
-// Alias for compatibility with existing code
-export const addDocumentWatermark = addWatermark;
+}

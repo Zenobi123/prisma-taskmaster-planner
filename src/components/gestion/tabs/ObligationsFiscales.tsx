@@ -116,8 +116,8 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
         <AnnualObligationsSection 
           obligationStatuses={obligationStatuses}
           handleStatusChange={handleStatusChange}
-          onAttachmentChange={(obligation, isDeclaration, attachmentType, filePath) => 
-            handleAttachmentUpdate(obligation, isDeclaration, attachmentType, filePath)}
+          handleAttachmentChange={(obligation, attachmentType, filePath) => 
+            handleAttachmentUpdate(obligation, false, attachmentType, filePath)}
           clientId={selectedClient.id}
           selectedYear={selectedYear}
           isDeclarationObligation={isDeclarationObligation}

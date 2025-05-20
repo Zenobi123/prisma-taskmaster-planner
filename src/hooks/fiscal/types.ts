@@ -58,3 +58,16 @@ export interface ObligationStatuses {
 export type TaxObligationType = keyof Omit<ObligationStatuses, 'dsf' | 'darp' | 'licence'>;
 export type DeclarationObligationType = 'dsf' | 'darp' | 'licence';
 export type ObligationType = TaxObligationType | DeclarationObligationType;
+
+// Add the ClientFiscalData type which was missing
+export interface ClientFiscalData {
+  attestation?: {
+    creationDate: string | null;
+    validityEndDate: string | null;
+    showInAlert?: boolean;
+  };
+  obligations?: Record<string, ObligationStatuses>;
+  selectedYear?: string;
+  hiddenFromDashboard?: boolean;
+  updatedAt?: string;
+}
