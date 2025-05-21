@@ -4,7 +4,8 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import DatePickerSelector from "./DatePickerSelector";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { addDays, format } from "date-fns";
+import { addDays, format, parse, isValid } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface FiscalAttestationSectionProps {
   creationDate: string;
@@ -29,31 +30,42 @@ export function FiscalAttestationSection({
 }: FiscalAttestationSectionProps) {
   // Calculer automatiquement la date de fin de validité lorsque la date de création change
   useEffect(() => {
-    if (creationDate) {
-      try {
-        console.log("Date de création changée:", creationDate);
-        // Conversion de la chaîne de date en objet Date
-        const creationDateObj = new Date(creationDate);
-        
-        // Vérification que la date est valide
-        if (!isNaN(creationDateObj.getTime())) {
-          // Ajout de 90 jours pour la date de fin de validité
-          const endDateObj = addDays(creationDateObj, 90);
-          // Formatage de la date en chaîne au format ISO
-          const formattedEndDate = format(endDateObj, "yyyy-MM-dd");
-          console.log("Nouvelle date de fin calculée:", formattedEndDate);
-          setValidityEndDate(formattedEndDate);
-        } else {
-          console.error("Date de création invalide:", creationDate);
-        }
-      } catch (error) {
-        console.error("Erreur lors du calcul de la date de fin de validité:", error);
+    if (!creationDate) return;
+    
+    try {
+      console.log("Date de création changée:", creationDate);
+      
+      // Conversion de la chaîne de date en objet Date
+      let creationDateObj: Date;
+      
+      // Si la date est au format YYYY-MM-DD
+      if (creationDate.includes('-')) {
+        creationDateObj = new Date(creationDate);
+      } else {
+        // Si la date est au format DD/MM/YYYY
+        creationDateObj = parse(creationDate, 'dd/MM/yyyy', new Date());
       }
+      
+      // Vérification que la date est valide
+      if (isValid(creationDateObj)) {
+        // Ajout de 90 jours pour la date de fin de validité
+        const endDateObj = addDays(creationDateObj, 90);
+        
+        // Formatage de la date en chaîne au format YYYY-MM-DD pour le stockage interne
+        const formattedEndDate = format(endDateObj, "yyyy-MM-dd");
+        console.log("Nouvelle date de fin calculée:", formattedEndDate);
+        
+        setValidityEndDate(formattedEndDate);
+      } else {
+        console.error("Date de création invalide:", creationDate);
+      }
+    } catch (error) {
+      console.error("Erreur lors du calcul de la date de fin de validité:", error);
     }
   }, [creationDate, setValidityEndDate]);
 
   const handleCreationDateChange = (date: string) => {
-    console.log("Date sélectionnée dans FiscalAttestationSection:", date);
+    console.log("FiscalAttestationSection - Date sélectionnée:", date);
     setCreationDate(date);
   };
 

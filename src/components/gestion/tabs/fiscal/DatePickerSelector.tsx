@@ -1,6 +1,6 @@
 
 import React from "react";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { fr } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,14 +23,50 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
   className,
   disabled = false
 }) => {
-  // Parse the string date to Date object for the calendar
-  const selectedDate = value ? new Date(value) : undefined;
+  // Détermine si la valeur est au format YYYY-MM-DD ou DD/MM/YYYY
+  const isISOFormat = value && value.includes('-');
+  
+  // Parse la date en fonction du format
+  let selectedDate: Date | undefined;
+  if (value) {
+    try {
+      if (isISOFormat) {
+        // Format YYYY-MM-DD
+        selectedDate = new Date(value);
+      } else {
+        // Format DD/MM/YYYY 
+        selectedDate = parse(value, 'dd/MM/yyyy', new Date());
+      }
+      
+      // Vérification que la date est valide
+      if (isNaN(selectedDate.getTime())) {
+        selectedDate = undefined;
+      }
+    } catch (error) {
+      console.error("Erreur lors du parsing de la date:", error, value);
+      selectedDate = undefined;
+    }
+  }
   
   const handleSelect = (date: Date | undefined) => {
     if (date) {
-      // Format date as YYYY-MM-DD for consistent storage
-      onChange(format(date, "yyyy-MM-dd"));
-      console.log("Date sélectionnée:", format(date, "yyyy-MM-dd"));
+      // On stocke toujours en format YYYY-MM-DD pour la cohérence interne
+      const formattedDate = format(date, "yyyy-MM-dd");
+      console.log("DatePickerSelector - Date sélectionnée:", formattedDate);
+      onChange(formattedDate);
+    }
+  };
+
+  // Affiche la date au format français, quelle que soit la façon dont elle est stockée
+  const displayDate = () => {
+    if (!value) return null;
+    
+    try {
+      const dateObj = selectedDate || new Date();
+      return format(dateObj, "d MMMM yyyy", { locale: fr });
+    } catch (error) {
+      console.error("Erreur lors du formatage de la date pour l'affichage:", error);
+      return value; // Fallback au format brut
     }
   };
 
@@ -48,11 +84,7 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
           disabled={disabled}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {value ? (
-            format(new Date(value), "d MMMM yyyy", { locale: fr })
-          ) : (
-            <span>{placeholder}</span>
-          )}
+          {value ? displayDate() : <span>{placeholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">
