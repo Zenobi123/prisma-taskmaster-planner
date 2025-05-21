@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { DeclarationObligationStatus, DeclarationPeriodicity } from "@/hooks/fiscal/types";
 import { DeclarationHeader } from "./declaration/DeclarationHeader";
 import { DeposeSection } from "./declaration/DeposeSection";
@@ -37,7 +37,8 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
     }
   }, [keyName, status, periodicity, onStatusChange]);
 
-  const handleAssujettiChange = (checked: boolean | "indeterminate") => {
+  // Fonctions optimisées avec useCallback
+  const handleAssujettiChange = useCallback((checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
       console.log(`${keyName} assujetti change:`, checked);
       onStatusChange(keyName, "assujetti", checked);
@@ -52,9 +53,9 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
         setExpanded(true);
       }
     }
-  };
+  }, [keyName, status?.depose, expanded, onStatusChange]);
 
-  const handleDeposeChange = (checked: boolean | "indeterminate") => {
+  const handleDeposeChange = useCallback((checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
       console.log(`${keyName} depose change:`, checked);
       onStatusChange(keyName, "depose", checked);
@@ -64,28 +65,29 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
         setExpanded(true);
       }
     }
-  };
+  }, [keyName, expanded, onStatusChange]);
 
-  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDateChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     onStatusChange(keyName, "dateDepot", e.target.value);
-  };
+  }, [keyName, onStatusChange]);
 
-  const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleObservationsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onStatusChange(keyName, "observations", e.target.value);
-  };
+  }, [keyName, onStatusChange]);
 
-  const handleToggleExpand = () => {
-    setExpanded(!expanded);
-  };
+  const handleToggleExpand = useCallback(() => {
+    setExpanded((prev) => !prev);
+  }, []);
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  // Arrêter la propagation des événements
+  const stopPropagation = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-  };
+  }, []);
 
   return (
     <Card 
       className="border p-4 rounded-md bg-background hover:bg-background" 
-      onClick={handleCardClick}
+      onClick={stopPropagation}
     >
       <DeclarationHeader
         title={title}

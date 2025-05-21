@@ -20,37 +20,41 @@ export const DeposeSection: React.FC<DeposeSectionProps> = ({
   onDeposeChange,
   onDateChange
 }) => {
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Empêcher la propagation du clic
-  };
-
-  const handleLabelClick = (e: React.MouseEvent) => {
+  // Empêche la propagation pour tout élément interactif
+  const stopPropagation = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Inverse manuellement l'état
-    onDeposeChange(!isDepose);
-  }
+  };
+  
+  const handleCheckboxChange = (checked: boolean | "indeterminate") => {
+    if (typeof checked === "boolean") {
+      onDeposeChange(checked);
+    }
+  };
   
   return (
-    <div onClick={e => e.stopPropagation()}>
+    <div onClick={stopPropagation} className="w-full">
       <div className="flex items-center space-x-2">
         <Checkbox 
           id={`${keyName}-depose`}
           checked={isDepose}
-          onCheckedChange={onDeposeChange}
-          onClick={handleCheckboxClick}
-          className="cursor-pointer"
+          onCheckedChange={handleCheckboxChange}
+          onClick={stopPropagation}
+          className="cursor-pointer data-[state=checked]:bg-primary"
         />
         <label
           htmlFor={`${keyName}-depose`}
           className="text-sm cursor-pointer"
-          onClick={handleLabelClick}
+          onClick={(e) => {
+            e.stopPropagation();
+            onDeposeChange(!isDepose);
+          }}
         >
           Déposé
         </label>
       </div>
       
       {isDepose && (
-        <div className="space-y-1.5 mt-2 ml-6" onClick={e => e.stopPropagation()}>
+        <div className="space-y-1.5 mt-2 ml-6" onClick={stopPropagation}>
           <Label htmlFor={`${keyName}-date`} className="text-sm flex items-center">
             <Calendar className="h-3.5 w-3.5 mr-1.5" /> Date de dépôt
           </Label>
@@ -60,7 +64,7 @@ export const DeposeSection: React.FC<DeposeSectionProps> = ({
             value={dateDepot || ""}
             onChange={onDateChange}
             className="max-w-[200px]"
-            onClick={(e) => e.stopPropagation()}
+            onClick={stopPropagation}
           />
         </div>
       )}

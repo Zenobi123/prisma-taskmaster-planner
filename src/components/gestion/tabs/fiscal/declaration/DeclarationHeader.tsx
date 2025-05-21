@@ -25,32 +25,35 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
   onAssujettiChange,
   onToggleExpand
 }) => {
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    // Empêche la propagation pour éviter les clics multiples
+  // Fonction pour arrêter la propagation des événements
+  const stopPropagation = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
   
-  const handleLabelClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Inverse manuellement l'état
-    onAssujettiChange(!isAssujetti);
+  // Fonction pour gérer le changement d'état du checkbox
+  const handleCheckboxChange = (checked: boolean | "indeterminate") => {
+    if (typeof checked === "boolean") {
+      onAssujettiChange(checked);
+    }
   };
-
-  const handleClickContainer = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
+  
   return (
-    <div className="flex items-center justify-between" onClick={handleClickContainer}>
+    <div className="flex items-center justify-between w-full" onClick={stopPropagation}>
       <div className="flex items-center space-x-2">
         <Checkbox 
           id={`${keyName}-assujetti`}
           checked={isAssujetti}
-          onCheckedChange={onAssujettiChange}
-          onClick={handleCheckboxClick}
-          className="cursor-pointer"
+          onCheckedChange={handleCheckboxChange}
+          onClick={stopPropagation}
+          className="cursor-pointer data-[state=checked]:bg-primary"
         />
-        <div onClick={handleLabelClick}>
+        <div 
+          onClick={(e) => {
+            e.stopPropagation();
+            onAssujettiChange(!isAssujetti);
+          }}
+          className="cursor-pointer"
+        >
           <label
             htmlFor={`${keyName}-assujetti`}
             className="font-medium cursor-pointer"

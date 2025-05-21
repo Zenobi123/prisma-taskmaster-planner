@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -33,7 +33,8 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const handleAssujettiChange = (checked: boolean) => {
+  // Gestionnaires d'événements optimisés
+  const handleAssujettiChange = useCallback((checked: boolean) => {
     console.log(`${keyName} assujetti change:`, checked);
     onStatusChange(keyName, "assujetti", checked);
     
@@ -46,9 +47,9 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
     if (!checked && status?.payee) {
       onStatusChange(keyName, "payee", false);
     }
-  };
+  }, [keyName, status?.payee, expanded, onStatusChange]);
 
-  const handlePayeeChange = (checked: boolean | "indeterminate") => {
+  const handlePayeeChange = useCallback((checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
       console.log(`${keyName} payee change:`, checked);
       onStatusChange(keyName, "payee", checked);
@@ -58,47 +59,35 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
         setExpanded(true);
       }
     }
-  };
+  }, [keyName, expanded, onStatusChange]);
 
-  const handleDateEcheanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDateEcheanceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     onStatusChange(keyName, "dateEcheance", e.target.value);
-  };
+  }, [keyName, onStatusChange]);
 
-  const handleMontantChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMontantChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     // Allow only numbers and a single decimal point
     if (/^\d*\.?\d*$/.test(value)) {
       onStatusChange(keyName, "montant", value);
     }
-  };
+  }, [keyName, onStatusChange]);
 
-  const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleObservationsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onStatusChange(keyName, "observations", e.target.value);
-  };
+  }, [keyName, onStatusChange]);
 
-  const handleToggleExpand = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpanded(!expanded);
-  };
+  const toggleExpand = useCallback(() => {
+    setExpanded((prev) => !prev);
+  }, []);
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  // Arrêter la propagation des événements
+  const stopPropagation = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
-  };
-
-  const handleSwitchClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Inverse manuellement l'état
-    handleAssujettiChange(!status?.assujetti);
-  };
-
-  const handleLabelClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    // Inverse manuellement l'état
-    handleAssujettiChange(!status?.assujetti);
-  };
+  }, []);
 
   return (
-    <Card className="border p-4 rounded-md bg-background" onClick={handleCardClick}>
+    <Card className="border p-4 rounded-md bg-background" onClick={stopPropagation}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Switch
@@ -106,12 +95,15 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             checked={Boolean(status?.assujetti)}
             onCheckedChange={handleAssujettiChange}
             className="cursor-pointer"
-            onClick={handleSwitchClick}
+            onClick={stopPropagation}
           />
           <Label 
             htmlFor={`${keyName}-assujetti`} 
             className="cursor-pointer"
-            onClick={handleLabelClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleAssujettiChange(!status?.assujetti);
+            }}
           >
             {title}
           </Label>
@@ -120,7 +112,10 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={handleToggleExpand} 
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleExpand();
+            }} 
             className="h-8 px-2 flex items-center gap-1"
             type="button"
           >
@@ -168,7 +163,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
                 value={status?.dateEcheance || ""}
                 onChange={handleDateEcheanceChange}
                 className="w-full"
-                onClick={(e) => e.stopPropagation()}
+                onClick={stopPropagation}
               />
             </div>
             <div>
@@ -179,7 +174,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
                 value={String(status?.montant || "")}
                 onChange={handleMontantChange}
                 className="w-full"
-                onClick={(e) => e.stopPropagation()}
+                onClick={stopPropagation}
               />
             </div>
           </div>

@@ -37,33 +37,37 @@ export const PaymentStatus = ({
     variant = isLate ? "destructive" : "secondary";
   }
   
-  const handleCheckboxClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Empêcher la propagation du clic
+  const handleCheckboxChange = (checked: boolean | "indeterminate") => {
+    if (onPayeeChange && typeof checked === "boolean") {
+      onPayeeChange(checked);
+    }
   };
 
-  const handleLabelClick = (e: React.MouseEvent) => {
+  // Empêche la propagation du clic pour tous les éléments interactifs
+  const stopPropagation = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // Inverse manuellement l'état si la fonction est disponible
-    if (onPayeeChange) {
-      onPayeeChange(!isPayee);
-    }
-  }
+  };
   
   return (
-    <div className="flex items-center space-x-3" onClick={e => e.stopPropagation()}>
+    <div className="flex items-center space-x-3" onClick={stopPropagation}>
       {onPayeeChange && (
         <div className="flex items-center space-x-2">
           <Checkbox 
             id={`${keyName}-payee`}
             checked={isPayee}
-            onCheckedChange={onPayeeChange}
-            onClick={handleCheckboxClick}
-            className="cursor-pointer"
+            onCheckedChange={handleCheckboxChange}
+            onClick={stopPropagation}
+            className="cursor-pointer data-[state=checked]:bg-primary"
           />
           <label 
             htmlFor={`${keyName}-payee`} 
             className="text-sm cursor-pointer"
-            onClick={handleLabelClick}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onPayeeChange) {
+                onPayeeChange(!isPayee);
+              }
+            }}
           >
             Payée
           </label>
