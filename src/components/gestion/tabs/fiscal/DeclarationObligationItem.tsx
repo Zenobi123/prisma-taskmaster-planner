@@ -5,6 +5,7 @@ import { DeclarationHeader } from "./declaration/DeclarationHeader";
 import { DeposeSection } from "./declaration/DeposeSection";
 import { ObservationsSection } from "./declaration/ObservationsSection";
 import AttachmentSection from "./declaration/AttachmentSection";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface DeclarationObligationItemProps {
   title: string;
@@ -66,10 +67,12 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     onStatusChange(keyName, "dateDepot", e.target.value);
   };
 
   const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.stopPropagation();
     onStatusChange(keyName, "observations", e.target.value);
   };
 
@@ -78,7 +81,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   };
 
   return (
-    <div className="border p-4 rounded-md bg-background">
+    <Card className="border p-4 rounded-md bg-background hover:bg-background" onClick={(e) => e.stopPropagation()}>
       <DeclarationHeader
         title={title}
         keyName={keyName}
@@ -90,7 +93,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
       />
       
       {status?.assujetti && (
-        <div className="mt-4 pl-6 space-y-3">
+        <CardContent className="mt-4 pl-6 space-y-3 pt-4">
           <DeposeSection
             keyName={keyName}
             isDepose={Boolean(status?.depose)}
@@ -112,13 +115,17 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
                 clientId={clientId}
                 selectedYear={selectedYear}
                 existingAttachments={status?.attachements}
-                onAttachmentUpload={(obligation, attachmentType, filePath) => onAttachmentChange(obligation, attachmentType, filePath)}
-                onAttachmentDelete={(obligation, attachmentType) => onAttachmentChange(obligation, attachmentType, null)}
+                onAttachmentUpload={(obligation, attachmentType, filePath) => {
+                  onAttachmentChange(obligation, attachmentType, filePath);
+                }}
+                onAttachmentDelete={(obligation, attachmentType) => {
+                  onAttachmentChange(obligation, attachmentType, null);
+                }}
               />
             </>
           )}
-        </div>
+        </CardContent>
       )}
-    </div>
+    </Card>
   );
 };

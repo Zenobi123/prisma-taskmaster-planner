@@ -10,6 +10,7 @@ import AttachmentSection from "./declaration/AttachmentSection";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TaxObligationItemProps {
   title: string;
@@ -32,20 +33,18 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
 
-  const handleAssujettiChange = (checked: boolean | "indeterminate") => {
-    if (typeof checked === "boolean") {
-      console.log(`${keyName} assujetti change:`, checked);
-      onStatusChange(keyName, "assujetti", checked);
-      
-      // Si on active, développer automatiquement
-      if (checked && !expanded) {
-        setExpanded(true);
-      }
-      
-      // Si on désactive, désactiver aussi "payée"
-      if (!checked && status?.payee) {
-        onStatusChange(keyName, "payee", false);
-      }
+  const handleAssujettiChange = (checked: boolean) => {
+    console.log(`${keyName} assujetti change:`, checked);
+    onStatusChange(keyName, "assujetti", checked);
+    
+    // Si on active, développer automatiquement
+    if (checked && !expanded) {
+      setExpanded(true);
+    }
+    
+    // Si on désactive, désactiver aussi "payée"
+    if (!checked && status?.payee) {
+      onStatusChange(keyName, "payee", false);
     }
   };
 
@@ -62,10 +61,12 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
   };
 
   const handleDateEcheanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     onStatusChange(keyName, "dateEcheance", e.target.value);
   };
 
   const handleMontantChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    e.stopPropagation();
     const value = e.target.value;
     // Allow only numbers and a single decimal point
     if (/^\d*\.?\d*$/.test(value)) {
@@ -74,15 +75,17 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
   };
 
   const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    e.stopPropagation();
     onStatusChange(keyName, "observations", e.target.value);
   };
 
-  const handleToggleExpand = () => {
+  const handleToggleExpand = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setExpanded(!expanded);
   };
 
   return (
-    <Card className="border p-4 rounded-md bg-background">
+    <Card className="border p-4 rounded-md bg-background" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Switch
@@ -91,26 +94,34 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             onCheckedChange={handleAssujettiChange}
             className="cursor-pointer"
           />
-          <Label htmlFor={`${keyName}-assujetti`} className="cursor-pointer">{title}</Label>
+          <Label 
+            htmlFor={`${keyName}-assujetti`} 
+            className="cursor-pointer"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {title}
+          </Label>
         </div>
         {status?.assujetti && (
-          <button 
+          <Button 
+            variant="ghost" 
+            size="sm" 
             onClick={handleToggleExpand} 
-            className="flex items-center text-sm text-muted-foreground hover:text-foreground hover:underline"
+            className="h-8 px-2 flex items-center gap-1"
             type="button"
           >
             {expanded ? (
               <>
                 Réduire
-                <ChevronUp className="h-4 w-4 ml-1" />
+                <ChevronUp className="h-4 w-4" />
               </>
             ) : (
               <>
                 Plus d'options
-                <ChevronDown className="h-4 w-4 ml-1" />
+                <ChevronDown className="h-4 w-4" />
               </>
             )}
-          </button>
+          </Button>
         )}
       </div>
 
@@ -130,6 +141,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             expectedPaid={0}
             isLate={false}
             isPayee={Boolean(status?.payee)}
+            keyName={keyName}
             onPayeeChange={handlePayeeChange}
           />
 
@@ -142,6 +154,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
                 value={status?.dateEcheance || ""}
                 onChange={handleDateEcheanceChange}
                 className="w-full"
+                onClick={(e) => e.stopPropagation()}
               />
             </div>
             <div>
@@ -152,6 +165,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
                 value={String(status?.montant || "")}
                 onChange={handleMontantChange}
                 className="w-full"
+                onClick={(e) => e.stopPropagation()}
               />
             </div>
           </div>
@@ -169,8 +183,12 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
                 clientId={clientId}
                 selectedYear={selectedYear}
                 existingAttachments={status?.attachements}
-                onAttachmentUpload={(obligation, attachmentType, filePath) => onAttachmentChange(obligation, attachmentType, filePath)}
-                onAttachmentDelete={(obligation, attachmentType) => onAttachmentChange(obligation, attachmentType, null)}
+                onAttachmentUpload={(obligation, attachmentType, filePath) => {
+                  onAttachmentChange(obligation, attachmentType, filePath);
+                }}
+                onAttachmentDelete={(obligation, attachmentType) => {
+                  onAttachmentChange(obligation, attachmentType, null);
+                }}
               />
             </>
           )}

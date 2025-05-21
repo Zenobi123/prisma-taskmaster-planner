@@ -29,9 +29,13 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
     // Empêche la propagation pour éviter les clics multiples
     e.stopPropagation();
   };
+  
+  const handleLabelClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
       <div className="flex items-center space-x-2">
         <Checkbox 
           id={`${keyName}-assujetti`}
@@ -44,6 +48,7 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
           <label
             htmlFor={`${keyName}-assujetti`}
             className="font-medium cursor-pointer"
+            onClick={handleLabelClick}
           >
             {title}
           </label>
@@ -60,7 +65,10 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
         <Button 
           variant="ghost" 
           size="sm" 
-          onClick={onToggleExpand}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleExpand();
+          }}
           className="h-8 px-2 flex items-center gap-1"
           type="button"
         >

@@ -37,6 +37,10 @@ export const PaymentStatus = ({
     variant = isLate ? "destructive" : "secondary";
   }
   
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Empêcher la propagation du clic
+  };
+  
   return (
     <div className="flex items-center space-x-3">
       {onPayeeChange && (
@@ -45,9 +49,16 @@ export const PaymentStatus = ({
             id={`${keyName}-payee`}
             checked={isPayee}
             onCheckedChange={onPayeeChange}
+            onClick={handleCheckboxClick}
             className="cursor-pointer"
           />
-          <label htmlFor={`${keyName}-payee`} className="text-sm cursor-pointer">Payée</label>
+          <label 
+            htmlFor={`${keyName}-payee`} 
+            className="text-sm cursor-pointer"
+            onClick={handleCheckboxClick}
+          >
+            Payée
+          </label>
         </div>
       )}
       
