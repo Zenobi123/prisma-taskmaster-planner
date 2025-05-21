@@ -51,7 +51,7 @@ export function FiscalAttestationSection({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Attestation de conformité fiscale</CardTitle>
+        <CardTitle className="text-lg">Attestation de Conformité Fiscale</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -97,3 +97,4 @@ export function FiscalAttestationSection({
     </Card>
   );
 }
+
