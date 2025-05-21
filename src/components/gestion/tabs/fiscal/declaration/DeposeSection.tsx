@@ -23,9 +23,15 @@ export const DeposeSection: React.FC<DeposeSectionProps> = ({
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Empêcher la propagation du clic
   };
+
+  const handleLabelClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Inverse manuellement l'état
+    onDeposeChange(!isDepose);
+  }
   
   return (
-    <>
+    <div onClick={e => e.stopPropagation()}>
       <div className="flex items-center space-x-2">
         <Checkbox 
           id={`${keyName}-depose`}
@@ -37,14 +43,14 @@ export const DeposeSection: React.FC<DeposeSectionProps> = ({
         <label
           htmlFor={`${keyName}-depose`}
           className="text-sm cursor-pointer"
-          onClick={handleCheckboxClick}
+          onClick={handleLabelClick}
         >
           Déposé
         </label>
       </div>
       
       {isDepose && (
-        <div className="space-y-1.5 mt-2 ml-6">
+        <div className="space-y-1.5 mt-2 ml-6" onClick={e => e.stopPropagation()}>
           <Label htmlFor={`${keyName}-date`} className="text-sm flex items-center">
             <Calendar className="h-3.5 w-3.5 mr-1.5" /> Date de dépôt
           </Label>
@@ -58,6 +64,6 @@ export const DeposeSection: React.FC<DeposeSectionProps> = ({
           />
         </div>
       )}
-    </>
+    </div>
   );
 };

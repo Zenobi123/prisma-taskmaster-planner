@@ -67,12 +67,10 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     onStatusChange(keyName, "dateDepot", e.target.value);
   };
 
   const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    e.stopPropagation();
     onStatusChange(keyName, "observations", e.target.value);
   };
 
@@ -80,8 +78,15 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
     setExpanded(!expanded);
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
   return (
-    <Card className="border p-4 rounded-md bg-background hover:bg-background" onClick={(e) => e.stopPropagation()}>
+    <Card 
+      className="border p-4 rounded-md bg-background hover:bg-background" 
+      onClick={handleCardClick}
+    >
       <DeclarationHeader
         title={title}
         keyName={keyName}

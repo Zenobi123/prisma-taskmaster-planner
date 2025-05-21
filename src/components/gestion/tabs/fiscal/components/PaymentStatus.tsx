@@ -40,9 +40,17 @@ export const PaymentStatus = ({
   const handleCheckboxClick = (e: React.MouseEvent) => {
     e.stopPropagation(); // Empêcher la propagation du clic
   };
+
+  const handleLabelClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Inverse manuellement l'état si la fonction est disponible
+    if (onPayeeChange) {
+      onPayeeChange(!isPayee);
+    }
+  }
   
   return (
-    <div className="flex items-center space-x-3">
+    <div className="flex items-center space-x-3" onClick={e => e.stopPropagation()}>
       {onPayeeChange && (
         <div className="flex items-center space-x-2">
           <Checkbox 
@@ -55,7 +63,7 @@ export const PaymentStatus = ({
           <label 
             htmlFor={`${keyName}-payee`} 
             className="text-sm cursor-pointer"
-            onClick={handleCheckboxClick}
+            onClick={handleLabelClick}
           >
             Payée
           </label>

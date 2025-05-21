@@ -61,12 +61,10 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
   };
 
   const handleDateEcheanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     onStatusChange(keyName, "dateEcheance", e.target.value);
   };
 
   const handleMontantChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.stopPropagation();
     const value = e.target.value;
     // Allow only numbers and a single decimal point
     if (/^\d*\.?\d*$/.test(value)) {
@@ -75,7 +73,6 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
   };
 
   const handleObservationsChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    e.stopPropagation();
     onStatusChange(keyName, "observations", e.target.value);
   };
 
@@ -84,8 +81,24 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
     setExpanded(!expanded);
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+
+  const handleSwitchClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Inverse manuellement l'état
+    handleAssujettiChange(!status?.assujetti);
+  };
+
+  const handleLabelClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Inverse manuellement l'état
+    handleAssujettiChange(!status?.assujetti);
+  };
+
   return (
-    <Card className="border p-4 rounded-md bg-background" onClick={(e) => e.stopPropagation()}>
+    <Card className="border p-4 rounded-md bg-background" onClick={handleCardClick}>
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <Switch
@@ -93,11 +106,12 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             checked={Boolean(status?.assujetti)}
             onCheckedChange={handleAssujettiChange}
             className="cursor-pointer"
+            onClick={handleSwitchClick}
           />
           <Label 
             htmlFor={`${keyName}-assujetti`} 
             className="cursor-pointer"
-            onClick={(e) => e.stopPropagation()}
+            onClick={handleLabelClick}
           >
             {title}
           </Label>

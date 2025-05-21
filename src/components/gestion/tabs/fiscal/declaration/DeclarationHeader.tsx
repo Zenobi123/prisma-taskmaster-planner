@@ -32,10 +32,16 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
   
   const handleLabelClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // Inverse manuellement l'état
+    onAssujettiChange(!isAssujetti);
+  };
+
+  const handleClickContainer = (e: React.MouseEvent) => {
+    e.stopPropagation();
   };
 
   return (
-    <div className="flex items-center justify-between" onClick={(e) => e.stopPropagation()}>
+    <div className="flex items-center justify-between" onClick={handleClickContainer}>
       <div className="flex items-center space-x-2">
         <Checkbox 
           id={`${keyName}-assujetti`}
@@ -44,11 +50,10 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
           onClick={handleCheckboxClick}
           className="cursor-pointer"
         />
-        <div>
+        <div onClick={handleLabelClick}>
           <label
             htmlFor={`${keyName}-assujetti`}
             className="font-medium cursor-pointer"
-            onClick={handleLabelClick}
           >
             {title}
           </label>
