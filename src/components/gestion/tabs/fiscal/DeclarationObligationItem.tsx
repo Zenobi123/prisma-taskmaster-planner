@@ -1,5 +1,5 @@
 
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { DeclarationObligationStatus, DeclarationPeriodicity } from "@/hooks/fiscal/types";
 import { DeclarationHeader } from "./declaration/DeclarationHeader";
 import { DeposeSection } from "./declaration/DeposeSection";
@@ -27,7 +27,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   selectedYear,
   periodicity = "annuelle"
 }) => {
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   // Update periodicity when component mounts or when periodicity changes
   useEffect(() => {
@@ -45,6 +45,11 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
       if (!checked && status?.depose) {
         onStatusChange(keyName, "depose", false);
       }
+      
+      // Si on active, développer automatiquement
+      if (checked && !expanded) {
+        setExpanded(true);
+      }
     }
   };
 
@@ -52,6 +57,11 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
     if (typeof checked === "boolean") {
       console.log(`${keyName} depose change:`, checked);
       onStatusChange(keyName, "depose", checked);
+      
+      // Si on coche "déposé", ouvrir automatiquement le panel d'options
+      if (checked && !expanded) {
+        setExpanded(true);
+      }
     }
   };
 
@@ -89,7 +99,7 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
             onDateChange={handleDateChange}
           />
           
-          {expanded && (
+          {(expanded || status?.depose) && (
             <>
               <ObservationsSection
                 keyName={keyName}

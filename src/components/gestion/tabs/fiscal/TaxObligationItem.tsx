@@ -36,6 +36,16 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
     if (typeof checked === "boolean") {
       console.log(`${keyName} assujetti change:`, checked);
       onStatusChange(keyName, "assujetti", checked);
+      
+      // Si on active, développer automatiquement
+      if (checked && !expanded) {
+        setExpanded(true);
+      }
+      
+      // Si on désactive, désactiver aussi "payée"
+      if (!checked && status?.payee) {
+        onStatusChange(keyName, "payee", false);
+      }
     }
   };
 
@@ -43,6 +53,11 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
     if (typeof checked === "boolean") {
       console.log(`${keyName} payee change:`, checked);
       onStatusChange(keyName, "payee", checked);
+      
+      // Si on coche "payée", ouvrir automatiquement le panel d'options
+      if (checked && !expanded) {
+        setExpanded(true);
+      }
     }
   };
 
@@ -74,26 +89,29 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             id={`${keyName}-assujetti`}
             checked={Boolean(status?.assujetti)}
             onCheckedChange={handleAssujettiChange}
+            className="cursor-pointer"
           />
           <Label htmlFor={`${keyName}-assujetti`} className="cursor-pointer">{title}</Label>
         </div>
-        <button 
-          onClick={handleToggleExpand} 
-          className="flex items-center text-sm text-muted-foreground hover:text-foreground hover:underline"
-          type="button"
-        >
-          {expanded ? (
-            <>
-              Réduire
-              <ChevronUp className="h-4 w-4 ml-1" />
-            </>
-          ) : (
-            <>
-              Plus d'options
-              <ChevronDown className="h-4 w-4 ml-1" />
-            </>
-          )}
-        </button>
+        {status?.assujetti && (
+          <button 
+            onClick={handleToggleExpand} 
+            className="flex items-center text-sm text-muted-foreground hover:text-foreground hover:underline"
+            type="button"
+          >
+            {expanded ? (
+              <>
+                Réduire
+                <ChevronUp className="h-4 w-4 ml-1" />
+              </>
+            ) : (
+              <>
+                Plus d'options
+                <ChevronDown className="h-4 w-4 ml-1" />
+              </>
+            )}
+          </button>
+        )}
       </div>
 
       {status?.assujetti && (
@@ -107,7 +125,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
           )}
 
           <PaymentStatus
-            totalPaid={0}  // Provide required props
+            totalPaid={0}
             totalDue={Number(status?.montant) || 0}
             expectedPaid={0}
             isLate={false}
@@ -138,7 +156,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             </div>
           </div>
 
-          {expanded && (
+          {(expanded || status?.payee) && (
             <>
               <ObservationsSection
                 keyName={keyName}

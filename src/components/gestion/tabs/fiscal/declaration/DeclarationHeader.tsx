@@ -25,6 +25,11 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
   onAssujettiChange,
   onToggleExpand
 }) => {
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    // Empêche la propagation pour éviter les clics multiples
+    e.stopPropagation();
+  };
+
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center space-x-2">
@@ -32,6 +37,8 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
           id={`${keyName}-assujetti`}
           checked={isAssujetti}
           onCheckedChange={onAssujettiChange}
+          onClick={handleCheckboxClick}
+          className="cursor-pointer"
         />
         <div>
           <label
