@@ -29,6 +29,7 @@ export const useFiscalAttestation = (
   
   // Handler for creation date update
   const handleCreationDateChange = (date: string) => {
+    console.log("useFiscalAttestation - date de création reçue:", date);
     // Vérification que la date est valide avant de la définir
     if (date) {
       setCreationDate(date);
@@ -38,6 +39,7 @@ export const useFiscalAttestation = (
 
   // Handler for validity end date update
   const handleValidityEndDateChange = (date: string) => {
+    console.log("useFiscalAttestation - date de fin reçue:", date);
     if (date) {
       setValidityEndDate(date);
       onMarkAsChanged();

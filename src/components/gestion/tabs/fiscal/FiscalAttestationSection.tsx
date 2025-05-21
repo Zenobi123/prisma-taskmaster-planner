@@ -31,6 +31,7 @@ export function FiscalAttestationSection({
   useEffect(() => {
     if (creationDate) {
       try {
+        console.log("Date de création changée:", creationDate);
         // Conversion de la chaîne de date en objet Date
         const creationDateObj = new Date(creationDate);
         
@@ -40,13 +41,21 @@ export function FiscalAttestationSection({
           const endDateObj = addDays(creationDateObj, 90);
           // Formatage de la date en chaîne au format ISO
           const formattedEndDate = format(endDateObj, "yyyy-MM-dd");
+          console.log("Nouvelle date de fin calculée:", formattedEndDate);
           setValidityEndDate(formattedEndDate);
+        } else {
+          console.error("Date de création invalide:", creationDate);
         }
       } catch (error) {
         console.error("Erreur lors du calcul de la date de fin de validité:", error);
       }
     }
   }, [creationDate, setValidityEndDate]);
+
+  const handleCreationDateChange = (date: string) => {
+    console.log("Date sélectionnée dans FiscalAttestationSection:", date);
+    setCreationDate(date);
+  };
 
   return (
     <Card>
@@ -59,7 +68,7 @@ export function FiscalAttestationSection({
             <Label htmlFor="creationDate">Date de création</Label>
             <DatePickerSelector
               value={creationDate}
-              onChange={setCreationDate}
+              onChange={handleCreationDateChange}
             />
           </div>
           <div>

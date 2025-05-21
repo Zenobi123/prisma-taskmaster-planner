@@ -23,9 +23,14 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
   className,
   disabled = false
 }) => {
+  // Parse the string date to Date object for the calendar
+  const selectedDate = value ? new Date(value) : undefined;
+  
   const handleSelect = (date: Date | undefined) => {
     if (date) {
+      // Format date as YYYY-MM-DD for consistent storage
       onChange(format(date, "yyyy-MM-dd"));
+      console.log("Date sélectionnée:", format(date, "yyyy-MM-dd"));
     }
   };
 
@@ -53,7 +58,7 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
       <PopoverContent className="w-auto p-0" align="start">
         <Calendar
           mode="single"
-          selected={value ? new Date(value) : undefined}
+          selected={selectedDate}
           onSelect={handleSelect}
           initialFocus
           className="p-3 pointer-events-auto"
