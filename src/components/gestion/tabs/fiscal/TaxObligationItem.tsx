@@ -1,16 +1,10 @@
 
 import React, { useState, useCallback } from "react";
 import { TaxObligationStatus } from "@/hooks/fiscal/types";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { QuarterlyPaymentsSection } from "./components/QuarterlyPaymentsSection";
-import { PaymentStatus } from "./components/PaymentStatus";
-import { ObservationsSection } from "./components/ObservationsSection";
-import AttachmentSection from "./declaration/AttachmentSection";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ObligationHeader } from "./obligation/ObligationHeader";
+import { ObligationFields } from "./obligation/ObligationFields";
+import { ObligationDetails } from "./obligation/ObligationDetails";
 
 interface TaxObligationItemProps {
   title: string;
@@ -49,34 +43,6 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
     }
   }, [keyName, status?.payee, expanded, onStatusChange]);
 
-  const handlePayeeChange = useCallback((checked: boolean | "indeterminate") => {
-    if (typeof checked === "boolean") {
-      console.log(`${keyName} payee change:`, checked);
-      onStatusChange(keyName, "payee", checked);
-      
-      // Si on coche "payée", ouvrir automatiquement le panel d'options
-      if (checked && !expanded) {
-        setExpanded(true);
-      }
-    }
-  }, [keyName, expanded, onStatusChange]);
-
-  const handleDateEcheanceChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    onStatusChange(keyName, "dateEcheance", e.target.value);
-  }, [keyName, onStatusChange]);
-
-  const handleMontantChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Allow only numbers and a single decimal point
-    if (/^\d*\.?\d*$/.test(value)) {
-      onStatusChange(keyName, "montant", value);
-    }
-  }, [keyName, onStatusChange]);
-
-  const handleObservationsChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onStatusChange(keyName, "observations", e.target.value);
-  }, [keyName, onStatusChange]);
-
   const toggleExpand = useCallback(() => {
     setExpanded((prev) => !prev);
   }, []);
@@ -88,118 +54,32 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
 
   return (
     <Card className="border p-4 rounded-md bg-background" onClick={stopPropagation}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Switch
-            id={`${keyName}-assujetti`}
-            checked={Boolean(status?.assujetti)}
-            onCheckedChange={handleAssujettiChange}
-            className="cursor-pointer"
-            onClick={stopPropagation}
-          />
-          <Label 
-            htmlFor={`${keyName}-assujetti`} 
-            className="cursor-pointer"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleAssujettiChange(!status?.assujetti);
-            }}
-          >
-            {title}
-          </Label>
-        </div>
-        {status?.assujetti && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleExpand();
-            }} 
-            className="h-8 px-2 flex items-center gap-1"
-            type="button"
-          >
-            {expanded ? (
-              <>
-                Réduire
-                <ChevronUp className="h-4 w-4" />
-              </>
-            ) : (
-              <>
-                Plus d'options
-                <ChevronDown className="h-4 w-4" />
-              </>
-            )}
-          </Button>
-        )}
-      </div>
+      <ObligationHeader 
+        title={title}
+        keyName={keyName}
+        isAssujetti={Boolean(status?.assujetti)}
+        expanded={expanded}
+        onAssujettiChange={handleAssujettiChange}
+        toggleExpand={toggleExpand}
+      />
 
       {status?.assujetti && (
         <CardContent className="mt-4 pl-6 space-y-3 pt-4">
-          {keyName === "igs" && (
-            <QuarterlyPaymentsSection
-              status={status}
-              onStatusChange={onStatusChange}
-              keyName={keyName}
-            />
-          )}
-
-          <PaymentStatus
-            totalPaid={0}
-            totalDue={Number(status?.montant) || 0}
-            expectedPaid={0}
-            isLate={false}
-            isPayee={Boolean(status?.payee)}
+          <ObligationFields
             keyName={keyName}
-            onPayeeChange={handlePayeeChange}
+            status={status}
+            onStatusChange={onStatusChange}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor={`${keyName}-dateEcheance`}>Date d'échéance</Label>
-              <Input
-                type="date"
-                id={`${keyName}-dateEcheance`}
-                value={status?.dateEcheance || ""}
-                onChange={handleDateEcheanceChange}
-                className="w-full"
-                onClick={stopPropagation}
-              />
-            </div>
-            <div>
-              <Label htmlFor={`${keyName}-montant`}>Montant</Label>
-              <Input
-                type="text"
-                id={`${keyName}-montant`}
-                value={String(status?.montant || "")}
-                onChange={handleMontantChange}
-                className="w-full"
-                onClick={stopPropagation}
-              />
-            </div>
-          </div>
-
           {(expanded || status?.payee) && (
-            <>
-              <ObservationsSection
-                keyName={keyName}
-                observations={status?.observations}
-                onObservationsChange={handleObservationsChange}
-              />
-
-              <AttachmentSection
-                obligationName={keyName}
-                clientId={clientId}
-                selectedYear={selectedYear}
-                existingAttachments={status?.attachements}
-                onAttachmentUpload={(obligation, attachmentType, filePath) => {
-                  onAttachmentChange(obligation, attachmentType, filePath);
-                }}
-                onAttachmentDelete={(obligation, attachmentType) => {
-                  onAttachmentChange(obligation, attachmentType, null);
-                }}
-              />
-            </>
+            <ObligationDetails
+              keyName={keyName}
+              status={status}
+              onStatusChange={onStatusChange}
+              onAttachmentChange={onAttachmentChange}
+              clientId={clientId}
+              selectedYear={selectedYear}
+            />
           )}
         </CardContent>
       )}
