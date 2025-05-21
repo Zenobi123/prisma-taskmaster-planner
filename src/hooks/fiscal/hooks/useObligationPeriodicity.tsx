@@ -5,7 +5,7 @@ import { ObligationStatus, DeclarationObligationStatus, DeclarationPeriodicity }
 export function useObligationPeriodicity() {
   // Function to check if an obligation is a declaration
   const isDeclarationObligation = useCallback((obligation: string): boolean => {
-    // Les obligations de type déclaration sont dsf, darp, licence
+    // Les obligations de type déclaration sont dsf, darp, licence, cntps, precomptes
     const annualDeclarations = ['dsf', 'darp'];
     const monthlyDeclarations = ['licence', 'cntps', 'precomptes'];
     
@@ -20,8 +20,8 @@ export function useObligationPeriodicity() {
 
   // Function to check if a declaration is monthly
   const isMonthlyDeclaration = useCallback((obligation: string): boolean => {
-    // Les déclarations mensuelles sont cntps, precomptes et licence
-    return ['cntps', 'precomptes', 'licence'].includes(obligation);
+    // Les déclarations mensuelles sont licence, cntps, precomptes
+    return ['licence', 'cntps', 'precomptes'].includes(obligation);
   }, []);
 
   // Function to check if a declaration is annual

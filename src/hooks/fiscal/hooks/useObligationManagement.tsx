@@ -21,10 +21,10 @@ export function useObligationManagement(markAsChanged: () => void) {
     dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
     darp: { assujetti: false, depose: false, periodicity: "annuelle" },
     
-    // Déclarations mensuelles/autre periodicité
-    licence: { assujetti: false, depose: false, periodicity: "annuelle" },
-    cntps: { assujetti: false, payee: false },
-    precomptes: { assujetti: false, payee: false }
+    // Déclarations mensuelles/autre périodicité
+    licence: { assujetti: false, depose: false, periodicity: "mensuelle" },
+    cntps: { assujetti: false, depose: false, periodicity: "mensuelle" },
+    precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" }
   });
 
   const { isDeclarationObligation, isMonthlyDeclaration } = useObligationPeriodicity();
@@ -85,10 +85,10 @@ export function useObligationManagement(markAsChanged: () => void) {
         dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
         darp: { assujetti: false, depose: false, periodicity: "annuelle" },
         
-        // Déclarations mensuelles/autre periodicité
-        licence: { assujetti: false, depose: false, periodicity: "annuelle" },
-        cntps: { assujetti: false, payee: false },
-        precomptes: { assujetti: false, payee: false }
+        // Déclarations mensuelles/autre périodicité
+        licence: { assujetti: false, depose: false, periodicity: "mensuelle" },
+        cntps: { assujetti: false, depose: false, periodicity: "mensuelle" },
+        precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" }
       });
     }
   }, []);

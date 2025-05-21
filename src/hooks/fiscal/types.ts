@@ -48,8 +48,8 @@ export interface ObligationStatuses {
   dsf: DeclarationObligationStatus;
   darp: DeclarationObligationStatus;
   licence: DeclarationObligationStatus;
-  cntps: TaxObligationStatus;
-  precomptes: TaxObligationStatus;
+  cntps: DeclarationObligationStatus;
+  precomptes: DeclarationObligationStatus;
 }
 
 // Define fiscal data
