@@ -97,4 +97,3 @@ export function FiscalAttestationSection({
     </Card>
   );
 }
-

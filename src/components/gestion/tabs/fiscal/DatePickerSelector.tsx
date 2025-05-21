@@ -57,6 +57,7 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
           onSelect={handleSelect}
           initialFocus
           className="p-3 pointer-events-auto"
+          locale={fr}
           disabled={disabled}
         />
       </PopoverContent>
