@@ -37,7 +37,7 @@ export const DeposeSection: React.FC<DeposeSectionProps> = ({
       </div>
       
       {isDepose && (
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 mt-2 ml-6">
           <Label htmlFor={`${keyName}-date`} className="text-sm flex items-center">
             <Calendar className="h-3.5 w-3.5 mr-1.5" /> Date de dépôt
           </Label>

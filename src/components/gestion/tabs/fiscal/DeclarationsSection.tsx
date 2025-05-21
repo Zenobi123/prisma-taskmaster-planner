@@ -53,7 +53,7 @@ export function DeclarationsSection({
               selectedYear={selectedYear}
             />
             <DeclarationObligationItem
-              title="Déclaration Annuelle des Revenus Professionnels (DARP)"
+              title="Déclaration Annuelle des Revenus des Particuliers (DARP)"
               keyName="darp"
               status={obligationStatuses.darp}
               onStatusChange={handleStatusChange}

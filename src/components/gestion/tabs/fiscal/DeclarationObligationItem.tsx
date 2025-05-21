@@ -40,6 +40,11 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
     if (typeof checked === "boolean") {
       console.log(`${keyName} assujetti change:`, checked);
       onStatusChange(keyName, "assujetti", checked);
+      
+      // If turning off assujetti, also turn off depose
+      if (!checked && status?.depose) {
+        onStatusChange(keyName, "depose", false);
+      }
     }
   };
 

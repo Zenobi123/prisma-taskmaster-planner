@@ -34,7 +34,7 @@ export function DirectTaxesSection({
       </CardHeader>
       <CardContent className="space-y-4">
         <TaxObligationItem
-          title="Impôt Général sur les Sociétés (IGS)"
+          title="Impôt Général Synthétique (IGS)"
           keyName="igs"
           status={obligationStatuses.igs}
           onStatusChange={handleStatusChange}

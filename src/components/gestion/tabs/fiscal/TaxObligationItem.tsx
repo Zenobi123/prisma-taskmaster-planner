@@ -9,6 +9,7 @@ import { ObservationsSection } from "./components/ObservationsSection";
 import AttachmentSection from "./declaration/AttachmentSection";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface TaxObligationItemProps {
   title: string;
@@ -74,15 +75,29 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
             checked={Boolean(status?.assujetti)}
             onCheckedChange={handleAssujettiChange}
           />
-          <Label htmlFor={`${keyName}-assujetti`}>{title}</Label>
+          <Label htmlFor={`${keyName}-assujetti`} className="cursor-pointer">{title}</Label>
         </div>
-        <button onClick={handleToggleExpand} className="text-sm text-muted-foreground hover:underline">
-          {expanded ? "Réduire" : "Plus d'options"}
+        <button 
+          onClick={handleToggleExpand} 
+          className="flex items-center text-sm text-muted-foreground hover:text-foreground hover:underline"
+          type="button"
+        >
+          {expanded ? (
+            <>
+              Réduire
+              <ChevronUp className="h-4 w-4 ml-1" />
+            </>
+          ) : (
+            <>
+              Plus d'options
+              <ChevronDown className="h-4 w-4 ml-1" />
+            </>
+          )}
         </button>
       </div>
 
       {status?.assujetti && (
-        <CardContent className="mt-4 pl-6 space-y-3">
+        <CardContent className="mt-4 pl-6 space-y-3 pt-4">
           {keyName === "igs" && (
             <QuarterlyPaymentsSection
               status={status}
@@ -133,6 +148,8 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
 
               <AttachmentSection
                 obligationName={keyName}
+                clientId={clientId}
+                selectedYear={selectedYear}
                 existingAttachments={status?.attachements}
                 onAttachmentUpload={(obligation, attachmentType, filePath) => onAttachmentChange(obligation, attachmentType, filePath)}
                 onAttachmentDelete={(obligation, attachmentType) => onAttachmentChange(obligation, attachmentType, null)}

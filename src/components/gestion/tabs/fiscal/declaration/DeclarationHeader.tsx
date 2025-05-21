@@ -54,14 +54,19 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
           variant="ghost" 
           size="sm" 
           onClick={onToggleExpand}
-          className="h-8 w-8 p-0"
+          className="h-8 px-2 flex items-center gap-1"
           type="button"
-          aria-label={expanded ? "Réduire" : "Développer"}
         >
           {expanded ? (
-            <ChevronUp className="h-4 w-4" />
+            <>
+              Réduire
+              <ChevronUp className="h-4 w-4" />
+            </>
           ) : (
-            <ChevronDown className="h-4 w-4" />
+            <>
+              Plus d'options
+              <ChevronDown className="h-4 w-4" />
+            </>
           )}
         </Button>
       )}
