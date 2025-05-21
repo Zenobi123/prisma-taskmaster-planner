@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useUnsavedChanges } from "./useUnsavedChanges";
 import { ClientFiscalData } from "../types";
-import { format } from "date-fns";
+import { format, parse, isValid } from "date-fns";
 
 export const useFiscalAttestation = (
   fiscalData: ClientFiscalData | null,
@@ -58,6 +58,12 @@ export const useFiscalAttestation = (
           const year = parts[2];
           return `${year}-${month}-${day}`;
         }
+      }
+      
+      // Tenter de parser la date si le format n'est pas reconnu directement
+      const parsedDate = new Date(date);
+      if (isValid(parsedDate)) {
+        return format(parsedDate, "yyyy-MM-dd");
       }
       
       // Si le format n'est pas reconnu, renvoyer tel quel

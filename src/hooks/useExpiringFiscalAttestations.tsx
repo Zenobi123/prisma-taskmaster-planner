@@ -50,8 +50,17 @@ export const useExpiringFiscalAttestations = () => {
               fiscalData.attestation.validityEndDate &&
               fiscalData.attestation.showInAlert !== false) {
                 
-            // Parse the expiry date
-            const expiryDate = parse(fiscalData.attestation.validityEndDate, 'dd/MM/yyyy', new Date());
+            // Parse the expiry date - handle both formats
+            let expiryDate: Date;
+            const expiryDateStr = fiscalData.attestation.validityEndDate;
+            
+            if (expiryDateStr.includes('-')) {
+              // Format YYYY-MM-DD
+              expiryDate = new Date(expiryDateStr);
+            } else {
+              // Format DD/MM/YYYY
+              expiryDate = parse(expiryDateStr, 'dd/MM/yyyy', new Date());
+            }
             
             if (isValid(expiryDate)) {
               const today = new Date();

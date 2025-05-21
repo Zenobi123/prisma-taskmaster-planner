@@ -50,7 +50,7 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
   
   const handleSelect = (date: Date | undefined) => {
     if (date) {
-      // On stocke toujours en format YYYY-MM-DD pour la cohérence interne
+      // Toujours formater en YYYY-MM-DD pour le stockage interne
       const formattedDate = format(date, "yyyy-MM-dd");
       console.log("DatePickerSelector - Date sélectionnée:", formattedDate);
       onChange(formattedDate);
@@ -62,8 +62,10 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
     if (!value) return null;
     
     try {
-      const dateObj = selectedDate || new Date();
-      return format(dateObj, "d MMMM yyyy", { locale: fr });
+      if (selectedDate) {
+        return format(selectedDate, "d MMMM yyyy", { locale: fr });
+      } 
+      return value; // Fallback au format brut
     } catch (error) {
       console.error("Erreur lors du formatage de la date pour l'affichage:", error);
       return value; // Fallback au format brut
@@ -93,7 +95,7 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
           selected={selectedDate}
           onSelect={handleSelect}
           initialFocus
-          className="p-3 pointer-events-auto"
+          className="p-3 pointer-events-auto" 
           locale={fr}
           disabled={disabled}
         />

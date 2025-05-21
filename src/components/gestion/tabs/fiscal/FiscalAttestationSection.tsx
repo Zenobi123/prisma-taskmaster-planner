@@ -64,11 +64,6 @@ export function FiscalAttestationSection({
     }
   }, [creationDate, setValidityEndDate]);
 
-  const handleCreationDateChange = (date: string) => {
-    console.log("FiscalAttestationSection - Date sélectionnée:", date);
-    setCreationDate(date);
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -80,7 +75,7 @@ export function FiscalAttestationSection({
             <Label htmlFor="creationDate">Date de création</Label>
             <DatePickerSelector
               value={creationDate}
-              onChange={handleCreationDateChange}
+              onChange={setCreationDate}
             />
           </div>
           <div>
