@@ -5,7 +5,29 @@ import { ObligationStatus, DeclarationObligationStatus, DeclarationPeriodicity }
 export function useObligationPeriodicity() {
   // Function to check if an obligation is a declaration
   const isDeclarationObligation = useCallback((obligation: string): boolean => {
-    return ['dsf', 'darp', 'licence'].includes(obligation);
+    // Les obligations de type déclaration sont dsf, darp, licence
+    const annualDeclarations = ['dsf', 'darp'];
+    const monthlyDeclarations = ['licence', 'cntps', 'precomptes'];
+    
+    return [...annualDeclarations, ...monthlyDeclarations].includes(obligation);
+  }, []);
+  
+  // Function to check if an obligation is a direct tax
+  const isDirectTax = useCallback((obligation: string): boolean => {
+    // Les impôts directs sont igs et patente
+    return ['igs', 'patente'].includes(obligation);
+  }, []);
+
+  // Function to check if a declaration is monthly
+  const isMonthlyDeclaration = useCallback((obligation: string): boolean => {
+    // Les déclarations mensuelles sont cntps, precomptes et licence
+    return ['cntps', 'precomptes', 'licence'].includes(obligation);
+  }, []);
+
+  // Function to check if a declaration is annual
+  const isAnnualDeclaration = useCallback((obligation: string): boolean => {
+    // Les déclarations annuelles sont dsf et darp
+    return ['dsf', 'darp'].includes(obligation);
   }, []);
 
   // Function to update periodicity of declaration obligations
@@ -25,6 +47,9 @@ export function useObligationPeriodicity() {
 
   return {
     isDeclarationObligation,
+    isDirectTax,
+    isMonthlyDeclaration,
+    isAnnualDeclaration,
     updatePeriodicity
   };
 }

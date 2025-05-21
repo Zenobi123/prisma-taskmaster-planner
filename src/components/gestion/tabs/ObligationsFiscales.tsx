@@ -2,7 +2,8 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
-import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
+import { DirectTaxesSection } from "./fiscal/DirectTaxesSection";
+import { DeclarationsSection } from "./fiscal/DeclarationsSection";
 import { useObligationsFiscales } from "@/hooks/fiscal/useObligationsFiscales";
 import { Client } from "@/types/client";
 import { Loader2, Save } from "lucide-react";
@@ -115,7 +116,16 @@ export function ObligationsFiscales({ selectedClient }: ObligationsFiscalesProps
           onToggleDashboardVisibility={handleToggleDashboardVisibility}
         />
         
-        <AnnualObligationsSection 
+        <DirectTaxesSection 
+          obligationStatuses={obligationStatuses}
+          handleStatusChange={handleStatusChange}
+          handleAttachmentChange={handleAttachmentUpdate}
+          clientId={selectedClient.id}
+          selectedYear={selectedYear}
+          isDeclarationObligation={isDeclarationObligation}
+        />
+        
+        <DeclarationsSection 
           obligationStatuses={obligationStatuses}
           handleStatusChange={handleStatusChange}
           handleAttachmentChange={handleAttachmentUpdate}

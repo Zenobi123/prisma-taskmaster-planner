@@ -1,3 +1,4 @@
+
 import { useState, useCallback } from 'react';
 import { ObligationStatuses, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus } from '../types';
 import { useObligationPeriodicity } from './useObligationPeriodicity';
@@ -5,6 +6,7 @@ import { useObligationPeriodicity } from './useObligationPeriodicity';
 export function useObligationManagement(markAsChanged: () => void) {
   // Initialize with default obligation statuses
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
+    // Impôts directs
     igs: { 
       assujetti: false, 
       payee: false,
@@ -14,14 +16,18 @@ export function useObligationManagement(markAsChanged: () => void) {
       q4Payee: false
     },
     patente: { assujetti: false, payee: false },
+    
+    // Déclarations annuelles
     dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
     darp: { assujetti: false, depose: false, periodicity: "annuelle" },
+    
+    // Déclarations mensuelles/autre periodicité
     licence: { assujetti: false, depose: false, periodicity: "annuelle" },
     cntps: { assujetti: false, payee: false },
     precomptes: { assujetti: false, payee: false }
   });
 
-  const { isDeclarationObligation } = useObligationPeriodicity();
+  const { isDeclarationObligation, isMonthlyDeclaration } = useObligationPeriodicity();
 
   // Handle status change for an obligation
   const handleStatusChange = useCallback((obligation: string, field: string, value: string | number | boolean) => {
@@ -29,10 +35,16 @@ export function useObligationManagement(markAsChanged: () => void) {
       const currentStatus = { ...prev[obligation as keyof ObligationStatuses] };
       // Set the field value dynamically
       (currentStatus as any)[field] = value;
+      
+      // For monthly declarations, set proper periodicity
+      if (isDeclarationObligation(obligation) && isMonthlyDeclaration(obligation) && 'periodicity' in currentStatus) {
+        (currentStatus as DeclarationObligationStatus).periodicity = "mensuelle";
+      }
+      
       markAsChanged();
       return { ...prev, [obligation]: currentStatus };
     });
-  }, [markAsChanged]);
+  }, [markAsChanged, isDeclarationObligation, isMonthlyDeclaration]);
 
   // Handle attachment update
   const handleAttachmentUpdate = useCallback((obligation: string, attachmentType: string, filePath: string) => {
@@ -58,6 +70,7 @@ export function useObligationManagement(markAsChanged: () => void) {
       setObligationStatuses(yearObligations);
     } else {
       setObligationStatuses({
+        // Impôts directs
         igs: { 
           assujetti: false, 
           payee: false,
@@ -67,8 +80,12 @@ export function useObligationManagement(markAsChanged: () => void) {
           q4Payee: false
         },
         patente: { assujetti: false, payee: false },
+        
+        // Déclarations annuelles
         dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
         darp: { assujetti: false, depose: false, periodicity: "annuelle" },
+        
+        // Déclarations mensuelles/autre periodicité
         licence: { assujetti: false, depose: false, periodicity: "annuelle" },
         cntps: { assujetti: false, payee: false },
         precomptes: { assujetti: false, payee: false }
