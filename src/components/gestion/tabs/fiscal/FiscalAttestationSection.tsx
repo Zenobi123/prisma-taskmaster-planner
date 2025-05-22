@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import DatePickerSelector from "./DatePickerSelector";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { addDays, format, parse, isValid } from "date-fns";
+import { addDays, format, parse, isValid, differenceInDays } from "date-fns";
 import { fr } from "date-fns/locale";
 
 interface FiscalAttestationSectionProps {
@@ -28,41 +28,64 @@ export function FiscalAttestationSection({
   hiddenFromDashboard,
   onToggleDashboardVisibility,
 }: FiscalAttestationSectionProps) {
-  // Calculer automatiquement la date de fin de validité lorsque la date de création change
-  useEffect(() => {
-    if (!creationDate) return;
-    
+  // Détermine le statut d'expiration (pour la couleur du champ de date)
+  const getExpiryStatus = () => {
+    if (!validityEndDate) return "";
+
+    // Parse la date de fin de validité
+    let endDateObj: Date;
     try {
-      console.log("Date de création changée:", creationDate);
-      
-      // Conversion de la chaîne de date en objet Date
-      let creationDateObj: Date;
-      
-      // Si la date est au format YYYY-MM-DD
-      if (creationDate.includes('-')) {
-        creationDateObj = new Date(creationDate);
+      if (validityEndDate.includes('-')) {
+        endDateObj = new Date(validityEndDate);
       } else {
-        // Si la date est au format DD/MM/YYYY
-        creationDateObj = parse(creationDate, 'dd/MM/yyyy', new Date());
+        endDateObj = parse(validityEndDate, 'dd/MM/yyyy', new Date());
       }
-      
-      // Vérification que la date est valide
-      if (isValid(creationDateObj)) {
-        // Ajout de 90 jours pour la date de fin de validité
-        const endDateObj = addDays(creationDateObj, 90);
-        
-        // Formatage de la date en chaîne au format YYYY-MM-DD pour le stockage interne
-        const formattedEndDate = format(endDateObj, "yyyy-MM-dd");
-        console.log("Nouvelle date de fin calculée:", formattedEndDate);
-        
-        setValidityEndDate(formattedEndDate);
+
+      if (!isValid(endDateObj)) return "";
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      endDateObj.setHours(0, 0, 0, 0);
+
+      const daysRemaining = differenceInDays(endDateObj, today);
+
+      if (daysRemaining <= 0) {
+        return "bg-rose-50 border-rose-300 text-rose-700";
+      } else if (daysRemaining <= 4) {
+        return "bg-amber-50 border-amber-300 text-amber-700";
       } else {
-        console.error("Date de création invalide:", creationDate);
+        return "bg-emerald-50 border-emerald-300 text-emerald-700";
       }
     } catch (error) {
-      console.error("Erreur lors du calcul de la date de fin de validité:", error);
+      console.error("Erreur lors du calcul du statut d'expiration:", error);
+      return "";
     }
-  }, [creationDate, setValidityEndDate]);
+  };
+
+  // Vérifie si l'attestation est expirée
+  const isExpired = () => {
+    if (!validityEndDate) return false;
+
+    let endDateObj: Date;
+    try {
+      if (validityEndDate.includes('-')) {
+        endDateObj = new Date(validityEndDate);
+      } else {
+        endDateObj = parse(validityEndDate, 'dd/MM/yyyy', new Date());
+      }
+
+      if (!isValid(endDateObj)) return false;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      endDateObj.setHours(0, 0, 0, 0);
+
+      return endDateObj < today;
+    } catch (error) {
+      console.error("Erreur lors de la vérification de l'expiration:", error);
+      return false;
+    }
+  };
 
   return (
     <Card>
@@ -83,8 +106,14 @@ export function FiscalAttestationSection({
             <DatePickerSelector
               value={validityEndDate}
               onChange={setValidityEndDate}
+              className={getExpiryStatus()}
               disabled={true}
             />
+            {isExpired() && (
+              <p className="text-xs text-rose-600 mt-1">
+                ACF expirée, bien vouloir procéder à son renouvellement.
+              </p>
+            )}
           </div>
         </div>
 

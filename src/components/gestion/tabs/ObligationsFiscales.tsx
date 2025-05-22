@@ -1,29 +1,151 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircle } from "lucide-react";
 import { Client } from "@/types/client";
+import DatePickerSelector from "./fiscal/DatePickerSelector";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { addDays, format, parse, isValid } from "date-fns";
+import { fr } from "date-fns/locale";
+import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
+import { AlertTriangle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
 }
 
 export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ selectedClient }) => {
+  const [fiscalYear, setFiscalYear] = useState<string>("2025");
+  const [creationDate, setCreationDate] = useState<string>("2025-07-01");
+  const [validityEndDate, setValidityEndDate] = useState<string>("");
+  const [showInAlert, setShowInAlert] = useState<boolean>(true);
+  const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+
+  // Calculer la date de fin de validité lorsque la date de création change
+  useEffect(() => {
+    if (!creationDate) return;
+    
+    try {
+      // Conversion de la chaîne de date en objet Date
+      let creationDateObj: Date;
+      
+      // Si la date est au format YYYY-MM-DD
+      if (creationDate.includes('-')) {
+        creationDateObj = new Date(creationDate);
+      } else {
+        // Si la date est au format DD/MM/YYYY
+        creationDateObj = parse(creationDate, 'dd/MM/yyyy', new Date());
+      }
+      
+      // Vérification que la date est valide
+      if (isValid(creationDateObj)) {
+        // Ajout de 90 jours pour la date de fin de validité
+        const endDateObj = addDays(creationDateObj, 90);
+        
+        // Formatage de la date en chaîne au format YYYY-MM-DD
+        const formattedEndDate = format(endDateObj, "yyyy-MM-dd");
+        
+        setValidityEndDate(formattedEndDate);
+      }
+    } catch (error) {
+      console.error("Erreur lors du calcul de la date de fin de validité:", error);
+    }
+  }, [creationDate]);
+
+  // Marquer comme ayant des modifications non enregistrées lorsque les valeurs changent
+  useEffect(() => {
+    setHasUnsavedChanges(true);
+  }, [creationDate, validityEndDate, showInAlert, hiddenFromDashboard]);
+
+  // Fonction pour sauvegarder les modifications
+  const saveChanges = async () => {
+    try {
+      // Simuler une sauvegarde avec Supabase (à implémenter avec une vraie logique)
+      // Cette partie serait remplacée par un appel API réel
+      const { error } = await supabase
+        .from("clients")
+        .update({
+          fiscal_data: {
+            ...selectedClient.fiscal_data,
+            attestation: {
+              creationDate,
+              validityEndDate,
+              showInAlert,
+              hiddenFromDashboard
+            }
+          }
+        })
+        .eq("id", selectedClient.id);
+
+      if (error) throw error;
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      console.error("Erreur lors de la sauvegarde:", error);
+    }
+  };
+
+  const handleFiscalYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setFiscalYear(e.target.value);
+  };
+
   return (
-    <Card className="shadow-sm">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold">Obligations Fiscales</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center justify-center py-12">
-          <AlertCircle className="h-16 w-16 text-amber-500 mb-4" />
-          <h3 className="text-xl font-medium text-center">En cours développement</h3>
-          <p className="text-gray-500 mt-2 text-center max-w-lg">
-            Ce module est actuellement en cours de développement et sera disponible prochainement.
-          </p>
+    <div className="space-y-6">
+      {/* Header et sélecteur d'année */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Obligations fiscales</h1>
+          <p className="text-sm text-gray-500">Suivi des obligations fiscales de l'entreprise</p>
         </div>
-      </CardContent>
-    </Card>
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="fiscal-year" className="text-sm">Année fiscale:</Label>
+          <select 
+            id="fiscal-year"
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
+            value={fiscalYear}
+            onChange={handleFiscalYearChange}
+          >
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Alerte modifications non enregistrées */}
+      {hasUnsavedChanges && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-md flex items-center space-x-2">
+          <AlertTriangle className="h-5 w-5" />
+          <span>Vous avez des modifications non enregistrées. Utilisez le bouton d'enregistrement ci-dessous pour les sauvegarder.</span>
+        </div>
+      )}
+
+      {/* Section Attestation de Conformité Fiscale */}
+      <FiscalAttestationSection
+        creationDate={creationDate}
+        validityEndDate={validityEndDate}
+        setCreationDate={setCreationDate}
+        setValidityEndDate={setValidityEndDate}
+        showInAlert={showInAlert}
+        onToggleAlert={() => setShowInAlert(!showInAlert)}
+        hiddenFromDashboard={hiddenFromDashboard}
+        onToggleDashboardVisibility={() => setHiddenFromDashboard(!hiddenFromDashboard)}
+      />
+
+      {/* Bouton d'enregistrement */}
+      <div className="flex justify-end">
+        <button 
+          className={`px-4 py-2 rounded-md font-medium ${hasUnsavedChanges 
+            ? 'bg-primary text-white hover:bg-primary-hover' 
+            : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
+          disabled={!hasUnsavedChanges}
+          onClick={saveChanges}
+        >
+          Enregistrer les modifications
+        </button>
+      </div>
+    </div>
   );
 };
 
