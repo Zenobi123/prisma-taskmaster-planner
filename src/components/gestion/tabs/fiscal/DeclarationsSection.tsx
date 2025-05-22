@@ -5,15 +5,11 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Plus, X } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { AttachmentUploader } from './AttachmentUploader';
-import { AttachmentType } from '@/services/fiscalAttachmentService';
-import { toast } from 'sonner';
 
 interface DeclarationProps {
   fiscalYear: string;
   hasUnsavedChanges: boolean;
   setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
-  clientId?: string;
 }
 
 interface DeclarationState {
@@ -28,24 +24,19 @@ interface DeclarationStatus {
   dateLimite?: string;
   dateSoumission?: string;
   regime?: string;
-  attachments?: Record<string, string>;
 }
 
 export const DeclarationsSection: React.FC<DeclarationProps> = ({ 
   fiscalYear, 
   hasUnsavedChanges, 
-  setHasUnsavedChanges,
-  clientId = ''
+  setHasUnsavedChanges 
 }) => {
   const [state, setState] = useState<DeclarationState>({
     activeTab: 'annuelles',
     openedDetails: {},
     declarations: {
-      dsf: { assujetti: false, soumis: false, regime: '', dateLimite: '', dateSoumission: '', attachments: {} },
-      darp: { assujetti: false, soumis: false, dateLimite: '2025-09-30', dateSoumission: '', attachments: {} },
-      licence: { assujetti: false, soumis: false, dateLimite: '', dateSoumission: '', attachments: {} },
-      cntps: { assujetti: false, soumis: false, dateLimite: '', dateSoumission: '', attachments: {} },
-      precomptes: { assujetti: false, soumis: false, dateLimite: '', dateSoumission: '', attachments: {} }
+      dsf: { assujetti: false, soumis: false, regime: '', dateLimite: '', dateSoumission: '' },
+      darp: { assujetti: false, soumis: false, dateLimite: '2025-09-30', dateSoumission: '' }
     }
   });
 
@@ -116,11 +107,11 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
       const newDeclarations = { ...prev.declarations };
       
       if ('regime' in newDeclarations[declaration]) {
-        newDeclarations[declaration].regime = regime;
+        (newDeclarations[declaration] as DeclarationStatus & { regime: string }).regime = regime;
         
         // Update date limite based on new regime
         if (declaration === 'dsf') {
-          newDeclarations[declaration].dateLimite = calculateDateLimite(regime, fiscalYear);
+          (newDeclarations[declaration] as DeclarationStatus & { dateLimite: string }).dateLimite = calculateDateLimite(regime, fiscalYear);
         }
       }
       
@@ -134,47 +125,9 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
     setState(prev => ({ ...prev, activeTab: value }));
   };
 
-  // Handle attachment upload
-  const handleFileUploaded = (declaration: string, attachmentType: AttachmentType, filePath: string | null) => {
-    setState(prev => {
-      const newDeclarations = { ...prev.declarations };
-      
-      if (!newDeclarations[declaration].attachments) {
-        newDeclarations[declaration].attachments = {};
-      }
-
-      if (filePath) {
-        newDeclarations[declaration].attachments![attachmentType] = filePath;
-      } else {
-        if (newDeclarations[declaration].attachments![attachmentType]) {
-          delete newDeclarations[declaration].attachments![attachmentType];
-        }
-      }
-      
-      setHasUnsavedChanges(true);
-      return { ...prev, declarations: newDeclarations };
-    });
-    
-    // Show feedback to the user
-    if (filePath) {
-      toast.success(`Le document a été téléchargé avec succès`);
-    } else {
-      toast.success(`Le document a été supprimé`);
-    }
-  };
-
-  // Handle date soumission change
-  const handleDateSoumissionChange = (declaration: string, date: string) => {
-    setState(prev => {
-      const newDeclarations = { ...prev.declarations };
-      newDeclarations[declaration] = {
-        ...newDeclarations[declaration],
-        dateSoumission: date
-      };
-      
-      setHasUnsavedChanges(true);
-      return { ...prev, declarations: newDeclarations };
-    });
+  // Get display value for a declaration field
+  const getDeclarationValue = (declaration: string, field: keyof DeclarationStatus): any => {
+    return state.declarations[declaration]?.[field] || '';
   };
 
   const renderDeclarationItem = (key: string, name: string) => {
@@ -238,7 +191,7 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
                 <label className="block text-sm mb-2">Régime fiscal</label>
                 <select 
                   className="w-full p-2 border border-gray-300 rounded bg-gray-50"
-                  value={declaration.regime}
+                  value={'regime' in declaration ? declaration.regime : ''}
                   onChange={(e) => handleRegimeChange(key, e.target.value)}
                 >
                   <option value="">Sélectionner un régime</option>
@@ -264,7 +217,17 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
                   type="date"
                   className="w-full p-2 border border-gray-300 rounded bg-gray-50"
                   value={declaration.dateSoumission || ''}
-                  onChange={(e) => handleDateSoumissionChange(key, e.target.value)}
+                  onChange={(e) => {
+                    setState(prev => {
+                      const newDeclarations = { ...prev.declarations };
+                      newDeclarations[key] = {
+                        ...newDeclarations[key],
+                        dateSoumission: e.target.value
+                      };
+                      setHasUnsavedChanges(true);
+                      return { ...prev, declarations: newDeclarations };
+                    });
+                  }}
                 />
               </div>
             </div>
@@ -272,36 +235,19 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
             <div className="mt-4">
               <h4 className="font-medium text-sm mb-2">Pièces justificatives</h4>
               
-              <div className="space-y-4">
-                <AttachmentUploader
-                  clientId={clientId}
-                  year={fiscalYear}
-                  obligationType={key}
-                  attachmentType="declaration"
-                  attachmentLabel="Déclaration soumise (PDF)"
-                  filePath={declaration.attachments?.declaration}
-                  onFileUploaded={(filePath) => handleFileUploaded(key, 'declaration', filePath)}
-                />
-                
-                <AttachmentUploader
-                  clientId={clientId}
-                  year={fiscalYear}
-                  obligationType={key}
-                  attachmentType="receipt"
-                  attachmentLabel="Accusé de réception (PDF)"
-                  filePath={declaration.attachments?.receipt}
-                  onFileUploaded={(filePath) => handleFileUploaded(key, 'receipt', filePath)}
-                />
-                
-                <AttachmentUploader
-                  clientId={clientId}
-                  year={fiscalYear}
-                  obligationType={key}
-                  attachmentType="payment"
-                  attachmentLabel="Solde de déclaration (PDF ou Photo)"
-                  filePath={declaration.attachments?.payment}
-                  onFileUploaded={(filePath) => handleFileUploaded(key, 'payment', filePath)}
-                />
+              <div className="mb-2">
+                <label className="block text-xs text-gray-500 mb-1">Déclaration soumise (PDF)</label>
+                <input type="file" className="w-full text-sm" accept=".pdf" />
+              </div>
+              
+              <div className="mb-2">
+                <label className="block text-xs text-gray-500 mb-1">Accusé de réception (PDF)</label>
+                <input type="file" className="w-full text-sm" accept=".pdf" />
+              </div>
+              
+              <div className="mb-2">
+                <label className="block text-xs text-gray-500 mb-1">Solde de déclaration (PDF ou Photo)</label>
+                <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
               </div>
             </div>
           </div>

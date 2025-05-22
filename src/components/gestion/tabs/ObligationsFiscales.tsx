@@ -178,8 +178,6 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
       <DirectTaxesSection 
         obligationStatuses={obligationStatuses}
         handleStatusChange={handleStatusChange}
-        clientId={selectedClient.id}
-        fiscalYear={fiscalYear}
       />
 
       {/* Section des Déclarations */}
@@ -187,7 +185,6 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
         fiscalYear={fiscalYear}
         hasUnsavedChanges={hasUnsavedChanges}
         setHasUnsavedChanges={setHasUnsavedChanges}
-        clientId={selectedClient.id}
       />
 
       {/* Bouton d'enregistrement */}
