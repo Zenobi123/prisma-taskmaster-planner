@@ -12,21 +12,28 @@ export async function getClientsWithUnpaidIgs(): Promise<Client[]> {
 
     if (error) throw error;
 
-    // Convert data to Client[] and filter
-    const clients = clientsData as Client[];
-    
-    // Current year for consistency
-    const currentYear = new Date().getFullYear().toString();
+    // Convertir les données en Client[] et filtrer
+    const clients = clientsData as unknown as Client[];
     
     // Filter clients with unpaid IGS
     return clients.filter(client => {
-      if (!client.fiscal_data || typeof client.fiscal_data !== 'object') return false;
-      
       const fiscalData = client.fiscal_data;
-      if (!fiscalData.obligations || !fiscalData.obligations[currentYear]) return false;
+      if (!fiscalData) return false;
       
-      const obligations = fiscalData.obligations[currentYear];
-      return obligations.igs && obligations.igs.assujetti === true && obligations.igs.payee === false;
+      // Get current year
+      const currentYear = new Date().getFullYear().toString();
+      
+      // Vérifier que fiscal_data est un objet et contient obligations
+      if (typeof fiscalData !== 'object' || !fiscalData.obligations) return false;
+      
+      // Vérifier que l'année courante existe dans obligations
+      if (!fiscalData.obligations[currentYear]) return false;
+      
+      // Get IGS obligation status
+      const igsStatus = fiscalData.obligations[currentYear]?.igs;
+      
+      // Return true if IGS is required but not paid
+      return igsStatus && igsStatus.assujetti === true && igsStatus.paye === false;
     });
   } catch (error) {
     console.error('Error fetching clients with unpaid IGS:', error);

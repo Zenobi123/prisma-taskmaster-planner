@@ -106,18 +106,12 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
     setState(prev => {
       const newDeclarations = { ...prev.declarations };
       
-      if (newDeclarations[declaration]) {
-        newDeclarations[declaration] = {
-          ...newDeclarations[declaration],
-          regime: regime
-        };
+      if ('regime' in newDeclarations[declaration]) {
+        (newDeclarations[declaration] as DeclarationStatus & { regime: string }).regime = regime;
         
         // Update date limite based on new regime
         if (declaration === 'dsf') {
-          newDeclarations[declaration] = {
-            ...newDeclarations[declaration],
-            dateLimite: calculateDateLimite(regime, fiscalYear)
-          };
+          (newDeclarations[declaration] as DeclarationStatus & { dateLimite: string }).dateLimite = calculateDateLimite(regime, fiscalYear);
         }
       }
       
@@ -197,7 +191,7 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
                 <label className="block text-sm mb-2">Régime fiscal</label>
                 <select 
                   className="w-full p-2 border border-gray-300 rounded bg-gray-50"
-                  value={declaration.regime || ''}
+                  value={'regime' in declaration ? declaration.regime : ''}
                   onChange={(e) => handleRegimeChange(key, e.target.value)}
                 >
                   <option value="">Sélectionner un régime</option>
@@ -226,12 +220,10 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
                   onChange={(e) => {
                     setState(prev => {
                       const newDeclarations = { ...prev.declarations };
-                      if (newDeclarations[key]) {
-                        newDeclarations[key] = {
-                          ...newDeclarations[key],
-                          dateSoumission: e.target.value
-                        };
-                      }
+                      newDeclarations[key] = {
+                        ...newDeclarations[key],
+                        dateSoumission: e.target.value
+                      };
                       setHasUnsavedChanges(true);
                       return { ...prev, declarations: newDeclarations };
                     });
