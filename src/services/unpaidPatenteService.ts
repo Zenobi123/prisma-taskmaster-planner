@@ -77,25 +77,35 @@ class UnpaidPatenteService {
 
 export const unpaidPatenteService = new UnpaidPatenteService();
 
-// Add the missing function that's being imported by other modules
+// Updated to match the structure used in ObligationsFiscales component
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
-  // This is a mock implementation - in a real app, this might fetch data from an API
-  // For now, we'll return an empty array to fix the TypeScript errors
-  const currentYear = new Date().getFullYear().toString();
-  const unpaidPatentes = unpaidPatenteService.getUnpaidPatentes(currentYear);
-  
-  // Convert UnpaidPatente objects to Client objects
-  // In a real implementation, you would fetch the full client data
-  return unpaidPatentes.map(patente => {
-    return {
-      id: patente.id,
-      nom: patente.nom,
-      niu: "",
-      raisonsociale: "",
-      type: "morale", // Default type
-      contact: { telephone: "" }, // Default contact
-      centrerattachement: "",
-      gestionexternalisee: true
-    } as Client;
-  });
-};
+  try {
+    const { data: clientsData, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('statut', 'actif')
+      .not('fiscal_data', 'is', null);
+
+    if (error) throw error;
+
+    // Convert data to Client[] and filter
+    const clients = clientsData as Client[];
+    
+    // Current year for consistency
+    const currentYear = new Date().getFullYear().toString();
+    
+    // Filter clients with unpaid patente
+    return clients.filter(client => {
+      if (!client.fiscal_data || typeof client.fiscal_data !== 'object') return false;
+      
+      const fiscalData = client.fiscal_data;
+      if (!fiscalData.obligations || !fiscalData.obligations[currentYear]) return false;
+      
+      const obligations = fiscalData.obligations[currentYear];
+      return obligations.patente && obligations.patente.assujetti === true && obligations.patente.payee === false;
+    });
+  } catch (error) {
+    console.error('Error fetching clients with unpaid patente:', error);
+    return [];
+  }
+}
