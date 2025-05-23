@@ -6,13 +6,14 @@ import { DialogTrigger } from "@/components/ui/dialog";
 
 interface ClientsHeaderProps {
   onAddClientClick: () => void;
+  isMobile?: boolean;
 }
 
-export function ClientsHeader({ onAddClientClick }: ClientsHeaderProps) {
+export function ClientsHeader({ onAddClientClick, isMobile }: ClientsHeaderProps) {
   const navigate = useNavigate();
 
   return (
-    <header className="mb-8">
+    <header className={`mb-${isMobile ? '6' : '8'}`}>
       <div className="flex items-center gap-4 mb-4">
         <Button
           variant="outline"
@@ -23,9 +24,9 @@ export function ClientsHeader({ onAddClientClick }: ClientsHeaderProps) {
           Retour
         </Button>
       </div>
-      <div className="flex items-center justify-between">
+      <div className={`flex ${isMobile ? 'flex-col space-y-3' : 'flex-row items-center'} justify-between`}>
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-800">Clients</h1>
+          <h1 className={`text-${isMobile ? 'xl' : '2xl'} font-semibold text-neutral-800`}>Clients</h1>
           <p className="text-neutral-600 mt-1">
             Gérez vos clients et leurs informations
           </p>

@@ -104,6 +104,7 @@ export default function ClientsPage() {
             onArchive={handleArchive}
             onRestore={handleRestore}
             onDelete={handleDelete}
+            isMobile={isMobile}
           />
         )}
 

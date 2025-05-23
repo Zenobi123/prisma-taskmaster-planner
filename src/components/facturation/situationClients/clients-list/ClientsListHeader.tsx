@@ -6,11 +6,12 @@ import { Input } from "@/components/ui/input";
 interface ClientsListHeaderProps {
   searchTerm: string;
   setSearchTerm: (value: string) => void;
+  isMobile?: boolean;
 }
 
-const ClientsListHeader = ({ searchTerm, setSearchTerm }: ClientsListHeaderProps) => {
+const ClientsListHeader = ({ searchTerm, setSearchTerm, isMobile }: ClientsListHeaderProps) => {
   return (
-    <CardHeader className="flex flex-row items-center justify-between">
+    <CardHeader className={`flex ${isMobile ? 'flex-col' : 'flex-row'} items-center justify-between gap-3`}>
       <CardTitle className="text-xl flex items-center gap-2">
         <Users className="h-5 w-5" /> 
         Situation financière des clients
@@ -20,7 +21,7 @@ const ClientsListHeader = ({ searchTerm, setSearchTerm }: ClientsListHeaderProps
         <Input
           type="search"
           placeholder="Rechercher un client..."
-          className="pl-8 w-64"
+          className="pl-8 w-full sm:w-64"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />

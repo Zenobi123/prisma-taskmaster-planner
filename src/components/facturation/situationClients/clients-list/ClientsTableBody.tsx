@@ -7,9 +7,10 @@ interface ClientsTableBodyProps {
   isLoading: boolean;
   paginatedClients: ClientFinancialSummary[];
   onViewDetails: (clientId: string) => void;
+  isMobile?: boolean;
 }
 
-const ClientsTableBody = ({ isLoading, paginatedClients, onViewDetails }: ClientsTableBodyProps) => {
+const ClientsTableBody = ({ isLoading, paginatedClients, onViewDetails, isMobile }: ClientsTableBodyProps) => {
   if (isLoading) {
     return (
       <TableBody>
@@ -40,7 +41,8 @@ const ClientsTableBody = ({ isLoading, paginatedClients, onViewDetails }: Client
         <ClientsTableRow 
           key={client.id} 
           client={client} 
-          onViewDetails={onViewDetails} 
+          onViewDetails={onViewDetails}
+          isMobile={isMobile} 
         />
       ))}
     </TableBody>

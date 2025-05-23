@@ -32,8 +32,7 @@ export function TabsList({ activeTab, onTabChange }: TabsListProps) {
     <Tabs value={activeTab} onValueChange={onTabChange}>
       {isMobile ? (
         <ScrollArea 
-          className="w-full overflow-x-auto" 
-          orientation="horizontal"
+          className="w-full overflow-x-auto"
           scrollPos={scrollPosition}
         >
           <ShadcnTabsList className="inline-flex min-w-max border-b border-gray-200 pb-1 w-auto">
