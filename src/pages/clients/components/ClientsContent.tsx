@@ -49,6 +49,7 @@ export function ClientsContent({
         onSecteurChange={onSecteurChange}
         showArchived={showArchived}
         onShowArchivedChange={onShowArchivedChange}
+        clients={clients}
         isMobile={isMobile}
       />
 
