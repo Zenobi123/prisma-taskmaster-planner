@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -33,14 +32,12 @@ export default function Gestion() {
     [clientsEnGestion, selectedClientId]
   );
 
-  // Stocker la sélection du client dans localStorage pour persistance
   useEffect(() => {
     if (selectedClientId) {
       localStorage.setItem('lastSelectedGestionClientId', selectedClientId);
     }
   }, [selectedClientId]);
 
-  // Restaurer la sélection du client depuis localStorage au chargement
   useEffect(() => {
     const savedClientId = localStorage.getItem('lastSelectedGestionClientId');
     if (savedClientId && !selectedClientId) {
@@ -48,14 +45,12 @@ export default function Gestion() {
     }
   }, [selectedClientId]);
 
-  // Stocker l'onglet actif dans localStorage pour persistance
   useEffect(() => {
     if (activeTab) {
       localStorage.setItem('lastActiveGestionTab', activeTab);
     }
   }, [activeTab]);
 
-  // Restaurer l'onglet actif depuis localStorage au chargement
   useEffect(() => {
     const savedTab = localStorage.getItem('lastActiveGestionTab');
     if (savedTab) {
@@ -63,7 +58,6 @@ export default function Gestion() {
     }
   }, []);
 
-  // Handle URL query parameters
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const clientParam = searchParams.get('client');
@@ -124,11 +118,10 @@ export default function Gestion() {
         <>
           <SelectedClientCard client={selectedClient} />
           <GestionTabs
+            client={selectedClient}
             activeTab={activeTab}
-            selectedClient={selectedClient}
-            selectedSubTab={selectedSubTab}
-            onTabChange={handleTabChange}
-            onSubTabSelect={handleSubTabSelect}
+            setActiveTab={setActiveTab}
+            scrollPos={0}
           />
         </>
       ) : (
