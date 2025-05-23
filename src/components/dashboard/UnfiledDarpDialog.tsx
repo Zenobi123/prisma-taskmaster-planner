@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { FileText } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface UnfiledDarpDialogProps {
   open: boolean;
@@ -14,6 +15,7 @@ interface UnfiledDarpDialogProps {
 
 export function UnfiledDarpDialog({ open, onOpenChange }: UnfiledDarpDialogProps) {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   const { data: clients = [] } = useQuery({
     queryKey: ["clients-unfiled-darp"],
@@ -27,9 +29,9 @@ export function UnfiledDarpDialog({ open, onOpenChange }: UnfiledDarpDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[80vh] flex flex-col">
+      <DialogContent className={`${isMobile ? 'w-[95vw] max-w-none p-4' : 'max-w-2xl p-6'} max-h-[80vh] flex flex-col`}>
         <DialogHeader>
-          <DialogTitle>DARP non déposées</DialogTitle>
+          <DialogTitle className="text-lg md:text-xl">DARP non déposées</DialogTitle>
         </DialogHeader>
         
         <ScrollArea className="flex-1 pr-4">
@@ -38,15 +40,15 @@ export function UnfiledDarpDialog({ open, onOpenChange }: UnfiledDarpDialogProps
               <Button
                 key={client.id}
                 variant="ghost"
-                className="w-full justify-start gap-2 h-auto py-3"
+                className="w-full justify-start gap-2 h-auto py-3 text-xs md:text-sm px-2 md:px-4"
                 onClick={() => handleClientClick(client.id)}
               >
                 <FileText className="h-4 w-4 text-primary shrink-0" />
                 <div className="text-left">
-                  <div className="font-medium">
+                  <div className="font-medium truncate">
                     {client.type === "physique" ? client.nom : client.raisonsociale}
                   </div>
-                  <div className="text-sm text-muted-foreground">NIU: {client.niu}</div>
+                  <div className="text-xs text-muted-foreground">NIU: {client.niu}</div>
                 </div>
               </Button>
             ))}

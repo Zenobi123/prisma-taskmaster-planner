@@ -7,6 +7,7 @@ import ClientsListHeader from "./clients-list/ClientsListHeader";
 import ClientsTableHeader from "./clients-list/ClientsTableHeader";
 import ClientsTableBody from "./clients-list/ClientsTableBody";
 import ClientsPagination from "./clients-list/ClientsPagination";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ClientsListProps {
   clientsSummary: ClientFinancialSummary[];
@@ -15,6 +16,8 @@ interface ClientsListProps {
 }
 
 const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListProps) => {
+  const isMobile = useIsMobile();
+  
   const {
     searchTerm,
     setSearchTerm,
@@ -29,18 +32,22 @@ const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListPr
     <Card className="w-full">
       <ClientsListHeader 
         searchTerm={searchTerm} 
-        setSearchTerm={setSearchTerm} 
+        setSearchTerm={setSearchTerm}
+        isMobile={isMobile}
       />
       
-      <CardContent>
-        <Table>
-          <ClientsTableHeader handleSort={handleSort} />
-          <ClientsTableBody 
-            isLoading={isLoading} 
-            paginatedClients={paginatedClients}
-            onViewDetails={onViewDetails}
-          />
-        </Table>
+      <CardContent className={isMobile ? "px-2" : ""}>
+        <div className="border rounded-md overflow-hidden">
+          <Table>
+            {!isMobile && <ClientsTableHeader handleSort={handleSort} />}
+            <ClientsTableBody 
+              isLoading={isLoading} 
+              paginatedClients={paginatedClients}
+              onViewDetails={onViewDetails}
+              isMobile={isMobile}
+            />
+          </Table>
+        </div>
         
         <ClientsPagination
           currentPage={currentPage}

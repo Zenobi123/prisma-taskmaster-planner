@@ -6,6 +6,8 @@ import { ClientsContent } from "./components/ClientsContent";
 import { ClientDialogs } from "./components/ClientDialogs";
 import { LoadingState } from "./components/LoadingState";
 import { useEffect } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function ClientsPage() {
   const {
@@ -39,6 +41,8 @@ export default function ClientsPage() {
     handleDelete,
     toast
   } = useClientsPage();
+  
+  const isMobile = useIsMobile();
 
   // Error handling
   useEffect(() => {
@@ -53,30 +57,55 @@ export default function ClientsPage() {
   }, [error, toast]);
 
   if (isLoading || !isDataReady) {
-    return <LoadingState />;
+    return <LoadingState isMobile={isMobile} />;
   }
 
   return (
-    <div className="p-8">
+    <div className={isMobile ? "p-3 sm:p-4" : "p-8"}>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <ClientsHeader onAddClientClick={() => setIsDialogOpen(true)} />
-
-        <ClientsContent
-          clients={clients}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          selectedType={selectedType}
-          onTypeChange={setSelectedType}
-          selectedSecteur={selectedSecteur}
-          onSecteurChange={setSelectedSecteur}
-          showArchived={showArchived}
-          onShowArchivedChange={setShowArchived}
-          onView={handleView}
-          onEdit={handleEdit}
-          onArchive={handleArchive}
-          onRestore={handleRestore}
-          onDelete={handleDelete}
+        <ClientsHeader 
+          onAddClientClick={() => setIsDialogOpen(true)}
+          isMobile={isMobile}
         />
+
+        {isMobile ? (
+          <ScrollArea className="h-[calc(100vh-10rem)]">
+            <ClientsContent
+              clients={clients}
+              searchTerm={searchTerm}
+              onSearchChange={setSearchTerm}
+              selectedType={selectedType}
+              onTypeChange={setSelectedType}
+              selectedSecteur={selectedSecteur}
+              onSecteurChange={setSelectedSecteur}
+              showArchived={showArchived}
+              onShowArchivedChange={setShowArchived}
+              onView={handleView}
+              onEdit={handleEdit}
+              onArchive={handleArchive}
+              onRestore={handleRestore}
+              onDelete={handleDelete}
+              isMobile={isMobile}
+            />
+          </ScrollArea>
+        ) : (
+          <ClientsContent
+            clients={clients}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            selectedType={selectedType}
+            onTypeChange={setSelectedType}
+            selectedSecteur={selectedSecteur}
+            onSecteurChange={setSelectedSecteur}
+            showArchived={showArchived}
+            onShowArchivedChange={setShowArchived}
+            onView={handleView}
+            onEdit={handleEdit}
+            onArchive={handleArchive}
+            onRestore={handleRestore}
+            onDelete={handleDelete}
+          />
+        )}
 
         <ClientDialogs
           isAddDialogOpen={isDialogOpen}

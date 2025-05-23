@@ -13,6 +13,7 @@ import { useUserManagement } from './hooks/useUserManagement';
 import UserManagementTable from './UserManagementTable';
 import AddUserDialog from './AddUserDialog';
 import EditUserDialog from './EditUserDialog';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const UserManagement = () => {
   const {
@@ -30,32 +31,40 @@ const UserManagement = () => {
     openEditModal,
     handleUserChange,
   } = useUserManagement();
+  
+  const isMobile = useIsMobile();
 
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className={`flex ${isMobile ? 'flex-col space-y-4' : 'flex-row items-center justify-between'}`}>
           <div>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-xl">
               <Shield className="h-5 w-5 text-primary" />
               Gestion des utilisateurs
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="mt-1">
               Créez et gérez les comptes utilisateurs et leurs privilèges d'accès
             </CardDescription>
           </div>
-          <Button onClick={() => setIsAddUserOpen(true)}>
+          <Button 
+            onClick={() => setIsAddUserOpen(true)}
+            className={isMobile ? "w-full justify-center" : ""}
+          >
             <PlusCircle className="mr-2 h-4 w-4" />
             Nouvel utilisateur
           </Button>
         </CardHeader>
-        <CardContent>
-          <UserManagementTable 
-            users={users} 
-            openEditModal={openEditModal} 
-            handleDeleteUser={handleDeleteUser}
-            roles={roles} 
-          />
+        <CardContent className={isMobile ? "px-2 sm:px-6" : ""}>
+          <div className="overflow-x-auto">
+            <UserManagementTable 
+              users={users} 
+              openEditModal={openEditModal} 
+              handleDeleteUser={handleDeleteUser}
+              roles={roles} 
+              isMobile={isMobile}
+            />
+          </div>
         </CardContent>
       </Card>
 

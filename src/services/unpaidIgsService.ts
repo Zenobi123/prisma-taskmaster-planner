@@ -13,7 +13,7 @@ export async function getClientsWithUnpaidIgs(): Promise<Client[]> {
     if (error) throw error;
 
     // Convertir les données en Client[] et filtrer
-    const clients = clientsData as unknown as Client[];
+    const clients = clientsData.map(client => client as unknown as Client);
     
     // Filter clients with unpaid IGS
     return clients.filter(client => {

@@ -3,6 +3,7 @@ import { Table, TableBody } from "@/components/ui/table";
 import { Facture } from "@/types/facture";
 import FactureTableHeader from "./FactureTableHeader";
 import FactureTableRow from "./FactureTableRow";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface FactureTableProps {
   factures: Facture[];
@@ -13,6 +14,7 @@ interface FactureTableProps {
   onEditFacture: (facture: Facture) => void;
   onSendFacture?: (facture: Facture) => void;
   onCancelFacture?: (facture: Facture) => void;
+  isMobile?: boolean;
 }
 
 const FactureTable = ({ 
@@ -23,12 +25,13 @@ const FactureTable = ({
   onDeleteFacture,
   onEditFacture,
   onSendFacture,
-  onCancelFacture
+  onCancelFacture,
+  isMobile
 }: FactureTableProps) => {
   return (
     <div className="rounded-md border overflow-hidden">
       <Table>
-        <FactureTableHeader />
+        {!isMobile && <FactureTableHeader />}
         <TableBody>
           {factures.length > 0 ? (
             factures.map((facture) => (
@@ -42,6 +45,7 @@ const FactureTable = ({
                 onEditFacture={onEditFacture}
                 onSendFacture={onSendFacture}
                 onCancelFacture={onCancelFacture}
+                isMobile={isMobile}
               />
             ))
           ) : (
