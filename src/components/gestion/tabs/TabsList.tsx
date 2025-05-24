@@ -1,57 +1,86 @@
 
-import React, { useRef, useState, useEffect } from 'react';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, useRef } from "react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TabsListProps {
   children: React.ReactNode;
   className?: string;
-  scrollPos?: number;
 }
 
-const TabsList = ({ children, className, scrollPos = 0 }: TabsListProps) => {
+export function CustomTabsList({ children, className = "" }: TabsListProps) {
+  const [scrollPos, setScrollPos] = useState(0);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [showLeftShadow, setShowLeftShadow] = useState(false);
-  const [showRightShadow, setShowRightShadow] = useState(true);
-
-  const handleScroll = () => {
+  
+  useEffect(() => {
+    const checkScroll = () => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        setCanScrollLeft(scrollLeft > 0);
+        setCanScrollRight(scrollLeft < scrollWidth - clientWidth);
+      }
+    };
+    
+    checkScroll();
+    window.addEventListener("resize", checkScroll);
+    return () => window.removeEventListener("resize", checkScroll);
+  }, [children]);
+  
+  const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setShowLeftShadow(scrollLeft > 0);
-      setShowRightShadow(scrollLeft < scrollWidth - clientWidth - 10);
+      const scrollAmount = 200;
+      const newPosition = direction === "left" 
+        ? Math.max(scrollPos - scrollAmount, 0)
+        : scrollPos + scrollAmount;
+        
+      setScrollPos(newPosition);
+      scrollRef.current.scrollTo({
+        left: newPosition,
+        behavior: "smooth"
+      });
     }
   };
-
-  useEffect(() => {
-    handleScroll();
-    window.addEventListener('resize', handleScroll);
-    return () => window.removeEventListener('resize', handleScroll);
-  }, [children]);
-
+  
   return (
-    <div className="relative">
-      {showLeftShadow && (
-        <div className="absolute left-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-r from-background to-transparent z-10" />
+    <div className="flex items-center gap-2">
+      {canScrollLeft && (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => scroll("left")}
+          className="hidden sm:flex"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
       )}
       
-      <ScrollArea
-        ref={scrollRef}
-        className={cn(
-          "w-full overflow-x-auto no-scrollbar pb-2",
-          className
-        )}
-        onScroll={handleScroll}
-      >
-        <div className="inline-flex h-10 items-center justify-start rounded-md bg-muted p-1 text-muted-foreground w-auto min-w-full">
-          {children}
-        </div>
+      <ScrollArea ref={scrollRef} className={className}>
+        <Tabs defaultValue="entreprise" className="w-full">
+          <TabsList className="flex flex-nowrap overflow-x-auto">
+            {children}
+          </TabsList>
+        </Tabs>
       </ScrollArea>
       
-      {showRightShadow && (
-        <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none bg-gradient-to-l from-background to-transparent z-10" />
+      {canScrollRight && (
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={() => scroll("right")}
+          className="hidden sm:flex"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       )}
     </div>
   );
-};
+}
 
-export default TabsList;
+export default function TabsListWrapper({ children, className }: TabsListProps) {
+  return <CustomTabsList className={className}>{children}</CustomTabsList>;
+}

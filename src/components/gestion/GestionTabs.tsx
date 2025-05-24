@@ -1,35 +1,71 @@
 
-import React from "react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useState, useEffect } from "react";
+import { TabsList } from "@/components/gestion/tabs/TabsList";
 import { Client } from "@/types/client";
+import { TabsContent } from "@/components/gestion/tabs/TabsContent";
 
 interface GestionTabsProps {
-  client: Client;
   activeTab: string;
-  setActiveTab: (tab: string) => void;
-  scrollPos?: number;
+  selectedClient: Client;
+  selectedSubTab: string | null;
+  onTabChange: (tab: string) => void;
+  onSubTabSelect: (subTab: string) => void;
 }
 
-export function GestionTabs({ client, activeTab, setActiveTab, scrollPos }: GestionTabsProps) {
+export function GestionTabs({
+  activeTab,
+  selectedClient,
+  selectedSubTab,
+  onTabChange,
+  onSubTabSelect,
+}: GestionTabsProps) {
+  const [tabContent, setTabContent] = useState<React.ReactNode | null>(null);
+
+  useEffect(() => {
+    switch (activeTab) {
+      case "entreprise":
+        setTabContent(<TabsContent.Entreprise selectedClient={selectedClient} onTabChange={onTabChange} />);
+        break;
+      case "fiscal":
+        setTabContent(<TabsContent.ObligationsFiscales selectedClient={selectedClient} />);
+        break;
+      case "comptable":
+        setTabContent(<TabsContent.GestionComptable selectedClient={selectedClient} />);
+        break;
+      case "contrat-prestations":
+        setTabContent(<TabsContent.ContratPrestations selectedClient={selectedClient} />);
+        break;
+      case "cloture-exercice":
+        setTabContent(
+          <TabsContent.ClotureExercice
+            selectedClient={selectedClient}
+            selectedSubTab={selectedSubTab}
+            onSubTabSelect={onSubTabSelect}
+          />
+        );
+        break;
+      case "dossier":
+        setTabContent(<TabsContent.GestionDossier selectedClient={selectedClient} />);
+        break;
+      // Ajout des nouveaux cas pour les modules Administration, RH, Paie
+      case "gestion-admin":
+        setTabContent(<TabsContent.GestionAdmin selectedClient={selectedClient} />);
+        break;
+      case "gestion-rh":
+        setTabContent(<TabsContent.GestionRH selectedClient={selectedClient} />);
+        break;
+      case "gestion-paie":
+        setTabContent(<TabsContent.GestionPaie selectedClient={selectedClient} />);
+        break;
+      default:
+        setTabContent(<TabsContent.Entreprise selectedClient={selectedClient} onTabChange={onTabChange} />);
+    }
+  }, [activeTab, selectedClient, selectedSubTab, onTabChange, onSubTabSelect]);
+
   return (
-    <Tabs value={activeTab} className="w-full">
-      <TabsList className="grid w-full grid-cols-5">
-        <TabsTrigger value="informations" onClick={() => setActiveTab("informations")}>
-          Informations
-        </TabsTrigger>
-        <TabsTrigger value="contacts" onClick={() => setActiveTab("contacts")}>
-          Contacts
-        </TabsTrigger>
-        <TabsTrigger value="documents" onClick={() => setActiveTab("documents")}>
-          Documents
-        </TabsTrigger>
-        <TabsTrigger value="comptabilite" onClick={() => setActiveTab("comptabilite")}>
-          Comptabilité
-        </TabsTrigger>
-        <TabsTrigger value="parametres" onClick={() => setActiveTab("parametres")}>
-          Paramètres
-        </TabsTrigger>
-      </TabsList>
-    </Tabs>
+    <div className="mt-6 space-y-6">
+      <TabsList activeTab={activeTab} onTabChange={onTabChange} />
+      <div className="mt-6">{tabContent}</div>
+    </div>
   );
 }
