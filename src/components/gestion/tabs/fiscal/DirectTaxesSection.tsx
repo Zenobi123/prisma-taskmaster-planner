@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -217,6 +218,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                       <th className="border border-gray-200 bg-gray-100 p-2 text-center">Échéance</th>
                       <th className="border border-gray-200 bg-gray-100 p-2 text-center">Date de paiement</th>
                       <th className="border border-gray-200 bg-gray-100 p-2 text-center">Montant payé (FCFA)</th>
+                      <th className="border border-gray-200 bg-gray-100 p-2 text-center">Pièces justificatives</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -234,6 +236,13 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                             type="text" 
                             className="w-[95%] p-1 border border-gray-200 rounded bg-gray-50"
                             placeholder="0"
+                          />
+                        </td>
+                        <td className="border border-gray-200 p-2">
+                          <input 
+                            type="file" 
+                            className="w-[95%] text-xs"
+                            accept=".pdf,image/*"
                           />
                         </td>
                       </tr>
@@ -261,6 +270,26 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                     value={igsCalculation?.amount ? igsCalculation.amount.toLocaleString('fr-FR') : ''}
                     readOnly
                   />
+                </div>
+              </div>
+
+              {/* Attachments */}
+              <div className="mt-4">
+                <h4 className="font-medium text-sm mb-2">Pièces justificatives</h4>
+                
+                <div className="mb-2">
+                  <label className="block text-xs text-gray-500 mb-1">Déclaration ou Avis d'imposition (PDF ou Photo)</label>
+                  <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
+                </div>
+                
+                <div className="mb-2">
+                  <label className="block text-xs text-gray-500 mb-1">Reçu de paiement (PDF ou Photo)</label>
+                  <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
+                </div>
+                
+                <div className="mb-2">
+                  <label className="block text-xs text-gray-500 mb-1">Quittance de paiement (PDF ou Photo)</label>
+                  <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
                 </div>
               </div>
             </div>
