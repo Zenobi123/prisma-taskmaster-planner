@@ -5,39 +5,36 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Plus, X } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ObligationStatuses } from '@/hooks/fiscal/types';
+import UnifiedAttachmentSection from './components/UnifiedAttachmentSection';
 
 interface DeclarationProps {
   fiscalYear: string;
   hasUnsavedChanges: boolean;
-  setHasUnsavedChanges: React.Dispatch<React.SetStateAction<boolean>>;
+  setHasUnsavedChanges: () => void;
+  obligationStatuses: ObligationStatuses;
+  handleStatusChange: (taxType: string, field: string, value: boolean | string | number) => void;
+  handleAttachmentUpdate: (obligation: string, attachmentType: string, filePath: string | null) => void;
+  clientId: string;
 }
 
 interface DeclarationState {
   activeTab: 'annuelles' | 'mensuelles';
   openedDetails: Record<string, boolean>;
-  declarations: Record<string, DeclarationStatus>;
-}
-
-interface DeclarationStatus {
-  assujetti: boolean;
-  soumis: boolean;
-  dateLimite?: string;
-  dateSoumission?: string;
-  regime?: string;
 }
 
 export const DeclarationsSection: React.FC<DeclarationProps> = ({ 
   fiscalYear, 
   hasUnsavedChanges, 
-  setHasUnsavedChanges 
+  setHasUnsavedChanges,
+  obligationStatuses,
+  handleStatusChange,
+  handleAttachmentUpdate,
+  clientId
 }) => {
   const [state, setState] = useState<DeclarationState>({
     activeTab: 'annuelles',
-    openedDetails: {},
-    declarations: {
-      dsf: { assujetti: false, soumis: false, regime: '', dateLimite: '', dateSoumission: '' },
-      darp: { assujetti: false, soumis: false, dateLimite: '2025-09-30', dateSoumission: '' }
-    }
+    openedDetails: {}
   });
 
   // Calculate date limite based on regime fiscal
@@ -54,40 +51,21 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
 
   // Handle assujetti toggle
   const handleAssujettiChange = (declaration: string, checked: boolean) => {
-    setState(prev => {
-      const newDeclarations = { ...prev.declarations };
-      newDeclarations[declaration] = {
-        ...newDeclarations[declaration],
-        assujetti: checked,
-        soumis: checked ? newDeclarations[declaration].soumis : false
-      };
-      
-      setHasUnsavedChanges(true);
-      return { ...prev, declarations: newDeclarations };
-    });
+    handleStatusChange(declaration, 'assujetti', checked);
+    if (!checked) {
+      handleStatusChange(declaration, 'depose', false);
+    }
   };
 
-  // Handle soumis toggle
-  const handleSoumisChange = (declaration: string, checked: boolean) => {
-    setState(prev => {
-      const newDeclarations = { ...prev.declarations };
-      newDeclarations[declaration] = {
-        ...newDeclarations[declaration],
-        soumis: checked
-      };
-      
-      const newOpenedDetails = { ...prev.openedDetails };
-      if (checked) {
-        newOpenedDetails[declaration] = true;
-      }
-      
-      setHasUnsavedChanges(true);
-      return { 
-        ...prev, 
-        declarations: newDeclarations,
-        openedDetails: newOpenedDetails
-      };
-    });
+  // Handle depose toggle
+  const handleDeposeChange = (declaration: string, checked: boolean) => {
+    handleStatusChange(declaration, 'depose', checked);
+    if (checked) {
+      setState(prev => ({
+        ...prev,
+        openedDetails: { ...prev.openedDetails, [declaration]: true }
+      }));
+    }
   };
 
   // Toggle details visibility
@@ -103,21 +81,13 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
 
   // Handle regime change
   const handleRegimeChange = (declaration: string, regime: string) => {
-    setState(prev => {
-      const newDeclarations = { ...prev.declarations };
-      
-      if ('regime' in newDeclarations[declaration]) {
-        (newDeclarations[declaration] as DeclarationStatus & { regime: string }).regime = regime;
-        
-        // Update date limite based on new regime
-        if (declaration === 'dsf') {
-          (newDeclarations[declaration] as DeclarationStatus & { dateLimite: string }).dateLimite = calculateDateLimite(regime, fiscalYear);
-        }
-      }
-      
-      setHasUnsavedChanges(true);
-      return { ...prev, declarations: newDeclarations };
-    });
+    handleStatusChange(declaration, 'regime', regime);
+    
+    // Update date limite based on new regime
+    if (declaration === 'dsf') {
+      const dateLimite = calculateDateLimite(regime, fiscalYear);
+      handleStatusChange(declaration, 'dateLimite', dateLimite);
+    }
   };
 
   // Handle tab change
@@ -125,16 +95,12 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
     setState(prev => ({ ...prev, activeTab: value }));
   };
 
-  // Get display value for a declaration field
-  const getDeclarationValue = (declaration: string, field: keyof DeclarationStatus): any => {
-    return state.declarations[declaration]?.[field] || '';
-  };
-
-  const renderDeclarationItem = (key: string, name: string) => {
-    const declaration = state.declarations[key] || { assujetti: false, soumis: false };
+  const renderDeclarationItem = (key: keyof ObligationStatuses, name: string) => {
+    const obligation = obligationStatuses[key];
+    if (!('depose' in obligation)) return null; // Skip if not a declaration obligation
     
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-4">
+      <div key={key} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-4">
         <div className="flex flex-col md:flex-row md:justify-between md:items-center">
           <span className="font-medium text-gray-800">{name}</span>
           
@@ -142,27 +108,27 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
             <div className="flex items-center space-x-2">
               <Switch 
                 id={`${key}-assujetti`}
-                checked={declaration.assujetti}
+                checked={obligation.assujetti}
                 onCheckedChange={(checked) => handleAssujettiChange(key, checked)}
               />
               <Label htmlFor={`${key}-assujetti`}>
-                {declaration.assujetti ? "Assujetti" : "Non assujetti"}
+                {obligation.assujetti ? "Assujetti" : "Non assujetti"}
               </Label>
             </div>
             
             <div className="flex items-center space-x-2">
               <Switch 
-                id={`${key}-soumis`}
-                checked={declaration.soumis}
-                onCheckedChange={(checked) => handleSoumisChange(key, checked)}
-                disabled={!declaration.assujetti}
+                id={`${key}-depose`}
+                checked={obligation.depose}
+                onCheckedChange={(checked) => handleDeposeChange(key, checked)}
+                disabled={!obligation.assujetti}
               />
-              <Label htmlFor={`${key}-soumis`}>
-                {declaration.soumis ? "Soumis" : "Non soumis"}
+              <Label htmlFor={`${key}-depose`}>
+                {obligation.depose ? "Déposé" : "Non déposé"}
               </Label>
             </div>
             
-            {declaration.assujetti && declaration.soumis && !state.openedDetails[key] && (
+            {obligation.assujetti && obligation.depose && !state.openedDetails[key] && (
               <button 
                 className="inline-flex items-center px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
                 onClick={() => toggleDetails(key)}
@@ -174,7 +140,7 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
           </div>
         </div>
         
-        {declaration.assujetti && declaration.soumis && state.openedDetails[key] && (
+        {obligation.assujetti && obligation.depose && state.openedDetails[key] && (
           <div className="mt-4 pt-4 border-t border-dashed border-gray-200">
             <div className="flex justify-between mb-4">
               <h4 className="font-medium text-sm">Détails de la déclaration</h4>
@@ -191,7 +157,7 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
                 <label className="block text-sm mb-2">Régime fiscal</label>
                 <select 
                   className="w-full p-2 border border-gray-300 rounded bg-gray-50"
-                  value={'regime' in declaration ? declaration.regime : ''}
+                  value={obligation.regime || ''}
                   onChange={(e) => handleRegimeChange(key, e.target.value)}
                 >
                   <option value="">Sélectionner un régime</option>
@@ -207,7 +173,7 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
                 <input
                   type="date"
                   className="w-full p-2 border border-gray-300 rounded bg-gray-50"
-                  value={declaration.dateLimite || ''}
+                  value={obligation.dateEcheance || ''}
                   readOnly
                 />
               </div>
@@ -216,40 +182,25 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
                 <input
                   type="date"
                   className="w-full p-2 border border-gray-300 rounded bg-gray-50"
-                  value={declaration.dateSoumission || ''}
-                  onChange={(e) => {
-                    setState(prev => {
-                      const newDeclarations = { ...prev.declarations };
-                      newDeclarations[key] = {
-                        ...newDeclarations[key],
-                        dateSoumission: e.target.value
-                      };
-                      setHasUnsavedChanges(true);
-                      return { ...prev, declarations: newDeclarations };
-                    });
-                  }}
+                  value={obligation.dateDepot || ''}
+                  onChange={(e) => handleStatusChange(key, 'dateDepot', e.target.value)}
                 />
               </div>
             </div>
             
-            <div className="mt-4">
-              <h4 className="font-medium text-sm mb-2">Pièces justificatives</h4>
-              
-              <div className="mb-2">
-                <label className="block text-xs text-gray-500 mb-1">Déclaration soumise (PDF)</label>
-                <input type="file" className="w-full text-sm" accept=".pdf" />
-              </div>
-              
-              <div className="mb-2">
-                <label className="block text-xs text-gray-500 mb-1">Accusé de réception (PDF)</label>
-                <input type="file" className="w-full text-sm" accept=".pdf" />
-              </div>
-              
-              <div className="mb-2">
-                <label className="block text-xs text-gray-500 mb-1">Solde de déclaration (PDF ou Photo)</label>
-                <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
-              </div>
-            </div>
+            {/* Unified Attachments */}
+            <UnifiedAttachmentSection
+              obligationName={key}
+              clientId={clientId}
+              selectedYear={fiscalYear}
+              existingAttachments={obligation.attachements}
+              onAttachmentUpload={(obligation, attachmentType, filePath) => {
+                handleAttachmentUpdate(obligation, attachmentType, filePath);
+              }}
+              onAttachmentDelete={(obligation, attachmentType) => {
+                handleAttachmentUpdate(obligation, attachmentType, null);
+              }}
+            />
           </div>
         )}
       </div>
@@ -277,7 +228,6 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
           
           {state.activeTab === 'mensuelles' && (
             <>
-              {renderDeclarationItem('licence', 'Licence')}
               {renderDeclarationItem('cntps', 'CNTPS')}
               {renderDeclarationItem('precomptes', 'Précomptes')}
             </>
