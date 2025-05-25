@@ -1,17 +1,14 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Plus, X } from 'lucide-react';
 import { ObligationStatuses } from '@/hooks/fiscal/types';
-import UnifiedAttachmentSection from './components/UnifiedAttachmentSection';
 
 interface DirectTaxesSectionProps {
   obligationStatuses: ObligationStatuses;
   handleStatusChange: (taxType: string, field: string, value: boolean) => void;
-  handleAttachmentUpdate?: (obligation: string, attachmentType: string, filePath: string | null) => void;
-  clientId?: string;
-  selectedYear?: string;
 }
 
 // IGS tax brackets configuration
@@ -30,10 +27,7 @@ const igsBareme = [
 
 export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({ 
   obligationStatuses,
-  handleStatusChange,
-  handleAttachmentUpdate,
-  clientId = '',
-  selectedYear = '2025'
+  handleStatusChange 
 }) => {
   const [openedDetails, setOpenedDetails] = useState<Record<string, boolean>>({});
   const [caValue, setCAValue] = useState<string>('');
@@ -198,7 +192,6 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                   </div>
                 )}
 
-                {/* Quarterly payments table */}
                 <div className="bg-gray-100 border-l-4 border-primary rounded p-2 text-sm inline-block mb-4">
                   <strong className="text-primary mr-2">Échéances :</strong>
                   <span>15 janvier, 15 avril, 15 juillet, 15 octobre</span>
@@ -269,21 +262,25 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
               </div>
             </div>
 
-            {/* Unified Attachments */}
-            {handleAttachmentUpdate && (
-              <UnifiedAttachmentSection
-                obligationName={key}
-                clientId={clientId}
-                selectedYear={selectedYear}
-                existingAttachments={obligation.attachements}
-                onAttachmentUpload={(obligation, attachmentType, filePath) => {
-                  handleAttachmentUpdate(obligation, attachmentType, filePath);
-                }}
-                onAttachmentDelete={(obligation, attachmentType) => {
-                  handleAttachmentUpdate(obligation, attachmentType, null);
-                }}
-              />
-            )}
+            {/* Attachments */}
+            <div className="mt-4">
+              <h4 className="font-medium text-sm mb-2">Pièces justificatives</h4>
+              
+              <div className="mb-2">
+                <label className="block text-xs text-gray-500 mb-1">Déclaration ou Avis d'imposition (PDF ou Photo)</label>
+                <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
+              </div>
+              
+              <div className="mb-2">
+                <label className="block text-xs text-gray-500 mb-1">Reçu de paiement (PDF ou Photo)</label>
+                <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
+              </div>
+              
+              <div className="mb-2">
+                <label className="block text-xs text-gray-500 mb-1">Quittance de paiement (PDF ou Photo)</label>
+                <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -5,7 +5,7 @@ import { ObligationStatuses } from "./types";
 import { useFiscalData } from "./hooks/useFiscalData";
 import { useUnsavedChanges } from "./hooks/useUnsavedChanges";
 import { useFiscalAttestation } from "./hooks/useFiscalAttestation";
-import { useUnifiedObligations } from "./hooks/useUnifiedObligations";
+import { useObligationManagement } from "./hooks/useObligationManagement";
 import { useYearSelector } from "./hooks/useYearSelector";
 import { useSavingState } from "./hooks/useSavingState";
 import { useObligationPeriodicity } from "./hooks/useObligationPeriodicity";
@@ -29,14 +29,14 @@ export const useObligationsFiscales = (selectedClient: Client) => {
   // Import obligation periodicity hook
   const { isDeclarationObligation, updatePeriodicity } = useObligationPeriodicity();
   
-  // Unified obligations management
+  // Manage obligations
   const {
     obligationStatuses,
     handleStatusChange,
     handleAttachmentUpdate,
     initializeObligationStatuses,
     isTaxObligation,
-  } = useUnifiedObligations(markAsChanged);
+  } = useObligationManagement(markAsChanged);
 
   // Year selection
   const { 

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import TabsListWrapper from "@/components/gestion/tabs/TabsList";
+import { TabsList } from "@/components/gestion/tabs/TabsList";
 import { Client } from "@/types/client";
 import { TabsContent } from "@/components/gestion/tabs/TabsContent";
 
@@ -64,7 +64,7 @@ export function GestionTabs({
 
   return (
     <div className="mt-6 space-y-6">
-      <TabsListWrapper activeTab={activeTab} onTabChange={onTabChange} />
+      <TabsList activeTab={activeTab} onTabChange={onTabChange} />
       <div className="mt-6">{tabContent}</div>
     </div>
   );
