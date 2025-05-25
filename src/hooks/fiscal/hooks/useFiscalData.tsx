@@ -8,7 +8,7 @@ export const useFiscalData = (clientId: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
 
-  const loadFiscalData = useCallback(async (showNotification: boolean = true) => {
+  const loadFiscalData = useCallback(async (showNotification = true) => {
     if (!clientId) return;
     
     try {

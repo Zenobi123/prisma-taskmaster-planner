@@ -40,7 +40,6 @@ export interface DeclarationObligationStatus extends ObligationStatus {
   dateEcheance?: string;
   regime?: string;
   dateSoumission?: string;
-  dateLimite?: string;
 }
 
 export type DeclarationPeriodicity = "mensuelle" | "trimestrielle" | "annuelle";
