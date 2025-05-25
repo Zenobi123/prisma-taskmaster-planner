@@ -1,77 +1,58 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { ClientFiscalData, ObligationStatuses } from '../types';
-import { fetchFiscalData } from '../services/fetchService';
+import { ObligationStatuses } from '../types';
+import { fetchFiscalData, saveFiscalData } from '../services';
 
 export const useFiscalData = (clientId: string) => {
-  const [fiscalData, setFiscalData] = useState<ClientFiscalData | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [fiscalData, setFiscalData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
-  
-  // Function to load fiscal data without notification
-  const loadFiscalData = useCallback(async (showToast: boolean = false) => {
+
+  const loadFiscalData = useCallback(async (showNotification = true) => {
+    if (!clientId) return;
+    
     try {
-      if (!clientId) return;
-      
       setIsLoading(true);
+      const data = await fetchFiscalData(clientId, showNotification);
+      setFiscalData(data);
       
-      const data = await fetchFiscalData(clientId);
-      
-      if (data) {
-        console.log("Fiscal data loaded:", data);
-        setFiscalData(data);
-        
-        // If year is stored, use it
-        if (data.selectedYear) {
-          setSelectedYear(data.selectedYear);
-        }
-      } else {
-        console.log("No fiscal data found for client", clientId);
-        // Initialize with empty data if nothing is found
-        const currentYear = new Date().getFullYear().toString();
-        const emptyObligations: ObligationStatuses = {
-          igs: { 
-            assujetti: false, 
-            payee: false,
-            q1Payee: false,
-            q2Payee: false,
-            q3Payee: false,
-            q4Payee: false
-          },
-          patente: { assujetti: false, payee: false },
-          dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
-          darp: { assujetti: false, depose: false, periodicity: "annuelle" },
-          licence: { assujetti: false, depose: false, periodicity: "mensuelle" },
-          cntps: { assujetti: false, depose: false, periodicity: "mensuelle" },
-          precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" }
-        };
-        
-        setFiscalData({
-          clientId,
-          year: currentYear,
-          selectedYear: currentYear,
-          attestation: {
-            creationDate: '',
-            validityEndDate: '',
-            showInAlert: true
-          },
-          obligations: {
-            [currentYear]: emptyObligations
-          },
-          hiddenFromDashboard: false
-        });
+      // Set selected year from data or default to current year
+      if (data?.selectedYear) {
+        setSelectedYear(data.selectedYear);
       }
-    } catch (err) {
-      console.error("Error loading fiscal data:", err);
+    } catch (error) {
+      console.error('Error loading fiscal data:', error);
     } finally {
       setIsLoading(false);
     }
   }, [clientId]);
-  
-  // Load data on component mount, once only, without notification
+
   useEffect(() => {
-    loadFiscalData(false);
+    loadFiscalData();
   }, [loadFiscalData]);
+
+  // Helper function to get obligations for a specific year with proper typing
+  const getObligationsForYear = useCallback((year: string): ObligationStatuses | undefined => {
+    if (!fiscalData?.obligations?.[year]) return undefined;
+    
+    const yearObligations = fiscalData.obligations[year];
+    
+    // Ensure all required obligations are present with proper structure
+    return {
+      // Direct taxes
+      igs: yearObligations.igs || { assujetti: false, payee: false },
+      patente: yearObligations.patente || { assujetti: false, payee: false },
+      licence: yearObligations.licence || { assujetti: false, payee: false },
+      bailCommercial: yearObligations.bailCommercial || { assujetti: false, payee: false },
+      precompteLoyer: yearObligations.precompteLoyer || { assujetti: false, payee: false },
+      tpf: yearObligations.tpf || { assujetti: false, payee: false },
+      // Declarations
+      dsf: yearObligations.dsf || { assujetti: false, depose: false, periodicity: "annuelle" },
+      darp: yearObligations.darp || { assujetti: false, depose: false, periodicity: "annuelle" },
+      cntps: yearObligations.cntps || { assujetti: false, depose: false, periodicity: "mensuelle" },
+      precomptes: yearObligations.precomptes || { assujetti: false, depose: false, periodicity: "mensuelle" }
+    } as ObligationStatuses;
+  }, [fiscalData]);
 
   return {
     fiscalData,
@@ -79,6 +60,7 @@ export const useFiscalData = (clientId: string) => {
     isLoading,
     loadFiscalData,
     selectedYear,
-    setSelectedYear
+    setSelectedYear,
+    getObligationsForYear
   };
 };

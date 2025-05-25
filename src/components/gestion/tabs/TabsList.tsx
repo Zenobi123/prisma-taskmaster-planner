@@ -6,11 +6,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface TabsListProps {
-  children: React.ReactNode;
-  className?: string;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
-export function CustomTabsList({ children, className = "" }: TabsListProps) {
+export function CustomTabsList({ activeTab, onTabChange }: TabsListProps) {
   const [scrollPos, setScrollPos] = useState(0);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -29,7 +29,7 @@ export function CustomTabsList({ children, className = "" }: TabsListProps) {
     checkScroll();
     window.addEventListener("resize", checkScroll);
     return () => window.removeEventListener("resize", checkScroll);
-  }, [children]);
+  }, []);
   
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
@@ -59,10 +59,18 @@ export function CustomTabsList({ children, className = "" }: TabsListProps) {
         </Button>
       )}
       
-      <ScrollArea ref={scrollRef} className={className}>
-        <Tabs defaultValue="entreprise" className="w-full">
+      <ScrollArea ref={scrollRef} className="flex-1">
+        <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
           <TabsList className="flex flex-nowrap overflow-x-auto">
-            {children}
+            <TabsTrigger value="entreprise">Entreprise</TabsTrigger>
+            <TabsTrigger value="fiscal">Fiscal</TabsTrigger>
+            <TabsTrigger value="comptable">Comptable</TabsTrigger>
+            <TabsTrigger value="contrat-prestations">Contrats</TabsTrigger>
+            <TabsTrigger value="cloture-exercice">Clôture</TabsTrigger>
+            <TabsTrigger value="dossier">Dossier</TabsTrigger>
+            <TabsTrigger value="gestion-admin">Administration</TabsTrigger>
+            <TabsTrigger value="gestion-rh">RH</TabsTrigger>
+            <TabsTrigger value="gestion-paie">Paie</TabsTrigger>
           </TabsList>
         </Tabs>
       </ScrollArea>
@@ -81,6 +89,6 @@ export function CustomTabsList({ children, className = "" }: TabsListProps) {
   );
 }
 
-export default function TabsListWrapper({ children, className }: TabsListProps) {
-  return <CustomTabsList className={className}>{children}</CustomTabsList>;
+export default function TabsListWrapper(props: TabsListProps) {
+  return <CustomTabsList {...props} />;
 }

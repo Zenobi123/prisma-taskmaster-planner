@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Client } from "@/types/client";
@@ -24,14 +23,21 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  // État pour les obligations fiscales
+  
+  // État pour les obligations fiscales - mise à jour pour inclure toutes les obligations
   const [obligationStatuses, setObligationStatuses] = useState({
+    // Direct taxes
     igs: { assujetti: false, payee: false },
     patente: { assujetti: false, payee: false },
     licence: { assujetti: false, payee: false },
     bailCommercial: { assujetti: false, payee: false },
     precompteLoyer: { assujetti: false, payee: false },
-    tpf: { assujetti: false, payee: false }
+    tpf: { assujetti: false, payee: false },
+    // Declarations
+    dsf: { assujetti: false, depose: false, periodicity: "annuelle" as const },
+    darp: { assujetti: false, depose: false, periodicity: "annuelle" as const },
+    cntps: { assujetti: false, depose: false, periodicity: "mensuelle" as const },
+    precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const }
   });
 
   // Calculer la date de fin de validité lorsque la date de création change
@@ -112,10 +118,17 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
           : taxType;
 
       if (field === "assujetti" && !value) {
-        // Si on désactive l'assujettissement, on désactive aussi le paiement
+        // Si on désactive l'assujettissement, on désactive aussi le paiement/dépôt
+        const updatedObligation = { ...prev[taxKey as keyof typeof prev] };
+        if ('payee' in updatedObligation) {
+          (updatedObligation as any).payee = false;
+        }
+        if ('depose' in updatedObligation) {
+          (updatedObligation as any).depose = false;
+        }
         return {
           ...prev,
-          [taxKey]: { ...prev[taxKey as keyof typeof prev], assujetti: value, payee: false }
+          [taxKey]: { ...updatedObligation, assujetti: value }
         };
       }
 
@@ -128,7 +141,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
 
   // Fonction pour vérifier si un impôt est déclaratif
   const isDeclarationObligation = (obligation: string): boolean => {
-    return ["licence", "bail-commercial", "precompte-loyer"].includes(obligation);
+    return ["dsf", "darp", "cntps", "precomptes"].includes(obligation);
   };
 
   return (
