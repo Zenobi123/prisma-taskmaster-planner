@@ -10,7 +10,7 @@ import { useYearSelector } from "./hooks/useYearSelector";
 import { useSavingState } from "./hooks/useSavingState";
 import { useObligationPeriodicity } from "./hooks/useObligationPeriodicity";
 
-export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses, DeclarationPeriodicity } from "./types";
+export type { ObligationType, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus, ObligationStatuses, DeclarationPeriodicity, IgsObligationStatus } from "./types";
 
 export const useObligationsFiscales = (selectedClient: Client) => {
   // Load fiscal data
@@ -35,6 +35,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     handleStatusChange,
     handleAttachmentUpdate,
     initializeObligationStatuses,
+    isTaxObligation,
   } = useObligationManagement(markAsChanged);
 
   // Year selection
@@ -156,5 +157,6 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     selectedYear,
     setSelectedYear: handleYearChange,
     isDeclarationObligation,
+    isTaxObligation,
   };
 };

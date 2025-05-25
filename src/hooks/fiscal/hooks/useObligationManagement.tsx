@@ -1,96 +1,99 @@
 
-import { useState, useCallback } from 'react';
-import { ObligationStatuses, TaxObligationStatus, DeclarationObligationStatus, ObligationStatus } from '../types';
-import { useObligationPeriodicity } from './useObligationPeriodicity';
+import { useState, useCallback } from "react";
+import { ObligationStatuses, ObligationType } from "../types";
 
-export function useObligationManagement(markAsChanged: () => void) {
-  // Initialize with default obligation statuses
-  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
-    // Impôts directs
-    igs: { 
-      assujetti: false, 
-      payee: false,
-      q1Payee: false,
-      q2Payee: false,
-      q3Payee: false,
-      q4Payee: false
-    },
-    patente: { assujetti: false, payee: false },
-    
-    // Déclarations annuelles
-    dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
-    darp: { assujetti: false, depose: false, periodicity: "annuelle" },
-    
-    // Déclarations mensuelles/autre périodicité
-    licence: { assujetti: false, depose: false, periodicity: "mensuelle" },
-    cntps: { assujetti: false, depose: false, periodicity: "mensuelle" },
-    precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" }
-  });
+const defaultObligationStatuses: ObligationStatuses = {
+  // Direct taxes
+  igs: { assujetti: false, payee: false },
+  patente: { assujetti: false, payee: false },
+  licence: { assujetti: false, payee: false },
+  bailCommercial: { assujetti: false, payee: false },
+  precompteLoyer: { assujetti: false, payee: false },
+  tpf: { assujetti: false, payee: false },
+  // Declarations
+  dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
+  darp: { assujetti: false, depose: false, periodicity: "annuelle" },
+  cntps: { assujetti: false, depose: false, periodicity: "mensuelle" },
+  precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" }
+};
 
-  const { isDeclarationObligation, isMonthlyDeclaration } = useObligationPeriodicity();
+export const useObligationManagement = (markAsChanged: () => void) => {
+  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(defaultObligationStatuses);
 
-  // Handle status change for an obligation
+  const initializeObligationStatuses = useCallback((obligations: ObligationStatuses | undefined) => {
+    if (obligations) {
+      // Merge with defaults to ensure all obligations are present
+      const mergedObligations = {
+        ...defaultObligationStatuses,
+        ...obligations
+      };
+      setObligationStatuses(mergedObligations);
+    } else {
+      setObligationStatuses(defaultObligationStatuses);
+    }
+  }, []);
+
   const handleStatusChange = useCallback((obligation: string, field: string, value: string | number | boolean) => {
+    console.log(`Updating ${obligation}.${field} to:`, value);
+    
     setObligationStatuses(prev => {
-      const currentStatus = { ...prev[obligation as keyof ObligationStatuses] };
-      // Set the field value dynamically
-      (currentStatus as any)[field] = value;
+      const updatedObligation = { ...prev[obligation as keyof ObligationStatuses] };
       
-      // For monthly declarations, set proper periodicity
-      if (isDeclarationObligation(obligation) && isMonthlyDeclaration(obligation) && 'periodicity' in currentStatus) {
-        (currentStatus as DeclarationObligationStatus).periodicity = "mensuelle";
+      // Handle specific field updates
+      if (field === 'assujetti' && !value) {
+        // If turning off assujetti, also turn off payee/depose
+        if ('payee' in updatedObligation) {
+          (updatedObligation as any).payee = false;
+        }
+        if ('depose' in updatedObligation) {
+          (updatedObligation as any).depose = false;
+        }
       }
       
-      markAsChanged();
-      return { ...prev, [obligation]: currentStatus };
-    });
-  }, [markAsChanged, isDeclarationObligation, isMonthlyDeclaration]);
-
-  // Handle attachment update
-  const handleAttachmentUpdate = useCallback((obligation: string, attachmentType: string, filePath: string) => {
-    setObligationStatuses(prev => {
-      const currentStatus = { ...prev[obligation as keyof ObligationStatuses] };
+      (updatedObligation as any)[field] = value;
       
-      // Initialize attachements if not exist
-      if (!currentStatus.attachements) {
-        currentStatus.attachements = {};
-      }
-      
-      // Set the attachment
-      currentStatus.attachements[attachmentType] = filePath;
+      const newStatuses = {
+        ...prev,
+        [obligation]: updatedObligation
+      };
       
       markAsChanged();
-      return { ...prev, [obligation]: currentStatus };
+      return newStatuses;
     });
   }, [markAsChanged]);
 
-  // Initialize obligation statuses from fiscal data
-  const initializeObligationStatuses = useCallback((yearObligations: ObligationStatuses | undefined) => {
-    if (yearObligations) {
-      setObligationStatuses(yearObligations);
-    } else {
-      setObligationStatuses({
-        // Impôts directs
-        igs: { 
-          assujetti: false, 
-          payee: false,
-          q1Payee: false,
-          q2Payee: false,
-          q3Payee: false,
-          q4Payee: false
-        },
-        patente: { assujetti: false, payee: false },
-        
-        // Déclarations annuelles
-        dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
-        darp: { assujetti: false, depose: false, periodicity: "annuelle" },
-        
-        // Déclarations mensuelles/autre périodicité
-        licence: { assujetti: false, depose: false, periodicity: "mensuelle" },
-        cntps: { assujetti: false, depose: false, periodicity: "mensuelle" },
-        precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" }
-      });
-    }
+  const handleAttachmentUpdate = useCallback((obligation: string, attachmentType: string, filePath: string | null) => {
+    setObligationStatuses(prev => {
+      const updatedObligation = { ...prev[obligation as keyof ObligationStatuses] };
+      
+      if (!updatedObligation.attachements) {
+        updatedObligation.attachements = {};
+      }
+      
+      if (filePath) {
+        updatedObligation.attachements[attachmentType] = filePath;
+      } else {
+        delete updatedObligation.attachements[attachmentType];
+      }
+      
+      const newStatuses = {
+        ...prev,
+        [obligation]: updatedObligation
+      };
+      
+      markAsChanged();
+      return newStatuses;
+    });
+  }, [markAsChanged]);
+
+  // Helper function to check if an obligation is a declaration type
+  const isDeclarationObligation = useCallback((obligation: string): boolean => {
+    return ["dsf", "darp", "cntps", "precomptes"].includes(obligation);
+  }, []);
+
+  // Helper function to check if an obligation is a tax type
+  const isTaxObligation = useCallback((obligation: string): boolean => {
+    return ["igs", "patente", "licence", "bailCommercial", "precompteLoyer", "tpf"].includes(obligation);
   }, []);
 
   return {
@@ -98,6 +101,7 @@ export function useObligationManagement(markAsChanged: () => void) {
     handleStatusChange,
     handleAttachmentUpdate,
     initializeObligationStatuses,
-    isDeclarationObligation
+    isDeclarationObligation,
+    isTaxObligation,
   };
-}
+};

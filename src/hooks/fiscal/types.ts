@@ -6,7 +6,7 @@ export interface ObligationStatus {
   observations?: string;
 }
 
-// Define tax obligation status
+// Define tax obligation status (for direct taxes)
 export interface TaxObligationStatus extends ObligationStatus {
   payee: boolean;
   dateEcheance?: string;
@@ -26,6 +26,10 @@ export interface TaxObligationStatus extends ObligationStatus {
 // Define IGS obligation status with quarterly payments
 export interface IgsObligationStatus extends TaxObligationStatus {
   montantAnnuel?: number;
+  caValue?: string;
+  isCGA?: boolean;
+  classe?: string | number;
+  outOfRange?: boolean;
 }
 
 // Define declaration obligation status
@@ -34,20 +38,27 @@ export interface DeclarationObligationStatus extends ObligationStatus {
   periodicity: DeclarationPeriodicity;
   dateDepot?: string;
   dateEcheance?: string;
+  regime?: string;
+  dateSoumission?: string;
 }
 
 export type DeclarationPeriodicity = "mensuelle" | "trimestrielle" | "annuelle";
 
-// Define obligation types
-export type ObligationType = "igs" | "patente" | "dsf" | "darp" | "licence" | "cntps" | "precomptes";
+// Define obligation types - updated to match frontend usage
+export type ObligationType = "igs" | "patente" | "licence" | "bailCommercial" | "precompteLoyer" | "tpf" | "dsf" | "darp" | "cntps" | "precomptes";
 
-// Define all tax obligation statuses
+// Define all tax obligation statuses - updated to match DirectTaxesSection
 export interface ObligationStatuses {
+  // Direct taxes (impôts directs)
   igs: IgsObligationStatus;
   patente: TaxObligationStatus;
+  licence: TaxObligationStatus;
+  bailCommercial: TaxObligationStatus;
+  precompteLoyer: TaxObligationStatus;
+  tpf: TaxObligationStatus;
+  // Declarations
   dsf: DeclarationObligationStatus;
   darp: DeclarationObligationStatus;
-  licence: DeclarationObligationStatus;
   cntps: DeclarationObligationStatus;
   precomptes: DeclarationObligationStatus;
 }
