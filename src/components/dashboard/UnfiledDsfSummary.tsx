@@ -1,49 +1,63 @@
 
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { FileText, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Client } from '@/types/client';
+import { useQuery } from "@tanstack/react-query";
+import { getClientsWithUnfiledDsf } from "@/services/unfiledDsfService";
+import { Card, CardContent } from "@/components/ui/card";
+import { Loader2, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface UnfiledDsfSummaryProps {
-  clients: Client[];
-  isLoading: boolean;
   onViewAllClick: () => void;
 }
 
-const UnfiledDsfSummary: React.FC<UnfiledDsfSummaryProps> = ({ 
-  clients, 
-  isLoading,
-  onViewAllClick 
-}) => {
+const UnfiledDsfSummary = ({ onViewAllClick }: UnfiledDsfSummaryProps) => {
+  const { data: clients = [], isLoading, error } = useQuery({
+    queryKey: ["clients-unfiled-dsf-summary"],
+    queryFn: getClientsWithUnfiledDsf,
+    // Configurer le rafraîchissement automatique
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
+
+  console.log("UnfiledDsfSummary - Clients:", clients.length);
+  console.log("UnfiledDsfSummary - isLoading:", isLoading);
+  console.log("UnfiledDsfSummary - error:", error);
+  console.log("UnfiledDsfSummary - Le composant est bien rendu");
+
+  if (isLoading) {
+    return (
+      <Card className="bg-white shadow-md">
+        <CardContent className="p-6 flex items-center justify-center">
+          <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="border-[#B4D6FA] bg-[#F0F7FF] shadow-sm">
-      <CardContent className="p-4">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <div className="bg-blue-100 p-2 rounded-full mr-3">
-              <FileText className="h-5 w-5 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-medium text-gray-900">DSF non déposées</h3>
-              {isLoading ? (
-                <div className="h-5 bg-blue-100 animate-pulse rounded w-24 mt-1"></div>
-              ) : (
-                <p className="text-sm text-gray-600">
-                  {clients.length} {clients.length > 1 ? "clients concernés" : "client concerné"}
-                </p>
-              )}
+    <Card className="bg-white shadow-md border-2 border-blue-200">
+      <CardContent className="p-6">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
+          <div>
+            <h3 className="text-xl font-semibold text-neutral-800 flex items-center">
+              <FileText className="h-5 w-5 mr-2 text-blue-500" />
+              DSF non déposées
+            </h3>
+            <div className="flex items-center mt-3">
+              <span className="text-4xl font-semibold text-blue-600">{clients.length}</span>
+              <div className="ml-4">
+                <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                  À régulariser
+                </span>
+                <p className="text-neutral-500 mt-1">Clients assujettis</p>
+              </div>
             </div>
           </div>
-          
           <Button 
-            variant="ghost" 
-            size="sm"
+            variant="outline" 
+            className="mt-4 md:mt-0 border-blue-300 hover:bg-blue-50 hover:text-blue-700" 
             onClick={onViewAllClick}
-            className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
           >
-            <span>Voir tous</span>
-            <ChevronRight className="h-4 w-4 ml-1" />
+            Voir tous
           </Button>
         </div>
       </CardContent>

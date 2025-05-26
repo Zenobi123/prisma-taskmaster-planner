@@ -3,8 +3,8 @@ import jsPDF from 'jspdf';
 import { PDFFacture } from '../types';
 
 // Add notes section if available
-export const addNotesSection = (doc: jsPDF, notes: string, startY: number) => {
-  if (!notes) return startY;
+export const addNotesSection = (doc: jsPDF, facture: PDFFacture, startY: number) => {
+  if (!facture.notes) return;
   
   doc.setFillColor(250, 250, 250);
   doc.roundedRect(15, startY, 180, 20, 3, 3, 'F');
@@ -18,9 +18,6 @@ export const addNotesSection = (doc: jsPDF, notes: string, startY: number) => {
   doc.setFontSize(9);
   
   // Handle multiline notes
-  const splitNotes = doc.splitTextToSize(notes, 160);
+  const splitNotes = doc.splitTextToSize(facture.notes, 160);
   doc.text(splitNotes, 20, startY + 14);
-  
-  return startY + 25; // Return new Y position
 };
-

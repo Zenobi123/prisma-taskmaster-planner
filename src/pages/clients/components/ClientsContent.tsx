@@ -18,7 +18,6 @@ interface ClientsContentProps {
   onArchive: (client: Client) => void;
   onRestore: (client: Client) => void;
   onDelete: (client: Client) => void;
-  isMobile?: boolean;
 }
 
 export function ClientsContent({
@@ -36,10 +35,9 @@ export function ClientsContent({
   onArchive,
   onRestore,
   onDelete,
-  isMobile
 }: ClientsContentProps) {
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-neutral-200 p-${isMobile ? '4' : '6'}`}>
+    <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
       <ClientFilters
         searchTerm={searchTerm}
         onSearchChange={onSearchChange}
@@ -49,8 +47,6 @@ export function ClientsContent({
         onSecteurChange={onSecteurChange}
         showArchived={showArchived}
         onShowArchivedChange={onShowArchivedChange}
-        clients={clients}
-        isMobile={isMobile}
       />
 
       <ClientList
@@ -60,7 +56,6 @@ export function ClientsContent({
         onArchive={onArchive}
         onRestore={onRestore}
         onDelete={onDelete}
-        isMobile={isMobile}
       />
     </div>
   );

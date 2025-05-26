@@ -20,8 +20,7 @@ export const UnfiledDsfDialog = ({ open, onOpenChange }: UnfiledDsfDialogProps) 
     queryFn: getClientsWithUnfiledDsf,
     // Configurer le rafraîchissement automatique
     refetchInterval: 10000,
-    refetchOnWindowFocus: true,
-    enabled: open // Ne charge les données que si la boîte de dialogue est ouverte
+    refetchOnWindowFocus: true
   });
 
   const handleNavigateToClient = (clientId: string) => {
@@ -74,7 +73,7 @@ export const UnfiledDsfDialog = ({ open, onOpenChange }: UnfiledDsfDialogProps) 
                     </TableCell>
                     <TableCell>{client.niu}</TableCell>
                     <TableCell>{client.centrerattachement}</TableCell>
-                    <TableCell>{client.contact?.telephone}</TableCell>
+                    <TableCell>{client.contact.telephone}</TableCell>
                     <TableCell className="text-right">
                       <Button 
                         variant="outline" 

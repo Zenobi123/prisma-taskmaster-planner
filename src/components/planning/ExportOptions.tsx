@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Event } from "@/types/event";
-import { exportToCSV, exportToPdf } from "@/utils/exports";
+import { exportToCSV, exportToPDF } from "@/utils/exportUtils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +34,7 @@ export const ExportOptions = ({ events, date }: ExportOptionsProps) => {
           Exporter en CSV
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onClick={() => exportToPdf("Planning d'événements", events, `planning-${date?.toISOString().split('T')[0] || 'complet'}`)}
+          onClick={() => exportToPDF(events, date)}
           className="cursor-pointer"
         >
           <Printer className="w-4 h-4 mr-2" />

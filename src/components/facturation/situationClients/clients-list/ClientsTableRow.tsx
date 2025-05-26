@@ -9,10 +9,9 @@ import ClientStatusBadge from "./ClientStatusBadge";
 interface ClientsTableRowProps {
   client: ClientFinancialSummary;
   onViewDetails: (clientId: string) => void;
-  isMobile?: boolean;
 }
 
-const ClientsTableRow = ({ client, onViewDetails, isMobile }: ClientsTableRowProps) => {
+const ClientsTableRow = ({ client, onViewDetails }: ClientsTableRowProps) => {
   return (
     <TableRow>
       <TableCell>{client.nom}</TableCell>

@@ -1,8 +1,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChartContainer } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell, ResponsiveContainer } from "recharts";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell } from "recharts";
 
 interface ChartDataItem {
   name: string;
@@ -14,8 +13,6 @@ interface ClientsChartProps {
 }
 
 const ClientsChart = ({ chartData }: ClientsChartProps) => {
-  const isMobile = useIsMobile();
-  
   // Define a proper config object for the chart
   const chartConfig = {
     // Define colors for each status
@@ -43,37 +40,19 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Répartition des paiements</CardTitle>
+        <CardTitle>Répartition des paiements</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className={`h-[300px] w-full ${isMobile ? 'px-0' : ''}`}>
-          <ResponsiveContainer width="100%" height="100%">
+        <ChartContainer className="h-[300px]" config={chartConfig}>
+          {chartData.length > 0 ? (
             <BarChart
               data={chartData}
-              margin={{ 
-                top: 10, 
-                right: isMobile ? 10 : 30, 
-                left: isMobile ? 0 : 0, 
-                bottom: isMobile ? 30 : 20 
-              }}
+              margin={{ top: 10, right: 30, left: 0, bottom: 20 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis 
-                dataKey="name" 
-                tick={{ fontSize: isMobile ? 10 : 12 }}
-                angle={isMobile ? -45 : 0}
-                textAnchor={isMobile ? "end" : "middle"}
-                height={isMobile ? 60 : 30}
-              />
-              <YAxis 
-                allowDecimals={false} 
-                tick={{ fontSize: isMobile ? 10 : 12 }}
-                width={isMobile ? 25 : 30}
-              />
-              <Tooltip 
-                formatter={(value) => [`${value} clients`, '']}
-                contentStyle={{ fontSize: isMobile ? '12px' : '14px' }}
-              />
+              <XAxis dataKey="name" />
+              <YAxis allowDecimals={false} />
+              <Tooltip formatter={(value) => [`${value} clients`, '']} />
               <Bar 
                 dataKey="total" 
                 fillOpacity={0.8}
@@ -83,14 +62,17 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
                 ))}
               </Bar>
             </BarChart>
-          </ResponsiveContainer>
-        </div>
-        
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p className="text-gray-500">Chargement des données...</p>
+            </div>
+          )}
+        </ChartContainer>
         <div className="mt-6 space-y-2">
           <div className="flex justify-between items-center">
             <span className="flex items-center">
               <span className="h-3 w-3 rounded-full bg-green-500 mr-2"></span>
-              <span className={isMobile ? "text-sm" : ""}>À jour</span>
+              À jour
             </span>
             <span className="font-medium">
               {chartData.find(d => d.name === "À jour")?.total || 0}
@@ -99,7 +81,7 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
           <div className="flex justify-between items-center">
             <span className="flex items-center">
               <span className="h-3 w-3 rounded-full bg-amber-500 mr-2"></span>
-              <span className={isMobile ? "text-sm" : ""}>Partiellement payé</span>
+              Partiellement payé
             </span>
             <span className="font-medium">
               {chartData.find(d => d.name === "Partiellement payé")?.total || 0}
@@ -108,7 +90,7 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
           <div className="flex justify-between items-center">
             <span className="flex items-center">
               <span className="h-3 w-3 rounded-full bg-red-500 mr-2"></span>
-              <span className={isMobile ? "text-sm" : ""}>En retard</span>
+              En retard
             </span>
             <span className="font-medium">
               {chartData.find(d => d.name === "En retard")?.total || 0}

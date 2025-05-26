@@ -1,88 +1,69 @@
 
-import React, { useState, useCallback } from "react";
-import { TaxObligationStatus } from "@/hooks/fiscal/types";
+import React from "react";
+import { ObligationType, TaxObligationStatus } from "../fiscal/types";
 import { Card, CardContent } from "@/components/ui/card";
-import { ObligationHeader } from "./obligation/ObligationHeader";
-import { ObligationFields } from "./obligation/ObligationFields";
-import { ObligationDetails } from "./obligation/ObligationDetails";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface TaxObligationItemProps {
   title: string;
-  keyName: string;
+  deadline: string;
+  obligationType: Extract<ObligationType, "patente" | "bail" | "taxeFonciere">;
   status: TaxObligationStatus;
-  onStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
-  onAttachmentChange: (obligation: string, attachmentType: string, filePath: string | null) => void;
-  clientId: string;
-  selectedYear: string;
+  onChange: (
+    obligationType: ObligationType,
+    statusType: "assujetti" | "paye" | "depose",
+    value: boolean
+  ) => void;
 }
 
-export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
+export function TaxObligationItem({
   title,
-  keyName,
+  deadline,
+  obligationType,
   status,
-  onStatusChange,
-  onAttachmentChange,
-  clientId,
-  selectedYear
-}) => {
-  const [expanded, setExpanded] = useState(false);
-
-  // Gestionnaires d'événements optimisés
-  const handleAssujettiChange = useCallback((checked: boolean) => {
-    console.log(`${keyName} assujetti change:`, checked);
-    onStatusChange(keyName, "assujetti", checked);
-    
-    // Si on active, développer automatiquement
-    if (checked && !expanded) {
-      setExpanded(true);
-    }
-    
-    // Si on désactive, désactiver aussi "payée"
-    if (!checked && status?.payee) {
-      onStatusChange(keyName, "payee", false);
-    }
-  }, [keyName, status?.payee, expanded, onStatusChange]);
-
-  const toggleExpand = useCallback(() => {
-    setExpanded((prev) => !prev);
-  }, []);
-
-  // Arrêter la propagation des événements
-  const stopPropagation = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-  }, []);
-
+  onChange
+}: TaxObligationItemProps) {
   return (
-    <Card className="border p-4 rounded-md bg-background" onClick={stopPropagation}>
-      <ObligationHeader 
-        title={title}
-        keyName={keyName}
-        isAssujetti={Boolean(status?.assujetti)}
-        expanded={expanded}
-        onAssujettiChange={handleAssujettiChange}
-        toggleExpand={toggleExpand}
-      />
-
-      {status?.assujetti && (
-        <CardContent className="mt-4 pl-6 space-y-3 pt-4">
-          <ObligationFields
-            keyName={keyName}
-            status={status}
-            onStatusChange={onStatusChange}
-          />
-
-          {(expanded || status?.payee) && (
-            <ObligationDetails
-              keyName={keyName}
-              status={status}
-              onStatusChange={onStatusChange}
-              onAttachmentChange={onAttachmentChange}
-              clientId={clientId}
-              selectedYear={selectedYear}
-            />
-          )}
-        </CardContent>
-      )}
+    <Card>
+      <CardContent className="pt-6">
+        <div className="flex flex-col space-y-3">
+          <div className="flex justify-between items-center">
+            <div>
+              <h5 className="font-medium">{title}</h5>
+              <p className="text-sm text-gray-500">
+                Date limite de paiement : {deadline}
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4 mt-2">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id={`${obligationType}-assujetti`}
+                checked={status.assujetti}
+                onCheckedChange={(checked) => onChange(obligationType, "assujetti", checked)}
+              />
+              <Label htmlFor={`${obligationType}-assujetti`}>
+                {status.assujetti ? "Assujetti" : "Non assujetti"}
+              </Label>
+            </div>
+            
+            {status.assujetti && (
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id={`${obligationType}-paye`}
+                  checked={status.paye}
+                  onCheckedChange={(checked) => onChange(obligationType, "paye", checked)}
+                />
+                <Label htmlFor={`${obligationType}-paye`}>
+                  {status.paye ? "Payé" : "Non payé"}
+                </Label>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
     </Card>
   );
-};
+}

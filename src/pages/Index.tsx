@@ -1,23 +1,27 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { 
+  Collapsible, 
+  CollapsibleContent, 
+  CollapsibleTrigger 
+} from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
+import { ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
 // Components
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import DashboardAccordion from "@/components/dashboard/DashboardAccordion";
+import DashboardCollapsible from "@/components/dashboard/DashboardCollapsible";
 import QuickStats from "@/components/dashboard/QuickStats";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { UnfiledDsfDialog } from "@/components/dashboard/UnfiledDsfDialog";
-import AlertBanner from "@/components/dashboard/AlertBanner";
 
 const Index = () => {
   const queryClient = useQueryClient();
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
-  const [showAlert, setShowAlert] = useState(true);
   
   // États pour les dialogues
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
@@ -32,26 +36,13 @@ const Index = () => {
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-summary"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-section"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf-dialog"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs-section"] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["client-stats"] });
       
       // Mettre à jour le timestamp de dernière actualisation
       setLastRefresh(new Date());
       
-      // Masquer l'alerte après actualisation
-      setShowAlert(false);
-      
       console.log("Actualisation manuelle du tableau de bord effectuée à", new Date().toLocaleTimeString());
-      
-      // Afficher une notification de succès
-      toast({
-        title: "Données actualisées",
-        description: "Les informations du tableau de bord ont été mises à jour."
-      });
     } catch (error) {
       console.error("Erreur lors de l'actualisation:", error);
       toast({
@@ -90,13 +81,6 @@ const Index = () => {
     };
   }, [refreshDashboard]);
 
-  // Invalidation manuelle des caches
-  useEffect(() => {
-    if (typeof window !== 'undefined' && window.__invalidateFiscalCaches) {
-      window.__invalidateFiscalCaches();
-    }
-  }, []);
-
   console.log("Index - Rendering dashboard components, last refresh:", lastRefresh.toLocaleTimeString());
 
   return (
@@ -110,16 +94,27 @@ const Index = () => {
         />
 
         <div className="p-8 space-y-8">
-          {showAlert && (
-            <AlertBanner 
-              message="Des modifications fiscales ont été effectuées. Veuillez actualiser le tableau de bord pour voir les données à jour." 
-              onRefresh={refreshDashboard}
-              variant="info"
-            />
-          )}
-          
           <QuickStats />
-          <DashboardAccordion />
+          
+          <DashboardCollapsible 
+            title="Tâches récentes"
+            componentName="RecentTasks"
+          />
+          
+          <DashboardCollapsible 
+            title="Attestations de Conformité Fiscale"
+            componentName="ExpiringFiscalAttestations"
+          />
+
+          <DashboardCollapsible 
+            title="Gestion des Patentes"
+            componentName="PatenteSection"
+          />
+          
+          <DashboardCollapsible 
+            title="Déclarations Statistiques et Fiscales"
+            componentName="DsfSection"
+          />
         </div>
       </main>
       

@@ -26,13 +26,9 @@ interface ClientListProps {
   onArchive: (client: Client) => void;
   onRestore?: (client: Client) => void;
   onDelete?: (client: Client) => void;
-  isMobile?: boolean;
 }
 
-export function ClientList({ clients, onView, onEdit, onArchive, onRestore, onDelete, isMobile }: ClientListProps) {
-  // Pour le mode mobile, une présentation adaptée pourrait être ajoutée ici
-  // Mais pour cette tâche, nous nous concentrons uniquement sur l'export
-
+export function ClientList({ clients, onView, onEdit, onArchive, onRestore, onDelete }: ClientListProps) {
   return (
     <Table>
       <TableHeader>

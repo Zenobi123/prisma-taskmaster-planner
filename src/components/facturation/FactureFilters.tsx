@@ -23,7 +23,6 @@ interface FactureFiltersProps {
   sortDirection: "asc" | "desc";
   setSortDirection: (value: "asc" | "desc") => void;
   clients: Client[];
-  isMobile?: boolean;
 }
 
 const FactureFilters = ({
@@ -42,7 +41,6 @@ const FactureFilters = ({
   sortDirection,
   setSortDirection,
   clients,
-  isMobile
 }: FactureFiltersProps) => {
   const [expanded, setExpanded] = useState(false);
   const { sentInvoicesCount } = useInvoiceData();

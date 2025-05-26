@@ -5,15 +5,11 @@ import { ClientsHeader } from "./components/ClientsHeader";
 import { ClientsContent } from "./components/ClientsContent";
 import { ClientDialogs } from "./components/ClientDialogs";
 import { LoadingState } from "./components/LoadingState";
-import { useEffect } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function ClientsPage() {
   const {
     clients,
     isLoading,
-    isDataReady,
     error,
     searchTerm,
     setSearchTerm,
@@ -39,74 +35,48 @@ export default function ClientsPage() {
     handleArchive,
     handleRestore,
     handleDelete,
-    toast
+    toast,
+    confirmationDialog
   } = useClientsPage();
-  
-  const isMobile = useIsMobile();
 
-  // Error handling
-  useEffect(() => {
-    if (error) {
-      console.error("Erreur lors de la récupération des clients:", error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de récupérer la liste des clients",
-        variant: "destructive",
-      });
-    }
-  }, [error, toast]);
+  if (isLoading) {
+    return <LoadingState />;
+  }
 
-  if (isLoading || !isDataReady) {
-    return <LoadingState isMobile={isMobile} />;
+  if (error) {
+    console.error("Erreur lors de la récupération des clients:", error);
+    toast({
+      title: "Erreur",
+      description: "Impossible de récupérer la liste des clients",
+      variant: "destructive",
+    });
   }
 
   return (
-    <div className={isMobile ? "p-3 sm:p-4" : "p-8"}>
+    <div className="p-8">
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <ClientsHeader 
-          onAddClientClick={() => setIsDialogOpen(true)}
-          isMobile={isMobile}
+          onAddClientClick={() => setIsDialogOpen(true)} 
+          clients={clients}
+          showArchived={showArchived}
         />
 
-        {isMobile ? (
-          <ScrollArea className="h-[calc(100vh-10rem)]">
-            <ClientsContent
-              clients={clients}
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              selectedType={selectedType}
-              onTypeChange={setSelectedType}
-              selectedSecteur={selectedSecteur}
-              onSecteurChange={setSelectedSecteur}
-              showArchived={showArchived}
-              onShowArchivedChange={setShowArchived}
-              onView={handleView}
-              onEdit={handleEdit}
-              onArchive={handleArchive}
-              onRestore={handleRestore}
-              onDelete={handleDelete}
-              isMobile={isMobile}
-            />
-          </ScrollArea>
-        ) : (
-          <ClientsContent
-            clients={clients}
-            searchTerm={searchTerm}
-            onSearchChange={setSearchTerm}
-            selectedType={selectedType}
-            onTypeChange={setSelectedType}
-            selectedSecteur={selectedSecteur}
-            onSecteurChange={setSelectedSecteur}
-            showArchived={showArchived}
-            onShowArchivedChange={setShowArchived}
-            onView={handleView}
-            onEdit={handleEdit}
-            onArchive={handleArchive}
-            onRestore={handleRestore}
-            onDelete={handleDelete}
-            isMobile={isMobile}
-          />
-        )}
+        <ClientsContent
+          clients={clients}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedType={selectedType}
+          onTypeChange={setSelectedType}
+          selectedSecteur={selectedSecteur}
+          onSecteurChange={setSelectedSecteur}
+          showArchived={showArchived}
+          onShowArchivedChange={setShowArchived}
+          onView={handleView}
+          onEdit={handleEdit}
+          onArchive={handleArchive}
+          onRestore={handleRestore}
+          onDelete={handleDelete}
+        />
 
         <ClientDialogs
           isAddDialogOpen={isDialogOpen}
@@ -129,6 +99,7 @@ export default function ClientsPage() {
           }}
         />
       </Dialog>
+      {confirmationDialog}
     </div>
   );
 }

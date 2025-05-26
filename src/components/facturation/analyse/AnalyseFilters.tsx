@@ -7,8 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { useClientData } from "@/hooks/facturation/clientFinancial/summary/useClientData";
-import { exportToExcel } from "@/utils/exportUtils";
-import { exportToPdf } from "@/utils/exports";
+import { exportToExcel, exportToPdf } from "@/utils/exportUtils";
 import { useBillingStats } from "./context/BillingStatsContext";
 
 const AnalyseFilters = () => {

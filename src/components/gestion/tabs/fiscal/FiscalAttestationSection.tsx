@@ -1,144 +1,135 @@
 
-import React, { useEffect } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import DatePickerSelector from "./DatePickerSelector";
-import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { addDays, format, parse, isValid, differenceInDays } from "date-fns";
-import { fr } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "lucide-react";
+import { 
+  Card, 
+  CardContent, 
+  CardHeader, 
+  CardTitle,
+  CardFooter
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
 
 interface FiscalAttestationSectionProps {
   creationDate: string;
   validityEndDate: string;
   setCreationDate: (date: string) => void;
-  setValidityEndDate: (date: string) => void;
-  showInAlert: boolean;
-  onToggleAlert: () => void;
-  hiddenFromDashboard: boolean;
-  onToggleDashboardVisibility: (hidden: boolean) => void;
+  handleSave: () => Promise<void>;
+  showInAlert?: boolean;
+  onToggleAlert?: () => void;
+  hiddenFromDashboard?: boolean;
+  onToggleDashboardVisibility?: () => void;
 }
 
-export function FiscalAttestationSection({
-  creationDate,
-  validityEndDate,
-  setCreationDate,
-  setValidityEndDate,
-  showInAlert,
+export function FiscalAttestationSection({ 
+  creationDate, 
+  validityEndDate, 
+  setCreationDate, 
+  handleSave,
+  showInAlert = true,
   onToggleAlert,
-  hiddenFromDashboard,
-  onToggleDashboardVisibility,
+  hiddenFromDashboard = false,
+  onToggleDashboardVisibility
 }: FiscalAttestationSectionProps) {
-  // Détermine le statut d'expiration (pour la couleur du champ de date)
-  const getExpiryStatus = () => {
-    if (!validityEndDate) return "";
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Parse la date de fin de validité
-    let endDateObj: Date;
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
-      if (validityEndDate.includes('-')) {
-        endDateObj = new Date(validityEndDate);
-      } else {
-        endDateObj = parse(validityEndDate, 'dd/MM/yyyy', new Date());
-      }
-
-      if (!isValid(endDateObj)) return "";
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      endDateObj.setHours(0, 0, 0, 0);
-
-      const daysRemaining = differenceInDays(endDateObj, today);
-
-      if (daysRemaining <= 0) {
-        return "bg-rose-50 border-rose-300 text-rose-700";
-      } else if (daysRemaining <= 4) {
-        return "bg-amber-50 border-amber-300 text-amber-700";
-      } else {
-        return "bg-emerald-50 border-emerald-300 text-emerald-700";
-      }
-    } catch (error) {
-      console.error("Erreur lors du calcul du statut d'expiration:", error);
-      return "";
+      await handleSave();
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // Vérifie si l'attestation est expirée
-  const isExpired = () => {
-    if (!validityEndDate) return false;
-
-    let endDateObj: Date;
-    try {
-      if (validityEndDate.includes('-')) {
-        endDateObj = new Date(validityEndDate);
-      } else {
-        endDateObj = parse(validityEndDate, 'dd/MM/yyyy', new Date());
-      }
-
-      if (!isValid(endDateObj)) return false;
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      endDateObj.setHours(0, 0, 0, 0);
-
-      return endDateObj < today;
-    } catch (error) {
-      console.error("Erreur lors de la vérification de l'expiration:", error);
-      return false;
-    }
+  // Helper function to validate date format (DD/MM/YYYY)
+  const isValidDateFormat = (date: string): boolean => {
+    const regex = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/;
+    return regex.test(date);
   };
+
+  const isDateInvalid = creationDate && !isValidDateFormat(creationDate);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Attestation de Conformité Fiscale</CardTitle>
+    <Card className="border-[#E8FDF5] bg-[#F4FEFA]">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-semibold text-[#336755]">
+          Attestation de Conformité Fiscale
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <Label htmlFor="creationDate">Date de création</Label>
-            <DatePickerSelector
-              value={creationDate}
-              onChange={setCreationDate}
-            />
-          </div>
-          <div>
-            <Label htmlFor="validityEndDate">Date de fin validité</Label>
-            <DatePickerSelector
-              value={validityEndDate}
-              onChange={setValidityEndDate}
-              className={getExpiryStatus()}
-              disabled={true}
-            />
-            {isExpired() && (
-              <p className="text-xs text-rose-600 mt-1">
-                ACF expirée, bien vouloir procéder à son renouvellement.
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-2">
+            <Label htmlFor="creationDate" className="text-[#336755]">
+              Date de délivrance
+            </Label>
+            <div className="relative">
+              <Input
+                id="creationDate"
+                placeholder="JJ/MM/AAAA"
+                value={creationDate}
+                onChange={(e) => setCreationDate(e.target.value)}
+                className={`pl-10 ${isDateInvalid ? 'border-red-500' : 'border-[#A8C1AE]'}`}
+              />
+              <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-[#84A98C]" />
+            </div>
+            {isDateInvalid && (
+              <p className="text-red-500 text-xs mt-1">
+                Format invalide. Utilisez JJ/MM/AAAA
               </p>
             )}
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="validityEndDate" className="text-[#336755]">
+              Date d'expiration
+            </Label>
+            <div className="relative">
+              <Input
+                id="validityEndDate"
+                placeholder="JJ/MM/AAAA"
+                value={validityEndDate}
+                readOnly
+                className="pl-10 bg-[#E8FDF5] border-[#A8C1AE]"
+              />
+              <Calendar className="absolute left-3 top-2.5 h-5 w-5 text-[#84A98C]" />
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="showInAlert"
-            checked={showInAlert}
+        <div className="flex items-center space-x-2 mt-4">
+          <Switch 
+            id="show-alerts" 
+            checked={showInAlert} 
             onCheckedChange={onToggleAlert}
           />
-          <Label htmlFor="showInAlert">
-            Afficher dans les alertes d'expiration
+          <Label htmlFor="show-alerts" className="text-[#336755]">
+            Afficher les alertes d'expiration
           </Label>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="hideDashboard"
-            checked={hiddenFromDashboard}
+        <div className="flex items-center space-x-2 mt-2">
+          <Switch 
+            id="hide-dashboard" 
+            checked={hiddenFromDashboard} 
             onCheckedChange={onToggleDashboardVisibility}
           />
-          <Label htmlFor="hideDashboard">
+          <Label htmlFor="hide-dashboard" className="text-[#336755]">
             Masquer du tableau de bord
           </Label>
         </div>
       </CardContent>
+      <CardFooter>
+        <Button 
+          onClick={handleSubmit} 
+          disabled={isSubmitting || isDateInvalid}
+          className="bg-[#84A98C] hover:bg-[#5E8C61] text-white"
+        >
+          {isSubmitting ? "Enregistrement..." : "Enregistrer"}
+        </Button>
+      </CardFooter>
     </Card>
   );
 }

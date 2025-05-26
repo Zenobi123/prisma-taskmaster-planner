@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { formatMontant } from "@/utils/formatUtils";
 
 const Depenses = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -22,7 +24,7 @@ const Depenses = () => {
     {
       id: 1,
       description: "Matériel informatique",
-      montant: 1200,
+      montant: 1200000,
       date: "2024-02-15",
       categorie: "equipement",
       collaborateur: "Sophie Martin",
@@ -30,7 +32,7 @@ const Depenses = () => {
     {
       id: 2,
       description: "Déplacement client",
-      montant: 150,
+      montant: 150000,
       date: "2024-02-14",
       categorie: "transport",
       collaborateur: "Pierre Dubois",
@@ -38,7 +40,7 @@ const Depenses = () => {
     {
       id: 3,
       description: "Formation professionnelle",
-      montant: 800,
+      montant: 800000,
       date: "2024-02-10",
       categorie: "formation",
       collaborateur: "Marie Lambert",
@@ -130,7 +132,7 @@ const Depenses = () => {
                 <p className="text-gray-600">{depense.collaborateur}</p>
                 <p className="text-sm text-gray-500">{depense.date}</p>
                 <p className="text-sm font-medium mt-2">
-                  {depense.montant.toLocaleString()} €
+                  {formatMontant(depense.montant)}
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2">

@@ -1,79 +1,60 @@
 
-// Define the base obligation status
-export interface ObligationStatus {
-  assujetti: boolean;
-  attachements?: Record<string, string>;
-  observations?: string;
-}
-
-// Define tax obligation status (for direct taxes)
-export interface TaxObligationStatus extends ObligationStatus {
-  payee: boolean;
-  dateEcheance?: string;
-  datePaiement?: string;
-  montant?: number;
-  montantAnnuel?: number;
-  montantPenalite?: number;
-  montantTotal?: number;
-  methodePaiement?: string;
-  referencePaiement?: string;
-  q1Payee?: boolean;
-  q2Payee?: boolean;
-  q3Payee?: boolean;
-  q4Payee?: boolean;
-}
-
-// Define IGS obligation status with quarterly payments
-export interface IgsObligationStatus extends TaxObligationStatus {
-  montantAnnuel?: number;
-  caValue?: string;
-  isCGA?: boolean;
-  classe?: string | number;
-  outOfRange?: boolean;
-}
-
-// Define declaration obligation status
-export interface DeclarationObligationStatus extends ObligationStatus {
-  depose: boolean;
-  periodicity: DeclarationPeriodicity;
-  dateDepot?: string;
-  dateEcheance?: string;
-  regime?: string;
-  dateSoumission?: string;
-}
-
-export type DeclarationPeriodicity = "mensuelle" | "trimestrielle" | "annuelle";
-
-// Define obligation types - updated to match frontend usage
-export type ObligationType = "igs" | "patente" | "licence" | "bailCommercial" | "precompteLoyer" | "tpf" | "dsf" | "darp" | "cntps" | "precomptes";
-
-// Define all tax obligation statuses - updated to match DirectTaxesSection
-export interface ObligationStatuses {
-  // Direct taxes (impôts directs)
-  igs: IgsObligationStatus;
-  patente: TaxObligationStatus;
-  licence: TaxObligationStatus;
-  bailCommercial: TaxObligationStatus;
-  precompteLoyer: TaxObligationStatus;
-  tpf: TaxObligationStatus;
-  // Declarations
-  dsf: DeclarationObligationStatus;
-  darp: DeclarationObligationStatus;
-  cntps: DeclarationObligationStatus;
-  precomptes: DeclarationObligationStatus;
-}
-
-// Define fiscal data
 export interface ClientFiscalData {
-  clientId: string;
-  year?: string;
-  attestation?: {
+  attestation: {
     creationDate: string;
     validityEndDate: string;
-    showInAlert: boolean;
+    showInAlert?: boolean;
   };
-  obligations?: Record<string, ObligationStatuses>;
+  obligations: {
+    patente: { assujetti: boolean; paye: boolean };
+    bail: { assujetti: boolean; paye: boolean };
+    taxeFonciere: { assujetti: boolean; paye: boolean };
+    dsf: { assujetti: boolean; depose: boolean };
+    darp: { assujetti: boolean; depose: boolean };
+  };
   hiddenFromDashboard?: boolean;
-  selectedYear?: string;
-  updatedAt?: string;
+  igs?: {
+    soumisIGS: boolean;
+    adherentCGA: boolean;
+    classeIGS?: CGAClasse;
+    patente?: IGSPayment;
+    acompteJanvier?: IGSPayment;
+    acompteFevrier?: IGSPayment;
+  };
+}
+
+export type ObligationType = "patente" | "bail" | "taxeFonciere" | "dsf" | "darp";
+
+export interface TaxObligationStatus {
+  assujetti: boolean;
+  paye: boolean;
+}
+
+export interface DeclarationObligationStatus {
+  assujetti: boolean;
+  depose: boolean;
+}
+
+export type ObligationStatus = TaxObligationStatus | DeclarationObligationStatus;
+
+export type ObligationStatuses = {
+  patente: TaxObligationStatus;
+  bail: TaxObligationStatus;
+  taxeFonciere: TaxObligationStatus;
+  dsf: DeclarationObligationStatus;
+  darp: DeclarationObligationStatus;
+};
+
+export interface FiscalAttestationData {
+  creationDate: string;
+  validityEndDate: string;
+  showInAlert?: boolean;
+}
+
+export type CGAClasse = "classe1" | "classe2" | "classe3" | "classe4" | "classe5" | 
+  "classe6" | "classe7" | "classe8" | "classe9" | "classe10";
+
+export interface IGSPayment {
+  montant: string;
+  quittance: string;
 }

@@ -1,14 +1,16 @@
 
-import { useState, useEffect } from "react";
-import { TabsList } from "@/components/gestion/tabs/TabsList";
+import React, { useEffect } from "react";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { GestionTabsList } from "./tabs/TabsList";
+import { TabsContent as CustomTabsContent } from "./tabs/TabsContent";
 import { Client } from "@/types/client";
-import { TabsContent } from "@/components/gestion/tabs/TabsContent";
+import { useLocation } from "react-router-dom";
 
 interface GestionTabsProps {
   activeTab: string;
   selectedClient: Client;
   selectedSubTab: string | null;
-  onTabChange: (tab: string) => void;
+  onTabChange: (value: string) => void;
   onSubTabSelect: (subTab: string) => void;
 }
 
@@ -19,53 +21,57 @@ export function GestionTabs({
   onTabChange,
   onSubTabSelect,
 }: GestionTabsProps) {
-  const [tabContent, setTabContent] = useState<React.ReactNode | null>(null);
+  const location = useLocation();
 
+  // Handle URL query parameters to set the active tab
   useEffect(() => {
-    switch (activeTab) {
-      case "entreprise":
-        setTabContent(<TabsContent.Entreprise selectedClient={selectedClient} onTabChange={onTabChange} />);
-        break;
-      case "fiscal":
-        setTabContent(<TabsContent.ObligationsFiscales selectedClient={selectedClient} />);
-        break;
-      case "comptable":
-        setTabContent(<TabsContent.GestionComptable selectedClient={selectedClient} />);
-        break;
-      case "contrat-prestations":
-        setTabContent(<TabsContent.ContratPrestations selectedClient={selectedClient} />);
-        break;
-      case "cloture-exercice":
-        setTabContent(
-          <TabsContent.ClotureExercice
-            selectedClient={selectedClient}
-            selectedSubTab={selectedSubTab}
-            onSubTabSelect={onSubTabSelect}
-          />
-        );
-        break;
-      case "dossier":
-        setTabContent(<TabsContent.GestionDossier selectedClient={selectedClient} />);
-        break;
-      // Ajout des nouveaux cas pour les modules Administration, RH, Paie
-      case "gestion-admin":
-        setTabContent(<TabsContent.GestionAdmin selectedClient={selectedClient} />);
-        break;
-      case "gestion-rh":
-        setTabContent(<TabsContent.GestionRH selectedClient={selectedClient} />);
-        break;
-      case "gestion-paie":
-        setTabContent(<TabsContent.GestionPaie selectedClient={selectedClient} />);
-        break;
-      default:
-        setTabContent(<TabsContent.Entreprise selectedClient={selectedClient} onTabChange={onTabChange} />);
+    const searchParams = new URLSearchParams(location.search);
+    const tabParam = searchParams.get('tab');
+    
+    if (tabParam) {
+      // Map URL parameter to tab value
+      const tabMapping: Record<string, string> = {
+        'entreprise': 'entreprise',
+        'obligations-fiscales': 'fiscal'
+      };
+      
+      const tabValue = tabMapping[tabParam];
+      if (tabValue) {
+        onTabChange(tabValue);
+      }
     }
-  }, [activeTab, selectedClient, selectedSubTab, onTabChange, onSubTabSelect]);
+  }, [location.search, onTabChange]);
 
   return (
-    <div className="mt-6 space-y-6">
-      <TabsList activeTab={activeTab} onTabChange={onTabChange} />
-      <div className="mt-6">{tabContent}</div>
-    </div>
+    <Tabs
+      defaultValue="entreprise"
+      value={activeTab}
+      onValueChange={onTabChange}
+      className="w-full"
+    >
+      <GestionTabsList activeTab={activeTab} onTabChange={onTabChange} />
+      <TabsContent value="entreprise">
+        <CustomTabsContent.Entreprise selectedClient={selectedClient} />
+      </TabsContent>
+      <TabsContent value="fiscal">
+        <CustomTabsContent.ObligationsFiscales selectedClient={selectedClient} />
+      </TabsContent>
+      <TabsContent value="comptable">
+        <CustomTabsContent.GestionComptable selectedClient={selectedClient} />
+      </TabsContent>
+      <TabsContent value="prestation">
+        <CustomTabsContent.ContratPrestations selectedClient={selectedClient} />
+      </TabsContent>
+      <TabsContent value="cloture">
+        <CustomTabsContent.ClotureExercice
+          selectedClient={selectedClient}
+          selectedSubTab={selectedSubTab}
+          onSubTabSelect={onSubTabSelect}
+        />
+      </TabsContent>
+      <TabsContent value="dossier">
+        <CustomTabsContent.GestionDossier selectedClient={selectedClient} />
+      </TabsContent>
+    </Tabs>
   );
 }

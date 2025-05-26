@@ -11,8 +11,6 @@ import {
 import { Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Client } from "@/types/client";
-import { ClientExportButton } from "./ClientExportButton";
 
 interface ClientFiltersProps {
   searchTerm: string;
@@ -23,8 +21,6 @@ interface ClientFiltersProps {
   onSecteurChange: (value: string) => void;
   showArchived: boolean;
   onShowArchivedChange: (value: boolean) => void;
-  clients?: Client[];
-  isMobile?: boolean;
 }
 
 export function ClientFilters({
@@ -36,12 +32,10 @@ export function ClientFilters({
   onSecteurChange,
   showArchived,
   onShowArchivedChange,
-  clients = [],
-  isMobile,
 }: ClientFiltersProps) {
   return (
     <div className="space-y-4 mb-6">
-      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row flex-wrap'} gap-4`}>
+      <div className="flex flex-wrap gap-4">
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -76,10 +70,6 @@ export function ClientFilters({
             <SelectItem value="autre">Autre</SelectItem>
           </SelectContent>
         </Select>
-        
-        {clients && clients.length > 0 && 
-          <ClientExportButton clients={clients} isMobile={isMobile} />
-        }
       </div>
       
       <div className="flex items-center space-x-2">

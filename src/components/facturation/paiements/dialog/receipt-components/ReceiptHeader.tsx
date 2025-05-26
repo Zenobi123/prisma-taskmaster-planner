@@ -34,21 +34,21 @@ const ReceiptHeader = ({ paiement }: ReceiptHeaderProps) => {
   
   return (
     <div className="flex flex-col space-y-3 sm:space-y-2 pb-4 border-b">
-      <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'justify-between items-center'}`}>
+      <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'justify-between'}`}>
         <div>
-          <h2 className="font-bold text-xl sm:text-2xl">Reçu de Paiement</h2>
-          <p className="text-muted-foreground text-xs sm:text-sm">{paiement.reference}</p>
+          <h2 className="font-bold text-responsive-title">Reçu de Paiement</h2>
+          <p className="text-muted-foreground text-responsive-xs">{paiement.reference}</p>
         </div>
-        <div className={isMobile ? 'mt-2' : 'text-right'}>
-          <p className="font-semibold text-sm">Date</p>
-          <p className="text-xs sm:text-sm">{formattedDate}</p>
+        <div className={isMobile ? '' : 'text-right'}>
+          <p className="font-semibold text-responsive-sm">Date</p>
+          <p className="text-responsive-xs">{formattedDate}</p>
         </div>
       </div>
       
       <div className={`flex ${isMobile ? 'flex-col space-y-2' : 'justify-between'} pt-2`}>
         <div>
-          <p className="font-semibold text-sm">Client</p>
-          <p className="text-xs sm:text-sm">{clientName}</p>
+          <p className="font-semibold text-responsive-sm">Client</p>
+          <p className="text-responsive-xs">{clientName}</p>
           {clientAddress && typeof clientAddress === 'object' && (
             <p className="text-xs text-muted-foreground">
               {clientAddress.ville || clientAddress.quartier || ''}
@@ -56,8 +56,8 @@ const ReceiptHeader = ({ paiement }: ReceiptHeaderProps) => {
           )}
         </div>
         <div className={isMobile ? 'mt-2' : 'text-right'}>
-          <p className="font-semibold text-sm">Mode de paiement</p>
-          <p className="text-xs sm:text-sm">{paiement.mode}</p>
+          <p className="font-semibold text-responsive-sm">Mode de paiement</p>
+          <p className="text-responsive-xs">{paiement.mode}</p>
         </div>
       </div>
     </div>

@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, RefreshCw } from "lucide-react";
 import usePaiements from "@/hooks/usePaiements";
 import PaiementDialog from "@/components/facturation/paiements/PaiementDialog";
 import PaiementsList from "./paiements/PaiementsList";
@@ -34,7 +34,15 @@ const Paiements = () => {
           />
         </div>
         <div className="flex items-center gap-2">
-          {/* Bouton d'actualisation supprimé car l'actualisation est automatique */}
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={refreshPaiements}
+            className="h-9 w-9"
+          >
+            <RefreshCw className="h-4 w-4" />
+            <span className="sr-only">Actualiser</span>
+          </Button>
           <Button onClick={() => setDialogOpen(true)} className="gap-1">
             <Plus size={16} />
             Nouveau paiement

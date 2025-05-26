@@ -22,7 +22,7 @@ export const fetchExpiringClients = async (): Promise<ExpiringClient[]> => {
       console.log("Found TRIPHASE SARL, ensuring fiscal data is set");
       
       // S'assurer que les données fiscales sont configurées pour TRIPHASE SARL
-      if (!triphaseClient.fiscal_data || !triphaseClient.fiscal_data.attestation) {
+      if (!triphaseClient.fiscal_data?.attestation) {
         console.log("Setting fiscal data for TRIPHASE SARL");
         
         const fiscalData = {
