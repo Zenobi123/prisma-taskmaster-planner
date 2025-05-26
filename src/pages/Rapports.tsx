@@ -1,51 +1,95 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { ArrowLeft, FileText, Download, Filter, Search, Calendar, FileBarChart } from "lucide-react";
+import { ArrowLeft, BarChart, Calendar, FileBarChart, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useRapports } from "@/hooks/useRapports";
-import { exportToPdf, exportToExcel } from "@/utils/exportUtils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { DatePicker } from "@/components/ui/datepicker";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
-import { RapportsList } from "@/components/rapports/RapportsList";
-import { GenerateReportDialog } from "@/components/rapports/GenerateReportDialog";
+import { toast } from "@/components/ui/use-toast";
+import { ReportTypeFilter } from "@/components/rapports/ReportTypeFilter";
+import { SearchInput } from "@/components/rapports/SearchInput";
+import { ReportCard } from "@/components/rapports/ReportCard";
+import { EmptyState } from "@/components/rapports/EmptyState";
+import { generateActivityReport } from "@/utils/reports/activityReport";
+import { generateFinancialReport } from "@/utils/reports/financialReport";
+import { generateTimeReport } from "@/utils/reports/timeReport";
+import { generateClientReport } from "@/utils/reports/clientReport";
 
 const Rapports = () => {
   const [typeFilter, setTypeFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [showGenerateDialog, setShowGenerateDialog] = useState(false);
-  const [selectedPeriod, setSelectedPeriod] = useState("all");
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  const { 
-    rapports, 
-    isLoading, 
-    generateReport 
-  } = useRapports(typeFilter, searchTerm, selectedPeriod, selectedDate);
+  const rapports = [
+    {
+      id: 1,
+      titre: "Rapport d'activité mensuel",
+      date: "Février 2024",
+      type: "activite",
+      taille: "2.4 MB",
+      icon: BarChart,
+      description: "Synthèse des activités et performance mensuelle",
+      generator: generateActivityReport
+    },
+    {
+      id: 2,
+      titre: "Bilan financier trimestriel",
+      date: "Q4 2023",
+      type: "financier",
+      taille: "1.8 MB",
+      icon: FileBarChart,
+      description: "Analyse financière du dernier trimestre",
+      generator: generateFinancialReport
+    },
+    {
+      id: 3,
+      titre: "Analyse des temps par projet",
+      date: "Janvier 2024",
+      type: "temps",
+      taille: "1.2 MB",
+      icon: Calendar,
+      description: "Répartition du temps par projet et collaborateur",
+      generator: generateTimeReport
+    },
+    {
+      id: 4,
+      titre: "Rapport clients",
+      date: "Mars 2024",
+      type: "clients",
+      taille: "2.1 MB",
+      icon: Users,
+      description: "Analyse du portefeuille clients et activité",
+      generator: generateClientReport
+    }
+  ];
 
-  const handleGenerate = (type: string, parameters: any) => {
-    generateReport(type, parameters);
-    setShowGenerateDialog(false);
-  };
+  const filteredRapports = rapports.filter((rapport) => {
+    const matchesType = typeFilter === "all" || rapport.type === typeFilter;
+    const matchesSearch = searchQuery === "" || 
+      rapport.titre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      rapport.description.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesType && matchesSearch;
+  });
 
-  const handleExport = (format: "pdf" | "excel") => {
-    if (format === "pdf") {
-      exportToPdf("Rapports", rapports, "rapports-export");
-    } else {
-      exportToExcel(rapports, "rapports-export");
+  const handleDownloadReport = (rapport: any) => {
+    try {
+      toast({
+        title: "Génération en cours",
+        description: `Préparation du rapport "${rapport.titre}"...`,
+      });
+      
+      rapport.generator();
+      
+      toast({
+        title: "Rapport généré",
+        description: `Le rapport "${rapport.titre}" a été téléchargé avec succès.`,
+        variant: "default"
+      });
+    } catch (error) {
+      console.error("Erreur lors de la génération du rapport:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de générer le rapport. Veuillez réessayer.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -66,146 +110,31 @@ const Rapports = () => {
         <div>
           <h1 className="text-2xl font-bold">Rapports</h1>
           <p className="text-neutral-600 mt-1">
-            Consultez et générez des rapports
+            Consultez et générez des rapports d'analyse
           </p>
         </div>
-        <Button onClick={() => setShowGenerateDialog(true)}>
-          Générer un rapport
-        </Button>
       </div>
 
-      <Tabs defaultValue="rapports" className="mb-6">
-        <TabsList className="mb-4">
-          <TabsTrigger value="rapports">Rapports disponibles</TabsTrigger>
-          <TabsTrigger value="statistiques">Statistiques</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="rapports">
-          <Card className="mb-6">
-            <CardContent className="pt-6">
-              <div className="flex flex-col md:flex-row gap-4 mb-6">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Rechercher un rapport..."
-                    className="pl-8"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                
-                <Select value={typeFilter} onValueChange={setTypeFilter}>
-                  <SelectTrigger className="w-full md:w-[200px]">
-                    <SelectValue placeholder="Type de rapport" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Tous les types</SelectItem>
-                    <SelectItem value="fiscal">Fiscal</SelectItem>
-                    <SelectItem value="client">Client</SelectItem>
-                    <SelectItem value="financier">Financier</SelectItem>
-                    <SelectItem value="activite">Activité</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                  <SelectTrigger className="w-full md:w-[200px]">
-                    <SelectValue placeholder="Période" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Toutes périodes</SelectItem>
-                    <SelectItem value="this_month">Ce mois</SelectItem>
-                    <SelectItem value="this_year">Cette année</SelectItem>
-                    <SelectItem value="last_year">Année précédente</SelectItem>
-                    <SelectItem value="custom">Période personnalisée</SelectItem>
-                  </SelectContent>
-                </Select>
-                
-                {selectedPeriod === "custom" && (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className="w-full md:w-[200px]">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        {selectedDate ? selectedDate.toLocaleDateString() : "Choisir une date"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <DatePicker
-                        mode="single"
-                        selected={selectedDate}
-                        onSelect={setSelectedDate}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              </div>
-            
-              <div className="flex gap-2 mb-4">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => handleExport("pdf")}
-                  className="flex items-center gap-1"
-                >
-                  <Download className="w-4 h-4 mr-1" />
-                  Exporter en PDF
-                </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => handleExport("excel")}
-                  className="flex items-center gap-1"
-                >
-                  <Download className="w-4 h-4 mr-1" />
-                  Exporter en Excel
-                </Button>
-              </div>
-              
-              <Separator className="my-4" />
-              
-              <RapportsList 
-                rapports={rapports} 
-                isLoading={isLoading} 
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="statistiques">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Répartition des rapports</CardTitle>
-                <CardDescription>Par type de document</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80 flex items-center justify-center">
-                <div className="text-center text-muted-foreground">
-                  <FileBarChart className="w-12 h-12 mx-auto mb-2" />
-                  <p>Statistiques disponibles prochainement</p>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader>
-                <CardTitle>Rapports par période</CardTitle>
-                <CardDescription>Évolution mensuelle</CardDescription>
-              </CardHeader>
-              <CardContent className="h-80 flex items-center justify-center">
-                <div className="text-center text-muted-foreground">
-                  <FileBarChart className="w-12 h-12 mx-auto mb-2" />
-                  <p>Statistiques disponibles prochainement</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-      </Tabs>
-      
-      <GenerateReportDialog 
-        isOpen={showGenerateDialog} 
-        onClose={() => setShowGenerateDialog(false)}
-        onGenerate={handleGenerate}
-      />
+      <div className="flex flex-col md:flex-row gap-4 mb-6">
+        <div className="flex-1">
+          <SearchInput value={searchQuery} onChange={setSearchQuery} />
+        </div>
+        <ReportTypeFilter value={typeFilter} onChange={setTypeFilter} />
+      </div>
+
+      <div className="grid gap-4">
+        {filteredRapports.length > 0 ? (
+          filteredRapports.map((rapport) => (
+            <ReportCard
+              key={rapport.id}
+              {...rapport}
+              onGenerate={() => handleDownloadReport(rapport)}
+            />
+          ))
+        ) : (
+          <EmptyState />
+        )}
+      </div>
     </div>
   );
 };

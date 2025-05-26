@@ -19,7 +19,7 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
       : client.raisonsociale || 'Entreprise sans nom';
       
     // Check if client has fiscal_data with attestation
-    if (client.fiscal_data?.attestation?.validityEndDate) {
+    if (client.fiscal_data && client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
       const validityEndDate = client.fiscal_data.attestation.validityEndDate;
       // Utiliser une valeur par défaut si creationDate n'est pas défini
       const creationDate = client.fiscal_data.attestation.creationDate || 'Non spécifiée';

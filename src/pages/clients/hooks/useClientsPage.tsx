@@ -1,13 +1,36 @@
-
+import { useQuery } from "@tanstack/react-query";
 import { Client } from "@/types/client";
-import { useClientsPageState } from "./useClientsPageState";
-import { useClientsPageData, ClientFilters } from "./useClientsPageData";
-import { useClientsPageMutations } from "./useClientsPageMutations";
-import { useClientsPageActions } from "./useClientsPageActions";
-import { useConfirmation } from "./confirmation/ConfirmationDialogContext";
+import { getClients } from "@/services/clientService";
+import { useToast } from "@/components/ui/use-toast";
+import { useClientMutations } from "./useClientMutations";
+import { useClientFilters } from "./useClientFilters";
+import { useClientDialogs } from "./useClientDialogs";
+import { useState, useCallback, useEffect } from "react";
 
 export function useClientsPage() {
-  // Get state management
+  const { toast } = useToast();
+  const [isDataReady, setIsDataReady] = useState(false);
+
+  const { 
+    data: clients = [], 
+    isLoading, 
+    error, 
+    refetch 
+  } = useQuery({
+    queryKey: ["clients"],
+    queryFn: getClients,
+    staleTime: 30000, // 30 seconds
+    gcTime: 300000, // 5 minutes 
+    retry: 2,
+    refetchOnWindowFocus: false,
+  });
+
+  useEffect(() => {
+    if (clients.length > 0) {
+      setIsDataReady(true);
+    }
+  }, [clients]);
+
   const {
     searchTerm,
     setSearchTerm,
@@ -17,6 +40,10 @@ export function useClientsPage() {
     setSelectedSecteur,
     showArchived,
     setShowArchived,
+    filteredClients
+  } = useClientFilters(isDataReady ? clients : []);
+
+  const {
     isDialogOpen,
     setIsDialogOpen,
     isEditDialogOpen,
@@ -26,43 +53,33 @@ export function useClientsPage() {
     newClientType,
     setNewClientType,
     selectedClient,
-    setSelectedClient,
-    createdAfterDate,
-    setCreatedAfterDate,
-    createdBeforeDate, 
-    setCreatedBeforeDate,
-    isAdvancedFiltersOpen,
-    setIsAdvancedFiltersOpen
-  } = useClientsPageState();
+    setSelectedClient
+  } = useClientDialogs();
 
-  // Get data and filtering
-  const { 
-    clients, 
-    isLoading, 
-    error, 
-    filterClients, 
-    refreshClients,
-    getAvailableSectors 
-  } = useClientsPageData();
-
-  // Get mutations
   const {
     addMutation,
     updateMutation,
     archiveMutation,
     restoreMutation,
-    deleteMutation,
-    toast,
-    showConfirmation
-  } = useClientsPageMutations();
-  
-  // Get confirmation dialog
-  const { confirmationDialog } = useConfirmation();
+    deleteMutation
+  } = useClientMutations();
 
-  // Get action handlers
-  const { handleArchive, handleRestore, handleDelete } = useClientsPageActions();
+  const debouncedRefetch = useCallback(() => {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        refetch();
+      }, 500);
+    };
+  }, [refetch]);
 
-  // Custom view and edit handlers that update state
+  useEffect(() => {
+    if (isLoading) {
+      setIsDataReady(false);
+    }
+  }, [isLoading]);
+
   const handleView = (client: Client) => {
     setSelectedClient(client);
     setIsViewDialogOpen(true);
@@ -73,32 +90,40 @@ export function useClientsPage() {
     setIsEditDialogOpen(true);
   };
 
-  // Reset all filters
-  const resetFilters = () => {
-    setSearchTerm("");
-    setSelectedType("all");
-    setSelectedSecteur("all");
-    setShowArchived(false);
-    setCreatedAfterDate(null);
-    setCreatedBeforeDate(null);
+  const handleArchive = async (client: Client) => {
+    if (window.confirm("Êtes-vous sûr de vouloir archiver ce client ?")) {
+      try {
+        await archiveMutation.mutateAsync(client.id);
+      } catch (error) {
+        console.error("Erreur lors de l'archivage:", error);
+      }
+    }
   };
 
-  // Filter clients based on current filter state
-  const filterConfig: ClientFilters = {
-    searchTerm,
-    type: selectedType,
-    secteur: selectedSecteur,
-    showArchived,
-    createdAfter: createdAfterDate,
-    createdBefore: createdBeforeDate
+  const handleRestore = async (client: Client) => {
+    if (window.confirm("Êtes-vous sûr de vouloir restaurer ce client ?")) {
+      try {
+        await restoreMutation.mutateAsync(client.id);
+      } catch (error) {
+        console.error("Erreur lors de la restauration:", error);
+      }
+    }
   };
 
-  const filteredClients = filterClients(clients, filterConfig);
-  const availableSectors = getAvailableSectors();
+  const handleDelete = async (client: Client) => {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer définitivement ce client ? Cette action est irréversible.")) {
+      try {
+        await deleteMutation.mutateAsync(client.id);
+      } catch (error) {
+        console.error("Erreur lors de la suppression:", error);
+      }
+    }
+  };
 
   return {
     clients: filteredClients,
     isLoading,
+    isDataReady,
     error,
     searchTerm,
     setSearchTerm,
@@ -117,16 +142,6 @@ export function useClientsPage() {
     newClientType,
     setNewClientType,
     selectedClient,
-    setSelectedClient,
-    createdAfterDate,
-    setCreatedAfterDate,
-    createdBeforeDate,
-    setCreatedBeforeDate,
-    isAdvancedFiltersOpen,
-    setIsAdvancedFiltersOpen,
-    resetFilters,
-    refreshClients,
-    availableSectors,
     addMutation,
     updateMutation,
     handleView,
@@ -135,6 +150,6 @@ export function useClientsPage() {
     handleRestore,
     handleDelete,
     toast,
-    confirmationDialog
+    refreshClients: debouncedRefetch
   };
 }

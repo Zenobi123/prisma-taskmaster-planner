@@ -8,6 +8,7 @@ import CreateFactureDialog from "./factures/CreateFactureDialog";
 import FactureFilters from "./FactureFilters";
 import FacturePagination from "./FacturePagination";
 import EditFactureDialog from "./factures/EditFactureDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Factures = () => {
   const { 
@@ -43,20 +44,22 @@ const Factures = () => {
     setCurrentEditFacture
   } = useFactures();
 
+  const isMobile = useIsMobile();
+
   const handleEditSuccess = () => {
     setEditFactureDialogOpen(false);
   };
 
   return (
     <Card className="shadow-md border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-300">
-      <CardHeader className="flex flex-row items-center justify-between pb-4 bg-gray-50 border-b">
-        <CardTitle className="text-xl flex items-center gap-2 text-gray-800">
+      <CardHeader className={`flex ${isMobile ? 'flex-col gap-3' : 'flex-row items-center justify-between'} pb-4 bg-gray-50 border-b`}>
+        <CardTitle className="text-lg md:text-xl flex items-center gap-2 text-gray-800">
           <FileText className="h-5 w-5 text-[#84A98C]" /> 
           Gestion des factures
         </CardTitle>
         <CreateFactureDialog />
       </CardHeader>
-      <CardContent className="p-4">
+      <CardContent className={`p-3 ${isMobile ? '' : 'p-4'}`}>
         <FactureFilters 
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
@@ -73,6 +76,7 @@ const Factures = () => {
           sortDirection={sortDirection}
           setSortDirection={setSortDirection}
           clients={allClients}
+          isMobile={isMobile}
         />
         
         <div className="mt-4">
@@ -85,6 +89,7 @@ const Factures = () => {
             onEditFacture={handleEditFacture}
             onSendFacture={sendFacture}
             onCancelFacture={cancelFacture}
+            isMobile={isMobile}
           />
         </div>
         

@@ -1,79 +1,57 @@
-import React from "react";
-import { 
-  ObligationStatuses, 
-  ObligationType, 
-} from "../fiscal/types";
-import { TaxObligationItem } from "./TaxObligationItem";
-import { DeclarationObligationItem } from "./DeclarationObligationItem";
+
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ObligationStatuses } from '@/hooks/fiscal/types';
+import { DeclarationObligationItem } from './DeclarationObligationItem';
+import { FiscalBulkUpdateButton } from './FiscalBulkUpdateButton';
 
 interface AnnualObligationsSectionProps {
+  clientId: string;
+  selectedYear: string;
   obligationStatuses: ObligationStatuses;
-  handleStatusChange: (
-    obligationType: ObligationType,
-    statusType: "assujetti" | "paye" | "depose",
-    value: boolean
-  ) => void;
+  handleStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
+  handleAttachmentChange: (obligation: string, attachmentType: string, filePath: string | null) => void;
+  isDeclarationObligation: (obligation: string) => boolean;
 }
 
 export function AnnualObligationsSection({
+  clientId,
+  selectedYear,
   obligationStatuses,
-  handleStatusChange
+  handleStatusChange,
+  handleAttachmentChange,
+  isDeclarationObligation
 }: AnnualObligationsSectionProps) {
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Obligations annuelles</h3>
-      
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <h4 className="font-medium">Impôts</h4>
-          <div className="grid grid-cols-1 gap-4">
-            <TaxObligationItem
-              title="Patente"
-              deadline="28 février"
-              obligationType="patente"
-              status={obligationStatuses.patente}
-              onChange={handleStatusChange}
-            />
-            
-            <TaxObligationItem
-              title="Bail"
-              deadline="28 février"
-              obligationType="bail"
-              status={obligationStatuses.bail}
-              onChange={handleStatusChange}
-            />
-            
-            <TaxObligationItem
-              title="Taxe foncière"
-              deadline="28 février"
-              obligationType="taxeFonciere"
-              status={obligationStatuses.taxeFonciere}
-              onChange={handleStatusChange}
-            />
-          </div>
-        </div>
-        
-        <div className="space-y-4">
-          <h4 className="font-medium">Déclarations</h4>
-          <div className="grid grid-cols-1 gap-4">
-            <DeclarationObligationItem
-              title="Déclaration Statistique et Fiscale (DSF)"
-              deadline="15 avril"
-              obligationType="dsf"
-              status={obligationStatuses.dsf}
-              onChange={handleStatusChange}
-            />
-            
-            <DeclarationObligationItem
-              title="Déclaration Annuelle des Revenus des Particuliers (DARP)"
-              deadline="30 juin"
-              obligationType="darp"
-              status={obligationStatuses.darp}
-              onChange={handleStatusChange}
-            />
-          </div>
-        </div>
-      </div>
-    </div>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="text-lg">Obligations annuelles</CardTitle>
+        <FiscalBulkUpdateButton 
+          obligationStatuses={obligationStatuses} 
+          onStatusChange={handleStatusChange}
+          isDeclarationObligation={isDeclarationObligation}
+        />
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <DeclarationObligationItem
+          title="Déclaration Statistique et Fiscale (DSF)"
+          keyName="dsf"
+          status={obligationStatuses.dsf}
+          onStatusChange={handleStatusChange}
+          onAttachmentChange={handleAttachmentChange}
+          clientId={clientId}
+          selectedYear={selectedYear}
+        />
+        <DeclarationObligationItem
+          title="Déclaration Annuelle des Revenus Professionnels (DARP)"
+          keyName="darp"
+          status={obligationStatuses.darp}
+          onStatusChange={handleStatusChange}
+          onAttachmentChange={handleAttachmentChange}
+          clientId={clientId}
+          selectedYear={selectedYear}
+        />
+      </CardContent>
+    </Card>
   );
 }

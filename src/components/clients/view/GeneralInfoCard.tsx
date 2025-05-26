@@ -2,28 +2,13 @@
 import { Client } from "@/types/client";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RegimeFiscalPhysique, RegimeFiscalMorale, FormeJuridique } from "@/types/client";
+import { FormeJuridique } from "@/types/client";
 
 interface GeneralInfoCardProps {
   client: Client;
 }
 
 export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
-  const getRegimeFiscalLabel = (regime: RegimeFiscalPhysique | RegimeFiscalMorale) => {
-    switch (regime) {
-      // Régimes personnes physiques
-      case "reel": return "Réel";
-      case "simplifie": return "Simplifié";
-      case "liberatoire": return "Libératoire";
-      case "non_professionnel_public": return "Non professionnel (Secteur public)";
-      case "non_professionnel_prive": return "Non professionnel (Secteur privé)";
-      case "non_professionnel_autre": return "Non professionnel (Autres)";
-      // Régimes personnes morales
-      case "non_lucratif": return "Organisme à but non lucratif";
-      default: return regime;
-    }
-  };
-
   const getFormeJuridiqueLabel = (forme: FormeJuridique) => {
     switch (forme) {
       case "sa": return "Société Anonyme (SA)";
@@ -96,10 +81,6 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
                 <p className="text-sm text-muted-foreground">État civil</p>
                 <p className="font-medium capitalize">{client.etatcivil}</p>
               </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Régime fiscal</p>
-                <p className="font-medium">{client.regimefiscal && getRegimeFiscalLabel(client.regimefiscal)}</p>
-              </div>
             </>
           ) : (
             <>
@@ -135,12 +116,6 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Forme juridique</p>
                   <p className="font-medium">{getFormeJuridiqueLabel(client.formejuridique)}</p>
-                </div>
-              )}
-              {client.regimefiscal && (
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Régime fiscal</p>
-                  <p className="font-medium">{getRegimeFiscalLabel(client.regimefiscal)}</p>
                 </div>
               )}
             </>

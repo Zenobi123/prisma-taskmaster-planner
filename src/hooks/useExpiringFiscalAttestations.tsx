@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { differenceInDays, isValid, parse } from "date-fns";
+import { Json } from "@/integrations/supabase/types";
 
 export interface FiscalAttestation {
   id: string;
@@ -49,8 +50,17 @@ export const useExpiringFiscalAttestations = () => {
               fiscalData.attestation.validityEndDate &&
               fiscalData.attestation.showInAlert !== false) {
                 
-            // Parse the expiry date
-            const expiryDate = parse(fiscalData.attestation.validityEndDate, 'dd/MM/yyyy', new Date());
+            // Parse the expiry date - handle both formats
+            let expiryDate: Date;
+            const expiryDateStr = fiscalData.attestation.validityEndDate;
+            
+            if (expiryDateStr.includes('-')) {
+              // Format YYYY-MM-DD
+              expiryDate = new Date(expiryDateStr);
+            } else {
+              // Format DD/MM/YYYY
+              expiryDate = parse(expiryDateStr, 'dd/MM/yyyy', new Date());
+            }
             
             if (isValid(expiryDate)) {
               const today = new Date();
@@ -78,9 +88,10 @@ export const useExpiringFiscalAttestations = () => {
       return expiringAttestations.sort((a, b) => a.daysRemaining - b.daysRemaining);
     },
     // Configurer la mise en cache et le rafraîchissement automatique
-    staleTime: 5 * 60 * 1000, // 5 minutes avant que les données soient considérées comme périmées
-    gcTime: 30 * 60 * 1000,   // 30 minutes avant le nettoyage du cache
-    refetchInterval: 10000,    // Rafraîchir toutes les 10 secondes
-    refetchOnWindowFocus: true // Rafraîchir quand l'utilisateur revient sur l'onglet
+    staleTime: 2 * 60 * 1000,  // 2 minutes avant que les données soient considérées comme périmées
+    gcTime: 10 * 60 * 1000,    // 10 minutes avant le nettoyage du cache
+    refetchInterval: 60000,    // Rafraîchir toutes les 60 secondes
+    refetchOnWindowFocus: true, // Rafraîchir quand l'utilisateur revient sur l'onglet
+    refetchOnMount: true       // Rafraîchir à chaque montage du composant
   });
 };

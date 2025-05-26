@@ -1,58 +1,65 @@
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import { Paiement } from '@/types/paiement';
 import { SimplifiedClient } from './types';
-import { addReceiptHeader } from './components/receiptHeader';
-import { addReceiptPaymentDetails } from './components/receiptPaymentDetails';
-import { addReceiptAmountSection } from './components/receiptAmountSection';
-import { addReceiptNotes } from './components/receiptNotes';
-import { addReceiptFooter } from './components/receiptFooter';
+import { DocumentService } from './services/DocumentService';
 
 /**
- * Function to generate a payment receipt PDF
- * @param paiement - Payment data
- * @param download - If true, download the PDF; if false, open in a new tab
- * @returns Either a Blob (if download=true) or null (if download=false)
+ * Fonction pour générer un PDF de reçu de paiement de haute qualité
+ * @param paiement - Données du paiement
+ * @param download - Si true, télécharger le PDF; si false, ouvrir dans un nouvel onglet
+ * @returns Soit un Blob (si download=true) soit null (si download=false)
  */
 export const generateReceiptPDF = (paiement: any, download: boolean = false) => {
   try {
-    const doc = new jsPDF();
+    // Créer un nouveau service de document
+    const reference = paiement.reference || paiement.id;
+    const docService = new DocumentService();
+    const doc = docService.getDocument();
     
-    // Set document properties
-    doc.setProperties({
-      title: `Reçu de paiement ${paiement.reference || paiement.id}`,
-      subject: 'Reçu de paiement',
-      author: 'PRISMA GESTION',
-      keywords: 'reçu, paiement, pdf'
+    // Ajouter l'en-tête standard
+    docService.addStandardHeader();
+    
+    // Ajouter un titre
+    docService.addTitle(`Reçu de paiement ${reference}`);
+    
+    // Ajouter une sous-titre avec la date
+    docService.addSubtitle(`Date: ${paiement.date}`);
+    
+    // Ajouter la section de détails du paiement
+    addReceiptPaymentDetails(doc, paiement);
+    
+    // Ajouter la section du montant
+    docService.addSection('MONTANT PAYÉ', [`${paiement.montant} FCFA`]);
+    
+    // Ajouter les notes si disponibles
+    if (paiement.notes) {
+      docService.addSection('NOTES', [paiement.notes]);
+    }
+    
+    // Ajouter le texte légal
+    addLegalText(doc, 200);
+    
+    // Ajouter le pied de page standard
+    docService.addStandardFooter();
+    
+    // Ajouter un filigrane
+    docService.addWatermark({
+      text: `REÇU ${reference}`,
+      angle: -45,
+      fontSize: 60,
+      opacity: 0.15,
+      color: '#888888'
     });
     
-    // Add receipt header (company logo + receipt info)
-    addReceiptHeader(doc, paiement);
-    
-    // Add payment details section
-    const paymentDetailsY = addReceiptPaymentDetails(doc, paiement);
-    
-    // Add amount section with green background
-    const amountSectionY = addReceiptAmountSection(doc, paiement, paymentDetailsY);
-    
-    // Add notes if available
-    const notesY = addReceiptNotes(doc, paiement, amountSectionY);
-    
-    // Add footer with watermark
-    addReceiptFooter(doc, paiement.reference || paiement.id);
-    
-    // Generate output based on download parameter
+    // Générer le PDF
     if (download) {
-      // Download the PDF
-      doc.save(`Recu_${paiement.reference || paiement.id}.pdf`);
-      return doc.output('blob');
+      docService.save(`recu_${reference}.pdf`);
+      return null;
     } else {
-      // Create blob and open in new tab
-      const pdfBlob = doc.output('blob');
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      window.open(pdfUrl, '_blank');
-      return pdfBlob;
+      const blob = doc.output('blob');
+      window.open(URL.createObjectURL(blob));
+      return blob;
     }
   } catch (error) {
     console.error("Erreur lors de la génération du reçu PDF:", error);
@@ -60,14 +67,149 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
   }
 };
 
-// Function to format client information for the receipt
+// Ajouter les détails du paiement
+const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
+  // Créer une boîte pour les informations de paiement
+  doc.setFillColor(248, 248, 248);
+  doc.roundedRect(15, 105, 180, 50, 3, 3, 'F');
+  
+  // Information client
+  doc.setFontSize(10);
+  doc.setTextColor(60, 60, 60);
+  
+  // Colonnes d'information
+  const leftLabels = ["Client:", "Référence:", "Date:", "Mode:"];
+  const rightLabels = ["Facture associée:", "Réf. transaction:", "Type:"];
+  
+  const leftX = 25;
+  const leftDataX = 60;
+  const rightX = 115;
+  const rightDataX = 170;
+  const startY = 115;
+  const lineHeight = 10;
+  
+  // Obtenir le nom du client - gérer différents formats possibles
+  let clientName = "Client";
+  
+  if (paiement.client) {
+    if (typeof paiement.client === 'object') {
+      // Si c'est un objet, chercher le nom ou la raison sociale
+      clientName = paiement.client.nom || paiement.client.raisonsociale || "Client";
+    } else if (typeof paiement.client === 'string') {
+      // Si c'est une chaîne de caractères
+      clientName = paiement.client;
+    }
+  }
+  
+  // Ajouter les lignes d'information (côté gauche)
+  for (let i = 0; i < leftLabels.length; i++) {
+    const y = startY + (i * lineHeight);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text(leftLabels[i], leftX, y);
+    
+    doc.setFont('helvetica', 'normal');
+    
+    // Données correspondantes
+    let value = "";
+    switch (i) {
+      case 0: value = clientName; break;
+      case 1: value = paiement.reference || paiement.id; break;
+      case 2: value = formatPaymentDate(paiement.date); break;
+      case 3: value = paiement.mode; break;
+    }
+    
+    doc.text(value, leftDataX, y);
+  }
+  
+  // Ajouter les lignes d'information (côté droit)
+  for (let i = 0; i < rightLabels.length; i++) {
+    const y = startY + (i * lineHeight);
+    
+    // Sauter si donnée non applicable
+    let applicable = false;
+    switch (i) {
+      case 0: applicable = !!paiement.facture; break;
+      case 1: applicable = !!paiement.reference_transaction; break;
+      case 2: applicable = !!paiement.est_credit; break;
+    }
+    
+    if (!applicable) continue;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text(rightLabels[i], rightX, y);
+    
+    doc.setFont('helvetica', 'normal');
+    
+    // Données correspondantes
+    let value = "";
+    switch (i) {
+      case 0: value = paiement.facture; break;
+      case 1: value = paiement.reference_transaction; break;
+      case 2: 
+        doc.setTextColor(0, 128, 0);
+        value = 'Crédit (Avance)'; 
+        break;
+    }
+    
+    doc.text(value, rightDataX, y);
+    doc.setTextColor(60, 60, 60); // Réinitialiser la couleur
+  }
+  
+  // Dessiner une ligne horizontale de séparation
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.2);
+  doc.line(25, startY + (3.5 * lineHeight), 185, startY + (3.5 * lineHeight));
+  
+  return 155; // Retourner la position Y pour la section suivante
+};
+
+// Ajouter le texte légal et de confirmation au reçu
+const addLegalText = (doc: jsPDF, yPosition: number) => {
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(100, 100, 100);
+  
+  const centerX = doc.internal.pageSize.width / 2;
+  
+  // Texte centré
+  doc.text('Ce reçu confirme le traitement de votre paiement.', centerX, yPosition, {
+    align: 'center'
+  });
+  doc.text('Document valable comme preuve de paiement.', centerX, yPosition + 5, {
+    align: 'center'
+  });
+  
+  return yPosition + 10; // Retourner la position Y après le texte légal
+};
+
+// Format date from any format to a localized string
+const formatPaymentDate = (dateString: string | Date): string => {
+  try {
+    const date = dateString instanceof Date 
+      ? dateString 
+      : new Date(dateString);
+    
+    // Create a formatter based on the browser's locale
+    return date.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  } catch (error) {
+    // If parsing fails, return the original string
+    return String(dateString);
+  }
+};
+
+// Fonction pour formatter les informations du client pour le reçu
 export const formatClientForReceipt = (client: any): SimplifiedClient => {
-  // If the client is already in the correct format, return it
+  // Si le client est déjà au bon format, le renvoyer
   if (typeof client === 'object' && client.nom) {
     return createSimplifiedClient(client);
   }
   
-  // If the client is just a string (name/ID), create a minimal client object
+  // Si le client est juste une chaîne (nom/ID), créer un objet client minimal
   if (typeof client === 'string') {
     return {
       id: '',
@@ -78,7 +220,7 @@ export const formatClientForReceipt = (client: any): SimplifiedClient => {
     };
   }
   
-  // Default empty client
+  // Client par défaut vide
   return {
     id: '',
     nom: 'Client',
@@ -88,7 +230,7 @@ export const formatClientForReceipt = (client: any): SimplifiedClient => {
   };
 };
 
-// Helper function to create a simplified client from a complex client object
+// Fonction d'aide pour créer un client simplifié à partir d'un objet client complexe
 const createSimplifiedClient = (client: any): SimplifiedClient => {
   return {
     id: client.id || '',

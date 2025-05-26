@@ -6,14 +6,17 @@ import { getCollaborateurs } from "@/services/collaborateurService";
 import { getClientStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
+import { UnpaidIgsDialog } from "@/components/dashboard/UnpaidIgsDialog";
+import { UnfiledDarpDialog } from "@/components/dashboard/UnfiledDarpDialog";
 
 const QuickStats = () => {
   const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
+  const [showUnpaidIgsDialog, setShowUnpaidIgsDialog] = useState(false);
+  const [showUnfiledDarpDialog, setShowUnfiledDarpDialog] = useState(false);
 
   const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
-    // Configurer le rafraîchissement automatique
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
@@ -25,17 +28,15 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
-  const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
+  const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0, unpaidIgsClients: 0, unfiledDarpClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientStats,
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
 
-  // Calculate statistics based on actual data
   const activeTasks = tasks.filter((task: any) => task.status === "en_cours").length;
-  
-  // Count completed missions for current month
+
   const countCompletedMissions = () => {
     let completedCount = 0;
     const currentMonth = new Date().getMonth();
@@ -43,7 +44,6 @@ const QuickStats = () => {
     tasks.forEach((task: any) => {
       if (task.status === "termine" && task.end_date) {
         const endDate = new Date(task.end_date);
-        // Only count tasks that were completed in the current month
         if (endDate.getMonth() === currentMonth) {
           completedCount++;
         }
@@ -52,13 +52,10 @@ const QuickStats = () => {
     
     return completedCount;
   };
-  
-  // Count active collaborators that are assigned to tasks
+
   const countActiveCollaborators = () => {
-    // Create a map to count tasks per collaborator
     const collaborateurTaskCount = new Map();
     
-    // Count active tasks per collaborator
     tasks.forEach((task: any) => {
       if (task.status === "en_cours" && task.collaborateur_id) {
         const collaborateurId = task.collaborateur_id;
@@ -67,10 +64,8 @@ const QuickStats = () => {
       }
     });
     
-    // Filter collaborateurs with active status
     const activeCollaborateurs = collaborateurs.filter(collab => collab.statut === "actif");
     
-    // Return the count of collaborateurs that have active status and are assigned to at least one task
     return activeCollaborateurs.filter(collab => 
       collaborateurTaskCount.has(collab.id) && collaborateurTaskCount.get(collab.id) > 0
     ).length;
@@ -81,7 +76,6 @@ const QuickStats = () => {
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      {/* Première rangée: les 3 premières caractéristiques */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
@@ -97,43 +91,51 @@ const QuickStats = () => {
           <p className="text-neutral-600 text-sm mt-1">Cette semaine</p>
         </div>
 
-        <div className="card">
+        <div className="card cursor-pointer hover:bg-slate-50 transition-colors"
+             onClick={() => setShowUnfiledDarpDialog(true)}>
           <h3 className="font-semibold text-neutral-800 mb-4">
-            Missions réalisées
-          </h3>
-          <div className="text-3xl font-bold text-primary">
-            {isTasksLoading ? (
-              <span className="animate-pulse">--</span>
-            ) : (
-              completedMissions
-            )}
-          </div>
-          <p className="text-neutral-600 text-sm mt-1">Ce mois</p>
-        </div>
-
-        <div className="card">
-          <h3 className="font-semibold text-neutral-800 mb-4">
-            Collaborateurs actifs
+            DARP non déposées
           </h3>
           <div className="flex items-center">
-            <div className="text-3xl font-bold text-primary mr-2">
-              {isTasksLoading || isCollaborateursLoading ? (
+            <div className="text-3xl font-bold text-emerald-600 mr-2">
+              {isClientStatsLoading ? (
                 <span className="animate-pulse">--</span>
               ) : (
-                activeCollaborators
+                clientStats.unfiledDarpClients || 0
               )}
             </div>
-            {!isTasksLoading && !isCollaborateursLoading && (
-              <Badge variant="outline" className="bg-green-100 text-green-800 border-green-300">
-                Actifs
+            {!isClientStatsLoading && (clientStats.unfiledDarpClients || 0) > 0 && (
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
+                À régulariser
               </Badge>
             )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">Sur les missions</p>
+          <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
+        </div>
+
+        <div className="card cursor-pointer hover:bg-slate-50 transition-colors" 
+             onClick={() => setShowUnpaidIgsDialog(true)}>
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            IGS impayés
+          </h3>
+          <div className="flex items-center">
+            <div className="text-3xl font-bold text-emerald-600 mr-2">
+              {isClientStatsLoading ? (
+                <span className="animate-pulse">--</span>
+              ) : (
+                clientStats.unpaidIgsClients || 0
+              )}
+            </div>
+            {!isClientStatsLoading && (clientStats.unpaidIgsClients || 0) > 0 && (
+              <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
+                À régulariser
+              </Badge>
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
         </div>
       </div>
 
-      {/* Deuxième rangée: les statistiques des clients */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
@@ -189,6 +191,17 @@ const QuickStats = () => {
       <UnpaidPatenteDialog 
         open={showUnpaidPatenteDialog} 
         onOpenChange={setShowUnpaidPatenteDialog} 
+      />
+
+      <UnpaidIgsDialog
+        isOpen={showUnpaidIgsDialog}
+        onClose={() => setShowUnpaidIgsDialog(false)}
+        clients={[]}
+      />
+
+      <UnfiledDarpDialog
+        open={showUnfiledDarpDialog}
+        onOpenChange={setShowUnfiledDarpDialog}
       />
     </div>
   );
