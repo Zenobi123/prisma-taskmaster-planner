@@ -62,28 +62,28 @@ export const getClientStats = async () => {
     
     // Clients assujettis à la patente qui ne l'ont pas payée
     const patenteStatus = validatedObligations.patente;
-    if (patenteStatus?.assujetti === true && patenteStatus?.payee === false) {
+    if (patenteStatus && 'payee' in patenteStatus && patenteStatus.assujetti === true && patenteStatus.payee === false) {
       unpaidPatenteClients++;
       console.log(`Client ${client.id}: Patente impayée détectée`);
     }
     
     // Clients avec IGS impayé
     const igsStatus = validatedObligations.igs;
-    if (igsStatus?.assujetti === true && igsStatus?.payee === false) {
+    if (igsStatus && 'payee' in igsStatus && igsStatus.assujetti === true && igsStatus.payee === false) {
       unpaidIgsClients++;
       console.log(`Client ${client.id}: IGS impayé détecté`);
     }
 
     // Clients avec DSF non déposée
     const dsfStatus = validatedObligations.dsf;
-    if (dsfStatus?.assujetti === true && dsfStatus?.depose === false) {
+    if (dsfStatus && 'depose' in dsfStatus && dsfStatus.assujetti === true && dsfStatus.depose === false) {
       unfiledDsfClients++;
       console.log(`Client ${client.id}: DSF non déposée détectée`);
     }
 
     // Clients avec DARP non déposée
     const darpStatus = validatedObligations.darp;
-    if (darpStatus?.assujetti === true && darpStatus?.depose === false) {
+    if (darpStatus && 'depose' in darpStatus && darpStatus.assujetti === true && darpStatus.depose === false) {
       unfiledDarpClients++;
       console.log(`Client ${client.id}: DARP non déposée détectée`);
     }
