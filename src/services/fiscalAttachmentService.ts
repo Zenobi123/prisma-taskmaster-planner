@@ -36,6 +36,8 @@ export const uploadFiscalAttachment = async (
   attachmentType: AttachmentType
 ): Promise<string | null> => {
   try {
+    console.log(`Uploading fiscal attachment: ${file.name} for ${obligationType}/${attachmentType}`);
+    
     const filePath = generateFilePath(
       clientId,
       year,
@@ -57,6 +59,7 @@ export const uploadFiscalAttachment = async (
       return null;
     }
 
+    console.log(`File uploaded successfully to: ${filePath}`);
     return filePath;
   } catch (error) {
     console.error("Upload error:", error);
@@ -85,6 +88,8 @@ export const getFiscalAttachmentUrl = async (filePath: string): Promise<string |
 
 export const deleteFiscalAttachment = async (filePath: string): Promise<boolean> => {
   try {
+    console.log(`Deleting fiscal attachment: ${filePath}`);
+    
     const { error } = await supabase.storage
       .from('fiscal_attachments')
       .remove([filePath]);
@@ -95,6 +100,8 @@ export const deleteFiscalAttachment = async (filePath: string): Promise<boolean>
       return false;
     }
 
+    console.log(`File deleted successfully: ${filePath}`);
+    toast.success("Fichier supprimé avec succès");
     return true;
   } catch (error) {
     console.error("Delete error:", error);
@@ -136,4 +143,29 @@ export const getAttachmentMetadata = async (filePath: string): Promise<FiscalAtt
     console.error("Metadata error:", error);
     return null;
   }
+};
+
+// Helper function to validate file type and size
+export const validateFile = (file: File, maxSizeMB: number = 5): boolean => {
+  const allowedTypes = [
+    'application/pdf',
+    'image/jpeg',
+    'image/jpg', 
+    'image/png',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  
+  if (!allowedTypes.includes(file.type)) {
+    toast.error("Type de fichier non autorisé. Utilisez PDF, Word ou images.");
+    return false;
+  }
+  
+  const maxSizeBytes = maxSizeMB * 1024 * 1024;
+  if (file.size > maxSizeBytes) {
+    toast.error(`La taille du fichier dépasse la limite de ${maxSizeMB}MB`);
+    return false;
+  }
+  
+  return true;
 };

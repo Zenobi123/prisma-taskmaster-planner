@@ -113,7 +113,7 @@ export const useObligationsFiscales = (selectedClient: Client) => {
     if (success) {
       setFiscalData(updatedFiscalData);
       // Manual reload of data after save without notification
-      await loadFiscalData(false);
+      await loadFiscalData();
       resetChanges();
     }
     return success;

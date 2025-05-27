@@ -8,6 +8,7 @@ import {
   uploadFiscalAttachment, 
   getFiscalAttachmentUrl, 
   deleteFiscalAttachment,
+  validateFile,
   AttachmentType
 } from "@/services/fiscalAttachmentService";
 import { toast } from "sonner";
@@ -62,14 +63,12 @@ export const UnifiedAttachmentSection: React.FC<UnifiedAttachmentSectionProps> =
   const [deletingStates, setDeletingStates] = useState<Record<string, boolean>>({});
   
   const attachmentConfigs = getAttachmentConfigs(obligationType);
-  const maxSizeBytes = maxFileSizeMB * 1024 * 1024;
 
   const handleFileUpload = useCallback(async (attachmentType: AttachmentType, file: File) => {
     if (!file) return;
     
-    // Check file size
-    if (file.size > maxSizeBytes) {
-      toast.error(`La taille du fichier dépasse la limite de ${maxFileSizeMB}MB`);
+    // Validate file
+    if (!validateFile(file, maxFileSizeMB)) {
       return;
     }
     
@@ -94,7 +93,7 @@ export const UnifiedAttachmentSection: React.FC<UnifiedAttachmentSectionProps> =
     } finally {
       setUploadingStates(prev => ({ ...prev, [attachmentType]: false }));
     }
-  }, [clientId, selectedYear, obligationName, onAttachmentUpload, maxSizeBytes, maxFileSizeMB]);
+  }, [clientId, selectedYear, obligationName, onAttachmentUpload, maxFileSizeMB]);
 
   const handleFileDownload = useCallback(async (attachmentType: string, filePath: string) => {
     setDownloadingStates(prev => ({ ...prev, [attachmentType]: true }));
@@ -125,7 +124,6 @@ export const UnifiedAttachmentSection: React.FC<UnifiedAttachmentSectionProps> =
       const success = await deleteFiscalAttachment(filePath);
       if (success) {
         onAttachmentDelete(obligationName, attachmentType);
-        toast.success("Fichier supprimé avec succès");
       }
     } catch (error) {
       console.error("Delete error:", error);
