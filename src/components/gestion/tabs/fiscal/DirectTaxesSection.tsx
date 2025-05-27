@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Plus, X } from 'lucide-react';
 import { ObligationStatuses, ObligationType, TaxObligationStatus } from '@/hooks/fiscal/types';
+import { UnifiedAttachmentSection } from './UnifiedAttachmentSection';
 
 interface DirectTaxesSectionProps {
   obligationStatuses: ObligationStatuses;
@@ -267,25 +267,22 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
               </div>
             </div>
 
-            {/* Attachments */}
-            <div className="mt-4">
-              <h4 className="font-medium text-sm mb-2">Pièces justificatives</h4>
-              
-              <div className="mb-2">
-                <label className="block text-xs text-gray-500 mb-1">Déclaration ou Avis d'imposition (PDF ou Photo)</label>
-                <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
-              </div>
-              
-              <div className="mb-2">
-                <label className="block text-xs text-gray-500 mb-1">Reçu de paiement (PDF ou Photo)</label>
-                <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
-              </div>
-              
-              <div className="mb-2">
-                <label className="block text-xs text-gray-500 mb-1">Quittance de paiement (PDF ou Photo)</label>
-                <input type="file" className="w-full text-sm" accept=".pdf,image/*" />
-              </div>
-            </div>
+            {/* Unified Attachments Section */}
+            <UnifiedAttachmentSection
+              obligationName={key}
+              obligationType="tax"
+              existingAttachments={obligation.attachements}
+              onAttachmentUpload={(obligationName, attachmentType, filePath) => {
+                // This would need to be handled by the parent component
+                console.log('Attachment uploaded:', { obligationName, attachmentType, filePath });
+              }}
+              onAttachmentDelete={(obligationName, attachmentType) => {
+                // This would need to be handled by the parent component
+                console.log('Attachment deleted:', { obligationName, attachmentType });
+              }}
+              clientId="demo-client-id" // This should come from props
+              selectedYear="2025" // This should come from props
+            />
           </div>
         )}
       </div>
