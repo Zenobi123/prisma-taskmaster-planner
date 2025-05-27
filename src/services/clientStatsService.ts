@@ -100,7 +100,7 @@ const isUnfiledDeclaration = (obligation: any): boolean => {
 };
 
 /**
- * Traite un client de manière sécurisée
+ * Traite un client de manière sécurisée avec gestion améliorée des types
  */
 const processClient = (
   client: any,
@@ -120,7 +120,7 @@ const processClient = (
   };
 
   try {
-    // Vérifications de base
+    // Vérifications de base avec type guards
     if (!client?.fiscal_data || typeof client.fiscal_data !== 'object') {
       console.log(`Client ${client.id}: Pas de données fiscales`);
       return result;
@@ -128,12 +128,20 @@ const processClient = (
 
     const fiscalData = client.fiscal_data;
     
-    if (!fiscalData.obligations || typeof fiscalData.obligations !== 'object') {
+    // Vérification sécurisée de la structure des obligations
+    if (!fiscalData.obligations || typeof fiscalData.obligations !== 'object' || fiscalData.obligations === null) {
       console.log(`Client ${client.id}: Pas d'obligations dans fiscal_data`);
       return result;
     }
 
-    const yearObligations = fiscalData.obligations[currentYear];
+    // Accès sécurisé aux obligations de l'année avec type guard
+    const obligations = fiscalData.obligations;
+    if (typeof obligations !== 'object' || obligations === null || Array.isArray(obligations)) {
+      console.log(`Client ${client.id}: Structure d'obligations invalide`);
+      return result;
+    }
+
+    const yearObligations = (obligations as Record<string, any>)[currentYear];
     if (!yearObligations) {
       console.log(`Client ${client.id}: Pas d'obligations pour l'année ${currentYear}`);
       return result;

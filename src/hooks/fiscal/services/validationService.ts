@@ -1,4 +1,3 @@
-
 import { ObligationStatuses, TaxObligationStatus, DeclarationObligationStatus, IgsObligationStatus } from "../types";
 import { toast } from "sonner";
 
@@ -181,24 +180,30 @@ export const validateAndMigrateFiscalData = (fiscalData: any): any => {
 };
 
 /**
- * Vérifie la cohérence des données d'obligations
+ * Vérifie la cohérence des données d'obligations avec des type guards sécurisés
  */
 export const validateObligationConsistency = (obligations: ObligationStatuses): boolean => {
   const errors: string[] = [];
 
-  // Vérifier chaque obligation fiscale
-  ['igs', 'patente', 'licence', 'bailCommercial', 'precompteLoyer', 'tpf'].forEach(key => {
-    const obligation = obligations[key as keyof ObligationStatuses];
-    if (!obligation || typeof obligation.assujetti !== 'boolean' || typeof obligation.payee !== 'boolean') {
+  // Vérifier chaque obligation fiscale avec type guards
+  const taxObligationKeys = ['igs', 'patente', 'licence', 'bailCommercial', 'precompteLoyer', 'tpf'] as const;
+  taxObligationKeys.forEach(key => {
+    const obligation = obligations[key];
+    if (!obligation || typeof obligation.assujetti !== 'boolean') {
       errors.push(`Structure invalide pour l'obligation: ${key}`);
+    } else if ('payee' in obligation && typeof obligation.payee !== 'boolean') {
+      errors.push(`Propriété payee invalide pour l'obligation: ${key}`);
     }
   });
 
-  // Vérifier chaque obligation déclarative
-  ['dsf', 'darp', 'cntps', 'precomptes'].forEach(key => {
-    const obligation = obligations[key as keyof ObligationStatuses];
-    if (!obligation || typeof obligation.assujetti !== 'boolean' || typeof obligation.depose !== 'boolean') {
+  // Vérifier chaque obligation déclarative avec type guards
+  const declarationObligationKeys = ['dsf', 'darp', 'cntps', 'precomptes'] as const;
+  declarationObligationKeys.forEach(key => {
+    const obligation = obligations[key];
+    if (!obligation || typeof obligation.assujetti !== 'boolean') {
       errors.push(`Structure invalide pour la déclaration: ${key}`);
+    } else if ('depose' in obligation && typeof obligation.depose !== 'boolean') {
+      errors.push(`Propriété depose invalide pour la déclaration: ${key}`);
     }
   });
 

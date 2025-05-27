@@ -7,6 +7,8 @@ import { ClientProfessionalFields } from "../ClientProfessionalFields";
 
 interface FormDataType {
   nom: string;
+  nomcommercial: string;
+  numerorccm: string;
   raisonsociale: string;
   sigle: string;
   datecreation: string;
@@ -44,6 +46,8 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
       <ClientIdentityFields
         type={type}
         nom={formData.nom}
+        nomcommercial={formData.nomcommercial}
+        numerorccm={formData.numerorccm}
         raisonsociale={formData.raisonsociale}
         sigle={formData.sigle}
         datecreation={formData.datecreation}

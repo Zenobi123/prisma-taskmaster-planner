@@ -11,6 +11,8 @@ import {
 
 interface ClientFormState {
   nom: string;
+  nomcommercial: string;
+  numerorccm: string;
   raisonsociale: string;
   sigle: string;
   datecreation: string;
@@ -39,6 +41,8 @@ interface ClientFormState {
 export function useClientForm(initialData?: Client) {
   const [formData, setFormData] = useState<ClientFormState>({
     nom: "",
+    nomcommercial: "",
+    numerorccm: "",
     raisonsociale: "",
     sigle: "",
     datecreation: "",
@@ -68,6 +72,8 @@ export function useClientForm(initialData?: Client) {
     if (initialData) {
       setFormData({
         nom: initialData.nom || "",
+        nomcommercial: initialData.nomcommercial || "",
+        numerorccm: initialData.numerorccm || "",
         raisonsociale: initialData.raisonsociale || "",
         sigle: initialData.sigle || "",
         datecreation: initialData.datecreation || "",
@@ -146,6 +152,8 @@ export function useClientForm(initialData?: Client) {
       return {
         ...baseData,
         nom: formData.nom,
+        nomcommercial: formData.nomcommercial || null,
+        numerorccm: formData.numerorccm || null,
         raisonsociale: null,
         sexe: formData.sexe,
         etatcivil: formData.etatcivil,
@@ -159,6 +167,8 @@ export function useClientForm(initialData?: Client) {
       return {
         ...baseData,
         nom: null,
+        nomcommercial: null,
+        numerorccm: formData.numerorccm || null,
         raisonsociale: formData.raisonsociale,
         sexe: undefined,
         etatcivil: undefined,

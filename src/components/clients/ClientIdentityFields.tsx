@@ -7,6 +7,8 @@ import { PropertyStatusFields } from "./identity/PropertyStatusFields";
 interface ClientIdentityFieldsProps {
   type: ClientType;
   nom: string;
+  nomcommercial?: string;
+  numerorccm?: string;
   raisonsociale: string;
   sigle?: string;
   datecreation?: string;
@@ -26,6 +28,8 @@ interface ClientIdentityFieldsProps {
 export function ClientIdentityFields({ 
   type,
   nom = "",
+  nomcommercial = "",
+  numerorccm = "",
   raisonsociale = "",
   sigle = "",
   datecreation = "",
@@ -42,6 +46,8 @@ export function ClientIdentityFields({
       {type === "physique" ? (
         <PersonalInfoFields
           nom={nom}
+          nomcommercial={nomcommercial}
+          numerorccm={numerorccm}
           sexe={sexe}
           etatcivil={etatcivil}
           onChange={onChange}
@@ -50,6 +56,7 @@ export function ClientIdentityFields({
         <CompanyInfoFields
           raisonsociale={raisonsociale}
           sigle={sigle}
+          numerorccm={numerorccm}
           datecreation={datecreation}
           lieucreation={lieucreation}
           nomdirigeant={nomdirigeant}

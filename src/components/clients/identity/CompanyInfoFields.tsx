@@ -1,12 +1,13 @@
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { FormeJuridique } from "@/types/client";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CompanyInfoFieldsProps {
   raisonsociale: string;
   sigle?: string;
+  numerorccm?: string;
   datecreation?: string;
   lieucreation?: string;
   nomdirigeant?: string;
@@ -14,84 +15,104 @@ interface CompanyInfoFieldsProps {
   onChange: (name: string, value: any) => void;
 }
 
-export function CompanyInfoFields({
-  raisonsociale,
+export function CompanyInfoFields({ 
+  raisonsociale, 
   sigle = "",
-  datecreation = "",
-  lieucreation = "",
+  numerorccm = "",
+  datecreation = "", 
+  lieucreation = "", 
   nomdirigeant = "",
   formejuridique,
-  onChange
+  onChange 
 }: CompanyInfoFieldsProps) {
   return (
-    <div className="space-y-6">
-      <div>
-        <Label>Raison sociale *</Label>
-        <Input 
-          required 
-          value={raisonsociale}
-          onChange={(e) => onChange("raisonsociale", e.target.value)}
-          placeholder="Nom de l'entreprise"
-        />
-      </div>
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-gray-900">Informations de l'entreprise</h3>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="raisonsociale">Raison sociale *</Label>
+          <Input
+            id="raisonsociale"
+            type="text"
+            value={raisonsociale}
+            onChange={(e) => onChange("raisonsociale", e.target.value)}
+            placeholder="Entrez la raison sociale"
+            required
+          />
+        </div>
 
-      <div>
-        <Label>Sigle</Label>
-        <Input
-          value={sigle}
-          onChange={(e) => onChange("sigle", e.target.value)}
-          placeholder="Sigle de l'entreprise"
-        />
-      </div>
+        <div>
+          <Label htmlFor="sigle">Sigle</Label>
+          <Input
+            id="sigle"
+            type="text"
+            value={sigle}
+            onChange={(e) => onChange("sigle", e.target.value)}
+            placeholder="Sigle de l'entreprise"
+          />
+        </div>
 
-      <div>
-        <Label>Date de création</Label>
-        <Input
-          type="date"
-          value={datecreation}
-          onChange={(e) => onChange("datecreation", e.target.value)}
-        />
-      </div>
+        <div>
+          <Label htmlFor="numerorccm">Numéro de RCCM</Label>
+          <Input
+            id="numerorccm"
+            type="text"
+            value={numerorccm}
+            onChange={(e) => onChange("numerorccm", e.target.value)}
+            placeholder="Numéro de RCCM (optionnel)"
+          />
+        </div>
 
-      <div>
-        <Label>Lieu de création</Label>
-        <Input
-          value={lieucreation}
-          onChange={(e) => onChange("lieucreation", e.target.value)}
-          placeholder="Ville de création"
-        />
-      </div>
-
-      <div>
-        <Label>Nom du dirigeant</Label>
-        <Input
-          value={nomdirigeant}
-          onChange={(e) => onChange("nomdirigeant", e.target.value)}
-          placeholder="Nom complet du dirigeant"
-        />
-      </div>
-
-      <div>
-        <Label>Forme juridique</Label>
-        <Select
-          value={formejuridique}
-          onValueChange={(value: FormeJuridique) => onChange("formejuridique", value)}
-        >
-          <SelectTrigger className="w-full bg-background border-input">
-            <SelectValue placeholder="Sélectionnez la forme juridique" />
-          </SelectTrigger>
-          <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
-            <ScrollArea className="max-h-[200px]">
-              <SelectItem value="sa">Société Anonyme (SA)</SelectItem>
-              <SelectItem value="sarl">Société à Responsabilité Limitée (SARL)</SelectItem>
-              <SelectItem value="sas">Société par Actions Simplifiée (SAS)</SelectItem>
-              <SelectItem value="snc">Société en Nom Collectif (SNC)</SelectItem>
+        <div>
+          <Label htmlFor="formejuridique">Forme juridique</Label>
+          <Select value={formejuridique} onValueChange={(value) => onChange("formejuridique", value as FormeJuridique)}>
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionnez la forme juridique" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="sa">SA - Société Anonyme</SelectItem>
+              <SelectItem value="sarl">SARL - Société à Responsabilité Limitée</SelectItem>
+              <SelectItem value="sas">SAS - Société par Actions Simplifiée</SelectItem>
+              <SelectItem value="snc">SNC - Société en Nom Collectif</SelectItem>
               <SelectItem value="association">Association</SelectItem>
-              <SelectItem value="gie">Groupement d'Intérêt Économique (GIE)</SelectItem>
+              <SelectItem value="gie">GIE - Groupement d'Intérêt Économique</SelectItem>
               <SelectItem value="autre">Autre</SelectItem>
-            </ScrollArea>
-          </SelectContent>
-        </Select>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label htmlFor="datecreation">Date de création</Label>
+          <Input
+            id="datecreation"
+            type="date"
+            value={datecreation}
+            onChange={(e) => onChange("datecreation", e.target.value)}
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="lieucreation">Lieu de création</Label>
+          <Input
+            id="lieucreation"
+            type="text"
+            value={lieucreation}
+            onChange={(e) => onChange("lieucreation", e.target.value)}
+            placeholder="Lieu de création"
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="nomdirigeant">Nom du dirigeant</Label>
+          <Input
+            id="nomdirigeant"
+            type="text"
+            value={nomdirigeant}
+            onChange={(e) => onChange("nomdirigeant", e.target.value)}
+            placeholder="Nom du dirigeant principal"
+          />
+        </div>
       </div>
     </div>
   );
