@@ -86,12 +86,8 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
 
       {/* Section des Impôts Directs */}
       <DirectTaxesSection 
-        clientId={selectedClient.id}
-        selectedYear={selectedYear}
         obligationStatuses={obligationStatuses}
         handleStatusChange={handleStatusChange}
-        handleAttachmentChange={handleAttachmentUpdate}
-        isTaxObligation={isTaxObligation}
       />
 
       {/* Section des Obligations Annuelles */}
