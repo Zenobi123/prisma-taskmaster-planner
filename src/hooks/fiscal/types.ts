@@ -44,12 +44,12 @@ export interface DeclarationObligationStatus extends ObligationStatus {
 
 export type DeclarationPeriodicity = "mensuelle" | "trimestrielle" | "annuelle";
 
-// Define obligation types - updated to match frontend usage
+// Define obligation types - updated to match frontend usage including all DirectTaxesSection obligations
 export type ObligationType = "igs" | "patente" | "licence" | "bailCommercial" | "precompteLoyer" | "tpf" | "dsf" | "darp" | "cntps" | "precomptes";
 
-// Define all tax obligation statuses - updated to match DirectTaxesSection
+// Define all obligation statuses - updated to match DirectTaxesSection exactly
 export interface ObligationStatuses {
-  // Direct taxes (impôts directs)
+  // Direct taxes (impôts directs) - All obligations used in DirectTaxesSection
   igs: IgsObligationStatus;
   patente: TaxObligationStatus;
   licence: TaxObligationStatus;
