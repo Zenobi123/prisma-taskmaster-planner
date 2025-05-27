@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getTasks } from "@/services/taskService";
 import { getCollaborateurs } from "@/services/collaborateurService";
-import { getClientStats } from "@/services/clientStatsService";
+import { getClientsStats } from "@/services/clientStatsService";
 import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { UnpaidIgsDialog } from "@/components/dashboard/UnpaidIgsDialog";
@@ -28,9 +28,9 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
-  const { data: clientStats = { managedClients: 0, unpaidPatenteClients: 0, unfiledDsfClients: 0, unpaidIgsClients: 0, unfiledDarpClients: 0 }, isLoading: isClientStatsLoading } = useQuery({
+  const { data: clientStats, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
-    queryFn: getClientStats,
+    queryFn: getClientsStats,
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
@@ -101,10 +101,10 @@ const QuickStats = () => {
               {isClientStatsLoading ? (
                 <span className="animate-pulse">--</span>
               ) : (
-                clientStats.unfiledDarpClients || 0
+                clientStats?.unfiledDarpClients || 0
               )}
             </div>
-            {!isClientStatsLoading && (clientStats.unfiledDarpClients || 0) > 0 && (
+            {!isClientStatsLoading && (clientStats?.unfiledDarpClients || 0) > 0 && (
               <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
                 À régulariser
               </Badge>
@@ -123,10 +123,10 @@ const QuickStats = () => {
               {isClientStatsLoading ? (
                 <span className="animate-pulse">--</span>
               ) : (
-                clientStats.unpaidIgsClients || 0
+                clientStats?.unpaidIgsClients || 0
               )}
             </div>
-            {!isClientStatsLoading && (clientStats.unpaidIgsClients || 0) > 0 && (
+            {!isClientStatsLoading && (clientStats?.unpaidIgsClients || 0) > 0 && (
               <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
                 À régulariser
               </Badge>
@@ -145,7 +145,7 @@ const QuickStats = () => {
             {isClientStatsLoading ? (
               <span className="animate-pulse">--</span>
             ) : (
-              clientStats.managedClients
+              clientStats?.managedClients || 0
             )}
           </div>
           <p className="text-neutral-600 text-sm mt-1">Total</p>
@@ -159,7 +159,7 @@ const QuickStats = () => {
             {isClientStatsLoading ? (
               <span className="animate-pulse">--</span>
             ) : (
-              clientStats.unfiledDsfClients
+              clientStats?.unfiledDsfClients || 0
             )}
           </div>
           <p className="text-neutral-600 text-sm mt-1">À régulariser</p>
@@ -175,10 +175,10 @@ const QuickStats = () => {
               {isClientStatsLoading ? (
                 <span className="animate-pulse">--</span>
               ) : (
-                clientStats.unpaidPatenteClients
+                clientStats?.unpaidPatenteClients || 0
               )}
             </div>
-            {!isClientStatsLoading && clientStats.unpaidPatenteClients > 0 && (
+            {!isClientStatsLoading && (clientStats?.unpaidPatenteClients || 0) > 0 && (
               <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
                 À régulariser
               </Badge>

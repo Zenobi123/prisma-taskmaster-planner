@@ -1,4 +1,5 @@
-import { createClient } from "@/lib/supabase/server";
+
+import { createClient } from "@/integrations/supabase/client";
 
 export interface ClientStats {
   totalClients: number;
@@ -6,6 +7,11 @@ export interface ClientStats {
   inactifs: number;
   archives: number;
   withUnfiledObligations: number;
+  managedClients: number;
+  unpaidPatenteClients: number;
+  unfiledDsfClients: number;
+  unpaidIgsClients: number;
+  unfiledDarpClients: number;
 }
 
 export const getClientsStats = async (): Promise<ClientStats> => {
@@ -26,7 +32,12 @@ export const getClientsStats = async (): Promise<ClientStats> => {
       actifs: clients.filter(c => c.statut === 'actif').length,
       inactifs: clients.filter(c => c.statut === 'inactif').length,
       archives: clients.filter(c => c.statut === 'archive').length,
-      withUnfiledObligations: 0
+      withUnfiledObligations: 0,
+      managedClients: clients.filter(c => c.gestionexternalisee === true).length,
+      unpaidPatenteClients: 0,
+      unfiledDsfClients: 0,
+      unpaidIgsClients: 0,
+      unfiledDarpClients: 0
     };
 
     // Récupérer les obligations fiscales pour calculer les obligations non déposées
