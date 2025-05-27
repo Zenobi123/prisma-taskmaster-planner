@@ -1,5 +1,6 @@
 
-import { createClient } from "@/integrations/supabase/client";
+
+import { supabase } from "@/integrations/supabase/client";
 
 export interface ClientStats {
   totalClients: number;
@@ -16,7 +17,6 @@ export interface ClientStats {
 
 export const getClientsStats = async (): Promise<ClientStats> => {
   try {
-    const supabase = createClient();
     
     const { data: clients, error } = await supabase
       .from('clients')
@@ -65,3 +65,4 @@ export const getClientsStats = async (): Promise<ClientStats> => {
     throw error;
   }
 };
+
