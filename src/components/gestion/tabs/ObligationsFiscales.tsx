@@ -11,6 +11,7 @@ import { AlertTriangle, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { DirectTaxesSection } from "./fiscal/DirectTaxesSection";
 import { DeclarationsSection } from "./fiscal/DeclarationsSection";
+import { ObligationStatuses, ObligationType } from "@/hooks/fiscal/types";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
@@ -25,7 +26,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   
   // État pour les obligations fiscales - mise à jour pour inclure toutes les obligations
-  const [obligationStatuses, setObligationStatuses] = useState({
+  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
     // Direct taxes
     igs: { assujetti: false, payee: false },
     patente: { assujetti: false, payee: false },
@@ -109,17 +110,11 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
   };
 
   // Gestion des changements d'état d'assujettissement et de paiement
-  const handleStatusChange = (taxType: string, field: string, value: boolean) => {
+  const handleStatusChange = (taxType: ObligationType, field: string, value: boolean) => {
     setObligationStatuses(prev => {
-      const taxKey = taxType === 'bail-commercial' 
-        ? 'bailCommercial' 
-        : taxType === 'precompte-loyer' 
-          ? 'precompteLoyer' 
-          : taxType;
-
       if (field === "assujetti" && !value) {
         // Si on désactive l'assujettissement, on désactive aussi le paiement/dépôt
-        const updatedObligation = { ...prev[taxKey as keyof typeof prev] };
+        const updatedObligation = { ...prev[taxType] };
         if ('payee' in updatedObligation) {
           (updatedObligation as any).payee = false;
         }
@@ -128,13 +123,13 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
         }
         return {
           ...prev,
-          [taxKey]: { ...updatedObligation, assujetti: value }
+          [taxType]: { ...updatedObligation, assujetti: value }
         };
       }
 
       return {
         ...prev,
-        [taxKey]: { ...prev[taxKey as keyof typeof prev], [field]: value }
+        [taxType]: { ...prev[taxType], [field]: value }
       };
     });
   };

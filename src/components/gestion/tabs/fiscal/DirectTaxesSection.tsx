@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Plus, X } from 'lucide-react';
-import { ObligationStatuses } from '@/hooks/fiscal/types';
+import { ObligationStatuses, ObligationType, TaxObligationStatus } from '@/hooks/fiscal/types';
 
 interface DirectTaxesSectionProps {
   obligationStatuses: ObligationStatuses;
-  handleStatusChange: (taxType: string, field: string, value: boolean) => void;
+  handleStatusChange: (taxType: ObligationType, field: string, value: boolean) => void;
 }
 
 // IGS tax brackets configuration
@@ -90,10 +90,15 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     setCAValue(formattedValue);
   };
 
+  // Type guard to check if obligation is a tax obligation
+  const isTaxObligation = (obligation: any): obligation is TaxObligationStatus => {
+    return 'payee' in obligation;
+  };
+
   // Render tax obligation item
-  const renderTaxItem = (key: keyof ObligationStatuses, name: string) => {
+  const renderTaxItem = (key: ObligationType, name: string) => {
     const obligation = obligationStatuses[key];
-    if (!('payee' in obligation)) return null; // Skip if not a tax obligation
+    if (!isTaxObligation(obligation)) return null;
     
     return (
       <div key={key} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
