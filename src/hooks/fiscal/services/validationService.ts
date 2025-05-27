@@ -181,7 +181,7 @@ export const validateAndMigrateFiscalData = (fiscalData: any): any => {
 };
 
 /**
- * Vérifie la cohérence des données d'obligations avec vérification de type sécurisée
+ * Vérifie la cohérence des données d'obligations
  */
 export const validateObligationConsistency = (obligations: ObligationStatuses): boolean => {
   const errors: string[] = [];
@@ -189,28 +189,16 @@ export const validateObligationConsistency = (obligations: ObligationStatuses): 
   // Vérifier chaque obligation fiscale
   ['igs', 'patente', 'licence', 'bailCommercial', 'precompteLoyer', 'tpf'].forEach(key => {
     const obligation = obligations[key as keyof ObligationStatuses];
-    if (!obligation || typeof obligation.assujetti !== 'boolean') {
+    if (!obligation || typeof obligation.assujetti !== 'boolean' || typeof obligation.payee !== 'boolean') {
       errors.push(`Structure invalide pour l'obligation: ${key}`);
-    } else {
-      // Vérification type-safe pour les obligations fiscales
-      const taxObligation = obligation as TaxObligationStatus | IgsObligationStatus;
-      if (typeof taxObligation.payee !== 'boolean') {
-        errors.push(`Propriété 'payee' manquante ou invalide pour: ${key}`);
-      }
     }
   });
 
   // Vérifier chaque obligation déclarative
   ['dsf', 'darp', 'cntps', 'precomptes'].forEach(key => {
     const obligation = obligations[key as keyof ObligationStatuses];
-    if (!obligation || typeof obligation.assujetti !== 'boolean') {
+    if (!obligation || typeof obligation.assujetti !== 'boolean' || typeof obligation.depose !== 'boolean') {
       errors.push(`Structure invalide pour la déclaration: ${key}`);
-    } else {
-      // Vérification type-safe pour les obligations déclaratives
-      const declarationObligation = obligation as DeclarationObligationStatus;
-      if (typeof declarationObligation.depose !== 'boolean') {
-        errors.push(`Propriété 'depose' manquante ou invalide pour: ${key}`);
-      }
     }
   });
 
