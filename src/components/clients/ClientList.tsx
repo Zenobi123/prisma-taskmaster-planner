@@ -30,8 +30,18 @@ interface ClientListProps {
 }
 
 export function ClientList({ clients, onView, onEdit, onArchive, onRestore, onDelete, isMobile }: ClientListProps) {
-  // Pour le mode mobile, une présentation adaptée pourrait être ajoutée ici
-  // Mais pour cette tâche, nous nous concentrons uniquement sur l'export
+  const getRegimeFiscalLabel = (regime: string) => {
+    switch (regime) {
+      case 'reel':
+        return 'Réel';
+      case 'igs':
+        return 'IGS';
+      case 'non_professionnel':
+        return 'Non Professionnel';
+      default:
+        return regime;
+    }
+  };
 
   return (
     <Table>
@@ -40,10 +50,8 @@ export function ClientList({ clients, onView, onEdit, onArchive, onRestore, onDe
           <TableHead>Type</TableHead>
           <TableHead>Nom/Raison sociale</TableHead>
           <TableHead>NIU</TableHead>
-          <TableHead>Centre</TableHead>
-          <TableHead>Ville</TableHead>
+          <TableHead>Régime Fiscal</TableHead>
           <TableHead>Contact</TableHead>
-          <TableHead>Secteur</TableHead>
           <TableHead>Statut</TableHead>
           <TableHead className="text-right">Actions</TableHead>
         </TableRow>
@@ -67,10 +75,12 @@ export function ClientList({ clients, onView, onEdit, onArchive, onRestore, onDe
               {client.type === "physique" ? client.nom : client.raisonsociale}
             </TableCell>
             <TableCell>{client.niu}</TableCell>
-            <TableCell>{client.centrerattachement}</TableCell>
-            <TableCell>{client.adresse.ville}</TableCell>
+            <TableCell>
+              <Badge variant="secondary">
+                {getRegimeFiscalLabel(client.regimefiscal)}
+              </Badge>
+            </TableCell>
             <TableCell>{client.contact.telephone}</TableCell>
-            <TableCell>{client.secteuractivite}</TableCell>
             <TableCell>
               <Badge 
                 variant={

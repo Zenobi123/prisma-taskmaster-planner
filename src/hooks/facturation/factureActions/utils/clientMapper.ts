@@ -23,6 +23,7 @@ export const mapClientToPdfClient = (clientData: any): Client => {
     nom: clientData.nom || '',
     raisonsociale: clientData.raisonsociale || '',
     niu: clientData.niu || '',
+    regimefiscal: clientData.regimefiscal || 'reel',
     adresse: typeof clientData.adresse === 'object' 
       ? clientData.adresse 
       : { 
