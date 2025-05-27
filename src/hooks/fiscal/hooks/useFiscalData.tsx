@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { ObligationStatuses } from '../types';
 import { fetchFiscalData, saveFiscalData } from '../services';
+import { validateAndMigrateObligationStatuses, createDefaultObligationStatuses } from '../services/validationService';
 
 export const useFiscalData = (clientId: string) => {
   const [fiscalData, setFiscalData] = useState<any>(null);
@@ -31,27 +32,20 @@ export const useFiscalData = (clientId: string) => {
     loadFiscalData();
   }, [loadFiscalData]);
 
-  // Helper function to get obligations for a specific year with proper typing
+  // Helper function to get obligations for a specific year with proper validation
   const getObligationsForYear = useCallback((year: string): ObligationStatuses | undefined => {
-    if (!fiscalData?.obligations?.[year]) return undefined;
+    if (!fiscalData?.obligations?.[year]) {
+      console.log(`Aucune obligation trouvée pour l'année ${year}, création d'une structure par défaut`);
+      return createDefaultObligationStatuses();
+    }
     
     const yearObligations = fiscalData.obligations[year];
     
-    // Ensure all required obligations are present with proper structure
-    return {
-      // Direct taxes
-      igs: yearObligations.igs || { assujetti: false, payee: false },
-      patente: yearObligations.patente || { assujetti: false, payee: false },
-      licence: yearObligations.licence || { assujetti: false, payee: false },
-      bailCommercial: yearObligations.bailCommercial || { assujetti: false, payee: false },
-      precompteLoyer: yearObligations.precompteLoyer || { assujetti: false, payee: false },
-      tpf: yearObligations.tpf || { assujetti: false, payee: false },
-      // Declarations
-      dsf: yearObligations.dsf || { assujetti: false, depose: false, periodicity: "annuelle" },
-      darp: yearObligations.darp || { assujetti: false, depose: false, periodicity: "annuelle" },
-      cntps: yearObligations.cntps || { assujetti: false, depose: false, periodicity: "mensuelle" },
-      precomptes: yearObligations.precomptes || { assujetti: false, depose: false, periodicity: "mensuelle" }
-    } as ObligationStatuses;
+    // Valider et migrer les obligations avant de les retourner
+    const validatedObligations = validateAndMigrateObligationStatuses(yearObligations);
+    
+    console.log(`Obligations validées et migrées pour l'année ${year}`);
+    return validatedObligations;
   }, [fiscalData]);
 
   return {

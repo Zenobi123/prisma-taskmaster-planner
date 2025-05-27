@@ -1,10 +1,10 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { ClientFiscalData, ObligationStatuses } from "../types";
 import { Json } from "@/integrations/supabase/types";
+import { validateObligationConsistency, validateAndMigrateObligationStatuses } from "./validationService";
 
 /**
- * Prépare les données d'obligations pour la sauvegarde en s'assurant de la compatibilité
+ * Prépare les données d'obligations pour la sauvegarde avec validation
  */
 const prepareObligationsForSave = (obligations: Record<string, ObligationStatuses> | undefined): Json => {
   if (!obligations) return {};
@@ -15,19 +15,27 @@ const prepareObligationsForSave = (obligations: Record<string, ObligationStatuse
     const yearObligations = obligations[year];
     
     if (yearObligations) {
+      // Valider et migrer avant la sauvegarde
+      const validatedObligations = validateAndMigrateObligationStatuses(yearObligations);
+      
+      // Vérifier la cohérence
+      if (!validateObligationConsistency(validatedObligations)) {
+        console.warn(`Problème de cohérence détecté pour l'année ${year}, sauvegarde tout de même`);
+      }
+
       prepared[year] = {
         // Direct taxes - préparer chaque obligation
-        igs: prepareTaxObligationForSave(yearObligations.igs, 'igs'),
-        patente: prepareTaxObligationForSave(yearObligations.patente, 'tax'),
-        licence: prepareTaxObligationForSave(yearObligations.licence, 'tax'),
-        bailCommercial: prepareTaxObligationForSave(yearObligations.bailCommercial, 'tax'),
-        precompteLoyer: prepareTaxObligationForSave(yearObligations.precompteLoyer, 'tax'),
-        tpf: prepareTaxObligationForSave(yearObligations.tpf, 'tax'),
+        igs: prepareTaxObligationForSave(validatedObligations.igs, 'igs'),
+        patente: prepareTaxObligationForSave(validatedObligations.patente, 'tax'),
+        licence: prepareTaxObligationForSave(validatedObligations.licence, 'tax'),
+        bailCommercial: prepareTaxObligationForSave(validatedObligations.bailCommercial, 'tax'),
+        precompteLoyer: prepareTaxObligationForSave(validatedObligations.precompteLoyer, 'tax'),
+        tpf: prepareTaxObligationForSave(validatedObligations.tpf, 'tax'),
         // Declarations
-        dsf: prepareDeclarationObligationForSave(yearObligations.dsf),
-        darp: prepareDeclarationObligationForSave(yearObligations.darp),
-        cntps: prepareDeclarationObligationForSave(yearObligations.cntps),
-        precomptes: prepareDeclarationObligationForSave(yearObligations.precomptes)
+        dsf: prepareDeclarationObligationForSave(validatedObligations.dsf),
+        darp: prepareDeclarationObligationForSave(validatedObligations.darp),
+        cntps: prepareDeclarationObligationForSave(validatedObligations.cntps),
+        precomptes: prepareDeclarationObligationForSave(validatedObligations.precomptes)
       };
     }
   });
@@ -97,7 +105,7 @@ const prepareDeclarationObligationForSave = (obligation: any): any => {
 };
 
 /**
- * Sauvegarde des données fiscales avec fonction de retry et gestion de la nouvelle structure
+ * Sauvegarde des données fiscales avec validation et fonction de retry
  */
 export const saveFiscalData = async (
   clientId: string, 
@@ -107,7 +115,7 @@ export const saveFiscalData = async (
   try {
     console.log(`Sauvegarde des données fiscales pour le client ${clientId} (tentative ${retryCount + 1})`);
     
-    // Préparation des données pour la sauvegarde
+    // Préparation des données pour la sauvegarde avec validation
     const preparedData = {
       clientId: data.clientId,
       year: data.year,
