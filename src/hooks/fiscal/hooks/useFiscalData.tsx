@@ -8,12 +8,12 @@ export const useFiscalData = (clientId: string) => {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
 
-  const loadFiscalData = useCallback(async (showNotification: boolean = true) => {
+  const loadFiscalData = useCallback(async (retryCount: number = 0) => {
     if (!clientId) return;
     
     try {
       setIsLoading(true);
-      const data = await fetchFiscalData(clientId, showNotification);
+      const data = await fetchFiscalData(clientId, retryCount);
       setFiscalData(data);
       
       // Set selected year from data or default to current year
