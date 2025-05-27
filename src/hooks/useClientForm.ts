@@ -6,7 +6,8 @@ import {
   Sexe, 
   EtatCivil,
   SituationImmobiliere,
-  FormeJuridique
+  FormeJuridique,
+  RegimeFiscal
 } from "@/types/client";
 
 interface ClientFormState {
@@ -28,6 +29,7 @@ interface ClientFormState {
   email: string;
   secteuractivite: string;
   numerocnps: string;
+  regimefiscal: RegimeFiscal;
   gestionexternalisee: boolean;
   sexe: Sexe;
   etatcivil: EtatCivil;
@@ -58,6 +60,7 @@ export function useClientForm(initialData?: Client) {
     email: "",
     secteuractivite: "commerce",
     numerocnps: "",
+    regimefiscal: "reel",
     gestionexternalisee: false,
     sexe: "homme",
     etatcivil: "celibataire",
@@ -89,6 +92,7 @@ export function useClientForm(initialData?: Client) {
         email: initialData.contact.email,
         secteuractivite: initialData.secteuractivite,
         numerocnps: initialData.numerocnps || "",
+        regimefiscal: initialData.regimefiscal || "reel",
         gestionexternalisee: initialData.gestionexternalisee || false,
         sexe: initialData.sexe || "homme",
         etatcivil: initialData.etatcivil || "celibataire",
@@ -140,6 +144,7 @@ export function useClientForm(initialData?: Client) {
       },
       secteuractivite: formData.secteuractivite,
       numerocnps: formData.numerocnps || null,
+      regimefiscal: formData.regimefiscal,
       gestionexternalisee: formData.gestionexternalisee,
       situationimmobiliere: {
         type: formData.situationimmobiliere.type,

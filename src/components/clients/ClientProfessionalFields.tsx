@@ -9,12 +9,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RegimeFiscal } from "@/types/client";
 
 interface ClientProfessionalFieldsProps {
   niu: string;
   centrerattachement: string;
   secteuractivite: string;
   numerocnps: string;
+  regimefiscal: RegimeFiscal;
   gestionexternalisee: boolean;
   onChange: (name: string, value: string | boolean) => void;
 }
@@ -24,6 +26,7 @@ export function ClientProfessionalFields({
   centrerattachement,
   secteuractivite,
   numerocnps,
+  regimefiscal,
   gestionexternalisee,
   onChange,
 }: ClientProfessionalFieldsProps) {
@@ -78,6 +81,23 @@ export function ClientProfessionalFields({
           value={numerocnps}
           onChange={(e) => onChange("numerocnps", e.target.value)}
         />
+      </div>
+
+      <div>
+        <Label htmlFor="regimefiscal">Régime fiscal *</Label>
+        <Select
+          value={regimefiscal}
+          onValueChange={(value) => onChange("regimefiscal", value as RegimeFiscal)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Sélectionnez le régime fiscal" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="reel">Régime Réel</SelectItem>
+            <SelectItem value="igs">Impôt Général Synthétique (IGS)</SelectItem>
+            <SelectItem value="non_professionnel">Non Professionnel</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div className="flex items-center space-x-2">

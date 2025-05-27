@@ -11,6 +11,7 @@ export type FormeJuridique =
   | "association" 
   | "gie" 
   | "autre";
+export type RegimeFiscal = "reel" | "igs" | "non_professionnel";
 export type ClientStatus = "actif" | "inactif" | "archive";
 
 export interface Interaction {
@@ -31,6 +32,7 @@ export interface Client {
   lieucreation?: string;
   nomdirigeant?: string;
   formejuridique?: FormeJuridique;
+  regimefiscal: RegimeFiscal;
   niu: string;
   centrerattachement: string;
   adresse: {
