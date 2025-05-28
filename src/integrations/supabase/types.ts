@@ -25,8 +25,10 @@ export type Database = {
           lieucreation: string | null
           niu: string
           nom: string | null
+          nomcommercial: string | null
           nomdirigeant: string | null
           numerocnps: string | null
+          numerorccm: string | null
           raisonsociale: string | null
           regimefiscal: string | null
           secteuractivite: string
@@ -51,8 +53,10 @@ export type Database = {
           lieucreation?: string | null
           niu: string
           nom?: string | null
+          nomcommercial?: string | null
           nomdirigeant?: string | null
           numerocnps?: string | null
+          numerorccm?: string | null
           raisonsociale?: string | null
           regimefiscal?: string | null
           secteuractivite: string
@@ -77,8 +81,10 @@ export type Database = {
           lieucreation?: string | null
           niu?: string
           nom?: string | null
+          nomcommercial?: string | null
           nomdirigeant?: string | null
           numerocnps?: string | null
+          numerorccm?: string | null
           raisonsociale?: string | null
           regimefiscal?: string | null
           secteuractivite?: string
@@ -414,6 +420,62 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "factures_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_obligations: {
+        Row: {
+          client_id: string
+          created_at: string
+          date_depot: string | null
+          date_echeance: string | null
+          date_paiement: string | null
+          depose: boolean
+          id: string
+          montant: number | null
+          observations: string | null
+          paye: boolean
+          periode: string
+          type_obligation: string
+          updated_at: string
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          date_depot?: string | null
+          date_echeance?: string | null
+          date_paiement?: string | null
+          depose?: boolean
+          id?: string
+          montant?: number | null
+          observations?: string | null
+          paye?: boolean
+          periode: string
+          type_obligation: string
+          updated_at?: string
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          date_depot?: string | null
+          date_echeance?: string | null
+          date_paiement?: string | null
+          depose?: boolean
+          id?: string
+          montant?: number | null
+          observations?: string | null
+          paye?: boolean
+          periode?: string
+          type_obligation?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_obligations_client_id_fkey"
             columns: ["client_id"]
             isOneToOne: false
             referencedRelation: "clients"

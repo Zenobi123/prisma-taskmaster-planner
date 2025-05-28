@@ -1,5 +1,4 @@
 
-
 import { supabase } from "@/integrations/supabase/client";
 
 export interface ClientStats {
@@ -17,7 +16,6 @@ export interface ClientStats {
 
 export const getClientsStats = async (): Promise<ClientStats> => {
   try {
-    
     const { data: clients, error } = await supabase
       .from('clients')
       .select('*');
@@ -40,23 +38,54 @@ export const getClientsStats = async (): Promise<ClientStats> => {
       unfiledDarpClients: 0
     };
 
-    // Récupérer les obligations fiscales pour calculer les obligations non déposées
-    const { data: obligations } = await supabase
+    // Récupérer les obligations fiscales pour calculer les statistiques
+    const { data: obligations, error: obligationsError } = await supabase
       .from('fiscal_obligations')
-      .select('client_id, depose');
+      .select('client_id, type_obligation, depose, paye');
 
-    if (obligations) {
-      const clientsWithUnfiledObligations = new Set();
+    if (obligationsError) {
+      console.error('Erreur lors de la récupération des obligations fiscales:', obligationsError);
+      // Continue avec les stats de base même si les obligations ne sont pas disponibles
+      return stats;
+    }
+
+    if (obligations && obligations.length > 0) {
+      const clientsWithUnfiledObligations = new Set<string>();
+      const unpaidPatenteClients = new Set<string>();
+      const unfiledDsfClients = new Set<string>();
+      const unpaidIgsClients = new Set<string>();
+      const unfiledDarpClients = new Set<string>();
       
       obligations.forEach(obligation => {
-        if (typeof obligation === 'object' && obligation !== null && 'depose' in obligation && 'client_id' in obligation) {
+        if (obligation && obligation.client_id) {
+          // Obligations non déposées
           if (!obligation.depose) {
             clientsWithUnfiledObligations.add(obligation.client_id);
+            
+            // Spécifique par type d'obligation
+            if (obligation.type_obligation === 'dsf') {
+              unfiledDsfClients.add(obligation.client_id);
+            } else if (obligation.type_obligation === 'darp') {
+              unfiledDarpClients.add(obligation.client_id);
+            }
+          }
+          
+          // Obligations non payées
+          if (!obligation.paye) {
+            if (obligation.type_obligation === 'patente') {
+              unpaidPatenteClients.add(obligation.client_id);
+            } else if (obligation.type_obligation === 'igs') {
+              unpaidIgsClients.add(obligation.client_id);
+            }
           }
         }
       });
       
       stats.withUnfiledObligations = clientsWithUnfiledObligations.size;
+      stats.unpaidPatenteClients = unpaidPatenteClients.size;
+      stats.unfiledDsfClients = unfiledDsfClients.size;
+      stats.unpaidIgsClients = unpaidIgsClients.size;
+      stats.unfiledDarpClients = unfiledDarpClients.size;
     }
 
     return stats;
@@ -65,4 +94,3 @@ export const getClientsStats = async (): Promise<ClientStats> => {
     throw error;
   }
 };
-
