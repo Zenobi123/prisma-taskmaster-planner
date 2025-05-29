@@ -1,8 +1,6 @@
-
 import { useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 
 // Components
@@ -42,18 +40,10 @@ const Index = () => {
       
       console.log("Actualisation manuelle du tableau de bord effectuée à", new Date().toLocaleTimeString());
       
-      // Afficher une notification de succès discrète
-      toast({
-        title: "Données actualisées",
-        description: "Les informations du tableau de bord ont été mises à jour."
-      });
+      // Supprimer complètement l'affichage des toasts pour éviter le popup
     } catch (error) {
       console.error("Erreur lors de l'actualisation:", error);
-      toast({
-        title: "Erreur d'actualisation",
-        description: "Impossible d'actualiser les données. Veuillez réessayer.",
-        variant: "destructive"
-      });
+      // Supprimer également l'affichage du toast d'erreur
     }
   }, [queryClient]);
 
