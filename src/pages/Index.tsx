@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,7 @@ const Index = () => {
   const queryClient = useQueryClient();
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   
-  // États pour les dialogues
+  // États pour les dialogues - tous fermés par défaut
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
   const [isUnfiledDsfDialogOpen, setIsUnfiledDsfDialogOpen] = useState(false);
   
@@ -104,7 +105,6 @@ const Index = () => {
         />
 
         <div className="p-8 space-y-8">
-          {/* Remove the persistent AlertBanner popup */}
           <QuickStats />
           <DashboardAccordion />
         </div>
