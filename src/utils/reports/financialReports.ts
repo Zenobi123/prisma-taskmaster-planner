@@ -19,8 +19,8 @@ export const generateChiffresAffairesReport = async () => {
         return factureDate.getFullYear() === currentYear && factureDate.getMonth() + 1 === month;
       }) || [];
       
-      const totalMonth = monthlyData.reduce((sum, f) => sum + f.montant, 0);
-      const paidMonth = monthlyData.reduce((sum, f) => sum + (f.montant_paye || 0), 0);
+      const totalMonth = monthFactures.reduce((sum, f) => sum + f.montant, 0);
+      const paidMonth = monthFactures.reduce((sum, f) => sum + (f.montant_paye || 0), 0);
       
       return {
         mois: `${month}/${currentYear}`,
@@ -88,6 +88,7 @@ export const generateCreancesReport = async () => {
       const today = new Date();
       const echeance = new Date(f.echeance);
       const joursRetard = Math.max(0, Math.floor((today.getTime() - echeance.getTime()) / (1000 * 60 * 60 * 24)));
+      const contact = f.clients?.contact as any;
       
       return {
         client: f.clients?.nom || f.clients?.raisonsociale || 'N/A',
@@ -95,7 +96,7 @@ export const generateCreancesReport = async () => {
         montant_du: solde,
         echeance: f.echeance,
         jours_retard: joursRetard,
-        telephone: f.clients?.contact?.telephone || 'N/A'
+        telephone: contact?.telephone || 'N/A'
       };
     }).filter(f => f.montant_du > 0) || [];
 

@@ -53,6 +53,7 @@ export const generateRetardsFiscauxReport = async () => {
     const reportData = obligations?.map(o => {
       const echeance = new Date(o.date_echeance || '');
       const joursRetard = Math.floor((new Date().getTime() - echeance.getTime()) / (1000 * 60 * 60 * 24));
+      const contact = o.clients?.contact as any;
       
       return {
         client: o.clients?.nom || o.clients?.raisonsociale || 'N/A',
@@ -63,7 +64,7 @@ export const generateRetardsFiscauxReport = async () => {
         jours_retard: joursRetard,
         non_depose: !o.depose ? 'Oui' : 'Non',
         non_paye: !o.paye ? 'Oui' : 'Non',
-        telephone: o.clients?.contact?.telephone || 'N/A'
+        telephone: contact?.telephone || 'N/A'
       };
     }) || [];
 

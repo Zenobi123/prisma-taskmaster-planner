@@ -8,8 +8,8 @@ export const generateTachesReport = async () => {
       .from('tasks')
       .select(`
         *,
-        collaborateurs(nom, prenom),
-        clients(nom, raisonsociale)
+        collaborateurs!tasks_collaborateur_id_fkey(nom, prenom),
+        clients!tasks_client_id_fkey(nom, raisonsociale)
       `);
 
     if (error) throw error;
@@ -42,7 +42,7 @@ export const generatePerformanceCollaborateursReport = async () => {
       .select(`
         status,
         collaborateur_id,
-        collaborateurs(nom, prenom, poste)
+        collaborateurs!tasks_collaborateur_id_fkey(nom, prenom, poste)
       `);
 
     if (error) throw error;

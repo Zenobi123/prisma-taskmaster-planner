@@ -10,16 +10,19 @@ export const generatePortefeuilleClientsReport = async () => {
 
     if (error) throw error;
 
-    const reportData = clients?.map(c => ({
-      nom: c.type === 'physique' ? c.nom : c.raisonsociale,
-      type: c.type === 'physique' ? 'Personne Physique' : 'Personne Morale',
-      niu: c.niu,
-      centre_rattachement: c.centrerattachement,
-      secteur_activite: c.secteuractivite,
-      statut: c.statut,
-      gestion_externalisee: c.gestionexternalisee ? 'Oui' : 'Non',
-      telephone: c.contact?.telephone || 'N/A'
-    })) || [];
+    const reportData = clients?.map(c => {
+      const contact = c.contact as any;
+      return {
+        nom: c.type === 'physique' ? c.nom : c.raisonsociale,
+        type: c.type === 'physique' ? 'Personne Physique' : 'Personne Morale',
+        niu: c.niu,
+        centre_rattachement: c.centrerattachement,
+        secteur_activite: c.secteuractivite,
+        statut: c.statut,
+        gestion_externalisee: c.gestionexternalisee ? 'Oui' : 'Non',
+        telephone: contact?.telephone || 'N/A'
+      };
+    }) || [];
 
     exportToPdf(
       "Rapport Portefeuille Clients",
@@ -43,14 +46,17 @@ export const generateNouveauxClientsReport = async () => {
 
     if (error) throw error;
 
-    const reportData = clients?.map(c => ({
-      nom: c.type === 'physique' ? c.nom : c.raisonsociale,
-      type: c.type,
-      date_creation: new Date(c.created_at).toLocaleDateString(),
-      niu: c.niu,
-      secteur_activite: c.secteuractivite,
-      telephone: c.contact?.telephone || 'N/A'
-    })) || [];
+    const reportData = clients?.map(c => {
+      const contact = c.contact as any;
+      return {
+        nom: c.type === 'physique' ? c.nom : c.raisonsociale,
+        type: c.type,
+        date_creation: new Date(c.created_at).toLocaleDateString(),
+        niu: c.niu,
+        secteur_activite: c.secteuractivite,
+        telephone: contact?.telephone || 'N/A'
+      };
+    }) || [];
 
     exportToPdf(
       "Rapport Nouveaux Clients",
