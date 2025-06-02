@@ -1,17 +1,43 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BarChart, Calendar, FileBarChart, Users } from "lucide-react";
+import { ArrowLeft, BarChart, Calendar, FileBarChart, Users, DollarSign, FileText, Clock, TrendingUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { ReportTypeFilter } from "@/components/rapports/ReportTypeFilter";
 import { SearchInput } from "@/components/rapports/SearchInput";
 import { ReportCard } from "@/components/rapports/ReportCard";
 import { EmptyState } from "@/components/rapports/EmptyState";
+
+// Import des générateurs de rapports
 import { generateActivityReport } from "@/utils/reports/activityReport";
 import { generateFinancialReport } from "@/utils/reports/financialReport";
 import { generateTimeReport } from "@/utils/reports/timeReport";
 import { generateClientReport } from "@/utils/reports/clientReport";
+
+// Nouveaux générateurs
+import { 
+  generateChiffresAffairesReport, 
+  generateFacturationReport, 
+  generateCreancesReport 
+} from "@/utils/reports/financialReports";
+import { 
+  generatePortefeuilleClientsReport, 
+  generateNouveauxClientsReport, 
+  generateActiviteClientsReport 
+} from "@/utils/reports/clientReports";
+import { 
+  generateObligationsFiscalesReport, 
+  generateRetardsFiscauxReport 
+} from "@/utils/reports/fiscalReports";
+import { 
+  generateMassSalarialeReport, 
+  generateEffectifsReport 
+} from "@/utils/reports/rhReports";
+import { 
+  generateTachesReport, 
+  generatePerformanceCollaborateursReport 
+} from "@/utils/reports/operationalReports";
 
 const Rapports = () => {
   const [typeFilter, setTypeFilter] = useState("all");
@@ -19,8 +45,139 @@ const Rapports = () => {
   const navigate = useNavigate();
 
   const rapports = [
+    // Rapports financiers
     {
       id: 1,
+      titre: "Chiffre d'Affaires",
+      date: new Date().toLocaleDateString(),
+      type: "financier",
+      taille: "1.2 MB",
+      icon: DollarSign,
+      description: "Évolution mensuelle du chiffre d'affaires et des encaissements",
+      generator: generateChiffresAffairesReport
+    },
+    {
+      id: 2,
+      titre: "Rapport de Facturation",
+      date: new Date().toLocaleDateString(),
+      type: "financier",
+      taille: "2.1 MB",
+      icon: FileText,
+      description: "Détail de toutes les factures émises avec statuts de paiement",
+      generator: generateFacturationReport
+    },
+    {
+      id: 3,
+      titre: "Créances Clients",
+      date: new Date().toLocaleDateString(),
+      type: "financier",
+      taille: "0.8 MB",
+      icon: TrendingUp,
+      description: "Suivi des créances et des retards de paiement",
+      generator: generateCreancesReport
+    },
+
+    // Rapports clients
+    {
+      id: 4,
+      titre: "Portefeuille Clients",
+      date: new Date().toLocaleDateString(),
+      type: "clients",
+      taille: "1.5 MB",
+      icon: Users,
+      description: "Vue d'ensemble complète du portefeuille clients",
+      generator: generatePortefeuilleClientsReport
+    },
+    {
+      id: 5,
+      titre: "Nouveaux Clients",
+      date: new Date().toLocaleDateString(),
+      type: "clients",
+      taille: "0.6 MB",
+      icon: Users,
+      description: "Clients acquis au cours des 6 derniers mois",
+      generator: generateNouveauxClientsReport
+    },
+    {
+      id: 6,
+      titre: "Activité par Client",
+      date: new Date().toLocaleDateString(),
+      type: "clients",
+      taille: "1.8 MB",
+      icon: BarChart,
+      description: "Analyse de l'activité commerciale par client",
+      generator: generateActiviteClientsReport
+    },
+
+    // Rapports fiscaux
+    {
+      id: 7,
+      titre: "Obligations Fiscales",
+      date: new Date().toLocaleDateString(),
+      type: "fiscal",
+      taille: "2.3 MB",
+      icon: FileText,
+      description: "État des obligations fiscales de tous les clients",
+      generator: generateObligationsFiscalesReport
+    },
+    {
+      id: 8,
+      titre: "Retards Fiscaux",
+      date: new Date().toLocaleDateString(),
+      type: "fiscal",
+      taille: "1.1 MB",
+      icon: Clock,
+      description: "Clients en retard sur leurs obligations fiscales",
+      generator: generateRetardsFiscauxReport
+    },
+
+    // Rapports RH/Paie
+    {
+      id: 9,
+      titre: "Masse Salariale",
+      date: new Date().toLocaleDateString(),
+      type: "rh",
+      taille: "1.4 MB",
+      icon: DollarSign,
+      description: "Analyse de la masse salariale par client et période",
+      generator: generateMassSalarialeReport
+    },
+    {
+      id: 10,
+      titre: "Effectifs",
+      date: new Date().toLocaleDateString(),
+      type: "rh",
+      taille: "0.9 MB",
+      icon: Users,
+      description: "État des effectifs par client avec détails des contrats",
+      generator: generateEffectifsReport
+    },
+
+    // Rapports opérationnels
+    {
+      id: 11,
+      titre: "Suivi des Tâches",
+      date: new Date().toLocaleDateString(),
+      type: "operationnel",
+      taille: "1.6 MB",
+      icon: Calendar,
+      description: "État d'avancement des tâches par collaborateur",
+      generator: generateTachesReport
+    },
+    {
+      id: 12,
+      titre: "Performance Collaborateurs",
+      date: new Date().toLocaleDateString(),
+      type: "operationnel",
+      taille: "1.0 MB",
+      icon: TrendingUp,
+      description: "Indicateurs de performance et taux de completion",
+      generator: generatePerformanceCollaborateursReport
+    },
+
+    // Rapports existants mis à jour
+    {
+      id: 13,
       titre: "Rapport d'activité mensuel",
       date: "Février 2024",
       type: "activite",
@@ -30,7 +187,7 @@ const Rapports = () => {
       generator: generateActivityReport
     },
     {
-      id: 2,
+      id: 14,
       titre: "Bilan financier trimestriel",
       date: "Q4 2023",
       type: "financier",
@@ -40,7 +197,7 @@ const Rapports = () => {
       generator: generateFinancialReport
     },
     {
-      id: 3,
+      id: 15,
       titre: "Analyse des temps par projet",
       date: "Janvier 2024",
       type: "temps",
@@ -48,16 +205,6 @@ const Rapports = () => {
       icon: Calendar,
       description: "Répartition du temps par projet et collaborateur",
       generator: generateTimeReport
-    },
-    {
-      id: 4,
-      titre: "Rapport clients",
-      date: "Mars 2024",
-      type: "clients",
-      taille: "2.1 MB",
-      icon: Users,
-      description: "Analyse du portefeuille clients et activité",
-      generator: generateClientReport
     }
   ];
 
@@ -69,14 +216,14 @@ const Rapports = () => {
     return matchesType && matchesSearch;
   });
 
-  const handleDownloadReport = (rapport: any) => {
+  const handleDownloadReport = async (rapport: any) => {
     try {
       toast({
         title: "Génération en cours",
         description: `Préparation du rapport "${rapport.titre}"...`,
       });
       
-      rapport.generator();
+      await rapport.generator();
       
       toast({
         title: "Rapport généré",
@@ -110,7 +257,7 @@ const Rapports = () => {
         <div>
           <h1 className="text-2xl font-bold">Rapports</h1>
           <p className="text-neutral-600 mt-1">
-            Consultez et générez des rapports d'analyse
+            Consultez et générez des rapports d'analyse détaillés
           </p>
         </div>
       </div>

@@ -20,10 +20,13 @@ export const ReportTypeFilter = ({ value, onChange }: ReportTypeFilterProps) => 
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="all">Tous les types</SelectItem>
-        <SelectItem value="activite">Activité</SelectItem>
         <SelectItem value="financier">Financier</SelectItem>
-        <SelectItem value="temps">Temps</SelectItem>
         <SelectItem value="clients">Clients</SelectItem>
+        <SelectItem value="fiscal">Fiscal</SelectItem>
+        <SelectItem value="rh">RH/Paie</SelectItem>
+        <SelectItem value="operationnel">Opérationnel</SelectItem>
+        <SelectItem value="activite">Activité</SelectItem>
+        <SelectItem value="temps">Temps</SelectItem>
       </SelectContent>
     </Select>
   );
