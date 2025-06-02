@@ -1,7 +1,14 @@
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { Client } from '@/types/client';
+
+// Extend jsPDF type to include autoTable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: typeof autoTable;
+  }
+}
 
 export const exportClientsToPdf = (clients: Client[]) => {
   // Create new PDF document
@@ -34,7 +41,7 @@ export const exportClientsToPdf = (clients: Client[]) => {
   }));
   
   // Add table to document
-  (doc as any).autoTable({
+  autoTable(doc, {
     head: [columns.map(col => col.header)],
     body: data.map(item => columns.map(col => item[col.dataKey as keyof typeof item])),
     startY: 40,
@@ -78,7 +85,7 @@ export const exportClientDetailsToPdf = (client: Client) => {
   ];
   
   // Add details table
-  (doc as any).autoTable({
+  autoTable(doc, {
     body: details,
     startY: 55,
     theme: 'plain',
@@ -111,11 +118,14 @@ export const exportToPdf = (title: string, data: any[], filename: string) => {
     
     // Format data for table
     const formattedData = data.map(item => 
-      headers.map(header => item[header] !== undefined ? item[header] : 'N/A')
+      headers.map(header => {
+        const value = item[header];
+        return value !== undefined && value !== null ? value.toString() : 'N/A';
+      })
     );
     
     // Add table
-    (doc as any).autoTable({
+    autoTable(doc, {
       head: [headers],
       body: formattedData,
       startY: 40,
