@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const generateObligationsFiscalesReport = async () => {
   try {
+    console.log("Génération du rapport obligations fiscales...");
+    
     const { data: obligations, error } = await supabase
       .from('fiscal_obligations')
       .select(`
@@ -11,19 +13,26 @@ export const generateObligationsFiscalesReport = async () => {
         clients(nom, raisonsociale, niu)
       `);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erreur lors de la récupération des obligations fiscales:", error);
+      throw error;
+    }
+
+    console.log("Obligations fiscales récupérées:", obligations?.length || 0);
 
     const reportData = obligations?.map(o => ({
       client: o.clients?.nom || o.clients?.raisonsociale || 'N/A',
       niu: o.clients?.niu || 'N/A',
-      type_obligation: o.type_obligation.toUpperCase(),
-      periode: o.periode,
+      type_obligation: (o.type_obligation || '').toUpperCase(),
+      periode: o.periode || 'N/A',
       echeance: o.date_echeance || 'N/A',
       depose: o.depose ? 'Oui' : 'Non',
       paye: o.paye ? 'Oui' : 'Non',
       montant: o.montant || 0,
       observations: o.observations || ''
     })) || [];
+
+    console.log("Données obligations fiscales préparées:", reportData.length, "éléments");
 
     exportToPdf(
       "Rapport Obligations Fiscales",
@@ -32,11 +41,14 @@ export const generateObligationsFiscalesReport = async () => {
     );
   } catch (error) {
     console.error("Erreur génération rapport obligations:", error);
+    throw error;
   }
 };
 
 export const generateRetardsFiscauxReport = async () => {
   try {
+    console.log("Génération du rapport retards fiscaux...");
+    
     const today = new Date().toISOString().split('T')[0];
     
     const { data: obligations, error } = await supabase
@@ -48,7 +60,12 @@ export const generateRetardsFiscauxReport = async () => {
       .or('depose.eq.false,paye.eq.false')
       .lt('date_echeance', today);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erreur lors de la récupération des retards fiscaux:", error);
+      throw error;
+    }
+
+    console.log("Retards fiscaux récupérés:", obligations?.length || 0);
 
     const reportData = obligations?.map(o => {
       const echeance = new Date(o.date_echeance || '');
@@ -58,8 +75,8 @@ export const generateRetardsFiscauxReport = async () => {
       return {
         client: o.clients?.nom || o.clients?.raisonsociale || 'N/A',
         niu: o.clients?.niu || 'N/A',
-        type_obligation: o.type_obligation.toUpperCase(),
-        periode: o.periode,
+        type_obligation: (o.type_obligation || '').toUpperCase(),
+        periode: o.periode || 'N/A',
         echeance: o.date_echeance || 'N/A',
         jours_retard: joursRetard,
         non_depose: !o.depose ? 'Oui' : 'Non',
@@ -68,6 +85,8 @@ export const generateRetardsFiscauxReport = async () => {
       };
     }) || [];
 
+    console.log("Données retards fiscaux préparées:", reportData.length, "éléments");
+
     exportToPdf(
       "Rapport Retards Fiscaux",
       reportData,
@@ -75,5 +94,6 @@ export const generateRetardsFiscauxReport = async () => {
     );
   } catch (error) {
     console.error("Erreur génération rapport retards:", error);
+    throw error;
   }
 };

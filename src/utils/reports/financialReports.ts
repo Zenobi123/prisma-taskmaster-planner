@@ -4,12 +4,19 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const generateChiffresAffairesReport = async () => {
   try {
+    console.log("Génération du rapport chiffre d'affaires...");
+    
     const { data: factures, error } = await supabase
       .from('factures')
       .select('*')
       .eq('status', 'envoyée');
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erreur lors de la récupération des factures:", error);
+      throw error;
+    }
+
+    console.log("Factures récupérées:", factures?.length || 0);
 
     const currentYear = new Date().getFullYear();
     const monthlyData = Array.from({ length: 12 }, (_, i) => {
@@ -19,7 +26,7 @@ export const generateChiffresAffairesReport = async () => {
         return factureDate.getFullYear() === currentYear && factureDate.getMonth() + 1 === month;
       }) || [];
       
-      const totalMonth = monthFactures.reduce((sum, f) => sum + f.montant, 0);
+      const totalMonth = monthFactures.reduce((sum, f) => sum + (f.montant || 0), 0);
       const paidMonth = monthFactures.reduce((sum, f) => sum + (f.montant_paye || 0), 0);
       
       return {
@@ -30,6 +37,8 @@ export const generateChiffresAffairesReport = async () => {
       };
     });
 
+    console.log("Données mensuelles préparées:", monthlyData);
+
     exportToPdf(
       "Rapport Chiffre d'Affaires",
       monthlyData,
@@ -37,11 +46,14 @@ export const generateChiffresAffairesReport = async () => {
     );
   } catch (error) {
     console.error("Erreur génération rapport CA:", error);
+    throw error;
   }
 };
 
 export const generateFacturationReport = async () => {
   try {
+    console.log("Génération du rapport de facturation...");
+    
     const { data: factures, error } = await supabase
       .from('factures')
       .select(`
@@ -49,17 +61,24 @@ export const generateFacturationReport = async () => {
         clients(nom, raisonsociale)
       `);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erreur lors de la récupération des factures:", error);
+      throw error;
+    }
+
+    console.log("Factures avec clients récupérées:", factures?.length || 0);
 
     const reportData = factures?.map(f => ({
       numero_facture: f.id,
       client: f.clients?.nom || f.clients?.raisonsociale || 'N/A',
       date_emission: f.date,
-      montant: f.montant,
+      montant: f.montant || 0,
       montant_paye: f.montant_paye || 0,
-      statut: f.status_paiement,
+      statut: f.status_paiement || 'non_payée',
       echeance: f.echeance
     })) || [];
+
+    console.log("Données de rapport préparées:", reportData.length, "éléments");
 
     exportToPdf(
       "Rapport de Facturation",
@@ -68,11 +87,14 @@ export const generateFacturationReport = async () => {
     );
   } catch (error) {
     console.error("Erreur génération rapport facturation:", error);
+    throw error;
   }
 };
 
 export const generateCreancesReport = async () => {
   try {
+    console.log("Génération du rapport des créances...");
+    
     const { data: factures, error } = await supabase
       .from('factures')
       .select(`
@@ -81,10 +103,15 @@ export const generateCreancesReport = async () => {
       `)
       .in('status_paiement', ['non_payée', 'partiellement_payée', 'en_retard']);
 
-    if (error) throw error;
+    if (error) {
+      console.error("Erreur lors de la récupération des créances:", error);
+      throw error;
+    }
+
+    console.log("Créances récupérées:", factures?.length || 0);
 
     const reportData = factures?.map(f => {
-      const solde = f.montant - (f.montant_paye || 0);
+      const solde = (f.montant || 0) - (f.montant_paye || 0);
       const today = new Date();
       const echeance = new Date(f.echeance);
       const joursRetard = Math.max(0, Math.floor((today.getTime() - echeance.getTime()) / (1000 * 60 * 60 * 24)));
@@ -100,6 +127,8 @@ export const generateCreancesReport = async () => {
       };
     }).filter(f => f.montant_du > 0) || [];
 
+    console.log("Données de créances filtrées:", reportData.length, "éléments");
+
     exportToPdf(
       "Rapport des Créances",
       reportData,
@@ -107,5 +136,6 @@ export const generateCreancesReport = async () => {
     );
   } catch (error) {
     console.error("Erreur génération rapport créances:", error);
+    throw error;
   }
 };
