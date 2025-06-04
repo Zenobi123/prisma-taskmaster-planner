@@ -18,6 +18,7 @@ interface ClientProfessionalFieldsProps {
   numerocnps: string;
   regimefiscal: RegimeFiscal;
   gestionexternalisee: boolean;
+  inscriptionfanrharmony2: boolean;
   onChange: (name: string, value: string | boolean) => void;
 }
 
@@ -28,6 +29,7 @@ export function ClientProfessionalFields({
   numerocnps,
   regimefiscal,
   gestionexternalisee,
+  inscriptionfanrharmony2,
   onChange,
 }: ClientProfessionalFieldsProps) {
   return (
@@ -110,6 +112,19 @@ export function ClientProfessionalFields({
         />
         <Label htmlFor="gestionexternalisee" className="font-medium cursor-pointer">
           Gestion du dossier
+        </Label>
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="inscriptionfanrharmony2"
+          checked={inscriptionfanrharmony2}
+          onCheckedChange={(checked) => 
+            onChange("inscriptionfanrharmony2", checked === true)
+          }
+        />
+        <Label htmlFor="inscriptionfanrharmony2" className="font-medium cursor-pointer">
+          Inscription FANR harmony2
         </Label>
       </div>
     </div>
