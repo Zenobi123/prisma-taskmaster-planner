@@ -26,6 +26,7 @@ interface FormDataType {
   numerocnps: string;
   regimefiscal: RegimeFiscal;
   gestionexternalisee: boolean;
+  inscriptionfanrharmony2: boolean;
   sexe: Sexe;
   etatcivil: EtatCivil;
   situationimmobiliere: {
@@ -68,6 +69,7 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
         numerocnps={formData.numerocnps}
         regimefiscal={formData.regimefiscal}
         gestionexternalisee={formData.gestionexternalisee}
+        inscriptionfanrharmony2={formData.inscriptionfanrharmony2}
         onChange={onChange}
       />
 

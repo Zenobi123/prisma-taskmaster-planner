@@ -31,6 +31,7 @@ interface ClientFormState {
   numerocnps: string;
   regimefiscal: RegimeFiscal;
   gestionexternalisee: boolean;
+  inscriptionfanrharmony2: boolean;
   sexe: Sexe;
   etatcivil: EtatCivil;
   situationimmobiliere: {
@@ -62,6 +63,7 @@ export function useClientForm(initialData?: Client) {
     numerocnps: "",
     regimefiscal: "reel",
     gestionexternalisee: false,
+    inscriptionfanrharmony2: false,
     sexe: "homme",
     etatcivil: "celibataire",
     situationimmobiliere: {
@@ -94,6 +96,7 @@ export function useClientForm(initialData?: Client) {
         numerocnps: initialData.numerocnps || "",
         regimefiscal: initialData.regimefiscal || "reel",
         gestionexternalisee: initialData.gestionexternalisee || false,
+        inscriptionfanrharmony2: initialData.inscriptionfanrharmony2 || false,
         sexe: initialData.sexe || "homme",
         etatcivil: initialData.etatcivil || "celibataire",
         situationimmobiliere: {
@@ -146,6 +149,7 @@ export function useClientForm(initialData?: Client) {
       numerocnps: formData.numerocnps || null,
       regimefiscal: formData.regimefiscal,
       gestionexternalisee: formData.gestionexternalisee,
+      inscriptionfanrharmony2: formData.inscriptionfanrharmony2,
       situationimmobiliere: {
         type: formData.situationimmobiliere.type,
         valeur: formData.situationimmobiliere.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
