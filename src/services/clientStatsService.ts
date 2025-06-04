@@ -21,8 +21,8 @@ export const getClientsStats = async () => {
     // Count managed clients
     const managedClients = clients?.filter(client => client.gestionexternalisee).length || 0;
 
-    // Count FANR H2 inscribed clients
-    const fanrH2Clients = clients?.filter(client => client.inscriptionfanrharmony2).length || 0;
+    // Count FANR H2 inscribed clients - using bracket notation to handle the new column
+    const fanrH2Clients = clients?.filter(client => client['inscriptionfanrharmony2']).length || 0;
 
     // Get unfiled DSF clients count from fiscal_obligations
     const { data: unfiledDsf, error: dsfError } = await supabase

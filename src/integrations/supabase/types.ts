@@ -21,6 +21,7 @@ export type Database = {
           formejuridique: string | null
           gestionexternalisee: boolean | null
           id: string
+          inscriptionfanrharmony2: boolean | null
           interactions: Json | null
           lieucreation: string | null
           niu: string
@@ -49,6 +50,7 @@ export type Database = {
           formejuridique?: string | null
           gestionexternalisee?: boolean | null
           id?: string
+          inscriptionfanrharmony2?: boolean | null
           interactions?: Json | null
           lieucreation?: string | null
           niu: string
@@ -77,6 +79,7 @@ export type Database = {
           formejuridique?: string | null
           gestionexternalisee?: boolean | null
           id?: string
+          inscriptionfanrharmony2?: boolean | null
           interactions?: Json | null
           lieucreation?: string | null
           niu?: string
