@@ -1,111 +1,110 @@
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ObligationStatuses, ObligationType, TaxObligationStatus, DeclarationObligationStatus } from "../types";
-import { useObligationTypes } from "./useObligationTypes";
 
-const defaultObligationStatuses: ObligationStatuses = {
+const createDefaultObligationStatuses = (): ObligationStatuses => ({
   // Direct taxes
-  igs: { assujetti: false, payee: false },
-  patente: { assujetti: false, payee: false },
-  licence: { assujetti: false, payee: false },
-  bailCommercial: { assujetti: false, payee: false },
-  precompteLoyer: { assujetti: false, payee: false },
-  tpf: { assujetti: false, payee: false },
+  igs: { assujetti: false, payee: false, attachements: {}, observations: "" },
+  patente: { assujetti: false, payee: false, attachements: {}, observations: "" },
+  licence: { assujetti: false, payee: false, attachements: {}, observations: "" },
+  bailCommercial: { assujetti: false, payee: false, attachements: {}, observations: "" },
+  precompteLoyer: { assujetti: false, payee: false, attachements: {}, observations: "" },
+  tpf: { assujetti: false, payee: false, attachements: {}, observations: "" },
   // Declarations
-  dsf: { assujetti: false, depose: false, periodicity: "annuelle" },
-  darp: { assujetti: false, depose: false, periodicity: "annuelle" },
-  cntps: { assujetti: false, depose: false, periodicity: "mensuelle" },
-  precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" }
-};
+  dsf: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
+  darp: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
+  cntps: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" },
+  precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" }
+});
 
 export const useObligationManagement = (markAsChanged: () => void) => {
-  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(defaultObligationStatuses);
-  const { isTaxObligation, isDeclarationObligation } = useObligationTypes();
+  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(createDefaultObligationStatuses());
 
-  const initializeObligationStatuses = useCallback((obligations: ObligationStatuses | undefined) => {
-    if (obligations) {
-      // Merge with defaults to ensure all obligations are present
-      const mergedObligations: ObligationStatuses = {
-        // Direct taxes - merge with defaults
-        igs: { ...defaultObligationStatuses.igs, ...obligations.igs },
-        patente: { ...defaultObligationStatuses.patente, ...obligations.patente },
-        licence: { ...defaultObligationStatuses.licence, ...obligations.licence },
-        bailCommercial: { ...defaultObligationStatuses.bailCommercial, ...obligations.bailCommercial },
-        precompteLoyer: { ...defaultObligationStatuses.precompteLoyer, ...obligations.precompteLoyer },
-        tpf: { ...defaultObligationStatuses.tpf, ...obligations.tpf },
-        // Declarations - merge with defaults
-        dsf: { ...defaultObligationStatuses.dsf, ...obligations.dsf },
-        darp: { ...defaultObligationStatuses.darp, ...obligations.darp },
-        cntps: { ...defaultObligationStatuses.cntps, ...obligations.cntps },
-        precomptes: { ...defaultObligationStatuses.precomptes, ...obligations.precomptes }
-      };
-      setObligationStatuses(mergedObligations);
+  const initializeObligationStatuses = useCallback((yearObligations?: ObligationStatuses) => {
+    if (yearObligations) {
+      // Merge with default structure to ensure all obligations exist
+      const defaultStatuses = createDefaultObligationStatuses();
+      const mergedStatuses = { ...defaultStatuses };
+      
+      // Merge existing data
+      Object.keys(yearObligations).forEach(key => {
+        if (mergedStatuses[key as ObligationType]) {
+          mergedStatuses[key as ObligationType] = {
+            ...mergedStatuses[key as ObligationType],
+            ...yearObligations[key as ObligationType]
+          };
+        }
+      });
+      
+      setObligationStatuses(mergedStatuses);
     } else {
-      setObligationStatuses(defaultObligationStatuses);
+      setObligationStatuses(createDefaultObligationStatuses());
     }
   }, []);
 
-  const handleStatusChange = useCallback((obligationType: ObligationType, field: string, value: string | number | boolean) => {
-    console.log(`Updating ${obligationType}.${field} to:`, value);
+  const handleStatusChange = useCallback((obligation: string, field: string, value: string | number | boolean) => {
+    console.log(`Updating ${obligation}.${field} to:`, value);
     
     setObligationStatuses(prev => {
-      const currentObligation = prev[obligationType];
-      const updatedObligation = { ...currentObligation };
+      const updated = { ...prev };
       
-      // Handle specific field updates based on obligation type
-      if (field === 'assujetti' && !value) {
-        // If turning off assujetti, also turn off payee/depose
-        if (isTaxObligation(obligationType)) {
-          (updatedObligation as TaxObligationStatus).payee = false;
-        } else if (isDeclarationObligation(obligationType)) {
-          (updatedObligation as DeclarationObligationStatus).depose = false;
+      if (updated[obligation as ObligationType]) {
+        updated[obligation as ObligationType] = {
+          ...updated[obligation as ObligationType],
+          [field]: value
+        };
+        
+        // Handle cascading logic for assujetti changes
+        if (field === "assujetti" && !value) {
+          const currentObligation = updated[obligation as ObligationType];
+          if ('payee' in currentObligation) {
+            (currentObligation as TaxObligationStatus).payee = false;
+          }
+          if ('depose' in currentObligation) {
+            (currentObligation as DeclarationObligationStatus).depose = false;
+          }
         }
       }
       
-      // Type-safe field update
-      (updatedObligation as any)[field] = value;
-      
-      const newStatuses: ObligationStatuses = {
-        ...prev,
-        [obligationType]: updatedObligation
-      };
-      
       markAsChanged();
-      return newStatuses;
-    });
-  }, [markAsChanged, isTaxObligation, isDeclarationObligation]);
-
-  const handleAttachmentUpdate = useCallback((obligationType: ObligationType, attachmentType: string, filePath: string | null) => {
-    setObligationStatuses(prev => {
-      const currentObligation = prev[obligationType];
-      const updatedObligation = { ...currentObligation };
-      
-      if (!updatedObligation.attachements) {
-        updatedObligation.attachements = {};
-      }
-      
-      if (filePath) {
-        updatedObligation.attachements[attachmentType] = filePath;
-      } else {
-        delete updatedObligation.attachements[attachmentType];
-      }
-      
-      const newStatuses: ObligationStatuses = {
-        ...prev,
-        [obligationType]: updatedObligation
-      };
-      
-      markAsChanged();
-      return newStatuses;
+      return updated;
     });
   }, [markAsChanged]);
+
+  const handleAttachmentUpdate = useCallback((obligation: string, attachmentType: string, filePath: string | null) => {
+    setObligationStatuses(prev => {
+      const updated = { ...prev };
+      
+      if (updated[obligation as ObligationType]) {
+        const currentObligation = updated[obligation as ObligationType];
+        const attachements = currentObligation.attachements || {};
+        
+        if (filePath) {
+          attachements[attachmentType] = filePath;
+        } else {
+          delete attachements[attachmentType];
+        }
+        
+        updated[obligation as ObligationType] = {
+          ...currentObligation,
+          attachements
+        };
+      }
+      
+      markAsChanged();
+      return updated;
+    });
+  }, [markAsChanged]);
+
+  const isTaxObligation = useCallback((obligation: string): boolean => {
+    return ["igs", "patente", "licence", "bailCommercial", "precompteLoyer", "tpf"].includes(obligation);
+  }, []);
 
   return {
     obligationStatuses,
     handleStatusChange,
     handleAttachmentUpdate,
     initializeObligationStatuses,
-    isDeclarationObligation,
-    isTaxObligation,
+    isTaxObligation
   };
 };

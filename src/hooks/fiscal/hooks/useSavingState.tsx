@@ -10,7 +10,7 @@ export function useSavingState(clientId: string, setHasUnsavedChanges: (value: b
   
   const isSaving = saveStatus === 'saving';
 
-  // Save all fiscal data - Manual save only
+  // Save all fiscal data
   const handleSaveData = useCallback(async (updatedFiscalData: ClientFiscalData) => {
     try {
       if (!clientId) {
@@ -21,6 +21,7 @@ export function useSavingState(clientId: string, setHasUnsavedChanges: (value: b
         return false;
       }
 
+      console.log("Début de la sauvegarde des données fiscales...");
       setSaveStatus('saving');
       
       // Add timestamp to track updates and prepare data for saving
@@ -32,20 +33,21 @@ export function useSavingState(clientId: string, setHasUnsavedChanges: (value: b
       const success = await saveFiscalData(clientId, dataWithTimestamp);
 
       if (success) {
+        console.log("Sauvegarde réussie");
         setSaveStatus('success');
         setLastSaveSuccess(true);
         setSaveAttempts(prev => prev + 1);
         setHasUnsavedChanges(false);
         return true;
       } else {
-        console.error("Error saving fiscal data");
+        console.error("Échec de la sauvegarde des données fiscales");
         setSaveStatus('error');
         setLastSaveSuccess(false);
         setSaveAttempts(prev => prev + 1);
         return false;
       }
     } catch (err) {
-      console.error("Error in saveFiscalData:", err);
+      console.error("Erreur lors de la sauvegarde des données fiscales:", err);
       setSaveStatus('error');
       setLastSaveSuccess(false);
       setSaveAttempts(prev => prev + 1);
@@ -57,6 +59,7 @@ export function useSavingState(clientId: string, setHasUnsavedChanges: (value: b
     lastSaveSuccess,
     saveAttempts,
     isSaving,
+    saveStatus,
     handleSaveData
   };
 }
