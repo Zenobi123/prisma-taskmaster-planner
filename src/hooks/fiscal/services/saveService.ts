@@ -29,7 +29,7 @@ const prepareObligationsForSave = (obligations: Record<string, ObligationStatuse
             ...(('payee' in obligation) && { payee: Boolean(obligation.payee) }),
             ...(('dateEcheance' in obligation) && obligation.dateEcheance && { dateEcheance: obligation.dateEcheance }),
             ...(('datePaiement' in obligation) && obligation.datePaiement && { datePaiement: obligation.datePaiement }),
-            ...(('montant' in obligation) && obligation.montant !== undefined && { montant: Number(obligation.montant) }),
+            ...(('montant' in obligation) && obligation.montant !== undefined && { montant: obligation.montant }),
             ...(('methodePaiement' in obligation) && obligation.methodePaiement && { methodePaiement: obligation.methodePaiement }),
             ...(('referencePaiement' in obligation) && obligation.referencePaiement && { referencePaiement: obligation.referencePaiement }),
             // Declaration-specific fields
@@ -79,8 +79,6 @@ export const saveFiscalData = async (
       selectedYear: data.selectedYear || "2025",
       updatedAt: new Date().toISOString()
     };
-    
-    console.log("Données préparées pour la sauvegarde:", preparedData);
     
     // Conversion en JSON sûr pour Supabase
     const safeData = JSON.parse(JSON.stringify(preparedData)) as Json;

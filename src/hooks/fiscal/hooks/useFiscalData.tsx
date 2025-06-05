@@ -30,42 +30,10 @@ export const useFiscalData = (clientId: string) => {
       }
 
       if (client?.fiscal_data && typeof client.fiscal_data === 'object' && !Array.isArray(client.fiscal_data)) {
-        try {
-          // Properly convert Json to ClientFiscalData
-          const rawData = client.fiscal_data as Record<string, any>;
-          const fiscalDataObj: ClientFiscalData = {
-            clientId: rawData.clientId || clientId,
-            year: rawData.year || selectedYear,
-            attestation: rawData.attestation || {
-              creationDate: "",
-              validityEndDate: "",
-              showInAlert: true
-            },
-            obligations: rawData.obligations || {},
-            hiddenFromDashboard: Boolean(rawData.hiddenFromDashboard),
-            selectedYear: rawData.selectedYear || selectedYear
-          };
-          
-          setFiscalData(fiscalDataObj);
-          if (fiscalDataObj.selectedYear) {
-            setSelectedYear(fiscalDataObj.selectedYear);
-          }
-        } catch (parseError) {
-          console.error("Erreur lors du parsing des données fiscales:", parseError);
-          // Initialize with default data structure if parsing fails
-          const defaultData: ClientFiscalData = {
-            clientId,
-            year: selectedYear,
-            attestation: {
-              creationDate: "",
-              validityEndDate: "",
-              showInAlert: true
-            },
-            obligations: {},
-            hiddenFromDashboard: false,
-            selectedYear: selectedYear
-          };
-          setFiscalData(defaultData);
+        const fiscalDataObj = client.fiscal_data as any;
+        setFiscalData(fiscalDataObj as ClientFiscalData);
+        if (fiscalDataObj.selectedYear) {
+          setSelectedYear(fiscalDataObj.selectedYear);
         }
       } else {
         // Initialize with default data structure
