@@ -30,10 +30,28 @@ export const useFiscalData = (clientId: string) => {
       }
 
       if (client?.fiscal_data && typeof client.fiscal_data === 'object' && !Array.isArray(client.fiscal_data)) {
-        const fiscalDataObj = client.fiscal_data as any;
-        setFiscalData(fiscalDataObj as ClientFiscalData);
-        if (fiscalDataObj.selectedYear) {
-          setSelectedYear(fiscalDataObj.selectedYear);
+        try {
+          const fiscalDataObj = client.fiscal_data as ClientFiscalData;
+          setFiscalData(fiscalDataObj);
+          if (fiscalDataObj.selectedYear) {
+            setSelectedYear(fiscalDataObj.selectedYear);
+          }
+        } catch (parseError) {
+          console.error("Erreur lors du parsing des données fiscales:", parseError);
+          // Initialize with default data structure if parsing fails
+          const defaultData: ClientFiscalData = {
+            clientId,
+            year: selectedYear,
+            attestation: {
+              creationDate: "",
+              validityEndDate: "",
+              showInAlert: true
+            },
+            obligations: {},
+            hiddenFromDashboard: false,
+            selectedYear: selectedYear
+          };
+          setFiscalData(defaultData);
         }
       } else {
         // Initialize with default data structure
