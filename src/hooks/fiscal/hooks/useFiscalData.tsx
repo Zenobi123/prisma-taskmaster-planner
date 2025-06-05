@@ -29,10 +29,11 @@ export const useFiscalData = (clientId: string) => {
         return;
       }
 
-      if (client?.fiscal_data) {
-        setFiscalData(client.fiscal_data as ClientFiscalData);
-        if (client.fiscal_data.selectedYear) {
-          setSelectedYear(client.fiscal_data.selectedYear);
+      if (client?.fiscal_data && typeof client.fiscal_data === 'object' && !Array.isArray(client.fiscal_data)) {
+        const fiscalDataObj = client.fiscal_data as any;
+        setFiscalData(fiscalDataObj as ClientFiscalData);
+        if (fiscalDataObj.selectedYear) {
+          setSelectedYear(fiscalDataObj.selectedYear);
         }
       } else {
         // Initialize with default data structure

@@ -1,5 +1,5 @@
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { ObligationStatuses, ObligationType, TaxObligationStatus, DeclarationObligationStatus } from "../types";
 
 const createDefaultObligationStatuses = (): ObligationStatuses => ({
@@ -28,11 +28,12 @@ export const useObligationManagement = (markAsChanged: () => void) => {
       
       // Merge existing data
       Object.keys(yearObligations).forEach(key => {
-        if (mergedStatuses[key as ObligationType]) {
-          mergedStatuses[key as ObligationType] = {
-            ...mergedStatuses[key as ObligationType],
-            ...yearObligations[key as ObligationType]
-          };
+        const obligationType = key as ObligationType;
+        if (mergedStatuses[obligationType]) {
+          mergedStatuses[obligationType] = {
+            ...mergedStatuses[obligationType],
+            ...yearObligations[obligationType]
+          } as any;
         }
       });
       
@@ -47,16 +48,17 @@ export const useObligationManagement = (markAsChanged: () => void) => {
     
     setObligationStatuses(prev => {
       const updated = { ...prev };
+      const obligationType = obligation as ObligationType;
       
-      if (updated[obligation as ObligationType]) {
-        updated[obligation as ObligationType] = {
-          ...updated[obligation as ObligationType],
+      if (updated[obligationType]) {
+        updated[obligationType] = {
+          ...updated[obligationType],
           [field]: value
-        };
+        } as any;
         
         // Handle cascading logic for assujetti changes
         if (field === "assujetti" && !value) {
-          const currentObligation = updated[obligation as ObligationType];
+          const currentObligation = updated[obligationType];
           if ('payee' in currentObligation) {
             (currentObligation as TaxObligationStatus).payee = false;
           }
@@ -74,9 +76,10 @@ export const useObligationManagement = (markAsChanged: () => void) => {
   const handleAttachmentUpdate = useCallback((obligation: string, attachmentType: string, filePath: string | null) => {
     setObligationStatuses(prev => {
       const updated = { ...prev };
+      const obligationType = obligation as ObligationType;
       
-      if (updated[obligation as ObligationType]) {
-        const currentObligation = updated[obligation as ObligationType];
+      if (updated[obligationType]) {
+        const currentObligation = updated[obligationType];
         const attachements = currentObligation.attachements || {};
         
         if (filePath) {
@@ -85,10 +88,10 @@ export const useObligationManagement = (markAsChanged: () => void) => {
           delete attachements[attachmentType];
         }
         
-        updated[obligation as ObligationType] = {
+        updated[obligationType] = {
           ...currentObligation,
           attachements
-        };
+        } as any;
       }
       
       markAsChanged();
