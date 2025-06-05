@@ -8,6 +8,7 @@ import {
 import { IgsSection } from "./sections/IgsSection"
 import DsfSection from "./sections/DsfSection"
 import PatenteSection from "./sections/PatenteSection"
+import { FanrH2Section } from "./sections/FanrH2Section"
 import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations"
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations"
 
@@ -61,6 +62,17 @@ export default function DashboardAccordion() {
         </AccordionTrigger>
         <AccordionContent>
           <DsfSection />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="fanr-h2" className="border rounded-lg bg-white shadow-sm">
+        <AccordionTrigger className="px-4 hover:no-underline hover:bg-gray-50">
+          <span className="text-lg font-semibold">
+            Inscription FANR Harmony2
+          </span>
+        </AccordionTrigger>
+        <AccordionContent>
+          <FanrH2Section />
         </AccordionContent>
       </AccordionItem>
     </Accordion>
