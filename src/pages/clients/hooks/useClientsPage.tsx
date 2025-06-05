@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { Client } from "@/types/client";
 import { getClients } from "@/services/clientService";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,6 +10,7 @@ import { useState, useCallback, useEffect } from "react";
 
 export function useClientsPage() {
   const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isDataReady, setIsDataReady] = useState(false);
 
   const { 
@@ -63,6 +65,23 @@ export function useClientsPage() {
     restoreMutation,
     deleteMutation
   } = useClientMutations();
+
+  // Handle URL parameter for editing client
+  useEffect(() => {
+    const editClientId = searchParams.get('edit');
+    if (editClientId && clients.length > 0) {
+      const clientToEdit = clients.find(client => client.id === editClientId);
+      if (clientToEdit) {
+        setSelectedClient(clientToEdit);
+        setIsEditDialogOpen(true);
+        // Remove the edit parameter from URL
+        setSearchParams(params => {
+          params.delete('edit');
+          return params;
+        });
+      }
+    }
+  }, [searchParams, clients, setSelectedClient, setIsEditDialogOpen, setSearchParams]);
 
   const debouncedRefetch = useCallback(() => {
     let timeoutId: ReturnType<typeof setTimeout>;

@@ -1,16 +1,24 @@
 
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Edit } from "lucide-react";
 import { getClientsNotInFanrH2 } from "@/services/fanrH2Service";
 
 export const FanrH2Section = () => {
+  const navigate = useNavigate();
   const { data: clients = [], isLoading, error } = useQuery({
     queryKey: ["clients-not-fanr-h2"],
     queryFn: getClientsNotInFanrH2,
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
+
+  const handleEditClient = (clientId: string) => {
+    navigate(`/clients?edit=${clientId}`);
+  };
 
   if (isLoading) {
     return (
@@ -59,7 +67,7 @@ export const FanrH2Section = () => {
             <Card key={client.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
-                  <div>
+                  <div className="flex-1">
                     <h4 className="font-medium text-neutral-800">
                       {client.nom || client.raisonsociale}
                     </h4>
@@ -70,9 +78,20 @@ export const FanrH2Section = () => {
                       Centre: {client.centrerattachement}
                     </p>
                   </div>
-                  <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
-                    Non inscrit
-                  </Badge>
+                  <div className="flex items-center space-x-2">
+                    <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300">
+                      Non inscrit
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditClient(client.id)}
+                      className="flex items-center space-x-1"
+                    >
+                      <Edit className="h-4 w-4" />
+                      <span>Modifier</span>
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
