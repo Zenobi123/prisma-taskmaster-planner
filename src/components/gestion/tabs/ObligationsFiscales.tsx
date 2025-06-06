@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Client } from "@/types/client";
@@ -12,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { DirectTaxesSection } from "./fiscal/DirectTaxesSection";
 import { DeclarationsSection } from "./fiscal/DeclarationsSection";
 import { ObligationStatuses, ObligationType } from "@/hooks/fiscal/types";
+import { toast } from "sonner";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
@@ -24,22 +26,77 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+  const [isSaving, setIsSaving] = useState<boolean>(false);
   
   // État pour les obligations fiscales - mise à jour pour inclure toutes les obligations
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
     // Direct taxes
-    igs: { assujetti: false, payee: false },
-    patente: { assujetti: false, payee: false },
-    licence: { assujetti: false, payee: false },
-    bailCommercial: { assujetti: false, payee: false },
-    precompteLoyer: { assujetti: false, payee: false },
-    tpf: { assujetti: false, payee: false },
+    igs: { assujetti: false, payee: false, attachements: {}, observations: "" },
+    patente: { assujetti: false, payee: false, attachements: {}, observations: "" },
+    licence: { assujetti: false, payee: false, attachements: {}, observations: "" },
+    bailCommercial: { assujetti: false, payee: false, attachements: {}, observations: "" },
+    precompteLoyer: { assujetti: false, payee: false, attachements: {}, observations: "" },
+    tpf: { assujetti: false, payee: false, attachements: {}, observations: "" },
     // Declarations
-    dsf: { assujetti: false, depose: false, periodicity: "annuelle" as const },
-    darp: { assujetti: false, depose: false, periodicity: "annuelle" as const },
-    cntps: { assujetti: false, depose: false, periodicity: "mensuelle" as const },
-    precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const }
+    dsf: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
+    darp: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
+    cntps: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" },
+    precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" }
   });
+
+  // Charger les données fiscales existantes au montage du composant
+  useEffect(() => {
+    const loadFiscalData = async () => {
+      if (!selectedClient?.id) return;
+      
+      try {
+        const { data: client, error } = await supabase
+          .from("clients")
+          .select("fiscal_data")
+          .eq("id", selectedClient.id)
+          .single();
+
+        if (error) {
+          console.error("Erreur lors du chargement des données fiscales:", error);
+          return;
+        }
+
+        if (client?.fiscal_data && typeof client.fiscal_data === 'object') {
+          const fiscalData = client.fiscal_data as any;
+          
+          // Charger les données d'attestation
+          if (fiscalData.attestation) {
+            setCreationDate(fiscalData.attestation.creationDate || "2025-07-01");
+            setValidityEndDate(fiscalData.attestation.validityEndDate || "");
+            setShowInAlert(fiscalData.attestation.showInAlert !== false);
+          }
+          
+          // Charger les paramètres de tableau de bord
+          if (fiscalData.hiddenFromDashboard !== undefined) {
+            setHiddenFromDashboard(!!fiscalData.hiddenFromDashboard);
+          }
+          
+          // Charger l'année sélectionnée
+          if (fiscalData.selectedYear) {
+            setFiscalYear(fiscalData.selectedYear);
+          }
+          
+          // Charger les obligations pour l'année courante
+          if (fiscalData.obligations && fiscalData.obligations[fiscalYear]) {
+            const yearObligations = fiscalData.obligations[fiscalYear];
+            setObligationStatuses(prev => ({
+              ...prev,
+              ...yearObligations
+            }));
+          }
+        }
+      } catch (error) {
+        console.error("Exception lors du chargement des données fiscales:", error);
+      }
+    };
+
+    loadFiscalData();
+  }, [selectedClient?.id, fiscalYear]);
 
   // Calculer la date de fin de validité lorsque la date de création change
   useEffect(() => {
@@ -66,6 +123,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
         const formattedEndDate = format(endDateObj, "yyyy-MM-dd");
         
         setValidityEndDate(formattedEndDate);
+        setHasUnsavedChanges(true);
       }
     } catch (error) {
       console.error("Erreur lors du calcul de la date de fin de validité:", error);
@@ -75,38 +133,63 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
   // Marquer comme ayant des modifications non enregistrées lorsque les valeurs changent
   useEffect(() => {
     setHasUnsavedChanges(true);
-  }, [creationDate, validityEndDate, showInAlert, hiddenFromDashboard, obligationStatuses]);
+  }, [showInAlert, hiddenFromDashboard, obligationStatuses]);
 
-  // Fonction pour sauvegarder les modifications
+  // Fonction pour sauvegarder les modifications de manière persistante
   const saveChanges = async () => {
+    if (!selectedClient?.id) {
+      toast.error("Impossible de sauvegarder : client non sélectionné");
+      return;
+    }
+
     try {
-      // Simuler une sauvegarde avec Supabase (à implémenter avec une vraie logique)
-      // Cette partie serait remplacée par un appel API réel
+      setIsSaving(true);
+      
+      // Préparer les données à sauvegarder
+      const fiscalDataToSave = {
+        clientId: selectedClient.id,
+        year: fiscalYear,
+        attestation: {
+          creationDate,
+          validityEndDate,
+          showInAlert
+        },
+        obligations: {
+          [fiscalYear]: obligationStatuses
+        },
+        hiddenFromDashboard,
+        selectedYear: fiscalYear,
+        updatedAt: new Date().toISOString()
+      };
+
+      // Sauvegarder dans Supabase
       const { error } = await supabase
         .from("clients")
         .update({
-          fiscal_data: {
-            ...selectedClient.fiscal_data,
-            attestation: {
-              creationDate,
-              validityEndDate,
-              showInAlert,
-              hiddenFromDashboard
-            },
-            obligations: obligationStatuses
-          }
+          fiscal_data: fiscalDataToSave
         })
         .eq("id", selectedClient.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error("Erreur lors de la sauvegarde:", error);
+        toast.error("Erreur lors de la sauvegarde des données fiscales");
+        return;
+      }
+
       setHasUnsavedChanges(false);
+      toast.success("Données fiscales sauvegardées avec succès");
+      
     } catch (error) {
-      console.error("Erreur lors de la sauvegarde:", error);
+      console.error("Exception lors de la sauvegarde:", error);
+      toast.error("Erreur inattendue lors de la sauvegarde");
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleFiscalYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setFiscalYear(e.target.value);
+    setHasUnsavedChanges(true);
   };
 
   // Gestion des changements d'état d'assujettissement et de paiement
@@ -132,6 +215,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
         [taxType]: { ...prev[taxType], [field]: value }
       };
     });
+    setHasUnsavedChanges(true);
   };
 
   // Fonction pour vérifier si un impôt est déclaratif
@@ -174,12 +258,24 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
       <FiscalAttestationSection
         creationDate={creationDate}
         validityEndDate={validityEndDate}
-        setCreationDate={setCreationDate}
-        setValidityEndDate={setValidityEndDate}
+        setCreationDate={(date) => {
+          setCreationDate(date);
+          setHasUnsavedChanges(true);
+        }}
+        setValidityEndDate={(date) => {
+          setValidityEndDate(date);
+          setHasUnsavedChanges(true);
+        }}
         showInAlert={showInAlert}
-        onToggleAlert={() => setShowInAlert(!showInAlert)}
+        onToggleAlert={() => {
+          setShowInAlert(!showInAlert);
+          setHasUnsavedChanges(true);
+        }}
         hiddenFromDashboard={hiddenFromDashboard}
-        onToggleDashboardVisibility={() => setHiddenFromDashboard(!hiddenFromDashboard)}
+        onToggleDashboardVisibility={(hidden) => {
+          setHiddenFromDashboard(hidden);
+          setHasUnsavedChanges(true);
+        }}
       />
 
       {/* Section des Impôts Directs */}
@@ -201,10 +297,10 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
           className={`px-4 py-2 rounded-md font-medium ${hasUnsavedChanges 
             ? 'bg-primary text-white hover:bg-primary-hover' 
             : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
-          disabled={!hasUnsavedChanges}
+          disabled={!hasUnsavedChanges || isSaving}
           onClick={saveChanges}
         >
-          Enregistrer les modifications
+          {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
         </button>
       </div>
     </div>
