@@ -1,7 +1,7 @@
+
 import { Client } from "@/types/client";
 import { ObligationStatuses, TaxObligationStatus } from "@/hooks/fiscal/types";
 import { supabase } from "@/integrations/supabase/client";
-import { getClientsWithUnpaidPatente } from "./fiscalObligationsService";
 
 export interface UnpaidPatente {
   id: string;
@@ -78,7 +78,5 @@ class UnpaidPatenteService {
 
 export const unpaidPatenteService = new UnpaidPatenteService();
 
-// Use the new fiscal obligations service
-export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
-  return getClientsWithUnpaidPatente();
-};
+// Export the function from fiscalObligationsService
+export { getClientsWithUnpaidPatente } from "./fiscalObligationsService";
