@@ -41,7 +41,7 @@ interface ClientFormState {
   };
 }
 
-// Valid regime fiscal values
+// Valid regime fiscal values - enforced by database constraint
 const VALID_REGIME_FISCAL: RegimeFiscal[] = ["reel", "igs", "non_professionnel"];
 
 // Function to validate and clean regime fiscal value

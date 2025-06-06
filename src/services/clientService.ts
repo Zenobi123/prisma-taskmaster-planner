@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { Database } from "@/integrations/supabase/types";
@@ -6,8 +5,8 @@ import { toast } from "sonner";
 
 type ClientRow = Database['public']['Tables']['clients']['Row'];
 
-// Valid regime fiscal values
-const VALID_REGIME_FISCAL = ["reel", "igs", "non_professionnel"];
+// Valid regime fiscal values - now strictly enforced by database constraint
+const VALID_REGIME_FISCAL = ["reel", "igs", "non_professionnel"] as const;
 
 // Add cache for clients to prevent multiple identical requests in short time
 let clientsCache: {
@@ -71,7 +70,7 @@ export const getClients = async () => {
       },
       secteuractivite: client.secteuractivite,
       numerocnps: client.numerocnps || null,
-      regimefiscal: client.regimefiscal as "reel" | "igs" | "non_professionnel" || "reel",
+      regimefiscal: client.regimefiscal as "reel" | "igs" | "non_professionnel", // Now guaranteed to be valid
       inscriptionfanrharmony2: client.inscriptionfanrharmony2 || false,
       interactions: (Array.isArray(client.interactions) ? client.interactions : []).map((interaction: any) => ({
         id: interaction.id || crypto.randomUUID(),
@@ -106,8 +105,8 @@ export const invalidateClientsCache = () => {
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
   console.log("Données du client à ajouter:", client);
   
-  // Ensure regimefiscal has a valid value
-  const regimefiscal = VALID_REGIME_FISCAL.includes(client.regimefiscal) ? client.regimefiscal : "reel";
+  // Ensure regimefiscal has a valid value - database constraint will enforce this
+  const regimefiscal = VALID_REGIME_FISCAL.includes(client.regimefiscal as any) ? client.regimefiscal : "reel";
   
   const clientData = {
     type: client.type,
@@ -146,6 +145,10 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
   }
 
   console.log("Client ajouté avec succès:", data);
+  
+  // Invalidate cache after successful addition
+  invalidateClientsCache();
+  
   return data;
 };
 
@@ -175,6 +178,10 @@ export const archiveClient = async (id: string) => {
   }
 
   console.log("Client archivé avec succès:", data);
+  
+  // Invalidate cache after successful archive
+  invalidateClientsCache();
+  
   return data;
 };
 
@@ -209,15 +216,18 @@ export const deleteClient = async (id: string) => {
   }
 
   console.log("Client supprimé avec succès");
+  
+  // Invalidate cache after successful deletion
+  invalidateClientsCache();
 };
 
 export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
   console.log("Mise à jour du client:", { id, updates });
   
-  // Strict validation and cleaning of regimefiscal
+  // Validation for regimefiscal - database constraint will enforce this
   let regimefiscal = updates.regimefiscal;
   if (regimefiscal !== undefined) {
-    if (!VALID_REGIME_FISCAL.includes(regimefiscal)) {
+    if (!VALID_REGIME_FISCAL.includes(regimefiscal as any)) {
       console.warn(`Invalid regimefiscal value: ${regimefiscal}, defaulting to 'reel'`);
       regimefiscal = "reel";
     }
@@ -252,7 +262,6 @@ export const updateClient = async (id: string, updates: Partial<Omit<Client, "id
   if (updates.inscriptionfanrharmony2 !== undefined) cleanedUpdates.inscriptionfanrharmony2 = updates.inscriptionfanrharmony2 || false;
 
   console.log("Données nettoyées pour la mise à jour:", cleanedUpdates);
-  console.log("Regime fiscal final envoyé:", cleanedUpdates.regimefiscal);
 
   const { data, error } = await supabase
     .from("clients")

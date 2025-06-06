@@ -31,7 +31,7 @@ export type Database = {
           numerocnps: string | null
           numerorccm: string | null
           raisonsociale: string | null
-          regimefiscal: string | null
+          regimefiscal: string
           secteuractivite: string
           sexe: string | null
           sigle: string | null
@@ -60,7 +60,7 @@ export type Database = {
           numerocnps?: string | null
           numerorccm?: string | null
           raisonsociale?: string | null
-          regimefiscal?: string | null
+          regimefiscal?: string
           secteuractivite: string
           sexe?: string | null
           sigle?: string | null
@@ -89,7 +89,7 @@ export type Database = {
           numerocnps?: string | null
           numerorccm?: string | null
           raisonsociale?: string | null
-          regimefiscal?: string | null
+          regimefiscal?: string
           secteuractivite?: string
           sexe?: string | null
           sigle?: string | null
