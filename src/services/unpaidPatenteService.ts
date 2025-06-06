@@ -1,7 +1,7 @@
-
 import { Client } from "@/types/client";
 import { ObligationStatuses, TaxObligationStatus } from "@/hooks/fiscal/types";
 import { supabase } from "@/integrations/supabase/client";
+import { getClientsWithUnpaidPatente } from "./fiscalObligationsService";
 
 export interface UnpaidPatente {
   id: string;
@@ -78,42 +78,7 @@ class UnpaidPatenteService {
 
 export const unpaidPatenteService = new UnpaidPatenteService();
 
-// Add the implementation for the missing function
+// Use the new fiscal obligations service
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
-  try {
-    const { data: clientsData, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('statut', 'actif')
-      .not('fiscal_data', 'is', null);
-
-    if (error) throw error;
-
-    // Convertir les données en Client[] et filtrer
-    const clients = clientsData.map(client => client as unknown as Client);
-    
-    // Filter clients with unpaid Patente
-    return clients.filter(client => {
-      const fiscalData = client.fiscal_data;
-      if (!fiscalData) return false;
-      
-      // Get current year
-      const currentYear = new Date().getFullYear().toString();
-      
-      // Vérifier que fiscal_data est un objet et contient obligations
-      if (typeof fiscalData !== 'object' || !fiscalData.obligations) return false;
-      
-      // Vérifier que l'année courante existe dans obligations
-      if (!fiscalData.obligations[currentYear]) return false;
-      
-      // Get Patente obligation status
-      const patenteStatus = fiscalData.obligations[currentYear]?.patente;
-      
-      // Return true if Patente is required but not paid
-      return patenteStatus && patenteStatus.assujetti === true && patenteStatus.paye === false;
-    });
-  } catch (error) {
-    console.error('Error fetching clients with unpaid Patente:', error);
-    return [];
-  }
+  return getClientsWithUnpaidPatente();
 };
