@@ -75,6 +75,12 @@ export function useClientForm(initialData?: Client) {
 
   useEffect(() => {
     if (initialData) {
+      // Ensure regimefiscal is valid
+      let regimefiscal: RegimeFiscal = "reel";
+      if (initialData.regimefiscal && ["reel", "igs", "non_professionnel"].includes(initialData.regimefiscal)) {
+        regimefiscal = initialData.regimefiscal as RegimeFiscal;
+      }
+
       setFormData({
         nom: initialData.nom || "",
         nomcommercial: initialData.nomcommercial || "",
@@ -94,7 +100,7 @@ export function useClientForm(initialData?: Client) {
         email: initialData.contact?.email || "",
         secteuractivite: initialData.secteuractivite || "commerce",
         numerocnps: initialData.numerocnps || "",
-        regimefiscal: initialData.regimefiscal || "reel",
+        regimefiscal: regimefiscal,
         gestionexternalisee: initialData.gestionexternalisee || false,
         inscriptionfanrharmony2: initialData.inscriptionfanrharmony2 || false,
         sexe: initialData.sexe || "homme",
@@ -126,12 +132,21 @@ export function useClientForm(initialData?: Client) {
           [name.split('.')[1]]: value !== "" ? Number(value) : undefined
         }
       }));
+    } else if (name === "regimefiscal") {
+      // Ensure regimefiscal is valid
+      const validRegimes: RegimeFiscal[] = ["reel", "igs", "non_professionnel"];
+      const regime = validRegimes.includes(value) ? value : "reel";
+      setFormData(prev => ({ ...prev, regimefiscal: regime }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
   const prepareSubmitData = (type: ClientType) => {
+    // Ensure regimefiscal is valid before submission
+    const validRegimes: RegimeFiscal[] = ["reel", "igs", "non_professionnel"];
+    const regimefiscal = validRegimes.includes(formData.regimefiscal) ? formData.regimefiscal : "reel";
+
     const baseData = {
       type,
       niu: formData.niu || "",
@@ -147,7 +162,7 @@ export function useClientForm(initialData?: Client) {
       },
       secteuractivite: formData.secteuractivite || "commerce",
       numerocnps: formData.numerocnps || null,
-      regimefiscal: formData.regimefiscal || "reel",
+      regimefiscal: regimefiscal,
       gestionexternalisee: formData.gestionexternalisee || false,
       inscriptionfanrharmony2: formData.inscriptionfanrharmony2 || false,
       situationimmobiliere: {

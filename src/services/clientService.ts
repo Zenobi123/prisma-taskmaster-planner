@@ -211,39 +211,40 @@ export const deleteClient = async (id: string) => {
 export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
   console.log("Mise à jour du client:", { id, updates });
   
+  // Ensure regimefiscal is valid - check against allowed values
+  let regimefiscal = updates.regimefiscal;
+  if (regimefiscal && !["reel", "igs", "non_professionnel"].includes(regimefiscal)) {
+    console.warn(`Invalid regimefiscal value: ${regimefiscal}, defaulting to 'reel'`);
+    regimefiscal = "reel";
+  }
+  
   // Clean up the data before sending to Supabase
-  const cleanedUpdates = {
-    type: updates.type,
-    nom: updates.nom || null,
-    nomcommercial: updates.nomcommercial || null,
-    numerorccm: updates.numerorccm || null,
-    raisonsociale: updates.raisonsociale || null,
-    sigle: updates.sigle || null,
-    datecreation: updates.datecreation || null,
-    lieucreation: updates.lieucreation || null,
-    nomdirigeant: updates.nomdirigeant || null,
-    formejuridique: updates.formejuridique || null,
-    niu: updates.niu,
-    centrerattachement: updates.centrerattachement,
-    adresse: updates.adresse,
-    contact: updates.contact,
-    secteuractivite: updates.secteuractivite,
-    numerocnps: updates.numerocnps || null,
-    regimefiscal: updates.regimefiscal || "reel", // Ensure this field has a valid value
-    sexe: updates.sexe || null,
-    etatcivil: updates.etatcivil || null,
-    situationimmobiliere: updates.situationimmobiliere,
-    statut: updates.statut,
-    gestionexternalisee: updates.gestionexternalisee || false,
-    inscriptionfanrharmony2: updates.inscriptionfanrharmony2 || false
-  };
-
-  // Remove undefined fields
-  Object.keys(cleanedUpdates).forEach(key => {
-    if (cleanedUpdates[key as keyof typeof cleanedUpdates] === undefined) {
-      delete cleanedUpdates[key as keyof typeof cleanedUpdates];
-    }
-  });
+  const cleanedUpdates: any = {};
+  
+  // Only include fields that have actual values and are valid
+  if (updates.type !== undefined) cleanedUpdates.type = updates.type;
+  if (updates.nom !== undefined) cleanedUpdates.nom = updates.nom || null;
+  if (updates.nomcommercial !== undefined) cleanedUpdates.nomcommercial = updates.nomcommercial || null;
+  if (updates.numerorccm !== undefined) cleanedUpdates.numerorccm = updates.numerorccm || null;
+  if (updates.raisonsociale !== undefined) cleanedUpdates.raisonsociale = updates.raisonsociale || null;
+  if (updates.sigle !== undefined) cleanedUpdates.sigle = updates.sigle || null;
+  if (updates.datecreation !== undefined) cleanedUpdates.datecreation = updates.datecreation || null;
+  if (updates.lieucreation !== undefined) cleanedUpdates.lieucreation = updates.lieucreation || null;
+  if (updates.nomdirigeant !== undefined) cleanedUpdates.nomdirigeant = updates.nomdirigeant || null;
+  if (updates.formejuridique !== undefined) cleanedUpdates.formejuridique = updates.formejuridique || null;
+  if (updates.niu !== undefined) cleanedUpdates.niu = updates.niu;
+  if (updates.centrerattachement !== undefined) cleanedUpdates.centrerattachement = updates.centrerattachement;
+  if (updates.adresse !== undefined) cleanedUpdates.adresse = updates.adresse;
+  if (updates.contact !== undefined) cleanedUpdates.contact = updates.contact;
+  if (updates.secteuractivite !== undefined) cleanedUpdates.secteuractivite = updates.secteuractivite;
+  if (updates.numerocnps !== undefined) cleanedUpdates.numerocnps = updates.numerocnps || null;
+  if (regimefiscal !== undefined) cleanedUpdates.regimefiscal = regimefiscal;
+  if (updates.sexe !== undefined) cleanedUpdates.sexe = updates.sexe || null;
+  if (updates.etatcivil !== undefined) cleanedUpdates.etatcivil = updates.etatcivil || null;
+  if (updates.situationimmobiliere !== undefined) cleanedUpdates.situationimmobiliere = updates.situationimmobiliere;
+  if (updates.statut !== undefined) cleanedUpdates.statut = updates.statut;
+  if (updates.gestionexternalisee !== undefined) cleanedUpdates.gestionexternalisee = updates.gestionexternalisee || false;
+  if (updates.inscriptionfanrharmony2 !== undefined) cleanedUpdates.inscriptionfanrharmony2 = updates.inscriptionfanrharmony2 || false;
 
   console.log("Données nettoyées pour la mise à jour:", cleanedUpdates);
 
@@ -256,6 +257,7 @@ export const updateClient = async (id: string, updates: Partial<Omit<Client, "id
 
   if (error) {
     console.error("Erreur lors de la mise à jour du client:", error);
+    toast.error(`Erreur lors de la mise à jour: ${error.message}`);
     throw error;
   }
 
