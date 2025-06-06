@@ -6,6 +6,9 @@ import { toast } from "sonner";
 
 type ClientRow = Database['public']['Tables']['clients']['Row'];
 
+// Valid regime fiscal values
+const VALID_REGIME_FISCAL = ["reel", "igs", "non_professionnel"];
+
 // Add cache for clients to prevent multiple identical requests in short time
 let clientsCache: {
   data: Client[] | null;
@@ -104,7 +107,7 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
   console.log("Données du client à ajouter:", client);
   
   // Ensure regimefiscal has a valid value
-  const regimefiscal = client.regimefiscal || "reel";
+  const regimefiscal = VALID_REGIME_FISCAL.includes(client.regimefiscal) ? client.regimefiscal : "reel";
   
   const clientData = {
     type: client.type,
@@ -211,11 +214,13 @@ export const deleteClient = async (id: string) => {
 export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
   console.log("Mise à jour du client:", { id, updates });
   
-  // Ensure regimefiscal is valid - check against allowed values
+  // Strict validation and cleaning of regimefiscal
   let regimefiscal = updates.regimefiscal;
-  if (regimefiscal && !["reel", "igs", "non_professionnel"].includes(regimefiscal)) {
-    console.warn(`Invalid regimefiscal value: ${regimefiscal}, defaulting to 'reel'`);
-    regimefiscal = "reel";
+  if (regimefiscal !== undefined) {
+    if (!VALID_REGIME_FISCAL.includes(regimefiscal)) {
+      console.warn(`Invalid regimefiscal value: ${regimefiscal}, defaulting to 'reel'`);
+      regimefiscal = "reel";
+    }
   }
   
   // Clean up the data before sending to Supabase
@@ -247,6 +252,7 @@ export const updateClient = async (id: string, updates: Partial<Omit<Client, "id
   if (updates.inscriptionfanrharmony2 !== undefined) cleanedUpdates.inscriptionfanrharmony2 = updates.inscriptionfanrharmony2 || false;
 
   console.log("Données nettoyées pour la mise à jour:", cleanedUpdates);
+  console.log("Regime fiscal final envoyé:", cleanedUpdates.regimefiscal);
 
   const { data, error } = await supabase
     .from("clients")

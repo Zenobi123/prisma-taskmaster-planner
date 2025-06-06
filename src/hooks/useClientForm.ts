@@ -41,6 +41,21 @@ interface ClientFormState {
   };
 }
 
+// Valid regime fiscal values
+const VALID_REGIME_FISCAL: RegimeFiscal[] = ["reel", "igs", "non_professionnel"];
+
+// Function to validate and clean regime fiscal value
+const validateRegimeFiscal = (value: any): RegimeFiscal => {
+  console.log("Validating regimefiscal value:", value, "type:", typeof value);
+  
+  if (typeof value === "string" && VALID_REGIME_FISCAL.includes(value as RegimeFiscal)) {
+    return value as RegimeFiscal;
+  }
+  
+  console.warn(`Invalid regimefiscal value: ${value}, defaulting to 'reel'`);
+  return "reel";
+};
+
 export function useClientForm(initialData?: Client) {
   const [formData, setFormData] = useState<ClientFormState>({
     nom: "",
@@ -75,12 +90,11 @@ export function useClientForm(initialData?: Client) {
 
   useEffect(() => {
     if (initialData) {
-      // Ensure regimefiscal is valid
-      let regimefiscal: RegimeFiscal = "reel";
-      if (initialData.regimefiscal && ["reel", "igs", "non_professionnel"].includes(initialData.regimefiscal)) {
-        regimefiscal = initialData.regimefiscal as RegimeFiscal;
-      }
-
+      console.log("Setting form data from initial data:", initialData);
+      
+      // Validate regime fiscal from initial data
+      const validatedRegimeFiscal = validateRegimeFiscal(initialData.regimefiscal);
+      
       setFormData({
         nom: initialData.nom || "",
         nomcommercial: initialData.nomcommercial || "",
@@ -100,7 +114,7 @@ export function useClientForm(initialData?: Client) {
         email: initialData.contact?.email || "",
         secteuractivite: initialData.secteuractivite || "commerce",
         numerocnps: initialData.numerocnps || "",
-        regimefiscal: regimefiscal,
+        regimefiscal: validatedRegimeFiscal,
         gestionexternalisee: initialData.gestionexternalisee || false,
         inscriptionfanrharmony2: initialData.inscriptionfanrharmony2 || false,
         sexe: initialData.sexe || "homme",
@@ -115,6 +129,8 @@ export function useClientForm(initialData?: Client) {
   }, [initialData]);
 
   const handleChange = (name: string, value: any) => {
+    console.log("Handling change:", name, "=", value, "type:", typeof value);
+    
     if (name === "situationimmobiliere.type") {
       setFormData(prev => ({
         ...prev,
@@ -133,20 +149,20 @@ export function useClientForm(initialData?: Client) {
         }
       }));
     } else if (name === "regimefiscal") {
-      // Ensure regimefiscal is valid
-      const validRegimes: RegimeFiscal[] = ["reel", "igs", "non_professionnel"];
-      const regime = validRegimes.includes(value) ? value : "reel";
-      setFormData(prev => ({ ...prev, regimefiscal: regime }));
+      // Always validate regime fiscal
+      const validatedValue = validateRegimeFiscal(value);
+      setFormData(prev => ({ ...prev, regimefiscal: validatedValue }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
   const prepareSubmitData = (type: ClientType) => {
-    // Ensure regimefiscal is valid before submission
-    const validRegimes: RegimeFiscal[] = ["reel", "igs", "non_professionnel"];
-    const regimefiscal = validRegimes.includes(formData.regimefiscal) ? formData.regimefiscal : "reel";
-
+    console.log("Preparing submit data with regimefiscal:", formData.regimefiscal);
+    
+    // Final validation of regime fiscal before submission
+    const finalRegimeFiscal = validateRegimeFiscal(formData.regimefiscal);
+    
     const baseData = {
       type,
       niu: formData.niu || "",
@@ -162,7 +178,7 @@ export function useClientForm(initialData?: Client) {
       },
       secteuractivite: formData.secteuractivite || "commerce",
       numerocnps: formData.numerocnps || null,
-      regimefiscal: regimefiscal,
+      regimefiscal: finalRegimeFiscal,
       gestionexternalisee: formData.gestionexternalisee || false,
       inscriptionfanrharmony2: formData.inscriptionfanrharmony2 || false,
       situationimmobiliere: {
