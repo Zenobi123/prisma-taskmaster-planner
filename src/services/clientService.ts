@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { Database } from "@/integrations/supabase/types";
@@ -67,6 +68,8 @@ export const getClients = async () => {
       },
       secteuractivite: client.secteuractivite,
       numerocnps: client.numerocnps || null,
+      regimefiscal: client.regimefiscal as "reel" | "igs" | "non_professionnel" || "reel",
+      inscriptionfanrharmony2: client.inscriptionfanrharmony2 || false,
       interactions: (Array.isArray(client.interactions) ? client.interactions : []).map((interaction: any) => ({
         id: interaction.id || crypto.randomUUID(),
         date: interaction.date || new Date().toISOString(),
@@ -99,30 +102,38 @@ export const invalidateClientsCache = () => {
 
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
   console.log("Données du client à ajouter:", client);
+  
+  // Ensure regimefiscal has a valid value
+  const regimefiscal = client.regimefiscal || "reel";
+  
+  const clientData = {
+    type: client.type,
+    nom: client.nom,
+    raisonsociale: client.raisonsociale,
+    sigle: client.sigle,
+    datecreation: client.datecreation,
+    lieucreation: client.lieucreation,
+    nomdirigeant: client.nomdirigeant,
+    formejuridique: client.formejuridique,
+    niu: client.niu,
+    centrerattachement: client.centrerattachement,
+    adresse: client.adresse,
+    contact: client.contact,
+    secteuractivite: client.secteuractivite,
+    numerocnps: client.numerocnps,
+    regimefiscal: regimefiscal,
+    sexe: client.sexe,
+    etatcivil: client.etatcivil,
+    situationimmobiliere: client.situationimmobiliere,
+    interactions: [],
+    statut: "actif",
+    gestionexternalisee: client.gestionexternalisee || false,
+    inscriptionfanrharmony2: client.inscriptionfanrharmony2 || false
+  };
+
   const { data, error } = await supabase
     .from("clients")
-    .insert([{
-      type: client.type,
-      nom: client.nom,
-      raisonsociale: client.raisonsociale,
-      sigle: client.sigle,
-      datecreation: client.datecreation,
-      lieucreation: client.lieucreation,
-      nomdirigeant: client.nomdirigeant,
-      formejuridique: client.formejuridique,
-      niu: client.niu,
-      centrerattachement: client.centrerattachement,
-      adresse: client.adresse,
-      contact: client.contact,
-      secteuractivite: client.secteuractivite,
-      numerocnps: client.numerocnps,
-      sexe: client.sexe,
-      etatcivil: client.etatcivil,
-      situationimmobiliere: client.situationimmobiliere,
-      interactions: [],
-      statut: "actif",
-      gestionexternalisee: client.gestionexternalisee || false
-    }])
+    .insert([clientData])
     .select()
     .single();
 
@@ -200,23 +211,45 @@ export const deleteClient = async (id: string) => {
 export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
   console.log("Mise à jour du client:", { id, updates });
   
-  const updateData = {
-    ...updates,
-    // Assurez-vous que les champs sont correctement formatés pour la base de données
-    situationimmobiliere: updates.situationimmobiliere || undefined,
-    adresse: updates.adresse || undefined,
-    contact: updates.contact || undefined,
-    // Retirez les champs qui ne doivent pas être mis à jour
-    id: undefined,
-    created_at: undefined,
-    interactions: undefined
+  // Clean up the data before sending to Supabase
+  const cleanedUpdates = {
+    type: updates.type,
+    nom: updates.nom || null,
+    nomcommercial: updates.nomcommercial || null,
+    numerorccm: updates.numerorccm || null,
+    raisonsociale: updates.raisonsociale || null,
+    sigle: updates.sigle || null,
+    datecreation: updates.datecreation || null,
+    lieucreation: updates.lieucreation || null,
+    nomdirigeant: updates.nomdirigeant || null,
+    formejuridique: updates.formejuridique || null,
+    niu: updates.niu,
+    centrerattachement: updates.centrerattachement,
+    adresse: updates.adresse,
+    contact: updates.contact,
+    secteuractivite: updates.secteuractivite,
+    numerocnps: updates.numerocnps || null,
+    regimefiscal: updates.regimefiscal || "reel", // Ensure this field has a valid value
+    sexe: updates.sexe || null,
+    etatcivil: updates.etatcivil || null,
+    situationimmobiliere: updates.situationimmobiliere,
+    statut: updates.statut,
+    gestionexternalisee: updates.gestionexternalisee || false,
+    inscriptionfanrharmony2: updates.inscriptionfanrharmony2 || false
   };
 
-  console.log("Données formatées pour la mise à jour:", updateData);
+  // Remove undefined fields
+  Object.keys(cleanedUpdates).forEach(key => {
+    if (cleanedUpdates[key as keyof typeof cleanedUpdates] === undefined) {
+      delete cleanedUpdates[key as keyof typeof cleanedUpdates];
+    }
+  });
+
+  console.log("Données nettoyées pour la mise à jour:", cleanedUpdates);
 
   const { data, error } = await supabase
     .from("clients")
-    .update(updateData)
+    .update(cleanedUpdates)
     .eq("id", id)
     .select()
     .single();
@@ -227,5 +260,9 @@ export const updateClient = async (id: string, updates: Partial<Omit<Client, "id
   }
 
   console.log("Client mis à jour avec succès:", data);
+  
+  // Invalidate cache after successful update
+  invalidateClientsCache();
+  
   return data;
 };
