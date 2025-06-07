@@ -29,21 +29,42 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   
+  // Function to get default obligation statuses based on client regime and type
+  const getDefaultObligationStatuses = (): ObligationStatuses => {
+    const baseStatuses: ObligationStatuses = {
+      // Direct taxes - all start as not subject by default
+      igs: { assujetti: false, payee: false, attachements: {}, observations: "" },
+      patente: { assujetti: false, payee: false, attachements: {}, observations: "" },
+      licence: { assujetti: false, payee: false, attachements: {}, observations: "" },
+      bailCommercial: { assujetti: false, payee: false, attachements: {}, observations: "" },
+      precompteLoyer: { assujetti: false, payee: false, attachements: {}, observations: "" },
+      tpf: { assujetti: false, payee: false, attachements: {}, observations: "" },
+      // Declarations - all start as not subject by default
+      dsf: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
+      darp: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
+      cntps: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" },
+      precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" }
+    };
+
+    // Apply default rules based on regime fiscal and client type
+    if (selectedClient.regimefiscal === "reel") {
+      // Contribuables du régime du réel sont assujettis à la patente
+      baseStatuses.patente.assujetti = true;
+    } else if (selectedClient.regimefiscal === "igs") {
+      // Contribuables de l'IGS sont assujettis à l'IGS
+      baseStatuses.igs.assujetti = true;
+    }
+
+    // Tous les contribuables personnes physiques sont assujetties à la DARP
+    if (selectedClient.type === "physique") {
+      baseStatuses.darp.assujetti = true;
+    }
+
+    return baseStatuses;
+  };
+
   // État pour les obligations fiscales - mise à jour pour inclure toutes les obligations
-  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({
-    // Direct taxes
-    igs: { assujetti: false, payee: false, attachements: {}, observations: "" },
-    patente: { assujetti: false, payee: false, attachements: {}, observations: "" },
-    licence: { assujetti: false, payee: false, attachements: {}, observations: "" },
-    bailCommercial: { assujetti: false, payee: false, attachements: {}, observations: "" },
-    precompteLoyer: { assujetti: false, payee: false, attachements: {}, observations: "" },
-    tpf: { assujetti: false, payee: false, attachements: {}, observations: "" },
-    // Declarations
-    dsf: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
-    darp: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
-    cntps: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" },
-    precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" }
-  });
+  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(getDefaultObligationStatuses());
 
   // Charger les données fiscales existantes au montage du composant
   useEffect(() => {
@@ -89,10 +110,18 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
               ...prev,
               ...yearObligations
             }));
+          } else {
+            // Si aucune donnée n'existe pour cette année, appliquer les règles par défaut
+            setObligationStatuses(getDefaultObligationStatuses());
           }
+        } else {
+          // Si aucune donnée fiscale n'existe, appliquer les règles par défaut
+          setObligationStatuses(getDefaultObligationStatuses());
         }
       } catch (error) {
         console.error("Exception lors du chargement des données fiscales:", error);
+        // En cas d'erreur, appliquer les règles par défaut
+        setObligationStatuses(getDefaultObligationStatuses());
       }
     };
 
