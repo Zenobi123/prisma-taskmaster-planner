@@ -93,9 +93,8 @@ export const useFiscalDataLoader = ({
               if (existingObligation) {
                 // Fusionner en gardant l'assujettissement par défaut mais les autres données existantes
                 mergedObligations[obligationType as keyof ObligationStatuses] = {
-                  ...defaultObligation,
                   ...existingObligation,
-                  // Forcer l'assujettissement selon les règles par défaut
+                  // FORCER l'assujettissement selon les règles par défaut - c'est la clé !
                   assujetti: defaultObligation.assujetti
                 } as any;
                 
@@ -111,7 +110,7 @@ export const useFiscalDataLoader = ({
               }
             });
             
-            console.log("Merged obligations:", mergedObligations);
+            console.log("Merged obligations with enforced default rules:", mergedObligations);
             setObligationStatuses(mergedObligations);
           } else {
             // Si aucune donnée n'existe pour cette année, utiliser les règles par défaut
