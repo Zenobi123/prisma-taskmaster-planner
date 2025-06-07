@@ -18,25 +18,45 @@ export const useObligationStatusHandlers = ({
   // Gestion des changements d'état d'assujettissement et de paiement
   const handleStatusChange = useCallback((taxType: ObligationType, field: string, value: boolean) => {
     setObligationStatuses(prev => {
+      const newStatuses = { ...prev };
+
       if (field === "assujetti" && !value) {
         // Si on désactive l'assujettissement, on désactive aussi le paiement/dépôt
-        const updatedObligation = { ...prev[taxType] };
+        const updatedObligation = { ...newStatuses[taxType] };
         if ('payee' in updatedObligation) {
           (updatedObligation as any).payee = false;
         }
         if ('depose' in updatedObligation) {
           (updatedObligation as any).depose = false;
         }
-        return {
-          ...prev,
-          [taxType]: { ...updatedObligation, assujetti: value }
-        };
+        newStatuses[taxType] = { ...updatedObligation, assujetti: value };
+
+        // Règle spéciale : Si on désactive IGS ou Patente, vérifier si on doit désactiver la DSF
+        if (taxType === "igs" || taxType === "patente") {
+          const stillSubjectToIgsOrPatente = 
+            (taxType === "igs" ? newStatuses.patente.assujetti : newStatuses.igs.assujetti) ||
+            (taxType === "patente" ? newStatuses.igs.assujetti : newStatuses.patente.assujetti);
+          
+          if (!stillSubjectToIgsOrPatente) {
+            console.log("Disabling DSF as client is no longer subject to IGS or Patente");
+            newStatuses.dsf = { 
+              ...newStatuses.dsf, 
+              assujetti: false, 
+              depose: false 
+            };
+          }
+        }
+      } else if (field === "assujetti" && value && (taxType === "igs" || taxType === "patente")) {
+        // Si on active IGS ou Patente, activer automatiquement la DSF
+        console.log("Activating DSF as client is now subject to IGS or Patente");
+        newStatuses[taxType] = { ...newStatuses[taxType], assujetti: value };
+        newStatuses.dsf = { ...newStatuses.dsf, assujetti: true };
+      } else {
+        // Cas normal : mise à jour simple du champ
+        newStatuses[taxType] = { ...newStatuses[taxType], [field]: value };
       }
 
-      return {
-        ...prev,
-        [taxType]: { ...prev[taxType], [field]: value }
-      };
+      return newStatuses;
     });
     setHasUnsavedChanges(true);
   }, [setObligationStatuses, setHasUnsavedChanges]);

@@ -27,6 +27,9 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
       precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" }
     };
 
+    // Variables pour tracker si le client est assujetti à IGS ou Patente
+    let isSubjectToIgsOrPatente = false;
+
     // Règles spécifiques pour les personnes physiques
     if (selectedClient.type === "physique") {
       console.log("Applying rules for personne physique");
@@ -39,9 +42,11 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
       if (selectedClient.regimefiscal === "reel") {
         console.log("Applying rule: Personne physique + Régime réel → Patente obligatoire");
         baseStatuses.patente.assujetti = true;
+        isSubjectToIgsOrPatente = true;
       } else if (selectedClient.regimefiscal === "igs") {
         console.log("Applying rule: Personne physique + Régime IGS → IGS obligatoire");
         baseStatuses.igs.assujetti = true;
+        isSubjectToIgsOrPatente = true;
       } else if (selectedClient.regimefiscal === "non_professionnel") {
         console.log("Applying rule: Personne physique + Non professionnel → Aucune obligation fiscale professionnelle");
         // Les non-professionnels ne sont pas assujettis aux impôts professionnels
@@ -56,10 +61,18 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
       if (selectedClient.regimefiscal === "reel") {
         console.log("Applying rule: Personne morale + Régime réel → Patente obligatoire");
         baseStatuses.patente.assujetti = true;
+        isSubjectToIgsOrPatente = true;
       } else if (selectedClient.regimefiscal === "igs") {
         console.log("Applying rule: Personne morale + Régime IGS → IGS obligatoire");
         baseStatuses.igs.assujetti = true;
+        isSubjectToIgsOrPatente = true;
       }
+    }
+
+    // Règle automatique : Les assujettis à IGS ou Patente sont automatiquement assujettis à la DSF
+    if (isSubjectToIgsOrPatente) {
+      console.log("Applying rule: Assujetti IGS/Patente → DSF obligatoire");
+      baseStatuses.dsf.assujetti = true;
     }
 
     // Règles basées sur la situation immobilière
