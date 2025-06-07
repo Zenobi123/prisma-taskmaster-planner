@@ -90,12 +90,13 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     return baseStatuses;
   };
 
-  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(getDefaultObligationStatuses());
+  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(() => getDefaultObligationStatuses());
 
   // Re-apply default rules when client changes
   useEffect(() => {
     console.log("Client changed, re-applying default rules");
-    setObligationStatuses(getDefaultObligationStatuses());
+    const newDefaultStatuses = getDefaultObligationStatuses();
+    setObligationStatuses(newDefaultStatuses);
   }, [selectedClient.id, selectedClient.regimefiscal, selectedClient.type, selectedClient.situationimmobiliere?.type]);
 
   return {
