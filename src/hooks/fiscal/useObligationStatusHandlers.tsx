@@ -24,12 +24,12 @@ export const useObligationStatusHandlers = ({
         // Si on désactive l'assujettissement, on désactive aussi le paiement/dépôt
         const updatedObligation = { ...newStatuses[taxType] };
         if ('payee' in updatedObligation) {
-          (updatedObligation as any).payee = false;
+          updatedObligation.payee = false;
         }
         if ('depose' in updatedObligation) {
-          (updatedObligation as any).depose = false;
+          updatedObligation.depose = false;
         }
-        newStatuses[taxType] = { ...updatedObligation, assujetti: value };
+        newStatuses[taxType] = { ...updatedObligation, assujetti: value } as any;
 
         // Règle spéciale : Si on désactive IGS ou Patente, vérifier si on doit désactiver la DSF
         if (taxType === "igs" || taxType === "patente") {
@@ -49,11 +49,11 @@ export const useObligationStatusHandlers = ({
       } else if (field === "assujetti" && value && (taxType === "igs" || taxType === "patente")) {
         // Si on active IGS ou Patente, activer automatiquement la DSF
         console.log("Activating DSF as client is now subject to IGS or Patente");
-        newStatuses[taxType] = { ...newStatuses[taxType], assujetti: value };
+        newStatuses[taxType] = { ...newStatuses[taxType], assujetti: value } as any;
         newStatuses.dsf = { ...newStatuses.dsf, assujetti: true };
       } else {
         // Cas normal : mise à jour simple du champ
-        newStatuses[taxType] = { ...newStatuses[taxType], [field]: value };
+        newStatuses[taxType] = { ...newStatuses[taxType], [field]: value } as any;
       }
 
       return newStatuses;

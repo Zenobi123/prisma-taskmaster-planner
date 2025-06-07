@@ -47,7 +47,7 @@ export type DeclarationPeriodicity = "mensuelle" | "trimestrielle" | "annuelle";
 // Define obligation types - updated to match frontend usage including all DirectTaxesSection obligations
 export type ObligationType = "igs" | "patente" | "licence" | "bailCommercial" | "precompteLoyer" | "tpf" | "dsf" | "darp" | "cntps" | "precomptes";
 
-// Define all obligation statuses - updated to match DirectTaxesSection exactly
+// Define all obligation statuses with proper typing for each specific obligation
 export interface ObligationStatuses {
   // Direct taxes (impôts directs) - All obligations used in DirectTaxesSection
   igs: IgsObligationStatus;
