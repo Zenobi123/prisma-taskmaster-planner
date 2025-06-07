@@ -31,6 +31,12 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
   
   // Function to get default obligation statuses based on client regime and type
   const getDefaultObligationStatuses = (): ObligationStatuses => {
+    console.log("Applying default rules for client:", {
+      regimefiscal: selectedClient.regimefiscal,
+      type: selectedClient.type,
+      nom: selectedClient.nom || selectedClient.raisonsociale
+    });
+
     const baseStatuses: ObligationStatuses = {
       // Direct taxes - all start as not subject by default
       igs: { assujetti: false, payee: false, attachements: {}, observations: "" },
@@ -49,22 +55,32 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
     // Apply default rules based on regime fiscal and client type
     if (selectedClient.regimefiscal === "reel") {
       // Contribuables du régime du réel sont assujettis à la patente
+      console.log("Applying rule: Régime réel → Patente obligatoire");
       baseStatuses.patente.assujetti = true;
     } else if (selectedClient.regimefiscal === "igs") {
       // Contribuables de l'IGS sont assujettis à l'IGS
+      console.log("Applying rule: Régime IGS → IGS obligatoire");
       baseStatuses.igs.assujetti = true;
     }
 
     // Tous les contribuables personnes physiques sont assujetties à la DARP
     if (selectedClient.type === "physique") {
+      console.log("Applying rule: Personne physique → DARP obligatoire");
       baseStatuses.darp.assujetti = true;
     }
 
+    console.log("Final default statuses:", baseStatuses);
     return baseStatuses;
   };
 
   // État pour les obligations fiscales - mise à jour pour inclure toutes les obligations
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(getDefaultObligationStatuses());
+
+  // Re-apply default rules when client changes
+  useEffect(() => {
+    console.log("Client changed, re-applying default rules");
+    setObligationStatuses(getDefaultObligationStatuses());
+  }, [selectedClient.id, selectedClient.regimefiscal, selectedClient.type]);
 
   // Charger les données fiscales existantes au montage du composant
   useEffect(() => {
@@ -72,6 +88,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
       if (!selectedClient?.id) return;
       
       try {
+        console.log("Loading fiscal data for client:", selectedClient.id);
         const { data: client, error } = await supabase
           .from("clients")
           .select("fiscal_data")
@@ -105,6 +122,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
           
           // Charger les obligations pour l'année courante
           if (fiscalData.obligations && fiscalData.obligations[fiscalYear]) {
+            console.log("Loading existing obligations for year:", fiscalYear);
             const yearObligations = fiscalData.obligations[fiscalYear];
             setObligationStatuses(prev => ({
               ...prev,
@@ -112,10 +130,12 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
             }));
           } else {
             // Si aucune donnée n'existe pour cette année, appliquer les règles par défaut
+            console.log("No existing data for year, applying default rules");
             setObligationStatuses(getDefaultObligationStatuses());
           }
         } else {
           // Si aucune donnée fiscale n'existe, appliquer les règles par défaut
+          console.log("No fiscal data exists, applying default rules");
           setObligationStatuses(getDefaultObligationStatuses());
         }
       } catch (error) {
