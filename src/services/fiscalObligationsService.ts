@@ -3,6 +3,40 @@ import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { mapClientRowToClient } from "@/services/client/clientDataMapper";
 
+// Fonction pour déterminer si un client devrait être assujetti selon les règles par défaut
+const shouldClientBeSubjectToObligation = (client: Client, obligationType: string): boolean => {
+  // Règles pour les personnes physiques
+  if (client.type === "physique") {
+    if (obligationType === "igs" && client.regimefiscal === "igs") {
+      return true;
+    }
+    if (obligationType === "patente" && client.regimefiscal === "reel") {
+      return true;
+    }
+    if (obligationType === "dsf" && (client.regimefiscal === "reel" || client.regimefiscal === "igs")) {
+      return true; // DSF automatique pour les assujettis IGS/Patente
+    }
+    if (obligationType === "darp") {
+      return true; // Toutes les personnes physiques sont assujetties à la DARP
+    }
+  }
+  
+  // Règles pour les personnes morales
+  if (client.type === "morale") {
+    if (obligationType === "igs" && client.regimefiscal === "igs") {
+      return true;
+    }
+    if (obligationType === "patente" && client.regimefiscal === "reel") {
+      return true;
+    }
+    if (obligationType === "dsf" && (client.regimefiscal === "reel" || client.regimefiscal === "igs")) {
+      return true; // DSF automatique pour les assujettis IGS/Patente
+    }
+  }
+  
+  return false;
+};
+
 export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
   try {
     console.log("Fetching clients with unpaid IGS from fiscal_data...");
@@ -24,8 +58,14 @@ export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
 
     const unpaidIgsClients = clients.filter(client => {
       try {
-        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+        // Vérifier d'abord si le client devrait être assujetti à l'IGS
+        const shouldBeSubject = shouldClientBeSubjectToObligation(client, "igs");
+        if (!shouldBeSubject) {
           return false;
+        }
+
+        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+          return true; // Devrait être assujetti mais pas de données = non payé
         }
 
         const fiscalData = client.fiscal_data as any;
@@ -34,13 +74,13 @@ export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
         const yearObligations = fiscalData.obligations?.[selectedYear];
         
         if (!yearObligations || typeof yearObligations !== 'object') {
-          return false;
+          return true; // Devrait être assujetti mais pas d'obligations = non payé
         }
 
         const igsObligation = yearObligations.igs;
         
         if (!igsObligation || typeof igsObligation !== 'object') {
-          return false;
+          return true; // Devrait être assujetti mais pas d'obligation IGS = non payé
         }
 
         // Client avec IGS non payée : assujetti = true ET payee = false
@@ -84,8 +124,14 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
 
     const unpaidPatenteClients = clients.filter(client => {
       try {
-        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+        // Vérifier d'abord si le client devrait être assujetti à la Patente
+        const shouldBeSubject = shouldClientBeSubjectToObligation(client, "patente");
+        if (!shouldBeSubject) {
           return false;
+        }
+
+        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+          return true; // Devrait être assujetti mais pas de données = non payé
         }
 
         const fiscalData = client.fiscal_data as any;
@@ -94,13 +140,13 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
         const yearObligations = fiscalData.obligations?.[selectedYear];
         
         if (!yearObligations || typeof yearObligations !== 'object') {
-          return false;
+          return true; // Devrait être assujetti mais pas d'obligations = non payé
         }
 
         const patenteObligation = yearObligations.patente;
         
         if (!patenteObligation || typeof patenteObligation !== 'object') {
-          return false;
+          return true; // Devrait être assujetti mais pas d'obligation Patente = non payé
         }
 
         // Client avec Patente non payée : assujetti = true ET payee = false
@@ -144,8 +190,14 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
 
     const unfiledDsfClients = clients.filter(client => {
       try {
-        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+        // Vérifier d'abord si le client devrait être assujetti à la DSF
+        const shouldBeSubject = shouldClientBeSubjectToObligation(client, "dsf");
+        if (!shouldBeSubject) {
           return false;
+        }
+
+        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+          return true; // Devrait être assujetti mais pas de données = non déposé
         }
 
         const fiscalData = client.fiscal_data as any;
@@ -154,13 +206,13 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
         const yearObligations = fiscalData.obligations?.[selectedYear];
         
         if (!yearObligations || typeof yearObligations !== 'object') {
-          return false;
+          return true; // Devrait être assujetti mais pas d'obligations = non déposé
         }
 
         const dsfObligation = yearObligations.dsf;
         
         if (!dsfObligation || typeof dsfObligation !== 'object') {
-          return false;
+          return true; // Devrait être assujetti mais pas d'obligation DSF = non déposé
         }
 
         // Client avec DSF non déposée : assujetti = true ET depose = false
@@ -204,8 +256,14 @@ export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
 
     const unfiledDarpClients = clients.filter(client => {
       try {
-        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+        // Vérifier d'abord si le client devrait être assujetti à la DARP
+        const shouldBeSubject = shouldClientBeSubjectToObligation(client, "darp");
+        if (!shouldBeSubject) {
           return false;
+        }
+
+        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+          return true; // Devrait être assujetti mais pas de données = non déposé
         }
 
         const fiscalData = client.fiscal_data as any;
@@ -214,13 +272,13 @@ export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
         const yearObligations = fiscalData.obligations?.[selectedYear];
         
         if (!yearObligations || typeof yearObligations !== 'object') {
-          return false;
+          return true; // Devrait être assujetti mais pas d'obligations = non déposé
         }
 
         const darpObligation = yearObligations.darp;
         
         if (!darpObligation || typeof darpObligation !== 'object') {
-          return false;
+          return true; // Devrait être assujetti mais pas d'obligation DARP = non déposé
         }
 
         // Client avec DARP non déposée : assujetti = true ET depose = false
