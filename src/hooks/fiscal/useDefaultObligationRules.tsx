@@ -8,6 +8,7 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     console.log("Applying default rules for client:", {
       regimefiscal: selectedClient.regimefiscal,
       type: selectedClient.type,
+      situationimmobiliere: selectedClient.situationimmobiliere,
       nom: selectedClient.nom || selectedClient.raisonsociale
     });
 
@@ -43,6 +44,17 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
       baseStatuses.darp.assujetti = true;
     }
 
+    // Règles basées sur la situation immobilière
+    if (selectedClient.situationimmobiliere?.type === "proprietaire") {
+      console.log("Applying rule: Propriétaire → TPF obligatoire");
+      baseStatuses.tpf.assujetti = true;
+    } else if (selectedClient.situationimmobiliere?.type === "locataire") {
+      // Si le client est locataire, il peut être assujetti au précompte loyer
+      console.log("Applying rule: Locataire → Précompte loyer potentiel");
+      // Note: Cette règle peut dépendre d'autres critères spécifiques
+      // Pour l'instant on la laisse à false par défaut
+    }
+
     console.log("Final default statuses:", baseStatuses);
     return baseStatuses;
   };
@@ -53,7 +65,7 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
   useEffect(() => {
     console.log("Client changed, re-applying default rules");
     setObligationStatuses(getDefaultObligationStatuses());
-  }, [selectedClient.id, selectedClient.regimefiscal, selectedClient.type]);
+  }, [selectedClient.id, selectedClient.regimefiscal, selectedClient.type, selectedClient.situationimmobiliere?.type]);
 
   return {
     obligationStatuses,
