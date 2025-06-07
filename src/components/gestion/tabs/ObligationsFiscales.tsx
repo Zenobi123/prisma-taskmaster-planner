@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import { addDays, format, parse, isValid } from "date-fns";
@@ -14,6 +13,7 @@ import { useFiscalDataLoader } from "@/hooks/fiscal/useFiscalDataLoader";
 import { FiscalYearSelector } from "./fiscal/FiscalYearSelector";
 import { UnsavedChangesAlert } from "./fiscal/UnsavedChangesAlert";
 import { SaveButton } from "./fiscal/SaveButton";
+import { invalidateClientsCache } from "@/services/clientService";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
@@ -46,6 +46,11 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
     setObligationStatuses,
     getDefaultObligationStatuses
   });
+
+  // Reset unsaved changes when client changes
+  useEffect(() => {
+    setHasUnsavedChanges(false);
+  }, [selectedClient?.id]);
 
   // Calculer la date de fin de validité lorsque la date de création change
   useEffect(() => {
@@ -152,6 +157,9 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
         toast.error("Erreur lors de la sauvegarde des données fiscales");
         return;
       }
+
+      // Invalider le cache des clients pour forcer le rechargement
+      invalidateClientsCache();
 
       setHasUnsavedChanges(false);
       toast.success("Données fiscales sauvegardées avec succès");

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses } from "./types";
 import { supabase } from "@/integrations/supabase/client";
+import { invalidateClientsCache } from "@/services/clientService";
 
 interface UseFiscalDataLoaderProps {
   selectedClient: Client;
@@ -33,6 +34,10 @@ export const useFiscalDataLoader = ({
       
       try {
         console.log("Loading fiscal data for client:", selectedClient.id);
+        
+        // Invalider le cache pour s'assurer d'obtenir les données les plus récentes
+        invalidateClientsCache();
+        
         const { data: client, error } = await supabase
           .from("clients")
           .select("fiscal_data")
@@ -46,6 +51,7 @@ export const useFiscalDataLoader = ({
 
         if (client?.fiscal_data && typeof client.fiscal_data === 'object') {
           const fiscalData = client.fiscal_data as any;
+          console.log("Loaded fiscal data:", fiscalData);
           
           // Charger les données d'attestation
           if (fiscalData.attestation) {
@@ -68,10 +74,8 @@ export const useFiscalDataLoader = ({
           if (fiscalData.obligations && fiscalData.obligations[fiscalYear]) {
             console.log("Loading existing obligations for year:", fiscalYear);
             const yearObligations = fiscalData.obligations[fiscalYear];
-            setObligationStatuses(prev => ({
-              ...prev,
-              ...yearObligations
-            }));
+            console.log("Year obligations:", yearObligations);
+            setObligationStatuses(yearObligations);
           } else {
             // Si aucune donnée n'existe pour cette année, appliquer les règles par défaut
             console.log("No existing data for year, applying default rules");
