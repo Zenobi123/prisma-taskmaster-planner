@@ -90,5 +90,5 @@ export const useFiscalDataLoader = ({
     };
 
     loadFiscalData();
-  }, [selectedClient?.id, fiscalYear]);
+  }, [selectedClient?.id, selectedClient?.regimefiscal, selectedClient?.type, fiscalYear]);
 };
