@@ -27,21 +27,39 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
       precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" }
     };
 
-    // Apply default rules based on regime fiscal and client type
-    if (selectedClient.regimefiscal === "reel") {
-      // Contribuables du régime du réel sont assujettis à la patente
-      console.log("Applying rule: Régime réel → Patente obligatoire");
-      baseStatuses.patente.assujetti = true;
-    } else if (selectedClient.regimefiscal === "igs") {
-      // Contribuables de l'IGS sont assujettis à l'IGS
-      console.log("Applying rule: Régime IGS → IGS obligatoire");
-      baseStatuses.igs.assujetti = true;
-    }
-
-    // Tous les contribuables personnes physiques sont assujetties à la DARP
+    // Règles spécifiques pour les personnes physiques
     if (selectedClient.type === "physique") {
+      console.log("Applying rules for personne physique");
+      
+      // Toutes les personnes physiques sont assujetties à la DARP
       console.log("Applying rule: Personne physique → DARP obligatoire");
       baseStatuses.darp.assujetti = true;
+
+      // Règles selon le régime fiscal pour les personnes physiques
+      if (selectedClient.regimefiscal === "reel") {
+        console.log("Applying rule: Personne physique + Régime réel → Patente obligatoire");
+        baseStatuses.patente.assujetti = true;
+      } else if (selectedClient.regimefiscal === "igs") {
+        console.log("Applying rule: Personne physique + Régime IGS → IGS obligatoire");
+        baseStatuses.igs.assujetti = true;
+      } else if (selectedClient.regimefiscal === "non_professionnel") {
+        console.log("Applying rule: Personne physique + Non professionnel → Aucune obligation fiscale professionnelle");
+        // Les non-professionnels ne sont pas assujettis aux impôts professionnels
+        // Seule la DARP reste applicable (déjà définie ci-dessus)
+      }
+    }
+
+    // Règles spécifiques pour les personnes morales  
+    if (selectedClient.type === "morale") {
+      console.log("Applying rules for personne morale");
+      
+      if (selectedClient.regimefiscal === "reel") {
+        console.log("Applying rule: Personne morale + Régime réel → Patente obligatoire");
+        baseStatuses.patente.assujetti = true;
+      } else if (selectedClient.regimefiscal === "igs") {
+        console.log("Applying rule: Personne morale + Régime IGS → IGS obligatoire");
+        baseStatuses.igs.assujetti = true;
+      }
     }
 
     // Règles basées sur la situation immobilière
