@@ -23,7 +23,7 @@ const Index = () => {
   // Mémoisation de la fonction de rafraîchissement pour éviter les re-créations inutiles
   const refreshDashboard = useCallback(() => {
     try {
-      // Rafraîchir les requêtes React Query principales
+      // Rafraîchir les requêtes React Query principales avec les nouvelles clés
       queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente-summary"] });

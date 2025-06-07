@@ -2,148 +2,230 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 
-export interface FiscalObligationSummary {
-  clientId: string;
-  clientName: string;
-  obligations: {
-    igs: { assujetti: boolean; payee: boolean };
-    patente: { assujetti: boolean; payee: boolean };
-    dsf: { assujetti: boolean; depose: boolean };
-    darp: { assujetti: boolean; depose: boolean };
-  };
-}
-
-export async function getFiscalObligationsSummary(): Promise<FiscalObligationSummary[]> {
+export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
   try {
-    const { data: clientsData, error } = await supabase
+    console.log("Fetching clients with unpaid IGS from fiscal_data...");
+    
+    const { data: clients, error } = await supabase
       .from('clients')
       .select('*')
-      .eq('statut', 'actif')
-      .not('fiscal_data', 'is', null);
+      .eq('statut', 'actif');
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching clients:', error);
+      return [];
+    }
 
-    const clients = clientsData as unknown as Client[];
-    const currentYear = new Date().getFullYear().toString();
-    
-    return clients
-      .map(client => {
-        const fiscalData = client.fiscal_data;
-        if (!fiscalData || typeof fiscalData !== 'object') return null;
+    if (!clients) return [];
+
+    const unpaidIgsClients = clients.filter(client => {
+      try {
+        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+          return false;
+        }
+
+        const fiscalData = client.fiscal_data as any;
+        const currentYear = new Date().getFullYear().toString();
+        const selectedYear = fiscalData.selectedYear || currentYear;
+        const yearObligations = fiscalData.obligations?.[selectedYear];
         
-        const obligations = fiscalData.obligations?.[currentYear];
-        if (!obligations) return null;
+        if (!yearObligations || typeof yearObligations !== 'object') {
+          return false;
+        }
 
-        return {
-          clientId: client.id,
-          clientName: client.nom || client.raisonsociale || "Client sans nom",
-          obligations: {
-            igs: {
-              assujetti: obligations.igs?.assujetti || false,
-              payee: obligations.igs?.payee || false
-            },
-            patente: {
-              assujetti: obligations.patente?.assujetti || false,
-              payee: obligations.patente?.payee || false
-            },
-            dsf: {
-              assujetti: obligations.dsf?.assujetti || false,
-              depose: obligations.dsf?.depose || false
-            },
-            darp: {
-              assujetti: obligations.darp?.assujetti || false,
-              depose: obligations.darp?.depose || false
-            }
-          }
-        };
-      })
-      .filter(Boolean) as FiscalObligationSummary[];
+        const igsObligation = yearObligations.igs;
+        
+        if (!igsObligation || typeof igsObligation !== 'object') {
+          return false;
+        }
+
+        // Client avec IGS non payée : assujetti = true ET payee = false
+        const isSubjectToIgs = igsObligation.assujetti === true;
+        const isIgsPaid = igsObligation.payee === true;
+
+        return isSubjectToIgs && !isIgsPaid;
+      } catch (error) {
+        console.error(`Error processing client ${client.id}:`, error);
+        return false;
+      }
+    });
+
+    console.log(`Found ${unpaidIgsClients.length} clients with unpaid IGS`);
+    return unpaidIgsClients;
+    
   } catch (error) {
-    console.error('Error fetching fiscal obligations summary:', error);
+    console.error('Error in getClientsWithUnpaidIgs:', error);
     return [];
   }
-}
+};
 
-export async function getClientsWithUnpaidIgs(): Promise<Client[]> {
-  const summary = await getFiscalObligationsSummary();
-  const unpaidIgsClients = summary.filter(
-    item => item.obligations.igs.assujetti && !item.obligations.igs.payee
-  );
-  
-  if (unpaidIgsClients.length === 0) return [];
-  
-  const { data: clients, error } = await supabase
-    .from('clients')
-    .select('*')
-    .in('id', unpaidIgsClients.map(item => item.clientId));
+export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
+  try {
+    console.log("Fetching clients with unpaid Patente from fiscal_data...");
     
-  if (error) {
-    console.error('Error fetching unpaid IGS clients:', error);
-    return [];
-  }
-  
-  return clients as unknown as Client[];
-}
+    const { data: clients, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('statut', 'actif');
 
-export async function getClientsWithUnpaidPatente(): Promise<Client[]> {
-  const summary = await getFiscalObligationsSummary();
-  const unpaidPatenteClients = summary.filter(
-    item => item.obligations.patente.assujetti && !item.obligations.patente.payee
-  );
-  
-  if (unpaidPatenteClients.length === 0) return [];
-  
-  const { data: clients, error } = await supabase
-    .from('clients')
-    .select('*')
-    .in('id', unpaidPatenteClients.map(item => item.clientId));
-    
-  if (error) {
-    console.error('Error fetching unpaid Patente clients:', error);
-    return [];
-  }
-  
-  return clients as unknown as Client[];
-}
+    if (error) {
+      console.error('Error fetching clients:', error);
+      return [];
+    }
 
-export async function getClientsWithUnfiledDsf(): Promise<Client[]> {
-  const summary = await getFiscalObligationsSummary();
-  const unfiledDsfClients = summary.filter(
-    item => item.obligations.dsf.assujetti && !item.obligations.dsf.depose
-  );
-  
-  if (unfiledDsfClients.length === 0) return [];
-  
-  const { data: clients, error } = await supabase
-    .from('clients')
-    .select('*')
-    .in('id', unfiledDsfClients.map(item => item.clientId));
-    
-  if (error) {
-    console.error('Error fetching unfiled DSF clients:', error);
-    return [];
-  }
-  
-  return clients as unknown as Client[];
-}
+    if (!clients) return [];
 
-export async function getClientsWithUnfiledDarp(): Promise<Client[]> {
-  const summary = await getFiscalObligationsSummary();
-  const unfiledDarpClients = summary.filter(
-    item => item.obligations.darp.assujetti && !item.obligations.darp.depose
-  );
-  
-  if (unfiledDarpClients.length === 0) return [];
-  
-  const { data: clients, error } = await supabase
-    .from('clients')
-    .select('*')
-    .in('id', unfiledDarpClients.map(item => item.clientId));
+    const unpaidPatenteClients = clients.filter(client => {
+      try {
+        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+          return false;
+        }
+
+        const fiscalData = client.fiscal_data as any;
+        const currentYear = new Date().getFullYear().toString();
+        const selectedYear = fiscalData.selectedYear || currentYear;
+        const yearObligations = fiscalData.obligations?.[selectedYear];
+        
+        if (!yearObligations || typeof yearObligations !== 'object') {
+          return false;
+        }
+
+        const patenteObligation = yearObligations.patente;
+        
+        if (!patenteObligation || typeof patenteObligation !== 'object') {
+          return false;
+        }
+
+        // Client avec Patente non payée : assujetti = true ET payee = false
+        const isSubjectToPatente = patenteObligation.assujetti === true;
+        const isPatentePaid = patenteObligation.payee === true;
+
+        return isSubjectToPatente && !isPatentePaid;
+      } catch (error) {
+        console.error(`Error processing client ${client.id}:`, error);
+        return false;
+      }
+    });
+
+    console.log(`Found ${unpaidPatenteClients.length} clients with unpaid Patente`);
+    return unpaidPatenteClients;
     
-  if (error) {
-    console.error('Error fetching unfiled DARP clients:', error);
+  } catch (error) {
+    console.error('Error in getClientsWithUnpaidPatente:', error);
     return [];
   }
-  
-  return clients as unknown as Client[];
-}
+};
+
+export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
+  try {
+    console.log("Fetching clients with unfiled DSF from fiscal_data...");
+    
+    const { data: clients, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('statut', 'actif');
+
+    if (error) {
+      console.error('Error fetching clients:', error);
+      return [];
+    }
+
+    if (!clients) return [];
+
+    const unfiledDsfClients = clients.filter(client => {
+      try {
+        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+          return false;
+        }
+
+        const fiscalData = client.fiscal_data as any;
+        const currentYear = new Date().getFullYear().toString();
+        const selectedYear = fiscalData.selectedYear || currentYear;
+        const yearObligations = fiscalData.obligations?.[selectedYear];
+        
+        if (!yearObligations || typeof yearObligations !== 'object') {
+          return false;
+        }
+
+        const dsfObligation = yearObligations.dsf;
+        
+        if (!dsfObligation || typeof dsfObligation !== 'object') {
+          return false;
+        }
+
+        // Client avec DSF non déposée : assujetti = true ET depose = false
+        const isSubjectToDsf = dsfObligation.assujetti === true;
+        const isDsfFiled = dsfObligation.depose === true;
+
+        return isSubjectToDsf && !isDsfFiled;
+      } catch (error) {
+        console.error(`Error processing client ${client.id}:`, error);
+        return false;
+      }
+    });
+
+    console.log(`Found ${unfiledDsfClients.length} clients with unfiled DSF`);
+    return unfiledDsfClients;
+    
+  } catch (error) {
+    console.error('Error in getClientsWithUnfiledDsf:', error);
+    return [];
+  }
+};
+
+export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
+  try {
+    console.log("Fetching clients with unfiled DARP from fiscal_data...");
+    
+    const { data: clients, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('statut', 'actif');
+
+    if (error) {
+      console.error('Error fetching clients:', error);
+      return [];
+    }
+
+    if (!clients) return [];
+
+    const unfiledDarpClients = clients.filter(client => {
+      try {
+        if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+          return false;
+        }
+
+        const fiscalData = client.fiscal_data as any;
+        const currentYear = new Date().getFullYear().toString();
+        const selectedYear = fiscalData.selectedYear || currentYear;
+        const yearObligations = fiscalData.obligations?.[selectedYear];
+        
+        if (!yearObligations || typeof yearObligations !== 'object') {
+          return false;
+        }
+
+        const darpObligation = yearObligations.darp;
+        
+        if (!darpObligation || typeof darpObligation !== 'object') {
+          return false;
+        }
+
+        // Client avec DARP non déposée : assujetti = true ET depose = false
+        const isSubjectToDarp = darpObligation.assujetti === true;
+        const isDarpFiled = darpObligation.depose === true;
+
+        return isSubjectToDarp && !isDarpFiled;
+      } catch (error) {
+        console.error(`Error processing client ${client.id}:`, error);
+        return false;
+      }
+    });
+
+    console.log(`Found ${unfiledDarpClients.length} clients with unfiled DARP`);
+    return unfiledDarpClients;
+    
+  } catch (error) {
+    console.error('Error in getClientsWithUnfiledDarp:', error);
+    return [];
+  }
+};

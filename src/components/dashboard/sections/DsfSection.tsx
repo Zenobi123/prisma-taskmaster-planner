@@ -8,7 +8,7 @@ import { UnfiledDsfDialog } from "../UnfiledDsfDialog";
 const DsfSection = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  // Utiliser le service pour récupérer les données avec les mêmes paramètres que les autres sections
+  // Utiliser le service spécialisé pour récupérer les données DSF
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients-unfiled-dsf-section"],
     queryFn: getClientsWithUnfiledDsf,

@@ -34,7 +34,7 @@ export const getClientsStats = async (): Promise<ClientStats> => {
     const managedClients = clients?.length || 0;
     const fanrH2Clients = clients?.filter(client => client.inscriptionfanrharmony2 === true).length || 0;
 
-    // Get fiscal obligations data
+    // Get fiscal obligations data using the updated services
     const [unpaidIgsClients, unpaidPatenteClients, unfiledDsfClients, unfiledDarpClients] = await Promise.all([
       getClientsWithUnpaidIgs(),
       getClientsWithUnpaidPatente(),
