@@ -1,12 +1,13 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import { mapClientRowToClient } from "@/services/client/clientDataMapper";
 
 export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
   try {
     console.log("Fetching clients with unpaid IGS from fiscal_data...");
     
-    const { data: clients, error } = await supabase
+    const { data: clientsData, error } = await supabase
       .from('clients')
       .select('*')
       .eq('statut', 'actif');
@@ -16,7 +17,10 @@ export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
       return [];
     }
 
-    if (!clients) return [];
+    if (!clientsData) return [];
+
+    // Map raw client data to Client type
+    const clients = clientsData.map(mapClientRowToClient);
 
     const unpaidIgsClients = clients.filter(client => {
       try {
@@ -63,7 +67,7 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   try {
     console.log("Fetching clients with unpaid Patente from fiscal_data...");
     
-    const { data: clients, error } = await supabase
+    const { data: clientsData, error } = await supabase
       .from('clients')
       .select('*')
       .eq('statut', 'actif');
@@ -73,7 +77,10 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
       return [];
     }
 
-    if (!clients) return [];
+    if (!clientsData) return [];
+
+    // Map raw client data to Client type
+    const clients = clientsData.map(mapClientRowToClient);
 
     const unpaidPatenteClients = clients.filter(client => {
       try {
@@ -120,7 +127,7 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
   try {
     console.log("Fetching clients with unfiled DSF from fiscal_data...");
     
-    const { data: clients, error } = await supabase
+    const { data: clientsData, error } = await supabase
       .from('clients')
       .select('*')
       .eq('statut', 'actif');
@@ -130,7 +137,10 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
       return [];
     }
 
-    if (!clients) return [];
+    if (!clientsData) return [];
+
+    // Map raw client data to Client type
+    const clients = clientsData.map(mapClientRowToClient);
 
     const unfiledDsfClients = clients.filter(client => {
       try {
@@ -177,7 +187,7 @@ export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
   try {
     console.log("Fetching clients with unfiled DARP from fiscal_data...");
     
-    const { data: clients, error } = await supabase
+    const { data: clientsData, error } = await supabase
       .from('clients')
       .select('*')
       .eq('statut', 'actif');
@@ -187,7 +197,10 @@ export const getClientsWithUnfiledDarp = async (): Promise<Client[]> => {
       return [];
     }
 
-    if (!clients) return [];
+    if (!clientsData) return [];
+
+    // Map raw client data to Client type
+    const clients = clientsData.map(mapClientRowToClient);
 
     const unfiledDarpClients = clients.filter(client => {
       try {

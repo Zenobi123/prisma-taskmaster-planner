@@ -1,13 +1,14 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import { mapClientRowToClient } from "@/services/client/clientDataMapper";
 
 export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
   try {
     console.log("Fetching clients with unfiled DSF from fiscal_data...");
     
     // Récupérer tous les clients actifs
-    const { data: clients, error } = await supabase
+    const { data: clientsData, error } = await supabase
       .from('clients')
       .select('*')
       .eq('statut', 'actif');
@@ -17,10 +18,13 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
       return [];
     }
 
-    if (!clients) {
+    if (!clientsData) {
       console.log("No clients found");
       return [];
     }
+
+    // Map raw client data to Client type
+    const clients = clientsData.map(mapClientRowToClient);
 
     console.log(`Found ${clients.length} active clients, checking DSF status...`);
 
