@@ -1,20 +1,19 @@
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Client } from "@/types/client";
-import DatePickerSelector from "./fiscal/DatePickerSelector";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
 import { addDays, format, parse, isValid } from "date-fns";
-import { fr } from "date-fns/locale";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
-import { AlertTriangle, Plus } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { DirectTaxesSection } from "./fiscal/DirectTaxesSection";
 import { DeclarationsSection } from "./fiscal/DeclarationsSection";
-import { ObligationStatuses, ObligationType } from "@/hooks/fiscal/types";
+import { ObligationType } from "@/hooks/fiscal/types";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
+import { supabase } from "@/integrations/supabase/client";
+import { useDefaultObligationRules } from "@/hooks/fiscal/useDefaultObligationRules";
+import { useFiscalDataLoader } from "@/hooks/fiscal/useFiscalDataLoader";
+import { FiscalYearSelector } from "./fiscal/FiscalYearSelector";
+import { UnsavedChangesAlert } from "./fiscal/UnsavedChangesAlert";
+import { SaveButton } from "./fiscal/SaveButton";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
@@ -29,124 +28,24 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   
-  // Function to get default obligation statuses based on client regime and type
-  const getDefaultObligationStatuses = (): ObligationStatuses => {
-    console.log("Applying default rules for client:", {
-      regimefiscal: selectedClient.regimefiscal,
-      type: selectedClient.type,
-      nom: selectedClient.nom || selectedClient.raisonsociale
-    });
+  const { 
+    obligationStatuses, 
+    setObligationStatuses, 
+    getDefaultObligationStatuses 
+  } = useDefaultObligationRules(selectedClient);
 
-    const baseStatuses: ObligationStatuses = {
-      // Direct taxes - all start as not subject by default
-      igs: { assujetti: false, payee: false, attachements: {}, observations: "" },
-      patente: { assujetti: false, payee: false, attachements: {}, observations: "" },
-      licence: { assujetti: false, payee: false, attachements: {}, observations: "" },
-      bailCommercial: { assujetti: false, payee: false, attachements: {}, observations: "" },
-      precompteLoyer: { assujetti: false, payee: false, attachements: {}, observations: "" },
-      tpf: { assujetti: false, payee: false, attachements: {}, observations: "" },
-      // Declarations - all start as not subject by default
-      dsf: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
-      darp: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
-      cntps: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" },
-      precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" }
-    };
-
-    // Apply default rules based on regime fiscal and client type
-    if (selectedClient.regimefiscal === "reel") {
-      // Contribuables du régime du réel sont assujettis à la patente
-      console.log("Applying rule: Régime réel → Patente obligatoire");
-      baseStatuses.patente.assujetti = true;
-    } else if (selectedClient.regimefiscal === "igs") {
-      // Contribuables de l'IGS sont assujettis à l'IGS
-      console.log("Applying rule: Régime IGS → IGS obligatoire");
-      baseStatuses.igs.assujetti = true;
-    }
-
-    // Tous les contribuables personnes physiques sont assujetties à la DARP
-    if (selectedClient.type === "physique") {
-      console.log("Applying rule: Personne physique → DARP obligatoire");
-      baseStatuses.darp.assujetti = true;
-    }
-
-    console.log("Final default statuses:", baseStatuses);
-    return baseStatuses;
-  };
-
-  // État pour les obligations fiscales - mise à jour pour inclure toutes les obligations
-  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(getDefaultObligationStatuses());
-
-  // Re-apply default rules when client changes
-  useEffect(() => {
-    console.log("Client changed, re-applying default rules");
-    setObligationStatuses(getDefaultObligationStatuses());
-  }, [selectedClient.id, selectedClient.regimefiscal, selectedClient.type]);
-
-  // Charger les données fiscales existantes au montage du composant
-  useEffect(() => {
-    const loadFiscalData = async () => {
-      if (!selectedClient?.id) return;
-      
-      try {
-        console.log("Loading fiscal data for client:", selectedClient.id);
-        const { data: client, error } = await supabase
-          .from("clients")
-          .select("fiscal_data")
-          .eq("id", selectedClient.id)
-          .single();
-
-        if (error) {
-          console.error("Erreur lors du chargement des données fiscales:", error);
-          return;
-        }
-
-        if (client?.fiscal_data && typeof client.fiscal_data === 'object') {
-          const fiscalData = client.fiscal_data as any;
-          
-          // Charger les données d'attestation
-          if (fiscalData.attestation) {
-            setCreationDate(fiscalData.attestation.creationDate || "2025-07-01");
-            setValidityEndDate(fiscalData.attestation.validityEndDate || "");
-            setShowInAlert(fiscalData.attestation.showInAlert !== false);
-          }
-          
-          // Charger les paramètres de tableau de bord
-          if (fiscalData.hiddenFromDashboard !== undefined) {
-            setHiddenFromDashboard(!!fiscalData.hiddenFromDashboard);
-          }
-          
-          // Charger l'année sélectionnée
-          if (fiscalData.selectedYear) {
-            setFiscalYear(fiscalData.selectedYear);
-          }
-          
-          // Charger les obligations pour l'année courante
-          if (fiscalData.obligations && fiscalData.obligations[fiscalYear]) {
-            console.log("Loading existing obligations for year:", fiscalYear);
-            const yearObligations = fiscalData.obligations[fiscalYear];
-            setObligationStatuses(prev => ({
-              ...prev,
-              ...yearObligations
-            }));
-          } else {
-            // Si aucune donnée n'existe pour cette année, appliquer les règles par défaut
-            console.log("No existing data for year, applying default rules");
-            setObligationStatuses(getDefaultObligationStatuses());
-          }
-        } else {
-          // Si aucune donnée fiscale n'existe, appliquer les règles par défaut
-          console.log("No fiscal data exists, applying default rules");
-          setObligationStatuses(getDefaultObligationStatuses());
-        }
-      } catch (error) {
-        console.error("Exception lors du chargement des données fiscales:", error);
-        // En cas d'erreur, appliquer les règles par défaut
-        setObligationStatuses(getDefaultObligationStatuses());
-      }
-    };
-
-    loadFiscalData();
-  }, [selectedClient?.id, fiscalYear]);
+  // Load fiscal data
+  useFiscalDataLoader({
+    selectedClient,
+    fiscalYear,
+    setCreationDate,
+    setValidityEndDate,
+    setShowInAlert,
+    setHiddenFromDashboard,
+    setFiscalYear,
+    setObligationStatuses,
+    getDefaultObligationStatuses
+  });
 
   // Calculer la date de fin de validité lorsque la date de création change
   useEffect(() => {
@@ -296,11 +195,6 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
     setHasUnsavedChanges(true);
   };
 
-  // Fonction pour vérifier si un impôt est déclaratif
-  const isDeclarationObligation = (obligation: string): boolean => {
-    return ["dsf", "darp", "cntps", "precomptes"].includes(obligation);
-  };
-
   return (
     <div className="space-y-6">
       {/* Header et sélecteur d'année */}
@@ -309,28 +203,14 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
           <h1 className="text-2xl font-bold text-gray-900">Obligations fiscales</h1>
           <p className="text-sm text-gray-500">Suivi des obligations fiscales de l'entreprise</p>
         </div>
-        <div className="flex items-center space-x-2">
-          <Label htmlFor="fiscal-year" className="text-sm">Année fiscale:</Label>
-          <select 
-            id="fiscal-year"
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm"
-            value={fiscalYear}
-            onChange={handleFiscalYearChange}
-          >
-            <option value="2025">2025</option>
-            <option value="2024">2024</option>
-            <option value="2023">2023</option>
-          </select>
-        </div>
+        <FiscalYearSelector 
+          fiscalYear={fiscalYear}
+          onYearChange={handleFiscalYearChange}
+        />
       </div>
 
       {/* Alerte modifications non enregistrées */}
-      {hasUnsavedChanges && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-md flex items-center space-x-2">
-          <AlertTriangle className="h-5 w-5" />
-          <span>Vous avez des modifications non enregistrées. Utilisez le bouton d'enregistrement ci-dessous pour les sauvegarder.</span>
-        </div>
-      )}
+      <UnsavedChangesAlert hasUnsavedChanges={hasUnsavedChanges} />
 
       {/* Section Attestation de Conformité Fiscale */}
       <FiscalAttestationSection
@@ -370,17 +250,11 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
       />
 
       {/* Bouton d'enregistrement */}
-      <div className="flex justify-end">
-        <button 
-          className={`px-4 py-2 rounded-md font-medium ${hasUnsavedChanges 
-            ? 'bg-primary text-white hover:bg-primary-hover' 
-            : 'bg-gray-200 text-gray-500 cursor-not-allowed'}`}
-          disabled={!hasUnsavedChanges || isSaving}
-          onClick={saveChanges}
-        >
-          {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
-        </button>
-      </div>
+      <SaveButton 
+        hasUnsavedChanges={hasUnsavedChanges}
+        isSaving={isSaving}
+        onSave={saveChanges}
+      />
     </div>
   );
 };
