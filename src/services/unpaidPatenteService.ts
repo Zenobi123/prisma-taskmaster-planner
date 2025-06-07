@@ -1,7 +1,6 @@
 
 import { Client } from "@/types/client";
 import { ObligationStatuses, TaxObligationStatus } from "@/hooks/fiscal/types";
-import { supabase } from "@/integrations/supabase/client";
 
 export interface UnpaidPatente {
   id: string;
@@ -78,5 +77,5 @@ class UnpaidPatenteService {
 
 export const unpaidPatenteService = new UnpaidPatenteService();
 
-// Export the function from fiscalObligationsService
-export { getClientsWithUnpaidPatente } from "./fiscalObligationsService";
+// Export the function from the new fiscal services structure
+export { getClientsWithUnpaidPatente } from "./fiscal/unpaidPatenteService";
