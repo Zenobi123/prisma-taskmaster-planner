@@ -16,9 +16,6 @@ export async function generateActivityReport() {
     
     // Analyse des prestations par type (basée sur les descriptions des factures)
     const prestationsAnalysis = data.factures.reduce((acc: any, facture: any) => {
-      // Analyser les prestations pour déterminer le type d'activité
-      const prestations = data.factures.filter((f: any) => f.id === facture.id);
-      
       // Catégorisation simple basée sur les mots-clés
       let categorie = 'Autres services';
       const description = facture.notes || '';
@@ -40,18 +37,18 @@ export async function generateActivityReport() {
       }
       
       acc[categorie].nombre++;
-      acc[categorie].montant += facture.montant || 0;
+      acc[categorie].montant += Number(facture.montant) || 0;
       
       return acc;
     }, {});
     
-    const total = Object.values(prestationsAnalysis).reduce((sum: number, cat: any) => sum + cat.montant, 0);
+    const total = Object.values(prestationsAnalysis).reduce((sum: number, cat: any) => sum + (Number(cat.montant) || 0), 0);
     
     const activityData = Object.entries(prestationsAnalysis).map(([activite, data]: [string, any]) => [
       activite,
       data.nombre.toString(),
-      `${((data.montant / total) * 100).toFixed(1)}%`,
-      `${data.montant.toLocaleString()} FCFA`
+      total > 0 ? `${((Number(data.montant) / total) * 100).toFixed(1)}%` : '0.0%',
+      `${Number(data.montant).toLocaleString()} FCFA`
     ]);
     
     (doc as any).autoTable({

@@ -25,6 +25,12 @@ export class ReportDataService {
 
       if (clientsError) throw clientsError;
 
+      // Mapper les données clients au bon type
+      const clients: Client[] = (clientsData || []).map((client: any) => ({
+        ...client,
+        type: client.type as 'physique' | 'morale'
+      }));
+
       // Récupérer toutes les factures avec les informations clients
       const { data: facturesData, error: facturesError } = await supabase
         .from('factures')
@@ -87,7 +93,7 @@ export class ReportDataService {
       if (tasksError) throw tasksError;
 
       return {
-        clients: clientsData || [],
+        clients,
         factures: facturesData || [],
         paiements: paiementsData || [],
         fiscalObligations: obligationsData || [],
@@ -136,8 +142,8 @@ export class ReportDataService {
   }
 
   static calculateFinancialStats(factures: any[], paiements: any[]) {
-    const totalFactures = factures.reduce((sum, f) => sum + (f.montant || 0), 0);
-    const totalPaiements = paiements.reduce((sum, p) => sum + (p.montant || 0), 0);
+    const totalFactures = factures.reduce((sum, f) => sum + (Number(f.montant) || 0), 0);
+    const totalPaiements = paiements.reduce((sum, p) => sum + (Number(p.montant) || 0), 0);
     const facuresPayees = factures.filter(f => f.status_paiement === 'payée').length;
     const facturesEnRetard = factures.filter(f => 
       f.status_paiement === 'non_payée' && 
@@ -171,9 +177,9 @@ export class ReportDataService {
     const currentYear = new Date().getFullYear();
     const currentYearData = paieData.filter(p => p.annee === currentYear);
     
-    const totalSalaireBrut = currentYearData.reduce((sum, p) => sum + (p.salaire_brut || 0), 0);
-    const totalSalaireNet = currentYearData.reduce((sum, p) => sum + (p.salaire_net || 0), 0);
-    const totalRetenues = currentYearData.reduce((sum, p) => sum + (p.total_retenues || 0), 0);
+    const totalSalaireBrut = currentYearData.reduce((sum, p) => sum + (Number(p.salaire_brut) || 0), 0);
+    const totalSalaireNet = currentYearData.reduce((sum, p) => sum + (Number(p.salaire_net) || 0), 0);
+    const totalRetenues = currentYearData.reduce((sum, p) => sum + (Number(p.total_retenues) || 0), 0);
 
     return {
       totalSalaireBrut,
