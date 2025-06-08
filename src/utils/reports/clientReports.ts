@@ -1,147 +1,147 @@
 
-import { exportToPdf } from "@/utils/exports";
-import { supabase } from "@/integrations/supabase/client";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { ReportDataService } from './reportDataService';
 
 export const generatePortefeuilleClientsReport = async () => {
   try {
-    console.log("Génération du rapport portefeuille clients...");
+    const data = await ReportDataService.getAllReportData();
+    const stats = ReportDataService.calculateClientStats(data.clients);
     
-    const { data: clients, error } = await supabase
-      .from('clients')
-      .select('*');
-
-    if (error) {
-      console.error("Erreur lors de la récupération des clients:", error);
-      throw error;
-    }
-
-    console.log("Clients récupérés:", clients?.length || 0);
-
-    const reportData = clients?.map(c => {
-      const contact = c.contact as any;
-      return {
-        nom: c.type === 'physique' ? c.nom : c.raisonsociale,
-        type: c.type === 'physique' ? 'Personne Physique' : 'Personne Morale',
-        niu: c.niu || 'N/A',
-        centre_rattachement: c.centrerattachement || 'N/A',
-        secteur_activite: c.secteuractivite || 'N/A',
-        statut: c.statut || 'actif',
-        gestion_externalisee: c.gestionexternalisee ? 'Oui' : 'Non',
-        telephone: contact?.telephone || 'N/A'
-      };
-    }) || [];
-
-    console.log("Données du portefeuille préparées:", reportData.length, "éléments");
-
-    exportToPdf(
-      "Rapport Portefeuille Clients",
-      reportData,
-      `portefeuille-clients-${new Date().toISOString().slice(0, 10)}`
-    );
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Rapport Portefeuille Clients', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    // Statistiques générales
+    const statsData = [
+      ['Total Clients', stats.total.toString()],
+      ['Personnes Physiques', stats.personnesPhysiques.toString()],
+      ['Personnes Morales', stats.personnesMorales.toString()],
+      ['Gestion Externalisée', stats.gestionExternalisee.toString()]
+    ];
+    
+    (doc as any).autoTable({
+      startY: 40,
+      head: [['Indicateur', 'Valeur']],
+      body: statsData,
+      theme: 'grid'
+    });
+    
+    // Liste des clients
+    let currentY = (doc as any).lastAutoTable.finalY + 20;
+    doc.setFontSize(14);
+    doc.text('Liste des Clients Actifs', 14, currentY);
+    
+    const clientsData = data.clients.map((client: any) => [
+      client.nom || client.raisonsociale || 'Sans nom',
+      client.type || 'Non défini',
+      client.regimefiscal || 'Non défini',
+      client.centrerattachement || 'Non défini',
+      client.gestionexternalisee ? 'Oui' : 'Non'
+    ]);
+    
+    (doc as any).autoTable({
+      startY: currentY + 10,
+      head: [['Nom/Raison Sociale', 'Type', 'Régime Fiscal', 'Centre', 'Gestion Ext.']],
+      body: clientsData,
+      theme: 'grid',
+      styles: { fontSize: 8 }
+    });
+    
+    doc.save(`portefeuille-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error("Erreur génération rapport portefeuille:", error);
-    throw error;
+    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
 
 export const generateNouveauxClientsReport = async () => {
   try {
-    console.log("Génération du rapport nouveaux clients...");
+    const data = await ReportDataService.getAllReportData();
     
+    // Filtrer les clients créés dans les 6 derniers mois
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-
-    const { data: clients, error } = await supabase
-      .from('clients')
-      .select('*')
-      .gte('created_at', sixMonthsAgo.toISOString());
-
-    if (error) {
-      console.error("Erreur lors de la récupération des nouveaux clients:", error);
-      throw error;
-    }
-
-    console.log("Nouveaux clients récupérés:", clients?.length || 0);
-
-    const reportData = clients?.map(c => {
-      const contact = c.contact as any;
-      return {
-        nom: c.type === 'physique' ? c.nom : c.raisonsociale,
-        type: c.type === 'physique' ? 'Personne Physique' : 'Personne Morale',
-        date_creation: new Date(c.created_at).toLocaleDateString(),
-        niu: c.niu || 'N/A',
-        secteur_activite: c.secteuractivite || 'N/A',
-        telephone: contact?.telephone || 'N/A'
-      };
-    }) || [];
-
-    console.log("Données nouveaux clients préparées:", reportData.length, "éléments");
-
-    exportToPdf(
-      "Rapport Nouveaux Clients",
-      reportData,
-      `nouveaux-clients-${new Date().toISOString().slice(0, 7)}`
+    
+    const nouveauxClients = data.clients.filter((client: any) => 
+      new Date(client.created_at) >= sixMonthsAgo
     );
+    
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Rapport Nouveaux Clients (6 derniers mois)', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    const nouveauxClientsData = nouveauxClients.map((client: any) => [
+      client.nom || client.raisonsociale || 'Sans nom',
+      client.type || 'Non défini',
+      new Date(client.created_at).toLocaleDateString(),
+      client.centrerattachement || 'Non défini'
+    ]);
+    
+    (doc as any).autoTable({
+      startY: 40,
+      head: [['Nom/Raison Sociale', 'Type', 'Date Création', 'Centre']],
+      body: nouveauxClientsData,
+      theme: 'grid'
+    });
+    
+    doc.save(`nouveaux-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error("Erreur génération rapport nouveaux clients:", error);
-    throw error;
+    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
 
 export const generateActiviteClientsReport = async () => {
   try {
-    console.log("Génération du rapport activité clients...");
+    const data = await ReportDataService.getAllReportData();
     
-    const { data: factures, error } = await supabase
-      .from('factures')
-      .select(`
-        client_id,
-        montant,
-        date,
-        clients(nom, raisonsociale, secteuractivite)
-      `);
-
-    if (error) {
-      console.error("Erreur lors de la récupération de l'activité clients:", error);
-      throw error;
-    }
-
-    console.log("Factures pour activité récupérées:", factures?.length || 0);
-
-    // Grouper par client
-    const clientActivity = factures?.reduce((acc, f) => {
-      const clientId = f.client_id;
-      if (!acc[clientId]) {
-        acc[clientId] = {
-          nom: f.clients?.nom || f.clients?.raisonsociale || 'N/A',
-          secteur: f.clients?.secteuractivite || 'N/A',
-          nombre_factures: 0,
-          montant_total: 0,
-          derniere_facture: f.date
-        };
-      }
+    // Calculer l'activité par client (nombre de factures, montant total)
+    const activiteParClient = data.clients.map((client: any) => {
+      const facturesClient = data.factures.filter((f: any) => f.client_id === client.id);
+      const paiementsClient = data.paiements.filter((p: any) => p.client_id === client.id);
       
-      acc[clientId].nombre_factures++;
-      acc[clientId].montant_total += f.montant || 0;
+      const totalFactures = facturesClient.reduce((sum: number, f: any) => sum + (f.montant || 0), 0);
+      const totalPaiements = paiementsClient.reduce((sum: number, p: any) => sum + (p.montant || 0), 0);
       
-      if (new Date(f.date) > new Date(acc[clientId].derniere_facture)) {
-        acc[clientId].derniere_facture = f.date;
-      }
-      
-      return acc;
-    }, {} as any) || {};
-
-    const reportData = Object.values(clientActivity);
-
-    console.log("Données d'activité clients préparées:", reportData.length, "éléments");
-
-    exportToPdf(
-      "Rapport Activité Clients",
-      reportData,
-      `activite-clients-${new Date().toISOString().slice(0, 7)}`
-    );
+      return {
+        nom: client.nom || client.raisonsociale || 'Sans nom',
+        nombreFactures: facturesClient.length,
+        totalFactures,
+        totalPaiements,
+        solde: totalPaiements - totalFactures
+      };
+    }).filter(client => client.nombreFactures > 0);
+    
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Rapport Activité par Client', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    const activiteData = activiteParClient.map((client: any) => [
+      client.nom,
+      client.nombreFactures.toString(),
+      `${client.totalFactures.toLocaleString()} FCFA`,
+      `${client.totalPaiements.toLocaleString()} FCFA`,
+      `${client.solde.toLocaleString()} FCFA`
+    ]);
+    
+    (doc as any).autoTable({
+      startY: 40,
+      head: [['Client', 'Nb Factures', 'Total Facturé', 'Total Payé', 'Solde']],
+      body: activiteData,
+      theme: 'grid',
+      styles: { fontSize: 8 }
+    });
+    
+    doc.save(`activite-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error("Erreur génération rapport activité clients:", error);
-    throw error;
+    console.error('Erreur lors de la génération du rapport:', error);
   }
 };

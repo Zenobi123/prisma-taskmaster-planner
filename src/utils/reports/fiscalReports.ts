@@ -1,99 +1,128 @@
 
-import { exportToPdf } from "@/utils/exports";
-import { supabase } from "@/integrations/supabase/client";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { ReportDataService } from './reportDataService';
 
 export const generateObligationsFiscalesReport = async () => {
   try {
-    console.log("Génération du rapport obligations fiscales...");
+    const fiscalData = await ReportDataService.getFiscalObligationsData();
     
-    const { data: obligations, error } = await supabase
-      .from('fiscal_obligations')
-      .select(`
-        *,
-        clients(nom, raisonsociale, niu)
-      `);
-
-    if (error) {
-      console.error("Erreur lors de la récupération des obligations fiscales:", error);
-      throw error;
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Rapport Obligations Fiscales', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    // Résumé des obligations
+    const summaryData = [
+      ['IGS non payées', fiscalData.unpaidIgs.length.toString()],
+      ['Patente non payée', fiscalData.unpaidPatente.length.toString()],
+      ['DSF non déposées', fiscalData.unfiledDsf.length.toString()],
+      ['DARP non déposées', fiscalData.unfiledDarp.length.toString()]
+    ];
+    
+    (doc as any).autoTable({
+      startY: 40,
+      head: [['Type d\'Obligation', 'Nombre de Clients']],
+      body: summaryData,
+      theme: 'grid'
+    });
+    
+    // Détail IGS non payées
+    if (fiscalData.unpaidIgs.length > 0) {
+      let currentY = (doc as any).lastAutoTable.finalY + 20;
+      doc.setFontSize(14);
+      doc.text('IGS Non Payées', 14, currentY);
+      
+      const igsData = fiscalData.unpaidIgs.map((client: any) => [
+        client.nom || client.raisonsociale || 'Client inconnu',
+        client.niu || 'Non renseigné',
+        client.regimefiscal || 'Non défini'
+      ]);
+      
+      (doc as any).autoTable({
+        startY: currentY + 10,
+        head: [['Client', 'NIU', 'Régime Fiscal']],
+        body: igsData,
+        theme: 'grid',
+        styles: { fontSize: 9 }
+      });
     }
-
-    console.log("Obligations fiscales récupérées:", obligations?.length || 0);
-
-    const reportData = obligations?.map(o => ({
-      client: o.clients?.nom || o.clients?.raisonsociale || 'N/A',
-      niu: o.clients?.niu || 'N/A',
-      type_obligation: (o.type_obligation || '').toUpperCase(),
-      periode: o.periode || 'N/A',
-      echeance: o.date_echeance || 'N/A',
-      depose: o.depose ? 'Oui' : 'Non',
-      paye: o.paye ? 'Oui' : 'Non',
-      montant: o.montant || 0,
-      observations: o.observations || ''
-    })) || [];
-
-    console.log("Données obligations fiscales préparées:", reportData.length, "éléments");
-
-    exportToPdf(
-      "Rapport Obligations Fiscales",
-      reportData,
-      `obligations-fiscales-${new Date().toISOString().slice(0, 10)}`
-    );
+    
+    // Détail DSF non déposées
+    if (fiscalData.unfiledDsf.length > 0) {
+      let currentY = (doc as any).lastAutoTable.finalY + 20;
+      doc.setFontSize(14);
+      doc.text('DSF Non Déposées', 14, currentY);
+      
+      const dsfData = fiscalData.unfiledDsf.map((client: any) => [
+        client.nom || client.raisonsociale || 'Client inconnu',
+        client.niu || 'Non renseigné',
+        client.type || 'Non défini'
+      ]);
+      
+      (doc as any).autoTable({
+        startY: currentY + 10,
+        head: [['Client', 'NIU', 'Type']],
+        body: dsfData,
+        theme: 'grid',
+        styles: { fontSize: 9 }
+      });
+    }
+    
+    doc.save(`obligations-fiscales-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error("Erreur génération rapport obligations:", error);
-    throw error;
+    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
 
 export const generateRetardsFiscauxReport = async () => {
   try {
-    console.log("Génération du rapport retards fiscaux...");
+    const data = await ReportDataService.getAllReportData();
     
-    const today = new Date().toISOString().split('T')[0];
-    
-    const { data: obligations, error } = await supabase
-      .from('fiscal_obligations')
-      .select(`
-        *,
-        clients(nom, raisonsociale, niu, contact)
-      `)
-      .or('depose.eq.false,paye.eq.false')
-      .lt('date_echeance', today);
-
-    if (error) {
-      console.error("Erreur lors de la récupération des retards fiscaux:", error);
-      throw error;
-    }
-
-    console.log("Retards fiscaux récupérés:", obligations?.length || 0);
-
-    const reportData = obligations?.map(o => {
-      const echeance = new Date(o.date_echeance || '');
-      const joursRetard = Math.floor((new Date().getTime() - echeance.getTime()) / (1000 * 60 * 60 * 24));
-      const contact = o.clients?.contact as any;
+    // Filtrer les obligations en retard
+    const obligationsEnRetard = data.fiscalObligations.filter((o: any) => {
+      if (!o.date_echeance) return false;
+      const echeance = new Date(o.date_echeance);
+      const maintenant = new Date();
       
-      return {
-        client: o.clients?.nom || o.clients?.raisonsociale || 'N/A',
-        niu: o.clients?.niu || 'N/A',
-        type_obligation: (o.type_obligation || '').toUpperCase(),
-        periode: o.periode || 'N/A',
-        echeance: o.date_echeance || 'N/A',
-        jours_retard: joursRetard,
-        non_depose: !o.depose ? 'Oui' : 'Non',
-        non_paye: !o.paye ? 'Oui' : 'Non',
-        telephone: contact?.telephone || 'N/A'
-      };
-    }) || [];
-
-    console.log("Données retards fiscaux préparées:", reportData.length, "éléments");
-
-    exportToPdf(
-      "Rapport Retards Fiscaux",
-      reportData,
-      `retards-fiscaux-${new Date().toISOString().slice(0, 10)}`
-    );
+      if (o.type_obligation.includes('paiement')) {
+        return !o.paye && echeance < maintenant;
+      } else {
+        return !o.depose && echeance < maintenant;
+      }
+    });
+    
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Rapport Retards Fiscaux', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    const retardsData = obligationsEnRetard.map((obligation: any) => {
+      const joursRetard = Math.floor((new Date().getTime() - new Date(obligation.date_echeance).getTime()) / (1000 * 60 * 60 * 24));
+      
+      return [
+        obligation.clients?.nom || obligation.clients?.raisonsociale || 'Client inconnu',
+        obligation.type_obligation || 'Non défini',
+        obligation.periode || 'Non définie',
+        new Date(obligation.date_echeance).toLocaleDateString(),
+        `${joursRetard} jours`
+      ];
+    });
+    
+    (doc as any).autoTable({
+      startY: 40,
+      head: [['Client', 'Type Obligation', 'Période', 'Échéance', 'Retard']],
+      body: retardsData,
+      theme: 'grid',
+      styles: { fontSize: 8 }
+    });
+    
+    doc.save(`retards-fiscaux-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error("Erreur génération rapport retards:", error);
-    throw error;
+    console.error('Erreur lors de la génération du rapport:', error);
   }
 };

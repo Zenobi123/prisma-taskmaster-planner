@@ -1,52 +1,37 @@
 
+import { ReportDataService } from './reportDataService';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { Client } from '@/types/client';
-import { exportToPdf } from '@/utils/exports';
 
-export const generateClientReport = () => {
-  const doc = new jsPDF();
-  
-  // Set document title
-  doc.setFontSize(18);
-  doc.text('Rapport Client', 14, 22);
-  
-  // Add date
-  doc.setFontSize(10);
-  doc.text(`Date du rapport: ${new Date().toLocaleDateString()}`, 14, 30);
-  
-  // Add content placeholder
-  doc.setFontSize(12);
-  doc.text('Contenu du rapport client', 14, 50);
-  
-  // Save the PDF
-  doc.save('rapport-client.pdf');
-};
-
-export const generateClientDetailReport = (client: Client) => {
-  const doc = new jsPDF();
-  
-  // Set document title
-  doc.setFontSize(18);
-  doc.text(`Rapport détaillé: ${client.nom || client.raisonsociale}`, 14, 22);
-  
-  // Add client info
-  doc.setFontSize(12);
-  doc.text('Informations client:', 14, 35);
-  doc.setFontSize(10);
-  doc.text(`ID: ${client.id}`, 20, 45);
-  doc.text(`NIU: ${client.niu || 'Non spécifié'}`, 20, 52);
-  doc.text(`Type: ${client.type}`, 20, 59);
-  doc.text(`Centre de rattachement: ${client.centrerattachement || 'Non spécifié'}`, 20, 66);
-  
-  // Add contact info if available
-  if (client.contact && client.contact.telephone) {
-    doc.text(`Téléphone: ${client.contact.telephone}`, 20, 73);
+export async function generateClientReport() {
+  try {
+    const data = await ReportDataService.getAllReportData();
+    const stats = ReportDataService.calculateClientStats(data.clients);
+    
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Rapport Client Global', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    // Statistiques générales
+    const clientStats = [
+      ['Total Clients', stats.total.toString()],
+      ['Personnes Physiques', stats.personnesPhysiques.toString()],
+      ['Personnes Morales', stats.personnesMorales.toString()],
+      ['Gestion Externalisée', stats.gestionExternalisee.toString()]
+    ];
+    
+    (doc as any).autoTable({
+      startY: 40,
+      head: [['Type', 'Nombre']],
+      body: clientStats,
+      theme: 'grid'
+    });
+    
+    doc.save(`rapport-client-${new Date().toISOString().slice(0, 10)}.pdf`);
+  } catch (error) {
+    console.error('Erreur lors de la génération du rapport client:', error);
   }
-  
-  // Add gestion status
-  doc.text(`Gestion externalisée: ${client.gestionexternalisee ? 'Oui' : 'Non'}`, 20, 80);
-  
-  // Save the PDF
-  doc.save(`rapport-client-${client.id}.pdf`);
-};
+}

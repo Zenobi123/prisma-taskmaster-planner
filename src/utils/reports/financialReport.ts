@@ -1,18 +1,38 @@
 
-import { exportToPdf } from "@/utils/exports";
+import { ReportDataService } from './reportDataService';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
-export function generateFinancialReport() {
-  const financialData = [
-    { categorie: "Revenus services fiscaux", montant: 2450000, evolution: "+15%", contribution: "38%" },
-    { categorie: "Revenus comptabilité", montant: 1890000, evolution: "+8%", contribution: "29%" },
-    { categorie: "Revenus conseils", montant: 1240000, evolution: "+12%", contribution: "19%" },
-    { categorie: "Revenus formations", montant: 780000, evolution: "+20%", contribution: "12%" },
-    { categorie: "Autres revenus", montant: 130000, evolution: "-5%", contribution: "2%" }
-  ];
-  
-  exportToPdf(
-    "Bilan financier trimestriel",
-    financialData,
-    `rapport-financier-T${Math.floor((new Date().getMonth() + 3) / 3)}-${new Date().getFullYear()}`
-  );
+export async function generateFinancialReport() {
+  try {
+    const data = await ReportDataService.getAllReportData();
+    const stats = ReportDataService.calculateFinancialStats(data.factures, data.paiements);
+    
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Bilan Financier Trimestriel', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    // Indicateurs financiers principaux
+    const financialData = [
+      ['Total Facturé', `${stats.totalFactures.toLocaleString()} FCFA`],
+      ['Total Encaissé', `${stats.totalPaiements.toLocaleString()} FCFA`],
+      ['Taux de Recouvrement', `${stats.tauxRecouvrement.toFixed(1)}%`],
+      ['Factures Payées', stats.facuresPayees.toString()],
+      ['Factures en Retard', stats.facturesEnRetard.toString()]
+    ];
+    
+    (doc as any).autoTable({
+      startY: 40,
+      head: [['Indicateur', 'Valeur']],
+      body: financialData,
+      theme: 'grid'
+    });
+    
+    doc.save(`bilan-financier-${new Date().toISOString().slice(0, 10)}.pdf`);
+  } catch (error) {
+    console.error('Erreur lors de la génération du rapport financier:', error);
+  }
 }

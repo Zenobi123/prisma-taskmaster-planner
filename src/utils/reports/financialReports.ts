@@ -1,141 +1,146 @@
 
-import { exportToPdf } from "@/utils/exports";
-import { supabase } from "@/integrations/supabase/client";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
+import { ReportDataService } from './reportDataService';
 
 export const generateChiffresAffairesReport = async () => {
   try {
-    console.log("Génération du rapport chiffre d'affaires...");
+    const data = await ReportDataService.getAllReportData();
+    const stats = ReportDataService.calculateFinancialStats(data.factures, data.paiements);
     
-    const { data: factures, error } = await supabase
-      .from('factures')
-      .select('*')
-      .eq('status', 'envoyée');
-
-    if (error) {
-      console.error("Erreur lors de la récupération des factures:", error);
-      throw error;
-    }
-
-    console.log("Factures récupérées:", factures?.length || 0);
-
-    const currentYear = new Date().getFullYear();
-    const monthlyData = Array.from({ length: 12 }, (_, i) => {
-      const month = i + 1;
-      const monthFactures = factures?.filter(f => {
-        const factureDate = new Date(f.date);
-        return factureDate.getFullYear() === currentYear && factureDate.getMonth() + 1 === month;
-      }) || [];
-      
-      const totalMonth = monthFactures.reduce((sum, f) => sum + (f.montant || 0), 0);
-      const paidMonth = monthFactures.reduce((sum, f) => sum + (f.montant_paye || 0), 0);
-      
-      return {
-        mois: `${month}/${currentYear}`,
-        chiffre_affaires: totalMonth,
-        encaissements: paidMonth,
-        en_attente: totalMonth - paidMonth
-      };
+    const doc = new jsPDF();
+    
+    // En-tête
+    doc.setFontSize(18);
+    doc.text('Rapport Chiffre d\'Affaires', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    // Résumé financier
+    doc.setFontSize(14);
+    doc.text('Résumé Financier', 14, 45);
+    
+    const summaryData = [
+      ['Total Factures', `${stats.totalFactures.toLocaleString()} FCFA`],
+      ['Total Paiements', `${stats.totalPaiements.toLocaleString()} FCFA`],
+      ['Taux de Recouvrement', `${stats.tauxRecouvrement.toFixed(1)}%`],
+      ['Factures Payées', stats.facuresPayees.toString()],
+      ['Factures en Retard', stats.facturesEnRetard.toString()]
+    ];
+    
+    (doc as any).autoTable({
+      startY: 55,
+      head: [['Indicateur', 'Valeur']],
+      body: summaryData,
+      theme: 'grid'
     });
-
-    console.log("Données mensuelles préparées:", monthlyData);
-
-    exportToPdf(
-      "Rapport Chiffre d'Affaires",
-      monthlyData,
-      `chiffre-affaires-${currentYear}`
-    );
+    
+    // Détail des factures par mois
+    let currentY = (doc as any).lastAutoTable.finalY + 20;
+    doc.setFontSize(14);
+    doc.text('Évolution Mensuelle', 14, currentY);
+    
+    // Grouper les factures par mois
+    const facturesByMonth = data.factures.reduce((acc: any, facture: any) => {
+      const month = new Date(facture.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
+      if (!acc[month]) acc[month] = { count: 0, amount: 0 };
+      acc[month].count++;
+      acc[month].amount += facture.montant || 0;
+      return acc;
+    }, {});
+    
+    const monthlyData = Object.entries(facturesByMonth).map(([month, data]: [string, any]) => [
+      month,
+      data.count.toString(),
+      `${data.amount.toLocaleString()} FCFA`
+    ]);
+    
+    (doc as any).autoTable({
+      startY: currentY + 10,
+      head: [['Mois', 'Nombre de Factures', 'Montant Total']],
+      body: monthlyData,
+      theme: 'grid'
+    });
+    
+    doc.save(`chiffre-affaires-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error("Erreur génération rapport CA:", error);
-    throw error;
+    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
 
 export const generateFacturationReport = async () => {
   try {
-    console.log("Génération du rapport de facturation...");
+    const data = await ReportDataService.getAllReportData();
     
-    const { data: factures, error } = await supabase
-      .from('factures')
-      .select(`
-        *,
-        clients(nom, raisonsociale)
-      `);
-
-    if (error) {
-      console.error("Erreur lors de la récupération des factures:", error);
-      throw error;
-    }
-
-    console.log("Factures avec clients récupérées:", factures?.length || 0);
-
-    const reportData = factures?.map(f => ({
-      numero_facture: f.id,
-      client: f.clients?.nom || f.clients?.raisonsociale || 'N/A',
-      date_emission: f.date,
-      montant: f.montant || 0,
-      montant_paye: f.montant_paye || 0,
-      statut: f.status_paiement || 'non_payée',
-      echeance: f.echeance
-    })) || [];
-
-    console.log("Données de rapport préparées:", reportData.length, "éléments");
-
-    exportToPdf(
-      "Rapport de Facturation",
-      reportData,
-      `facturation-${new Date().toISOString().slice(0, 7)}`
-    );
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Rapport de Facturation', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    // Tableau des factures
+    const facturesData = data.factures.slice(0, 50).map((facture: any) => [
+      facture.id,
+      facture.clients?.nom || facture.clients?.raisonsociale || 'Client inconnu',
+      new Date(facture.date).toLocaleDateString(),
+      `${(facture.montant || 0).toLocaleString()} FCFA`,
+      facture.status_paiement || 'Non défini'
+    ]);
+    
+    (doc as any).autoTable({
+      startY: 40,
+      head: [['N° Facture', 'Client', 'Date', 'Montant', 'Statut']],
+      body: facturesData,
+      theme: 'grid',
+      styles: { fontSize: 8 }
+    });
+    
+    doc.save(`facturation-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error("Erreur génération rapport facturation:", error);
-    throw error;
+    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
 
 export const generateCreancesReport = async () => {
   try {
-    console.log("Génération du rapport des créances...");
+    const data = await ReportDataService.getAllReportData();
     
-    const { data: factures, error } = await supabase
-      .from('factures')
-      .select(`
-        *,
-        clients(nom, raisonsociale, contact)
-      `)
-      .in('status_paiement', ['non_payée', 'partiellement_payée', 'en_retard']);
-
-    if (error) {
-      console.error("Erreur lors de la récupération des créances:", error);
-      throw error;
-    }
-
-    console.log("Créances récupérées:", factures?.length || 0);
-
-    const reportData = factures?.map(f => {
-      const solde = (f.montant || 0) - (f.montant_paye || 0);
-      const today = new Date();
-      const echeance = new Date(f.echeance);
-      const joursRetard = Math.max(0, Math.floor((today.getTime() - echeance.getTime()) / (1000 * 60 * 60 * 24)));
-      const contact = f.clients?.contact as any;
-      
-      return {
-        client: f.clients?.nom || f.clients?.raisonsociale || 'N/A',
-        facture: f.id,
-        montant_du: solde,
-        echeance: f.echeance,
-        jours_retard: joursRetard,
-        telephone: contact?.telephone || 'N/A'
-      };
-    }).filter(f => f.montant_du > 0) || [];
-
-    console.log("Données de créances filtrées:", reportData.length, "éléments");
-
-    exportToPdf(
-      "Rapport des Créances",
-      reportData,
-      `creances-${new Date().toISOString().slice(0, 10)}`
+    // Filtrer les factures impayées
+    const facturesImpayees = data.factures.filter((f: any) => 
+      f.status_paiement === 'non_payée' || f.status_paiement === 'partiellement_payée'
     );
+    
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Rapport des Créances', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    const creancesData = facturesImpayees.map((facture: any) => {
+      const montantRestant = (facture.montant || 0) - (facture.montant_paye || 0);
+      const joursRetard = Math.floor((new Date().getTime() - new Date(facture.echeance).getTime()) / (1000 * 60 * 60 * 24));
+      
+      return [
+        facture.clients?.nom || facture.clients?.raisonsociale || 'Client inconnu',
+        facture.id,
+        new Date(facture.echeance).toLocaleDateString(),
+        `${montantRestant.toLocaleString()} FCFA`,
+        joursRetard > 0 ? `${joursRetard} jours` : 'Non échu'
+      ];
+    });
+    
+    (doc as any).autoTable({
+      startY: 40,
+      head: [['Client', 'N° Facture', 'Échéance', 'Montant Restant', 'Retard']],
+      body: creancesData,
+      theme: 'grid',
+      styles: { fontSize: 8 }
+    });
+    
+    doc.save(`creances-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error("Erreur génération rapport créances:", error);
-    throw error;
+    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
