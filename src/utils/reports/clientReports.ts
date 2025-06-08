@@ -1,13 +1,7 @@
+
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
-
-// Déclaration de type pour autoTable
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => void;
-  }
-}
 
 export const generatePortefeuilleClientsReport = async () => {
   try {
@@ -30,7 +24,7 @@ export const generatePortefeuilleClientsReport = async () => {
       ['Gestion Externalisée', stats.gestionExternalisee.toString()]
     ];
     
-    doc.autoTable({
+    (doc as any).autoTable({
       startY: 40,
       head: [['Indicateur', 'Valeur']],
       body: statsData,
@@ -51,7 +45,7 @@ export const generatePortefeuilleClientsReport = async () => {
       client.gestionexternalisee ? 'Oui' : 'Non'
     ]);
     
-    doc.autoTable({
+    (doc as any).autoTable({
       startY: currentY + 10,
       head: [['Nom/Raison Sociale', 'Type', 'Régime Fiscal', 'Centre', 'Gestion Ext.']],
       body: clientsData,
@@ -94,7 +88,7 @@ export const generateNouveauxClientsReport = async () => {
       client.centrerattachement || 'Non défini'
     ]);
     
-    doc.autoTable({
+    (doc as any).autoTable({
       startY: 40,
       head: [['Nom/Raison Sociale', 'Type', 'Date Création', 'Centre']],
       body: nouveauxClientsData,
@@ -144,7 +138,7 @@ export const generateActiviteClientsReport = async () => {
       `${client.solde.toLocaleString()} FCFA`
     ]);
     
-    doc.autoTable({
+    (doc as any).autoTable({
       startY: 40,
       head: [['Client', 'Nb Factures', 'Total Facturé', 'Total Payé', 'Solde']],
       body: activiteData,

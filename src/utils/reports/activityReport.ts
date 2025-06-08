@@ -3,13 +3,6 @@ import { ReportDataService } from './reportDataService';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
-// Déclaration de type pour autoTable
-declare module 'jspdf' {
-  interface jsPDF {
-    autoTable: (options: any) => void;
-  }
-}
-
 export async function generateActivityReport() {
   try {
     console.log('Génération du rapport d\'activité...');
@@ -62,7 +55,7 @@ export async function generateActivityReport() {
       `${Number(data.montant).toLocaleString()} FCFA`
     ]);
     
-    doc.autoTable({
+    (doc as any).autoTable({
       startY: 40,
       head: [['Activité', 'Nombre', 'Pourcentage', 'Montant']],
       body: activityData,
