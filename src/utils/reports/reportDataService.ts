@@ -81,16 +81,35 @@ export class ReportDataService {
 
       if (paieError) throw paieError;
 
-      // Récupérer les tâches
+      // Récupérer les tâches - Fix de la relation ambiguë
       const { data: tasksData, error: tasksError } = await supabase
         .from('tasks')
         .select(`
           *,
-          collaborateurs(nom, prenom),
+          collaborateurs!tasks_collaborateur_id_fkey(nom, prenom),
           clients(nom, raisonsociale)
         `);
 
-      if (tasksError) throw tasksError;
+      if (tasksError) {
+        console.error('Erreur tasks:', tasksError);
+        // Fallback : récupérer les tâches sans les collaborateurs
+        const { data: tasksDataFallback, error: tasksErrorFallback } = await supabase
+          .from('tasks')
+          .select(`
+            *,
+            clients(nom, raisonsociale)
+          `);
+        
+        return {
+          clients,
+          factures: facturesData || [],
+          paiements: paiementsData || [],
+          fiscalObligations: obligationsData || [],
+          employes: employesData || [],
+          paie: paieData || [],
+          tasks: tasksDataFallback || []
+        };
+      }
 
       return {
         clients,

@@ -3,9 +3,18 @@ import { ReportDataService } from './reportDataService';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+// Déclaration de type pour autoTable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => void;
+  }
+}
+
 export async function generateActivityReport() {
   try {
+    console.log('Génération du rapport d\'activité...');
     const data = await ReportDataService.getAllReportData();
+    console.log('Données récupérées:', data);
     
     const doc = new jsPDF();
     
@@ -42,7 +51,9 @@ export async function generateActivityReport() {
       return acc;
     }, {});
     
-    const total = Object.values(prestationsAnalysis).reduce((sum: number, cat: any) => sum + (Number(cat.montant) || 0), 0);
+    const total = Object.values(prestationsAnalysis).reduce((sum: number, cat: any) => {
+      return sum + (Number(cat.montant) || 0);
+    }, 0);
     
     const activityData = Object.entries(prestationsAnalysis).map(([activite, data]: [string, any]) => [
       activite,
@@ -51,15 +62,18 @@ export async function generateActivityReport() {
       `${Number(data.montant).toLocaleString()} FCFA`
     ]);
     
-    (doc as any).autoTable({
+    doc.autoTable({
       startY: 40,
       head: [['Activité', 'Nombre', 'Pourcentage', 'Montant']],
       body: activityData,
       theme: 'grid'
     });
     
+    console.log('Téléchargement du rapport...');
     doc.save(`rapport-activite-${new Date().toISOString().slice(0, 10)}.pdf`);
+    console.log('Rapport téléchargé avec succès');
   } catch (error) {
     console.error('Erreur lors de la génération du rapport d\'activité:', error);
+    throw error;
   }
 }

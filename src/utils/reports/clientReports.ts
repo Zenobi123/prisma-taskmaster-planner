@@ -1,10 +1,17 @@
-
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
+// Déclaration de type pour autoTable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: (options: any) => void;
+  }
+}
+
 export const generatePortefeuilleClientsReport = async () => {
   try {
+    console.log('Génération du rapport portefeuille clients...');
     const data = await ReportDataService.getAllReportData();
     const stats = ReportDataService.calculateClientStats(data.clients);
     
@@ -23,7 +30,7 @@ export const generatePortefeuilleClientsReport = async () => {
       ['Gestion Externalisée', stats.gestionExternalisee.toString()]
     ];
     
-    (doc as any).autoTable({
+    doc.autoTable({
       startY: 40,
       head: [['Indicateur', 'Valeur']],
       body: statsData,
@@ -31,7 +38,8 @@ export const generatePortefeuilleClientsReport = async () => {
     });
     
     // Liste des clients
-    let currentY = (doc as any).lastAutoTable.finalY + 20;
+    const finalY = (doc as any).lastAutoTable?.finalY || 80;
+    let currentY = finalY + 20;
     doc.setFontSize(14);
     doc.text('Liste des Clients Actifs', 14, currentY);
     
@@ -43,7 +51,7 @@ export const generatePortefeuilleClientsReport = async () => {
       client.gestionexternalisee ? 'Oui' : 'Non'
     ]);
     
-    (doc as any).autoTable({
+    doc.autoTable({
       startY: currentY + 10,
       head: [['Nom/Raison Sociale', 'Type', 'Régime Fiscal', 'Centre', 'Gestion Ext.']],
       body: clientsData,
@@ -51,9 +59,12 @@ export const generatePortefeuilleClientsReport = async () => {
       styles: { fontSize: 8 }
     });
     
+    console.log('Téléchargement du rapport...');
     doc.save(`portefeuille-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
+    console.log('Rapport téléchargé avec succès');
   } catch (error) {
     console.error('Erreur lors de la génération du rapport:', error);
+    throw error;
   }
 };
 
@@ -83,7 +94,7 @@ export const generateNouveauxClientsReport = async () => {
       client.centrerattachement || 'Non défini'
     ]);
     
-    (doc as any).autoTable({
+    doc.autoTable({
       startY: 40,
       head: [['Nom/Raison Sociale', 'Type', 'Date Création', 'Centre']],
       body: nouveauxClientsData,
@@ -93,6 +104,7 @@ export const generateNouveauxClientsReport = async () => {
     doc.save(`nouveaux-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
     console.error('Erreur lors de la génération du rapport:', error);
+    throw error;
   }
 };
 
@@ -105,8 +117,8 @@ export const generateActiviteClientsReport = async () => {
       const facturesClient = data.factures.filter((f: any) => f.client_id === client.id);
       const paiementsClient = data.paiements.filter((p: any) => p.client_id === client.id);
       
-      const totalFactures = facturesClient.reduce((sum: number, f: any) => sum + (f.montant || 0), 0);
-      const totalPaiements = paiementsClient.reduce((sum: number, p: any) => sum + (p.montant || 0), 0);
+      const totalFactures = facturesClient.reduce((sum: number, f: any) => sum + (Number(f.montant) || 0), 0);
+      const totalPaiements = paiementsClient.reduce((sum: number, p: any) => sum + (Number(p.montant) || 0), 0);
       
       return {
         nom: client.nom || client.raisonsociale || 'Sans nom',
@@ -132,7 +144,7 @@ export const generateActiviteClientsReport = async () => {
       `${client.solde.toLocaleString()} FCFA`
     ]);
     
-    (doc as any).autoTable({
+    doc.autoTable({
       startY: 40,
       head: [['Client', 'Nb Factures', 'Total Facturé', 'Total Payé', 'Solde']],
       body: activiteData,
@@ -143,5 +155,6 @@ export const generateActiviteClientsReport = async () => {
     doc.save(`activite-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
     console.error('Erreur lors de la génération du rapport:', error);
+    throw error;
   }
 };
