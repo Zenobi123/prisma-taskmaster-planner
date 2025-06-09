@@ -51,9 +51,10 @@ export async function generateActivityReport() {
     
     const activityData = Object.entries(prestationsAnalysis).map(([activite, data]: [string, any]) => {
       const montant = Number(data.montant) || 0;
+      const nombre = Number(data.nombre) || 0;
       return [
         activite,
-        data.nombre.toString(),
+        nombre.toString(),
         total > 0 ? `${((montant / total) * 100).toFixed(1)}%` : '0.0%',
         `${montant.toLocaleString()} FCFA`
       ];
