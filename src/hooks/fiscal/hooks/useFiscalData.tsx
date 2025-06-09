@@ -16,7 +16,8 @@ export const useFiscalData = (clientId: string) => {
 
     try {
       setIsLoading(true);
-      console.log("Chargement des données fiscales pour le client:", clientId);
+      console.log("=== CHARGEMENT DONNÉES FISCALES ===");
+      console.log("Client ID:", clientId);
       
       const { data: client, error } = await supabase
         .from("clients")
@@ -30,15 +31,34 @@ export const useFiscalData = (clientId: string) => {
         return;
       }
 
-      console.log("Données fiscales récupérées:", client?.fiscal_data);
+      console.log("Données fiscales brutes récupérées:", client?.fiscal_data);
 
       if (client?.fiscal_data && typeof client.fiscal_data === 'object' && !Array.isArray(client.fiscal_data)) {
         const fiscalDataObj = client.fiscal_data as any;
-        setFiscalData(fiscalDataObj as ClientFiscalData);
+        
+        // Valider et nettoyer les données
+        const cleanedData: ClientFiscalData = {
+          clientId,
+          year: fiscalDataObj.year || selectedYear,
+          attestation: {
+            creationDate: fiscalDataObj.attestation?.creationDate || "",
+            validityEndDate: fiscalDataObj.attestation?.validityEndDate || "",
+            showInAlert: fiscalDataObj.attestation?.showInAlert !== false
+          },
+          obligations: fiscalDataObj.obligations || {},
+          hiddenFromDashboard: Boolean(fiscalDataObj.hiddenFromDashboard),
+          selectedYear: fiscalDataObj.selectedYear || selectedYear
+        };
+
+        setFiscalData(cleanedData);
+        
         if (fiscalDataObj.selectedYear) {
           setSelectedYear(fiscalDataObj.selectedYear);
         }
-        console.log("Données fiscales chargées avec succès:", fiscalDataObj);
+        
+        console.log("Données fiscales chargées et nettoyées:", cleanedData);
+        console.log("Obligations pour l'année", selectedYear, ":", cleanedData.obligations[selectedYear]);
+        
       } else {
         // Initialize with default data structure
         const defaultData: ClientFiscalData = {

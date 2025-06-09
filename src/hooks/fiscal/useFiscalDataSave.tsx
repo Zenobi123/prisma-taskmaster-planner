@@ -85,7 +85,12 @@ export const useFiscalDataSave = ({
           ...(('q1Payee' in obligation) && obligation.q1Payee !== undefined && { q1Payee: Boolean(obligation.q1Payee) }),
           ...(('q2Payee' in obligation) && obligation.q2Payee !== undefined && { q2Payee: Boolean(obligation.q2Payee) }),
           ...(('q3Payee' in obligation) && obligation.q3Payee !== undefined && { q3Payee: Boolean(obligation.q3Payee) }),
-          ...(('q4Payee' in obligation) && obligation.q4Payee !== undefined && { q4Payee: Boolean(obligation.q4Payee) })
+          ...(('q4Payee' in obligation) && obligation.q4Payee !== undefined && { q4Payee: Boolean(obligation.q4Payee) }),
+          // IGS quarterly payment amounts
+          ...(('q1Amount' in obligation) && obligation.q1Amount !== undefined && { q1Amount: Number(obligation.q1Amount) || 0 }),
+          ...(('q2Amount' in obligation) && obligation.q2Amount !== undefined && { q2Amount: Number(obligation.q2Amount) || 0 }),
+          ...(('q3Amount' in obligation) && obligation.q3Amount !== undefined && { q3Amount: Number(obligation.q3Amount) || 0 }),
+          ...(('q4Amount' in obligation) && obligation.q4Amount !== undefined && { q4Amount: Number(obligation.q4Amount) || 0 })
         };
       }
     });
@@ -102,8 +107,10 @@ export const useFiscalDataSave = ({
 
     try {
       setIsSaving(true);
-      console.log("Début de la sauvegarde des données fiscales pour le client:", selectedClient.id);
-      console.log("Données à sauvegarder:", { fiscalYear, obligationStatuses });
+      console.log("=== DÉBUT SAUVEGARDE DONNÉES FISCALES ===");
+      console.log("Client ID:", selectedClient.id);
+      console.log("Année fiscale:", fiscalYear);
+      console.log("Obligations à sauvegarder:", obligationStatuses);
       
       // Récupérer les données fiscales existantes
       const { data: existingClient, error: fetchError } = await supabase
@@ -117,6 +124,8 @@ export const useFiscalDataSave = ({
         toast.error("Erreur lors de la récupération des données existantes");
         return;
       }
+
+      console.log("Données fiscales existantes:", existingClient?.fiscal_data);
 
       const existingFiscalData = existingClient?.fiscal_data || {};
       
@@ -138,10 +147,12 @@ export const useFiscalDataSave = ({
         updatedAt: new Date().toISOString()
       };
 
-      console.log("Données fiscales préparées:", fiscalDataToSave);
+      console.log("Données fiscales préparées pour sauvegarde:", fiscalDataToSave);
 
       // Convertir en format Json compatible
       const jsonCompatibleData = convertToJsonCompatible(fiscalDataToSave);
+
+      console.log("Données compatibles JSON:", jsonCompatibleData);
 
       // Sauvegarder dans Supabase
       const { error } = await supabase
@@ -157,7 +168,20 @@ export const useFiscalDataSave = ({
         return;
       }
 
-      console.log("Sauvegarde réussie pour le client:", selectedClient.id);
+      console.log("=== SAUVEGARDE RÉUSSIE ===");
+
+      // Vérification post-sauvegarde
+      const { data: verificationData, error: verificationError } = await supabase
+        .from("clients")
+        .select("fiscal_data")
+        .eq("id", selectedClient.id)
+        .single();
+
+      if (verificationError) {
+        console.warn("Erreur lors de la vérification:", verificationError);
+      } else {
+        console.log("Vérification - Données sauvegardées:", verificationData?.fiscal_data);
+      }
 
       // Invalider le cache des clients pour forcer le rechargement
       invalidateClientsCache();
