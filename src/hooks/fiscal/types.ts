@@ -44,8 +44,8 @@ export interface DeclarationObligationStatus extends ObligationStatus {
 
 export type DeclarationPeriodicity = "mensuelle" | "trimestrielle" | "annuelle";
 
-// Define obligation types - updated to match frontend usage including all DirectTaxesSection obligations
-export type ObligationType = "igs" | "patente" | "licence" | "bailCommercial" | "precompteLoyer" | "tpf" | "dsf" | "darp" | "cntps" | "precomptes";
+// Define obligation types - updated to include DBEF
+export type ObligationType = "igs" | "patente" | "licence" | "bailCommercial" | "precompteLoyer" | "tpf" | "dsf" | "darp" | "dbef" | "cntps" | "precomptes";
 
 // Define all obligation statuses with proper typing for each specific obligation
 export interface ObligationStatuses {
@@ -59,6 +59,7 @@ export interface ObligationStatuses {
   // Declarations
   dsf: DeclarationObligationStatus;
   darp: DeclarationObligationStatus;
+  dbef: DeclarationObligationStatus;
   cntps: DeclarationObligationStatus;
   precomptes: DeclarationObligationStatus;
 }

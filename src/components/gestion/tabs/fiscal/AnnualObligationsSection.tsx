@@ -51,6 +51,15 @@ export function AnnualObligationsSection({
           clientId={clientId}
           selectedYear={selectedYear}
         />
+        <DeclarationObligationItem
+          title="Déclaration des Bénéficiaires Effectifs (DBEF)"
+          keyName="dbef"
+          status={obligationStatuses.dbef}
+          onStatusChange={handleStatusChange}
+          onAttachmentChange={handleAttachmentChange}
+          clientId={clientId}
+          selectedYear={selectedYear}
+        />
       </CardContent>
     </Card>
   );

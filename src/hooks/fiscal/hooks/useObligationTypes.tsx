@@ -9,7 +9,7 @@ export const useObligationTypes = () => {
   }, []);
 
   const isDeclarationObligation = useCallback((obligationType: ObligationType): boolean => {
-    return ["dsf", "darp", "cntps", "precomptes"].includes(obligationType);
+    return ["dsf", "darp", "dbef", "cntps", "precomptes"].includes(obligationType);
   }, []);
 
   const isTaxObligationStatus = useCallback((obligation: ObligationStatus): obligation is TaxObligationStatus => {
@@ -36,6 +36,7 @@ export const useObligationTypes = () => {
       tpf: "Taxe sur la propriété (TPF)",
       dsf: "Déclaration Statistique et Fiscale (DSF)",
       darp: "Déclaration Annuelle de Revenus Professionnels (DARP)",
+      dbef: "Déclaration des Bénéficiaires Effectifs (DBEF)",
       cntps: "Caisse Nationale de Prévoyance Sociale (CNTPS)",
       precomptes: "Précomptes"
     };
