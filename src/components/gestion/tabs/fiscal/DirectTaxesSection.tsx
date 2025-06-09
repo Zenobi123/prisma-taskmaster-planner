@@ -33,6 +33,12 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
   const [caValue, setCAValue] = useState<string>('');
   const [isCGA, setIsCGA] = useState<boolean>(false);
   const [igsCalculation, setIgsCalculation] = useState<{ class: string | number; amount: number; outOfRange: boolean } | null>(null);
+  const [quarterlyPayments, setQuarterlyPayments] = useState<Record<string, string>>({
+    q1: '',
+    q2: '',
+    q3: '',
+    q4: ''
+  });
   
   // Format a number with spaces as thousand separators
   const formatNumberWithSpaces = (value: string): string => {
@@ -45,6 +51,20 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
   // Parse a formatted number to an integer
   const parseFormattedNumber = (value: string): number => {
     return parseInt(value.replace(/\s/g, ''), 10) || 0;
+  };
+
+  // Calculate total IGS paid from quarterly payments
+  const calculateTotalIgsPaid = (): number => {
+    return Object.values(quarterlyPayments).reduce((sum, payment) => {
+      return sum + parseFormattedNumber(payment);
+    }, 0);
+  };
+
+  // Calculate IGS balance to pay
+  const calculateIgsBalance = (): number => {
+    if (!igsCalculation || igsCalculation.outOfRange) return 0;
+    const totalPaid = calculateTotalIgsPaid();
+    return Math.max(0, igsCalculation.amount - totalPaid);
   };
 
   // Calculate IGS based on revenue and CGA status
@@ -88,6 +108,15 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     const rawValue = e.target.value;
     const formattedValue = formatNumberWithSpaces(rawValue);
     setCAValue(formattedValue);
+  };
+
+  // Handle quarterly payment change
+  const handleQuarterlyPaymentChange = (quarter: string, value: string) => {
+    const formattedValue = formatNumberWithSpaces(value);
+    setQuarterlyPayments(prev => ({
+      ...prev,
+      [quarter]: formattedValue
+    }));
   };
 
   // Type guard to check if obligation is a tax obligation
@@ -197,6 +226,26 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                   </div>
                 )}
 
+                {/* IGS Payment Summary */}
+                {igsCalculation && !igsCalculation.outOfRange && (
+                  <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-blue-800">IGS payé :</span>
+                        <span className="text-sm font-bold text-blue-900">
+                          {calculateTotalIgsPaid().toLocaleString('fr-FR')} FCFA
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium text-blue-800">Solde IGS à payer :</span>
+                        <span className="text-sm font-bold text-blue-900">
+                          {calculateIgsBalance().toLocaleString('fr-FR')} FCFA
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="bg-gray-100 border-l-4 border-primary rounded p-2 text-sm inline-block mb-4">
                   <strong className="text-primary mr-2">Échéances :</strong>
                   <span>15 janvier, 15 avril, 15 juillet, 15 octobre</span>
@@ -212,9 +261,14 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                       </tr>
                     </thead>
                     <tbody>
-                      {['15 janvier', '15 avril', '15 juillet', '15 octobre'].map((echeance, index) => (
+                      {[
+                        { label: '15 janvier', quarter: 'q1' },
+                        { label: '15 avril', quarter: 'q2' },
+                        { label: '15 juillet', quarter: 'q3' },
+                        { label: '15 octobre', quarter: 'q4' }
+                      ].map((echeance, index) => (
                         <tr key={`echeance-${index}`}>
-                          <td className="border border-gray-200 p-2 text-center">{echeance}</td>
+                          <td className="border border-gray-200 p-2 text-center">{echeance.label}</td>
                           <td className="border border-gray-200 p-2">
                             <input 
                               type="date" 
@@ -226,6 +280,8 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                               type="text" 
                               className="w-[95%] p-1 border border-gray-200 rounded bg-gray-50"
                               placeholder="0"
+                              value={quarterlyPayments[echeance.quarter]}
+                              onChange={(e) => handleQuarterlyPaymentChange(echeance.quarter, e.target.value)}
                             />
                           </td>
                         </tr>
