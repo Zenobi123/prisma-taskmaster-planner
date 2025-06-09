@@ -1,10 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Plus, X } from 'lucide-react';
 import { ObligationStatuses, ObligationType, TaxObligationStatus } from '@/hooks/fiscal/types';
-import { UnifiedAttachmentSection } from './UnifiedAttachmentSection';
 
 interface DirectTaxesSectionProps {
   obligationStatuses: ObligationStatuses;
@@ -209,7 +209,6 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                         <th className="border border-gray-200 bg-gray-100 p-2 text-center">Échéance</th>
                         <th className="border border-gray-200 bg-gray-100 p-2 text-center">Date de paiement</th>
                         <th className="border border-gray-200 bg-gray-100 p-2 text-center">Montant payé (FCFA)</th>
-                        <th className="border border-gray-200 bg-gray-100 p-2 text-center">Pièces justificatives</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -229,13 +228,6 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                               placeholder="0"
                             />
                           </td>
-                          <td className="border border-gray-200 p-2">
-                            <input 
-                              type="file" 
-                              className="w-[95%] text-xs"
-                              accept=".pdf,image/*"
-                            />
-                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -244,45 +236,27 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
               </>
             )}
 
-            {/* General payment details */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label className="block text-sm mb-2">Date de paiement</label>
-                <input
-                  type="date"
-                  className="w-full p-2 border border-gray-300 rounded bg-gray-50"
-                  defaultValue={key === 'igs' ? "2025-05-01" : ""}
-                />
+            {/* General payment details - NOT for IGS */}
+            {key !== 'igs' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm mb-2">Date de paiement</label>
+                  <input
+                    type="date"
+                    className="w-full p-2 border border-gray-300 rounded bg-gray-50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm mb-2">Montant payé</label>
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded bg-gray-50"
+                    placeholder="0"
+                    defaultValue={key === 'patente' ? "75 000" : ""}
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm mb-2">Montant payé</label>
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded bg-gray-50"
-                  placeholder="0"
-                  defaultValue={key === 'patente' ? "75 000" : ""}
-                  value={key === 'igs' && igsCalculation?.amount ? igsCalculation.amount.toLocaleString('fr-FR') : undefined}
-                  readOnly={key === 'igs'}
-                />
-              </div>
-            </div>
-
-            {/* Unified Attachments Section */}
-            <UnifiedAttachmentSection
-              obligationName={key}
-              obligationType="tax"
-              existingAttachments={obligation.attachements}
-              onAttachmentUpload={(obligationName, attachmentType, filePath) => {
-                // This would need to be handled by the parent component
-                console.log('Attachment uploaded:', { obligationName, attachmentType, filePath });
-              }}
-              onAttachmentDelete={(obligationName, attachmentType) => {
-                // This would need to be handled by the parent component
-                console.log('Attachment deleted:', { obligationName, attachmentType });
-              }}
-              clientId="demo-client-id" // This should come from props
-              selectedYear="2025" // This should come from props
-            />
+            )}
           </div>
         )}
       </div>
