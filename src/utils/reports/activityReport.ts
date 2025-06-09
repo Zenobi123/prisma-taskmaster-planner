@@ -45,15 +45,19 @@ export async function generateActivityReport() {
     }, {});
     
     const total = Object.values(prestationsAnalysis).reduce((sum: number, cat: any) => {
-      return sum + (Number(cat.montant) || 0);
+      const montant = Number(cat.montant) || 0;
+      return sum + montant;
     }, 0);
     
-    const activityData = Object.entries(prestationsAnalysis).map(([activite, data]: [string, any]) => [
-      activite,
-      data.nombre.toString(),
-      total > 0 ? `${(((data.montant as number) / total) * 100).toFixed(1)}%` : '0.0%',
-      `${Number(data.montant).toLocaleString()} FCFA`
-    ]);
+    const activityData = Object.entries(prestationsAnalysis).map(([activite, data]: [string, any]) => {
+      const montant = Number(data.montant) || 0;
+      return [
+        activite,
+        data.nombre.toString(),
+        total > 0 ? `${((montant / total) * 100).toFixed(1)}%` : '0.0%',
+        `${montant.toLocaleString()} FCFA`
+      ];
+    });
     
     (doc as any).autoTable({
       startY: 40,
