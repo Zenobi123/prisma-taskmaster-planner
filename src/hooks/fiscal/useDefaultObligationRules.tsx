@@ -23,6 +23,7 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
       // Declarations - all start as not subject by default
       dsf: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
       darp: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
+      dbef: { assujetti: false, depose: false, periodicity: "annuelle" as const, attachements: {}, observations: "" },
       cntps: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" },
       precomptes: { assujetti: false, depose: false, periodicity: "mensuelle" as const, attachements: {}, observations: "" }
     };

@@ -1,3 +1,4 @@
+
 import { ObligationStatuses, TaxObligationStatus, DeclarationObligationStatus, IgsObligationStatus } from "../types";
 import { toast } from "sonner";
 
@@ -116,6 +117,7 @@ export const validateAndMigrateObligationStatuses = (obligations: any): Obligati
     // Déclarations
     dsf: validateAndMigrateDeclarationObligation(obligations.dsf, "DSF", "annuelle"),
     darp: validateAndMigrateDeclarationObligation(obligations.darp, "DARP", "annuelle"),
+    dbef: validateAndMigrateDeclarationObligation(obligations.dbef, "DBEF", "annuelle"),
     cntps: validateAndMigrateDeclarationObligation(obligations.cntps, "CNTPS", "mensuelle"),
     precomptes: validateAndMigrateDeclarationObligation(obligations.precomptes, "Précomptes", "mensuelle")
   };
@@ -140,6 +142,7 @@ export const createDefaultObligationStatuses = (): ObligationStatuses => {
     // Déclarations
     dsf: { assujetti: false, depose: false, periodicity: "annuelle", attachements: {}, observations: "" },
     darp: { assujetti: false, depose: false, periodicity: "annuelle", attachements: {}, observations: "" },
+    dbef: { assujetti: false, depose: false, periodicity: "annuelle", attachements: {}, observations: "" },
     cntps: { assujetti: false, depose: false, periodicity: "mensuelle", attachements: {}, observations: "" },
     precomptes: { assujetti: false, depose: false, periodicity: "mensuelle", attachements: {}, observations: "" }
   };
