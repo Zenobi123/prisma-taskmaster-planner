@@ -59,6 +59,10 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     if (selectedClient.type === "morale") {
       console.log("Applying rules for personne morale");
       
+      // Toutes les personnes morales sont assujetties à la DBEF
+      console.log("Applying rule: Personne morale → DBEF obligatoire");
+      baseStatuses.dbef.assujetti = true;
+      
       if (selectedClient.regimefiscal === "reel") {
         console.log("Applying rule: Personne morale + Régime réel → Patente obligatoire");
         baseStatuses.patente.assujetti = true;
