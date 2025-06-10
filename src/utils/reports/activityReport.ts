@@ -45,12 +45,12 @@ export async function generateActivityReport() {
     }, {});
     
     const total: number = Object.values(prestationsAnalysis).reduce((sum: number, cat: { nombre: number; montant: number }) => {
-      return sum + cat.montant;
+      return sum + (Number(cat.montant) || 0);
     }, 0);
     
     const activityData = Object.entries(prestationsAnalysis).map(([activite, data]: [string, { nombre: number; montant: number }]) => {
-      const montant = data.montant;
-      const nombre = data.nombre;
+      const montant = Number(data.montant) || 0;
+      const nombre = Number(data.nombre) || 0;
       return [
         activite,
         nombre.toString(),
