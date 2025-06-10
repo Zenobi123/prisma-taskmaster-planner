@@ -44,7 +44,7 @@ export async function generateActivityReport() {
       return acc;
     }, {});
     
-    const total = Object.values(prestationsAnalysis).reduce((sum: number, cat: any) => {
+    const total: number = Object.values(prestationsAnalysis).reduce((sum: number, cat: any) => {
       const montant = Number(cat.montant) || 0;
       return sum + montant;
     }, 0);
