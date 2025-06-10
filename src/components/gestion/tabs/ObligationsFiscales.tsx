@@ -3,7 +3,7 @@ import React from "react";
 import { Client } from "@/types/client";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
 import { DirectTaxesSection } from "./fiscal/DirectTaxesSection";
-import { DeclarationsSection } from "./fiscal/DeclarationsSection";
+import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { UnsavedChangesAlert } from "./fiscal/UnsavedChangesAlert";
 import { SaveButton } from "./fiscal/SaveButton";
 import { ObligationsFiscalesHeader } from "./fiscal/ObligationsFiscalesHeader";
@@ -11,6 +11,7 @@ import { useObligationsFiscalesState } from "@/hooks/fiscal/useObligationsFiscal
 import { useValidityDateCalculation } from "@/hooks/fiscal/useValidityDateCalculation";
 import { useFiscalDataSave } from "@/hooks/fiscal/useFiscalDataSave";
 import { useObligationStatusHandlers } from "@/hooks/fiscal/useObligationStatusHandlers";
+import { useObligationTypes } from "@/hooks/fiscal/hooks/useObligationTypes";
 
 interface ObligationsFiscalesProps {
   selectedClient: Client;
@@ -36,6 +37,8 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
     setObligationStatuses
   } = useObligationsFiscalesState({ selectedClient });
 
+  const { isDeclarationObligation } = useObligationTypes();
+
   // Calculate validity end date when creation date changes
   useValidityDateCalculation({
     creationDate,
@@ -57,7 +60,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
   });
 
   // Status change handlers
-  const { handleFiscalYearChange, handleStatusChange } = useObligationStatusHandlers({
+  const { handleFiscalYearChange, handleStatusChange, handleAttachmentChange } = useObligationStatusHandlers({
     setObligationStatuses,
     setHasUnsavedChanges
   });
@@ -108,11 +111,14 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
         handleStatusChange={handleStatusChange}
       />
 
-      {/* Section des Déclarations */}
-      <DeclarationsSection 
-        fiscalYear={fiscalYear}
-        hasUnsavedChanges={hasUnsavedChanges}
-        setHasUnsavedChanges={setHasUnsavedChanges}
+      {/* Section des Obligations Annuelles */}
+      <AnnualObligationsSection
+        clientId={selectedClient.id}
+        selectedYear={fiscalYear}
+        obligationStatuses={obligationStatuses}
+        handleStatusChange={handleStatusChange}
+        handleAttachmentChange={handleAttachmentChange}
+        isDeclarationObligation={isDeclarationObligation}
       />
 
       {/* Bouton d'enregistrement */}

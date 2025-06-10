@@ -17,7 +17,7 @@ export async function generateActivityReport() {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Analyse des prestations par type (basée sur les descriptions des factures)
-    const prestationsAnalysis = data.factures.reduce((acc: any, facture: any) => {
+    const prestationsAnalysis = data.factures.reduce((acc: Record<string, { nombre: number; montant: number }>, facture: any) => {
       // Catégorisation simple basée sur les mots-clés
       let categorie = 'Autres services';
       const description = facture.notes || '';
@@ -44,13 +44,13 @@ export async function generateActivityReport() {
       return acc;
     }, {});
     
-    const total: number = Object.values(prestationsAnalysis).reduce((sum: number, cat: any) => {
-      return sum + (Number(cat.montant) || 0);
+    const total: number = Object.values(prestationsAnalysis).reduce((sum: number, cat: { nombre: number; montant: number }) => {
+      return sum + cat.montant;
     }, 0);
     
-    const activityData = Object.entries(prestationsAnalysis).map(([activite, data]: [string, any]) => {
-      const montant = Number(data.montant) || 0;
-      const nombre = Number(data.nombre) || 0;
+    const activityData = Object.entries(prestationsAnalysis).map(([activite, data]: [string, { nombre: number; montant: number }]) => {
+      const montant = data.montant;
+      const nombre = data.nombre;
       return [
         activite,
         nombre.toString(),
