@@ -92,6 +92,7 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     }
 
     console.log("Final default statuses:", baseStatuses);
+    console.log("DBEF status specifically:", baseStatuses.dbef);
     return baseStatuses;
   };
 
@@ -102,6 +103,7 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     console.log("Client changed, re-applying default rules");
     const newDefaultStatuses = getDefaultObligationStatuses();
     setObligationStatuses(newDefaultStatuses);
+    console.log("New obligations set:", newDefaultStatuses);
   }, [selectedClient.id, selectedClient.regimefiscal, selectedClient.type, selectedClient.situationimmobiliere?.type]);
 
   return {
