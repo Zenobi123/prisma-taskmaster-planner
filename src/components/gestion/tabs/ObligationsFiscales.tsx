@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Client } from "@/types/client";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
@@ -115,6 +114,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
       <AnnualObligationsSection
         clientId={selectedClient.id}
         selectedYear={fiscalYear}
+        selectedClient={selectedClient}
         obligationStatuses={obligationStatuses}
         handleStatusChange={handleStatusChange}
         handleAttachmentChange={handleAttachmentChange}

@@ -4,10 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ObligationStatuses } from '@/hooks/fiscal/types';
 import { DeclarationObligationItem } from './DeclarationObligationItem';
 import { FiscalBulkUpdateButton } from './FiscalBulkUpdateButton';
+import { Client } from '@/types/client';
 
 interface AnnualObligationsSectionProps {
   clientId: string;
   selectedYear: string;
+  selectedClient: Client;
   obligationStatuses: ObligationStatuses;
   handleStatusChange: (obligation: string, field: string, value: string | number | boolean) => void;
   handleAttachmentChange: (obligation: string, attachmentType: string, filePath: string | null) => void;
@@ -17,6 +19,7 @@ interface AnnualObligationsSectionProps {
 export function AnnualObligationsSection({
   clientId,
   selectedYear,
+  selectedClient,
   obligationStatuses,
   handleStatusChange,
   handleAttachmentChange,
@@ -42,15 +45,20 @@ export function AnnualObligationsSection({
           clientId={clientId}
           selectedYear={selectedYear}
         />
-        <DeclarationObligationItem
-          title="Déclaration Annuelle des Revenus Professionnels (DARP)"
-          keyName="darp"
-          status={obligationStatuses.darp}
-          onStatusChange={handleStatusChange}
-          onAttachmentChange={handleAttachmentChange}
-          clientId={clientId}
-          selectedYear={selectedYear}
-        />
+        
+        {/* DARP uniquement pour les personnes physiques */}
+        {selectedClient.type === "physique" && (
+          <DeclarationObligationItem
+            title="Déclaration Annuelle des Revenus Professionnels (DARP)"
+            keyName="darp"
+            status={obligationStatuses.darp}
+            onStatusChange={handleStatusChange}
+            onAttachmentChange={handleAttachmentChange}
+            clientId={clientId}
+            selectedYear={selectedYear}
+          />
+        )}
+        
         <DeclarationObligationItem
           title="Déclaration des Bénéficiaires Effectifs (DBEF)"
           keyName="dbef"
