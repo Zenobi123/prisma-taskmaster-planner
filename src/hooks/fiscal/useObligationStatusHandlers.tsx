@@ -13,12 +13,12 @@ export const useObligationStatusHandlers = ({
 }: UseObligationStatusHandlersProps) => {
   
   const handleFiscalYearChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("Fiscal year changed:", e.target.value);
+    console.log("Changement d'année fiscale:", e.target.value);
     setHasUnsavedChanges(true);
   }, [setHasUnsavedChanges]);
 
   const handleStatusChange = useCallback((obligation: string, field: string, value: string | number | boolean) => {
-    console.log(`Updating ${obligation}.${field} to:`, value);
+    console.log(`Mise à jour ${obligation}.${field} vers:`, value);
     
     setObligationStatuses(prev => {
       const updated = { ...prev };
@@ -30,7 +30,7 @@ export const useObligationStatusHandlers = ({
           [field]: value
         } as any;
         
-        // Handle cascading logic for assujetti changes
+        // Logique de cascade pour les changements d'assujetti
         if (field === "assujetti" && !value) {
           const currentObligation = updated[obligationType];
           if ('payee' in currentObligation) {
@@ -40,6 +40,8 @@ export const useObligationStatusHandlers = ({
             (currentObligation as DeclarationObligationStatus).depose = false;
           }
         }
+        
+        console.log(`Obligation ${obligation} mise à jour:`, updated[obligationType]);
       }
       
       setHasUnsavedChanges(true);
@@ -48,6 +50,8 @@ export const useObligationStatusHandlers = ({
   }, [setObligationStatuses, setHasUnsavedChanges]);
 
   const handleAttachmentChange = useCallback((obligation: string, attachmentType: string, filePath: string | null) => {
+    console.log(`Mise à jour pièce jointe ${obligation}.${attachmentType}:`, filePath);
+    
     setObligationStatuses(prev => {
       const updated = { ...prev };
       const obligationType = obligation as ObligationType;
@@ -66,6 +70,8 @@ export const useObligationStatusHandlers = ({
           ...currentObligation,
           attachements
         } as any;
+        
+        console.log(`Pièces jointes ${obligation} mises à jour:`, attachements);
       }
       
       setHasUnsavedChanges(true);
