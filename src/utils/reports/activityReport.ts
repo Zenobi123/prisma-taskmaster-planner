@@ -45,8 +45,7 @@ export async function generateActivityReport() {
     }, {});
     
     const total: number = Object.values(prestationsAnalysis).reduce((sum: number, cat: any) => {
-      const montant = Number(cat.montant) || 0;
-      return sum + montant;
+      return sum + (Number(cat.montant) || 0);
     }, 0);
     
     const activityData = Object.entries(prestationsAnalysis).map(([activite, data]: [string, any]) => {
