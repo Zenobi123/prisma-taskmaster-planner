@@ -10,10 +10,16 @@ export const useCapitalSocial = (clientId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
+  console.log("useCapitalSocial - Client ID:", clientId);
+
   // Charger les données du capital social
   const fetchCapitalSocial = async () => {
-    if (!clientId) return;
+    if (!clientId) {
+      console.log("useCapitalSocial - Pas de client ID");
+      return;
+    }
 
+    console.log("useCapitalSocial - Chargement des données pour client:", clientId);
     setIsLoading(true);
     try {
       const { data: capitalData, error: capitalError } = await supabase
@@ -22,14 +28,23 @@ export const useCapitalSocial = (clientId: string | undefined) => {
         .eq('client_id', clientId)
         .maybeSingle();
 
-      if (capitalError) throw capitalError;
+      if (capitalError) {
+        console.error("Erreur capital social:", capitalError);
+        throw capitalError;
+      }
 
       const { data: actionnaireData, error: actionnaireError } = await supabase
         .from('actionnaires')
         .select('*')
         .eq('client_id', clientId);
 
-      if (actionnaireError) throw actionnaireError;
+      if (actionnaireError) {
+        console.error("Erreur actionnaires:", actionnaireError);
+        throw actionnaireError;
+      }
+
+      console.log("useCapitalSocial - Données capital chargées:", capitalData);
+      console.log("useCapitalSocial - Données actionnaires chargées:", actionnaireData);
 
       // Convertir et valider les données du capital social
       const formattedCapitalData = capitalData ? {
@@ -152,6 +167,7 @@ export const useCapitalSocial = (clientId: string | undefined) => {
   };
 
   useEffect(() => {
+    console.log("useCapitalSocial - useEffect déclenché pour client:", clientId);
     fetchCapitalSocial();
   }, [clientId]);
 

@@ -11,6 +11,9 @@ interface ClientViewProps {
 }
 
 export function ClientView({ client }: ClientViewProps) {
+  console.log("ClientView - Type de client:", client.type);
+  console.log("ClientView - Client complet:", client);
+
   return (
     <div className="space-y-6">
       <GeneralInfoCard client={client} />
@@ -21,7 +24,10 @@ export function ClientView({ client }: ClientViewProps) {
       
       {/* Section Capital Social - uniquement pour les personnes morales */}
       {client.type === 'morale' && (
-        <CapitalSocialSection client={client} />
+        <div>
+          <h3 className="text-lg font-semibold mb-4">Capital Social et Actionnaires</h3>
+          <CapitalSocialSection client={client} />
+        </div>
       )}
       
       <InteractionsCard client={client} />
