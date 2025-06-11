@@ -43,14 +43,14 @@ export function ClientDialogs({
   return (
     <>
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-white max-h-[90vh]">
+        <DialogContent className="bg-white max-h-[90vh] max-w-4xl">
           <DialogHeader>
             <DialogTitle>Ajouter un nouveau client</DialogTitle>
             <DialogDescription>
               Remplissez les informations du nouveau client ci-dessous.
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="h-[70vh] pr-4">
+          <ScrollArea className="h-[75vh] pr-4">
             <ClientForm
               type={newClientType}
               onTypeChange={onNewClientTypeChange}
@@ -66,7 +66,7 @@ export function ClientDialogs({
       {selectedClient && (
         <>
           <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-            <DialogContent className="bg-white max-h-[90vh]">
+            <DialogContent className="bg-white max-h-[90vh] max-w-4xl">
               <DialogHeader>
                 <DialogTitle>Détails du client</DialogTitle>
                 <DialogDescription>
@@ -78,14 +78,14 @@ export function ClientDialogs({
           </Dialog>
 
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-            <DialogContent className="bg-white max-h-[90vh]">
+            <DialogContent className="bg-white max-h-[90vh] max-w-4xl">
               <DialogHeader>
                 <DialogTitle>Modifier le client</DialogTitle>
                 <DialogDescription>
                   Modifiez les informations du client ci-dessous.
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="h-[70vh] pr-4">
+              <ScrollArea className="h-[75vh] pr-4">
                 <ClientForm
                   type={selectedClient.type}
                   initialData={selectedClient}

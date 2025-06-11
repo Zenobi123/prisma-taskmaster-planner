@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ClientType, Client } from "@/types/client";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientFormFields } from "./form/ClientFormFields";
+import { CapitalSocialSection } from "./capital/CapitalSocialSection";
 import { useClientForm } from "@/hooks/useClientForm";
 
 interface ClientFormProps {
@@ -21,6 +22,8 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
     onSubmit(clientData);
   };
 
+  const isPersonneMorale = type === 'morale';
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {onTypeChange && (
@@ -32,6 +35,14 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
         formData={formData}
         onChange={handleChange}
       />
+
+      {/* Section Capital Social - uniquement pour les personnes morales */}
+      {isPersonneMorale && initialData && (
+        <div className="w-full border-t pt-6">
+          <h3 className="text-lg font-semibold mb-4 text-gray-900">Capital Social et Actionnaires</h3>
+          <CapitalSocialSection client={initialData} />
+        </div>
+      )}
 
       <Button type="submit" className="w-full">
         {initialData ? "Modifier le client" : "Ajouter le client"}
