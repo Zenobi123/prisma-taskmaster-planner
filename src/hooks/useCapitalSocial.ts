@@ -31,7 +31,13 @@ export const useCapitalSocial = (clientId: string | undefined) => {
 
       if (actionnaireError) throw actionnaireError;
 
-      setCapitalSocial(capitalData);
+      // Convertir et valider les données du capital social
+      const formattedCapitalData = capitalData ? {
+        ...capitalData,
+        type_capital: (capitalData.type_capital === 'parts' ? 'parts' : 'actions') as 'actions' | 'parts'
+      } : null;
+
+      setCapitalSocial(formattedCapitalData);
       setActionnaires(actionnaireData || []);
     } catch (error) {
       console.error('Erreur lors du chargement des données:', error);
@@ -63,7 +69,13 @@ export const useCapitalSocial = (clientId: string | undefined) => {
           .single();
 
         if (error) throw error;
-        setCapitalSocial(newCapital);
+        
+        // Formater les données avant de les stocker
+        const formattedNewCapital = {
+          ...newCapital,
+          type_capital: (newCapital.type_capital === 'parts' ? 'parts' : 'actions') as 'actions' | 'parts'
+        };
+        setCapitalSocial(formattedNewCapital);
       }
 
       setHasUnsavedChanges(false);
