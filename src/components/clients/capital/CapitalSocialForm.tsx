@@ -42,72 +42,74 @@ export const CapitalSocialForm: React.FC<CapitalSocialFormProps> = ({
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Capital Social</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="montant_capital">Montant du capital (FCFA)</Label>
-              <Input
-                id="montant_capital"
-                type="number"
-                value={formData.montant_capital || ''}
-                onChange={(e) => handleChange('montant_capital', Number(e.target.value))}
-                placeholder="0"
-              />
+    <div className="w-full">
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>Capital Social</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="montant_capital">Montant du capital (FCFA)</Label>
+                <Input
+                  id="montant_capital"
+                  type="number"
+                  value={formData.montant_capital || ''}
+                  onChange={(e) => handleChange('montant_capital', Number(e.target.value))}
+                  placeholder="0"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="type_capital">Type de capital</Label>
+                <Select 
+                  value={formData.type_capital || 'actions'} 
+                  onValueChange={(value) => handleChange('type_capital', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner le type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="actions">Actions</SelectItem>
+                    <SelectItem value="parts">Parts sociales</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <Label htmlFor="valeur_action_part">
+                  Valeur par {formData.type_capital === 'actions' ? 'action' : 'part'} (FCFA)
+                </Label>
+                <Input
+                  id="valeur_action_part"
+                  type="number"
+                  value={formData.valeur_action_part || ''}
+                  onChange={(e) => handleChange('valeur_action_part', Number(e.target.value))}
+                  placeholder="0"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="nombre_actions_parts">
+                  Nombre d'{formData.type_capital === 'actions' ? 'actions' : 'parts'}
+                </Label>
+                <Input
+                  id="nombre_actions_parts"
+                  type="number"
+                  value={formData.nombre_actions_parts || ''}
+                  onChange={(e) => handleChange('nombre_actions_parts', Number(e.target.value))}
+                  placeholder="0"
+                />
+              </div>
             </div>
 
-            <div>
-              <Label htmlFor="type_capital">Type de capital</Label>
-              <Select 
-                value={formData.type_capital || 'actions'} 
-                onValueChange={(value) => handleChange('type_capital', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner le type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="actions">Actions</SelectItem>
-                  <SelectItem value="parts">Parts sociales</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="valeur_action_part">
-                Valeur par {formData.type_capital === 'actions' ? 'action' : 'part'} (FCFA)
-              </Label>
-              <Input
-                id="valeur_action_part"
-                type="number"
-                value={formData.valeur_action_part || ''}
-                onChange={(e) => handleChange('valeur_action_part', Number(e.target.value))}
-                placeholder="0"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="nombre_actions_parts">
-                Nombre d'{formData.type_capital === 'actions' ? 'actions' : 'parts'}
-              </Label>
-              <Input
-                id="nombre_actions_parts"
-                type="number"
-                value={formData.nombre_actions_parts || ''}
-                onChange={(e) => handleChange('nombre_actions_parts', Number(e.target.value))}
-                placeholder="0"
-              />
-            </div>
-          </div>
-
-          <Button type="submit" className="w-full">
-            Sauvegarder le capital social
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+            <Button type="submit" className="w-full">
+              Sauvegarder le capital social
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

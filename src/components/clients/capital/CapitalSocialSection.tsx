@@ -34,18 +34,20 @@ export const CapitalSocialSection: React.FC<CapitalSocialSectionProps> = ({ clie
 
   if (isLoading) {
     return (
-      <Card>
-        <CardContent className="flex justify-center items-center h-32">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-        </CardContent>
-      </Card>
+      <div className="w-full">
+        <Card className="w-full">
+          <CardContent className="flex justify-center items-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   console.log("CapitalSocialSection - Rendu de la section capital social");
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       <CapitalSocialForm
         capitalSocial={capitalSocial}
         onSave={saveCapitalSocial}

@@ -59,52 +59,54 @@ export const ActionnairesSection: React.FC<ActionnairesSectionProps> = ({
   const totalPourcentage = actionnaires.reduce((sum, a) => sum + a.pourcentage, 0);
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <div>
-            <CardTitle>Actionnaires / Associés</CardTitle>
-            {actionnaires.length > 0 && (
-              <p className="text-sm text-gray-600 mt-1">
-                Total des pourcentages: {totalPourcentage.toFixed(2)}%
-                {totalPourcentage !== 100 && (
-                  <span className="text-orange-600 ml-2">
-                    ⚠️ Le total devrait être 100%
-                  </span>
-                )}
-              </p>
-            )}
-          </div>
-          <Button onClick={handleAdd} size="sm">
-            <Plus className="w-4 h-4 mr-2" />
-            Ajouter
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {actionnaires.length === 0 ? (
-          <div className="text-center py-8 text-gray-500">
-            <p>Aucun actionnaire enregistré</p>
-            <Button onClick={handleAdd} variant="outline" className="mt-4">
+    <div className="w-full">
+      <Card className="w-full">
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Actionnaires / Associés</CardTitle>
+              {actionnaires.length > 0 && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Total des pourcentages: {totalPourcentage.toFixed(2)}%
+                  {totalPourcentage !== 100 && (
+                    <span className="text-orange-600 ml-2">
+                      ⚠️ Le total devrait être 100%
+                    </span>
+                  )}
+                </p>
+              )}
+            </div>
+            <Button onClick={handleAdd} size="sm">
               <Plus className="w-4 h-4 mr-2" />
-              Ajouter le premier actionnaire
+              Ajouter
             </Button>
           </div>
-        ) : (
-          <ActionnairesTable
-            actionnaires={actionnaires}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
-        )}
+        </CardHeader>
+        <CardContent>
+          {actionnaires.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              <p>Aucun actionnaire enregistré</p>
+              <Button onClick={handleAdd} variant="outline" className="mt-4">
+                <Plus className="w-4 h-4 mr-2" />
+                Ajouter le premier actionnaire
+              </Button>
+            </div>
+          ) : (
+            <ActionnairesTable
+              actionnaires={actionnaires}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )}
 
-        <ActionnaireDialog
-          isOpen={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          actionnaire={editingActionnaire}
-          onSave={handleSave}
-        />
-      </CardContent>
-    </Card>
+          <ActionnaireDialog
+            isOpen={isDialogOpen}
+            onOpenChange={setIsDialogOpen}
+            actionnaire={editingActionnaire}
+            onSave={handleSave}
+          />
+        </CardContent>
+      </Card>
+    </div>
   );
 };
