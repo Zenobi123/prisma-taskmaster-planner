@@ -39,7 +39,7 @@ export function ClientsContent({
   isMobile
 }: ClientsContentProps) {
   return (
-    <div className={`bg-white rounded-lg shadow-sm border border-neutral-200 p-${isMobile ? '4' : '6'}`}>
+    <div className={`bg-white rounded-lg shadow-sm border border-neutral-200 p-${isMobile ? '4' : '6'} h-full overflow-hidden flex flex-col`}>
       <ClientFilters
         searchTerm={searchTerm}
         onSearchChange={onSearchChange}
@@ -53,15 +53,17 @@ export function ClientsContent({
         isMobile={isMobile}
       />
 
-      <ClientList
-        clients={clients}
-        onView={onView}
-        onEdit={onEdit}
-        onArchive={onArchive}
-        onRestore={onRestore}
-        onDelete={onDelete}
-        isMobile={isMobile}
-      />
+      <div className="flex-1 overflow-y-auto">
+        <ClientList
+          clients={clients}
+          onView={onView}
+          onEdit={onEdit}
+          onArchive={onArchive}
+          onRestore={onRestore}
+          onDelete={onDelete}
+          isMobile={isMobile}
+        />
+      </div>
     </div>
   );
 }
