@@ -43,7 +43,7 @@ export function ClientDialogs({
   return (
     <>
       <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-        <DialogContent className="bg-white max-h-[90vh] max-w-4xl">
+        <DialogContent className="bg-white max-h-[90vh] max-w-2xl">
           <DialogHeader>
             <DialogTitle>Ajouter un nouveau client</DialogTitle>
             <DialogDescription>

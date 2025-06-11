@@ -37,10 +37,18 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
       />
 
       {/* Section Capital Social - uniquement pour les personnes morales */}
-      {isPersonneMorale && initialData && (
+      {isPersonneMorale && (
         <div className="w-full border-t pt-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-900">Capital Social et Actionnaires</h3>
-          <CapitalSocialSection client={initialData} />
+          {initialData ? (
+            <CapitalSocialSection client={initialData} />
+          ) : (
+            <div className="p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
+              <p className="text-sm text-gray-600 text-center">
+                La section Capital Social et Actionnaires sera disponible après la création du client.
+              </p>
+            </div>
+          )}
         </div>
       )}
 
