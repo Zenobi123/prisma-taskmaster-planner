@@ -24,7 +24,7 @@ export function ClientView({ client }: ClientViewProps) {
         <ContactCard client={client} />
       </div>
       
-      {/* Section Capital Social - uniquement pour les personnes morales */}
+      {/* Section Capital Social - uniquement pour les personnes morales - LECTURE SEULE */}
       {isPersonneMorale && (
         <div className="w-full">
           <h3 className="text-lg font-semibold mb-4 text-gray-900">Capital Social et Actionnaires</h3>

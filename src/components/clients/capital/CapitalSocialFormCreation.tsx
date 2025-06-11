@@ -13,6 +13,16 @@ interface CapitalSocialFormCreationProps {
   onActionnaireChange: (data: Actionnaire[]) => void;
 }
 
+interface ActionnaireFormData {
+  nom: string;
+  prenom: string;
+  date_naissance: string;
+  lieu_habitation: string;
+  nombre_actions_parts: number;
+  valeur_capital: number;
+  pourcentage: number;
+}
+
 export const CapitalSocialFormCreation: React.FC<CapitalSocialFormCreationProps> = ({
   onCapitalChange,
   onActionnaireChange
@@ -27,7 +37,7 @@ export const CapitalSocialFormCreation: React.FC<CapitalSocialFormCreationProps>
   const [actionnaires, setActionnaires] = useState<Actionnaire[]>([]);
   const [showActionnaireForm, setShowActionnaireForm] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number>(-1);
-  const [actionnaireForm, setActionnaireForm] = useState({
+  const [actionnaireForm, setActionnaireForm] = useState<ActionnaireFormData>({
     nom: '',
     prenom: '',
     date_naissance: '',
@@ -68,7 +78,16 @@ export const CapitalSocialFormCreation: React.FC<CapitalSocialFormCreationProps>
   };
 
   const editActionnaire = (index: number) => {
-    setActionnaireForm(actionnaires[index]);
+    const actionnaire = actionnaires[index];
+    setActionnaireForm({
+      nom: actionnaire.nom,
+      prenom: actionnaire.prenom || '',
+      date_naissance: actionnaire.date_naissance || '',
+      lieu_habitation: actionnaire.lieu_habitation || '',
+      nombre_actions_parts: actionnaire.nombre_actions_parts,
+      valeur_capital: actionnaire.valeur_capital,
+      pourcentage: actionnaire.pourcentage
+    });
     setEditingIndex(index);
     setShowActionnaireForm(true);
   };
