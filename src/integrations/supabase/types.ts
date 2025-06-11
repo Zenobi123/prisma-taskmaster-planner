@@ -9,6 +9,97 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      actionnaires: {
+        Row: {
+          client_id: string
+          created_at: string
+          date_naissance: string | null
+          id: string
+          lieu_habitation: string | null
+          nom: string
+          nombre_actions_parts: number
+          pourcentage: number
+          prenom: string | null
+          updated_at: string
+          valeur_capital: number
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          date_naissance?: string | null
+          id?: string
+          lieu_habitation?: string | null
+          nom: string
+          nombre_actions_parts?: number
+          pourcentage?: number
+          prenom?: string | null
+          updated_at?: string
+          valeur_capital?: number
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          date_naissance?: string | null
+          id?: string
+          lieu_habitation?: string | null
+          nom?: string
+          nombre_actions_parts?: number
+          pourcentage?: number
+          prenom?: string | null
+          updated_at?: string
+          valeur_capital?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "actionnaires_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      capital_social: {
+        Row: {
+          client_id: string
+          created_at: string
+          id: string
+          montant_capital: number
+          nombre_actions_parts: number | null
+          type_capital: string | null
+          updated_at: string
+          valeur_action_part: number | null
+        }
+        Insert: {
+          client_id: string
+          created_at?: string
+          id?: string
+          montant_capital?: number
+          nombre_actions_parts?: number | null
+          type_capital?: string | null
+          updated_at?: string
+          valeur_action_part?: number | null
+        }
+        Update: {
+          client_id?: string
+          created_at?: string
+          id?: string
+          montant_capital?: number
+          nombre_actions_parts?: number | null
+          type_capital?: string | null
+          updated_at?: string
+          valeur_action_part?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "capital_social_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clients: {
         Row: {
           adresse: Json

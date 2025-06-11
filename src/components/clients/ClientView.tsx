@@ -4,6 +4,7 @@ import { GeneralInfoCard } from "./view/GeneralInfoCard";
 import { AddressCard } from "./view/AddressCard";
 import { ContactCard } from "./view/ContactCard";
 import { InteractionsCard } from "./view/InteractionsCard";
+import { CapitalSocialSection } from "./capital/CapitalSocialSection";
 
 interface ClientViewProps {
   client: Client;
@@ -17,6 +18,12 @@ export function ClientView({ client }: ClientViewProps) {
         <AddressCard client={client} />
         <ContactCard client={client} />
       </div>
+      
+      {/* Section Capital Social - uniquement pour les personnes morales */}
+      {client.type === 'morale' && (
+        <CapitalSocialSection client={client} />
+      )}
+      
       <InteractionsCard client={client} />
     </div>
   );

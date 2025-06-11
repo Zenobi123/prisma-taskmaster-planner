@@ -1,4 +1,3 @@
-
 import { useCallback } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses } from "./types";
@@ -141,7 +140,9 @@ export const useFiscalDataSave = ({
 
         console.log("Données fiscales existantes:", existingClient?.fiscal_data);
 
-        const existingFiscalData = existingClient?.fiscal_data || {};
+        // Gestion sécurisée des données fiscales existantes
+        const existingFiscalData = existingClient?.fiscal_data ? 
+          (typeof existingClient.fiscal_data === 'object' ? existingClient.fiscal_data as any : {}) : {};
         
         // Préparer les nouvelles données avec validation complète
         const fiscalDataToSave = {
@@ -153,7 +154,7 @@ export const useFiscalDataSave = ({
             showInAlert: Boolean(showInAlert)
           },
           obligations: {
-            ...(existingFiscalData as any)?.obligations,
+            ...existingFiscalData?.obligations,
             [fiscalYear]: prepareObligationsForSave(obligationStatuses)
           },
           hiddenFromDashboard: Boolean(hiddenFromDashboard),
@@ -201,7 +202,9 @@ export const useFiscalDataSave = ({
           console.log("Vérification - Données sauvegardées:", verificationData?.fiscal_data);
           
           // Vérifier que les données ont bien été sauvegardées
-          const savedObligations = verificationData?.fiscal_data?.obligations?.[fiscalYear];
+          const savedFiscalData = verificationData?.fiscal_data ? 
+            (typeof verificationData.fiscal_data === 'object' ? verificationData.fiscal_data as any : {}) : {};
+          const savedObligations = savedFiscalData?.obligations?.[fiscalYear];
           if (!savedObligations) {
             console.error("Les obligations n'ont pas été sauvegardées correctement");
             if (attempt === maxRetries) {
