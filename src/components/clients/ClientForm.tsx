@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ClientType, Client } from "@/types/client";
 import { ClientTypeSelect } from "./ClientTypeSelect";
 import { ClientFormFields } from "./form/ClientFormFields";
+import { CapitalSocialFormCreation } from "./capital/CapitalSocialFormCreation";
 import { CapitalSocialSection } from "./capital/CapitalSocialSection";
 import { useClientForm } from "@/hooks/useClientForm";
 
@@ -43,11 +44,10 @@ export function ClientForm({ onSubmit, type, onTypeChange, initialData }: Client
           {initialData ? (
             <CapitalSocialSection client={initialData} />
           ) : (
-            <div className="p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50">
-              <p className="text-sm text-gray-600 text-center">
-                La section Capital Social et Actionnaires sera disponible après la création du client.
-              </p>
-            </div>
+            <CapitalSocialFormCreation 
+              onCapitalChange={(data) => handleChange('capitalSocial', data)}
+              onActionnaireChange={(data) => handleChange('actionnaires', data)}
+            />
           )}
         </div>
       )}
