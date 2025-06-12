@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BarChart, Calendar, FileBarChart, Users, DollarSign, FileText, Clock, TrendingUp } from "lucide-react";
+import { ArrowLeft, BarChart, Calendar, FileBarChart, Users, DollarSign, FileText, Clock, TrendingUp, Building, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { ReportTypeFilter } from "@/components/rapports/ReportTypeFilter";
@@ -38,6 +38,15 @@ import {
   generateTachesReport, 
   generatePerformanceCollaborateursReport 
 } from "@/utils/reports/operationalReports";
+
+// Nouveaux rapports clients spécifiques
+import {
+  generatePersonnesMoralesReport,
+  generatePersonnesPhysiquesReport,
+  generateClientsParCentreReport,
+  generateClientsAssujettisIGSReport,
+  generateClientsAssujettsPatenteReport
+} from "@/utils/reports/specificClientReports";
 
 const Rapports = () => {
   const [typeFilter, setTypeFilter] = useState("all");
@@ -77,7 +86,7 @@ const Rapports = () => {
       generator: generateCreancesReport
     },
 
-    // Rapports clients
+    // Rapports clients généraux
     {
       id: 4,
       titre: "Portefeuille Clients",
@@ -107,6 +116,58 @@ const Rapports = () => {
       icon: BarChart,
       description: "Analyse de l'activité commerciale par client",
       generator: generateActiviteClientsReport
+    },
+
+    // Nouveaux rapports clients spécifiques
+    {
+      id: 16,
+      titre: "Personnes Morales",
+      date: new Date().toLocaleDateString(),
+      type: "clients",
+      taille: "1.2 MB",
+      icon: Building,
+      description: "Liste complète des clients personnes morales avec leurs caractéristiques",
+      generator: generatePersonnesMoralesReport
+    },
+    {
+      id: 17,
+      titre: "Personnes Physiques",
+      date: new Date().toLocaleDateString(),
+      type: "clients",
+      taille: "1.0 MB",
+      icon: User,
+      description: "Liste complète des clients personnes physiques avec leurs informations",
+      generator: generatePersonnesPhysiquesReport
+    },
+    {
+      id: 18,
+      titre: "Clients par Centre des Impôts",
+      date: new Date().toLocaleDateString(),
+      type: "clients",
+      taille: "1.3 MB",
+      icon: FileText,
+      description: "Répartition des clients par centre de rattachement fiscal",
+      generator: generateClientsParCentreReport
+    },
+    {
+      id: 19,
+      titre: "Clients Assujettis IGS",
+      date: new Date().toLocaleDateString(),
+      type: "clients",
+      taille: "0.9 MB",
+      icon: DollarSign,
+      description: "Liste des clients assujettis à l'Impôt Général sur le Salaire",
+      generator: generateClientsAssujettisIGSReport
+    },
+    {
+      id: 20,
+      titre: "Clients Assujettis Patente",
+      date: new Date().toLocaleDateString(),
+      type: "clients",
+      taille: "1.1 MB",
+      icon: FileBarChart,
+      description: "Liste des clients assujettis à la Patente (activités commerciales/industrielles)",
+      generator: generateClientsAssujettsPatenteReport
     },
 
     // Rapports fiscaux
