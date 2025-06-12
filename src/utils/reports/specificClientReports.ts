@@ -1,7 +1,14 @@
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
+
+// Étendre le type jsPDF pour inclure autoTable
+declare module 'jspdf' {
+  interface jsPDF {
+    autoTable: typeof autoTable;
+  }
+}
 
 export const generatePersonnesMoralesReport = async () => {
   try {
@@ -36,7 +43,7 @@ export const generatePersonnesMoralesReport = async () => {
         client.secteuractivite || 'Non renseigné'
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 45,
         head: [['Raison Sociale', 'Sigle', 'Forme Juridique', 'NIU', 'Centre', 'Régime Fiscal', 'Secteur']],
         body: clientsData,
@@ -86,7 +93,7 @@ export const generatePersonnesPhysiquesReport = async () => {
         client.secteuractivite || 'Non renseigné'
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 45,
         head: [['Nom', 'Sexe', 'État Civil', 'NIU', 'Centre', 'Régime Fiscal', 'Secteur']],
         body: clientsData,
@@ -151,7 +158,7 @@ export const generateClientsParCentreReport = async () => {
           client.regimefiscal || 'Non renseigné'
         ]);
         
-        (doc as any).autoTable({
+        autoTable(doc, {
           startY: currentY,
           head: [['Nom/Raison Sociale', 'Type', 'NIU', 'Régime Fiscal']],
           body: clientsData,
@@ -159,6 +166,7 @@ export const generateClientsParCentreReport = async () => {
           styles: { fontSize: 8 }
         });
         
+        // @ts-ignore - autoTable ajoute lastAutoTable à doc
         currentY = (doc as any).lastAutoTable.finalY + 15;
         
         // Nouvelle page si nécessaire
@@ -212,7 +220,7 @@ export const generateClientsAssujettisIGSReport = async () => {
         client.secteuractivite || 'Non renseigné'
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 50,
         head: [['Raison Sociale', 'Forme Juridique', 'NIU', 'Centre', 'Secteur']],
         body: clientsData,
@@ -269,7 +277,7 @@ export const generateClientsAssujettsPatenteReport = async () => {
         client.secteuractivite || 'Non renseigné'
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 50,
         head: [['Nom/Raison Sociale', 'Type', 'NIU', 'Centre', 'Secteur d\'Activité']],
         body: clientsData,

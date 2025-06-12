@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 import { getClientsWithUnpaidIgs, getClientsWithUnpaidPatente, getClientsWithUnfiledDsf, getClientsWithUnfiledDarp } from "@/services/fiscalObligationsService";
@@ -81,24 +80,20 @@ export class ReportDataService {
 
       if (paieError) throw paieError;
 
-      // Récupérer les tâches - Fix de la relation ambiguë
+      // Récupérer les tâches - Correction de la relation ambiguë
       const { data: tasksData, error: tasksError } = await supabase
         .from('tasks')
         .select(`
           *,
-          collaborateurs!tasks_collaborateur_id_fkey(nom, prenom),
-          clients(nom, raisonsociale)
+          clients!fk_tasks_client(nom, raisonsociale)
         `);
 
       if (tasksError) {
-        console.error('Erreur tasks:', tasksError);
-        // Fallback : récupérer les tâches sans les collaborateurs
+        console.error('Erreur tasks avec relation spécifique:', tasksError);
+        // Fallback : récupérer les tâches sans les collaborateurs ni les clients
         const { data: tasksDataFallback, error: tasksErrorFallback } = await supabase
           .from('tasks')
-          .select(`
-            *,
-            clients(nom, raisonsociale)
-          `);
+          .select('*');
         
         return {
           clients,
