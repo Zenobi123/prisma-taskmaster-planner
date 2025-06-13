@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { FileText, ChevronRight } from 'lucide-react';
+import { FileText, ChevronRight, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Client } from '@/types/client';
 
@@ -25,7 +25,15 @@ const UnfiledDsfSummary: React.FC<UnfiledDsfSummaryProps> = ({
               <FileText className="h-5 w-5 text-blue-600" />
             </div>
             <div>
-              <h3 className="font-medium text-gray-900">DSF non déposées</h3>
+              <h3 className="font-medium text-gray-900 flex items-center gap-2">
+                DSF non déposées
+                {clients.length > 0 && (
+                  <span className="inline-flex items-center px-2 py-1 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">
+                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    À régulariser
+                  </span>
+                )}
+              </h3>
               {isLoading ? (
                 <div className="h-5 bg-blue-100 animate-pulse rounded w-24 mt-1"></div>
               ) : (

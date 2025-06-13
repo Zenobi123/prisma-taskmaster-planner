@@ -8,9 +8,10 @@ import { ClotureExercice } from "./tabs/ClotureExercice";
 import { ContratPrestations } from "./tabs/ContratPrestations";
 import { GestionEntreprise } from "./tabs/GestionEntreprise";
 import { useState } from "react";
+import { Client } from "@/types/client";
 
 interface GestionTabsProps {
-  selectedClient: string;
+  selectedClient: Client;
 }
 
 export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
@@ -29,7 +30,7 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsList>
 
       <TabsContent value="dossier" className="mt-6">
-        <GestionDossier selectedClient={selectedClient} />
+        <GestionDossier selectedClient={selectedClient.id} />
       </TabsContent>
 
       <TabsContent value="comptable" className="mt-6">
@@ -41,7 +42,7 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsContent>
 
       <TabsContent value="obligations" className="mt-6">
-        <ObligationsFiscales selectedClient={selectedClient} />
+        <ObligationsFiscales selectedClient={selectedClient.id} />
       </TabsContent>
 
       <TabsContent value="cloture" className="mt-6">
@@ -52,13 +53,13 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsContent>
 
       <TabsContent value="contrat" className="mt-6">
-        <ContratPrestations client={selectedClient} />
+        <ContratPrestations client={selectedClient.id} />
       </TabsContent>
 
       <TabsContent value="entreprise" className="mt-6">
         <GestionEntreprise 
           onTabChange={() => {}}
-          selectedClient={selectedClient}
+          selectedClient={selectedClient.id}
         />
       </TabsContent>
     </Tabs>

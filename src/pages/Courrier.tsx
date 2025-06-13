@@ -1,105 +1,109 @@
 
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
-import { CourrierHeader } from "@/components/courrier/CourrierHeader";
-import { TemplateSelection } from "@/components/courrier/TemplateSelection";
-import { CriteriaSelection } from "@/components/courrier/CriteriaSelection";
-import { ClientsList } from "@/components/courrier/ClientsList";
-import { PreviewDialog } from "@/components/courrier/PreviewDialog";
-import { useCourrierData } from "@/hooks/useCourrierData";
+import CourrierHeader from "@/components/courrier/CourrierHeader";
+import TemplateSelection from "@/components/courrier/TemplateSelection";
+import CriteriaSelection from "@/components/courrier/CriteriaSelection";
+import ClientsList from "@/components/courrier/ClientsList";
+import PreviewDialog from "@/components/courrier/PreviewDialog";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+
+interface FilterCriteria {
+  type: string;
+  regimeFiscal: string;
+  secteurActivite: string;
+  centreRattachement: string;
+  statut: string;
+}
 
 export default function Courrier() {
-  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
-  const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [selectedClients, setSelectedClients] = useState<string[]>([]);
-
-  const {
-    clients = [],
-    collaborateurs = [],
-    isLoading,
-    error,
-  } = useCourrierData();
-
-  const filteredClients = clients.filter(client => {
-    if (selectedCriteria.length === 0) return true;
-    
-    return selectedCriteria.some(criteria => {
-      switch (criteria) {
-        case "particuliers":
-          return client.type === "physique";
-        case "entreprises":
-          return client.type === "morale";
-        case "actifs":
-          return client.statut === "actif";
-        case "archives":
-          return client.statut === "archive";
-        default:
-          return true;
-      }
-    });
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [filterCriteria, setFilterCriteria] = useState<FilterCriteria>({
+    type: "",
+    regimeFiscal: "",
+    secteurActivite: "",
+    centreRattachement: "",
+    statut: ""
   });
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+
+  const handleTemplateSelect = (template: string) => {
+    setSelectedTemplate(template);
+  };
+
+  const handleCriteriaChange = (criteria: FilterCriteria) => {
+    setFilterCriteria(criteria);
+  };
+
+  const handleClientSelect = (clientIds: string[]) => {
+    setSelectedClients(clientIds);
+  };
 
   const handlePreview = () => {
     setIsPreviewOpen(true);
   };
 
-  if (isLoading) {
-    return (
-      <PageLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Chargement...</div>
-        </div>
-      </PageLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <PageLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-red-600">
-            Erreur lors du chargement des données
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
-
-  const selectedClientsData = filteredClients.filter(client => 
-    selectedClients.includes(client.id)
-  );
+  const handleGenerate = () => {
+    console.log("Generating documents for:", {
+      template: selectedTemplate,
+      criteria: filterCriteria,
+      clients: selectedClients
+    });
+  };
 
   return (
-    <PageLayout>
+    <div className="p-8 space-y-8">
       <CourrierHeader />
       
-      <div className="space-y-6">
-        <TemplateSelection 
-          selectedTemplate={selectedTemplate}
-          onTemplateChange={setSelectedTemplate}
-        />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-6">
+          <TemplateSelection
+            selectedTemplate={selectedTemplate}
+            onTemplateSelect={handleTemplateSelect}
+          />
+          
+          <CriteriaSelection
+            criteria={filterCriteria}
+            onCriteriaChange={handleCriteriaChange}
+          />
+        </div>
         
-        <CriteriaSelection 
-          selectedCriteria={selectedCriteria}
-          onCriteriaChange={setSelectedCriteria}
-        />
-        
-        <ClientsList 
-          clients={filteredClients}
-          selectedClients={selectedClients}
-          onClientSelectionChange={setSelectedClients}
-          onPreview={handlePreview}
-        />
+        <div className="space-y-6">
+          <ClientsList
+            criteria={filterCriteria}
+            selectedClients={selectedClients}
+            onClientSelect={handleClientSelect}
+          />
+          
+          <div className="flex gap-4">
+            <Button 
+              onClick={handlePreview}
+              disabled={!selectedTemplate || selectedClients.length === 0}
+              variant="outline"
+              className="flex-1"
+            >
+              Aperçu
+            </Button>
+            
+            <Button 
+              onClick={handleGenerate}
+              disabled={!selectedTemplate || selectedClients.length === 0}
+              className="flex-1"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Générer
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <PreviewDialog 
-        open={isPreviewOpen}
-        onOpenChange={setIsPreviewOpen}
+      <PreviewDialog
+        isOpen={isPreviewOpen}
+        onClose={() => setIsPreviewOpen(false)}
         template={selectedTemplate}
-        clients={selectedClientsData}
-        generationType="courrier"
+        clientCount={selectedClients.length}
       />
-    </PageLayout>
+    </div>
   );
 }
