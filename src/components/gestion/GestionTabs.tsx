@@ -1,57 +1,71 @@
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { GestionDossier } from "./tabs/GestionDossier";
-import { GestionComptable } from "./tabs/GestionComptable";
-import { GestionFiscale } from "./tabs/GestionFiscale";
-import { ObligationsFiscales } from "./tabs/ObligationsFiscales";
-import { ClotureExercice } from "./tabs/ClotureExercice";
-import { ContratPrestations } from "./tabs/ContratPrestations";
-import { GestionEntreprise } from "./tabs/GestionEntreprise";
+import { useState, useEffect } from "react";
+import TabsListWrapper from "@/components/gestion/tabs/TabsList";
+import { Client } from "@/types/client";
+import { TabsContent } from "@/components/gestion/tabs/TabsContent";
 
 interface GestionTabsProps {
-  selectedClient: string;
+  activeTab: string;
+  selectedClient: Client;
+  selectedSubTab: string | null;
+  onTabChange: (tab: string) => void;
+  onSubTabSelect: (subTab: string) => void;
 }
 
-export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
+export function GestionTabs({
+  activeTab,
+  selectedClient,
+  selectedSubTab,
+  onTabChange,
+  onSubTabSelect,
+}: GestionTabsProps) {
+  const [tabContent, setTabContent] = useState<React.ReactNode | null>(null);
+
+  useEffect(() => {
+    switch (activeTab) {
+      case "entreprise":
+        setTabContent(<TabsContent.Entreprise selectedClient={selectedClient} onTabChange={onTabChange} />);
+        break;
+      case "fiscal":
+        setTabContent(<TabsContent.ObligationsFiscales selectedClient={selectedClient} />);
+        break;
+      case "comptable":
+        setTabContent(<TabsContent.GestionComptable selectedClient={selectedClient} />);
+        break;
+      case "contrat-prestations":
+        setTabContent(<TabsContent.ContratPrestations selectedClient={selectedClient} />);
+        break;
+      case "cloture-exercice":
+        setTabContent(
+          <TabsContent.ClotureExercice
+            selectedClient={selectedClient}
+            selectedSubTab={selectedSubTab}
+            onSubTabSelect={onSubTabSelect}
+          />
+        );
+        break;
+      case "dossier":
+        setTabContent(<TabsContent.GestionDossier selectedClient={selectedClient} />);
+        break;
+      // Ajout des nouveaux cas pour les modules Administration, RH, Paie
+      case "gestion-admin":
+        setTabContent(<TabsContent.GestionAdmin selectedClient={selectedClient} />);
+        break;
+      case "gestion-rh":
+        setTabContent(<TabsContent.GestionRH selectedClient={selectedClient} />);
+        break;
+      case "gestion-paie":
+        setTabContent(<TabsContent.GestionPaie selectedClient={selectedClient} />);
+        break;
+      default:
+        setTabContent(<TabsContent.Entreprise selectedClient={selectedClient} onTabChange={onTabChange} />);
+    }
+  }, [activeTab, selectedClient, selectedSubTab, onTabChange, onSubTabSelect]);
+
   return (
-    <Tabs defaultValue="dossier" className="w-full">
-      <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
-        <TabsTrigger value="dossier">Dossier</TabsTrigger>
-        <TabsTrigger value="comptable">Comptable</TabsTrigger>
-        <TabsTrigger value="fiscale">Fiscale</TabsTrigger>
-        <TabsTrigger value="obligations">Obligations</TabsTrigger>
-        <TabsTrigger value="cloture">Clôture</TabsTrigger>
-        <TabsTrigger value="contrat">Contrat</TabsTrigger>
-        <TabsTrigger value="entreprise">Entreprise</TabsTrigger>
-      </TabsList>
-
-      <TabsContent value="dossier" className="mt-6">
-        <GestionDossier />
-      </TabsContent>
-
-      <TabsContent value="comptable" className="mt-6">
-        <GestionComptable />
-      </TabsContent>
-
-      <TabsContent value="fiscale" className="mt-6">
-        <GestionFiscale />
-      </TabsContent>
-
-      <TabsContent value="obligations" className="mt-6">
-        <ObligationsFiscales clientId={selectedClient} />
-      </TabsContent>
-
-      <TabsContent value="cloture" className="mt-6">
-        <ClotureExercice />
-      </TabsContent>
-
-      <TabsContent value="contrat" className="mt-6">
-        <ContratPrestations />
-      </TabsContent>
-
-      <TabsContent value="entreprise" className="mt-6">
-        <GestionEntreprise />
-      </TabsContent>
-    </Tabs>
+    <div className="mt-6 space-y-6">
+      <TabsListWrapper activeTab={activeTab} onTabChange={onTabChange} />
+      <div className="mt-6">{tabContent}</div>
+    </div>
   );
-};
+}

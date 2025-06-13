@@ -1,113 +1,95 @@
 
 import { useState } from "react";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { CourrierHeader } from "@/components/courrier/CourrierHeader";
-import { TemplateSelection } from "@/components/courrier/TemplateSelection";
 import { CriteriaSelection } from "@/components/courrier/CriteriaSelection";
+import { TemplateSelection } from "@/components/courrier/TemplateSelection";
 import { ClientsList } from "@/components/courrier/ClientsList";
 import { PreviewDialog } from "@/components/courrier/PreviewDialog";
 import { useCourrierData } from "@/hooks/useCourrierData";
 
-interface CriteriaFilter {
-  type: string;
-  regimeFiscal: string;
-  secteurActivite: string;
-  centreRattachement: string;
-  statut: string;
-}
-
-export default function Courrier() {
-  const [selectedTemplate, setSelectedTemplate] = useState<string>("");
-  const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [selectedClients, setSelectedClients] = useState<string[]>([]);
-
-  const {
-    clients = [],
-    collaborateurs = [],
-    isLoading,
-    error,
-  } = useCourrierData();
-
-  const filteredClients = clients.filter(client => {
-    if (selectedCriteria.length === 0) return true;
-    
-    return selectedCriteria.some(criteria => {
-      switch (criteria) {
-        case "particuliers":
-          return client.type === "physique";
-        case "entreprises":
-          return client.type === "morale";
-        case "actifs":
-          return client.statut === "actif";
-        case "archives":
-          return client.statut === "archive";
-        default:
-          return true;
-      }
-    });
+const Courrier = () => {
+  const navigate = useNavigate();
+  const [selectedCriteria, setSelectedCriteria] = useState({
+    type: "",
+    regimeFiscal: "",
+    secteurActivite: "",
+    centreRattachement: "",
+    statut: "actif"
   });
+  const [selectedTemplate, setSelectedTemplate] = useState("");
+  const [generationType, setGenerationType] = useState("publipostage");
+  const [previewOpen, setPreviewOpen] = useState(false);
 
-  const handlePreview = () => {
-    setIsPreviewOpen(true);
+  const { filteredClients, isLoading } = useCourrierData(selectedCriteria);
+
+  const handleGenerate = () => {
+    if (!selectedTemplate || filteredClients.length === 0) {
+      return;
+    }
+    setPreviewOpen(true);
   };
 
-  if (isLoading) {
-    return (
-      <PageLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Chargement...</div>
-        </div>
-      </PageLayout>
-    );
-  }
-
-  if (error) {
-    return (
-      <PageLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg text-red-600">
-            Erreur lors du chargement des données
-          </div>
-        </div>
-      </PageLayout>
-    );
-  }
-
-  const selectedClientsData = filteredClients.filter(client => 
-    selectedClients.includes(client.id)
-  );
-
   return (
-    <PageLayout>
-      <CourrierHeader />
-      
-      <div className="space-y-6">
-        <TemplateSelection 
-          selectedTemplate={selectedTemplate}
-          onTemplateChange={setSelectedTemplate}
-        />
-        
-        <CriteriaSelection 
-          selectedCriteria={selectedCriteria}
-          onCriteriaChange={setSelectedCriteria}
-        />
-        
-        <ClientsList 
-          clients={filteredClients}
-          selectedClients={selectedClients}
-          onClientSelectionChange={setSelectedClients}
-          onPreview={handlePreview}
-        />
+    <div className="container mx-auto p-6">
+      <div className="flex items-center gap-4 mb-8">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour
+        </Button>
       </div>
 
-      <PreviewDialog 
-        open={isPreviewOpen}
-        onOpenChange={setIsPreviewOpen}
+      <CourrierHeader />
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <CriteriaSelection
+            selectedCriteria={selectedCriteria}
+            onCriteriaChange={setSelectedCriteria}
+            generationType={generationType}
+            onGenerationTypeChange={setGenerationType}
+          />
+
+          <TemplateSelection
+            selectedTemplate={selectedTemplate}
+            onTemplateChange={setSelectedTemplate}
+          />
+
+          <div className="flex justify-center">
+            <Button
+              onClick={handleGenerate}
+              disabled={!selectedTemplate || filteredClients.length === 0}
+              className="px-8 py-2"
+            >
+              Générer l'aperçu
+            </Button>
+          </div>
+        </div>
+
+        <div>
+          <ClientsList
+            clients={filteredClients}
+            isLoading={isLoading}
+            selectedCriteria={selectedCriteria}
+          />
+        </div>
+      </div>
+
+      <PreviewDialog
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
         template={selectedTemplate}
-        clients={selectedClientsData}
-        generationType="courrier"
+        clients={filteredClients}
+        generationType={generationType}
       />
-    </PageLayout>
+    </div>
   );
-}
+};
+
+export default Courrier;

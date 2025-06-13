@@ -1,66 +1,139 @@
 
-import { useState } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { PageLayout } from "@/components/layout/PageLayout";
+import { getClients } from "@/services/clientService";
 import { GestionHeader } from "@/components/gestion/GestionHeader";
 import { ClientSelector } from "@/components/gestion/ClientSelector";
 import { SelectedClientCard } from "@/components/gestion/SelectedClientCard";
 import { GestionTabs } from "@/components/gestion/GestionTabs";
 import { NoClientSelected } from "@/components/gestion/NoClientSelected";
-import { getClients } from "@/services/clientService";
-import { Client } from "@/types/client";
+import { useLocation, useBeforeUnload } from "react-router-dom";
 
 export default function Gestion() {
-  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+  const [activeTab, setActiveTab] = useState("entreprise");
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [selectedSubTab, setSelectedSubTab] = useState<string | null>(null);
+  const location = useLocation();
 
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients"],
-    queryFn: () => getClients(false),
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    queryFn: getClients,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
   });
 
-  const handleClientSelect = (clientId: string) => {
-    const client = clients.find(c => c.id === clientId);
-    setSelectedClient(client || null);
-  };
+  const clientsEnGestion = React.useMemo(() => 
+    clients.filter(client => client.gestionexternalisee),
+    [clients]
+  );
+
+  const selectedClient = React.useMemo(() => 
+    clientsEnGestion.find(client => client.id === selectedClientId),
+    [clientsEnGestion, selectedClientId]
+  );
+
+  // Stocker la sélection du client dans localStorage pour persistance
+  useEffect(() => {
+    if (selectedClientId) {
+      localStorage.setItem('lastSelectedGestionClientId', selectedClientId);
+    }
+  }, [selectedClientId]);
+
+  // Restaurer la sélection du client depuis localStorage au chargement
+  useEffect(() => {
+    const savedClientId = localStorage.getItem('lastSelectedGestionClientId');
+    if (savedClientId && !selectedClientId) {
+      setSelectedClientId(savedClientId);
+    }
+  }, [selectedClientId]);
+
+  // Stocker l'onglet actif dans localStorage pour persistance
+  useEffect(() => {
+    if (activeTab) {
+      localStorage.setItem('lastActiveGestionTab', activeTab);
+    }
+  }, [activeTab]);
+
+  // Restaurer l'onglet actif depuis localStorage au chargement
+  useEffect(() => {
+    const savedTab = localStorage.getItem('lastActiveGestionTab');
+    if (savedTab) {
+      setActiveTab(savedTab);
+    }
+  }, []);
+
+  // Handle URL query parameters
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.search);
+    const clientParam = searchParams.get('client');
+    const tabParam = searchParams.get('tab');
+    
+    if (clientParam) {
+      setSelectedClientId(clientParam);
+    }
+    
+    if (tabParam) {
+      // Map URL parameter to tab value
+      const tabMapping: Record<string, string> = {
+        'entreprise': 'entreprise',
+        'obligations-fiscales': 'fiscal'
+      };
+      
+      const tabValue = tabMapping[tabParam];
+      if (tabValue) {
+        setActiveTab(tabValue);
+      }
+    }
+  }, [location.search]);
+
+  const handleTabChange = React.useCallback((value: string) => {
+    setActiveTab(value);
+    setSelectedSubTab(null); // Reset sub-tab when main tab changes
+  }, []);
+
+  const handleClientSelect = React.useCallback((clientId: string) => {
+    setSelectedClientId(clientId);
+  }, []);
+
+  const handleSubTabSelect = React.useCallback((subTab: string) => {
+    setSelectedSubTab(subTab);
+  }, []);
 
   if (isLoading) {
     return (
-      <PageLayout>
-        <div className="flex items-center justify-center h-64">
-          <div className="text-lg">Chargement...</div>
+      <div className="p-8 bg-[#F6F6F7]">
+        <div className="flex items-center justify-center min-h-[200px]">
+          <p className="text-muted-foreground">Chargement...</p>
         </div>
-      </PageLayout>
+      </div>
     );
   }
 
   return (
-    <PageLayout>
-      <GestionHeader nombreClientsEnGestion={clients.length} />
+    <div className="p-8 bg-[#F6F6F7]">
+      <GestionHeader nombreClientsEnGestion={clientsEnGestion.length} />
       
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1">
-            <ClientSelector
-              clients={clients}
-              selectedClientId={selectedClient?.id}
-              onClientSelect={handleClientSelect}
-            />
-          </div>
-          
-          <div className="lg:col-span-2">
-            {selectedClient ? (
-              <SelectedClientCard client={selectedClient} />
-            ) : (
-              <NoClientSelected />
-            )}
-          </div>
-        </div>
+      <ClientSelector 
+        clients={clientsEnGestion}
+        selectedClientId={selectedClientId}
+        onClientSelect={handleClientSelect}
+      />
 
-        {selectedClient && (
-          <GestionTabs selectedClient={selectedClient.id} />
-        )}
-      </div>
-    </PageLayout>
+      {selectedClient ? (
+        <>
+          <SelectedClientCard client={selectedClient} />
+          <GestionTabs
+            activeTab={activeTab}
+            selectedClient={selectedClient}
+            selectedSubTab={selectedSubTab}
+            onTabChange={handleTabChange}
+            onSubTabSelect={handleSubTabSelect}
+          />
+        </>
+      ) : (
+        <NoClientSelected />
+      )}
+    </div>
   );
 }

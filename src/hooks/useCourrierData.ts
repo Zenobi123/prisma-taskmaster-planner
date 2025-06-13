@@ -5,7 +5,7 @@ import { getCollaborateurs } from "@/services/collaborateurService";
 
 export const useCourrierData = () => {
   const {
-    data: clients,
+    data: clients = [],
     isLoading: isLoadingClients,
     error: clientsError,
   } = useQuery({
@@ -15,7 +15,7 @@ export const useCourrierData = () => {
   });
 
   const {
-    data: collaborateurs,
+    data: collaborateurs = [],
     isLoading: isLoadingCollaborateurs,
     error: collaborateursError,
   } = useQuery({
@@ -25,8 +25,8 @@ export const useCourrierData = () => {
   });
 
   return {
-    clients: clients || [],
-    collaborateurs: collaborateurs || [],
+    clients,
+    collaborateurs,
     isLoading: isLoadingClients || isLoadingCollaborateurs,
     error: clientsError || collaborateursError,
   };
