@@ -1,4 +1,3 @@
-
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
@@ -14,9 +13,20 @@ declare module 'jspdf' {
 const formatPropertyValue = (value: string | null | undefined): string => {
   if (!value) return 'Non renseigné';
   
-  // Cas spécial pour le régime fiscal
-  if (value.toLowerCase() === 'reel') {
-    return 'RÉGIME DU RÉEL';
+  const lowerValue = value.toLowerCase();
+  
+  // Cas spéciaux pour les valeurs demandées
+  if (lowerValue === 'reel') {
+    return 'RÉEL';
+  }
+  if (lowerValue === 'sarl') {
+    return 'SARL';
+  }
+  if (lowerValue === 'non_professionnel') {
+    return 'NON-PROF';
+  }
+  if (lowerValue === 'igs') {
+    return 'IGS';
   }
   
   // Capitaliser la première lettre pour les autres propriétés
