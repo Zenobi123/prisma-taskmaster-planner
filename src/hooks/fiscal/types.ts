@@ -21,6 +21,29 @@ export interface TaxObligationStatus extends ObligationStatus {
   q2Payee?: boolean;
   q3Payee?: boolean;
   q4Payee?: boolean;
+  // Montants trimestriels
+  q1Montant?: number;
+  q2Montant?: number;
+  q3Montant?: number;
+  q4Montant?: number;
+  // Dates trimestrielles
+  q1Date?: string;
+  q2Date?: string;
+  q3Date?: string;
+  q4Date?: string;
+  // Références trimestrielles
+  q1Reference?: string;
+  q2Reference?: string;
+  q3Reference?: string;
+  q4Reference?: string;
+  // Modes de paiement trimestriels
+  q1Mode?: string;
+  q2Mode?: string;
+  q3Mode?: string;
+  q4Mode?: string;
+  // Calculs
+  montantTotalPaye?: number;
+  soldeRestant?: number;
 }
 
 // Define IGS obligation status with quarterly payments

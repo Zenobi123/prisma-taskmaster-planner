@@ -46,7 +46,6 @@ export default function Courrier() {
           {/* Sélection des clients */}
           <ClientsList 
             clients={filteredClients}
-            selectedClients={selectedClients}
             onClientToggle={(clientId) => {
               setSelectedClients(prev => 
                 prev.includes(clientId) 

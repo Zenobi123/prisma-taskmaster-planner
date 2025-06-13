@@ -56,9 +56,9 @@ export const prepareFiscalDataForSave = ({
           referencePaiement: obligation.referencePaiement || ""
         };
 
-        // Traitement spécial pour l'IGS
+        // Traitement spécial pour l'IGS avec tous les détails de paiement
         if (obligationKey === 'igs') {
-          console.log("Traitement spécial IGS:", obligation);
+          console.log("Traitement spécial IGS avec détails de paiement:", obligation);
           preparedObligations[obligationKey] = {
             ...taxObligation,
             // Données spécifiques IGS
@@ -66,7 +66,7 @@ export const prepareFiscalDataForSave = ({
             isCGA: Boolean((obligation as any).isCGA),
             classe: (obligation as any).classe || "",
             outOfRange: Boolean((obligation as any).outOfRange),
-            // Paiements trimestriels
+            // Paiements trimestriels - statuts
             q1Payee: Boolean((obligation as any).q1Payee),
             q2Payee: Boolean((obligation as any).q2Payee),
             q3Payee: Boolean((obligation as any).q3Payee),
@@ -76,16 +76,33 @@ export const prepareFiscalDataForSave = ({
             q2Montant: (obligation as any).q2Montant || 0,
             q3Montant: (obligation as any).q3Montant || 0,
             q4Montant: (obligation as any).q4Montant || 0,
-            // Dates trimestrielles
+            // Dates trimestrielles de paiement
             q1Date: (obligation as any).q1Date || "",
             q2Date: (obligation as any).q2Date || "",
             q3Date: (obligation as any).q3Date || "",
             q4Date: (obligation as any).q4Date || "",
+            // Références de paiement trimestrielles
+            q1Reference: (obligation as any).q1Reference || "",
+            q2Reference: (obligation as any).q2Reference || "",
+            q3Reference: (obligation as any).q3Reference || "",
+            q4Reference: (obligation as any).q4Reference || "",
+            // Modes de paiement trimestriels
+            q1Mode: (obligation as any).q1Mode || "",
+            q2Mode: (obligation as any).q2Mode || "",
+            q3Mode: (obligation as any).q3Mode || "",
+            q4Mode: (obligation as any).q4Mode || "",
             // Montants calculés
             montantAnnuel: (obligation as any).montantAnnuel || 0,
             montantTotal: (obligation as any).montantTotal || 0,
-            soldeRestant: (obligation as any).soldeRestant || 0
+            soldeRestant: (obligation as any).soldeRestant || 0,
+            // Calcul automatique du montant total payé
+            montantTotalPaye: ((obligation as any).q1Montant || 0) + 
+                             ((obligation as any).q2Montant || 0) + 
+                             ((obligation as any).q3Montant || 0) + 
+                             ((obligation as any).q4Montant || 0)
           };
+          
+          console.log("IGS préparé pour sauvegarde:", preparedObligations[obligationKey]);
         } else {
           preparedObligations[obligationKey] = taxObligation;
         }
