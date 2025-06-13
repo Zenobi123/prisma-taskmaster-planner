@@ -31,8 +31,9 @@ export async function generatePersonnesMoralesReport() {
       client.statut || ''
     ]);
     
-    // Génération du tableau
-    (doc as any).autoTable({
+    // Génération du tableau avec la nouvelle syntaxe
+    const autoTable = require('jspdf-autotable').default;
+    autoTable(doc, {
       startY: 45,
       head: [['Raison Sociale', 'NIU', 'Régime Fiscal', 'Secteur', 'Centre', 'Statut']],
       body: tableData,
@@ -90,8 +91,9 @@ export async function generatePersonnesPhysiquesReport() {
       client.statut || ''
     ]);
     
-    // Génération du tableau
-    (doc as any).autoTable({
+    // Génération du tableau avec la nouvelle syntaxe
+    const autoTable = require('jspdf-autotable').default;
+    autoTable(doc, {
       startY: 45,
       head: [['Nom', 'NIU', 'Régime Fiscal', 'Secteur', 'Centre', 'Statut']],
       body: tableData,
@@ -145,6 +147,7 @@ export async function generateClientsParCentreReport() {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     let yPosition = 45;
+    const autoTable = require('jspdf-autotable').default;
     
     // Pour chaque centre
     Object.entries(clientsParCentre).forEach(([centre, clients]: [string, any]) => {
@@ -162,7 +165,7 @@ export async function generateClientsParCentreReport() {
       ]);
       
       // Génération du tableau
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: yPosition,
         head: [['Nom/Raison Sociale', 'NIU', 'Type', 'Régime Fiscal']],
         body: tableData,
@@ -170,7 +173,7 @@ export async function generateClientsParCentreReport() {
         styles: { fontSize: 8 }
       });
       
-      yPosition = (doc as any).lastAutoTable.finalY + 15;
+      yPosition = doc.lastAutoTable.finalY + 15;
       
       // Nouvelle page si nécessaire
       if (yPosition > 250) {
@@ -231,7 +234,8 @@ export async function generateClientsAssujettisIGSReport() {
     ]);
     
     // Génération du tableau
-    (doc as any).autoTable({
+    const autoTable = require('jspdf-autotable').default;
+    autoTable(doc, {
       startY: 45,
       head: [['Nom/Raison Sociale', 'NIU', 'Type', 'Secteur', 'Centre', 'Statut']],
       body: tableData,
@@ -293,7 +297,8 @@ export async function generateClientsAssujettsPatenteReport() {
     ]);
     
     // Génération du tableau
-    (doc as any).autoTable({
+    const autoTable = require('jspdf-autotable').default;
+    autoTable(doc, {
       startY: 45,
       head: [['Nom/Raison Sociale', 'NIU', 'Type', 'Secteur', 'Centre', 'Statut']],
       body: tableData,

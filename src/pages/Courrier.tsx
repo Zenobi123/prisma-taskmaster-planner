@@ -81,7 +81,7 @@ export default function Courrier() {
           <ClientsList
             clients={filteredClients}
             selectedClients={selectedClients}
-            onSelectClients={setSelectedClients}
+            onClientsChange={setSelectedClients}
           />
         </div>
       </div>
