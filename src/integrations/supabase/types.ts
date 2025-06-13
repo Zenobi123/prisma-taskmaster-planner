@@ -107,7 +107,6 @@ export type Database = {
           contact: Json
           created_at: string
           datecreation: string | null
-          deleted_at: string | null
           etatcivil: string | null
           fiscal_data: Json | null
           formejuridique: string | null
@@ -137,7 +136,6 @@ export type Database = {
           contact: Json
           created_at?: string
           datecreation?: string | null
-          deleted_at?: string | null
           etatcivil?: string | null
           fiscal_data?: Json | null
           formejuridique?: string | null
@@ -167,7 +165,6 @@ export type Database = {
           contact?: Json
           created_at?: string
           datecreation?: string | null
-          deleted_at?: string | null
           etatcivil?: string | null
           fiscal_data?: Json | null
           formejuridique?: string | null

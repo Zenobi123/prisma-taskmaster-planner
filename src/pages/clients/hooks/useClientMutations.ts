@@ -1,7 +1,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Client } from "@/types/client";
-import { addClient, archiveClient, updateClient, deleteClient, restoreClient, permanentDeleteClient } from "@/services/clientService";
+import { addClient, archiveClient, updateClient, deleteClient } from "@/services/clientService";
 import { useToast } from "@/components/ui/use-toast";
 
 export function useClientMutations() {
@@ -13,7 +13,6 @@ export function useClientMutations() {
     // First invalidate the primary query
     setTimeout(() => {
       queryClient.invalidateQueries({ queryKey: ["clients"] });
-      queryClient.invalidateQueries({ queryKey: ["deleted-clients"] });
     }, 100);
     
     // Then invalidate related queries with delays
@@ -91,7 +90,7 @@ export function useClientMutations() {
   const restoreMutation = useMutation({
     mutationFn: async (id: string) => {
       console.log("Restauration du client:", id);
-      return await restoreClient(id);
+      return await updateClient(id, { statut: "actif" });
     },
     onSuccess: () => {
       invalidateQueries();
@@ -116,7 +115,7 @@ export function useClientMutations() {
       invalidateQueries();
       toast({
         title: "Client supprimé",
-        description: "Le client a été envoyé à la corbeille.",
+        description: "Le client a été définitivement supprimé.",
       });
     },
     onError: (error: any) => {
@@ -129,31 +128,11 @@ export function useClientMutations() {
     },
   });
 
-  const permanentDeleteMutation = useMutation({
-    mutationFn: permanentDeleteClient,
-    onSuccess: () => {
-      invalidateQueries();
-      toast({
-        title: "Client supprimé définitivement",
-        description: "Le client a été définitivement supprimé.",
-      });
-    },
-    onError: (error: any) => {
-      console.error("Erreur lors de la suppression définitive du client:", error);
-      toast({
-        title: "Erreur",
-        description: error.message || "Une erreur est survenue lors de la suppression définitive du client.",
-        variant: "destructive",
-      });
-    },
-  });
-
   return {
     addMutation,
     updateMutation,
     archiveMutation,
     restoreMutation,
     deleteMutation,
-    permanentDeleteMutation,
   };
 }

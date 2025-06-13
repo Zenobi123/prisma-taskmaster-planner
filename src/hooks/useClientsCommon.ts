@@ -8,7 +8,7 @@ export const useClientsCommon = () => {
   // Fetch clients using the client service
   const { data: clientsData = [], isLoading, error } = useQuery({
     queryKey: ["clients"],
-    queryFn: () => getClients(false),
+    queryFn: getClients,
     staleTime: 1000 * 60 * 5, // 5 minutes
     retry: 2
   });

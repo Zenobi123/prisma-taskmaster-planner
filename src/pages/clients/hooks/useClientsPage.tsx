@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { Client } from "@/types/client";
@@ -13,7 +12,6 @@ export function useClientsPage() {
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isDataReady, setIsDataReady] = useState(false);
-  const [showTrash, setShowTrash] = useState(false);
 
   const { 
     data: clients = [], 
@@ -22,7 +20,7 @@ export function useClientsPage() {
     refetch 
   } = useQuery({
     queryKey: ["clients"],
-    queryFn: () => getClients(false), // Only get active clients
+    queryFn: getClients,
     staleTime: 30000, // 30 seconds
     gcTime: 300000, // 5 minutes 
     retry: 2,
@@ -132,21 +130,13 @@ export function useClientsPage() {
   };
 
   const handleDelete = async (client: Client) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce client ? Il sera envoyé à la corbeille.")) {
+    if (window.confirm("Êtes-vous sûr de vouloir supprimer définitivement ce client ? Cette action est irréversible.")) {
       try {
         await deleteMutation.mutateAsync(client.id);
       } catch (error) {
         console.error("Erreur lors de la suppression:", error);
       }
     }
-  };
-
-  const handleTrashClick = () => {
-    setShowTrash(true);
-  };
-
-  const handleCloseTrash = () => {
-    setShowTrash(false);
   };
 
   return {
@@ -162,7 +152,6 @@ export function useClientsPage() {
     setSelectedSecteur,
     showArchived,
     setShowArchived,
-    showTrash,
     isDialogOpen,
     setIsDialogOpen,
     isEditDialogOpen,
@@ -179,8 +168,6 @@ export function useClientsPage() {
     handleArchive,
     handleRestore,
     handleDelete,
-    handleTrashClick,
-    handleCloseTrash,
     toast,
     refreshClients: debouncedRefetch
   };
