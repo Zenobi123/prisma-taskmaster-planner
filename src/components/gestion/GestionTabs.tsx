@@ -26,7 +26,7 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsList>
 
       <TabsContent value="dossier" className="mt-6">
-        <GestionDossier />
+        <GestionDossier selectedClient={selectedClient} />
       </TabsContent>
 
       <TabsContent value="comptable" className="mt-6">
@@ -34,7 +34,7 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsContent>
 
       <TabsContent value="fiscale" className="mt-6">
-        <GestionFiscale />
+        <GestionFiscale onTabChange={() => {}} />
       </TabsContent>
 
       <TabsContent value="obligations" className="mt-6">
@@ -42,15 +42,15 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsContent>
 
       <TabsContent value="cloture" className="mt-6">
-        <ClotureExercice />
+        <ClotureExercice selectedSubTab="" handleSubTabSelect={() => {}} />
       </TabsContent>
 
       <TabsContent value="contrat" className="mt-6">
-        <ContratPrestations />
+        <ContratPrestations client={{ id: selectedClient }} />
       </TabsContent>
 
       <TabsContent value="entreprise" className="mt-6">
-        <GestionEntreprise />
+        <GestionEntreprise onTabChange={() => {}} selectedClient={selectedClient} />
       </TabsContent>
     </Tabs>
   );
