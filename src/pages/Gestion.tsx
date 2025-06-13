@@ -43,7 +43,7 @@ export default function Gestion() {
           <div className="lg:col-span-1">
             <ClientSelector
               clients={clients}
-              selectedClient={selectedClient}
+              selectedClientId={selectedClient?.id}
               onClientSelect={handleClientSelect}
             />
           </div>
@@ -58,7 +58,7 @@ export default function Gestion() {
         </div>
 
         {selectedClient && (
-          <GestionTabs clientId={selectedClient.id} />
+          <GestionTabs selectedClientId={selectedClient.id} />
         )}
       </div>
     </PageLayout>

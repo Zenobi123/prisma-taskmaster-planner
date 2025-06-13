@@ -66,6 +66,10 @@ export default function Courrier() {
     );
   }
 
+  const selectedClientsData = filteredClients.filter(client => 
+    selectedClients.includes(client.id)
+  );
+
   return (
     <PageLayout>
       <CourrierHeader />
@@ -93,8 +97,7 @@ export default function Courrier() {
         open={isPreviewOpen}
         onOpenChange={setIsPreviewOpen}
         template={selectedTemplate}
-        clients={filteredClients.filter(client => selectedClients.includes(client.id))}
-        collaborateurs={collaborateurs}
+        clients={selectedClientsData}
       />
     </PageLayout>
   );

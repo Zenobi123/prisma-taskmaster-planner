@@ -13,34 +13,36 @@ export function useFactureForm() {
     error: clientsError 
   } = useFactureClients();
 
-  const {
-    formData,
-    errors,
-    updateFormData,
-    resetForm,
-    getSelectedClient
-  } = useFactureFormState();
-
-  const { initializeForm } = useFactureFormInitializer(updateFormData, resetForm);
-  const { prestations, handlePrestationChange } = useFactureFormPrestations(formData, updateFormData);
-  const { validateForm } = useFactureFormValidation();
-  const { handleSubmit, isSubmitting } = useFactureFormSubmit(formData, validateForm, resetForm);
+  const formState = useFactureFormState();
+  const { initializeFormForEdit } = useFactureFormInitializer();
+  const prestationsState = useFactureFormPrestations();
+  const { validateFactureForm, toast } = useFactureFormValidation();
+  const submitState = useFactureFormSubmit();
 
   return {
-    formData,
-    errors,
-    updateFormData,
-    resetForm,
-    initializeForm,
-    prestations,
-    handlePrestationChange,
-    validateForm,
-    handleSubmit,
-    isSubmitting,
+    // Form state
+    ...formState,
+    
+    // Initialization
+    initializeForm: initializeFormForEdit,
+    
+    // Prestations
+    ...prestationsState,
+    
+    // Validation
+    validateForm: validateFactureForm,
+    
+    // Submit
+    ...submitState,
+    
+    // Clients
     clients,
     allClients: clients,
     getSelectedClient: (clientId: string) => clients.find(c => c.id === clientId),
     isLoadingClients,
     clientsError,
+    
+    // Additional methods
+    toast
   };
 }

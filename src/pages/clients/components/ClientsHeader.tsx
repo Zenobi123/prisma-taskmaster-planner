@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Plus, Trash2 } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 
 interface ClientsHeaderProps {
   onAddClientClick: () => void;
@@ -10,24 +10,10 @@ interface ClientsHeaderProps {
 }
 
 export function ClientsHeader({ onAddClientClick, onTrashClick, isMobile }: ClientsHeaderProps) {
-  const navigate = useNavigate();
-
-  const handleBackToDashboard = () => {
-    navigate("/");
-  };
-
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleBackToDashboard}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          {!isMobile && "Tableau de bord"}
-        </Button>
+        <BackButton label={!isMobile ? "Tableau de bord" : "Retour"} />
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">
             Clients
