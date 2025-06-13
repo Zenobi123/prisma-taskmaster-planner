@@ -10,6 +10,19 @@ declare module 'jspdf' {
   }
 }
 
+// Fonction utilitaire pour formater les valeurs
+const formatPropertyValue = (value: string | null | undefined): string => {
+  if (!value) return 'Non renseigné';
+  
+  // Cas spécial pour le régime fiscal
+  if (value.toLowerCase() === 'reel') {
+    return 'RÉGIME DU RÉEL';
+  }
+  
+  // Capitaliser la première lettre pour les autres propriétés
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+};
+
 export const generatePersonnesMoralesReport = async () => {
   try {
     console.log('Génération du rapport des personnes morales...');
@@ -36,11 +49,11 @@ export const generatePersonnesMoralesReport = async () => {
       const clientsData = personnesMorales.map((client: any) => [
         client.raisonsociale || 'Non renseigné',
         client.sigle || '',
-        client.formejuridique || 'Non renseigné',
+        formatPropertyValue(client.formejuridique),
         client.niu || 'Non renseigné',
         client.centrerattachement || 'Non renseigné',
-        client.regimefiscal || 'Non renseigné',
-        client.secteuractivite || 'Non renseigné'
+        formatPropertyValue(client.regimefiscal),
+        formatPropertyValue(client.secteuractivite)
       ]);
       
       autoTable(doc, {
@@ -85,12 +98,12 @@ export const generatePersonnesPhysiquesReport = async () => {
     } else {
       const clientsData = personnesPhysiques.map((client: any) => [
         client.nom || 'Non renseigné',
-        client.sexe || 'Non renseigné',
-        client.etatcivil || 'Non renseigné',
+        formatPropertyValue(client.sexe),
+        formatPropertyValue(client.etatcivil),
         client.niu || 'Non renseigné',
         client.centrerattachement || 'Non renseigné',
-        client.regimefiscal || 'Non renseigné',
-        client.secteuractivite || 'Non renseigné'
+        formatPropertyValue(client.regimefiscal),
+        formatPropertyValue(client.secteuractivite)
       ]);
       
       autoTable(doc, {
@@ -155,7 +168,7 @@ export const generateClientsParCentreReport = async () => {
           client.nom || client.raisonsociale || 'Sans nom',
           client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
           client.niu || 'Non renseigné',
-          client.regimefiscal || 'Non renseigné'
+          formatPropertyValue(client.regimefiscal)
         ]);
         
         autoTable(doc, {
@@ -214,10 +227,10 @@ export const generateClientsAssujettisIGSReport = async () => {
     } else {
       const clientsData = clientsIGS.map((client: any) => [
         client.raisonsociale || 'Non renseigné',
-        client.formejuridique || 'Non renseigné',
+        formatPropertyValue(client.formejuridique),
         client.niu || 'Non renseigné',
         client.centrerattachement || 'Non renseigné',
-        client.secteuractivite || 'Non renseigné'
+        formatPropertyValue(client.secteuractivite)
       ]);
       
       autoTable(doc, {
@@ -274,7 +287,7 @@ export const generateClientsAssujettsPatenteReport = async () => {
         client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
         client.niu || 'Non renseigné',
         client.centrerattachement || 'Non renseigné',
-        client.secteuractivite || 'Non renseigné'
+        formatPropertyValue(client.secteuractivite)
       ]);
       
       autoTable(doc, {

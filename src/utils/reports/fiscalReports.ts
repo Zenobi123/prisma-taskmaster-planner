@@ -3,6 +3,19 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
+// Fonction utilitaire pour formater les valeurs
+const formatPropertyValue = (value: string | null | undefined): string => {
+  if (!value) return 'Non renseigné';
+  
+  // Cas spécial pour le régime fiscal
+  if (value.toLowerCase() === 'reel') {
+    return 'RÉGIME DU RÉEL';
+  }
+  
+  // Capitaliser la première lettre pour les autres propriétés
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+};
+
 export const generateObligationsFiscalesReport = async () => {
   try {
     const fiscalData = await ReportDataService.getFiscalObligationsData();
@@ -38,7 +51,7 @@ export const generateObligationsFiscalesReport = async () => {
       const igsData = fiscalData.unpaidIgs.map((client: any) => [
         client.nom || client.raisonsociale || 'Client inconnu',
         client.niu || 'Non renseigné',
-        client.regimefiscal || 'Non défini'
+        formatPropertyValue(client.regimefiscal)
       ]);
       
       (doc as any).autoTable({
@@ -59,7 +72,7 @@ export const generateObligationsFiscalesReport = async () => {
       const dsfData = fiscalData.unfiledDsf.map((client: any) => [
         client.nom || client.raisonsociale || 'Client inconnu',
         client.niu || 'Non renseigné',
-        client.type || 'Non défini'
+        formatPropertyValue(client.type)
       ]);
       
       (doc as any).autoTable({
