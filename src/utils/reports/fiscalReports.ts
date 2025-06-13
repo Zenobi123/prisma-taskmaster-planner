@@ -1,7 +1,30 @@
-
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
+
+// Fonction utilitaire pour formater les valeurs
+const formatPropertyValue = (value: string | null | undefined): string => {
+  if (!value) return 'Non renseigné';
+  
+  const lowerValue = value.toLowerCase();
+  
+  // Cas spéciaux pour les valeurs demandées
+  if (lowerValue === 'reel') {
+    return 'RÉEL';
+  }
+  if (lowerValue === 'sarl') {
+    return 'SARL';
+  }
+  if (lowerValue === 'non_professionnel') {
+    return 'NON-PROF';
+  }
+  if (lowerValue === 'igs') {
+    return 'IGS';
+  }
+  
+  // Capitaliser la première lettre pour les autres propriétés
+  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
+};
 
 export const generateObligationsFiscalesReport = async () => {
   try {
@@ -38,7 +61,7 @@ export const generateObligationsFiscalesReport = async () => {
       const igsData = fiscalData.unpaidIgs.map((client: any) => [
         client.nom || client.raisonsociale || 'Client inconnu',
         client.niu || 'Non renseigné',
-        client.regimefiscal || 'Non défini'
+        formatPropertyValue(client.regimefiscal)
       ]);
       
       (doc as any).autoTable({
@@ -59,7 +82,7 @@ export const generateObligationsFiscalesReport = async () => {
       const dsfData = fiscalData.unfiledDsf.map((client: any) => [
         client.nom || client.raisonsociale || 'Client inconnu',
         client.niu || 'Non renseigné',
-        client.type || 'Non défini'
+        formatPropertyValue(client.type)
       ]);
       
       (doc as any).autoTable({

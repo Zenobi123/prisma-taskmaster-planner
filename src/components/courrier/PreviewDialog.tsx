@@ -1,73 +1,53 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Download, Eye } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Client } from "@/types/client";
-import { getTemplateContent, replaceVariables } from "@/utils/courrierTemplates";
 
 interface PreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   template: string;
   clients: Client[];
-  generationType: string;
+  generationType?: string;
 }
 
-export const PreviewDialog = ({
-  open,
-  onOpenChange,
-  template,
+export const PreviewDialog = ({ 
+  open, 
+  onOpenChange, 
+  template, 
   clients,
-  generationType
+  generationType = "courrier"
 }: PreviewDialogProps) => {
-  if (!template || clients.length === 0) return null;
-
-  const templateContent = getTemplateContent(template);
-  const previewClient = clients[0];
-  const previewContent = replaceVariables(templateContent, previewClient);
-
-  const handleDownload = () => {
-    // Ici on pourrait implémenter la génération PDF
-    console.log("Génération des courriers...");
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh]">
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Eye className="w-5 h-5" />
-            Aperçu du courrier
-          </DialogTitle>
-          <div className="flex gap-2">
-            <Badge variant="secondary">
-              {clients.length} destinataire{clients.length > 1 ? 's' : ''}
-            </Badge>
-            <Badge variant="outline">
-              {generationType === "publipostage" ? "Publipostage" : "Individuel"}
-            </Badge>
-          </div>
+          <DialogTitle>Aperçu du courrier</DialogTitle>
         </DialogHeader>
-
-        <div className="border rounded-lg p-6 bg-white overflow-y-auto max-h-96">
-          <div className="whitespace-pre-line">{previewContent}</div>
+        
+        <div className="space-y-4">
+          <div className="bg-muted p-4 rounded-lg">
+            <h3 className="font-semibold mb-2">Modèle sélectionné : {template}</h3>
+            <p className="text-sm text-muted-foreground">
+              {clients.length} client{clients.length > 1 ? 's' : ''} sélectionné{clients.length > 1 ? 's' : ''}
+            </p>
+          </div>
+          
+          <div className="border rounded-lg p-6 bg-white">
+            <h4 className="font-medium mb-4">Liste des clients :</h4>
+            <div className="space-y-2">
+              {clients.map((client) => (
+                <div key={client.id} className="text-sm border-b pb-2">
+                  <div className="font-medium">
+                    {client.type === "morale" ? client.raisonsociale : client.nom}
+                  </div>
+                  <div className="text-muted-foreground">
+                    {client.niu} • {client.centrerattachement}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-
-        <DialogFooter className="flex justify-between">
-          <div className="text-sm text-muted-foreground">
-            Aperçu basé sur : {previewClient.type === "morale" ? previewClient.raisonsociale : previewClient.nom}
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Fermer
-            </Button>
-            <Button onClick={handleDownload}>
-              <Download className="w-4 h-4 mr-2" />
-              Télécharger
-            </Button>
-          </div>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

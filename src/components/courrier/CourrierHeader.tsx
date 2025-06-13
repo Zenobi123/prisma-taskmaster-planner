@@ -1,9 +1,11 @@
 
 import { Mail } from "lucide-react";
+import { BackButton } from "@/components/ui/back-button";
 
 export const CourrierHeader = () => {
   return (
     <div className="flex items-center gap-4 mb-8">
+      <BackButton />
       <div className="p-3 bg-blue-100 rounded-lg">
         <Mail className="w-8 h-8 text-blue-600" />
       </div>

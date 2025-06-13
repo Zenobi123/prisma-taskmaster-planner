@@ -5,6 +5,7 @@ import { ClientsHeader } from "./components/ClientsHeader";
 import { ClientsContent } from "./components/ClientsContent";
 import { ClientDialogs } from "./components/ClientDialogs";
 import { LoadingState } from "./components/LoadingState";
+import { ClientTrash } from "@/components/clients/ClientTrash";
 import { useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,6 +24,7 @@ export default function ClientsPage() {
     setSelectedSecteur,
     showArchived,
     setShowArchived,
+    showTrash,
     isDialogOpen,
     setIsDialogOpen,
     isEditDialogOpen,
@@ -39,6 +41,8 @@ export default function ClientsPage() {
     handleArchive,
     handleRestore,
     handleDelete,
+    handleTrashClick,
+    handleCloseTrash,
     toast
   } = useClientsPage();
   
@@ -60,11 +64,21 @@ export default function ClientsPage() {
     return <LoadingState isMobile={isMobile} />;
   }
 
+  // Show trash view
+  if (showTrash) {
+    return (
+      <div className={isMobile ? "p-3 sm:p-4" : "p-8"}>
+        <ClientTrash onClose={handleCloseTrash} />
+      </div>
+    );
+  }
+
   return (
     <div className={isMobile ? "p-3 sm:p-4" : "p-8"}>
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <ClientsHeader 
           onAddClientClick={() => setIsDialogOpen(true)}
+          onTrashClick={handleTrashClick}
           isMobile={isMobile}
         />
 
