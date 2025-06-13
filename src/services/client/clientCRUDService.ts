@@ -107,20 +107,87 @@ export const deleteClient = async (id: string) => {
     throw new Error("Le client a des tâches associées et ne peut pas être supprimé");
   }
 
-  // If no tasks are associated, proceed with deletion
-  const { error } = await supabase
+  // Perform soft delete instead of hard delete
+  const { data, error } = await supabase
     .from("clients")
-    .delete()
-    .eq("id", id);
+    .update({ 
+      statut: "supprime",
+      deleted_at: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select()
+    .single();
 
   if (error) {
     console.error("Erreur lors de la suppression du client:", error);
     throw error;
   }
 
-  console.log("Client supprimé avec succès");
+  console.log("Client supprimé avec succès (soft delete):", data);
   
   // Invalidate cache after successful deletion
+  invalidateClientsCache();
+  
+  return data;
+};
+
+export const restoreClient = async (id: string) => {
+  const { data, error } = await supabase
+    .from("clients")
+    .update({ 
+      statut: "actif",
+      deleted_at: null
+    })
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Erreur lors de la restauration du client:", error);
+    throw error;
+  }
+
+  console.log("Client restauré avec succès:", data);
+  
+  // Invalidate cache after successful restoration
+  invalidateClientsCache();
+  
+  return data;
+};
+
+export const permanentDeleteClient = async (id: string) => {
+  // First, check if there are any tasks associated with this client
+  const { data: clientTasks, error: taskCheckError } = await supabase
+    .from("tasks")
+    .select("id")
+    .eq("client_id", id);
+
+  if (taskCheckError) {
+    console.error("Erreur lors de la vérification des tâches associées:", taskCheckError);
+    throw taskCheckError;
+  }
+
+  // If there are associated tasks, we cannot delete the client directly
+  if (clientTasks && clientTasks.length > 0) {
+    console.error("Impossible de supprimer définitivement le client car il a des tâches associées");
+    toast.error("Impossible de supprimer définitivement ce client car il a des tâches associées");
+    throw new Error("Le client a des tâches associées et ne peut pas être supprimé définitivement");
+  }
+
+  // Permanent deletion
+  const { error } = await supabase
+    .from("clients")
+    .delete()
+    .eq("id", id);
+
+  if (error) {
+    console.error("Erreur lors de la suppression définitive du client:", error);
+    throw error;
+  }
+
+  console.log("Client supprimé définitivement avec succès");
+  
+  // Invalidate cache after successful permanent deletion
   invalidateClientsCache();
 };
 
