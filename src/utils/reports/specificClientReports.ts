@@ -5,9 +5,12 @@ import 'jspdf-autotable';
 
 export async function generatePersonnesMoralesReport() {
   try {
-    console.log('Génération du rapport personnes morales...');
+    console.log('Début génération du rapport personnes morales...');
     const data = await ReportDataService.getAllReportData();
+    console.log('Données récupérées:', data);
+    
     const personnesMorales = data.clients.filter(client => client.type === 'morale');
+    console.log('Personnes morales trouvées:', personnesMorales.length);
     
     const doc = new jsPDF();
     
@@ -39,13 +42,22 @@ export async function generatePersonnesMoralesReport() {
     
     // Téléchargement du fichier avec vérification
     const filename = `personnes-morales-${new Date().toISOString().slice(0, 10)}.pdf`;
-    console.log('Tentative de téléchargement:', filename);
+    console.log('Tentative de téléchargement du fichier:', filename);
     
     // Force le téléchargement
-    doc.save(filename);
-    
-    console.log(`Rapport généré et téléchargé: ${filename}`);
-    return true;
+    try {
+      doc.save(filename);
+      console.log('Téléchargement initié avec succès');
+      
+      // Attendre un peu pour que le téléchargement se lance
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      console.log(`Rapport généré et téléchargé: ${filename}`);
+      return true;
+    } catch (downloadError) {
+      console.error('Erreur lors du téléchargement:', downloadError);
+      throw new Error('Impossible de télécharger le fichier PDF');
+    }
   } catch (error) {
     console.error('Erreur lors de la génération du rapport personnes morales:', error);
     throw error;
@@ -54,9 +66,10 @@ export async function generatePersonnesMoralesReport() {
 
 export async function generatePersonnesPhysiquesReport() {
   try {
-    console.log('Génération du rapport personnes physiques...');
+    console.log('Début génération du rapport personnes physiques...');
     const data = await ReportDataService.getAllReportData();
     const personnesPhysiques = data.clients.filter(client => client.type === 'physique');
+    console.log('Personnes physiques trouvées:', personnesPhysiques.length);
     
     const doc = new jsPDF();
     
@@ -89,10 +102,17 @@ export async function generatePersonnesPhysiquesReport() {
     // Téléchargement du fichier
     const filename = `personnes-physiques-${new Date().toISOString().slice(0, 10)}.pdf`;
     console.log('Tentative de téléchargement:', filename);
-    doc.save(filename);
     
-    console.log(`Rapport généré et téléchargé: ${filename}`);
-    return true;
+    try {
+      doc.save(filename);
+      console.log('Téléchargement initié avec succès');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      console.log(`Rapport généré et téléchargé: ${filename}`);
+      return true;
+    } catch (downloadError) {
+      console.error('Erreur lors du téléchargement:', downloadError);
+      throw new Error('Impossible de télécharger le fichier PDF');
+    }
   } catch (error) {
     console.error('Erreur lors de la génération du rapport personnes physiques:', error);
     throw error;
@@ -101,7 +121,7 @@ export async function generatePersonnesPhysiquesReport() {
 
 export async function generateClientsParCentreReport() {
   try {
-    console.log('Génération du rapport clients par centre...');
+    console.log('Début génération du rapport clients par centre...');
     const data = await ReportDataService.getAllReportData();
     
     // Regrouper les clients par centre de rattachement
@@ -113,6 +133,8 @@ export async function generateClientsParCentreReport() {
       acc[centre].push(client);
       return acc;
     }, {});
+    
+    console.log('Centres trouvés:', Object.keys(clientsParCentre));
     
     const doc = new jsPDF();
     
@@ -160,10 +182,17 @@ export async function generateClientsParCentreReport() {
     // Téléchargement du fichier
     const filename = `clients-par-centre-${new Date().toISOString().slice(0, 10)}.pdf`;
     console.log('Tentative de téléchargement:', filename);
-    doc.save(filename);
     
-    console.log(`Rapport généré et téléchargé: ${filename}`);
-    return true;
+    try {
+      doc.save(filename);
+      console.log('Téléchargement initié avec succès');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      console.log(`Rapport généré et téléchargé: ${filename}`);
+      return true;
+    } catch (downloadError) {
+      console.error('Erreur lors du téléchargement:', downloadError);
+      throw new Error('Impossible de télécharger le fichier PDF');
+    }
   } catch (error) {
     console.error('Erreur lors de la génération du rapport clients par centre:', error);
     throw error;
@@ -172,7 +201,7 @@ export async function generateClientsParCentreReport() {
 
 export async function generateClientsAssujettisIGSReport() {
   try {
-    console.log('Génération du rapport clients IGS...');
+    console.log('Début génération du rapport clients IGS...');
     const data = await ReportDataService.getAllReportData();
     // Les clients assujettis à l'IGS sont ceux du régime "igs"
     const clientsIGS = data.clients.filter(client => {
@@ -213,10 +242,17 @@ export async function generateClientsAssujettisIGSReport() {
     // Téléchargement du fichier
     const filename = `clients-assujettis-igs-${new Date().toISOString().slice(0, 10)}.pdf`;
     console.log('Tentative de téléchargement:', filename);
-    doc.save(filename);
     
-    console.log(`Rapport généré et téléchargé: ${filename}`);
-    return true;
+    try {
+      doc.save(filename);
+      console.log('Téléchargement initié avec succès');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      console.log(`Rapport généré et téléchargé: ${filename}`);
+      return true;
+    } catch (downloadError) {
+      console.error('Erreur lors du téléchargement:', downloadError);
+      throw new Error('Impossible de télécharger le fichier PDF');
+    }
   } catch (error) {
     console.error('Erreur lors de la génération du rapport clients IGS:', error);
     throw error;
@@ -225,7 +261,7 @@ export async function generateClientsAssujettisIGSReport() {
 
 export async function generateClientsAssujettsPatenteReport() {
   try {
-    console.log('Génération du rapport clients Patente...');
+    console.log('Début génération du rapport clients Patente...');
     const data = await ReportDataService.getAllReportData();
     
     // Les clients assujettis à la Patente sont ceux du régime "reel" 
@@ -268,10 +304,17 @@ export async function generateClientsAssujettsPatenteReport() {
     // Téléchargement du fichier
     const filename = `clients-assujettis-patente-${new Date().toISOString().slice(0, 10)}.pdf`;
     console.log('Tentative de téléchargement:', filename);
-    doc.save(filename);
     
-    console.log(`Rapport généré et téléchargé: ${filename}`);
-    return true;
+    try {
+      doc.save(filename);
+      console.log('Téléchargement initié avec succès');
+      await new Promise(resolve => setTimeout(resolve, 100));
+      console.log(`Rapport généré et téléchargé: ${filename}`);
+      return true;
+    } catch (downloadError) {
+      console.error('Erreur lors du téléchargement:', downloadError);
+      throw new Error('Impossible de télécharger le fichier PDF');
+    }
   } catch (error) {
     console.error('Erreur lors de la génération du rapport clients Patente:', error);
     throw error;

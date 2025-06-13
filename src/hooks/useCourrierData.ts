@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
 import { getCollaborateurs } from "@/services/collaborateurService";
@@ -51,10 +51,16 @@ export const useCourrierData = () => {
   // Filter clients based on criteria
   const [filteredClients, setFilteredClients] = useState(clients || []);
 
+  useEffect(() => {
+    if (clients) {
+      setFilteredClients(clients);
+    }
+  }, [clients]);
+
   const filterClients = (criteria: any) => {
-    if (!clients) return [];
+    if (!clients) return;
     
-    return clients.filter(client => {
+    const filtered = clients.filter(client => {
       if (criteria.type && client.type !== criteria.type) return false;
       if (criteria.regimeFiscal && client.regimefiscal !== criteria.regimeFiscal) return false;
       if (criteria.secteurActivite && client.secteuractivite !== criteria.secteurActivite) return false;
@@ -62,6 +68,8 @@ export const useCourrierData = () => {
       if (criteria.statut && client.statut !== criteria.statut) return false;
       return true;
     });
+    
+    setFilteredClients(filtered);
   };
 
   return {
