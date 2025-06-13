@@ -5,6 +5,7 @@ import 'jspdf-autotable';
 
 export async function generatePersonnesMoralesReport() {
   try {
+    console.log('Génération du rapport personnes morales...');
     const data = await ReportDataService.getAllReportData();
     const personnesMorales = data.clients.filter(client => client.type === 'morale');
     
@@ -36,11 +37,15 @@ export async function generatePersonnesMoralesReport() {
       styles: { fontSize: 8 }
     });
     
-    // Téléchargement du fichier
+    // Téléchargement du fichier avec vérification
     const filename = `personnes-morales-${new Date().toISOString().slice(0, 10)}.pdf`;
+    console.log('Tentative de téléchargement:', filename);
+    
+    // Force le téléchargement
     doc.save(filename);
     
     console.log(`Rapport généré et téléchargé: ${filename}`);
+    return true;
   } catch (error) {
     console.error('Erreur lors de la génération du rapport personnes morales:', error);
     throw error;
@@ -49,6 +54,7 @@ export async function generatePersonnesMoralesReport() {
 
 export async function generatePersonnesPhysiquesReport() {
   try {
+    console.log('Génération du rapport personnes physiques...');
     const data = await ReportDataService.getAllReportData();
     const personnesPhysiques = data.clients.filter(client => client.type === 'physique');
     
@@ -82,9 +88,11 @@ export async function generatePersonnesPhysiquesReport() {
     
     // Téléchargement du fichier
     const filename = `personnes-physiques-${new Date().toISOString().slice(0, 10)}.pdf`;
+    console.log('Tentative de téléchargement:', filename);
     doc.save(filename);
     
     console.log(`Rapport généré et téléchargé: ${filename}`);
+    return true;
   } catch (error) {
     console.error('Erreur lors de la génération du rapport personnes physiques:', error);
     throw error;
@@ -93,6 +101,7 @@ export async function generatePersonnesPhysiquesReport() {
 
 export async function generateClientsParCentreReport() {
   try {
+    console.log('Génération du rapport clients par centre...');
     const data = await ReportDataService.getAllReportData();
     
     // Regrouper les clients par centre de rattachement
@@ -150,9 +159,11 @@ export async function generateClientsParCentreReport() {
     
     // Téléchargement du fichier
     const filename = `clients-par-centre-${new Date().toISOString().slice(0, 10)}.pdf`;
+    console.log('Tentative de téléchargement:', filename);
     doc.save(filename);
     
     console.log(`Rapport généré et téléchargé: ${filename}`);
+    return true;
   } catch (error) {
     console.error('Erreur lors de la génération du rapport clients par centre:', error);
     throw error;
@@ -161,9 +172,15 @@ export async function generateClientsParCentreReport() {
 
 export async function generateClientsAssujettisIGSReport() {
   try {
+    console.log('Génération du rapport clients IGS...');
     const data = await ReportDataService.getAllReportData();
     // Les clients assujettis à l'IGS sont ceux du régime "igs"
-    const clientsIGS = data.clients.filter(client => client.regimefiscal === 'igs');
+    const clientsIGS = data.clients.filter(client => {
+      const regime = client.regimefiscal?.toLowerCase();
+      return regime === 'igs';
+    });
+    
+    console.log(`Clients IGS trouvés: ${clientsIGS.length}`);
     
     const doc = new jsPDF();
     
@@ -195,9 +212,11 @@ export async function generateClientsAssujettisIGSReport() {
     
     // Téléchargement du fichier
     const filename = `clients-assujettis-igs-${new Date().toISOString().slice(0, 10)}.pdf`;
+    console.log('Tentative de téléchargement:', filename);
     doc.save(filename);
     
     console.log(`Rapport généré et téléchargé: ${filename}`);
+    return true;
   } catch (error) {
     console.error('Erreur lors de la génération du rapport clients IGS:', error);
     throw error;
@@ -206,9 +225,17 @@ export async function generateClientsAssujettisIGSReport() {
 
 export async function generateClientsAssujettsPatenteReport() {
   try {
+    console.log('Génération du rapport clients Patente...');
     const data = await ReportDataService.getAllReportData();
+    
     // Les clients assujettis à la Patente sont ceux du régime "reel" 
-    const clientsPatente = data.clients.filter(client => client.regimefiscal === 'reel');
+    const clientsPatente = data.clients.filter(client => {
+      const regime = client.regimefiscal?.toLowerCase();
+      return regime === 'reel' || regime === 'réel';
+    });
+    
+    console.log(`Clients Patente trouvés: ${clientsPatente.length}`);
+    console.log('Régimes fiscaux trouvés:', data.clients.map(c => c.regimefiscal).filter(Boolean));
     
     const doc = new jsPDF();
     
@@ -240,9 +267,11 @@ export async function generateClientsAssujettsPatenteReport() {
     
     // Téléchargement du fichier
     const filename = `clients-assujettis-patente-${new Date().toISOString().slice(0, 10)}.pdf`;
+    console.log('Tentative de téléchargement:', filename);
     doc.save(filename);
     
     console.log(`Rapport généré et téléchargé: ${filename}`);
+    return true;
   } catch (error) {
     console.error('Erreur lors de la génération du rapport clients Patente:', error);
     throw error;
