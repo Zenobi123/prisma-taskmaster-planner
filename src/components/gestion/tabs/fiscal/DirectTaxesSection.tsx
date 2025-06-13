@@ -8,7 +8,7 @@ import { ObligationStatuses, ObligationType, TaxObligationStatus } from '@/hooks
 
 interface DirectTaxesSectionProps {
   obligationStatuses: ObligationStatuses;
-  handleStatusChange: (taxType: ObligationType, field: string, value: boolean) => void;
+  handleStatusChange: (taxType: ObligationType, field: string, value: boolean | string | number) => void;
 }
 
 // IGS tax brackets configuration
@@ -30,15 +30,25 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
   handleStatusChange 
 }) => {
   const [openedDetails, setOpenedDetails] = useState<Record<string, boolean>>({});
-  const [caValue, setCAValue] = useState<string>('');
-  const [isCGA, setIsCGA] = useState<boolean>(false);
-  const [igsCalculation, setIgsCalculation] = useState<{ class: string | number; amount: number; outOfRange: boolean } | null>(null);
-  const [quarterlyPayments, setQuarterlyPayments] = useState<Record<string, string>>({
-    q1: '',
-    q2: '',
-    q3: '',
-    q4: ''
-  });
+
+  // Get IGS data from obligation statuses
+  const igsObligation = obligationStatuses.igs as TaxObligationStatus;
+  const caValue = (igsObligation?.caValue || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+  const isCGA = igsObligation?.isCGA || false;
+  
+  const quarterlyPayments = {
+    q1: (igsObligation?.q1Montant || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+    q2: (igsObligation?.q2Montant || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+    q3: (igsObligation?.q3Montant || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '),
+    q4: (igsObligation?.q4Montant || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
+  };
+
+  const quarterlyDates = {
+    q1: igsObligation?.q1Date || '',
+    q2: igsObligation?.q2Date || '',
+    q3: igsObligation?.q3Date || '',
+    q4: igsObligation?.q4Date || ''
+  };
   
   // Format a number with spaces as thousand separators
   const formatNumberWithSpaces = (value: string): string => {
@@ -51,20 +61,6 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
   // Parse a formatted number to an integer
   const parseFormattedNumber = (value: string): number => {
     return parseInt(value.replace(/\s/g, ''), 10) || 0;
-  };
-
-  // Calculate total IGS paid from quarterly payments
-  const calculateTotalIgsPaid = (): number => {
-    return Object.values(quarterlyPayments).reduce((sum, payment) => {
-      return sum + parseFormattedNumber(payment);
-    }, 0);
-  };
-
-  // Calculate IGS balance to pay
-  const calculateIgsBalance = (): number => {
-    if (!igsCalculation || igsCalculation.outOfRange) return 0;
-    const totalPaid = calculateTotalIgsPaid();
-    return Math.max(0, igsCalculation.amount - totalPaid);
   };
 
   // Calculate IGS based on revenue and CGA status
@@ -84,16 +80,23 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     return { class: '-', amount: 0, outOfRange: false };
   };
 
-  // Update IGS calculation when revenue or CGA status changes
-  useEffect(() => {
-    const ca = parseFormattedNumber(caValue);
-    if (ca > 0) {
-      const result = calculateIGS(ca, isCGA);
-      setIgsCalculation(result);
-    } else {
-      setIgsCalculation(null);
-    }
-  }, [caValue, isCGA]);
+  // Calculate IGS calculation based on current values
+  const ca = parseFormattedNumber(caValue);
+  const igsCalculation = ca > 0 ? calculateIGS(ca, isCGA) : null;
+
+  // Calculate total IGS paid from quarterly payments
+  const calculateTotalIgsPaid = (): number => {
+    return Object.values(quarterlyPayments).reduce((sum, payment) => {
+      return sum + parseFormattedNumber(payment);
+    }, 0);
+  };
+
+  // Calculate IGS balance to pay
+  const calculateIgsBalance = (): number => {
+    if (!igsCalculation || igsCalculation.outOfRange) return 0;
+    const totalPaid = calculateTotalIgsPaid();
+    return Math.max(0, igsCalculation.amount - totalPaid);
+  };
 
   // Toggle details visibility
   const toggleDetails = (taxType: string) => {
@@ -103,20 +106,29 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     }));
   };
 
-  // Handles change in CA input
+  // Handle CA change
   const handleCAChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
     const formattedValue = formatNumberWithSpaces(rawValue);
-    setCAValue(formattedValue);
+    const numericValue = parseFormattedNumber(formattedValue);
+    handleStatusChange('igs', 'caValue', numericValue);
+  };
+
+  // Handle CGA change
+  const handleCGAChange = (checked: boolean) => {
+    handleStatusChange('igs', 'isCGA', checked);
   };
 
   // Handle quarterly payment change
   const handleQuarterlyPaymentChange = (quarter: string, value: string) => {
     const formattedValue = formatNumberWithSpaces(value);
-    setQuarterlyPayments(prev => ({
-      ...prev,
-      [quarter]: formattedValue
-    }));
+    const numericValue = parseFormattedNumber(formattedValue);
+    handleStatusChange('igs', `${quarter}Montant`, numericValue);
+  };
+
+  // Handle quarterly date change
+  const handleQuarterlyDateChange = (quarter: string, value: string) => {
+    handleStatusChange('igs', `${quarter}Date`, value);
   };
 
   // Type guard to check if obligation is a tax obligation
@@ -202,7 +214,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                   <Switch
                     id="cga-toggle"
                     checked={isCGA}
-                    onCheckedChange={setIsCGA}
+                    onCheckedChange={handleCGAChange}
                   />
                   <Label htmlFor="cga-toggle" className="flex items-center">
                     Membre d'un Centre de Gestion Agréé (CGA) 
@@ -273,6 +285,8 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                             <input 
                               type="date" 
                               className="w-[95%] p-1 border border-gray-200 rounded bg-gray-50"
+                              value={quarterlyDates[echeance.quarter as keyof typeof quarterlyDates]}
+                              onChange={(e) => handleQuarterlyDateChange(echeance.quarter, e.target.value)}
                             />
                           </td>
                           <td className="border border-gray-200 p-2">
@@ -280,7 +294,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                               type="text" 
                               className="w-[95%] p-1 border border-gray-200 rounded bg-gray-50"
                               placeholder="0"
-                              value={quarterlyPayments[echeance.quarter]}
+                              value={quarterlyPayments[echeance.quarter as keyof typeof quarterlyPayments]}
                               onChange={(e) => handleQuarterlyPaymentChange(echeance.quarter, e.target.value)}
                             />
                           </td>
