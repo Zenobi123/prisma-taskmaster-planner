@@ -8,14 +8,6 @@ import { ClientsList } from "@/components/courrier/ClientsList";
 import { PreviewDialog } from "@/components/courrier/PreviewDialog";
 import { useCourrierData } from "@/hooks/useCourrierData";
 
-interface CriteriaFilter {
-  type: string;
-  regimeFiscal: string;
-  secteurActivite: string;
-  centreRattachement: string;
-  statut: string;
-}
-
 export default function Courrier() {
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);

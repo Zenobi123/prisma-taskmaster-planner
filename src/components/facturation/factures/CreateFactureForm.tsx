@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import ClientSelector from "./ClientSelector";
@@ -11,9 +12,8 @@ import { useFactureForm } from "@/hooks/facturation/factureForm";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
-import { Form } from "@/components/ui/form";
 import { Facture } from "@/types/facture";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface CreateFactureFormProps {
   onSuccess: () => void;
@@ -30,25 +30,29 @@ const CreateFactureForm = ({
 }: CreateFactureFormProps) => {
   const {
     handleSubmit,
-    setValue,
-    watch,
-    register,
     prestations,
     setPrestations,
-    totalAmount,
-    selectedClientId,
-    selectedClient,
-    selectedDate,
-    selectedEcheance,
-    selectedStatus,
-    selectedStatusPaiement,
-    selectedModePaiement,
     allClients,
     isLoadingClients,
     clientsError,
-    onSubmit,
-    initializeFormForEdit
-  } = useFactureForm(onSuccess, editMode);
+    initializeFormForEdit,
+    clientId,
+    setClientId,
+    dateFacture,
+    setDateFacture,
+    dateEcheance,
+    setDateEcheance,
+    notes,
+    setNotes,
+    statutFacture,
+    setStatutFacture,
+    modePaiement,
+    setModePaiement,
+    getSelectedClient,
+    toast
+  } = useFactureForm();
+
+  const [statusPaiement, setStatusPaiement] = useState("non_payée");
   
   useEffect(() => {
     if (editMode && factureToEdit) {
@@ -56,15 +60,42 @@ const CreateFactureForm = ({
     }
   }, [editMode, factureToEdit, initializeFormForEdit]);
 
+  const selectedClient = getSelectedClient(clientId);
+
+  const totalAmount = prestations.reduce((sum, prestation) => sum + (prestation.montant || 0), 0);
+
+  const onSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const formData = {
+      client_id: clientId,
+      date: dateFacture,
+      echeance: dateEcheance,
+      notes,
+      status: statutFacture,
+      status_paiement: statusPaiement,
+      mode_paiement: modePaiement,
+      prestations,
+      montant: totalAmount
+    };
+    
+    if (editMode && factureToEdit) {
+      // Handle update logic here
+      console.log("Updating facture:", formData);
+    } else {
+      handleSubmit(formData);
+    }
+    onSuccess();
+  };
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+    <form onSubmit={onSubmit} className="space-y-3">
       <div className="space-y-2 max-h-[70vh] overflow-y-auto px-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           <div>
             <ClientSelector 
               clients={allClients}
-              value={selectedClientId} 
-              onChange={(value) => setValue("client_id", value)}
+              value={clientId} 
+              onChange={setClientId}
               disabled={editMode}
               isLoading={isLoadingClients}
               error={clientsError}
@@ -77,36 +108,36 @@ const CreateFactureForm = ({
             <div className="grid grid-cols-2 gap-2">
               <DatePickerField 
                 label="Date d'émission"
-                date={selectedDate}
-                onSelect={(date) => setValue("date", date)}
+                date={dateFacture ? new Date(dateFacture) : undefined}
+                onSelect={(date) => setDateFacture(date ? date.toISOString().split('T')[0] : "")}
               />
 
               <DatePickerField 
                 label="Date d'échéance"
-                date={selectedEcheance}
-                onSelect={(date) => setValue("echeance", date)}
+                date={dateEcheance ? new Date(dateEcheance) : undefined}
+                onSelect={(date) => setDateEcheance(date ? date.toISOString().split('T')[0] : "")}
               />
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <StatusSelector 
-                value={selectedStatus}
-                onChange={(value) => setValue("status", value)}
+                value={statutFacture}
+                onChange={setStatutFacture}
                 type="document"
                 label="Statut document"
               />
               
               <StatusSelector 
-                value={selectedStatusPaiement}
-                onChange={(value) => setValue("status_paiement", value)}
+                value={statusPaiement}
+                onChange={setStatusPaiement}
                 type="paiement"
                 label="Statut paiement"
               />
             </div>
             
             <ModePaiementSelector
-              value={selectedModePaiement}
-              onChange={(value) => setValue("mode_paiement", value)}
+              value={modePaiement}
+              onChange={setModePaiement}
               label="Mode paiement"
             />
           </div>
@@ -123,7 +154,8 @@ const CreateFactureForm = ({
             id="notes"
             placeholder="Notes supplémentaires pour cette facture..."
             className="min-h-[50px] text-xs"
-            {...register("notes")}
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </div>
 

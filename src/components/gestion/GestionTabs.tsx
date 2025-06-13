@@ -7,12 +7,15 @@ import { ObligationsFiscales } from "./tabs/ObligationsFiscales";
 import { ClotureExercice } from "./tabs/ClotureExercice";
 import { ContratPrestations } from "./tabs/ContratPrestations";
 import { GestionEntreprise } from "./tabs/GestionEntreprise";
+import { useState } from "react";
 
 interface GestionTabsProps {
   selectedClient: string;
 }
 
 export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
+  const [selectedSubTab, setSelectedSubTab] = useState("commercial");
+
   return (
     <Tabs defaultValue="dossier" className="w-full">
       <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
@@ -26,7 +29,7 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsList>
 
       <TabsContent value="dossier" className="mt-6">
-        <GestionDossier />
+        <GestionDossier selectedClient={selectedClient} />
       </TabsContent>
 
       <TabsContent value="comptable" className="mt-6">
@@ -34,23 +37,29 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsContent>
 
       <TabsContent value="fiscale" className="mt-6">
-        <GestionFiscale />
+        <GestionFiscale onTabChange={() => {}} />
       </TabsContent>
 
       <TabsContent value="obligations" className="mt-6">
-        <ObligationsFiscales clientId={selectedClient} />
+        <ObligationsFiscales selectedClient={selectedClient} />
       </TabsContent>
 
       <TabsContent value="cloture" className="mt-6">
-        <ClotureExercice />
+        <ClotureExercice 
+          selectedSubTab={selectedSubTab}
+          handleSubTabSelect={setSelectedSubTab}
+        />
       </TabsContent>
 
       <TabsContent value="contrat" className="mt-6">
-        <ContratPrestations />
+        <ContratPrestations client={selectedClient} />
       </TabsContent>
 
       <TabsContent value="entreprise" className="mt-6">
-        <GestionEntreprise />
+        <GestionEntreprise 
+          onTabChange={() => {}}
+          selectedClient={selectedClient}
+        />
       </TabsContent>
     </Tabs>
   );
