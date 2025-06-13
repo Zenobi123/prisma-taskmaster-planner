@@ -19,6 +19,11 @@ export default function Gestion() {
     staleTime: 1000 * 60 * 5, // 5 minutes
   });
 
+  const handleClientSelect = (clientId: string) => {
+    const client = clients.find(c => c.id === clientId);
+    setSelectedClient(client || null);
+  };
+
   if (isLoading) {
     return (
       <PageLayout>
@@ -31,7 +36,7 @@ export default function Gestion() {
 
   return (
     <PageLayout>
-      <GestionHeader />
+      <GestionHeader nombreClientsEnGestion={clients.length} />
       
       <div className="space-y-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -39,7 +44,7 @@ export default function Gestion() {
             <ClientSelector
               clients={clients}
               selectedClient={selectedClient}
-              onClientSelect={setSelectedClient}
+              onClientSelect={handleClientSelect}
             />
           </div>
           
@@ -53,7 +58,7 @@ export default function Gestion() {
         </div>
 
         {selectedClient && (
-          <GestionTabs client={selectedClient} />
+          <GestionTabs clientId={selectedClient.id} />
         )}
       </div>
     </PageLayout>

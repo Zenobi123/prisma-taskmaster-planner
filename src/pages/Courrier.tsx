@@ -15,8 +15,8 @@ export default function Courrier() {
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
 
   const {
-    clients,
-    collaborateurs,
+    clients = [],
+    collaborateurs = [],
     isLoading,
     error,
   } = useCourrierData();
@@ -27,9 +27,9 @@ export default function Courrier() {
     return selectedCriteria.some(criteria => {
       switch (criteria) {
         case "particuliers":
-          return client.type === "particulier";
+          return client.type === "physique";
         case "entreprises":
-          return client.type === "entreprise";
+          return client.type === "morale";
         case "actifs":
           return client.statut === "actif";
         case "archives":
@@ -90,8 +90,8 @@ export default function Courrier() {
       </div>
 
       <PreviewDialog 
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
+        open={isPreviewOpen}
+        onOpenChange={setIsPreviewOpen}
         template={selectedTemplate}
         clients={filteredClients.filter(client => selectedClients.includes(client.id))}
         collaborateurs={collaborateurs}
