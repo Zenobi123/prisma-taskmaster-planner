@@ -6,7 +6,7 @@ import { useFactureFormSubmit } from "./useFactureFormSubmit";
 import { useFactureFormValidation } from "./useFactureFormValidation";
 import { useFactureClients } from "./useFactureClients";
 
-export function useFactureForm() {
+export function useFactureForm(onSuccess?: () => void, editMode = false) {
   const { 
     clients, 
     isLoading: isLoadingClients, 
@@ -19,22 +19,50 @@ export function useFactureForm() {
   const { validateForm, toast } = useFactureFormValidation();
   const submitState = useFactureFormSubmit();
 
+  // Get selected client
+  const selectedClient = clients.find(c => c.id === formState.selectedClientId) || null;
+
+  const handleFormSubmit = async (data: any) => {
+    if (validateForm(data)) {
+      const success = await submitState.onSubmit(data);
+      if (success && onSuccess) {
+        onSuccess();
+      }
+    }
+  };
+
   return {
+    // Form methods from react-hook-form
+    handleSubmit: formState.handleSubmit,
+    setValue: formState.setValue,
+    watch: formState.watch,
+    register: formState.register,
+    
     // Form state
-    ...formState,
+    prestations: prestationsState.prestations,
+    setPrestations: prestationsState.setPrestations,
+    totalAmount: formState.totalAmount,
+    resetForm: formState.resetForm,
+    
+    // Current form values
+    selectedClientId: formState.selectedClientId,
+    selectedClient,
+    selectedDate: formState.selectedDate,
+    selectedEcheance: formState.selectedEcheance,
+    selectedStatus: formState.selectedStatus,
+    selectedStatusPaiement: formState.selectedStatusPaiement,
+    selectedModePaiement: formState.selectedModePaiement,
     
     // Initialization
     initializeForm,
     initializeFormForEdit,
     
-    // Prestations
-    ...prestationsState,
-    
     // Validation
     validateForm,
     
     // Submit
-    ...submitState,
+    onSubmit: handleFormSubmit,
+    isSubmitting: submitState.isSubmitting,
     
     // Clients
     clients,
@@ -44,19 +72,6 @@ export function useFactureForm() {
     clientsError,
     
     // Additional methods
-    toast,
-    
-    // Mock properties for form compatibility
-    setValue: () => {},
-    watch: () => ({}),
-    register: () => ({}),
-    totalAmount: 0,
-    selectedClientId: "",
-    selectedClient: null,
-    selectedDate: "",
-    selectedEcheance: "",
-    selectedStatus: "",
-    selectedStatusPaiement: "",
-    selectedModePaiement: ""
+    toast
   };
 }

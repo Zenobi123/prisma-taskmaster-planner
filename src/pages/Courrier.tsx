@@ -18,14 +18,17 @@ export default function Courrier() {
     centreRattachement: "",
     statut: ""
   });
+  const [generationType, setGenerationType] = useState("courrier");
   const [showPreview, setShowPreview] = useState(false);
 
-  const { templates, clients, filteredClients, isLoading } = useCourrierData();
+  const { templates, clients, filteredClients, isLoading, filterClients } = useCourrierData();
 
   const handleCriteriaChange = (criteria: typeof selectedCriteria) => {
     setSelectedCriteria(criteria);
     // Reset selected clients when criteria change
     setSelectedClients([]);
+    // Filter clients based on new criteria
+    filterClients(criteria);
   };
 
   const handleGeneratePreview = () => {
@@ -51,9 +54,8 @@ export default function Courrier() {
       
       <div className="space-y-6">
         <TemplateSelection
-          templates={templates}
           selectedTemplate={selectedTemplate}
-          onTemplateSelect={setSelectedTemplate}
+          onTemplateChange={setSelectedTemplate}
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -61,6 +63,8 @@ export default function Courrier() {
             <CriteriaSelection
               onCriteriaChange={handleCriteriaChange}
               selectedCriteria={selectedCriteria}
+              generationType={generationType}
+              onGenerationTypeChange={setGenerationType}
             />
             
             <div className="flex justify-center">
@@ -77,20 +81,20 @@ export default function Courrier() {
           <ClientsList
             clients={filteredClients}
             selectedClients={selectedClients}
-            onClientsSelect={setSelectedClients}
+            onSelectClients={setSelectedClients}
           />
         </div>
       </div>
 
       <PreviewDialog
-        isOpen={showPreview}
-        onClose={() => setShowPreview(false)}
+        open={showPreview}
+        onOpenChange={setShowPreview}
         template={selectedTemplate}
         clients={selectedClients.length > 0 ? 
           clients.filter(c => selectedClients.includes(c.id)) : 
           filteredClients
         }
-        criteria={selectedCriteria}
+        generationType={generationType}
       />
     </PageLayout>
   );
