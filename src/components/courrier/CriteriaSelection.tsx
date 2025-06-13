@@ -51,7 +51,6 @@ export const CriteriaSelection = ({
                 <SelectValue placeholder="Tous les types" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les types</SelectItem>
                 <SelectItem value="physique">Personne physique</SelectItem>
                 <SelectItem value="morale">Personne morale</SelectItem>
               </SelectContent>
@@ -68,7 +67,6 @@ export const CriteriaSelection = ({
                 <SelectValue placeholder="Tous les régimes" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les régimes</SelectItem>
                 <SelectItem value="reel">Régime réel</SelectItem>
                 <SelectItem value="igs">IGS</SelectItem>
                 <SelectItem value="non_professionnel">Non professionnel</SelectItem>
@@ -86,7 +84,6 @@ export const CriteriaSelection = ({
                 <SelectValue placeholder="Tous les secteurs" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les secteurs</SelectItem>
                 <SelectItem value="commerce">Commerce</SelectItem>
                 <SelectItem value="industrie">Industrie</SelectItem>
                 <SelectItem value="services">Services</SelectItem>
@@ -109,7 +106,6 @@ export const CriteriaSelection = ({
                 <SelectValue placeholder="Tous les centres" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Tous les centres</SelectItem>
                 <SelectItem value="Centre des Impôts de Libreville">Centre des Impôts de Libreville</SelectItem>
                 <SelectItem value="Centre des Impôts de Port-Gentil">Centre des Impôts de Port-Gentil</SelectItem>
                 <SelectItem value="Centre des Impôts de Franceville">Centre des Impôts de Franceville</SelectItem>

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { UnpaidIgsDialog } from "@/components/dashboard/UnpaidIgsDialog";
 import { UnfiledDarpDialog } from "@/components/dashboard/UnfiledDarpDialog";
+import { getClientsSubjectToObligation } from "@/services/subjectClientsService";
 
 const QuickStats = () => {
   const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
@@ -31,6 +32,14 @@ const QuickStats = () => {
   const { data: clientStats, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientsStats,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
+
+  // Get total clients subject to each obligation
+  const { data: subjectClients, isLoading: isSubjectClientsLoading } = useQuery({
+    queryKey: ["subject-clients"],
+    queryFn: getClientsSubjectToObligation,
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
@@ -76,28 +85,14 @@ const QuickStats = () => {
 
   return (
     <div className="grid grid-cols-1 gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="card">
-          <h3 className="font-semibold text-neutral-800 mb-4">
-            Clients inscrits en FANR H2
-          </h3>
-          <div className="text-3xl font-bold text-primary">
-            {isClientStatsLoading ? (
-              <span className="animate-pulse">--</span>
-            ) : (
-              clientStats?.fanrH2Clients || 0
-            )}
-          </div>
-          <p className="text-neutral-600 text-sm mt-1">Total</p>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card cursor-pointer hover:bg-slate-50 transition-colors"
              onClick={() => setShowUnfiledDarpDialog(true)}>
           <h3 className="font-semibold text-neutral-800 mb-4">
             DARP non déposées
           </h3>
           <div className="flex items-center">
-            <div className="text-3xl font-bold text-emerald-600 mr-2">
+            <div className="text-4xl font-bold text-emerald-600 mr-2">
               {isClientStatsLoading ? (
                 <span className="animate-pulse">--</span>
               ) : (
@@ -110,7 +105,13 @@ const QuickStats = () => {
               </Badge>
             )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
+          <p className="text-neutral-600 text-sm mt-1">
+            {isSubjectClientsLoading ? (
+              <span className="animate-pulse">-- clients assujettis</span>
+            ) : (
+              `${subjectClients?.darp || 0} clients assujettis`
+            )}
+          </p>
         </div>
 
         <div className="card cursor-pointer hover:bg-slate-50 transition-colors" 
@@ -119,7 +120,7 @@ const QuickStats = () => {
             IGS impayés
           </h3>
           <div className="flex items-center">
-            <div className="text-3xl font-bold text-emerald-600 mr-2">
+            <div className="text-4xl font-bold text-emerald-600 mr-2">
               {isClientStatsLoading ? (
                 <span className="animate-pulse">--</span>
               ) : (
@@ -132,7 +133,13 @@ const QuickStats = () => {
               </Badge>
             )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
+          <p className="text-neutral-600 text-sm mt-1">
+            {isSubjectClientsLoading ? (
+              <span className="animate-pulse">-- clients assujettis</span>
+            ) : (
+              `${subjectClients?.igs || 0} clients assujettis`
+            )}
+          </p>
         </div>
       </div>
 
@@ -162,7 +169,13 @@ const QuickStats = () => {
               clientStats?.unfiledDsfClients || 0
             )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">À régulariser</p>
+          <p className="text-neutral-600 text-sm mt-1">
+            {isSubjectClientsLoading ? (
+              <span className="animate-pulse">-- clients assujettis</span>
+            ) : (
+              `${subjectClients?.dsf || 0} clients assujettis`
+            )}
+          </p>
         </div>
 
         <div className="card cursor-pointer hover:bg-slate-50 transition-colors" 
@@ -184,7 +197,29 @@ const QuickStats = () => {
               </Badge>
             )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">Clients assujettis</p>
+          <p className="text-neutral-600 text-sm mt-1">
+            {isSubjectClientsLoading ? (
+              <span className="animate-pulse">-- clients assujettis</span>
+            ) : (
+              `${subjectClients?.patente || 0} clients assujettis`
+            )}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Clients inscrits en FANR H2
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            {isClientStatsLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              clientStats?.fanrH2Clients || 0
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Total</p>
         </div>
       </div>
       
