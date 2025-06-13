@@ -1,130 +1,103 @@
 
+import { ReportDataService } from './reportDataService';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
-import { ReportDataService } from './reportDataService';
-import { shouldClientBeSubjectToObligation } from '@/services/fiscal/defaultObligationRules';
 
-// Fonction utilitaire pour formater les valeurs
-const formatPropertyValue = (value: string | null | undefined): string => {
-  if (!value) return 'Non renseigné';
-  
-  const lowerValue = value.toLowerCase();
-  
-  // Cas spéciaux pour les valeurs demandées
-  if (lowerValue === 'reel') {
-    return 'RÉEL';
-  }
-  if (lowerValue === 'sarl') {
-    return 'SARL';
-  }
-  if (lowerValue === 'non_professionnel') {
-    return 'NON-PROF';
-  }
-  if (lowerValue === 'igs') {
-    return 'IGS';
-  }
-  
-  // Capitaliser la première lettre pour les autres propriétés
-  return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-};
-
-export const generatePersonnesMoralesReport = async () => {
+export async function generatePersonnesMoralesReport() {
   try {
     const data = await ReportDataService.getAllReportData();
-    
-    const personnesMorales = data.clients.filter((c: any) => c.type === 'morale');
+    const personnesMorales = data.clients.filter(client => client.type === 'morale');
     
     const doc = new jsPDF();
     
+    // En-tête du rapport
     doc.setFontSize(18);
-    doc.text('Rapport Personnes Morales', 14, 22);
+    doc.text('Rapport - Clients Personnes Morales', 14, 22);
     doc.setFontSize(10);
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     doc.text(`Total: ${personnesMorales.length} clients`, 14, 36);
     
-    if (personnesMorales.length === 0) {
-      doc.setFontSize(12);
-      doc.text('Aucune personne morale trouvée.', 14, 50);
-    } else {
-      const clientsData = personnesMorales.map((client: any) => [
-        client.nom || client.raisonsociale || 'Sans nom',
-        client.niu || 'Non renseigné',
-        formatPropertyValue(client.formejuridique),
-        formatPropertyValue(client.regimefiscal),
-        formatPropertyValue(client.secteuractivite),
-        formatPropertyValue(client.statut)
-      ]);
-      
-      (doc as any).autoTable({
-        startY: 45,
-        head: [['Raison Sociale', 'NIU', 'Forme Juridique', 'Régime Fiscal', 'Secteur', 'Statut']],
-        body: clientsData,
-        theme: 'grid',
-        styles: { fontSize: 8 }
-      });
-    }
+    // Données du tableau
+    const tableData = personnesMorales.map(client => [
+      client.raisonsociale || '',
+      client.niu || '',
+      client.regimefiscal || '',
+      client.secteuractivite || '',
+      client.centrerattachement || '',
+      client.statut || ''
+    ]);
     
-    doc.save(`personnes-morales-${new Date().toISOString().slice(0, 10)}.pdf`);
+    // Génération du tableau
+    (doc as any).autoTable({
+      startY: 45,
+      head: [['Raison Sociale', 'NIU', 'Régime Fiscal', 'Secteur', 'Centre', 'Statut']],
+      body: tableData,
+      theme: 'grid',
+      styles: { fontSize: 8 }
+    });
+    
+    // Téléchargement du fichier
+    const filename = `personnes-morales-${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+    
+    console.log(`Rapport généré et téléchargé: ${filename}`);
   } catch (error) {
     console.error('Erreur lors de la génération du rapport personnes morales:', error);
+    throw error;
   }
-};
+}
 
-export const generatePersonnesPhysiquesReport = async () => {
+export async function generatePersonnesPhysiquesReport() {
   try {
     const data = await ReportDataService.getAllReportData();
-    
-    const personnesPhysiques = data.clients.filter((c: any) => c.type === 'physique');
+    const personnesPhysiques = data.clients.filter(client => client.type === 'physique');
     
     const doc = new jsPDF();
     
+    // En-tête du rapport
     doc.setFontSize(18);
-    doc.text('Rapport Personnes Physiques', 14, 22);
+    doc.text('Rapport - Clients Personnes Physiques', 14, 22);
     doc.setFontSize(10);
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     doc.text(`Total: ${personnesPhysiques.length} clients`, 14, 36);
     
-    if (personnesPhysiques.length === 0) {
-      doc.setFontSize(12);
-      doc.text('Aucune personne physique trouvée.', 14, 50);
-    } else {
-      const clientsData = personnesPhysiques.map((client: any) => [
-        client.nom || 'Sans nom',
-        client.niu || 'Non renseigné',
-        formatPropertyValue(client.regimefiscal),
-        formatPropertyValue(client.secteuractivite),
-        formatPropertyValue(client.statut)
-      ]);
-      
-      (doc as any).autoTable({
-        startY: 45,
-        head: [['Nom', 'NIU', 'Régime Fiscal', 'Secteur', 'Statut']],
-        body: clientsData,
-        theme: 'grid',
-        styles: { fontSize: 8 }
-      });
-    }
+    // Données du tableau
+    const tableData = personnesPhysiques.map(client => [
+      client.nom || '',
+      client.niu || '',
+      client.regimefiscal || '',
+      client.secteuractivite || '',
+      client.centrerattachement || '',
+      client.statut || ''
+    ]);
     
-    doc.save(`personnes-physiques-${new Date().toISOString().slice(0, 10)}.pdf`);
+    // Génération du tableau
+    (doc as any).autoTable({
+      startY: 45,
+      head: [['Nom', 'NIU', 'Régime Fiscal', 'Secteur', 'Centre', 'Statut']],
+      body: tableData,
+      theme: 'grid',
+      styles: { fontSize: 8 }
+    });
+    
+    // Téléchargement du fichier
+    const filename = `personnes-physiques-${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+    
+    console.log(`Rapport généré et téléchargé: ${filename}`);
   } catch (error) {
     console.error('Erreur lors de la génération du rapport personnes physiques:', error);
+    throw error;
   }
-};
+}
 
-export const generateClientsParCentreReport = async () => {
+export async function generateClientsParCentreReport() {
   try {
     const data = await ReportDataService.getAllReportData();
     
-    const doc = new jsPDF();
-    
-    doc.setFontSize(18);
-    doc.text('Rapport Clients par Centre des Impôts', 14, 22);
-    doc.setFontSize(10);
-    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
-    
-    // Grouper par centre de rattachement
-    const clientsParCentre = data.clients.reduce((acc: any, client: any) => {
-      const centre = client.centrerattachement || 'Centre non défini';
+    // Regrouper les clients par centre de rattachement
+    const clientsParCentre = data.clients.reduce((acc: any, client) => {
+      const centre = client.centrerattachement || 'Non défini';
       if (!acc[centre]) {
         acc[centre] = [];
       }
@@ -132,132 +105,146 @@ export const generateClientsParCentreReport = async () => {
       return acc;
     }, {});
     
-    let currentY = 40;
+    const doc = new jsPDF();
     
+    // En-tête du rapport
+    doc.setFontSize(18);
+    doc.text('Rapport - Clients par Centre des Impôts', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
+    
+    let yPosition = 45;
+    
+    // Pour chaque centre
     Object.entries(clientsParCentre).forEach(([centre, clients]: [string, any]) => {
       // Titre du centre
       doc.setFontSize(12);
-      doc.text(`${centre} (${clients.length} clients)`, 14, currentY);
-      currentY += 10;
+      doc.text(`Centre: ${centre} (${clients.length} clients)`, 14, yPosition);
+      yPosition += 10;
       
-      const centreData = clients.map((client: any) => [
-        client.nom || client.raisonsociale || 'Sans nom',
-        client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
-        client.niu || 'Non renseigné',
-        formatPropertyValue(client.regimefiscal)
+      // Données du tableau pour ce centre
+      const tableData = clients.map((client: any) => [
+        client.type === 'physique' ? client.nom : client.raisonsociale,
+        client.niu || '',
+        client.type === 'physique' ? 'Personne Physique' : 'Personne Morale',
+        client.regimefiscal || ''
       ]);
       
+      // Génération du tableau
       (doc as any).autoTable({
-        startY: currentY,
-        head: [['Nom/Raison Sociale', 'Type', 'NIU', 'Régime Fiscal']],
-        body: centreData,
+        startY: yPosition,
+        head: [['Nom/Raison Sociale', 'NIU', 'Type', 'Régime Fiscal']],
+        body: tableData,
         theme: 'grid',
         styles: { fontSize: 8 }
       });
       
-      currentY = (doc as any).lastAutoTable.finalY + 15;
+      yPosition = (doc as any).lastAutoTable.finalY + 15;
       
       // Nouvelle page si nécessaire
-      if (currentY > 250) {
+      if (yPosition > 250) {
         doc.addPage();
-        currentY = 20;
+        yPosition = 20;
       }
     });
     
-    doc.save(`clients-par-centre-${new Date().toISOString().slice(0, 10)}.pdf`);
+    // Téléchargement du fichier
+    const filename = `clients-par-centre-${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+    
+    console.log(`Rapport généré et téléchargé: ${filename}`);
   } catch (error) {
     console.error('Erreur lors de la génération du rapport clients par centre:', error);
+    throw error;
   }
-};
+}
 
-export const generateClientsAssujettisIGSReport = async () => {
+export async function generateClientsAssujettisIGSReport() {
   try {
     const data = await ReportDataService.getAllReportData();
-    
-    // Filtrer les clients assujettis à l'IGS selon les règles métier
-    const clientsAssujettisIGS = data.clients.filter((client: any) => {
-      return shouldClientBeSubjectToObligation(client, "igs");
-    });
-    
-    console.log(`Clients assujettis IGS trouvés: ${clientsAssujettisIGS.length}`);
+    // Les clients assujettis à l'IGS sont ceux du régime "igs"
+    const clientsIGS = data.clients.filter(client => client.regimefiscal === 'igs');
     
     const doc = new jsPDF();
     
+    // En-tête du rapport
     doc.setFontSize(18);
-    doc.text('Rapport Clients Assujettis IGS', 14, 22);
+    doc.text('Rapport - Clients Assujettis IGS', 14, 22);
     doc.setFontSize(10);
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
-    doc.text(`Total: ${clientsAssujettisIGS.length} clients assujettis`, 14, 36);
+    doc.text(`Total: ${clientsIGS.length} clients assujettis à l'IGS`, 14, 36);
     
-    if (clientsAssujettisIGS.length === 0) {
-      doc.setFontSize(12);
-      doc.text('Aucun client assujetti à l\'IGS trouvé.', 14, 50);
-    } else {
-      const clientsData = clientsAssujettisIGS.map((client: any) => [
-        client.nom || client.raisonsociale || 'Sans nom',
-        client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
-        client.niu || 'Non renseigné',
-        formatPropertyValue(client.regimefiscal),
-        formatPropertyValue(client.secteuractivite)
-      ]);
-      
-      (doc as any).autoTable({
-        startY: 45,
-        head: [['Nom/Raison Sociale', 'Type', 'NIU', 'Régime Fiscal', 'Secteur']],
-        body: clientsData,
-        theme: 'grid',
-        styles: { fontSize: 8 }
-      });
-    }
+    // Données du tableau
+    const tableData = clientsIGS.map(client => [
+      client.type === 'physique' ? client.nom : client.raisonsociale,
+      client.niu || '',
+      client.type === 'physique' ? 'Personne Physique' : 'Personne Morale',
+      client.secteuractivite || '',
+      client.centrerattachement || '',
+      client.statut || ''
+    ]);
     
-    doc.save(`clients-assujettis-igs-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-    console.error('Erreur lors de la génération du rapport clients assujettis IGS:', error);
-  }
-};
-
-export const generateClientsAssujettsPatenteReport = async () => {
-  try {
-    const data = await ReportDataService.getAllReportData();
-    
-    // Filtrer les clients assujettis à la Patente selon les règles métier
-    const clientsAssujettisPatente = data.clients.filter((client: any) => {
-      return shouldClientBeSubjectToObligation(client, "patente");
+    // Génération du tableau
+    (doc as any).autoTable({
+      startY: 45,
+      head: [['Nom/Raison Sociale', 'NIU', 'Type', 'Secteur', 'Centre', 'Statut']],
+      body: tableData,
+      theme: 'grid',
+      styles: { fontSize: 8 }
     });
     
-    console.log(`Clients assujettis Patente trouvés: ${clientsAssujettisPatente.length}`);
+    // Téléchargement du fichier
+    const filename = `clients-assujettis-igs-${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+    
+    console.log(`Rapport généré et téléchargé: ${filename}`);
+  } catch (error) {
+    console.error('Erreur lors de la génération du rapport clients IGS:', error);
+    throw error;
+  }
+}
+
+export async function generateClientsAssujettsPatenteReport() {
+  try {
+    const data = await ReportDataService.getAllReportData();
+    // Les clients assujettis à la Patente sont ceux du régime "reel" 
+    const clientsPatente = data.clients.filter(client => client.regimefiscal === 'reel');
     
     const doc = new jsPDF();
     
+    // En-tête du rapport
     doc.setFontSize(18);
-    doc.text('Rapport Clients Assujettis Patente', 14, 22);
+    doc.text('Rapport - Clients Assujettis Patente', 14, 22);
     doc.setFontSize(10);
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
-    doc.text(`Total: ${clientsAssujettisPatente.length} clients assujettis`, 14, 36);
+    doc.text(`Total: ${clientsPatente.length} clients assujettis à la Patente`, 14, 36);
     
-    if (clientsAssujettisPatente.length === 0) {
-      doc.setFontSize(12);
-      doc.text('Aucun client assujetti à la Patente trouvé.', 14, 50);
-    } else {
-      const clientsData = clientsAssujettisPatente.map((client: any) => [
-        client.nom || client.raisonsociale || 'Sans nom',
-        client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
-        client.niu || 'Non renseigné',
-        formatPropertyValue(client.regimefiscal),
-        formatPropertyValue(client.secteuractivite)
-      ]);
-      
-      (doc as any).autoTable({
-        startY: 45,
-        head: [['Nom/Raison Sociale', 'Type', 'NIU', 'Régime Fiscal', 'Secteur']],
-        body: clientsData,
-        theme: 'grid',
-        styles: { fontSize: 8 }
-      });
-    }
+    // Données du tableau
+    const tableData = clientsPatente.map(client => [
+      client.type === 'physique' ? client.nom : client.raisonsociale,
+      client.niu || '',
+      client.type === 'physique' ? 'Personne Physique' : 'Personne Morale',
+      client.secteuractivite || '',
+      client.centrerattachement || '',
+      client.statut || ''
+    ]);
     
-    doc.save(`clients-assujettis-patente-${new Date().toISOString().slice(0, 10)}.pdf`);
+    // Génération du tableau
+    (doc as any).autoTable({
+      startY: 45,
+      head: [['Nom/Raison Sociale', 'NIU', 'Type', 'Secteur', 'Centre', 'Statut']],
+      body: tableData,
+      theme: 'grid',
+      styles: { fontSize: 8 }
+    });
+    
+    // Téléchargement du fichier
+    const filename = `clients-assujettis-patente-${new Date().toISOString().slice(0, 10)}.pdf`;
+    doc.save(filename);
+    
+    console.log(`Rapport généré et téléchargé: ${filename}`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport clients assujettis Patente:', error);
+    console.error('Erreur lors de la génération du rapport clients Patente:', error);
+    throw error;
   }
-};
+}

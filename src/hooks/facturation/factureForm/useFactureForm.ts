@@ -23,7 +23,8 @@ export function useFactureForm(onSuccess?: () => void, editMode = false) {
   const selectedClient = clients.find(c => c.id === formState.selectedClientId) || null;
 
   const handleFormSubmit = async (data: any) => {
-    if (validateForm(data)) {
+    const isValid = validateForm(data);
+    if (isValid) {
       const success = await submitState.onSubmit(data);
       if (success && onSuccess) {
         onSuccess();

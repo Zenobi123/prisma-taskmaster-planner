@@ -7,12 +7,25 @@ import { ObligationsFiscales } from "./tabs/ObligationsFiscales";
 import { ClotureExercice } from "./tabs/ClotureExercice";
 import { ContratPrestations } from "./tabs/ContratPrestations";
 import { GestionEntreprise } from "./tabs/GestionEntreprise";
+import { useQuery } from "@tanstack/react-query";
+import { getClients } from "@/services/clientService";
 
 interface GestionTabsProps {
   selectedClient: string;
 }
 
 export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
+  const { data: clients = [] } = useQuery({
+    queryKey: ["clients"],
+    queryFn: () => getClients(false),
+  });
+
+  const client = clients.find(c => c.id === selectedClient);
+
+  if (!client) {
+    return <div>Client non trouvé</div>;
+  }
+
   return (
     <Tabs defaultValue="dossier" className="w-full">
       <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
@@ -38,7 +51,7 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsContent>
 
       <TabsContent value="obligations" className="mt-6">
-        <ObligationsFiscales clientId={selectedClient} />
+        <ObligationsFiscales selectedClient={client} />
       </TabsContent>
 
       <TabsContent value="cloture" className="mt-6">
@@ -46,11 +59,11 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsContent>
 
       <TabsContent value="contrat" className="mt-6">
-        <ContratPrestations client={{ id: selectedClient }} />
+        <ContratPrestations client={client} />
       </TabsContent>
 
       <TabsContent value="entreprise" className="mt-6">
-        <GestionEntreprise onTabChange={() => {}} selectedClient={selectedClient} />
+        <GestionEntreprise onTabChange={() => {}} selectedClient={client} />
       </TabsContent>
     </Tabs>
   );
