@@ -1,35 +1,62 @@
 
-import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createFacture, updateFacture } from "@/services/factureService";
 import { useToast } from "@/hooks/use-toast";
 
 export function useFactureFormSubmit() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const onSubmit = async (formData: any) => {
-    setIsSubmitting(true);
-    try {
-      // Simulate form submission
-      console.log("Submitting facture:", formData);
-      
+  const createMutation = useMutation({
+    mutationFn: createFacture,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["factures"] });
       toast({
         title: "Succès",
         description: "Facture créée avec succès",
       });
-    } catch (error) {
-      console.error("Error submitting facture:", error);
+    },
+    onError: (error) => {
       toast({
         title: "Erreur",
         description: "Erreur lors de la création de la facture",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmitting(false);
-    }
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: any }) => 
+      updateFacture(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["factures"] });
+      toast({
+        title: "Succès",
+        description: "Facture modifiée avec succès",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la modification de la facture",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (formData: any) => {
+    createMutation.mutate(formData);
+  };
+
+  const handleUpdate = (id: string, updates: any) => {
+    updateMutation.mutate({ id, updates });
   };
 
   return {
-    onSubmit,
-    isSubmitting
+    createMutation,
+    updateMutation,
+    handleSubmit,
+    handleUpdate,
+    isSubmitting: createMutation.isPending || updateMutation.isPending
   };
 }

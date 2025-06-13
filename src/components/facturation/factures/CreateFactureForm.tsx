@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import ClientSelector from "./ClientSelector";
@@ -15,10 +14,6 @@ import { X } from "lucide-react";
 import { Form } from "@/components/ui/form";
 import { Facture } from "@/types/facture";
 import { useEffect } from "react";
-
-type StatusType = "brouillon" | "envoyée" | "annulée";
-type StatusPaiementType = "non_payée" | "payée" | "partiellement_payée" | "en_retard";
-type ModePaiementType = "espèces" | "virement" | "chèque" | "carte";
 
 interface CreateFactureFormProps {
   onSuccess: () => void;
@@ -96,14 +91,14 @@ const CreateFactureForm = ({
             <div className="grid grid-cols-2 gap-2">
               <StatusSelector 
                 value={selectedStatus}
-                onChange={(value) => setValue("status", value as StatusType)}
+                onChange={(value) => setValue("status", value)}
                 type="document"
                 label="Statut document"
               />
               
               <StatusSelector 
                 value={selectedStatusPaiement}
-                onChange={(value) => setValue("status_paiement", value as StatusPaiementType)}
+                onChange={(value) => setValue("status_paiement", value)}
                 type="paiement"
                 label="Statut paiement"
               />
@@ -111,7 +106,7 @@ const CreateFactureForm = ({
             
             <ModePaiementSelector
               value={selectedModePaiement}
-              onChange={(value) => setValue("mode_paiement", value as ModePaiementType)}
+              onChange={(value) => setValue("mode_paiement", value)}
               label="Mode paiement"
             />
           </div>

@@ -7,25 +7,12 @@ import { ObligationsFiscales } from "./tabs/ObligationsFiscales";
 import { ClotureExercice } from "./tabs/ClotureExercice";
 import { ContratPrestations } from "./tabs/ContratPrestations";
 import { GestionEntreprise } from "./tabs/GestionEntreprise";
-import { useQuery } from "@tanstack/react-query";
-import { getClients } from "@/services/clientService";
 
 interface GestionTabsProps {
   selectedClient: string;
 }
 
 export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
-  const { data: clients = [] } = useQuery({
-    queryKey: ["clients"],
-    queryFn: () => getClients(false),
-  });
-
-  const client = clients.find(c => c.id === selectedClient);
-
-  if (!client) {
-    return <div>Client non trouvé</div>;
-  }
-
   return (
     <Tabs defaultValue="dossier" className="w-full">
       <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
@@ -39,7 +26,7 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsList>
 
       <TabsContent value="dossier" className="mt-6">
-        <GestionDossier selectedClient={selectedClient} />
+        <GestionDossier />
       </TabsContent>
 
       <TabsContent value="comptable" className="mt-6">
@@ -47,23 +34,23 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsContent>
 
       <TabsContent value="fiscale" className="mt-6">
-        <GestionFiscale onTabChange={() => {}} />
+        <GestionFiscale />
       </TabsContent>
 
       <TabsContent value="obligations" className="mt-6">
-        <ObligationsFiscales selectedClient={client} />
+        <ObligationsFiscales clientId={selectedClient} />
       </TabsContent>
 
       <TabsContent value="cloture" className="mt-6">
-        <ClotureExercice selectedSubTab="" handleSubTabSelect={() => {}} />
+        <ClotureExercice />
       </TabsContent>
 
       <TabsContent value="contrat" className="mt-6">
-        <ContratPrestations client={client} />
+        <ContratPrestations />
       </TabsContent>
 
       <TabsContent value="entreprise" className="mt-6">
-        <GestionEntreprise onTabChange={() => {}} selectedClient={client} />
+        <GestionEntreprise />
       </TabsContent>
     </Tabs>
   );
