@@ -13,7 +13,7 @@ export function ClientsHeader({ onAddClientClick, onTrashClick, isMobile }: Clie
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div className="flex items-center gap-3">
-        <BackButton label={!isMobile ? "Tableau de bord" : "Retour"} />
+        <BackButton label="Retour" />
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">
             Clients

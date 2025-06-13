@@ -1,25 +1,28 @@
 
-import { useState, useEffect } from "react";
-import { Prestation } from "@/types/facture";
+import { useState } from "react";
 
-export const useFactureFormPrestations = () => {
-  const [prestations, setPrestations] = useState<Prestation[]>([
-    { description: "", quantite: 1, montant: 0 },
-  ]);
+export function useFactureFormPrestations() {
+  const [prestations, setPrestations] = useState([]);
 
-  // Calculate total amount whenever prestations change
-  const [totalAmount, setTotalAmount] = useState(0);
+  const addPrestation = (prestation: any) => {
+    setPrestations([...prestations, prestation]);
+  };
 
-  useEffect(() => {
-    const total = prestations.reduce((sum, prestation) => {
-      return sum + (prestation.montant * (prestation.quantite || 1));
-    }, 0);
-    setTotalAmount(total);
-  }, [prestations]);
+  const removePrestation = (index: number) => {
+    setPrestations(prestations.filter((_, i) => i !== index));
+  };
+
+  const updatePrestation = (index: number, updates: any) => {
+    const newPrestations = [...prestations];
+    newPrestations[index] = { ...newPrestations[index], ...updates };
+    setPrestations(newPrestations);
+  };
 
   return {
     prestations,
     setPrestations,
-    totalAmount
+    addPrestation,
+    removePrestation,
+    updatePrestation
   };
-};
+}

@@ -1,39 +1,23 @@
 
-import { useToast } from "@/components/ui/use-toast";
-import { Prestation } from "@/types/facture";
-import { Client } from "@/types/client";
+import { useToast } from "@/hooks/use-toast";
 
-export const useFactureFormValidation = () => {
+export function useFactureFormValidation() {
   const { toast } = useToast();
 
-  // Validate form data before submission
-  const validateFactureForm = (
-    selectedClient: Client | undefined, 
-    prestations: Prestation[]
-  ): boolean => {
-    if (!selectedClient) {
+  const validateForm = (formData: any) => {
+    if (!formData.clientId) {
       toast({
-        variant: "destructive",
         title: "Erreur",
-        description: "Veuillez sélectionner un client.",
+        description: "Veuillez sélectionner un client",
+        variant: "destructive",
       });
       return false;
     }
-
-    if (prestations.some(p => !p.description || p.montant <= 0)) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Veuillez remplir correctement tous les champs des prestations.",
-      });
-      return false;
-    }
-
     return true;
   };
 
   return {
-    validateFactureForm,
+    validateForm,
     toast
   };
-};
+}

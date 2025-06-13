@@ -14,9 +14,9 @@ export function useFactureForm() {
   } = useFactureClients();
 
   const formState = useFactureFormState();
-  const { initializeFormForEdit } = useFactureFormInitializer();
+  const { initializeForm } = useFactureFormInitializer();
   const prestationsState = useFactureFormPrestations();
-  const { validateFactureForm, toast } = useFactureFormValidation();
+  const { validateForm, toast } = useFactureFormValidation();
   const submitState = useFactureFormSubmit();
 
   return {
@@ -24,13 +24,13 @@ export function useFactureForm() {
     ...formState,
     
     // Initialization
-    initializeForm: initializeFormForEdit,
+    initializeForm,
     
     // Prestations
     ...prestationsState,
     
     // Validation
-    validateForm: validateFactureForm,
+    validateForm,
     
     // Submit
     ...submitState,

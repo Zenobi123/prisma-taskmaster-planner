@@ -58,7 +58,7 @@ export default function Gestion() {
         </div>
 
         {selectedClient && (
-          <GestionTabs selectedClientId={selectedClient.id} />
+          <GestionTabs selectedClient={selectedClient.id} />
         )}
       </div>
     </PageLayout>
