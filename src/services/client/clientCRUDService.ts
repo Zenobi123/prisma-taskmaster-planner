@@ -92,7 +92,7 @@ export const deleteClient = async (id: string) => {
   // First, check if there are any tasks associated with this client
   const { data: clientTasks, error: taskCheckError } = await supabase
     .from("tasks")
-    .select("id")
+    .select("id, status")
     .eq("client_id", id);
 
   if (taskCheckError) {
@@ -100,14 +100,18 @@ export const deleteClient = async (id: string) => {
     throw taskCheckError;
   }
 
-  // If there are associated tasks, we cannot delete the client directly
+  // If there are associated tasks, check if all are completed
   if (clientTasks && clientTasks.length > 0) {
-    console.error("Impossible de supprimer le client car il a des tâches associées");
-    toast.error("Impossible de supprimer ce client car il a des tâches associées");
-    throw new Error("Le client a des tâches associées et ne peut pas être supprimé");
+    const incompleteTasks = clientTasks.filter(task => task.status !== "termine");
+    
+    if (incompleteTasks.length > 0) {
+      console.error("Impossible de supprimer le client car il a des tâches non terminées");
+      toast.error("Impossible de supprimer ce client car il a des tâches non terminées");
+      throw new Error("Le client a des tâches non terminées et ne peut pas être supprimé");
+    }
   }
 
-  // Perform soft delete instead of hard delete
+  // Perform soft delete
   const { data, error } = await supabase
     .from("clients")
     .update({ 
@@ -159,7 +163,7 @@ export const permanentDeleteClient = async (id: string) => {
   // First, check if there are any tasks associated with this client
   const { data: clientTasks, error: taskCheckError } = await supabase
     .from("tasks")
-    .select("id")
+    .select("id, status")
     .eq("client_id", id);
 
   if (taskCheckError) {
@@ -167,11 +171,15 @@ export const permanentDeleteClient = async (id: string) => {
     throw taskCheckError;
   }
 
-  // If there are associated tasks, we cannot delete the client directly
+  // If there are associated tasks, check if all are completed
   if (clientTasks && clientTasks.length > 0) {
-    console.error("Impossible de supprimer définitivement le client car il a des tâches associées");
-    toast.error("Impossible de supprimer définitivement ce client car il a des tâches associées");
-    throw new Error("Le client a des tâches associées et ne peut pas être supprimé définitivement");
+    const incompleteTasks = clientTasks.filter(task => task.status !== "termine");
+    
+    if (incompleteTasks.length > 0) {
+      console.error("Impossible de supprimer définitivement le client car il a des tâches non terminées");
+      toast.error("Impossible de supprimer définitivement ce client car il a des tâches non terminées");
+      throw new Error("Le client a des tâches non terminées et ne peut pas être supprimé définitivement");
+    }
   }
 
   // Permanent deletion

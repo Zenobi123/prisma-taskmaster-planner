@@ -18,7 +18,7 @@ const NewTaskDialog = () => {
 
   const { data: clients = [] } = useQuery({
     queryKey: ["clients"],
-    queryFn: getClients,
+    queryFn: () => getClients(false),
   });
 
   const { data: collaborateurs = [] } = useQuery({
