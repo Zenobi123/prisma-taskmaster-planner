@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export default function ClientsPage() {
   const {
     clients,
+    allClients,
     isLoading,
     isDataReady,
     error,
@@ -43,6 +44,7 @@ export default function ClientsPage() {
     handleDelete,
     handleTrashClick,
     handleCloseTrash,
+    handleMultiCriteriaChange,
     toast
   } = useClientsPage();
   
@@ -86,6 +88,7 @@ export default function ClientsPage() {
           <ScrollArea className="h-[calc(100vh-10rem)]">
             <ClientsContent
               clients={clients}
+              allClients={allClients}
               searchTerm={searchTerm}
               onSearchChange={setSearchTerm}
               selectedType={selectedType}
@@ -99,12 +102,14 @@ export default function ClientsPage() {
               onArchive={handleArchive}
               onRestore={handleRestore}
               onDelete={handleDelete}
+              onMultiCriteriaChange={handleMultiCriteriaChange}
               isMobile={isMobile}
             />
           </ScrollArea>
         ) : (
           <ClientsContent
             clients={clients}
+            allClients={allClients}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
             selectedType={selectedType}
@@ -118,6 +123,7 @@ export default function ClientsPage() {
             onArchive={handleArchive}
             onRestore={handleRestore}
             onDelete={handleDelete}
+            onMultiCriteriaChange={handleMultiCriteriaChange}
             isMobile={isMobile}
           />
         )}
