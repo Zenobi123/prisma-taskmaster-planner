@@ -9,10 +9,9 @@ export const CourrierHeader = () => {
   return (
     <div className="flex items-center gap-4 mb-8">
       <Button
-        variant="ghost"
-        size="sm"
+        variant="outline"
         onClick={() => navigate("/")}
-        className="flex items-center gap-2"
+        className="flex items-center gap-2 hover:bg-[#F2FCE2]"
       >
         <ArrowLeft className="w-4 h-4" />
         Retour
