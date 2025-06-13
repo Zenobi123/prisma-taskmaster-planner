@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +17,7 @@ export default function Gestion() {
 
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients"],
-    queryFn: getClients,
+    queryFn: () => getClients(false),
     staleTime: 5 * 60 * 1000,
     gcTime: 30 * 60 * 1000,
   });

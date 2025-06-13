@@ -1,9 +1,8 @@
 
 import { Client } from "@/types/client";
 import { ObligationStatuses } from "../types";
-import { Json } from "@/integrations/supabase/types";
 
-interface PrepareFiscalDataParams {
+interface PrepareFiscalDataProps {
   selectedClient: Client;
   fiscalYear: string;
   creationDate: string;
@@ -13,78 +12,115 @@ interface PrepareFiscalDataParams {
   obligationStatuses: ObligationStatuses;
 }
 
-export const prepareFiscalDataForSave = (params: PrepareFiscalDataParams) => {
-  const {
-    selectedClient,
-    fiscalYear,
-    creationDate,
-    validityEndDate,
-    showInAlert,
-    hiddenFromDashboard,
-    obligationStatuses
-  } = params;
+export const prepareFiscalDataForSave = ({
+  selectedClient,
+  fiscalYear,
+  creationDate,
+  validityEndDate,
+  showInAlert,
+  hiddenFromDashboard,
+  obligationStatuses
+}: PrepareFiscalDataProps) => {
+  console.log("=== PRÉPARATION DES DONNÉES FISCALES ===");
+  console.log("Client:", selectedClient.nom || selectedClient.raisonsociale);
+  console.log("Année:", fiscalYear);
+  console.log("Statuts des obligations:", obligationStatuses);
 
-  return {
-    clientId: selectedClient.id,
-    year: fiscalYear,
-    attestation: {
-      creationDate: creationDate || "",
-      validityEndDate: validityEndDate || "",
-      showInAlert: Boolean(showInAlert)
-    },
-    obligations: {
-      [fiscalYear]: prepareObligationsForSave(obligationStatuses)
-    },
-    hiddenFromDashboard: Boolean(hiddenFromDashboard),
-    selectedYear: fiscalYear,
-    lastSaved: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+  // Préparer les données d'attestation
+  const attestationData = {
+    creationDate: creationDate || "",
+    validityEndDate: validityEndDate || "",
+    showInAlert: Boolean(showInAlert)
   };
-};
 
-const prepareObligationsForSave = (obligations: ObligationStatuses): Json => {
-  const prepared: any = {};
+  // Préparer les obligations avec une attention particulière pour l'IGS
+  const preparedObligations: Record<string, any> = {};
   
-  Object.keys(obligations).forEach(obligationKey => {
-    const obligation = obligations[obligationKey as keyof ObligationStatuses];
+  Object.entries(obligationStatuses).forEach(([obligationKey, obligation]) => {
     if (obligation) {
-      prepared[obligationKey] = {
+      const baseObligation = {
         assujetti: Boolean(obligation.assujetti),
         attachements: obligation.attachements || {},
-        observations: obligation.observations || "",
-        // Tax-specific fields
-        ...(('payee' in obligation) && { payee: Boolean(obligation.payee) }),
-        ...(('dateEcheance' in obligation) && obligation.dateEcheance && { dateEcheance: obligation.dateEcheance }),
-        ...(('datePaiement' in obligation) && obligation.datePaiement && { datePaiement: obligation.datePaiement }),
-        ...(('montant' in obligation) && obligation.montant !== undefined && { montant: Number(obligation.montant) || 0 }),
-        ...(('methodePaiement' in obligation) && obligation.methodePaiement && { methodePaiement: obligation.methodePaiement }),
-        ...(('referencePaiement' in obligation) && obligation.referencePaiement && { referencePaiement: obligation.referencePaiement }),
-        // Declaration-specific fields
-        ...(('depose' in obligation) && { depose: Boolean(obligation.depose) }),
-        ...(('periodicity' in obligation) && { periodicity: obligation.periodicity || "annuelle" }),
-        ...(('dateDepot' in obligation) && obligation.dateDepot && { dateDepot: obligation.dateDepot }),
-        ...(('regime' in obligation) && obligation.regime && { regime: obligation.regime }),
-        // IGS-specific fields
-        ...(('caValue' in obligation) && obligation.caValue !== undefined && { caValue: Number(obligation.caValue) || 0 }),
-        ...(('isCGA' in obligation) && obligation.isCGA !== undefined && { isCGA: Boolean(obligation.isCGA) }),
-        ...(('classe' in obligation) && obligation.classe !== undefined && { classe: obligation.classe }),
-        // IGS quarterly payments
-        ...(('q1Payee' in obligation) && obligation.q1Payee !== undefined && { q1Payee: Boolean(obligation.q1Payee) }),
-        ...(('q2Payee' in obligation) && obligation.q2Payee !== undefined && { q2Payee: Boolean(obligation.q2Payee) }),
-        ...(('q3Payee' in obligation) && obligation.q3Payee !== undefined && { q3Payee: Boolean(obligation.q3Payee) }),
-        ...(('q4Payee' in obligation) && obligation.q4Payee !== undefined && { q4Payee: Boolean(obligation.q4Payee) }),
-        // IGS quarterly amounts and dates
-        ...(('q1Amount' in obligation) && obligation.q1Amount !== undefined && { q1Amount: Number(obligation.q1Amount) || 0 }),
-        ...(('q2Amount' in obligation) && obligation.q2Amount !== undefined && { q2Amount: Number(obligation.q2Amount) || 0 }),
-        ...(('q3Amount' in obligation) && obligation.q3Amount !== undefined && { q3Amount: Number(obligation.q3Amount) || 0 }),
-        ...(('q4Amount' in obligation) && obligation.q4Amount !== undefined && { q4Amount: Number(obligation.q4Amount) || 0 }),
-        ...(('q1Date' in obligation) && obligation.q1Date && { q1Date: obligation.q1Date }),
-        ...(('q2Date' in obligation) && obligation.q2Date && { q2Date: obligation.q2Date }),
-        ...(('q3Date' in obligation) && obligation.q3Date && { q3Date: obligation.q3Date }),
-        ...(('q4Date' in obligation) && obligation.q4Date && { q4Date: obligation.q4Date })
+        observations: obligation.observations || ""
       };
+
+      // Gérer les obligations de type impôt (avec payee)
+      if ('payee' in obligation) {
+        const taxObligation = {
+          ...baseObligation,
+          payee: Boolean(obligation.payee),
+          dateEcheance: obligation.dateEcheance || "",
+          datePaiement: obligation.datePaiement || "",
+          montant: obligation.montant || 0,
+          methodePaiement: obligation.methodePaiement || "",
+          referencePaiement: obligation.referencePaiement || ""
+        };
+
+        // Traitement spécial pour l'IGS
+        if (obligationKey === 'igs') {
+          console.log("Traitement spécial IGS:", obligation);
+          preparedObligations[obligationKey] = {
+            ...taxObligation,
+            // Données spécifiques IGS
+            caValue: (obligation as any).caValue || "",
+            isCGA: Boolean((obligation as any).isCGA),
+            classe: (obligation as any).classe || "",
+            outOfRange: Boolean((obligation as any).outOfRange),
+            // Paiements trimestriels
+            q1Payee: Boolean((obligation as any).q1Payee),
+            q2Payee: Boolean((obligation as any).q2Payee),
+            q3Payee: Boolean((obligation as any).q3Payee),
+            q4Payee: Boolean((obligation as any).q4Payee),
+            // Montants trimestriels
+            q1Montant: (obligation as any).q1Montant || 0,
+            q2Montant: (obligation as any).q2Montant || 0,
+            q3Montant: (obligation as any).q3Montant || 0,
+            q4Montant: (obligation as any).q4Montant || 0,
+            // Dates trimestrielles
+            q1Date: (obligation as any).q1Date || "",
+            q2Date: (obligation as any).q2Date || "",
+            q3Date: (obligation as any).q3Date || "",
+            q4Date: (obligation as any).q4Date || "",
+            // Montants calculés
+            montantAnnuel: (obligation as any).montantAnnuel || 0,
+            montantTotal: (obligation as any).montantTotal || 0,
+            soldeRestant: (obligation as any).soldeRestant || 0
+          };
+        } else {
+          preparedObligations[obligationKey] = taxObligation;
+        }
+      }
+      // Gérer les obligations de type déclaration (avec depose)
+      else if ('depose' in obligation) {
+        preparedObligations[obligationKey] = {
+          ...baseObligation,
+          depose: Boolean(obligation.depose),
+          periodicity: obligation.periodicity || "annuelle",
+          dateDepot: obligation.dateDepot || "",
+          dateEcheance: obligation.dateEcheance || "",
+          regime: obligation.regime || "",
+          dateSoumission: obligation.dateSoumission || ""
+        };
+      }
+      // Fallback pour les autres types
+      else {
+        preparedObligations[obligationKey] = baseObligation;
+      }
     }
   });
 
-  return prepared as Json;
+  const fiscalDataToSave = {
+    clientId: selectedClient.id,
+    year: fiscalYear,
+    attestation: attestationData,
+    obligations: {
+      [fiscalYear]: preparedObligations
+    },
+    hiddenFromDashboard: Boolean(hiddenFromDashboard),
+    selectedYear: fiscalYear,
+    updatedAt: new Date().toISOString()
+  };
+
+  console.log("Données préparées pour la sauvegarde:", fiscalDataToSave);
+  return fiscalDataToSave;
 };

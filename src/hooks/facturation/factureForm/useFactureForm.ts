@@ -1,93 +1,46 @@
 
-import { useCallback } from "react";
-import { useFactureClients } from "./useFactureClients";
-import { useFactureFormState, FactureFormData } from "./useFactureFormState";
-import { useFactureFormPrestations } from "./useFactureFormPrestations";
-import { useFactureFormValidation } from "./useFactureFormValidation";
-import { useFactureFormSubmit } from "./useFactureFormSubmit";
-import { useFactureFormInitializer } from "./useFactureFormInitializer";
-import { useFactures } from "../useFactures";
+import { useState, useEffect } from "react";
+import { parse } from "date-fns";
 import { Facture } from "@/types/facture";
+import { useCourrierData } from "@/hooks/useCourrierData";
 
-export function useFactureForm(onSuccess: () => void, editMode: boolean = false) {
-  // Get facture actions from useFactures
-  const { addFacture, updateFacture } = useFactures();
-  
-  // Form state management
-  const formState = useFactureFormState(editMode);
-  
-  // Prestations management
-  const { 
-    prestations, 
-    setPrestations, 
-    totalAmount 
-  } = useFactureFormPrestations();
-  
-  // Client data
-  const { 
-    allClients, 
-    getSelectedClient,
-    isLoadingClients,
-    clientsError
-  } = useFactureClients();
-  
-  // Form validation
-  const { validateFactureForm } = useFactureFormValidation();
-  
-  // Form submission handlers
-  const { 
-    submitNewFacture, 
-    submitFactureUpdate
-  } = useFactureFormSubmit(addFacture, updateFacture, onSuccess);
-  
-  // Form initializer for edit mode
-  const { initializeFormForEdit } = useFactureFormInitializer(
-    formState.setValue, 
-    setPrestations, 
-    formState.setEditFactureId
-  );
-  
-  // Get the selected client
-  const selectedClient = getSelectedClient(formState.selectedClientId);
-  
-  // Form submission handler
-  const onSubmit = async (data: FactureFormData) => {
-    // Validate form data
-    if (!validateFactureForm(selectedClient, prestations)) {
-      return;
-    }
+export const useFactureForm = (
+  setValue: (name: string, value: any) => void,
+  setPrestations: (prestations: any[]) => void,
+  setEditFactureId: (id: string | null) => void
+) => {
+  const { clients, isLoading, error } = useCourrierData();
+
+  // Function to initialize form for editing
+  const initializeFormForEdit = (facture: Facture) => {
+    // Set edit facture ID
+    setEditFactureId(facture.id);
     
-    // Handle form submission based on mode
-    if (editMode && formState.editFactureId) {
-      await submitFactureUpdate(
-        data, 
-        formState.editFactureId, 
-        selectedClient, 
-        prestations, 
-        totalAmount
-      );
-    } else {
-      await submitNewFacture(
-        data, 
-        selectedClient, 
-        prestations, 
-        totalAmount
-      );
+    // Set form values
+    setValue("client_id", facture.client_id);
+    
+    // Convert date strings to Date objects
+    const dateFormat = "dd/MM/yyyy";
+    const dateObj = parse(facture.date, dateFormat, new Date());
+    const echeanceObj = parse(facture.echeance, dateFormat, new Date());
+    
+    setValue("date", dateObj);
+    setValue("echeance", echeanceObj);
+    setValue("status", facture.status);
+    setValue("status_paiement", facture.status_paiement);
+    setValue("mode_paiement", facture.mode_paiement || "espèces");
+    setValue("notes", facture.notes || "");
+    
+    // Set prestations
+    if (facture.prestations && facture.prestations.length > 0) {
+      setPrestations(facture.prestations);
     }
   };
-  
+
   return {
-    ...formState,
-    prestations,
-    setPrestations,
-    totalAmount,
-    selectedClient,
-    allClients,
-    isLoadingClients,
-    clientsError,
-    onSubmit,
+    clients,
+    isLoading,
+    error,
     initializeFormForEdit
   };
-}
-
-export type UseFactureFormReturn = ReturnType<typeof useFactureForm>;
+};

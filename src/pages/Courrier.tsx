@@ -1,95 +1,93 @@
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import PageLayout from "@/components/layout/PageLayout";
 import { CourrierHeader } from "@/components/courrier/CourrierHeader";
+import { ClientsList } from "@/components/courrier/ClientsList";
 import { CriteriaSelection } from "@/components/courrier/CriteriaSelection";
 import { TemplateSelection } from "@/components/courrier/TemplateSelection";
-import { ClientsList } from "@/components/courrier/ClientsList";
 import { PreviewDialog } from "@/components/courrier/PreviewDialog";
 import { useCourrierData } from "@/hooks/useCourrierData";
 
-const Courrier = () => {
-  const navigate = useNavigate();
-  const [selectedCriteria, setSelectedCriteria] = useState({
-    type: "",
-    regimeFiscal: "",
-    secteurActivite: "",
-    centreRattachement: "",
-    statut: "actif"
-  });
-  const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [generationType, setGenerationType] = useState("publipostage");
-  const [previewOpen, setPreviewOpen] = useState(false);
+export default function Courrier() {
+  const { clients, collaborateurs, isLoading, error } = useCourrierData();
+  const [selectedClients, setSelectedClients] = useState<string[]>([]);
+  const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
 
-  const { filteredClients, isLoading } = useCourrierData(selectedCriteria);
+  if (isLoading) {
+    return (
+      <PageLayout>
+        <div className="flex items-center justify-center min-h-[200px]">
+          <p className="text-muted-foreground">Chargement...</p>
+        </div>
+      </PageLayout>
+    );
+  }
 
-  const handleGenerate = () => {
-    if (!selectedTemplate || filteredClients.length === 0) {
-      return;
-    }
-    setPreviewOpen(true);
-  };
+  if (error) {
+    return (
+      <PageLayout>
+        <div className="flex items-center justify-center min-h-[200px]">
+          <p className="text-red-500">Erreur lors du chargement des données</p>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  const filteredClients = clients;
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center gap-4 mb-8">
-        <Button
-          variant="outline"
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour
-        </Button>
-      </div>
-
-      <CourrierHeader />
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <CriteriaSelection
-            selectedCriteria={selectedCriteria}
-            onCriteriaChange={setSelectedCriteria}
-            generationType={generationType}
-            onGenerationTypeChange={setGenerationType}
-          />
-
-          <TemplateSelection
-            selectedTemplate={selectedTemplate}
-            onTemplateChange={setSelectedTemplate}
-          />
-
-          <div className="flex justify-center">
-            <Button
-              onClick={handleGenerate}
-              disabled={!selectedTemplate || filteredClients.length === 0}
-              className="px-8 py-2"
-            >
-              Générer l'aperçu
-            </Button>
-          </div>
-        </div>
-
-        <div>
-          <ClientsList
+    <PageLayout>
+      <div className="space-y-8">
+        <CourrierHeader />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Sélection des clients */}
+          <ClientsList 
             clients={filteredClients}
-            isLoading={isLoading}
+            selectedClients={selectedClients}
+            onClientToggle={(clientId) => {
+              setSelectedClients(prev => 
+                prev.includes(clientId) 
+                  ? prev.filter(id => id !== clientId)
+                  : [...prev, clientId]
+              );
+            }}
+          />
+
+          {/* Sélection des critères */}
+          <CriteriaSelection 
             selectedCriteria={selectedCriteria}
+            onCriteriaToggle={(criteria) => {
+              setSelectedCriteria(prev => 
+                prev.includes(criteria) 
+                  ? prev.filter(c => c !== criteria)
+                  : [...prev, criteria]
+              );
+            }}
+          />
+
+          {/* Sélection du modèle */}
+          <TemplateSelection 
+            selectedTemplate={selectedTemplate}
+            onTemplateSelect={setSelectedTemplate}
+            onPreview={() => setShowPreview(true)}
+            disabled={selectedClients.length === 0 || !selectedTemplate}
           />
         </div>
+
+        {/* Dialog de prévisualisation */}
+        <PreviewDialog 
+          open={showPreview}
+          onOpenChange={setShowPreview}
+          selectedClients={selectedClients.map(id => 
+            clients.find(c => c.id === id)!
+          )}
+          selectedCriteria={selectedCriteria}
+          selectedTemplate={selectedTemplate}
+        />
       </div>
-
-      <PreviewDialog
-        open={previewOpen}
-        onOpenChange={setPreviewOpen}
-        template={selectedTemplate}
-        clients={filteredClients}
-        generationType={generationType}
-      />
-    </div>
+    </PageLayout>
   );
-};
-
-export default Courrier;
+}
