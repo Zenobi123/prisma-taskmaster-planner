@@ -7,16 +7,12 @@ import { ObligationsFiscales } from "./tabs/ObligationsFiscales";
 import { ClotureExercice } from "./tabs/ClotureExercice";
 import { ContratPrestations } from "./tabs/ContratPrestations";
 import { GestionEntreprise } from "./tabs/GestionEntreprise";
-import { useState } from "react";
-import { Client } from "@/types/client";
 
 interface GestionTabsProps {
-  selectedClient: Client;
+  selectedClient: string;
 }
 
 export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
-  const [selectedSubTab, setSelectedSubTab] = useState("commercial");
-
   return (
     <Tabs defaultValue="dossier" className="w-full">
       <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7">
@@ -30,7 +26,7 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsList>
 
       <TabsContent value="dossier" className="mt-6">
-        <GestionDossier selectedClient={selectedClient.id} />
+        <GestionDossier />
       </TabsContent>
 
       <TabsContent value="comptable" className="mt-6">
@@ -38,29 +34,23 @@ export const GestionTabs = ({ selectedClient }: GestionTabsProps) => {
       </TabsContent>
 
       <TabsContent value="fiscale" className="mt-6">
-        <GestionFiscale onTabChange={() => {}} />
+        <GestionFiscale />
       </TabsContent>
 
       <TabsContent value="obligations" className="mt-6">
-        <ObligationsFiscales selectedClient={selectedClient.id} />
+        <ObligationsFiscales clientId={selectedClient} />
       </TabsContent>
 
       <TabsContent value="cloture" className="mt-6">
-        <ClotureExercice 
-          selectedSubTab={selectedSubTab}
-          handleSubTabSelect={setSelectedSubTab}
-        />
+        <ClotureExercice />
       </TabsContent>
 
       <TabsContent value="contrat" className="mt-6">
-        <ContratPrestations client={selectedClient.id} />
+        <ContratPrestations />
       </TabsContent>
 
       <TabsContent value="entreprise" className="mt-6">
-        <GestionEntreprise 
-          onTabChange={() => {}}
-          selectedClient={selectedClient.id}
-        />
+        <GestionEntreprise />
       </TabsContent>
     </Tabs>
   );

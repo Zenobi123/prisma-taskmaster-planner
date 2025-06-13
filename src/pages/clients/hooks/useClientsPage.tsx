@@ -16,7 +16,7 @@ export function useClientsPage() {
   const [showTrash, setShowTrash] = useState(false);
 
   const { 
-    data: allClients = [], 
+    data: clients = [], 
     isLoading, 
     error, 
     refetch 
@@ -30,10 +30,10 @@ export function useClientsPage() {
   });
 
   useEffect(() => {
-    if (allClients.length > 0) {
+    if (clients.length > 0) {
       setIsDataReady(true);
     }
-  }, [allClients]);
+  }, [clients]);
 
   const {
     searchTerm,
@@ -44,9 +44,8 @@ export function useClientsPage() {
     setSelectedSecteur,
     showArchived,
     setShowArchived,
-    filteredClients,
-    handleMultiCriteriaChange
-  } = useClientFilters(isDataReady ? allClients : []);
+    filteredClients
+  } = useClientFilters(isDataReady ? clients : []);
 
   const {
     isDialogOpen,
@@ -72,8 +71,8 @@ export function useClientsPage() {
   // Handle URL parameter for editing client
   useEffect(() => {
     const editClientId = searchParams.get('edit');
-    if (editClientId && allClients.length > 0) {
-      const clientToEdit = allClients.find(client => client.id === editClientId);
+    if (editClientId && clients.length > 0) {
+      const clientToEdit = clients.find(client => client.id === editClientId);
       if (clientToEdit) {
         setSelectedClient(clientToEdit);
         setIsEditDialogOpen(true);
@@ -84,7 +83,7 @@ export function useClientsPage() {
         });
       }
     }
-  }, [searchParams, allClients, setSelectedClient, setIsEditDialogOpen, setSearchParams]);
+  }, [searchParams, clients, setSelectedClient, setIsEditDialogOpen, setSearchParams]);
 
   const debouncedRefetch = useCallback(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
@@ -152,7 +151,6 @@ export function useClientsPage() {
 
   return {
     clients: filteredClients,
-    allClients,
     isLoading,
     isDataReady,
     error,
@@ -183,7 +181,6 @@ export function useClientsPage() {
     handleDelete,
     handleTrashClick,
     handleCloseTrash,
-    handleMultiCriteriaChange,
     toast,
     refreshClients: debouncedRefetch
   };

@@ -1,60 +1,62 @@
 
-import { useState } from "react";
-import { createFacture } from "@/services/factureService";
-import { useToast } from "@/components/ui/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createFacture, updateFacture } from "@/services/factureService";
+import { useToast } from "@/hooks/use-toast";
 
 export function useFactureFormSubmit() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const queryClient = useQueryClient();
   const { toast } = useToast();
 
-  const handleSubmit = async (formData: any) => {
-    setIsSubmitting(true);
-    try {
-      console.log("Submitting facture:", formData);
-      
-      // Validate required fields
-      if (!formData.client_id) {
-        throw new Error("Client requis");
-      }
-      
-      if (!formData.prestations || formData.prestations.length === 0) {
-        throw new Error("Au moins une prestation requise");
-      }
-
-      // Calculate total amount from prestations
-      const totalAmount = formData.prestations.reduce(
-        (sum: number, prestation: any) => sum + (prestation.montant || 0),
-        0
-      );
-
-      const factureData = {
-        ...formData,
-        montant: totalAmount
-      };
-
-      await createFacture(factureData);
-      
+  const createMutation = useMutation({
+    mutationFn: createFacture,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["factures"] });
       toast({
         title: "Succès",
         description: "Facture créée avec succès",
       });
-      
-      return true;
-    } catch (error) {
-      console.error("Erreur lors de la création de la facture:", error);
+    },
+    onError: (error) => {
       toast({
-        variant: "destructive",
         title: "Erreur",
-        description: error instanceof Error ? error.message : "Erreur lors de la création de la facture",
+        description: "Erreur lors de la création de la facture",
+        variant: "destructive",
       });
-      return false;
-    } finally {
-      setIsSubmitting(false);
-    }
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: any }) => 
+      updateFacture(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["factures"] });
+      toast({
+        title: "Succès",
+        description: "Facture modifiée avec succès",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la modification de la facture",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmit = (formData: any) => {
+    createMutation.mutate(formData);
+  };
+
+  const handleUpdate = (id: string, updates: any) => {
+    updateMutation.mutate({ id, updates });
   };
 
   return {
+    createMutation,
+    updateMutation,
     handleSubmit,
-    isSubmitting
+    handleUpdate,
+    isSubmitting: createMutation.isPending || updateMutation.isPending
   };
 }

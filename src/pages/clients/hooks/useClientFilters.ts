@@ -7,13 +7,8 @@ export function useClientFilters(clients: Client[]) {
   const [selectedType, setSelectedType] = useState<ClientType | "all">("all");
   const [selectedSecteur, setSelectedSecteur] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
-  const [multiCriteriaFiltered, setMultiCriteriaFiltered] = useState<Client[]>([]);
-  const [isMultiCriteriaActive, setIsMultiCriteriaActive] = useState(false);
 
-  // Use multicriteria filtered clients if active, otherwise use all clients
-  const baseClients = isMultiCriteriaActive ? multiCriteriaFiltered : clients;
-
-  const filteredClients = baseClients.filter((client) => {
+  const filteredClients = clients.filter((client) => {
     const matchesSearch =
       (client.type === "physique"
         ? client.nom?.toLowerCase()
@@ -32,11 +27,6 @@ export function useClientFilters(clients: Client[]) {
     return matchesSearch && matchesType && matchesSecteur && matchesArchiveStatus;
   });
 
-  const handleMultiCriteriaChange = (filtered: Client[]) => {
-    setMultiCriteriaFiltered(filtered);
-    setIsMultiCriteriaActive(filtered.length !== clients.length);
-  };
-
   return {
     searchTerm,
     setSearchTerm,
@@ -47,7 +37,5 @@ export function useClientFilters(clients: Client[]) {
     showArchived,
     setShowArchived,
     filteredClients,
-    handleMultiCriteriaChange,
-    isMultiCriteriaActive,
   };
 }

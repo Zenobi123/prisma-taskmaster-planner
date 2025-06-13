@@ -5,7 +5,6 @@ import { getClientsWithUnfiledDsf } from "@/services/unfiledDsfService";
 import { FileText, AlertTriangle, FileWarning, Phone, Building } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
 interface UnfiledDsfDialogProps {
@@ -37,12 +36,6 @@ export const UnfiledDsfDialog = ({ open, onOpenChange }: UnfiledDsfDialogProps) 
           <DialogTitle className="flex items-center text-xl">
             <FileText className="h-5 w-5 mr-2 text-blue-500" />
             DSF non déposées ({clients.length})
-            {clients.length > 0 && (
-              <Badge variant="destructive" className="ml-3">
-                <AlertTriangle className="h-3 w-3 mr-1" />
-                À régulariser
-              </Badge>
-            )}
           </DialogTitle>
         </DialogHeader>
         
@@ -52,71 +45,50 @@ export const UnfiledDsfDialog = ({ open, onOpenChange }: UnfiledDsfDialogProps) 
             <p className="text-gray-600">Chargement des données...</p>
           </div>
         ) : clients.length > 0 ? (
-          <div className="space-y-4">
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <div className="flex items-center">
-                <AlertTriangle className="h-5 w-5 text-orange-600 mr-2" />
-                <div>
-                  <h4 className="font-semibold text-orange-800">Situation à régulariser</h4>
-                  <p className="text-sm text-orange-700">
-                    {clients.length} client{clients.length > 1 ? 's ont' : ' a'} des DSF non déposées qui doivent être régularisées.
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Client</TableHead>
-                    <TableHead>NIU</TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <Building className="h-4 w-4" />
-                        <span>Centre des impôts</span>
-                      </div>
-                    </TableHead>
-                    <TableHead>
-                      <div className="flex items-center gap-1">
-                        <Phone className="h-4 w-4" />
-                        <span>Contact</span>
-                      </div>
-                    </TableHead>
-                    <TableHead className="text-center">Statut</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client</TableHead>
+                  <TableHead>NIU</TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      <Building className="h-4 w-4" />
+                      <span>Centre des impôts</span>
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      <Phone className="h-4 w-4" />
+                      <span>Contact</span>
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {clients.map((client) => (
+                  <TableRow key={client.id} className="hover:bg-blue-50">
+                    <TableCell className="font-medium">
+                      {client.type === "physique" ? client.nom : client.raisonsociale}
+                    </TableCell>
+                    <TableCell>{client.niu}</TableCell>
+                    <TableCell>{client.centrerattachement}</TableCell>
+                    <TableCell>{client.contact?.telephone}</TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleNavigateToClient(client.id)}
+                        className="border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                      >
+                        Gérer
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {clients.map((client) => (
-                    <TableRow key={client.id} className="hover:bg-blue-50">
-                      <TableCell className="font-medium">
-                        {client.type === "physique" ? client.nom : client.raisonsociale}
-                      </TableCell>
-                      <TableCell>{client.niu}</TableCell>
-                      <TableCell>{client.centrerattachement}</TableCell>
-                      <TableCell>{client.contact?.telephone}</TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="destructive" className="text-xs">
-                          <AlertTriangle className="h-3 w-3 mr-1" />
-                          À régulariser
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleNavigateToClient(client.id)}
-                          className="border-blue-300 hover:bg-blue-50 hover:text-blue-700"
-                        >
-                          Gérer
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                ))}
+              </TableBody>
+            </Table>
           </div>
         ) : (
           <div className="py-8 text-center border-2 border-blue-200 rounded-md bg-blue-50 my-4">
