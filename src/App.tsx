@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,8 +14,9 @@ import Missions from "./pages/Missions";
 import Planning from "./pages/Planning";
 import Facturation from "./pages/Facturation";
 import Depenses from "./pages/Depenses";
-import Rapports from "./pages/Rapports";
 import Parametres from "./pages/Parametres";
+import Courrier from "./pages/Courrier";
+import Rapports from "./pages/Rapports";
 
 // Configuration optimisée de React Query
 const queryClient = new QueryClient({
@@ -125,18 +125,26 @@ const App = () => (
               }
             />
             <Route
-              path="/rapports"
-              element={
-                <PrivateRoute>
-                  <Rapports />
-                </PrivateRoute>
-              }
-            />
-            <Route
               path="/parametres"
               element={
                 <PrivateRoute>
                   <Parametres />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/courrier"
+              element={
+                <PrivateRoute>
+                  <Courrier />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/rapports"
+              element={
+                <PrivateRoute>
+                  <Rapports />
                 </PrivateRoute>
               }
             />

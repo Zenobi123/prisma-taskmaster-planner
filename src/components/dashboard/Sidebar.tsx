@@ -12,7 +12,8 @@ import {
   ChevronRight,
   FolderOpen,
   Receipt,
-  Settings
+  Settings,
+  Mail
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 
@@ -33,8 +34,9 @@ const menuItems: MenuItem[] = [
   { path: "/planning", icon: Calendar, label: "Planning" },
   { path: "/facturation", icon: Receipt, label: "Facturation", allowedRoles: ["admin"] },
   { path: "/depenses", icon: Wallet, label: "Dépenses" },
-  { path: "/rapports", icon: FileText, label: "Rapports" },
-  { path: "/parametres", icon: Settings, label: "Paramètres", allowedRoles: ["admin"] }
+  { path: "/parametres", icon: Settings, label: "Paramètres", allowedRoles: ["admin"] },
+  { path: "/courrier", icon: Mail, label: "Courrier" },
+  { path: "/rapports", icon: FileText, label: "Rapports" }
 ];
 
 const Sidebar = () => {
