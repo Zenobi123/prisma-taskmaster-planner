@@ -1,7 +1,7 @@
 
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ObligationStatuses, ObligationType, IgsObligationStatus } from '@/hooks/fiscal/types';
+import { ObligationStatuses, ObligationType, IgsObligationStatus, TaxObligationStatus } from '@/hooks/fiscal/types';
 import { formatNumberWithSpaces, parseFormattedNumber } from '@/utils/numberFormatting';
 import { calculateIGS } from '@/calculators/igsCalculator';
 import { DirectTaxItemRenderer } from './DirectTaxItemRenderer';
@@ -216,6 +216,13 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
         {taxItems.map(item => {
           const obligation = obligationStatuses[item.key];
           if (!obligation || typeof obligation.assujetti === 'undefined') return null;
+
+          // Type guard pour vérifier si c'est une TaxObligationStatus
+          const isTaxObligation = (obs: typeof obligation): obs is TaxObligationStatus => {
+            return 'payee' in obs;
+          };
+
+          if (!isTaxObligation(obligation)) return null;
 
           let igsSpecifics;
           if (item.key === 'igs' && igsStatus) {

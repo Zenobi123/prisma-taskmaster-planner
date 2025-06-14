@@ -1,77 +1,94 @@
-
 import { Facture } from "@/types/facture";
 
-// Apply search term filter
-export const applySearchFilter = (factures: Facture[], searchTerm: string): Facture[] => {
-  if (!searchTerm) return factures;
-  
-  return factures.filter(facture => 
-    facture.client.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    facture.id.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'currency',
+    currency: 'XOF',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 };
 
-// Apply status filter
-export const applyStatusFilter = (factures: Facture[], statusFilter: string | null): Facture[] => {
-  if (!statusFilter) return factures;
+export const formatDate = (date: string | Date): string => {
+  if (!date) return '';
   
-  return factures.filter(facture => facture.status === statusFilter);
-};
-
-// Apply client filter
-export const applyClientFilter = (factures: Facture[], clientFilter: string | null): Facture[] => {
-  if (!clientFilter) return factures;
-  
-  return factures.filter(facture => facture.client_id === clientFilter);
-};
-
-// Apply date filter
-export const applyDateFilter = (factures: Facture[], dateFilter: Date | null): Facture[] => {
-  if (!dateFilter) return factures;
-  
-  const dateFormatted = dateFilter.toLocaleDateString('fr-FR');
-  return factures.filter(facture => facture.date === dateFormatted);
-};
-
-// Sort factures by key
-export const sortFactures = (
-  factures: Facture[], 
-  sortKey: string, 
-  sortDirection: "asc" | "desc"
-): Facture[] => {
-  return [...factures].sort((a, b) => {
-    if (sortKey === 'date') {
-      // Convert date string (DD/MM/YYYY) to Date object for comparison
-      const dateA = new Date(a.date.split('/').reverse().join('-'));
-      const dateB = new Date(b.date.split('/').reverse().join('-'));
-      
-      return sortDirection === 'asc' 
-        ? dateA.getTime() - dateB.getTime() 
-        : dateB.getTime() - dateA.getTime();
+  let dateObj: Date;
+  if (typeof date === 'string') {
+    // Handle both DD/MM/YYYY and ISO string formats
+    if (date.includes('/')) {
+      const [day, month, year] = date.split('/');
+      dateObj = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } else {
+      dateObj = new Date(date);
     }
-    
-    if (sortKey === 'montant') {
-      return sortDirection === 'asc' 
-        ? a.montant - b.montant 
-        : b.montant - a.montant;
+  } else {
+    dateObj = date;
+  }
+  
+  return dateObj.toLocaleDateString('fr-FR');
+};
+
+export const parseDate = (date: string | Date): Date => {
+  if (!date) return new Date();
+  
+  if (typeof date === 'string') {
+    // Handle DD/MM/YYYY format
+    if (date.includes('/')) {
+      const [day, month, year] = date.split('/');
+      return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } else {
+      return new Date(date);
     }
-    
-    return 0;
-  });
+  }
+  
+  return date;
 };
 
-// Get a paginated subset of factures
-export const getPaginatedFactures = (
-  factures: Facture[], 
-  currentPage: number, 
-  itemsPerPage: number
-): Facture[] => {
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  return factures.slice(startIndex, endIndex);
+export const calculateFactureStatus = (facture: Facture): string => {
+  if (facture.status === 'annulée') {
+    return 'Annulée';
+  }
+
+  if (facture.status_paiement === 'payée') {
+    return 'Payée';
+  }
+
+  const solde = facture.montant - (facture.montant_paye || 0);
+  if (solde <= 0) {
+    return 'Payée';
+  }
+
+  if (facture.status_paiement === 'partiellement_payée') {
+    return 'Partiellement payée';
+  }
+
+  return facture.status === 'brouillon' ? 'Brouillon' : 'Envoyée';
 };
 
-// Calculate total pages
-export const calculateTotalPages = (totalItems: number, itemsPerPage: number): number => {
-  return Math.ceil(totalItems / itemsPerPage);
+export const getStatusBadgeVariant = (status: string, type: "document" | "paiement"): "default" | "destructive" | "secondary" | "success" => {
+  if (type === "document") {
+    switch (status) {
+      case 'brouillon':
+        return 'secondary';
+      case 'envoyée':
+        return 'default';
+      case 'annulée':
+        return 'destructive';
+      default:
+        return 'default';
+    }
+  } else {
+    switch (status) {
+      case 'non_payée':
+        return 'destructive';
+      case 'partiellement_payée':
+        return 'default';
+      case 'payée':
+        return 'success';
+      case 'en_retard':
+        return 'destructive';
+      default:
+        return 'default';
+    }
+  }
 };

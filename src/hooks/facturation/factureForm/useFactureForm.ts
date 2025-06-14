@@ -1,53 +1,31 @@
 
 import { useState, useEffect } from "react";
-import { parse } from "date-fns";
-import { Facture } from "@/types/facture";
-import { useCourrierData } from "@/hooks/useCourrierData";
+import { useQuery } from "@tanstack/react-query";
+import { getClients } from "@/services/clientService";
+import { Client } from "@/types/client";
 
-export interface UseFactureFormReturn {
-  clients: any[];
-  isLoading: boolean;
-  error: any;
-  initializeFormForEdit: (facture: Facture) => void;
-}
+export const useFactureForm = () => {
+  const [clients, setClients] = useState<Client[]>([]);
 
-export const useFactureForm = (
-  setValue: (name: string, value: any) => void,
-  setPrestations: (prestations: any[]) => void,
-  setEditFactureId: (id: string | null) => void
-): UseFactureFormReturn => {
-  const { clients, isLoading, error } = useCourrierData();
+  // Fetch clients data
+  const { 
+    data: clientsData = [], 
+    isLoading, 
+    error 
+  } = useQuery({
+    queryKey: ["clients"],
+    queryFn: () => getClients(false),
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+  });
 
-  // Function to initialize form for editing
-  const initializeFormForEdit = (facture: Facture) => {
-    // Set edit facture ID
-    setEditFactureId(facture.id);
-    
-    // Set form values
-    setValue("client_id", facture.client_id);
-    
-    // Convert date strings to Date objects
-    const dateFormat = "dd/MM/yyyy";
-    const dateObj = parse(facture.date, dateFormat, new Date());
-    const echeanceObj = parse(facture.echeance, dateFormat, new Date());
-    
-    setValue("date", dateObj);
-    setValue("echeance", echeanceObj);
-    setValue("status", facture.status);
-    setValue("status_paiement", facture.status_paiement);
-    setValue("mode_paiement", facture.mode_paiement || "espèces");
-    setValue("notes", facture.notes || "");
-    
-    // Set prestations
-    if (facture.prestations && facture.prestations.length > 0) {
-      setPrestations(facture.prestations);
-    }
-  };
+  useEffect(() => {
+    setClients(clientsData);
+  }, [clientsData]);
 
   return {
     clients,
     isLoading,
-    error,
-    initializeFormForEdit
+    error: error as Error | null
   };
 };

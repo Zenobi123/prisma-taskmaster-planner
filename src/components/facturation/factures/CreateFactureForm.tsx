@@ -5,20 +5,20 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
-import ClientSelector from "./ClientSelector"; // Corrected import
-import DatePickerField from "./DatePickerField"; // Corrected import
-import StatusSelector from "./StatusSelector"; // Corrected import
-import ModePaiementSelector from "./ModePaiementSelector"; // Corrected import
-import PrestationFields from "./PrestationFields"; // Corrected import
-import TotalAmountDisplay from "./TotalAmountDisplay"; // Corrected import
+import ClientSelector from "./ClientSelector";
+import DatePickerField from "./DatePickerField";
+import StatusSelector from "./StatusSelector";
+import ModePaiementSelector from "./ModePaiementSelector";
+import PrestationFields from "./PrestationFields";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Facture, Prestation } from "@/types/facture";
 import { useFactureForm } from "@/hooks/facturation/factureForm/useFactureForm";
-import { useFactureCreateActions, useFactureUpdateActions } from "@/hooks/facturation/factureActions"; // Assuming useFactureUpdateActions exists for edit mode
+import { useFactureCreateActions, useFactureUpdateActions } from "@/hooks/facturation/factureActions";
 import { Client } from "@/types/client";
 import { toast } from "sonner";
+import { formatDate } from "@/utils/factureUtils";
 
 // Define Zod validation schema for Facture
 const validationSchema = z.object({
@@ -62,7 +62,6 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
     ? factureToEdit.prestations 
     : [defaultPrestation]
   );
-  const [editFactureId, setEditFactureId] = useState<string | null>(factureToEdit?.id || null);
 
   const {
     handleSubmit,
@@ -76,8 +75,8 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
     resolver: zodResolver(validationSchema),
     defaultValues: editMode && factureToEdit ? {
       ...factureToEdit,
-      date: new Date(factureToEdit.date),
-      echeance: new Date(factureToEdit.echeance),
+      date: typeof factureToEdit.date === 'string' ? new Date(factureToEdit.date) : factureToEdit.date,
+      echeance: typeof factureToEdit.echeance === 'string' ? new Date(factureToEdit.echeance) : factureToEdit.echeance,
       prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations : [defaultPrestation],
     } : {
       prestations: [defaultPrestation],
@@ -85,39 +84,29 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
       status_paiement: "non_payée",
       mode_paiement: "Espèces",
       date: new Date(),
-      echeance: new Date(new Date().setDate(new Date().getDate() + 30)), // Default echeance to 30 days from now
+      echeance: new Date(new Date().setDate(new Date().getDate() + 30)),
     },
   });
 
-  // Initialize editFactureId from factureToEdit prop
+  // Initialize form with factureToEdit data when it changes
   useEffect(() => {
     if (editMode && factureToEdit) {
-      setEditFactureId(factureToEdit.id);
-      // Reset form with factureToEdit data when it changes or on initial load in edit mode
       reset({
         ...factureToEdit,
-        date: new Date(factureToEdit.date),
-        echeance: new Date(factureToEdit.echeance),
+        date: typeof factureToEdit.date === 'string' ? new Date(factureToEdit.date) : factureToEdit.date,
+        echeance: typeof factureToEdit.echeance === 'string' ? new Date(factureToEdit.echeance) : factureToEdit.echeance,
         prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations : [defaultPrestation],
       });
       setPrestations(factureToEdit.prestations.length > 0 ? factureToEdit.prestations : [defaultPrestation]);
     }
   }, [factureToEdit, editMode, reset]);
 
-
-  const { clients: allClients, isLoading: isLoadingClients, error: clientsError } = useFactureForm(
-    setValue,
-    setPrestations,
-    setEditFactureId // This might need to be adjusted if useFactureForm doesn't handle editFactureId
-  );
+  const { clients: allClients, isLoading: isLoadingClients, error: clientsError } = useFactureForm();
   
   const { addFacture, isCreating } = useFactureCreateActions();
-  // Assuming useFactureUpdateActions hook exists and has a similar signature for updates
-  const { updateFacture, isUpdating } = useFactureUpdateActions ? useFactureUpdateActions() : { updateFacture: null, isUpdating: false };
-
+  const { updateFacture, isUpdating } = useFactureUpdateActions();
 
   const selectedClientId = watch("client_id");
-  // const selectedClient = allClients.find((c: Client) => c.id === selectedClientId); // Already available in useFactureForm?
 
   const calculateTotalAmount = useCallback(() => {
     return prestations.reduce((total, p) => total + (p.quantite * (p.prix_unitaire || 0)), 0);
@@ -131,23 +120,33 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
 
   const onSubmitHandler = async (data: Facture) => {
     try {
+      // Ensure dates are properly formatted
+      const formattedData = {
+        ...data,
+        date: formatDate(data.date),
+        echeance: formatDate(data.echeance),
+        prestations: prestations.map(p => ({
+          ...p,
+          montant: p.quantite * p.prix_unitaire
+        })),
+        montant: totalAmount
+      };
+
       if (editMode && factureToEdit && updateFacture) {
-        const updatedFacture = await updateFacture(factureToEdit.id, data);
-        if (updatedFacture) {
+        const success = await updateFacture(factureToEdit.id, formattedData);
+        if (success) {
           toast.success("Facture modifiée avec succès !");
-          onSuccess(factureToEdit.id); // Or updatedFacture if it's returned
+          onSuccess(factureToEdit.id);
           reset();
           setPrestations([defaultPrestation]);
-          // onCancel(); // Typically call onCancel from the dialog, not here
         }
       } else {
-        const newFacture = await addFacture(data);
+        const newFacture = await addFacture(formattedData);
         if (newFacture) {
           toast.success("Facture créée avec succès !");
           onSuccess(newFacture);
           reset();
           setPrestations([defaultPrestation]);
-          // onCancel(); // Typically call onCancel from the dialog, not here
         }
       }
     } catch (error) {
@@ -218,17 +217,13 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
 
       <PrestationFields prestations={prestations} onPrestationsChange={setPrestations} />
       {errors.prestations && <p className="text-red-500 text-sm">{typeof errors.prestations.message === 'string' ? errors.prestations.message : "Erreur dans les prestations"}</p>}
-      {errors.prestations?.root?.message && <p className="text-red-500 text-sm">{errors.prestations.root.message}</p>}
-       {Array.isArray(errors.prestations) && errors.prestations.map((err, index) => (
-        <div key={index}>
-          {err?.description && <p className="text-red-500 text-sm">Prestation {index+1} Description: {err.description.message}</p>}
-          {err?.quantite && <p className="text-red-500 text-sm">Prestation {index+1} Quantité: {err.quantite.message}</p>}
-          {err?.prix_unitaire && <p className="text-red-500 text-sm">Prestation {index+1} Prix: {err.prix_unitaire.message}</p>}
+
+      <div className="bg-gray-50 p-3 rounded-lg">
+        <div className="flex justify-between items-center">
+          <span className="font-medium">Total :</span>
+          <span className="text-lg font-bold">{totalAmount.toLocaleString('fr-FR')} FCFA</span>
         </div>
-      ))}
-
-
-      <TotalAmountDisplay totalAmount={totalAmount} />
+      </div>
 
       <div>
         <Label htmlFor="notes">Notes</Label>
