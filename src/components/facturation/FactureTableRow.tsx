@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Copy, Edit, MoreHorizontal, Send, Trash } from 'lucide-react';
-import StatusBadge from '../StatusBadge';
+import StatusBadge from './StatusBadge';
 import { Facture } from '@/types/facture';
 
 interface FactureTableRowProps {

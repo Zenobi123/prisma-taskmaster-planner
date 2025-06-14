@@ -1,4 +1,3 @@
-
 import { Table, TableBody } from "@/components/ui/table";
 import { Facture } from "@/types/facture";
 import FactureTableHeader from "./FactureTableHeader";
@@ -19,7 +18,6 @@ interface FactureTableProps {
 
 const FactureTable = ({ 
   factures, 
-  formatMontant,
   onViewFacture,
   onDownloadFacture,
   onDeleteFacture,
@@ -38,7 +36,6 @@ const FactureTable = ({
               <FactureTableRow
                 key={facture.id}
                 facture={facture}
-                formatMontant={formatMontant}
                 onViewFacture={onViewFacture}
                 onDownloadFacture={onDownloadFacture}
                 onDeleteFacture={onDeleteFacture}
