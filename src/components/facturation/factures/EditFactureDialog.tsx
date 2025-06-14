@@ -1,4 +1,3 @@
-
 import {
   Dialog,
   DialogContent,
@@ -6,7 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import CreateFactureForm from "./CreateFactureForm";
+import { CreateFactureForm } from "/dev-server/src/components/facturation/factures/CreateFactureForm";
 import { Facture } from "@/types/facture";
 
 interface EditFactureDialogProps {

@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -10,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import CreateFactureForm from "./CreateFactureForm";
+import { CreateFactureForm } from "/dev-server/src/components/facturation/factures/CreateFactureForm";
 
 const CreateFactureDialog = () => {
   const [open, setOpen] = useState(false);
