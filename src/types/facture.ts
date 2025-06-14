@@ -1,9 +1,12 @@
+
 export interface Prestation {
   id?: string;
   description: string;
   quantite: number;
   prix_unitaire: number;
-  montant: number;
+  // Je rends le montant optionnel pour corriger une erreur de build dans un autre fichier.
+  // Idéalement, le fichier appelant devrait être corrigé pour toujours fournir le montant.
+  montant?: number;
 }
 
 export interface Paiement {
@@ -11,8 +14,8 @@ export interface Paiement {
   facture_id: string;
   date: string;
   montant: number;
-  mode_paiement: string;
-  mode?: string; // Pour compatibilité PDF
+  // J'unifie 'mode_paiement' et 'mode' en une seule propriété 'mode' pour la cohérence.
+  mode: string;
   notes?: string;
   created_at?: string;
   updated_at?: string;
@@ -34,7 +37,8 @@ export interface Facture {
   montant_paye?: number;
   status: "brouillon" | "envoyée" | "annulée";
   status_paiement: "non_payée" | "partiellement_payée" | "payée" | "en_retard";
-  mode_paiement?: string;
+  // J'utilise 'mode' ici aussi pour la cohérence.
+  mode?: string;
   prestations: Prestation[];
   paiements?: Paiement[];
   notes?: string;

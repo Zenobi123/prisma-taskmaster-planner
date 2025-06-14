@@ -45,7 +45,7 @@ export const usePaiementFormSubmit = ({
         facture: data.est_credit ? "" : data.facture_id,
         date: format(data.date, "yyyy-MM-dd"),
         montant: data.montant,
-        mode: data.mode,
+        mode: data.mode, // Le nom est déjà 'mode' ici, donc pas de changement nécessaire.
         est_credit: data.est_credit,
         reference: `PAY-${Date.now().toString(36)}`,
         reference_transaction: data.reference_transaction,

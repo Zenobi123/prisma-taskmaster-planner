@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Eye } from "lucide-react";
@@ -18,15 +17,22 @@ const PaymentsTab = () => {
     // Convert ClientPayment to Paiement for the receipt dialog
     const paiement: Paiement = {
       id: payment.id,
-      facture: payment.facture_id || "",
-      client: clientDetails.id || "",
+      facture_id: payment.facture_id || "",
       client_id: clientDetails.id || "",
       date: payment.date,
       montant: payment.montant,
       mode: payment.mode as any,
       reference: payment.reference,
       solde_restant: 0,
-      est_credit: payment.est_credit
+      est_credit: payment.est_credit,
+      // Ajout de client pour correspondre au type Paiement du reçu
+      client: {
+        id: clientDetails.id,
+        nom: clientDetails.nom,
+        adresse: clientDetails.adresse,
+        telephone: clientDetails.telephone,
+        email: clientDetails.email,
+      }
     };
     
     setSelectedPaiement(paiement);
