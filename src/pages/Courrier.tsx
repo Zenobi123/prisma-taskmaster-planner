@@ -11,7 +11,13 @@ import { useCourrierData } from "@/hooks/useCourrierData";
 export default function Courrier() {
   const { clients, collaborateurs, isLoading, error } = useCourrierData();
   const [selectedClients, setSelectedClients] = useState<string[]>([]);
-  const [selectedCriteria, setSelectedCriteria] = useState<string[]>([]);
+  const [selectedCriteria, setSelectedCriteria] = useState({
+    type: "",
+    regimeFiscal: "",
+    secteurActivite: "",
+    centreRattachement: "",
+    statut: ""
+  });
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -46,7 +52,6 @@ export default function Courrier() {
           {/* Sélection des clients */}
           <ClientsList 
             clients={filteredClients}
-            selectedClients={selectedClients}
             onSelectionChange={setSelectedClients}
           />
 
@@ -60,7 +65,6 @@ export default function Courrier() {
           <TemplateSelection 
             selectedTemplate={selectedTemplate}
             onTemplateChange={setSelectedTemplate}
-            onPreview={() => setShowPreview(true)}
             disabled={selectedClients.length === 0 || !selectedTemplate}
           />
         </div>
@@ -72,7 +76,6 @@ export default function Courrier() {
           clients={selectedClients.map(id => 
             clients.find(c => c.id === id)!
           ).filter(Boolean)}
-          criteria={selectedCriteria}
           template={selectedTemplate}
         />
       </div>
