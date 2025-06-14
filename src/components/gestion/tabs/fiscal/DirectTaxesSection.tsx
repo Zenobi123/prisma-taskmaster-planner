@@ -37,7 +37,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
   const isCGA = igsStatus?.isCGA || false;
   const montantAnnuel = igsStatus?.montantAnnuel || 0;
 
-  // Initialize quarterly payments from saved data - IMPORTANT for persistence
+  // Local state for quarterly payments - CRITICAL: Initialize from saved data
   const [quarterlyPayments, setQuarterlyPayments] = useState<Record<string, string>>({
     q1: formatNumberWithSpaces(String(igsStatus?.q1Montant || 0)),
     q2: formatNumberWithSpaces(String(igsStatus?.q2Montant || 0)),
@@ -45,7 +45,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     q4: formatNumberWithSpaces(String(igsStatus?.q4Montant || 0))
   });
 
-  // Initialize quarterly dates from saved data - IMPORTANT for persistence
+  // Local state for quarterly dates - CRITICAL: Initialize from saved data
   const [quarterlyDates, setQuarterlyDates] = useState<Record<string, string>>({
     q1: igsStatus?.q1Date || '',
     q2: igsStatus?.q2Date || '',
@@ -53,43 +53,37 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     q4: igsStatus?.q4Date || ''
   });
 
-  // Update local state when IGS status changes (e.g., when loading saved data)
+  // CRITICAL: Sync local state when IGS data is loaded from database
   useEffect(() => {
-    console.log("=== MISE À JOUR IGS LOCAL STATE ===");
-    console.log("IGS Status reçu:", igsStatus);
+    console.log("=== SYNC LOCAL STATE WITH IGS DATA ===");
+    console.log("IGS Status received:", igsStatus);
     
     if (igsStatus) {
-      setQuarterlyPayments({
+      // Update quarterly payments from database
+      const newPayments = {
         q1: formatNumberWithSpaces(String(igsStatus.q1Montant || 0)),
         q2: formatNumberWithSpaces(String(igsStatus.q2Montant || 0)),
         q3: formatNumberWithSpaces(String(igsStatus.q3Montant || 0)),
         q4: formatNumberWithSpaces(String(igsStatus.q4Montant || 0))
-      });
+      };
       
-      setQuarterlyDates({
+      // Update quarterly dates from database
+      const newDates = {
         q1: igsStatus.q1Date || '',
         q2: igsStatus.q2Date || '',
         q3: igsStatus.q3Date || '',
         q4: igsStatus.q4Date || ''
-      });
+      };
       
-      console.log("États locaux mis à jour:", {
-        payments: {
-          q1: igsStatus.q1Montant,
-          q2: igsStatus.q2Montant,
-          q3: igsStatus.q3Montant,
-          q4: igsStatus.q4Montant
-        },
-        dates: {
-          q1: igsStatus.q1Date,
-          q2: igsStatus.q2Date,
-          q3: igsStatus.q3Date,
-          q4: igsStatus.q4Date
-        }
-      });
+      console.log("Updating local state with:", { payments: newPayments, dates: newDates });
+      
+      setQuarterlyPayments(newPayments);
+      setQuarterlyDates(newDates);
     }
-  }, [igsStatus?.q1Montant, igsStatus?.q2Montant, igsStatus?.q3Montant, igsStatus?.q4Montant, 
-      igsStatus?.q1Date, igsStatus?.q2Date, igsStatus?.q3Date, igsStatus?.q4Date]);
+  }, [
+    igsStatus?.q1Montant, igsStatus?.q2Montant, igsStatus?.q3Montant, igsStatus?.q4Montant,
+    igsStatus?.q1Date, igsStatus?.q2Date, igsStatus?.q3Date, igsStatus?.q4Date
+  ]);
   
   // Format a number with spaces as thousand separators
   function formatNumberWithSpaces(value: string): string {
@@ -110,7 +104,6 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     const total = Object.values(quarterlyPayments).reduce((sum, payment) => {
       return sum + parseFormattedNumber(payment);
     }, 0);
-    console.log("Total IGS calculé:", total, "à partir de:", quarterlyPayments);
     return total;
   };
 
@@ -119,7 +112,6 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     if (!montantAnnuel || igsStatus?.outOfRange) return 0;
     const totalPaid = calculateTotalIgsPaid();
     const balance = Math.max(0, montantAnnuel - totalPaid);
-    console.log("Solde IGS calculé:", balance, "=", montantAnnuel, "-", totalPaid);
     return balance;
   };
 
@@ -145,47 +137,46 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     const ca = parseFormattedNumber(caValue);
     if (ca > 0) {
       const result = calculateIGS(ca, isCGA);
-      console.log("Recalcul IGS:", { ca, isCGA, result });
+      console.log("IGS calculation:", { ca, isCGA, result });
       handleStatusChange('igs', 'classe', result.class);
       handleStatusChange('igs', 'montantAnnuel', result.amount);
       handleStatusChange('igs', 'outOfRange', result.outOfRange);
     }
   }, [caValue, isCGA, handleStatusChange]);
 
-  // Save quarterly payment amounts when they change - CRITICAL for persistence
+  // CRITICAL: Save quarterly payments when they change
   useEffect(() => {
-    console.log("=== SAUVEGARDE MONTANTS TRIMESTRIELS ===");
+    console.log("=== SAVE QUARTERLY PAYMENTS ===");
     const q1Amount = parseFormattedNumber(quarterlyPayments.q1);
     const q2Amount = parseFormattedNumber(quarterlyPayments.q2);
     const q3Amount = parseFormattedNumber(quarterlyPayments.q3);
     const q4Amount = parseFormattedNumber(quarterlyPayments.q4);
     
-    console.log("Montants à sauvegarder:", { q1Amount, q2Amount, q3Amount, q4Amount });
-    
+    // Save individual quarterly amounts
     handleStatusChange('igs', 'q1Montant', q1Amount);
     handleStatusChange('igs', 'q2Montant', q2Amount);
     handleStatusChange('igs', 'q3Montant', q3Amount);
     handleStatusChange('igs', 'q4Montant', q4Amount);
     
-    // Calculate and save total paid
+    // Calculate and save totals
     const totalPaid = q1Amount + q2Amount + q3Amount + q4Amount;
     const soldeRestant = Math.max(0, montantAnnuel - totalPaid);
     
-    console.log("Calculs finaux:", { totalPaid, soldeRestant, montantAnnuel });
-    
     handleStatusChange('igs', 'montantTotalPaye', totalPaid);
     handleStatusChange('igs', 'soldeRestant', soldeRestant);
+    
+    console.log("Saved IGS amounts:", { q1Amount, q2Amount, q3Amount, q4Amount, totalPaid, soldeRestant });
   }, [quarterlyPayments, montantAnnuel, handleStatusChange]);
 
-  // Save quarterly dates when they change - CRITICAL for persistence
+  // CRITICAL: Save quarterly dates when they change
   useEffect(() => {
-    console.log("=== SAUVEGARDE DATES TRIMESTRIELLES ===");
-    console.log("Dates à sauvegarder:", quarterlyDates);
-    
+    console.log("=== SAVE QUARTERLY DATES ===");
     handleStatusChange('igs', 'q1Date', quarterlyDates.q1);
     handleStatusChange('igs', 'q2Date', quarterlyDates.q2);
     handleStatusChange('igs', 'q3Date', quarterlyDates.q3);
     handleStatusChange('igs', 'q4Date', quarterlyDates.q4);
+    
+    console.log("Saved IGS dates:", quarterlyDates);
   }, [quarterlyDates, handleStatusChange]);
 
   // Toggle details visibility
@@ -206,32 +197,24 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
   // Handle quarterly payment change - CRITICAL for persistence
   const handleQuarterlyPaymentChange = (quarter: string, value: string) => {
     const formattedValue = formatNumberWithSpaces(value);
-    console.log(`=== CHANGEMENT PAIEMENT ${quarter.toUpperCase()} ===`);
-    console.log("Nouvelle valeur:", formattedValue);
+    console.log(`=== QUARTERLY PAYMENT CHANGE ${quarter.toUpperCase()} ===`);
+    console.log("New value:", formattedValue);
     
-    setQuarterlyPayments(prev => {
-      const newPayments = {
-        ...prev,
-        [quarter]: formattedValue
-      };
-      console.log("Nouveaux paiements:", newPayments);
-      return newPayments;
-    });
+    setQuarterlyPayments(prev => ({
+      ...prev,
+      [quarter]: formattedValue
+    }));
   };
 
   // Handle quarterly date change - CRITICAL for persistence
   const handleQuarterlyDateChange = (quarter: string, value: string) => {
-    console.log(`=== CHANGEMENT DATE ${quarter.toUpperCase()} ===`);
-    console.log("Nouvelle date:", value);
+    console.log(`=== QUARTERLY DATE CHANGE ${quarter.toUpperCase()} ===`);
+    console.log("New date:", value);
     
-    setQuarterlyDates(prev => {
-      const newDates = {
-        ...prev,
-        [quarter]: value
-      };
-      console.log("Nouvelles dates:", newDates);
-      return newDates;
-    });
+    setQuarterlyDates(prev => ({
+      ...prev,
+      [quarter]: value
+    }));
   };
 
   // Type guard to check if obligation is a tax obligation
@@ -366,7 +349,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                   <span>15 janvier, 15 avril, 15 juillet, 15 octobre</span>
                 </div>
                 
-                {/* ENHANCED quarterly payments table with better persistence */}
+                {/* Enhanced quarterly payments table */}
                 <div className="overflow-x-auto mb-4">
                   <table className="w-full border-collapse text-sm">
                     <thead>
