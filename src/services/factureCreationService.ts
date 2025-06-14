@@ -29,15 +29,38 @@ export const factureCreationService = {
           mode_paiement: factureData.mode,
           notes: factureData.notes
         }])
-        .select('*, client:clients(*)')
+        .select(`
+          *,
+          client:clients(
+            id,
+            nom,
+            raisonsociale,
+            contact,
+            adresse,
+            type
+          )
+        `)
         .single();
 
       if (error) throw error;
       
+      // Transform the client data to match the expected format
+      const transformedClient = data.client ? {
+        id: data.client.id,
+        nom: data.client.type === "physique" ? data.client.nom || "" : data.client.raisonsociale || "",
+        adresse: typeof data.client.adresse === 'object' && data.client.adresse && 'ville' in data.client.adresse ? 
+          String(data.client.adresse.ville) : "",
+        telephone: typeof data.client.contact === 'object' && data.client.contact && 'telephone' in data.client.contact ? 
+          String(data.client.contact.telephone) : "",
+        email: typeof data.client.contact === 'object' && data.client.contact && 'email' in data.client.contact ? 
+          String(data.client.contact.email) : ""
+      } : undefined;
+      
       return {
         ...data,
         mode: data.mode_paiement,
-        prestations: factureData.prestations || []
+        prestations: factureData.prestations || [],
+        client: transformedClient
       };
     } catch (error) {
       console.error('Erreur lors de la création de la facture:', error);
@@ -49,16 +72,39 @@ export const factureCreationService = {
     try {
       const { data, error } = await supabase
         .from('factures')
-        .select('*, client:clients(*)')
+        .select(`
+          *,
+          client:clients(
+            id,
+            nom,
+            raisonsociale,
+            contact,
+            adresse,
+            type
+          )
+        `)
         .eq('id', id)
         .single();
 
       if (error) throw error;
       
+      // Transform the client data to match the expected format
+      const transformedClient = data.client ? {
+        id: data.client.id,
+        nom: data.client.type === "physique" ? data.client.nom || "" : data.client.raisonsociale || "",
+        adresse: typeof data.client.adresse === 'object' && data.client.adresse && 'ville' in data.client.adresse ? 
+          String(data.client.adresse.ville) : "",
+        telephone: typeof data.client.contact === 'object' && data.client.contact && 'telephone' in data.client.contact ? 
+          String(data.client.contact.telephone) : "",
+        email: typeof data.client.contact === 'object' && data.client.contact && 'email' in data.client.contact ? 
+          String(data.client.contact.email) : ""
+      } : undefined;
+      
       return {
         ...data,
         mode: data.mode_paiement,
-        prestations: data.prestations || []
+        prestations: [],
+        client: transformedClient
       };
     } catch (error) {
       console.error('Erreur lors de la récupération de la facture:', error);

@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Facture } from "@/types/facture";
 import { formatDate } from "@/utils/formatUtils";
@@ -147,24 +148,28 @@ export const getFacturesData = async (): Promise<Facture[]> => {
       return [];
     }
 
-    return facturesData.map(facture => ({
-      ...facture,
-      mode: facture.mode_paiement || '',
-      prestations: facture.prestations || [],
-      status: facture.status as "brouillon" | "envoyée" | "annulée",
-      status_paiement: facture.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
-      client: {
-        id: facture.client?.id || '',
-        nom: facture.client?.nom || facture.client?.raisonsociale || '',
-        adresse: typeof facture.client?.adresse === 'object' ? 
-          `${facture.client.adresse?.ville || ''} ${facture.client.adresse?.quartier || ''}`.trim() :
-          facture.client?.adresse || '',
-        telephone: typeof facture.client?.contact === 'object' ? 
-          facture.client.contact?.telephone || '' : '',
-        email: typeof facture.client?.contact === 'object' ? 
-          facture.client.contact?.email || '' : ''
-      }
-    }));
+    return facturesData.map(facture => {
+      const transformedClient = facture.client ? {
+        id: facture.client.id,
+        nom: facture.client.type === "physique" ? facture.client.nom || "" : facture.client.raisonsociale || "",
+        adresse: typeof facture.client.adresse === 'object' && facture.client.adresse && 'ville' in facture.client.adresse ? 
+          String(facture.client.adresse.ville) + (facture.client.adresse.quartier ? ' ' + String(facture.client.adresse.quartier) : '') : 
+          String(facture.client.adresse || ''),
+        telephone: typeof facture.client.contact === 'object' && facture.client.contact && 'telephone' in facture.client.contact ? 
+          String(facture.client.contact.telephone) : "",
+        email: typeof facture.client.contact === 'object' && facture.client.contact && 'email' in facture.client.contact ? 
+          String(facture.client.contact.email) : ""
+      } : undefined;
+
+      return {
+        ...facture,
+        mode: facture.mode_paiement || '',
+        prestations: [],
+        status: facture.status as "brouillon" | "envoyée" | "annulée",
+        status_paiement: facture.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+        client: transformedClient
+      };
+    });
   } catch (error) {
     console.error('Erreur dans getFacturesData:', error);
     throw error;
@@ -185,10 +190,10 @@ export const getFactures = async (): Promise<Facture[]> => {
 
     return data.map(facture => ({
       ...facture,
-      status_paiement: facture.status_paiement || 'non_payée',
-      prestations: facture.prestations || [],
+      status: facture.status as "brouillon" | "envoyée" | "annulée",
+      status_paiement: facture.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
       montant_paye: facture.montant_paye || 0,
-      mode: facture.mode || facture.mode_paiement || '',
+      mode: facture.mode_paiement || '',
       notes: facture.notes || '',
       client: facture.client ? {
         id: facture.client.id,

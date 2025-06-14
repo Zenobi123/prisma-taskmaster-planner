@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { getClients } from "@/services/clientService";
+import { getClientsForCourrier } from "@/services/courrierService";
 import { getCollaborateurs } from "@/services/collaborateurService";
 import { Criteria } from "@/components/courrier/CriteriaSelection";
 
@@ -10,8 +10,8 @@ export const useCourrierData = (selectedCriteria?: Criteria) => {
     isLoading: isLoadingClients,
     error: clientsError,
   } = useQuery({
-    queryKey: ["clients"],
-    queryFn: () => getClients(false),
+    queryKey: ["clients-courrier"],
+    queryFn: () => getClientsForCourrier(),
     retry: 2,
   });
 

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Send, Eye, Mail, Users, FileText, Filter } from "lucide-react";
 import { courrierTemplates, Template, generateCourrierContent } from "@/utils/courrierTemplates";
+import { sendCourrier } from "@/services/courrierService";
 import { useCourrierData } from "@/hooks/useCourrierData";
 import PageLayout from "@/components/layout/PageLayout";
 import CourrierHeader from "@/components/courrier/CourrierHeader";
@@ -22,6 +23,7 @@ const Courrier: React.FC = () => {
   const [customMessage, setCustomMessage] = useState<string>("");
   const [generationType, setGenerationType] = useState<"individuel" | "masse">("individuel");
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+  const [isSending, setIsSending] = useState<boolean>(false);
 
   const { clients, isLoading: isLoadingClients, error: clientsError } = useCourrierData(selectedCriteria);
 
@@ -83,21 +85,28 @@ const Courrier: React.FC = () => {
       return;
     }
 
-    toast.info(`Envoi du courrier à ${finalClients.length} client(s)...`);
+    setIsSending(true);
+    
+    try {
+      toast.info(`Envoi du courrier à ${finalClients.length} client(s)...`);
 
-    for (const client of finalClients) {
-      try {
-        const content = generateCourrierContent(client, selectedTemplate, customMessage);
-        console.log(`Courrier pour ${client.nom || client.raisonsociale}:`, content);
-        await new Promise(resolve => setTimeout(resolve, 500));
-      } catch (error) {
-        toast.error(`Erreur lors de l'envoi du courrier à ${client.nom || client.raisonsociale}.`);
-        console.error("Courrier send error for client:", client.id, error);
-      }
+      // Use the courrier service to send emails
+      await sendCourrier(
+        finalClients.map(client => client.id),
+        selectedTemplateId,
+        customMessage
+      );
+
+      toast.success("Courriers envoyés avec succès !");
+      setIsPreviewOpen(false);
+      setCustomMessage("");
+      setSelectedClientIds([]);
+    } catch (error) {
+      console.error("Erreur lors de l'envoi du courrier:", error);
+      toast.error("Erreur lors de l'envoi du courrier. Veuillez réessayer.");
+    } finally {
+      setIsSending(false);
     }
-    toast.success("Courriers envoyés avec succès !");
-    setIsPreviewOpen(false);
-    setCustomMessage("");
   };
   
   const clientsForList = getFilteredClients();
@@ -213,10 +222,10 @@ const Courrier: React.FC = () => {
                     <Button 
                       onClick={handleSendCourrier} 
                       className="flex-1 bg-[#84A98C] hover:bg-[#6B8E74] text-white"
-                      disabled={!selectedTemplate || clientsForList.length === 0}
+                      disabled={!selectedTemplate || clientsForList.length === 0 || isSending}
                     >
                       <Send className="w-4 h-4 mr-2" />
-                      Envoyer le Courrier
+                      {isSending ? "Envoi en cours..." : "Envoyer le Courrier"}
                     </Button>
                   </div>
                 </CardContent>
