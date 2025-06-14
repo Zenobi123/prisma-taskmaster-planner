@@ -45,7 +45,7 @@
 
 @layer components {
   .sidebar-link {
-    @apply flex items-center gap-3 px-4 py-2 text-neutral-600 hover:bg-neutral-200 rounded-md transition-all duration-300;
+    @apply flex items-center gap-3 px-3 py-2 text-neutral-600 hover:bg-neutral-200 rounded-md transition-all duration-300;
     /* Améliore accessibilité sur mobile */
     @apply min-h-[44px] md:min-h-[unset];
   }
@@ -55,19 +55,19 @@
   }
 
   .btn-primary {
-    @apply px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-all duration-300 disabled:opacity-50;
+    @apply px-3 py-2 bg-primary text-white rounded-md hover:bg-primary-hover transition-all duration-300 disabled:opacity-50;
     /* Touch target size for mobile */
     @apply min-h-[44px] md:min-h-[unset];
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-neutral-200 text-neutral-700 rounded-md hover:bg-neutral-300 transition-all duration-300;
+    @apply px-3 py-2 bg-neutral-200 text-neutral-700 rounded-md hover:bg-neutral-300 transition-all duration-300;
     /* Touch target size for mobile */
     @apply min-h-[44px] md:min-h-[unset];
   }
 
   .card {
-    @apply bg-white rounded-lg shadow-sm border border-neutral-200 p-4 sm:p-6 animate-fade-in hover:shadow transition-all duration-300;
+    @apply bg-white rounded-lg shadow-sm border border-neutral-200 p-3 sm:p-4 animate-fade-in hover:shadow transition-all duration-300;
   }
 
   .input-field {
@@ -85,13 +85,13 @@
   }
 
   .table th {
-    @apply px-3 sm:px-4 md:px-6 py-3 bg-neutral-100 text-neutral-600 font-semibold;
+    @apply px-2 sm:px-3 md:px-4 py-2 bg-neutral-100 text-neutral-600 font-semibold;
     /* Amélioration lisibilité mobile */
     @apply text-xs sm:text-sm whitespace-nowrap;
   }
 
   .table td {
-    @apply px-3 sm:px-4 md:px-6 py-3 sm:py-4 border-t border-neutral-200;
+    @apply px-2 sm:px-3 md:px-4 py-2 sm:py-3 border-t border-neutral-200;
     /* Amélioration lisibilité mobile */
     @apply text-xs sm:text-sm;
   }
@@ -125,43 +125,48 @@
     @apply animate-slide-in;
   }
   
-  /* Responsive improvements */
+  /* Responsive improvements with reduced margins */
   .responsive-grid {
-    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3;
   }
   
   .responsive-flex {
-    @apply flex flex-col sm:flex-row gap-4;
+    @apply flex flex-col sm:flex-row gap-3;
   }
   
   .responsive-p {
-    @apply p-3 sm:p-4 md:p-6;
+    @apply p-2 sm:p-3 md:p-4;
   }
   
   .responsive-text {
     @apply text-sm sm:text-base;
   }
   
-  /* Responsive spacing classes */
+  /* Responsive spacing classes with reduced margins */
   .responsive-mt {
-    @apply mt-3 sm:mt-4 md:mt-6;
+    @apply mt-2 sm:mt-3 md:mt-4;
   }
   
   .responsive-mb {
-    @apply mb-3 sm:mb-4 md:mb-6;
+    @apply mb-2 sm:mb-3 md:mb-4;
   }
   
   .responsive-my {
-    @apply my-3 sm:my-4 md:my-6;
+    @apply my-2 sm:my-3 md:my-4;
   }
   
   .responsive-gap {
-    @apply gap-3 sm:gap-4 md:gap-6;
+    @apply gap-2 sm:gap-3 md:gap-4;
   }
   
   /* Container pour les éléments tactiles */
   .touch-container {
     @apply min-h-[44px] flex items-center;
+  }
+
+  /* Reduced container margins for better space utilization */
+  .container-tight {
+    @apply max-w-full px-2 sm:px-4 lg:px-6;
   }
 }
 
@@ -228,5 +233,18 @@
   
   .no-scrollbar::-webkit-scrollbar {
     display: none;
+  }
+
+  /* New utility classes for reduced margins */
+  .mx-tight {
+    @apply mx-1 sm:mx-2 lg:mx-4;
+  }
+  
+  .px-tight {
+    @apply px-1 sm:px-2 lg:px-4;
+  }
+  
+  .py-tight {
+    @apply py-1 sm:py-2 lg:py-3;
   }
 }

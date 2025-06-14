@@ -21,9 +21,11 @@ export const getClientsForCourrier = async (): Promise<Client[]> => {
     const transformedData = data?.map(client => ({
       ...client,
       type: client.type as 'physique' | 'morale',
-      contact: typeof client.contact === 'object' ? client.contact : {},
-      adresse: typeof client.adresse === 'object' ? client.adresse : {},
-      fiscal_data: typeof client.fiscal_data === 'object' ? client.fiscal_data : {}
+      contact: typeof client.contact === 'object' && client.contact !== null ? client.contact : {},
+      adresse: typeof client.adresse === 'object' && client.adresse !== null && 'ville' in client.adresse ? 
+        client.adresse as { ville: string; quartier: string; lieuDit: string; } : 
+        { ville: '', quartier: '', lieuDit: '' },
+      fiscal_data: typeof client.fiscal_data === 'object' && client.fiscal_data !== null ? client.fiscal_data : {}
     })) || [];
 
     return transformedData as Client[];

@@ -140,18 +140,18 @@ const Courrier: React.FC = () => {
   const finalClients = getFilteredClients();
 
   return (
-    <PageLayout>
+    <PageLayout fullWidth>
       <div className="min-h-screen bg-gray-50">
         <CourrierHeader />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="w-full px-2 sm:px-4 lg:px-6 py-4">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
             {/* Sidebar - Critères de sélection */}
             <div className="lg:col-span-1">
               <Card className="shadow-sm border border-gray-200 bg-white">
                 <CardHeader className="pb-3 border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-gray-800">
-                    <Filter className="w-5 h-5 text-[#84A98C]" />
+                  <CardTitle className="flex items-center gap-2 text-gray-800 text-sm">
+                    <Filter className="w-4 h-4 text-[#84A98C]" />
                     Critères de sélection
                   </CardTitle>
                 </CardHeader>
@@ -167,16 +167,16 @@ const Courrier: React.FC = () => {
             </div>
 
             {/* Zone principale */}
-            <div className="lg:col-span-3 space-y-6">
+            <div className="lg:col-span-3 space-y-4">
               {/* Liste des clients */}
               <Card className="shadow-sm border border-gray-200 bg-white">
                 <CardHeader className="pb-3 border-b border-gray-100">
                   <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-800">
-                      <Users className="w-5 h-5 text-[#84A98C]" />
+                    <div className="flex items-center gap-2 text-gray-800 text-sm">
+                      <Users className="w-4 h-4 text-[#84A98C]" />
                       {generationType === "individuel" ? "Sélectionner les clients" : "Clients correspondants"}
                     </div>
-                    <Badge variant="secondary" className="bg-[#84A98C] text-white">
+                    <Badge variant="secondary" className="bg-[#84A98C] text-white text-xs">
                       {generationType === "individuel" 
                         ? `${selectedClientIds.length}/${clientsForList.length} sélectionné${selectedClientIds.length > 1 ? 's' : ''}`
                         : `${finalClients.length} client${finalClients.length > 1 ? 's' : ''}`
@@ -199,8 +199,8 @@ const Courrier: React.FC = () => {
               {/* Sélection du modèle */}
               <Card className="shadow-sm border border-gray-200 bg-white">
                 <CardHeader className="pb-3 border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-gray-800">
-                    <FileText className="w-5 h-5 text-[#84A98C]" />
+                  <CardTitle className="flex items-center gap-2 text-gray-800 text-sm">
+                    <FileText className="w-4 h-4 text-[#84A98C]" />
                     Modèles de courrier
                   </CardTitle>
                 </CardHeader>
@@ -216,8 +216,8 @@ const Courrier: React.FC = () => {
               {/* Message personnalisé */}
               <Card className="shadow-sm border border-gray-200 bg-white">
                 <CardHeader className="pb-3 border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-gray-800">
-                    <FileText className="w-5 h-5 text-[#84A98C]" />
+                  <CardTitle className="flex items-center gap-2 text-gray-800 text-sm">
+                    <FileText className="w-4 h-4 text-[#84A98C]" />
                     Message personnalisé
                   </CardTitle>
                 </CardHeader>
@@ -227,7 +227,7 @@ const Courrier: React.FC = () => {
                     onChange={(e) => setCustomMessage(e.target.value)}
                     placeholder="Ajoutez un message personnalisé qui sera inclus dans le courrier..."
                     rows={4}
-                    className="border-gray-300 focus:border-[#84A98C] focus:ring-[#84A98C]"
+                    className="border-gray-300 focus:border-[#84A98C] focus:ring-[#84A98C] text-sm"
                   />
                 </CardContent>
               </Card>
@@ -235,8 +235,8 @@ const Courrier: React.FC = () => {
               {/* Actions */}
               <Card className="shadow-sm border border-gray-200 bg-white">
                 <CardHeader className="pb-3 border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-gray-800">
-                    <Mail className="w-5 h-5 text-[#84A98C]" />
+                  <CardTitle className="flex items-center gap-2 text-gray-800 text-sm">
+                    <Mail className="w-4 h-4 text-[#84A98C]" />
                     Actions
                   </CardTitle>
                 </CardHeader>
@@ -245,7 +245,7 @@ const Courrier: React.FC = () => {
                     <Button 
                       onClick={handleGeneratePreview} 
                       variant="outline" 
-                      className="flex-1 border-[#84A98C] text-[#84A98C] hover:bg-[#84A98C] hover:text-white"
+                      className="flex-1 border-[#84A98C] text-[#84A98C] hover:bg-[#84A98C] hover:text-white text-sm"
                       disabled={!selectedTemplate || finalClients.length === 0}
                     >
                       <Eye className="w-4 h-4 mr-2" />
@@ -253,7 +253,7 @@ const Courrier: React.FC = () => {
                     </Button>
                     <Button 
                       onClick={handleSendCourrier} 
-                      className="flex-1 bg-[#84A98C] hover:bg-[#6B8E74] text-white"
+                      className="flex-1 bg-[#84A98C] hover:bg-[#6B8E74] text-white text-sm"
                       disabled={!selectedTemplate || finalClients.length === 0 || isSending}
                     >
                       <Send className="w-4 h-4 mr-2" />
@@ -280,10 +280,10 @@ const Courrier: React.FC = () => {
         )}
         
         {clientsError && (
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="w-full px-2 sm:px-4 lg:px-6">
             <Card className="border-red-200 bg-red-50">
               <CardContent className="p-4">
-                <p className="text-red-600">Erreur de chargement des clients: {clientsError.message}</p>
+                <p className="text-red-600 text-sm">Erreur de chargement des clients: {clientsError.message}</p>
               </CardContent>
             </Card>
           </div>
