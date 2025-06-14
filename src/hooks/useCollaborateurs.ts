@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { Collaborateur } from "@/types/collaborateur";
-import { getCollaborateurs, addCollaborateur, deleteCollaborateur, updateCollaborateur } from "@/services/collaborateurService";
+import { getCollaborateurs, createCollaborateur, deleteCollaborateur, updateCollaborateur } from "@/services/collaborateurService";
 
 export const useCollaborateurs = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +38,7 @@ export const useCollaborateurs = () => {
   });
 
   const addMutation = useMutation({
-    mutationFn: addCollaborateur,
+    mutationFn: createCollaborateur,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["collaborateurs"] });
       toast({

@@ -22,6 +22,26 @@ export const getCollaborateurs = async (): Promise<Collaborateur[]> => {
   }
 };
 
+export const getCollaborateur = async (id: string): Promise<Collaborateur | null> => {
+  try {
+    const { data, error } = await supabase
+      .from('collaborateurs')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Erreur lors de la récupération du collaborateur:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Erreur dans getCollaborateur:', error);
+    throw error;
+  }
+};
+
 export const createCollaborateur = async (collaborateurData: Omit<Collaborateur, 'id' | 'created_at'>): Promise<Collaborateur> => {
   try {
     const { data, error } = await supabase
@@ -37,6 +57,8 @@ export const createCollaborateur = async (collaborateurData: Omit<Collaborateur,
     throw error;
   }
 };
+
+export const addCollaborateur = createCollaborateur; // Alias for backward compatibility
 
 export const updateCollaborateur = async (id: string, updates: Partial<Collaborateur>): Promise<Collaborateur> => {
   try {
