@@ -1,9 +1,10 @@
+
 export interface Prestation {
   id?: string;
   description: string;
   quantite: number;
   prix_unitaire: number;
-  montant?: number; // Ajouter cette propriété pour compatibilité PDF
+  montant: number; // Rendre cette propriété obligatoire pour résoudre les erreurs
 }
 
 export interface Paiement {
@@ -12,6 +13,7 @@ export interface Paiement {
   date: string;
   montant: number;
   mode_paiement: string;
+  mode?: string; // Ajouter pour compatibilité PDF
   notes?: string;
   created_at?: string;
   updated_at?: string;

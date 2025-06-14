@@ -1,3 +1,4 @@
+
 import { Facture } from "@/types/facture";
 
 export const formatCurrency = (amount: number): string => {
@@ -91,4 +92,75 @@ export const getStatusBadgeVariant = (status: string, type: "document" | "paieme
         return 'default';
     }
   }
+};
+
+// Fonctions utilitaires pour les filtres de factures
+export const applySearchFilter = (factures: Facture[], searchTerm: string): Facture[] => {
+  if (!searchTerm) return factures;
+  const term = searchTerm.toLowerCase();
+  return factures.filter(facture => 
+    facture.id.toLowerCase().includes(term) ||
+    facture.client?.nom?.toLowerCase().includes(term) ||
+    facture.notes?.toLowerCase().includes(term)
+  );
+};
+
+export const applyStatusFilter = (factures: Facture[], statusFilter: string): Facture[] => {
+  if (!statusFilter || statusFilter === 'all') return factures;
+  return factures.filter(facture => facture.status === statusFilter);
+};
+
+export const applyClientFilter = (factures: Facture[], clientFilter: string): Facture[] => {
+  if (!clientFilter || clientFilter === 'all') return factures;
+  return factures.filter(facture => facture.client_id === clientFilter);
+};
+
+export const applyDateFilter = (factures: Facture[], dateFilter: string): Facture[] => {
+  if (!dateFilter) return factures;
+  const filterDate = new Date(dateFilter);
+  return factures.filter(facture => {
+    const factureDate = parseDate(facture.date);
+    return factureDate.toDateString() === filterDate.toDateString();
+  });
+};
+
+// Fonctions utilitaires pour la pagination
+export const getPaginatedFactures = (factures: Facture[], page: number, itemsPerPage: number): Facture[] => {
+  const startIndex = (page - 1) * itemsPerPage;
+  return factures.slice(startIndex, startIndex + itemsPerPage);
+};
+
+export const calculateTotalPages = (totalItems: number, itemsPerPage: number): number => {
+  return Math.ceil(totalItems / itemsPerPage);
+};
+
+// Fonction utilitaire pour le tri
+export const sortFactures = (factures: Facture[], sortBy: string, sortOrder: 'asc' | 'desc'): Facture[] => {
+  return [...factures].sort((a, b) => {
+    let aValue: any;
+    let bValue: any;
+
+    switch (sortBy) {
+      case 'date':
+        aValue = parseDate(a.date);
+        bValue = parseDate(b.date);
+        break;
+      case 'montant':
+        aValue = a.montant;
+        bValue = b.montant;
+        break;
+      case 'client':
+        aValue = a.client?.nom || '';
+        bValue = b.client?.nom || '';
+        break;
+      default:
+        aValue = a.id;
+        bValue = b.id;
+    }
+
+    if (sortOrder === 'desc') {
+      return aValue < bValue ? 1 : -1;
+    }
+    return aValue > bValue ? 1 : -1;
+  });
 };

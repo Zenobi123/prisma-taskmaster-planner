@@ -16,12 +16,15 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
   obligationStatuses,
   handleStatusChange 
 }) => {
+  console.log('DirectTaxesSection - obligationStatuses:', obligationStatuses);
+  
   const [openedDetails, setOpenedDetails] = useState<Record<string, boolean>>({});
   
   // Hook de stabilisation pour éviter les mises à jour inutiles
   const stableHandleStatusChange = useStableStatusChange({ handleStatusChange });
   
   const igsStatus = obligationStatuses.igs as IgsObligationStatus;
+  console.log('DirectTaxesSection - igsStatus:', igsStatus);
   
   // Références pour éviter les re-renders inutiles
   const debounceTimeoutRef = useRef<NodeJS.Timeout>();
@@ -45,6 +48,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
   // Initialisation une seule fois des valeurs locales
   useEffect(() => {
     if (igsStatus) {
+      console.log('DirectTaxesSection - Initializing local states with igsStatus:', igsStatus);
       setLocalQuarterlyPayments({
         q1: formatNumberWithSpaces(String(igsStatus.q1Montant || '')),
         q2: formatNumberWithSpaces(String(igsStatus.q2Montant || '')),
@@ -63,7 +67,10 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
 
   // Calcul centralisé et stable de l'IGS avec tous les totaux
   const igsCalculation = useMemo(() => {
+    console.log('DirectTaxesSection - Computing IGS calculation with caValue:', igsStatus?.caValue, 'isCGA:', igsStatus?.isCGA);
+    
     if (!igsStatus?.caValue) {
+      console.log('DirectTaxesSection - No caValue, returning empty calculation');
       return {
         classe: '-',
         montantAnnuel: 0,
@@ -78,7 +85,10 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     }
     
     const caNum = parseFormattedNumber(igsStatus.caValue);
+    console.log('DirectTaxesSection - Parsed CA number:', caNum);
+    
     if (caNum === 0) {
+      console.log('DirectTaxesSection - CA is 0, returning empty calculation');
       return {
         classe: '-',
         montantAnnuel: 0,
@@ -93,6 +103,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     }
     
     const calculation = calculateIGS(caNum, igsStatus.isCGA || false);
+    console.log('DirectTaxesSection - IGS calculation result:', calculation);
     
     // Calcul des montants trimestriels
     const q1Amount = parseFormattedNumber(localQuarterlyPayments.q1);
@@ -103,7 +114,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     const montantTotalPaye = q1Amount + q2Amount + q3Amount + q4Amount;
     const soldeRestant = Math.max(0, calculation.amount - montantTotalPaye);
     
-    return {
+    const result = {
       classe: calculation.class,
       montantAnnuel: calculation.amount,
       outOfRange: calculation.outOfRange,
@@ -114,6 +125,9 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
       montantTotalPaye,
       soldeRestant
     };
+    
+    console.log('DirectTaxesSection - Final calculation result:', result);
+    return result;
   }, [igsStatus?.caValue, igsStatus?.isCGA, localQuarterlyPayments]);
 
   // Mise à jour groupée et différée du state global
@@ -121,9 +135,11 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     if (!igsStatus) return;
     
     const currentCalculation = igsCalculation;
+    console.log('DirectTaxesSection - Current calculation for state update:', currentCalculation);
     
     // Éviter les mises à jour identiques
     if (JSON.stringify(lastCalculationRef.current) === JSON.stringify(currentCalculation)) {
+      console.log('DirectTaxesSection - Calculation unchanged, skipping update');
       return;
     }
     
@@ -135,6 +151,8 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     }
     
     debounceTimeoutRef.current = setTimeout(() => {
+      console.log('DirectTaxesSection - Updating IGS status with calculation:', currentCalculation);
+      
       // Mise à jour groupée de tous les champs IGS
       const updates = [
         { field: 'classe', value: currentCalculation.classe },
@@ -149,6 +167,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
       ];
       
       updates.forEach(({ field, value }) => {
+        console.log(`DirectTaxesSection - Updating IGS.${field} to:`, value);
         stableHandleStatusChange('igs', field, value);
       });
     }, 100); // Debounce de 100ms
@@ -167,6 +186,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     ];
     
     dateUpdates.forEach(({ field, value }) => {
+      console.log(`DirectTaxesSection - Updating IGS.${field} to:`, value);
       stableHandleStatusChange('igs', field, value);
     });
   }, [localQuarterlyDates, igsStatus, stableHandleStatusChange]);
@@ -176,18 +196,22 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
   }, []);
 
   const handleCAInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('DirectTaxesSection - CA input changed:', e.target.value);
     stableHandleStatusChange('igs', 'caValue', formatNumberWithSpaces(e.target.value));
   }, [stableHandleStatusChange]);
 
   const handleCGAInputChange = useCallback((checked: boolean) => {
+    console.log('DirectTaxesSection - CGA input changed:', checked);
     stableHandleStatusChange('igs', 'isCGA', checked);
   }, [stableHandleStatusChange]);
 
   const handleLocalQuarterlyPaymentChange = useCallback((quarter: string, value: string) => {
+    console.log(`DirectTaxesSection - Quarterly payment ${quarter} changed:`, value);
     setLocalQuarterlyPayments(prev => ({ ...prev, [quarter]: formatNumberWithSpaces(value) }));
   }, []);
 
   const handleLocalQuarterlyDateChange = useCallback((quarter: string, value: string) => {
+    console.log(`DirectTaxesSection - Quarterly date ${quarter} changed:`, value);
     setLocalQuarterlyDates(prev => ({ ...prev, [quarter]: value }));
   }, []);
   
@@ -207,6 +231,8 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     };
   }, []);
 
+  console.log('DirectTaxesSection - Rendering with igsCalculation:', igsCalculation);
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -215,6 +241,8 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
       <CardContent className="space-y-0">
         {taxItems.map(item => {
           const obligation = obligationStatuses[item.key];
+          console.log(`DirectTaxesSection - Rendering ${item.key} with obligation:`, obligation);
+          
           if (!obligation || typeof obligation.assujetti === 'undefined') return null;
 
           // Type guard pour vérifier si c'est une TaxObligationStatus
@@ -240,6 +268,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
                 ...igsCalculation // Utiliser les valeurs calculées stables
               },
             };
+            console.log('DirectTaxesSection - IGS specifics:', igsSpecifics);
           }
 
           return (
