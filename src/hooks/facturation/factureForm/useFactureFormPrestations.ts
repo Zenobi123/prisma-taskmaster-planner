@@ -14,7 +14,7 @@ export const useFactureFormPrestations = () => {
 
   useEffect(() => {
     const total = prestations.reduce((sum, prestation) => {
-      return sum + (prestation.montant ?? (prestation.prix_unitaire * (prestation.quantite || 1)));
+      return sum + prestation.montant;
     }, 0);
     setTotalAmount(total);
   }, [prestations]);
@@ -25,3 +25,4 @@ export const useFactureFormPrestations = () => {
     totalAmount
   };
 };
+

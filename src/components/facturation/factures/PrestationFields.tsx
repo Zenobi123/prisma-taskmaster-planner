@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,21 +21,19 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
 
   const updatePrestation = (index: number, field: keyof Prestation, value: any) => {
     const updatedPrestations = [...prestations];
-    let numericValue = value;
-    if (field === "prix_unitaire" || field === "quantite") {
-      numericValue = Number(value);
-      if (field === "quantite" && numericValue < 1) numericValue = 1;
-      if (field === "prix_unitaire" && numericValue < 0) numericValue = 0;
+    const p = { ...updatedPrestations[index] };
+
+    if (field === 'description') {
+      p.description = value;
+    } else if (field === 'quantite') {
+      p.quantite = Math.max(1, Number(value) || 1);
+    } else if (field === 'prix_unitaire') {
+      p.prix_unitaire = Math.max(0, Number(value) || 0);
     }
-    updatedPrestations[index] = {
-      ...updatedPrestations[index],
-      [field]: numericValue,
-      montant: field === 'quantite' || field === 'prix_unitaire'
-        ? (field === 'quantite'
-            ? numericValue * (updatedPrestations[index].prix_unitaire || 0)
-            : (updatedPrestations[index].quantite || 1) * numericValue)
-        : (updatedPrestations[index].quantite * updatedPrestations[index].prix_unitaire), // recalcule montant
-    };
+    
+    p.montant = p.quantite * p.prix_unitaire;
+    
+    updatedPrestations[index] = p;
     onPrestationsChange(updatedPrestations);
   };
 
