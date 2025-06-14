@@ -1,10 +1,9 @@
-
 export interface Prestation {
   id?: string;
   description: string;
   quantite: number;
   prix_unitaire: number;
-  montant: number; // Obligatoire partout
+  montant: number;
 }
 
 export interface Paiement {
@@ -29,8 +28,8 @@ export interface Facture {
     telephone: string;
     email: string;
   };
-  date: string | Date;
-  echeance: string | Date;
+  date: string; // string uniquement
+  echeance: string; // string uniquement
   montant: number;
   montant_paye?: number;
   status: "brouillon" | "envoyée" | "annulée";

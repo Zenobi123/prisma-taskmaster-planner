@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { formatCurrency, formatDate } from '@/utils/factureUtils';
@@ -19,7 +20,6 @@ interface FactureTableRowProps {
   onDelete: (id: string) => void;
 }
 
-// For usage: export the component as a named export AND default export:
 export const FactureTableRow: React.FC<FactureTableRowProps> = ({ facture, onDelete }) => {
   const { id, client, date, echeance, montant, status_paiement } = facture;
   const clientName = client?.nom || 'N/A';
@@ -72,5 +72,5 @@ export const FactureTableRow: React.FC<FactureTableRowProps> = ({ facture, onDel
     </tr>
   );
 };
-// Export as default for import compatibility
+
 export default FactureTableRow;
