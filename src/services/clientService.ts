@@ -20,7 +20,7 @@ export const getClients = async (includeDeleted: boolean = false): Promise<Clien
       throw error;
     }
 
-    return (data || []) as Client[];
+    return (data || []) as unknown as Client[];
   } catch (error) {
     console.error('Erreur dans getClients:', error);
     throw error;
@@ -40,7 +40,7 @@ export const getDeletedClients = async (): Promise<Client[]> => {
       throw error;
     }
 
-    return (data || []) as Client[];
+    return (data || []) as unknown as Client[];
   } catch (error) {
     console.error('Erreur dans getDeletedClients:', error);
     throw error;
@@ -53,13 +53,13 @@ export const createClient = async (clientData: Omit<Client, 'id' | 'created_at'>
       .from('clients')
       .insert([{
         ...clientData,
-        interactions: clientData.interactions || []
+        interactions: clientData.interactions || [] as any
       }])
       .select()
       .single();
 
     if (error) throw error;
-    return data as Client;
+    return data as unknown as Client;
   } catch (error) {
     console.error('Erreur lors de la création du client:', error);
     throw error;
@@ -70,15 +70,20 @@ export const addClient = createClient; // Alias for backward compatibility
 
 export const updateClient = async (id: string, updates: Partial<Client>): Promise<Client> => {
   try {
+    const updateData = {
+      ...updates,
+      interactions: updates.interactions as any
+    };
+    
     const { data, error } = await supabase
       .from('clients')
-      .update(updates)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return data as Client;
+    return data as unknown as Client;
   } catch (error) {
     console.error('Erreur lors de la mise à jour du client:', error);
     throw error;

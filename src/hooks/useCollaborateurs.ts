@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -17,7 +16,7 @@ export const useCollaborateurs = () => {
   const navigate = useNavigate();
   const userRole = localStorage.getItem("userRole");
 
-  const [newCollaborateur, setNewCollaborateur] = useState<Omit<Collaborateur, 'id' | 'created_at' | 'tachesencours'>>({
+  const [newCollaborateur, setNewCollaborateur] = useState<Omit<Collaborateur, 'id' | 'created_at'>>({
     nom: "",
     prenom: "",
     email: "",
@@ -29,7 +28,8 @@ export const useCollaborateurs = () => {
     statut: "actif",
     ville: "",
     quartier: "",
-    permissions: []
+    permissions: [],
+    tachesencours: 0
   });
 
   const { data: collaborateurs = [], isLoading } = useQuery({
@@ -58,7 +58,8 @@ export const useCollaborateurs = () => {
         statut: "actif",
         ville: "",
         quartier: "",
-        permissions: []
+        permissions: [],
+        tachesencours: 0
       });
     },
     onError: (error) => {

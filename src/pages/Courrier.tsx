@@ -42,6 +42,7 @@ const Courrier: React.FC = () => {
 
   const handleGenerationTypeChange = (type: "individuel" | "masse") => {
     setGenerationType(type);
+    setSelectedClientIds([]);
   };
 
   const selectedTemplate = courrierTemplates.find(t => t.id === selectedTemplateId);
@@ -61,6 +62,32 @@ const Courrier: React.FC = () => {
     }
     return clients.filter(client => selectedClientIds.includes(client.id));
   }, [clients, selectedClientIds, generationType, selectedCriteria]);
+
+  const getClientsForList = useCallback(() => {
+    if (generationType === "masse") {
+      return clients.filter(client => 
+        Object.entries(selectedCriteria).every(([key, value]) => {
+          if (!value) return true;
+          if (key === 'type') return client.type === value;
+          if (key === 'regimeFiscal') return client.regimefiscal === value;
+          if (key === 'secteurActivite') return client.secteuractivite === value;
+          if (key === 'centreRattachement') return client.centrerattachement === value;
+          return true; 
+        })
+      );
+    }
+    // En mode individuel, afficher tous les clients correspondant aux critères pour sélection
+    return clients.filter(client => 
+      Object.entries(selectedCriteria).every(([key, value]) => {
+        if (!value) return true;
+        if (key === 'type') return client.type === value;
+        if (key === 'regimeFiscal') return client.regimefiscal === value;
+        if (key === 'secteurActivite') return client.secteuractivite === value;
+        if (key === 'centreRattachement') return client.centrerattachement === value;
+        return true; 
+      })
+    );
+  }, [clients, generationType, selectedCriteria]);
 
   const handleGeneratePreview = () => {
     if (!selectedTemplate) {
@@ -109,7 +136,8 @@ const Courrier: React.FC = () => {
     }
   };
   
-  const clientsForList = getFilteredClients();
+  const clientsForList = getClientsForList();
+  const finalClients = getFilteredClients();
 
   return (
     <PageLayout>
@@ -140,16 +168,19 @@ const Courrier: React.FC = () => {
 
             {/* Zone principale */}
             <div className="lg:col-span-3 space-y-6">
-              {/* Liste des clients sélectionnés */}
+              {/* Liste des clients */}
               <Card className="shadow-sm border border-gray-200 bg-white">
                 <CardHeader className="pb-3 border-b border-gray-100">
                   <CardTitle className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-gray-800">
                       <Users className="w-5 h-5 text-[#84A98C]" />
-                      Clients sélectionnés
+                      {generationType === "individuel" ? "Sélectionner les clients" : "Clients correspondants"}
                     </div>
                     <Badge variant="secondary" className="bg-[#84A98C] text-white">
-                      {clientsForList.length} client{clientsForList.length > 1 ? 's' : ''}
+                      {generationType === "individuel" 
+                        ? `${selectedClientIds.length}/${clientsForList.length} sélectionné${selectedClientIds.length > 1 ? 's' : ''}`
+                        : `${finalClients.length} client${finalClients.length > 1 ? 's' : ''}`
+                      }
                     </Badge>
                   </CardTitle>
                 </CardHeader>
@@ -160,6 +191,7 @@ const Courrier: React.FC = () => {
                     onSelectionChange={handleClientSelectionChange}
                     isLoading={isLoadingClients}
                     selectedCriteria={selectedCriteria}
+                    generationType={generationType}
                   />
                 </CardContent>
               </Card>
@@ -214,7 +246,7 @@ const Courrier: React.FC = () => {
                       onClick={handleGeneratePreview} 
                       variant="outline" 
                       className="flex-1 border-[#84A98C] text-[#84A98C] hover:bg-[#84A98C] hover:text-white"
-                      disabled={!selectedTemplate || clientsForList.length === 0}
+                      disabled={!selectedTemplate || finalClients.length === 0}
                     >
                       <Eye className="w-4 h-4 mr-2" />
                       Prévisualiser
@@ -222,7 +254,7 @@ const Courrier: React.FC = () => {
                     <Button 
                       onClick={handleSendCourrier} 
                       className="flex-1 bg-[#84A98C] hover:bg-[#6B8E74] text-white"
-                      disabled={!selectedTemplate || clientsForList.length === 0 || isSending}
+                      disabled={!selectedTemplate || finalClients.length === 0 || isSending}
                     >
                       <Send className="w-4 h-4 mr-2" />
                       {isSending ? "Envoi en cours..." : "Envoyer le Courrier"}
