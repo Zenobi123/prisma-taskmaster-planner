@@ -6,23 +6,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { CreateFactureForm } from "./CreateFactureForm"; // Corrected path
+import CreateFactureForm from "./CreateFactureForm";
 import { Facture } from "@/types/facture";
 
 interface EditFactureDialogProps {
   facture: Facture | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSuccess: (updatedFactureId: string) => void; // Propagate success event
+  onSuccess: (updatedFactureId: string) => void;
 }
 
 const EditFactureDialog = ({ facture, open, onOpenChange, onSuccess }: EditFactureDialogProps) => {
   if (!facture) return null;
   
   const handleSuccess = (updatedFactureId: Facture | string) => {
-    // Assuming onSuccess from parent expects the ID or the full object
     onSuccess(typeof updatedFactureId === 'string' ? updatedFactureId : updatedFactureId.id);
-    onOpenChange(false); // Close dialog on success
+    onOpenChange(false);
   };
 
   const handleCancel = () => {
@@ -39,10 +38,9 @@ const EditFactureDialog = ({ facture, open, onOpenChange, onSuccess }: EditFactu
           </DialogDescription>
         </DialogHeader>
         <CreateFactureForm 
-          onSuccess={handleSuccess}
-          onCancel={handleCancel}
-          editMode={true}
-          factureToEdit={facture}
+          open={open}
+          onOpenChange={onOpenChange}
+          onFactureCreated={() => handleSuccess(facture.id)}
         />
       </DialogContent>
     </Dialog>

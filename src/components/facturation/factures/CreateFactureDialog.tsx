@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { CreateFactureForm } from "./CreateFactureForm"; // Corrected path
+import CreateFactureForm from "./CreateFactureForm";
 import { Facture } from "@/types/facture";
 
 const CreateFactureDialog = () => {
@@ -41,9 +41,9 @@ const CreateFactureDialog = () => {
           </DialogDescription>
         </DialogHeader>
         <CreateFactureForm 
-          onSuccess={handleSuccess} 
-          onCancel={handleCancel}
-          editMode={false} // Explicitly set editMode to false for creation
+          open={open}
+          onOpenChange={setOpen}
+          onFactureCreated={() => console.log("Facture créée")}
         />
       </DialogContent>
     </Dialog>

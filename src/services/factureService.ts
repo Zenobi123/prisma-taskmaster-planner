@@ -3,7 +3,7 @@ import { Facture } from "@/types/facture";
 import { Client } from "@/types/client";
 import { getFacturesData } from "./factureDataService";
 import { formatClientsForSelector } from "./factureFormatService";
-import { addFactureToDatabase } from "./factureCreationService";
+import { factureCreationService } from "./factureCreationService";
 import { getNextFactureNumber } from "./factureServices/factureNumberService";
 import { deleteFactureFromDatabase } from "./factureServices/factureDeleteService";
 import { updateFactureInDatabase } from "./factureServices/factureUpdateService";
@@ -11,7 +11,7 @@ import { updateFactureInDatabase } from "./factureServices/factureUpdateService"
 // Re-export functions for backward compatibility
 export const getFactures = getFacturesData;
 export { formatClientsForSelector };
-export { addFactureToDatabase };
+export const addFactureToDatabase = factureCreationService.createFacture;
 export { getNextFactureNumber };
 export { deleteFactureFromDatabase };
 export { updateFactureInDatabase };

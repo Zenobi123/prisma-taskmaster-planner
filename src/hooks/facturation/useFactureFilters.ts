@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+
+import { useState, useMemo } from 'react';
 import { Facture } from '@/types/facture';
 
 interface DateRange {
@@ -10,6 +11,7 @@ export const useFactureFilters = (factures: Facture[]) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<string | null>(null);
+  const [clientFilter, setClientFilter] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });
 
   const filteredFactures = useMemo(() => {
@@ -20,8 +22,8 @@ export const useFactureFilters = (factures: Facture[]) => {
         facture.id.toLowerCase().includes(searchLower);
 
       const matchesStatus = !statusFilter || facture.status === statusFilter;
-
       const matchesPaymentStatus = !paymentStatusFilter || facture.status_paiement === paymentStatusFilter;
+      const matchesClient = !clientFilter || facture.client_id === clientFilter;
 
       let matchesDateRange = true;
       if (dateRange?.from) {
@@ -35,19 +37,21 @@ export const useFactureFilters = (factures: Facture[]) => {
         matchesDateRange = factureDate <= toDate;
       }
 
-      return matchesSearch && matchesStatus && matchesPaymentStatus && matchesDateRange;
+      return matchesSearch && matchesStatus && matchesPaymentStatus && matchesClient && matchesDateRange;
     });
-  }, [factures, searchTerm, statusFilter, paymentStatusFilter, dateRange]);
+  }, [factures, searchTerm, statusFilter, paymentStatusFilter, clientFilter, dateRange]);
 
   return {
     searchTerm,
     setSearchTerm,
     statusFilter,
     setStatusFilter,
-    paymentStatusFilter,
-    setPaymentStatusFilter,
-    dateRange,
-    setDateRange,
+    statusPaiementFilter: paymentStatusFilter,
+    setStatusPaiementFilter: setPaymentStatusFilter,
+    clientFilter,
+    setClientFilter,
+    dateFilter: dateRange,
+    setDateFilter: setDateRange,
     filteredFactures,
   };
 };

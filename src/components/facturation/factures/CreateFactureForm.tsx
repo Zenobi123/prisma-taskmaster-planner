@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -11,12 +12,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-import { ClientSelector } from './ClientSelector';
-import { DatePickerField } from './DatePickerField';
-import { StatusSelector } from './StatusSelector';
-import { ModePaiementSelector } from './ModePaiementSelector';
-import { PrestationFields } from './PrestationFields';
-import { TotalAmountDisplay } from './TotalAmountDisplay';
+import ClientSelector from './ClientSelector';
+import DatePickerField from './DatePickerField';
+import StatusSelector from './StatusSelector';
+import ModePaiementSelector from './ModePaiementSelector';
+import PrestationFields from './PrestationFields';
+import TotalAmountDisplay from './TotalAmountDisplay';
 
 import { Prestation } from '@/types/facture';
 import { useFactureFormSubmit } from '@/hooks/facturation/factureForm/useFactureFormSubmit';
@@ -80,6 +81,8 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated }: CreateFactu
     setPrestations(prev => [...prev, { description: '', quantite: 1, prix_unitaire: 0, montant: 0 }]);
   };
 
+  const totalAmount = prestations.reduce((sum, p) => sum + p.montant, 0);
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -92,8 +95,9 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated }: CreateFactu
             <div className="space-y-2">
               <Label htmlFor="client_id">Client *</Label>
               <ClientSelector
-                selectedClientId={selectedClientId}
-                onClientChange={handleClientChange}
+                clients={[]}
+                value={selectedClientId}
+                onChange={handleClientChange}
                 error={errors.client_id?.message}
               />
             </div>
@@ -101,18 +105,18 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated }: CreateFactu
             <div className="space-y-2">
               <Label htmlFor="date">Date de facturation *</Label>
               <DatePickerField
-                value={watchDate}
-                onChange={(date) => setValue('date', date)}
-                error={errors.date?.message}
+                label="Date"
+                date={watchDate}
+                onSelect={(date) => setValue('date', date)}
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="echeance">Date d'échéance *</Label>
               <DatePickerField
-                value={watchEcheance}
-                onChange={(date) => setValue('echeance', date)}
-                error={errors.echeance?.message}
+                label="Échéance"
+                date={watchEcheance}
+                onSelect={(date) => setValue('echeance', date)}
               />
             </div>
 
@@ -121,16 +125,15 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated }: CreateFactu
               <StatusSelector
                 value={watchStatus}
                 onChange={(status) => setValue('status', status)}
-                error={errors.status?.message}
+                type="document"
               />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="mode">Mode de paiement</Label>
               <ModePaiementSelector
-                value={watchMode}
+                value={watchMode || ''}
                 onChange={(mode) => setValue('mode', mode)}
-                error={errors.mode?.message}
               />
             </div>
           </div>
@@ -152,7 +155,6 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated }: CreateFactu
             <PrestationFields
               prestations={prestations}
               onPrestationsChange={setPrestations}
-              errors={errors.prestations}
             />
           </div>
 
@@ -165,7 +167,7 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated }: CreateFactu
             />
           </div>
 
-          <TotalAmountDisplay prestations={prestations} />
+          <TotalAmountDisplay amount={totalAmount} />
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

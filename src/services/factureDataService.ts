@@ -111,7 +111,7 @@ const buildCompleteFacture = (facture: any, client: any, prestationsData: any[],
     montant_paye: facture.montant_paye || 0,
     status: facture.status,
     status_paiement,
-    mode_paiement: facture.mode_paiement,
+    mode: facture.mode || facture.mode_paiement,
     prestations: prestationsData || [],
     paiements: paiementsData || [],
     notes: facture.notes,
@@ -192,8 +192,15 @@ export const getFactures = async (): Promise<Facture[]> => {
       status_paiement: facture.status_paiement || 'non_payée',
       prestations: facture.prestations || [],
       montant_paye: facture.montant_paye || 0,
-      mode: facture.mode || '',
-      notes: facture.notes || ''
+      mode: facture.mode || facture.mode_paiement || '',
+      notes: facture.notes || '',
+      client: facture.client ? {
+        id: facture.client.id,
+        nom: facture.client.type === "physique" ? facture.client.nom || "" : facture.client.raisonsociale || "",
+        adresse: typeof facture.client.adresse === 'object' && facture.client.adresse && 'ville' in facture.client.adresse ? String(facture.client.adresse.ville) : "",
+        telephone: typeof facture.client.contact === 'object' && facture.client.contact && 'telephone' in facture.client.contact ? String(facture.client.contact.telephone) : "",
+        email: typeof facture.client.contact === 'object' && facture.client.contact && 'email' in facture.client.contact ? String(facture.client.contact.email) : ""
+      } : undefined
     }));
   } catch (error) {
     console.error('Erreur lors de la récupération des factures:', error);

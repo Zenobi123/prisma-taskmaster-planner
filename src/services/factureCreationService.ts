@@ -1,5 +1,6 @@
+
 import { Facture } from "@/types/facture";
-import { supabase } from "@/utils/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 interface FactureFormData {
   client_id: string;

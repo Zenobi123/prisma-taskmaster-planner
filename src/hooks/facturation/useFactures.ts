@@ -26,8 +26,9 @@ export const useFactures = () => {
     clientFilter, 
     setClientFilter,
     dateFilter, 
-    setDateFilter
-  } = useFactureFilters();
+    setDateFilter,
+    filteredFactures
+  } = useFactureFilters(factures);
   
   // Sorting states and handlers
   const { 
@@ -57,23 +58,32 @@ export const useFactures = () => {
     handleEditFacture
   } = useFactureDialog();
   
-  // State for storing filtered and sorted factures
-  const [filteredFactures, setFilteredFactures] = useState<Facture[]>([]);
-  
-  // Apply filters and sorting
-  useEffect(() => {
-    const filtered = useFactureFilters.applyFilters(
-      factures,
-      searchTerm,
-      statusFilter,
-      statusPaiementFilter,
-      clientFilter,
-      dateFilter
-    );
-    
-    const sorted = useFactureSorting.sortFactures(filtered, sortKey, sortDirection);
-    setFilteredFactures(sorted);
-  }, [factures, searchTerm, statusFilter, statusPaiementFilter, clientFilter, dateFilter, sortKey, sortDirection]);
+  // Apply sorting to filtered factures
+  const sortedFactures = useMemo(() => {
+    const sorted = [...filteredFactures].sort((a, b) => {
+      const getValue = (item: Facture, key: string) => {
+        switch (key) {
+          case 'date':
+          case 'echeance':
+            return new Date(item[key as keyof Facture] as string).getTime();
+          case 'client':
+            return item.client?.nom || '';
+          case 'montant':
+            return item.montant;
+          default:
+            return String(item[key as keyof Facture] || '');
+        }
+      };
+
+      const aValue = getValue(a, sortKey);
+      const bValue = getValue(b, sortKey);
+
+      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [filteredFactures, sortKey, sortDirection]);
   
   // Pagination
   const { 
@@ -82,7 +92,7 @@ export const useFactures = () => {
     itemsPerPage,
     totalPages,
     paginatedFactures
-  } = useFacturePagination(filteredFactures);
+  } = useFacturePagination(sortedFactures);
   
   // Reset to first page when filters change
   useEffect(() => {
@@ -94,7 +104,7 @@ export const useFactures = () => {
     setSearchTerm,
     factures,
     paginatedFactures,
-    filteredAndSortedFactures: filteredFactures,
+    filteredAndSortedFactures: sortedFactures,
     allClients,
     handleVoirFacture,
     handleTelechargerFacture,
@@ -130,5 +140,4 @@ export const useFactures = () => {
   };
 };
 
-// Re-export for backward compatibility
 export { useFactures as default };
