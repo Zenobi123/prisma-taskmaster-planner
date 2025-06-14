@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, BarChart, Calendar, FileBarChart, Users, DollarSign, FileText, Clock, TrendingUp, Building, User } from "lucide-react";
@@ -45,7 +44,8 @@ import {
   generatePersonnesPhysiquesReport,
   generateClientsParCentreReport,
   generateClientsAssujettisIGSReport,
-  generateClientsAssujettsPatenteReport
+  generateClientsAssujettsPatenteReport,
+  generateClientsRegimeReelReport
 } from "@/utils/reports/specificClientReports";
 
 const Rapports = () => {
@@ -168,6 +168,16 @@ const Rapports = () => {
       icon: FileBarChart,
       description: "Liste des clients assujettis à la Patente (activités commerciales/industrielles)",
       generator: generateClientsAssujettsPatenteReport
+    },
+    {
+      id: 21,
+      titre: "Clients Assujettis au Régime du Réel",
+      date: new Date().toLocaleDateString(),
+      type: "clients",
+      taille: "1.0 MB",
+      icon: FileText,
+      description: "Liste des clients soumis au régime fiscal du réel",
+      generator: generateClientsRegimeReelReport
     },
 
     // Rapports fiscaux

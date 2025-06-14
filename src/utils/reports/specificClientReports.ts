@@ -316,3 +316,54 @@ export const generateClientsAssujettsPatenteReport = async () => {
     throw new Error(`Impossible de générer le rapport Patente: ${error.message}`);
   }
 };
+
+export const generateClientsRegimeReelReport = async () => {
+  try {
+    console.log('Génération du rapport des clients au régime du réel...');
+    const data = await ReportDataService.getAllReportData();
+    
+    if (!data || !data.clients) {
+      throw new Error('Aucune donnée client disponible');
+    }
+    
+    // Filtrer les clients au régime du réel
+    const clientsRegimeReel = data.clients.filter(client => client.regimefiscal === 'reel');
+    
+    const doc = new jsPDF();
+    
+    doc.setFontSize(18);
+    doc.text('Rapport - Clients Assujettis au Régime du Réel', 14, 22);
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 14, 30);
+    doc.text(`Total: ${clientsRegimeReel.length} clients`, 14, 36);
+    doc.text('Critère: Clients avec régime fiscal = RÉEL', 14, 42);
+    
+    if (clientsRegimeReel.length === 0) {
+      doc.setFontSize(12);
+      doc.text('Aucun client au régime du réel trouvé.', 14, 55);
+    } else {
+      const clientsData = clientsRegimeReel.map((client: any) => [
+        client.nom || client.raisonsociale || 'Sans nom',
+        client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
+        formatPropertyValue(client.formejuridique),
+        client.niu || 'Non renseigné',
+        client.centrerattachement || 'Non renseigné',
+        formatPropertyValue(client.secteuractivite)
+      ]);
+      
+      autoTable(doc, {
+        startY: 50,
+        head: [['Nom/Raison Sociale', 'Type', 'Forme Juridique', 'NIU', 'Centre', 'Secteur d\'Activité']],
+        body: clientsData,
+        theme: 'grid',
+        styles: { fontSize: 8 }
+      });
+    }
+    
+    doc.save(`clients-regime-reel-${new Date().toISOString().slice(0, 10)}.pdf`);
+    console.log('Rapport généré avec succès');
+  } catch (error) {
+    console.error('Erreur lors de la génération du rapport:', error);
+    throw new Error(`Impossible de générer le rapport des clients au régime du réel: ${error.message}`);
+  }
+};
