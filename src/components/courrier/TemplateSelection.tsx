@@ -2,10 +2,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileText, Calendar, AlertTriangle, Award } from "lucide-react";
+import { Template } from "@/utils/courrierTemplates";
 
 interface TemplateSelectionProps {
-  selectedTemplate: string;
-  onTemplateChange: (template: string) => void;
+  selectedTemplateId: string;
+  onTemplateChange: (templateId: string) => void;
+  selectedTemplate?: Template;
 }
 
 const templates = [
@@ -39,7 +41,7 @@ const templates = [
   }
 ];
 
-export const TemplateSelection = ({ selectedTemplate, onTemplateChange }: TemplateSelectionProps) => {
+const TemplateSelection = ({ selectedTemplateId, onTemplateChange }: TemplateSelectionProps) => {
   return (
     <Card>
       <CardHeader>
@@ -55,7 +57,7 @@ export const TemplateSelection = ({ selectedTemplate, onTemplateChange }: Templa
             return (
               <Button
                 key={template.id}
-                variant={selectedTemplate === template.id ? "default" : "outline"}
+                variant={selectedTemplateId === template.id ? "default" : "outline"}
                 className="h-auto p-4 justify-start"
                 onClick={() => onTemplateChange(template.id)}
               >
@@ -78,3 +80,5 @@ export const TemplateSelection = ({ selectedTemplate, onTemplateChange }: Templa
     </Card>
   );
 };
+
+export default TemplateSelection;

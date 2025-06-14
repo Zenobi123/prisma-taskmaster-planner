@@ -2,8 +2,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
 import { getCollaborateurs } from "@/services/collaborateurService";
+import { Criteria } from "@/components/courrier/CriteriaSelection";
 
-export const useCourrierData = () => {
+export const useCourrierData = (selectedCriteria?: Criteria) => {
   const {
     data: clients = [],
     isLoading: isLoadingClients,

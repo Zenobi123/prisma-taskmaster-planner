@@ -4,13 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
-import { courrierTemplates, Template } from "@/utils/courrierTemplates";
-import { generateCourrierContent } from "@/services/factureFormatService"; // Assuming this service exists
-import { useCourrierData } from "@/hooks/useCourrierData"; // Assuming this hook manages data fetching
-import { PageLayout } from "@/components/layout/PageLayout";
-import { CourrierHeader } from "@/components/courrier/CourrierHeader";
+import { courrierTemplates, Template, generateCourrierContent } from "@/utils/courrierTemplates";
+import { useCourrierData } from "@/hooks/useCourrierData";
+import PageLayout from "@/components/layout/PageLayout";
+import CourrierHeader from "@/components/courrier/CourrierHeader";
 import CriteriaSelection, { Criteria } from "@/components/courrier/CriteriaSelection";
 import ClientsList from "@/components/courrier/ClientsList";
 import TemplateSelection from "@/components/courrier/TemplateSelection";
@@ -28,7 +26,7 @@ const Courrier: React.FC = () => {
 
   const handleCriteriaChange = (criteria: Criteria) => {
     setSelectedCriteria(criteria);
-    setSelectedClientIds([]); // Reset client selection when criteria change
+    setSelectedClientIds([]);
   };
 
   const handleClientSelectionChange = (ids: string[]) => {
@@ -46,16 +44,16 @@ const Courrier: React.FC = () => {
       return clients.filter(client => 
         Object.entries(selectedCriteria).every(([key, value]) => {
           if (!value) return true;
-          // Add more complex filtering logic based on client properties and criteria
-          // For now, simple match or default to true if criteria not directly applicable
-          if (key === 'status') return (client as any).status === value; // Example
+          if (key === 'type') return client.type === value;
+          if (key === 'regimeFiscal') return client.regimefiscal === value;
+          if (key === 'secteurActivite') return client.secteuractivite === value;
+          if (key === 'centreRattachement') return client.centrerattachement === value;
           return true; 
         })
       );
     }
     return clients.filter(client => selectedClientIds.includes(client.id));
   }, [clients, selectedClientIds, generationType, selectedCriteria]);
-
 
   const handleGeneratePreview = () => {
     if (!selectedTemplate) {
@@ -85,44 +83,45 @@ const Courrier: React.FC = () => {
     for (const client of finalClients) {
       try {
         const content = generateCourrierContent(client, selectedTemplate, customMessage);
-        // Simulate sending courrier (e.g., save to DB, call an email API)
         console.log(`Courrier pour ${client.nom || client.raisonsociale}:`, content);
-        // Example: await supabase.from('courriers_envoyes').insert({ client_id: client.id, template_id: selectedTemplate.id, content, custom_message: customMessage });
-        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate async operation
+        await new Promise(resolve => setTimeout(resolve, 500));
       } catch (error) {
         toast.error(`Erreur lors de l'envoi du courrier à ${client.nom || client.raisonsociale}.`);
         console.error("Courrier send error for client:", client.id, error);
       }
     }
     toast.success("Courriers envoyés avec succès !");
-    setIsPreviewOpen(false); // Close preview if open
-    setCustomMessage(""); // Reset custom message
+    setIsPreviewOpen(false);
+    setCustomMessage("");
   };
   
-  const clientsForList = clients; // Or apply some initial filtering if needed
+  const clientsForList = getFilteredClients();
 
   return (
     <PageLayout>
-      <CourrierHeader title="Gestion des Courriers" />
+      <CourrierHeader />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4">
-        {/* Colonne de gauche: Critères et Sélection de Clients */}
         <div className="md:col-span-1 space-y-6">
-          <CriteriaSelection selectedCriteria={selectedCriteria} onCriteriaChange={handleCriteriaChange} />
+          <CriteriaSelection 
+            selectedCriteria={selectedCriteria} 
+            onCriteriaChange={handleCriteriaChange}
+            generationType={generationType}
+            onGenerationTypeChange={setGenerationType}
+          />
           <ClientsList 
             clients={clientsForList} 
             selectedClientIds={selectedClientIds} 
             onSelectionChange={handleClientSelectionChange}
-            isLoading={isLoadingClients} // Added isLoading
-            selectedCriteria={selectedCriteria} // Added selectedCriteria
+            isLoading={isLoadingClients}
+            selectedCriteria={selectedCriteria}
           />
           <TemplateSelection 
             selectedTemplateId={selectedTemplateId} 
             onTemplateChange={handleTemplateChange}
-            selectedTemplate={selectedTemplate} // Added selectedTemplate
+            selectedTemplate={selectedTemplate}
           />
         </div>
 
-        {/* Colonne de droite: Message Personnalisé et Actions */}
         <div className="md:col-span-2 space-y-6">
           <div>
             <label htmlFor="customMessage" className="block text-sm font-medium text-gray-700 mb-1">
@@ -136,21 +135,6 @@ const Courrier: React.FC = () => {
               rows={4}
               className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
             />
-          </div>
-
-          <div>
-            <label htmlFor="generationType" className="block text-sm font-medium text-gray-700 mb-1">
-              Type de génération
-            </label>
-            <Select value={generationType} onValueChange={(value: "individuel" | "masse") => setGenerationType(value)}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Sélectionner le type de génération" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="individuel">Individuel (pour les clients sélectionnés)</SelectItem>
-                <SelectItem value="masse">En masse (selon les critères)</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
 
           <div className="flex space-x-3">
@@ -170,7 +154,7 @@ const Courrier: React.FC = () => {
           onOpenChange={setIsPreviewOpen}
           clients={getFilteredClients()}
           templateId={selectedTemplateId}
-          template={selectedTemplate} // Added template
+          template={selectedTemplate}
           customMessage={customMessage}
           generationType={generationType}
           onConfirmSend={handleSendCourrier}
@@ -182,4 +166,3 @@ const Courrier: React.FC = () => {
 };
 
 export default Courrier;
-

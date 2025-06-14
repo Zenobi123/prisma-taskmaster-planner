@@ -5,23 +5,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Filter } from "lucide-react";
 
-interface CriteriaSelectionProps {
-  selectedCriteria: {
-    type: string;
-    regimeFiscal: string;
-    secteurActivite: string;
-    centreRattachement: string;
-    statut: string;
-  };
-  onCriteriaChange: (criteria: any) => void;
-  generationType: string;
-  onGenerationTypeChange: (type: string) => void;
+export interface Criteria {
+  type?: string;
+  regimeFiscal?: string;
+  secteurActivite?: string;
+  centreRattachement?: string;
+  statut?: string;
 }
 
-export const CriteriaSelection = ({
+interface CriteriaSelectionProps {
+  selectedCriteria: Criteria;
+  onCriteriaChange: (criteria: Criteria) => void;
+  generationType?: string;
+  onGenerationTypeChange?: (type: string) => void;
+}
+
+const CriteriaSelection = ({
   selectedCriteria,
   onCriteriaChange,
-  generationType,
+  generationType = "individuel",
   onGenerationTypeChange
 }: CriteriaSelectionProps) => {
   const handleCriteriaChange = (field: string, value: string) => {
@@ -44,7 +46,7 @@ export const CriteriaSelection = ({
           <div className="space-y-2">
             <Label htmlFor="type">Type de client</Label>
             <Select
-              value={selectedCriteria.type}
+              value={selectedCriteria.type || ""}
               onValueChange={(value) => handleCriteriaChange("type", value)}
             >
               <SelectTrigger>
@@ -60,7 +62,7 @@ export const CriteriaSelection = ({
           <div className="space-y-2">
             <Label htmlFor="regime">Régime fiscal</Label>
             <Select
-              value={selectedCriteria.regimeFiscal}
+              value={selectedCriteria.regimeFiscal || ""}
               onValueChange={(value) => handleCriteriaChange("regimeFiscal", value)}
             >
               <SelectTrigger>
@@ -77,7 +79,7 @@ export const CriteriaSelection = ({
           <div className="space-y-2">
             <Label htmlFor="secteur">Secteur d'activité</Label>
             <Select
-              value={selectedCriteria.secteurActivite}
+              value={selectedCriteria.secteurActivite || ""}
               onValueChange={(value) => handleCriteriaChange("secteurActivite", value)}
             >
               <SelectTrigger>
@@ -99,7 +101,7 @@ export const CriteriaSelection = ({
           <div className="space-y-2">
             <Label htmlFor="centre">Centre de rattachement</Label>
             <Select
-              value={selectedCriteria.centreRattachement}
+              value={selectedCriteria.centreRattachement || ""}
               onValueChange={(value) => handleCriteriaChange("centreRattachement", value)}
             >
               <SelectTrigger>
@@ -115,20 +117,24 @@ export const CriteriaSelection = ({
           </div>
         </div>
 
-        <div className="space-y-3">
-          <Label>Type de génération</Label>
-          <RadioGroup value={generationType} onValueChange={onGenerationTypeChange}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="publipostage" id="publipostage" />
-              <Label htmlFor="publipostage">Publipostage (tous les clients sélectionnés)</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="individuel" id="individuel" />
-              <Label htmlFor="individuel">Courriers individuels</Label>
-            </div>
-          </RadioGroup>
-        </div>
+        {onGenerationTypeChange && (
+          <div className="space-y-3">
+            <Label>Type de génération</Label>
+            <RadioGroup value={generationType} onValueChange={onGenerationTypeChange}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="publipostage" id="publipostage" />
+                <Label htmlFor="publipostage">Publipostage (tous les clients sélectionnés)</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="individuel" id="individuel" />
+                <Label htmlFor="individuel">Courriers individuels</Label>
+              </div>
+            </RadioGroup>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
 };
+
+export default CriteriaSelection;

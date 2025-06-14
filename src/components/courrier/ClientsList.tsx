@@ -3,14 +3,23 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Users, Loader2 } from "lucide-react";
 import { Client } from "@/types/client";
+import { Criteria } from "./CriteriaSelection";
 
 interface ClientsListProps {
   clients: Client[];
+  selectedClientIds: string[];
+  onSelectionChange: (ids: string[]) => void;
   isLoading: boolean;
-  selectedCriteria: any;
+  selectedCriteria: Criteria;
 }
 
-export const ClientsList = ({ clients, isLoading, selectedCriteria }: ClientsListProps) => {
+const ClientsList = ({ 
+  clients, 
+  selectedClientIds, 
+  onSelectionChange, 
+  isLoading, 
+  selectedCriteria 
+}: ClientsListProps) => {
   const hasActiveCriteria = Object.values(selectedCriteria).some(value => value && value !== "actif");
 
   return (
@@ -70,3 +79,5 @@ export const ClientsList = ({ clients, isLoading, selectedCriteria }: ClientsLis
     </Card>
   );
 };
+
+export default ClientsList;

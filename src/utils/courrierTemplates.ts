@@ -1,6 +1,12 @@
 
 import { Client } from "@/types/client";
 
+export interface Template {
+  id: string;
+  title: string;
+  content: string;
+}
+
 const templates = {
   rappel_obligations: `PRISMA GESTION
 Cabinet d'Expertise Comptable
@@ -97,6 +103,13 @@ Très cordialement,
 L'équipe PRISMA GESTION`
 };
 
+export const courrierTemplates: Template[] = [
+  { id: "rappel_obligations", title: "Rappel d'obligations fiscales", content: templates.rappel_obligations },
+  { id: "convocation_rdv", title: "Convocation rendez-vous", content: templates.convocation_rdv },
+  { id: "nouvelle_reglementation", title: "Nouvelle réglementation", content: templates.nouvelle_reglementation },
+  { id: "felicitations_creation", title: "Félicitations création", content: templates.felicitations_creation }
+];
+
 export const getTemplateContent = (templateId: string): string => {
   return templates[templateId as keyof typeof templates] || '';
 };
@@ -112,4 +125,14 @@ export const replaceVariables = (template: string, client: Client): string => {
     .replace(/\[CENTRE_IMPOTS\]/g, client.centrerattachement)
     .replace(/\[SECTEUR_ACTIVITE\]/g, client.secteuractivite)
     .replace(/\[DATE\]/g, new Date().toLocaleDateString('fr-FR'));
+};
+
+export const generateCourrierContent = (client: Client, template: Template, customMessage: string = ""): string => {
+  let content = replaceVariables(template.content, client);
+  
+  if (customMessage) {
+    content += "\n\nMessage personnalisé :\n" + customMessage;
+  }
+  
+  return content;
 };

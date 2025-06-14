@@ -4,32 +4,38 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Eye } from "lucide-react";
 import { Client } from "@/types/client";
-import { getTemplateContent, replaceVariables } from "@/utils/courrierTemplates";
+import { Template, getTemplateContent, replaceVariables } from "@/utils/courrierTemplates";
 
 interface PreviewDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  template: string;
   clients: Client[];
+  templateId: string;
+  template: Template;
+  customMessage: string;
   generationType: string;
+  onConfirmSend: () => void;
 }
 
-export const PreviewDialog = ({
+const PreviewDialog = ({
   open,
   onOpenChange,
-  template,
   clients,
-  generationType
+  templateId,
+  template,
+  customMessage,
+  generationType,
+  onConfirmSend
 }: PreviewDialogProps) => {
   if (!template || clients.length === 0) return null;
 
-  const templateContent = getTemplateContent(template);
+  const templateContent = getTemplateContent(templateId);
   const previewClient = clients[0];
   const previewContent = replaceVariables(templateContent, previewClient);
 
   const handleDownload = () => {
-    // Ici on pourrait implémenter la génération PDF
     console.log("Génération des courriers...");
+    onConfirmSend();
   };
 
   return (
@@ -52,6 +58,12 @@ export const PreviewDialog = ({
 
         <div className="border rounded-lg p-6 bg-white overflow-y-auto max-h-96">
           <div className="whitespace-pre-line">{previewContent}</div>
+          {customMessage && (
+            <div className="mt-4 p-4 bg-blue-50 rounded-lg">
+              <h4 className="font-medium text-blue-900 mb-2">Message personnalisé :</h4>
+              <div className="text-blue-800">{customMessage}</div>
+            </div>
+          )}
         </div>
 
         <DialogFooter className="flex justify-between">
@@ -72,3 +84,5 @@ export const PreviewDialog = ({
     </Dialog>
   );
 };
+
+export default PreviewDialog;

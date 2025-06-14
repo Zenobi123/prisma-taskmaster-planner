@@ -1,3 +1,4 @@
+
 export interface Prestation {
   id?: string;
   description: string;
@@ -27,8 +28,8 @@ export interface Facture {
     telephone: string;
     email: string;
   };
-  date: string; // string uniquement
-  echeance: string; // string uniquement
+  date: string;
+  echeance: string;
   montant: number;
   montant_paye?: number;
   status: "brouillon" | "envoyée" | "annulée";

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,14 +19,13 @@ import { Client } from "@/types/client";
 import { toast } from "sonner";
 import { formatDate } from "@/utils/factureUtils";
 
-// Define Zod validation schema for Facture
 const validationSchema = z.object({
   client_id: z.string().min(1, "Client requis"),
   date: z.date({ required_error: "Date requise" }),
   echeance: z.date({ required_error: "Échéance requise" }),
   status: z.enum(["brouillon", "envoyée", "annulée"], { errorMap: () => ({ message: "Statut requis" }) }),
   status_paiement: z.enum(["non_payée", "partiellement_payée", "payée", "en_retard"], { errorMap: () => ({ message: "Statut de paiement requis" }) }),
-  mode_paiement: z.string().optional(),
+  mode: z.string().optional(),
   notes: z.string().optional(),
   prestations: z.array(
     z.object({
@@ -70,7 +70,7 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
     watch,
     formState: { errors },
     reset,
-  } = useForm<Facture>({
+  } = useForm<any>({
     resolver: zodResolver(validationSchema),
     defaultValues: editMode && factureToEdit ? {
       ...factureToEdit,
@@ -81,13 +81,12 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
       prestations: [defaultPrestation],
       status: "brouillon",
       status_paiement: "non_payée",
-      mode_paiement: "Espèces",
+      mode: "Espèces",
       date: new Date(),
       echeance: new Date(new Date().setDate(new Date().getDate() + 30)),
     },
   });
 
-  // Initialize form with factureToEdit data when it changes
   useEffect(() => {
     if (editMode && factureToEdit) {
       reset({
@@ -114,9 +113,8 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
     setValue("prestations", prestations, { shouldValidate: true });
   }, [prestations, setValue]);
 
-  const onSubmitHandler = async (data: Facture) => {
+  const onSubmitHandler = async (data: any) => {
     try {
-      // Always use string as output for date/echeance
       const toDateString = (dateVal: string | Date) =>
         typeof dateVal === "string"
           ? dateVal
@@ -137,7 +135,6 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
 
       console.log('Submitting facture data:', formattedData);
       
-      // Simuler la création/modification de facture
       if (editMode && factureToEdit) {
         toast.success("Facture modifiée avec succès !");
         onSuccess(factureToEdit.id);
@@ -204,13 +201,13 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
       {errors.status_paiement && <p className="text-red-500 text-sm">{errors.status_paiement.message}</p>}
 
       <Controller
-        name="mode_paiement"
+        name="mode"
         control={control}
         render={({ field }) => (
             <ModePaiementSelector value={field.value || ""} onChange={field.onChange} />
         )}
       />
-      {errors.mode_paiement && <p className="text-red-500 text-sm">{errors.mode_paiement.message}</p>}
+      {errors.mode && <p className="text-red-500 text-sm">{errors.mode.message}</p>}
 
       <PrestationFields prestations={prestations} onPrestationsChange={setPrestations} />
       {errors.prestations && <p className="text-red-500 text-sm">{typeof errors.prestations.message === 'string' ? errors.prestations.message : "Erreur dans les prestations"}</p>}

@@ -23,4 +23,5 @@ const PageLayout = ({ children, fullWidth = false }: PageLayoutProps) => {
   );
 };
 
+export { PageLayout };
 export default PageLayout;
