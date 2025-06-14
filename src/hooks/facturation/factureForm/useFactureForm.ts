@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { parse } from "date-fns";
 import { Facture } from "@/types/facture";
 import { useCourrierData } from "@/hooks/useCourrierData";
+import { useFactureForm as useFactureFormHook } from "@/hooks/facturation/factureForm";
 
 export const useFactureForm = (
   setValue: (name: string, value: any) => void,
@@ -10,6 +11,7 @@ export const useFactureForm = (
   setEditFactureId: (id: string | null) => void
 ) => {
   const { clients, isLoading, error } = useCourrierData();
+  const factureFormHook = useFactureFormHook();
 
   // Function to initialize form for editing
   const initializeFormForEdit = (facture: Facture) => {
@@ -41,6 +43,7 @@ export const useFactureForm = (
     clients,
     isLoading,
     error,
-    initializeFormForEdit
+    initializeFormForEdit,
+    ...factureFormHook
   };
 };

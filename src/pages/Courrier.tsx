@@ -46,31 +46,20 @@ export default function Courrier() {
           {/* Sélection des clients */}
           <ClientsList 
             clients={filteredClients}
-            onClientToggle={(clientId) => {
-              setSelectedClients(prev => 
-                prev.includes(clientId) 
-                  ? prev.filter(id => id !== clientId)
-                  : [...prev, clientId]
-              );
-            }}
+            selectedClients={selectedClients}
+            onSelectionChange={setSelectedClients}
           />
 
           {/* Sélection des critères */}
           <CriteriaSelection 
             selectedCriteria={selectedCriteria}
-            onCriteriaToggle={(criteria) => {
-              setSelectedCriteria(prev => 
-                prev.includes(criteria) 
-                  ? prev.filter(c => c !== criteria)
-                  : [...prev, criteria]
-              );
-            }}
+            onCriteriaChange={setSelectedCriteria}
           />
 
           {/* Sélection du modèle */}
           <TemplateSelection 
             selectedTemplate={selectedTemplate}
-            onTemplateSelect={setSelectedTemplate}
+            onTemplateChange={setSelectedTemplate}
             onPreview={() => setShowPreview(true)}
             disabled={selectedClients.length === 0 || !selectedTemplate}
           />
@@ -80,11 +69,11 @@ export default function Courrier() {
         <PreviewDialog 
           open={showPreview}
           onOpenChange={setShowPreview}
-          selectedClients={selectedClients.map(id => 
+          clients={selectedClients.map(id => 
             clients.find(c => c.id === id)!
-          )}
-          selectedCriteria={selectedCriteria}
-          selectedTemplate={selectedTemplate}
+          ).filter(Boolean)}
+          criteria={selectedCriteria}
+          template={selectedTemplate}
         />
       </div>
     </PageLayout>
