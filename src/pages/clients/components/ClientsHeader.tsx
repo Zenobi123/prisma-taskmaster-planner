@@ -20,12 +20,11 @@ export function ClientsHeader({ onAddClientClick, onTrashClick, isMobile }: Clie
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
       <div className="flex items-center gap-3">
         <Button
-          variant="ghost"
-          size="sm"
+          variant="outline"
           onClick={handleBackToDashboard}
           className="flex items-center gap-2"
         >
-          <ArrowLeft className="h-4 w-4" />
+          <ArrowLeft className="w-4 h-4" />
           Retour
         </Button>
         <div>
