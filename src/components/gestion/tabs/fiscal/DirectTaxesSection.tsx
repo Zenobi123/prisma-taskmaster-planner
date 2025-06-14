@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ObligationStatuses, ObligationType, IgsObligationStatus, TaxObligationStatus } from '@/hooks/fiscal/types';
@@ -241,21 +240,21 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
       <CardContent className="space-y-0">
         {taxItems.map(item => {
           const obligation = obligationStatuses[item.key];
-          console.log(`DirectTaxesSection - Rendering ${item.key} with obligation:`, obligation);
-          
-          if (!obligation || typeof obligation.assujetti === 'undefined') return null;
+          console.log(`[DirectTaxesSection] Render: ${item.key}`, obligation);
+
+          if (!obligation || typeof obligation.assujetti === "undefined") return null;
 
           // Type guard pour vérifier si c'est une TaxObligationStatus
           const isTaxObligation = (obs: typeof obligation): obs is TaxObligationStatus => {
-            return 'payee' in obs;
+            return "payee" in obs;
           };
 
           if (!isTaxObligation(obligation)) return null;
 
           let igsSpecifics;
-          if (item.key === 'igs' && igsStatus) {
+          if (item.key === "igs" && igsStatus) {
             igsSpecifics = {
-              caValue: igsStatus.caValue || '',
+              caValue: igsStatus.caValue || "",
               isCGA: igsStatus.isCGA || false,
               onCAChange: handleCAInputChange,
               onCGAChange: handleCGAInputChange,
@@ -265,12 +264,30 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
               onQuarterlyDateChange: handleLocalQuarterlyDateChange,
               currentIgsStatusForDisplay: {
                 ...igsStatus,
-                ...igsCalculation // Utiliser les valeurs calculées stables
+                ...igsCalculation, // Utiliser les valeurs calculées stables
               },
             };
-            console.log('DirectTaxesSection - IGS specifics:', igsSpecifics);
+            console.log("[DirectTaxesSection] igsSpecifics:", igsSpecifics);
           }
 
+          // Toujours afficher la section IGS quand caValue existe
+          if (item.key === "igs" && obligation.assujetti) {
+            return (
+              <DirectTaxItemRenderer
+                key={item.key}
+                taxKey={item.key}
+                taxName={item.name}
+                obligation={obligation}
+                isDetailsOpened={openedDetails[item.key] || false}
+                onToggleDetails={() => toggleDetails(item.key)}
+                handleStatusChange={stableHandleStatusChange}
+                igsSpecificProps={igsSpecifics}
+              />
+            );
+          }
+
+          // Autres taxes : logique inchangée
+          if (!obligation.assujetti) return null;
           return (
             <DirectTaxItemRenderer
               key={item.key}
@@ -280,7 +297,6 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
               isDetailsOpened={openedDetails[item.key] || false}
               onToggleDetails={() => toggleDetails(item.key)}
               handleStatusChange={stableHandleStatusChange}
-              igsSpecificProps={igsSpecifics}
             />
           );
         })}

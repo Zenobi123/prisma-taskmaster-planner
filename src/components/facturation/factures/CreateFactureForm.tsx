@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -59,7 +58,7 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
 }) => {
   const [prestations, setPrestations] = useState<Prestation[]>(
     factureToEdit?.prestations && factureToEdit.prestations.length > 0 
-    ? factureToEdit.prestations 
+    ? factureToEdit.prestations.map(p => ({ ...p, montant: p.montant ?? (p.quantite * p.prix_unitaire) }))
     : [defaultPrestation]
   );
 
@@ -77,7 +76,7 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
       ...factureToEdit,
       date: typeof factureToEdit.date === 'string' ? new Date(factureToEdit.date) : factureToEdit.date,
       echeance: typeof factureToEdit.echeance === 'string' ? new Date(factureToEdit.echeance) : factureToEdit.echeance,
-      prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations : [defaultPrestation],
+      prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations.map(p => ({ ...p, montant: p.montant ?? (p.quantite * p.prix_unitaire) })) : [defaultPrestation],
     } : {
       prestations: [defaultPrestation],
       status: "brouillon",
@@ -95,9 +94,9 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
         ...factureToEdit,
         date: typeof factureToEdit.date === 'string' ? new Date(factureToEdit.date) : factureToEdit.date,
         echeance: typeof factureToEdit.echeance === 'string' ? new Date(factureToEdit.echeance) : factureToEdit.echeance,
-        prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations : [defaultPrestation],
+        prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations.map(p => ({ ...p, montant: p.montant ?? (p.quantite * p.prix_unitaire) })) : [defaultPrestation],
       });
-      setPrestations(factureToEdit.prestations.length > 0 ? factureToEdit.prestations : [defaultPrestation]);
+      setPrestations(factureToEdit.prestations.length > 0 ? factureToEdit.prestations.map(p => ({ ...p, montant: p.montant ?? (p.quantite * p.prix_unitaire) })) : [defaultPrestation]);
     }
   }, [factureToEdit, editMode, reset]);
 
@@ -117,11 +116,18 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({
 
   const onSubmitHandler = async (data: Facture) => {
     try {
-      // Ensure dates are properly formatted
+      // Always use string as output for date/echeance
+      const toDateString = (dateVal: string | Date) =>
+        typeof dateVal === "string"
+          ? dateVal
+          : dateVal instanceof Date
+          ? dateVal.toISOString().split("T")[0]
+          : "";
+
       const formattedData = {
         ...data,
-        date: formatDate(data.date),
-        echeance: formatDate(data.echeance),
+        date: toDateString(data.date),
+        echeance: toDateString(data.echeance),
         prestations: prestations.map(p => ({
           ...p,
           montant: p.quantite * p.prix_unitaire

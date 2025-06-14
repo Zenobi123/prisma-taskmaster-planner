@@ -4,7 +4,7 @@ export interface Prestation {
   description: string;
   quantite: number;
   prix_unitaire: number;
-  montant: number; // Rendre cette propriété obligatoire pour résoudre les erreurs
+  montant: number; // Obligatoire partout
 }
 
 export interface Paiement {
@@ -13,7 +13,7 @@ export interface Paiement {
   date: string;
   montant: number;
   mode_paiement: string;
-  mode?: string; // Ajouter pour compatibilité PDF
+  mode?: string; // Pour compatibilité PDF
   notes?: string;
   created_at?: string;
   updated_at?: string;
@@ -29,8 +29,8 @@ export interface Facture {
     telephone: string;
     email: string;
   };
-  date: string | Date; // Support both string and Date
-  echeance: string | Date; // Support both string and Date
+  date: string | Date;
+  echeance: string | Date;
   montant: number;
   montant_paye?: number;
   status: "brouillon" | "envoyée" | "annulée";

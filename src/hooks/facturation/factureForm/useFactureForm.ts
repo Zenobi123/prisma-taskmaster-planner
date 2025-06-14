@@ -1,9 +1,9 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
 import { Client } from "@/types/client";
 
+// Remove type export for UseFactureFormReturn, just keep the hook
 export const useFactureForm = () => {
   const [clients, setClients] = useState<Client[]>([]);
 

@@ -1,100 +1,76 @@
-
 import React from 'react';
-import { TableCell, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Eye, Edit, Trash2, Send, X } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { formatCurrency, formatDate } from '@/utils/factureUtils';
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { StatusBadge } from './StatusBadge';
+} from "@/components/ui/dropdown-menu"
+import { Copy, Edit, MoreHorizontal, Send, Trash } from 'lucide-react';
+import StatusBadge from '../StatusBadge';
 import { Facture } from '@/types/facture';
-import { formatCurrency, formatDate } from '@/utils/factureUtils';
 
 interface FactureTableRowProps {
   facture: Facture;
-  onView: (facture: Facture) => void;
-  onEdit: (facture: Facture) => void;
-  onDelete: (factureId: string) => void;
-  onSend: (factureId: string) => void;
-  onCancel: (factureId: string) => void;
+  onDelete: (id: string) => void;
 }
 
-export const FactureTableRow: React.FC<FactureTableRowProps> = ({
-  facture,
-  onView,
-  onEdit,
-  onDelete,
-  onSend,
-  onCancel,
-}) => {
-  const clientName = facture.client?.nom || 'Client inconnu';
-  const solde = facture.montant - (facture.montant_paye || 0);
+// For usage: export the component as a named export AND default export:
+export const FactureTableRow: React.FC<FactureTableRowProps> = ({ facture, onDelete }) => {
+  const { id, client, date, echeance, montant, status_paiement } = facture;
+  const clientName = client?.nom || 'N/A';
 
   return (
-    <TableRow className="hover:bg-gray-50">
-      <TableCell className="font-medium">{facture.id}</TableCell>
-      <TableCell>{clientName}</TableCell>
-      <TableCell>{formatDate(facture.date)}</TableCell>
-      <TableCell>{formatDate(facture.echeance)}</TableCell>
-      <TableCell className="text-right font-medium">
-        {formatCurrency(facture.montant)}
-      </TableCell>
-      <TableCell className="text-right">
-        {formatCurrency(facture.montant_paye || 0)}
-      </TableCell>
-      <TableCell className="text-right font-medium">
-        {formatCurrency(solde)}
-      </TableCell>
-      <TableCell>
-        <StatusBadge status={facture.status} type="document" />
-      </TableCell>
-      <TableCell>
-        <StatusBadge status={facture.status_paiement} type="paiement" />
-      </TableCell>
-      <TableCell>
+    <tr>
+      <td>
+        <Link to={`/factures/${id}`} className="font-medium hover:underline">
+          {id}
+        </Link>
+      </td>
+      <td>{clientName}</td>
+      <td>{formatDate(date)}</td>
+      <td>{formatDate(echeance)}</td>
+      <td>{formatCurrency(montant)}</td>
+      <td><StatusBadge status={facture.status} type="document"/></td>
+      <td><StatusBadge status={status_paiement} type="paiement"/></td>
+      <td className="text-right">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onView(facture)}>
-              <Eye className="mr-2 h-4 w-4" />
-              Voir
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem>
+              <Copy className="mr-2 h-4 w-4" />
+              Copier
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit(facture)}>
-              <Edit className="mr-2 h-4 w-4" />
-              Modifier
+            <DropdownMenuItem>
+              <Send className="mr-2 h-4 w-4" />
+              Envoyer la facture
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            {facture.status === 'brouillon' && (
-              <DropdownMenuItem onClick={() => onSend(facture.id)}>
-                <Send className="mr-2 h-4 w-4" />
-                Envoyer
-              </DropdownMenuItem>
-            )}
-            {facture.status === 'envoyée' && (
-              <DropdownMenuItem onClick={() => onCancel(facture.id)}>
-                <X className="mr-2 h-4 w-4" />
-                Annuler
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => onDelete(facture.id)}
-              className="text-red-600"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
+            <DropdownMenuItem asChild>
+              <Link to={`/factures/edit/${id}`}>
+                <Edit className="mr-2 h-4 w-4" />
+                Modifier
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDelete(id)} className="text-red-500 focus:text-red-500">
+              <Trash className="mr-2 h-4 w-4" />
               Supprimer
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      </TableCell>
-    </TableRow>
+      </td>
+    </tr>
   );
 };
+// Export as default for import compatibility
+export default FactureTableRow;

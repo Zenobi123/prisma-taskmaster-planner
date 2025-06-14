@@ -2,9 +2,11 @@
 import { useState, useEffect } from "react";
 import { Prestation } from "@/types/facture";
 
+const defaultPrestation: Prestation = { description: "", quantite: 1, prix_unitaire: 0, montant: 0 };
+
 export const useFactureFormPrestations = () => {
   const [prestations, setPrestations] = useState<Prestation[]>([
-    { description: "", quantite: 1, prix_unitaire: 0 },
+    { ...defaultPrestation }
   ]);
 
   // Calculate total amount whenever prestations change

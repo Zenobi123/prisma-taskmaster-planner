@@ -1,4 +1,3 @@
-
 import { Facture } from "@/types/facture";
 
 export const formatCurrency = (amount: number): string => {
@@ -12,7 +11,6 @@ export const formatCurrency = (amount: number): string => {
 
 export const formatDate = (date: string | Date): string => {
   if (!date) return '';
-  
   let dateObj: Date;
   if (typeof date === 'string') {
     // Handle both DD/MM/YYYY and ISO string formats
@@ -25,13 +23,12 @@ export const formatDate = (date: string | Date): string => {
   } else {
     dateObj = date;
   }
-  
-  return dateObj.toLocaleDateString('fr-FR');
+  // Toujours renvoyer YYYY-MM-DD pour compat string
+  return dateObj.toISOString().split("T")[0];
 };
 
 export const parseDate = (date: string | Date): Date => {
   if (!date) return new Date();
-  
   if (typeof date === 'string') {
     // Handle DD/MM/YYYY format
     if (date.includes('/')) {
@@ -41,7 +38,6 @@ export const parseDate = (date: string | Date): Date => {
       return new Date(date);
     }
   }
-  
   return date;
 };
 
