@@ -26,7 +26,7 @@ export function ClientsHeader({ onAddClientClick, onTrashClick, isMobile }: Clie
           className="flex items-center gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          {!isMobile && "Tableau de bord"}
+          Retour
         </Button>
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-neutral-900">
