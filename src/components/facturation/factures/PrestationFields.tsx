@@ -8,18 +8,28 @@ import { Trash } from "lucide-react";
 interface PrestationFieldsProps {
   prestations: Prestation[];
   onPrestationsChange: (prestations: Prestation[]) => void;
+  // defaultPrestation prop seems unused here, but CreateFactureForm passes it. Removing if not needed.
 }
 
 const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFieldsProps) => {
   const addPrestation = () => {
-    onPrestationsChange([...prestations, { description: "", quantite: 1, montant: 0 }]);
+    // Use the structure consistent with Prestation type: prix_unitaire
+    onPrestationsChange([...prestations, { description: "", quantite: 1, prix_unitaire: 0 }]);
   };
 
   const updatePrestation = (index: number, field: keyof Prestation, value: any) => {
     const updatedPrestations = [...prestations];
+    let numericValue = value;
+    if (field === "prix_unitaire" || field === "quantite") {
+      numericValue = Number(value);
+      // Ensure quantity is at least 1, and price is at least 0
+      if (field === "quantite" && numericValue < 1) numericValue = 1;
+      if (field === "prix_unitaire" && numericValue < 0) numericValue = 0;
+    }
+    
     updatedPrestations[index] = {
       ...updatedPrestations[index],
-      [field]: field === "montant" || field === "quantite" ? Number(value) : value,
+      [field]: numericValue,
     };
     onPrestationsChange(updatedPrestations);
   };
@@ -32,7 +42,8 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
   };
 
   const calculateTotal = (prestation: Prestation) => {
-    return (prestation.montant * (prestation.quantite || 1));
+    // Use prix_unitaire for calculation
+    return (prestation.prix_unitaire * (prestation.quantite || 1));
   };
 
   return (
@@ -58,7 +69,7 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
             <div className="col-span-2">
               <Input
                 type="number"
-                min="1"
+                min="1" // Ensure min is 1 as per Zod
                 className="text-xs h-6"
                 value={prestation.quantite}
                 onChange={(e) => updatePrestation(index, "quantite", e.target.value)}
@@ -67,10 +78,10 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
             <div className="col-span-2">
               <Input
                 type="number"
-                min="0"
+                min="0" // Ensure min is 0
                 className="text-xs h-6"
-                value={prestation.montant}
-                onChange={(e) => updatePrestation(index, "montant", e.target.value)}
+                value={prestation.prix_unitaire} // Use prix_unitaire
+                onChange={(e) => updatePrestation(index, "prix_unitaire", e.target.value)}
               />
             </div>
             <div className="col-span-2">

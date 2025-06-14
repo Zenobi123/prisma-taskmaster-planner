@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -9,10 +10,21 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { useState } from "react";
-import { CreateFactureForm } from "/dev-server/src/components/facturation/factures/CreateFactureForm";
+import { CreateFactureForm } from "./CreateFactureForm"; // Corrected path
+import { Facture } from "@/types/facture";
 
 const CreateFactureDialog = () => {
   const [open, setOpen] = useState(false);
+
+  const handleSuccess = (newFacture: Facture | string) => {
+    console.log("Facture créée/mise à jour:", newFacture);
+    setOpen(false);
+    // Potentially trigger a refetch of factures list here
+  };
+
+  const handleCancel = () => {
+    setOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -29,8 +41,9 @@ const CreateFactureDialog = () => {
           </DialogDescription>
         </DialogHeader>
         <CreateFactureForm 
-          onSuccess={() => setOpen(false)} 
-          onCancel={() => setOpen(false)}
+          onSuccess={handleSuccess} 
+          onCancel={handleCancel}
+          editMode={false} // Explicitly set editMode to false for creation
         />
       </DialogContent>
     </Dialog>

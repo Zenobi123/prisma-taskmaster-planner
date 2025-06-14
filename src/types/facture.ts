@@ -1,9 +1,9 @@
 export interface Prestation {
   id?: string;
   description: string;
-  quantite?: number;
-  montant: number;
-  taux?: number;
+  quantite: number; // Made non-optional as per Zod schema
+  prix_unitaire: number; // Changed from montant to prix_unitaire
+  taux?: number; // Kept taux as it might be used for other calculations (TVA etc.)
 }
 
 export interface Paiement {
@@ -26,10 +26,10 @@ export interface Client {
 export interface Facture {
   id: string;
   client_id: string;
-  client: Client;
-  date: string;
-  echeance: string;
-  montant: number;
+  client: Client; // Assuming Client object is populated, adjust if it's just client_id
+  date: string | Date; // Allow Date for form, string for DB
+  echeance: string | Date; // Allow Date for form, string for DB
+  montant: number; // This is the total amount, calculated from prestations
   montant_paye?: number;
   status: "brouillon" | "envoyée" | "annulée";
   status_paiement: "non_payée" | "partiellement_payée" | "payée" | "en_retard";

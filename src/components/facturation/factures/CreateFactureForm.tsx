@@ -5,18 +5,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
-import { ClientSelector } from "./ClientSelector"; // Assuming default export or correct named export
-import { DatePickerField } from "./DatePickerField"; // Assuming default export or correct named export
-import { StatusSelector } from "./StatusSelector"; // Assuming default export or correct named export
-import { ModePaiementSelector } from "./ModePaiementSelector"; // Assuming default export or correct named export
-import { PrestationFields } from "./PrestationFields"; // Assuming default export or correct named export
-import { TotalAmountDisplay } from "./TotalAmountDisplay"; // Assuming default export or correct named export
+import ClientSelector from "./ClientSelector"; // Corrected import
+import DatePickerField from "./DatePickerField"; // Corrected import
+import StatusSelector from "./StatusSelector"; // Corrected import
+import ModePaiementSelector from "./ModePaiementSelector"; // Corrected import
+import PrestationFields from "./PrestationFields"; // Corrected import
+import TotalAmountDisplay from "./TotalAmountDisplay"; // Corrected import
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Facture, Prestation } from "@/types/facture";
 import { useFactureForm } from "@/hooks/facturation/factureForm/useFactureForm";
-import { useFactureCreateActions } from "@/hooks/facturation/factureActions";
+import { useFactureCreateActions, useFactureUpdateActions } from "@/hooks/facturation/factureActions"; // Assuming useFactureUpdateActions exists for edit mode
 import { Client } from "@/types/client";
 import { toast } from "sonner";
 
@@ -32,8 +32,8 @@ const validationSchema = z.object({
   prestations: z.array(
     z.object({
       description: z.string().min(1, "Description requise"),
-      quantite: z.number().min(1, "Quantité > 0"),
-      prix_unitaire: z.number().min(0, "Prix >= 0"), // This is correct
+      quantite: z.number().min(1, "Quantité doit être supérieure à 0"),
+      prix_unitaire: z.number().min(0, "Prix unitaire doit être supérieur ou égal à 0"),
     })
   ).min(1, "Au moins une prestation est requise"),
 });
@@ -41,17 +41,28 @@ const validationSchema = z.object({
 const defaultPrestation: Prestation = {
   description: "",
   quantite: 1,
-  prix_unitaire: 0, // This matches the Zod schema
+  prix_unitaire: 0,
 };
 
 interface CreateFactureFormProps {
-  onClose: () => void;
-  onFactureCreated: (newFacture: Facture) => void;
+  onSuccess: (newFactureOrId: Facture | string) => void;
+  onCancel: () => void;
+  editMode?: boolean;
+  factureToEdit?: Facture | null;
 }
 
-export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({ onClose, onFactureCreated }) => {
-  const [prestations, setPrestations] = useState<Prestation[]>([defaultPrestation]);
-  const [editFactureId, setEditFactureId] = useState<string | null>(null);
+export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({ 
+  onSuccess, 
+  onCancel, 
+  editMode = false, 
+  factureToEdit = null 
+}) => {
+  const [prestations, setPrestations] = useState<Prestation[]>(
+    factureToEdit?.prestations && factureToEdit.prestations.length > 0 
+    ? factureToEdit.prestations 
+    : [defaultPrestation]
+  );
+  const [editFactureId, setEditFactureId] = useState<string | null>(factureToEdit?.id || null);
 
   const {
     handleSubmit,
@@ -63,29 +74,53 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({ onClose, o
     reset,
   } = useForm<Facture>({
     resolver: zodResolver(validationSchema),
-    defaultValues: {
+    defaultValues: editMode && factureToEdit ? {
+      ...factureToEdit,
+      date: new Date(factureToEdit.date),
+      echeance: new Date(factureToEdit.echeance),
+      prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations : [defaultPrestation],
+    } : {
       prestations: [defaultPrestation],
-      status: "brouillon", // Corrected enum value
-      status_paiement: "non_payée", // Corrected enum value
-      mode_paiement: "Espèces", // Assuming this maps to a valid value later or is free text
+      status: "brouillon",
+      status_paiement: "non_payée",
+      mode_paiement: "Espèces",
+      date: new Date(),
+      echeance: new Date(new Date().setDate(new Date().getDate() + 30)), // Default echeance to 30 days from now
     },
   });
+
+  // Initialize editFactureId from factureToEdit prop
+  useEffect(() => {
+    if (editMode && factureToEdit) {
+      setEditFactureId(factureToEdit.id);
+      // Reset form with factureToEdit data when it changes or on initial load in edit mode
+      reset({
+        ...factureToEdit,
+        date: new Date(factureToEdit.date),
+        echeance: new Date(factureToEdit.echeance),
+        prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations : [defaultPrestation],
+      });
+      setPrestations(factureToEdit.prestations.length > 0 ? factureToEdit.prestations : [defaultPrestation]);
+    }
+  }, [factureToEdit, editMode, reset]);
+
 
   const { clients: allClients, isLoading: isLoadingClients, error: clientsError } = useFactureForm(
     setValue,
     setPrestations,
-    setEditFactureId
+    setEditFactureId // This might need to be adjusted if useFactureForm doesn't handle editFactureId
   );
-
-  // Assuming useFactureCreateActions hook is called without arguments and returns these properties
-  const { createFacture, isCreating } = useFactureCreateActions();
+  
+  const { addFacture, isCreating } = useFactureCreateActions();
+  // Assuming useFactureUpdateActions hook exists and has a similar signature for updates
+  const { updateFacture, isUpdating } = useFactureUpdateActions ? useFactureUpdateActions() : { updateFacture: null, isUpdating: false };
 
 
   const selectedClientId = watch("client_id");
-  const selectedClient = allClients.find((c: Client) => c.id === selectedClientId);
+  // const selectedClient = allClients.find((c: Client) => c.id === selectedClientId); // Already available in useFactureForm?
 
   const calculateTotalAmount = useCallback(() => {
-    return prestations.reduce((total, p) => total + (p.quantite * (p.prix_unitaire || 0)), 0); // Ensure prix_unitaire is handled if potentially undefined
+    return prestations.reduce((total, p) => total + (p.quantite * (p.prix_unitaire || 0)), 0);
   }, [prestations]);
 
   const totalAmount = calculateTotalAmount();
@@ -94,43 +129,43 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({ onClose, o
     setValue("prestations", prestations, { shouldValidate: true });
   }, [prestations, setValue]);
 
-  const onSubmit = async (data: Facture) => {
+  const onSubmitHandler = async (data: Facture) => {
     try {
-      // Ensure data matches the expected structure for createFacture
-      const newFacture = await createFacture(data);
-      if (newFacture) {
-        toast.success("Facture créée avec succès !");
-        onFactureCreated(newFacture);
-        reset();
-        setPrestations([defaultPrestation]);
-        onClose();
+      if (editMode && factureToEdit && updateFacture) {
+        const updatedFacture = await updateFacture(factureToEdit.id, data);
+        if (updatedFacture) {
+          toast.success("Facture modifiée avec succès !");
+          onSuccess(factureToEdit.id); // Or updatedFacture if it's returned
+          reset();
+          setPrestations([defaultPrestation]);
+          // onCancel(); // Typically call onCancel from the dialog, not here
+        }
+      } else {
+        const newFacture = await addFacture(data);
+        if (newFacture) {
+          toast.success("Facture créée avec succès !");
+          onSuccess(newFacture);
+          reset();
+          setPrestations([defaultPrestation]);
+          // onCancel(); // Typically call onCancel from the dialog, not here
+        }
       }
     } catch (error) {
-      toast.error("Erreur lors de la création de la facture.");
-      console.error("Create facture error:", error);
+      toast.error(`Erreur lors de ${editMode ? "la modification" : "la création"} de la facture.`);
+      console.error(`${editMode ? "Update" : "Create"} facture error:`, error);
     }
   };
-
-  // Assuming ClientSelector etc. are default exports or correctly named exports.
-  // If they are named exports and the file name is, for example, ClientSelector.tsx,
-  // then import { ClientSelector } from './ClientSelector'; is correct.
-  // If the file name is index.tsx in a folder ClientSelector, then import { ClientSelector } from './ClientSelector'; is also correct.
-  // The errors "Module ... has no exported member ..." suggest the components might be default exports.
-  // If `ClientSelector.tsx` is `export default function ClientSelector...`, then `import ClientSelector from './ClientSelector'` is needed.
-  // For now, I will assume the provided import statements are what's intended (named exports from files with the same name).
-  // The build errors will confirm if this assumption is wrong.
-  // Based on common practice with ShadCN and similar structures, default exports for these specific components are less likely.
-  // The error TS2614: Module '"./ClientSelector"' has no exported member 'ClientSelector'. Did you mean to use 'import ClientSelector from "./ClientSelector"' instead?
-  // This strongly suggests they ARE default exports. I will change them.
+  
+  const currentIsLoading = editMode ? isUpdating : isCreating;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      <ClientSelector // If this was `import ClientSelector from ...`
+    <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
+      <ClientSelector
         clients={allClients}
         isLoading={isLoadingClients}
         error={clientsError}
-        selectedClientId={selectedClientId}
-        onClientChange={(clientId) => setValue("client_id", clientId, { shouldValidate: true })}
+        value={selectedClientId || ""}
+        onChange={(clientId) => setValue("client_id", clientId, { shouldValidate: true })}
       />
       {errors.client_id && <p className="text-red-500 text-sm">{errors.client_id.message}</p>}
 
@@ -139,14 +174,14 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({ onClose, o
           name="date"
           control={control}
           render={({ field }) => (
-            <DatePickerField label="Date de la facture" selectedDate={field.value} onDateChange={field.onChange} />
+            <DatePickerField label="Date de la facture" date={field.value} onSelect={field.onChange} />
           )}
         />
         <Controller
           name="echeance"
           control={control}
           render={({ field }) => (
-            <DatePickerField label="Date d'échéance" selectedDate={field.value} onDateChange={field.onChange} />
+            <DatePickerField label="Date d'échéance" date={field.value} onSelect={field.onChange} />
           )}
         />
       </div>
@@ -158,14 +193,14 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({ onClose, o
             name="status"
             control={control}
             render={({ field }) => (
-                <StatusSelector label="Statut de la facture" selectedStatus={field.value} onStatusChange={field.onChange} />
+                <StatusSelector label="Statut de la facture" value={field.value} onChange={field.onChange} type="document"/>
             )}
         />
         <Controller
             name="status_paiement"
             control={control}
             render={({ field }) => (
-                <StatusSelector label="Statut de paiement" selectedStatus={field.value} onStatusChange={field.onChange} paymentStatus />
+                <StatusSelector label="Statut de paiement" value={field.value} onChange={field.onChange} type="paiement"/>
             )}
         />
       </div>
@@ -176,13 +211,21 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({ onClose, o
         name="mode_paiement"
         control={control}
         render={({ field }) => (
-            <ModePaiementSelector selectedMode={field.value} onModeChange={field.onChange} />
+            <ModePaiementSelector value={field.value || ""} onChange={field.onChange} />
         )}
       />
       {errors.mode_paiement && <p className="text-red-500 text-sm">{errors.mode_paiement.message}</p>}
 
-      <PrestationFields prestations={prestations} setPrestations={setPrestations} defaultPrestation={defaultPrestation} />
+      <PrestationFields prestations={prestations} onPrestationsChange={setPrestations} />
       {errors.prestations && <p className="text-red-500 text-sm">{typeof errors.prestations.message === 'string' ? errors.prestations.message : "Erreur dans les prestations"}</p>}
+      {errors.prestations?.root?.message && <p className="text-red-500 text-sm">{errors.prestations.root.message}</p>}
+       {Array.isArray(errors.prestations) && errors.prestations.map((err, index) => (
+        <div key={index}>
+          {err?.description && <p className="text-red-500 text-sm">Prestation {index+1} Description: {err.description.message}</p>}
+          {err?.quantite && <p className="text-red-500 text-sm">Prestation {index+1} Quantité: {err.quantite.message}</p>}
+          {err?.prix_unitaire && <p className="text-red-500 text-sm">Prestation {index+1} Prix: {err.prix_unitaire.message}</p>}
+        </div>
+      ))}
 
 
       <TotalAmountDisplay totalAmount={totalAmount} />
@@ -194,15 +237,14 @@ export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({ onClose, o
 
       <DialogFooter>
         <DialogClose asChild>
-          <Button type="button" variant="outline" onClick={onClose}>
+          <Button type="button" variant="outline" onClick={onCancel}>
             Annuler
           </Button>
         </DialogClose>
-        <Button type="submit" disabled={isCreating}>
-          {isCreating ? "Création..." : "Créer la facture"}
+        <Button type="submit" disabled={currentIsLoading}>
+          {currentIsLoading ? (editMode ? "Modification..." : "Création...") : (editMode ? "Modifier la facture" : "Créer la facture")}
         </Button>
       </DialogFooter>
     </form>
   );
 };
-
