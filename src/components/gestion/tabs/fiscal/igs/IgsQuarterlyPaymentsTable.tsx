@@ -9,6 +9,15 @@ interface IgsQuarterlyPaymentsTableProps {
   onDateChange: (quarter: string, value: string) => void;
 }
 
+const arePropsEqual = (prevProps: IgsQuarterlyPaymentsTableProps, nextProps: IgsQuarterlyPaymentsTableProps) => {
+  return (
+    JSON.stringify(prevProps.quarterlyPayments) === JSON.stringify(nextProps.quarterlyPayments) &&
+    JSON.stringify(prevProps.quarterlyDates) === JSON.stringify(nextProps.quarterlyDates) &&
+    prevProps.onPaymentChange === nextProps.onPaymentChange &&
+    prevProps.onDateChange === nextProps.onDateChange
+  );
+};
+
 export const IgsQuarterlyPaymentsTable: React.FC<IgsQuarterlyPaymentsTableProps> = memo(({
   quarterlyPayments,
   quarterlyDates,
@@ -70,6 +79,6 @@ export const IgsQuarterlyPaymentsTable: React.FC<IgsQuarterlyPaymentsTableProps>
       </div>
     </div>
   );
-});
+}, arePropsEqual);
 
 IgsQuarterlyPaymentsTable.displayName = 'IgsQuarterlyPaymentsTable';

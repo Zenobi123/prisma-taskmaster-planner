@@ -11,7 +11,7 @@ import { getNextFactureNumber } from "@/services/factureService";
 export const useFactureFormSubmit = (
   addFacture: (facture: Facture) => Promise<boolean>,
   updateFacture: (facture: Facture) => Promise<boolean>,
-  onSuccess: () => void
+  onSuccess: (result: Facture | string) => void
 ) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,9 +27,9 @@ export const useFactureFormSubmit = (
     setIsSubmitting(true);
     
     try {
-      // Format dates
-      const formattedDate = format(data.date, "dd/MM/yyyy");
-      const formattedEcheance = format(data.echeance, "dd/MM/yyyy");
+      // Format dates to strings
+      const formattedDate = typeof data.date === 'string' ? data.date : format(data.date, "dd/MM/yyyy");
+      const formattedEcheance = typeof data.echeance === 'string' ? data.echeance : format(data.echeance, "dd/MM/yyyy");
       
       // Generate the next facture number
       const nextNumber = await getNextFactureNumber();
@@ -53,13 +53,13 @@ export const useFactureFormSubmit = (
         montant: totalAmount,
         montant_paye: 0,
         status: data.status as "brouillon" | "envoyée" | "annulée",
-        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée",
+        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
         mode_paiement: data.mode_paiement,
         prestations: prestations.map(p => ({
           id: uuidv4(),
           description: p.description,
           quantite: p.quantite,
-          montant: p.montant,
+          prix_unitaire: p.prix_unitaire,
         })),
         paiements: [],
         notes: data.notes,
@@ -75,7 +75,7 @@ export const useFactureFormSubmit = (
           title: "Facture créée",
           description: `La facture ${factureId} a été créée avec succès.`,
         });
-        onSuccess();
+        onSuccess(nouvelleFacture);
         return true;
       } else {
         return false;
@@ -105,9 +105,9 @@ export const useFactureFormSubmit = (
     setIsSubmitting(true);
     
     try {
-      // Format dates
-      const formattedDate = format(data.date, "dd/MM/yyyy");
-      const formattedEcheance = format(data.echeance, "dd/MM/yyyy");
+      // Format dates to strings
+      const formattedDate = typeof data.date === 'string' ? data.date : format(data.date, "dd/MM/yyyy");
+      const formattedEcheance = typeof data.echeance === 'string' ? data.echeance : format(data.echeance, "dd/MM/yyyy");
       
       const factureToUpdate: Facture = {
         id: editFactureId,
@@ -123,13 +123,13 @@ export const useFactureFormSubmit = (
         echeance: formattedEcheance,
         montant: totalAmount,
         status: data.status as "brouillon" | "envoyée" | "annulée",
-        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée",
+        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
         mode_paiement: data.mode_paiement,
         prestations: prestations.map(p => ({
           id: p.id || uuidv4(),
           description: p.description,
           quantite: p.quantite,
-          montant: p.montant,
+          prix_unitaire: p.prix_unitaire,
         })),
         notes: data.notes,
         updated_at: new Date().toISOString(),
@@ -143,7 +143,7 @@ export const useFactureFormSubmit = (
           title: "Facture mise à jour",
           description: `La facture ${editFactureId} a été mise à jour avec succès.`,
         });
-        onSuccess();
+        onSuccess(factureToUpdate);
         return true;
       } else {
         return false;

@@ -1,39 +1,41 @@
 
-import { useToast } from "@/components/ui/use-toast";
+import { FactureFormData } from "./useFactureFormState";
 import { Prestation } from "@/types/facture";
-import { Client } from "@/types/client";
 
 export const useFactureFormValidation = () => {
-  const { toast } = useToast();
+  const validateForm = (data: FactureFormData, prestations: Prestation[], selectedClientId: string | null): string[] => {
+    const errors: string[] = [];
 
-  // Validate form data before submission
-  const validateFactureForm = (
-    selectedClient: Client | undefined, 
-    prestations: Prestation[]
-  ): boolean => {
-    if (!selectedClient) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Veuillez sélectionner un client.",
-      });
-      return false;
+    if (!selectedClientId) {
+      errors.push("Veuillez sélectionner un client");
     }
 
-    if (prestations.some(p => !p.description || p.montant <= 0)) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Veuillez remplir correctement tous les champs des prestations.",
-      });
-      return false;
+    if (!data.date) {
+      errors.push("La date est requise");
     }
 
-    return true;
+    if (!data.echeance) {
+      errors.push("La date d'échéance est requise");
+    }
+
+    if (prestations.length === 0) {
+      errors.push("Au moins une prestation est requise");
+    }
+
+    prestations.forEach((prestation, index) => {
+      if (!prestation.description.trim()) {
+        errors.push(`Description requise pour la prestation ${index + 1}`);
+      }
+      if (prestation.quantite <= 0) {
+        errors.push(`Quantité invalide pour la prestation ${index + 1}`);
+      }
+      if (prestation.prix_unitaire <= 0) {
+        errors.push(`Prix unitaire invalide pour la prestation ${index + 1}`);
+      }
+    });
+
+    return errors;
   };
 
-  return {
-    validateFactureForm,
-    toast
-  };
+  return { validateForm };
 };
