@@ -1,210 +1,232 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Facture } from "@/types/facture";
-import { formatDate } from "@/utils/formatUtils";
+import { Paiement } from "@/types/paiement";
 
-// Fetch clients data from the database
-const getClientsData = async () => {
-  const { data: clientsData, error: clientsError } = await supabase
-    .from("clients")
-    .select("*");
-    
-  if (clientsError) {
-    console.error("Error fetching clients:", clientsError);
-    throw new Error(`Failed to fetch clients: ${clientsError.message}`);
-  }
-  
-  return clientsData;
-};
+export const factureDataService = {
+  async getFactures(): Promise<Facture[]> {
+    try {
+      const { data, error } = await supabase
+        .from('factures')
+        .select(`
+          *,
+          client:clients(
+            id,
+            nom,
+            raisonsociale,
+            contact,
+            adresse,
+            type
+          )
+        `)
+        .order('created_at', { ascending: false });
 
-// Fetch prestations for a specific facture
-const getPrestationsForFacture = async (factureId: string) => {
-  const { data: prestationsData, error: prestationsError } = await supabase
-    .from("prestations")
-    .select("*")
-    .eq("facture_id", factureId);
-    
-  if (prestationsError) {
-    console.error(`Error fetching prestations for facture ${factureId}:`, prestationsError);
-    throw new Error(`Failed to fetch services for invoice ${factureId}: ${prestationsError.message}`);
-  }
-  
-  return prestationsData || [];
-};
+      if (error) throw error;
 
-// Fetch paiements for a specific facture
-const getPaiementsForFacture = async (factureId: string) => {
-  const { data: paiementsData, error: paiementsError } = await supabase
-    .from("paiements")
-    .select("*")
-    .eq("facture_id", factureId);
-    
-  if (paiementsError) {
-    console.error(`Error fetching paiements for facture ${factureId}:`, paiementsError);
-    throw new Error(`Failed to fetch payments for invoice ${factureId}: ${paiementsError.message}`);
-  }
-  
-  return paiementsData || [];
-};
+      // Transform the data to match Facture type
+      return data?.map(facture => {
+        const transformedClient = facture.client ? {
+          id: facture.client.id,
+          nom: facture.client.type === "physique" ? facture.client.nom || "" : facture.client.raisonsociale || "",
+          adresse: typeof facture.client.adresse === 'object' && facture.client.adresse && 'ville' in facture.client.adresse ? 
+            String(facture.client.adresse.ville) : "",
+          telephone: typeof facture.client.contact === 'object' && facture.client.contact && 'telephone' in facture.client.contact ? 
+            String(facture.client.contact.telephone) : "",
+          email: typeof facture.client.contact === 'object' && facture.client.contact && 'email' in facture.client.contact ? 
+            String(facture.client.contact.email) : ""
+        } : undefined;
 
-// Map the database client to facture client format
-const mapClientToFactureClient = (client: any) => {
-  // Safely extract address and contact information with proper type checking
-  const adresse = typeof client.adresse === 'object' && client.adresse 
-    ? client.adresse 
-    : { ville: '', quartier: '', lieuDit: '' };
-
-  const contact = typeof client.contact === 'object' && client.contact 
-    ? client.contact 
-    : { telephone: '', email: '' };
-  
-  return {
-    id: client.id,
-    nom: client.type === "physique" ? client.nom || "" : client.raisonsociale || "",
-    adresse: typeof adresse === 'object' && 'ville' in adresse ? adresse.ville as string : "",
-    telephone: typeof contact === 'object' && 'telephone' in contact ? contact.telephone as string : "",
-    email: typeof contact === 'object' && 'email' in contact ? contact.email as string : ""
-  };
-};
-
-const isPastDue = (dueDate: string, paidAmount: number, totalAmount: number): boolean => {
-  if (!dueDate) return false;
-  
-  const today = new Date();
-  const dueDateParts = dueDate.split('-');
-  const dueDateTime = new Date(
-    parseInt(dueDateParts[0]), // year
-    parseInt(dueDateParts[1]) - 1, // month (0-based)
-    parseInt(dueDateParts[2]) // day
-  );
-  
-  return today > dueDateTime && paidAmount < totalAmount;
-};
-
-// Build a complete facture object with all related data
-const buildCompleteFacture = (facture: any, client: any, prestationsData: any[], paiementsData: any[]): Facture => {
-  const status_paiement = (() => {
-    // Check if invoice is past due and not fully paid
-    const isPastDueInvoice = isPastDue(
-      facture.echeance, 
-      facture.montant_paye || 0, 
-      facture.montant
-    );
-    
-    if (
-      facture.status === "envoyée" && 
-      (facture.status_paiement === "non_payée" || facture.status_paiement === "partiellement_payée") &&
-      isPastDueInvoice
-    ) {
-      return "en_retard";
-    }
-    
-    return facture.status_paiement;
-  })();
-
-  return {
-    id: facture.id,
-    client_id: facture.client_id,
-    client: mapClientToFactureClient(client),
-    date: formatDate(facture.date),
-    echeance: formatDate(facture.echeance),
-    montant: facture.montant,
-    montant_paye: facture.montant_paye || 0,
-    status: facture.status,
-    status_paiement,
-    mode: facture.mode || facture.mode_paiement,
-    prestations: prestationsData || [],
-    paiements: paiementsData || [],
-    notes: facture.notes,
-    created_at: facture.created_at,
-    updated_at: facture.updated_at,
-  };
-};
-
-// Fetch all factures with related data
-export const getFacturesData = async (): Promise<Facture[]> => {
-  try {
-    const { data: facturesData, error } = await supabase
-      .from('factures')
-      .select(`
-        *,
-        client:clients (
-          id,
-          nom,
-          raisonsociale,
-          contact,
-          adresse,
-          type
-        )
-      `)
-      .order('created_at', { ascending: false });
-
-    if (error) {
+        return {
+          id: facture.id,
+          client_id: facture.client_id,
+          date: facture.date,
+          echeance: facture.echeance,
+          montant: facture.montant || 0,
+          montant_paye: facture.montant_paye || 0,
+          status: facture.status as "brouillon" | "envoyée" | "annulée",
+          status_paiement: facture.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+          mode: facture.mode_paiement || "",
+          notes: facture.notes || "",
+          created_at: facture.created_at,
+          updated_at: facture.updated_at,
+          prestations: [], // Add empty prestations array as required by Facture type
+          client: transformedClient
+        };
+      }) || [];
+    } catch (error) {
       console.error('Erreur lors de la récupération des factures:', error);
       throw error;
     }
+  },
 
-    if (!facturesData) {
-      return [];
-    }
+  async getFacture(id: string): Promise<Facture | null> {
+    try {
+      const { data, error } = await supabase
+        .from('factures')
+        .select(`
+          *,
+          client:clients(
+            id,
+            nom,
+            raisonsociale,
+            contact,
+            adresse,
+            type
+          )
+        `)
+        .eq('id', id)
+        .single();
 
-    return facturesData.map(facture => {
-      const transformedClient = facture.client ? {
-        id: facture.client.id,
-        nom: facture.client.type === "physique" ? facture.client.nom || "" : facture.client.raisonsociale || "",
-        adresse: typeof facture.client.adresse === 'object' && facture.client.adresse && 'ville' in facture.client.adresse ? 
-          String(facture.client.adresse.ville) + (facture.client.adresse.quartier ? ' ' + String(facture.client.adresse.quartier) : '') : 
-          String(facture.client.adresse || ''),
-        telephone: typeof facture.client.contact === 'object' && facture.client.contact && 'telephone' in facture.client.contact ? 
-          String(facture.client.contact.telephone) : "",
-        email: typeof facture.client.contact === 'object' && facture.client.contact && 'email' in facture.client.contact ? 
-          String(facture.client.contact.email) : ""
+      if (error) throw error;
+
+      if (!data) {
+        return null;
+      }
+
+      const transformedClient = data.client ? {
+        id: data.client.id,
+        nom: data.client.type === "physique" ? data.client.nom || "" : data.client.raisonsociale || "",
+        adresse: typeof data.client.adresse === 'object' && data.client.adresse && 'ville' in data.client.adresse ? 
+          String(data.client.adresse.ville) : "",
+        telephone: typeof data.client.contact === 'object' && data.client.contact && 'telephone' in data.client.contact ? 
+          String(data.client.contact.telephone) : "",
+        email: typeof data.client.contact === 'object' && data.client.contact && 'email' in data.client.contact ? 
+          String(data.client.contact.email) : ""
       } : undefined;
 
       return {
-        ...facture,
-        mode: facture.mode_paiement || '',
-        prestations: [],
-        status: facture.status as "brouillon" | "envoyée" | "annulée",
-        status_paiement: facture.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+        id: data.id,
+        client_id: data.client_id,
+        date: data.date,
+        echeance: data.echeance,
+        montant: data.montant || 0,
+        montant_paye: data.montant_paye || 0,
+        status: data.status as "brouillon" | "envoyée" | "annulée",
+        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+        mode: data.mode_paiement || "",
+        notes: data.notes || "",
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        prestations: [], // Add empty prestations array as required by Facture type
         client: transformedClient
       };
-    });
-  } catch (error) {
-    console.error('Erreur dans getFacturesData:', error);
-    throw error;
-  }
-};
+    } catch (error) {
+      console.error('Erreur lors de la récupération de la facture:', error);
+      throw error;
+    }
+  },
 
-export const getFactures = async (): Promise<Facture[]> => {
-  try {
-    const { data, error } = await supabase
-      .from('factures')
-      .select(`
-        *,
-        client:clients(*)
-      `)
-      .order('created_at', { ascending: false });
+  async updateFacture(id: string, updates: Partial<Facture>): Promise<Facture | null> {
+    try {
+      const { data, error } = await supabase
+        .from('factures')
+        .update(updates)
+        .eq('id', id)
+        .select(`
+          *,
+          client:clients(
+            id,
+            nom,
+            raisonsociale,
+            contact,
+            adresse,
+            type
+          )
+        `)
+        .single();
 
-    if (error) throw error;
+      if (error) throw error;
 
-    return data.map(facture => ({
-      ...facture,
-      status: facture.status as "brouillon" | "envoyée" | "annulée",
-      status_paiement: facture.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
-      montant_paye: facture.montant_paye || 0,
-      mode: facture.mode_paiement || '',
-      notes: facture.notes || '',
-      client: facture.client ? {
-        id: facture.client.id,
-        nom: facture.client.type === "physique" ? facture.client.nom || "" : facture.client.raisonsociale || "",
-        adresse: typeof facture.client.adresse === 'object' && facture.client.adresse && 'ville' in facture.client.adresse ? String(facture.client.adresse.ville) : "",
-        telephone: typeof facture.client.contact === 'object' && facture.client.contact && 'telephone' in facture.client.contact ? String(facture.client.contact.telephone) : "",
-        email: typeof facture.client.contact === 'object' && facture.client.contact && 'email' in facture.client.contact ? String(facture.client.contact.email) : ""
-      } : undefined
-    }));
-  } catch (error) {
-    console.error('Erreur lors de la récupération des factures:', error);
-    throw error;
-  }
+      const transformedClient = data.client ? {
+        id: data.client.id,
+        nom: data.client.type === "physique" ? data.client.nom || "" : data.client.raisonsociale || "",
+        adresse: typeof data.client.adresse === 'object' && data.client.adresse && 'ville' in data.client.adresse ? 
+          String(data.client.adresse.ville) : "",
+        telephone: typeof data.client.contact === 'object' && data.client.contact && 'telephone' in data.client.contact ? 
+          String(data.client.contact.telephone) : "",
+        email: typeof data.client.contact === 'object' && data.client.contact && 'email' in data.client.contact ? 
+          String(data.client.contact.email) : ""
+      } : undefined;
+
+      return data ? {
+        id: data.id,
+        client_id: data.client_id,
+        date: data.date,
+        echeance: data.echeance,
+        montant: data.montant || 0,
+        montant_paye: data.montant_paye || 0,
+        status: data.status as "brouillon" | "envoyée" | "annulée",
+        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+        mode: data.mode_paiement || "",
+        notes: data.notes || "",
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        prestations: [], // Add empty prestations array as required by Facture type
+        client: transformedClient
+      } : null;
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la facture:', error);
+      throw error;
+    }
+  },
+
+  async deleteFacture(id: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('factures')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la facture:', error);
+      throw error;
+    }
+  },
+
+  async getPaiementsForFacture(factureId: string): Promise<Paiement[]> {
+    try {
+      const { data, error } = await supabase
+        .from('paiements')
+        .select('*')
+        .eq('facture_id', factureId);
+
+      if (error) throw error;
+
+      return data as Paiement[];
+    } catch (error) {
+      console.error('Erreur lors de la récupération des paiements pour la facture:', error);
+      throw error;
+    }
+  },
+
+  async addPaiementToFacture(factureId: string, paiement: Omit<Paiement, 'id' | 'created_at'>): Promise<Paiement> {
+    try {
+      const { data, error } = await supabase
+        .from('paiements')
+        .insert([{ ...paiement, facture_id: factureId }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      return data as Paiement;
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout du paiement à la facture:', error);
+      throw error;
+    }
+  },
+
+  async deletePaiement(paiementId: string): Promise<void> {
+    try {
+      const { error } = await supabase
+        .from('paiements')
+        .delete()
+        .eq('id', paiementId);
+
+      if (error) throw error;
+    } catch (error) {
+      console.error('Erreur lors de la suppression du paiement:', error);
+      throw error;
+    }
+  },
 };

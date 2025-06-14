@@ -2,24 +2,12 @@
 import { Facture } from "@/types/facture";
 import { supabase } from "@/integrations/supabase/client";
 
-interface FactureFormData {
-  client_id: string;
-  date: Date;
-  echeance: Date;
-  montant: number;
-  status: string;
-  status_paiement: string;
-  mode: string;
-  prestations: any[];
-  notes: string;
-}
-
 export const factureCreationService = {
   async createFacture(factureData: Facture): Promise<Facture> {
     try {
       const { data, error } = await supabase
         .from('factures')
-        .insert([{
+        .insert({
           client_id: factureData.client_id,
           date: factureData.date,
           echeance: factureData.echeance,
@@ -28,7 +16,7 @@ export const factureCreationService = {
           status_paiement: factureData.status_paiement,
           mode_paiement: factureData.mode,
           notes: factureData.notes
-        }])
+        })
         .select(`
           *,
           client:clients(
@@ -59,6 +47,8 @@ export const factureCreationService = {
       return {
         ...data,
         mode: data.mode_paiement,
+        status: data.status as "brouillon" | "envoyée" | "annulée",
+        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
         prestations: factureData.prestations || [],
         client: transformedClient
       };
@@ -103,6 +93,8 @@ export const factureCreationService = {
       return {
         ...data,
         mode: data.mode_paiement,
+        status: data.status as "brouillon" | "envoyée" | "annulée",
+        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
         prestations: [],
         client: transformedClient
       };
