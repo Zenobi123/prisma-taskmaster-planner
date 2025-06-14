@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { memo } from 'react';
 import { Input } from '@/components/ui/input';
 
 interface IgsQuarterlyPaymentsTableProps {
@@ -9,53 +9,58 @@ interface IgsQuarterlyPaymentsTableProps {
   onDateChange: (quarter: string, value: string) => void;
 }
 
-const echeancesData = [
-  { label: '15 janvier', quarter: 'q1' },
-  { label: '15 avril', quarter: 'q2' },
-  { label: '15 juillet', quarter: 'q3' },
-  { label: '15 octobre', quarter: 'q4' }
-];
-
-export const IgsQuarterlyPaymentsTable: React.FC<IgsQuarterlyPaymentsTableProps> = ({
+export const IgsQuarterlyPaymentsTable: React.FC<IgsQuarterlyPaymentsTableProps> = memo(({
   quarterlyPayments,
   quarterlyDates,
   onPaymentChange,
   onDateChange,
 }) => {
+  const quarters = [
+    { key: 'q1', label: '1er Trimestre' },
+    { key: 'q2', label: '2e Trimestre' },
+    { key: 'q3', label: '3e Trimestre' },
+    { key: 'q4', label: '4e Trimestre' },
+  ];
+
   return (
-    <>
-      <div className="bg-gray-100 border-l-4 border-primary rounded p-2 text-sm inline-block mb-4">
-        <strong className="text-primary mr-2">Échéances :</strong>
-        <span>15 janvier, 15 avril, 15 juillet, 15 octobre</span>
-      </div>
-      <div className="overflow-x-auto mb-4">
-        <table className="w-full border-collapse text-sm">
-          <thead>
+    <div className="mt-4">
+      <h4 className="text-sm font-medium mb-3">Échéancier des paiements trimestriels</h4>
+      <div className="overflow-x-auto">
+        <table className="w-full border border-gray-200 rounded-lg">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="border border-gray-200 bg-gray-100 p-2 text-center">Échéance</th>
-              <th className="border border-gray-200 bg-gray-100 p-2 text-center">Date de paiement</th>
-              <th className="border border-gray-200 bg-gray-100 p-2 text-center">Montant payé (FCFA)</th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                Période
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                Montant (FCFA)
+              </th>
+              <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b">
+                Date de paiement
+              </th>
             </tr>
           </thead>
-          <tbody>
-            {echeancesData.map((echeance) => (
-              <tr key={`echeance-${echeance.quarter}`}>
-                <td className="border border-gray-200 p-2 text-center">{echeance.label}</td>
-                <td className="border border-gray-200 p-2">
-                  <Input
-                    type="date"
-                    className="w-[95%] p-1 border border-gray-200 rounded bg-gray-50 focus:border-primary focus:outline-none"
-                    value={quarterlyDates[echeance.quarter] || ''}
-                    onChange={(e) => onDateChange(echeance.quarter, e.target.value)}
-                  />
+          <tbody className="bg-white divide-y divide-gray-200">
+            {quarters.map((quarter) => (
+              <tr key={quarter.key} className="hover:bg-gray-50">
+                <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">
+                  {quarter.label}
                 </td>
-                <td className="border border-gray-200 p-2">
+                <td className="px-3 py-2 whitespace-nowrap">
                   <Input
                     type="text"
-                    className="w-[95%] p-1 border border-gray-200 rounded bg-gray-50 focus:border-primary focus:outline-none"
                     placeholder="0"
-                    value={quarterlyPayments[echeance.quarter] || ''}
-                    onChange={(e) => onPaymentChange(echeance.quarter, e.target.value)}
+                    value={quarterlyPayments[quarter.key] || ''}
+                    onChange={(e) => onPaymentChange(quarter.key, e.target.value)}
+                    className="w-full text-sm"
+                  />
+                </td>
+                <td className="px-3 py-2 whitespace-nowrap">
+                  <Input
+                    type="date"
+                    value={quarterlyDates[quarter.key] || ''}
+                    onChange={(e) => onDateChange(quarter.key, e.target.value)}
+                    className="w-full text-sm"
                   />
                 </td>
               </tr>
@@ -63,7 +68,8 @@ export const IgsQuarterlyPaymentsTable: React.FC<IgsQuarterlyPaymentsTableProps>
           </tbody>
         </table>
       </div>
-    </>
+    </div>
   );
-};
+});
 
+IgsQuarterlyPaymentsTable.displayName = 'IgsQuarterlyPaymentsTable';

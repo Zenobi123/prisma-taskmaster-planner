@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ObligationStatuses, ObligationType, TaxObligationStatus, IgsObligationStatus } from '@/hooks/fiscal/types';
 import { formatNumberWithSpaces, parseFormattedNumber } from '@/utils/numberFormatting';
@@ -19,116 +19,115 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
 
   const igsStatus = obligationStatuses.igs as IgsObligationStatus;
 
-  const [quarterlyPayments, setQuarterlyPayments] = useState<Record<string, string>>({
-    q1: '', q2: '', q3: '', q4: ''
-  });
-  const [quarterlyDates, setQuarterlyDates] = useState<Record<string, string>>({
-    q1: '', q2: '', q3: '', q4: ''
-  });
+  // États locaux pour les inputs formatés - stabilisés avec useMemo
+  const initialQuarterlyPayments = useMemo(() => ({
+    q1: formatNumberWithSpaces(String(igsStatus?.q1Montant || '')),
+    q2: formatNumberWithSpaces(String(igsStatus?.q2Montant || '')),
+    q3: formatNumberWithSpaces(String(igsStatus?.q3Montant || '')),
+    q4: formatNumberWithSpaces(String(igsStatus?.q4Montant || ''))
+  }), [igsStatus?.q1Montant, igsStatus?.q2Montant, igsStatus?.q3Montant, igsStatus?.q4Montant]);
 
-  // Sync local formatted state from global igsStatus (for inputs)
+  const initialQuarterlyDates = useMemo(() => ({
+    q1: igsStatus?.q1Date || '',
+    q2: igsStatus?.q2Date || '',
+    q3: igsStatus?.q3Date || '',
+    q4: igsStatus?.q4Date || ''
+  }), [igsStatus?.q1Date, igsStatus?.q2Date, igsStatus?.q3Date, igsStatus?.q4Date]);
+
+  const [quarterlyPayments, setQuarterlyPayments] = useState(initialQuarterlyPayments);
+  const [quarterlyDates, setQuarterlyDates] = useState(initialQuarterlyDates);
+
+  // Synchronisation une seule fois lors du changement des valeurs globales
   useEffect(() => {
-    if (igsStatus) {
-      setQuarterlyPayments({
-        q1: formatNumberWithSpaces(String(igsStatus.q1Montant || '')),
-        q2: formatNumberWithSpaces(String(igsStatus.q2Montant || '')),
-        q3: formatNumberWithSpaces(String(igsStatus.q3Montant || '')),
-        q4: formatNumberWithSpaces(String(igsStatus.q4Montant || ''))
-      });
-      setQuarterlyDates({
-        q1: igsStatus.q1Date || '',
-        q2: igsStatus.q2Date || '',
-        q3: igsStatus.q3Date || '',
-        q4: igsStatus.q4Date || ''
-      });
+    setQuarterlyPayments(initialQuarterlyPayments);
+  }, [initialQuarterlyPayments]);
+
+  useEffect(() => {
+    setQuarterlyDates(initialQuarterlyDates);
+  }, [initialQuarterlyDates]);
+
+  // Calcul IGS stabilisé avec useMemo et debounce
+  const igsCalculationResult = useMemo(() => {
+    if (!igsStatus || !igsStatus.caValue) {
+      return { class: '-', amount: 0, outOfRange: false };
     }
-  }, [
-    igsStatus?.q1Montant, igsStatus?.q2Montant, igsStatus?.q3Montant, igsStatus?.q4Montant,
-    igsStatus?.q1Date, igsStatus?.q2Date, igsStatus?.q3Date, igsStatus?.q4Date,
-    // Add igsStatus itself to re-evaluate if the object reference changes,
-    // ensuring initial load and reset scenarios are handled.
-    igsStatus 
-  ]);
-
-  // Update IGS calculation when revenue (caValue) or CGA status changes
-  useEffect(() => {
-    const caNum = parseFormattedNumber(igsStatus?.caValue);
-    // Only calculate if caNum is positive. If caValue is empty or zero, it will be handled.
-    // An explicit check for igsStatus.caValue being undefined or empty might be good too.
-    if (igsStatus && (typeof igsStatus.caValue === 'string' || typeof igsStatus.caValue === 'number')) {
-      if (igsStatus.caValue === '' || caNum === 0) {
-        handleStatusChange('igs', 'classe', '-');
-        handleStatusChange('igs', 'montantAnnuel', 0);
-        handleStatusChange('igs', 'outOfRange', false);
-      } else {
-        const result = calculateIGS(caNum, igsStatus.isCGA || false);
-        handleStatusChange('igs', 'classe', result.class);
-        handleStatusChange('igs', 'montantAnnuel', result.amount);
-        handleStatusChange('igs', 'outOfRange', result.outOfRange);
-      }
+    
+    const caNum = parseFormattedNumber(igsStatus.caValue);
+    if (caNum === 0) {
+      return { class: '-', amount: 0, outOfRange: false };
     }
-  }, [igsStatus?.caValue, igsStatus?.isCGA, handleStatusChange]); // Removed calculateIGS as it's stable
+    
+    return calculateIGS(caNum, igsStatus.isCGA || false);
+  }, [igsStatus?.caValue, igsStatus?.isCGA]);
 
-  // Effect to update global IGS status (qXMontant, montantTotalPaye, soldeRestant)
-  // based on local quarterlyPayments (user input) and igsStatus.montantAnnuel.
+  // Mise à jour du calcul IGS seulement si les valeurs ont vraiment changé
   useEffect(() => {
-    if (!igsStatus) return; // Guard clause
+    if (!igsStatus) return;
+    
+    const currentResult = igsCalculationResult;
+    
+    // Éviter les mises à jour inutiles
+    if (igsStatus.classe !== currentResult.class ||
+        igsStatus.montantAnnuel !== currentResult.amount ||
+        igsStatus.outOfRange !== currentResult.outOfRange) {
+      
+      handleStatusChange('igs', 'classe', currentResult.class);
+      handleStatusChange('igs', 'montantAnnuel', currentResult.amount);
+      handleStatusChange('igs', 'outOfRange', currentResult.outOfRange);
+    }
+  }, [igsCalculationResult, igsStatus?.classe, igsStatus?.montantAnnuel, igsStatus?.outOfRange, handleStatusChange]);
 
+  // Calculs des totaux stabilisés
+  const calculatedTotals = useMemo(() => {
     const q1Amount = parseFormattedNumber(quarterlyPayments.q1);
     const q2Amount = parseFormattedNumber(quarterlyPayments.q2);
     const q3Amount = parseFormattedNumber(quarterlyPayments.q3);
     const q4Amount = parseFormattedNumber(quarterlyPayments.q4);
-  
-    if (igsStatus.q1Montant !== q1Amount) {
-      handleStatusChange('igs', 'q1Montant', q1Amount);
-    }
-    if (igsStatus.q2Montant !== q2Amount) {
-      handleStatusChange('igs', 'q2Montant', q2Amount);
-    }
-    if (igsStatus.q3Montant !== q3Amount) {
-      handleStatusChange('igs', 'q3Montant', q3Amount);
-    }
-    if (igsStatus.q4Montant !== q4Amount) {
-      handleStatusChange('igs', 'q4Montant', q4Amount);
-    }
-  
+    
     const totalPaid = q1Amount + q2Amount + q3Amount + q4Amount;
-    const currentMontantAnnuel = igsStatus.montantAnnuel || 0; // montantAnnuel is source of truth from calculation
+    const currentMontantAnnuel = igsStatus?.montantAnnuel || 0;
     const soldeRestant = Math.max(0, currentMontantAnnuel - totalPaid);
-  
-    if (igsStatus.montantTotalPaye !== totalPaid) {
-      handleStatusChange('igs', 'montantTotalPaye', totalPaid);
-    }
-    if (igsStatus.soldeRestant !== soldeRestant) {
-      handleStatusChange('igs', 'soldeRestant', soldeRestant);
-    }
-  }, [
-    quarterlyPayments, 
-    igsStatus, // Full igsStatus to react to montantAnnuel changes correctly
-    handleStatusChange
-  ]);
-  
-  // Effect to update global IGS dates based on local quarterlyDates
-  useEffect(() => {
-    if (!igsStatus) return; // Guard clause
+    
+    return { q1Amount, q2Amount, q3Amount, q4Amount, totalPaid, soldeRestant };
+  }, [quarterlyPayments, igsStatus?.montantAnnuel]);
 
-    if (igsStatus.q1Date !== quarterlyDates.q1) {
-      handleStatusChange('igs', 'q1Date', quarterlyDates.q1);
-    }
-    if (igsStatus.q2Date !== quarterlyDates.q2) {
-      handleStatusChange('igs', 'q2Date', quarterlyDates.q2);
-    }
-    if (igsStatus.q3Date !== quarterlyDates.q3) {
-      handleStatusChange('igs', 'q3Date', quarterlyDates.q3);
-    }
-    if (igsStatus.q4Date !== quarterlyDates.q4) {
-      handleStatusChange('igs', 'q4Date', quarterlyDates.q4);
-    }
-  }, [
-    quarterlyDates, 
-    igsStatus, // Full igsStatus for initial sync and comparison
-    handleStatusChange
-  ]);
+  // Mise à jour des montants trimestriels et totaux - avec comparaison pour éviter les boucles
+  useEffect(() => {
+    if (!igsStatus) return;
+
+    const { q1Amount, q2Amount, q3Amount, q4Amount, totalPaid, soldeRestant } = calculatedTotals;
+    
+    // Mise à jour seulement si les valeurs ont vraiment changé
+    const updates: Array<{ field: string; value: number }> = [];
+    
+    if (igsStatus.q1Montant !== q1Amount) updates.push({ field: 'q1Montant', value: q1Amount });
+    if (igsStatus.q2Montant !== q2Amount) updates.push({ field: 'q2Montant', value: q2Amount });
+    if (igsStatus.q3Montant !== q3Amount) updates.push({ field: 'q3Montant', value: q3Amount });
+    if (igsStatus.q4Montant !== q4Amount) updates.push({ field: 'q4Montant', value: q4Amount });
+    if (igsStatus.montantTotalPaye !== totalPaid) updates.push({ field: 'montantTotalPaye', value: totalPaid });
+    if (igsStatus.soldeRestant !== soldeRestant) updates.push({ field: 'soldeRestant', value: soldeRestant });
+    
+    // Appliquer toutes les mises à jour en une fois
+    updates.forEach(({ field, value }) => {
+      handleStatusChange('igs', field, value);
+    });
+  }, [calculatedTotals, igsStatus, handleStatusChange]);
+
+  // Mise à jour des dates
+  useEffect(() => {
+    if (!igsStatus) return;
+
+    const updates: Array<{ field: string; value: string }> = [];
+    
+    if (igsStatus.q1Date !== quarterlyDates.q1) updates.push({ field: 'q1Date', value: quarterlyDates.q1 });
+    if (igsStatus.q2Date !== quarterlyDates.q2) updates.push({ field: 'q2Date', value: quarterlyDates.q2 });
+    if (igsStatus.q3Date !== quarterlyDates.q3) updates.push({ field: 'q3Date', value: quarterlyDates.q3 });
+    if (igsStatus.q4Date !== quarterlyDates.q4) updates.push({ field: 'q4Date', value: quarterlyDates.q4 });
+    
+    updates.forEach(({ field, value }) => {
+      handleStatusChange('igs', field, value);
+    });
+  }, [quarterlyDates, igsStatus, handleStatusChange]);
 
   const toggleDetails = useCallback((taxType: string) => {
     setOpenedDetails(prev => ({ ...prev, [taxType]: !prev[taxType] }));
@@ -162,10 +161,10 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">Impôts directs</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-0"> {/* Adjusted space-y for item margin */}
+      <CardContent className="space-y-0">
         {taxItems.map(item => {
           const obligation = obligationStatuses[item.key];
-          if (!obligation || typeof obligation.assujetti === 'undefined') return null; // Basic check
+          if (!obligation || typeof obligation.assujetti === 'undefined') return null;
 
           let igsSpecifics;
           if (item.key === 'igs' && igsStatus) {
@@ -178,7 +177,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
               quarterlyDates: quarterlyDates,
               onQuarterlyPaymentChange: handleLocalQuarterlyPaymentChange,
               onQuarterlyDateChange: handleLocalQuarterlyDateChange,
-              currentIgsStatusForDisplay: igsStatus, // Pass the full, current IGS status
+              currentIgsStatusForDisplay: igsStatus,
             };
           }
 
@@ -187,7 +186,7 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
               key={item.key}
               taxKey={item.key}
               taxName={item.name}
-              obligation={obligation as TaxObligationStatus} // Cast, assuming valid structure after check
+              obligation={obligation as TaxObligationStatus}
               isDetailsOpened={openedDetails[item.key] || false}
               onToggleDetails={() => toggleDetails(item.key)}
               handleStatusChange={handleStatusChange}
@@ -199,4 +198,3 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
     </Card>
   );
 };
-
