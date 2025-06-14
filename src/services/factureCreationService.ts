@@ -26,15 +26,19 @@ export const factureCreationService = {
           montant: factureData.montant,
           status: factureData.status,
           status_paiement: factureData.status_paiement,
-          mode: factureData.mode,
-          prestations: factureData.prestations,
+          mode_paiement: factureData.mode,
           notes: factureData.notes
         }])
         .select('*, client:clients(*)')
         .single();
 
       if (error) throw error;
-      return data;
+      
+      return {
+        ...data,
+        mode: data.mode_paiement,
+        prestations: factureData.prestations || []
+      };
     } catch (error) {
       console.error('Erreur lors de la création de la facture:', error);
       throw error;
@@ -50,7 +54,12 @@ export const factureCreationService = {
         .single();
 
       if (error) throw error;
-      return data;
+      
+      return {
+        ...data,
+        mode: data.mode_paiement,
+        prestations: data.prestations || []
+      };
     } catch (error) {
       console.error('Erreur lors de la récupération de la facture:', error);
       throw error;

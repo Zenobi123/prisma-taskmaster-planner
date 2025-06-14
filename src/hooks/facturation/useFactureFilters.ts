@@ -10,9 +10,9 @@ interface DateRange {
 export const useFactureFilters = (factures: Facture[]) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string | null>(null);
+  const [statusPaiementFilter, setStatusPaiementFilter] = useState<string | null>(null);
   const [clientFilter, setClientFilter] = useState<string | null>(null);
-  const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });
+  const [dateFilter, setDateFilter] = useState<DateRange>({ from: null, to: null });
 
   const filteredFactures = useMemo(() => {
     return factures.filter((facture) => {
@@ -22,36 +22,36 @@ export const useFactureFilters = (factures: Facture[]) => {
         facture.id.toLowerCase().includes(searchLower);
 
       const matchesStatus = !statusFilter || facture.status === statusFilter;
-      const matchesPaymentStatus = !paymentStatusFilter || facture.status_paiement === paymentStatusFilter;
+      const matchesPaymentStatus = !statusPaiementFilter || facture.status_paiement === statusPaiementFilter;
       const matchesClient = !clientFilter || facture.client_id === clientFilter;
 
       let matchesDateRange = true;
-      if (dateRange?.from) {
+      if (dateFilter?.from) {
         const factureDate = new Date(facture.date);
-        const fromDate = new Date(dateRange.from);
+        const fromDate = new Date(dateFilter.from);
         matchesDateRange = factureDate >= fromDate;
       }
-      if (dateRange?.to && matchesDateRange) {
+      if (dateFilter?.to && matchesDateRange) {
         const factureDate = new Date(facture.date);
-        const toDate = new Date(dateRange.to);
+        const toDate = new Date(dateFilter.to);
         matchesDateRange = factureDate <= toDate;
       }
 
       return matchesSearch && matchesStatus && matchesPaymentStatus && matchesClient && matchesDateRange;
     });
-  }, [factures, searchTerm, statusFilter, paymentStatusFilter, clientFilter, dateRange]);
+  }, [factures, searchTerm, statusFilter, statusPaiementFilter, clientFilter, dateFilter]);
 
   return {
     searchTerm,
     setSearchTerm,
     statusFilter,
     setStatusFilter,
-    statusPaiementFilter: paymentStatusFilter,
-    setStatusPaiementFilter: setPaymentStatusFilter,
+    statusPaiementFilter,
+    setStatusPaiementFilter,
     clientFilter,
     setClientFilter,
-    dateFilter: dateRange,
-    setDateFilter: setDateRange,
+    dateFilter,
+    setDateFilter,
     filteredFactures,
   };
 };

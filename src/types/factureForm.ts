@@ -12,4 +12,4 @@ export interface FactureFormData {
   notes?: string;
 }
 
-export { Prestation };
+export type { Prestation };

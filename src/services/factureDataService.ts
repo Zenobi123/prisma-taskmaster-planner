@@ -121,57 +121,53 @@ const buildCompleteFacture = (facture: any, client: any, prestationsData: any[],
 };
 
 // Fetch all factures with related data
-export const getFacturesData = async () => {
+export const getFacturesData = async (): Promise<Facture[]> => {
   try {
-    console.log("Fetching factures data...");
-    // Fetch factures data
-    const { data: facturesData, error: facturesError } = await supabase
-      .from("factures")
-      .select("*");
-      
-    if (facturesError) {
-      console.error("Error fetching factures:", facturesError);
-      throw new Error(`Failed to fetch invoices: ${facturesError.message}`);
+    const { data: facturesData, error } = await supabase
+      .from('factures')
+      .select(`
+        *,
+        client:clients (
+          id,
+          nom,
+          raisonsociale,
+          contact,
+          adresse,
+          type
+        )
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Erreur lors de la récupération des factures:', error);
+      throw error;
     }
-    
-    console.log("Factures fetched:", facturesData?.length || 0);
-    
-    // Fetch clients data once for all factures
-    const clientsData = await getClientsData();
-    
-    // Process each facture with its related data
-    const facturesWithDetails = await Promise.all(
-      facturesData.map(async (facture) => {
-        // Find the client for this facture
-        const client = clientsData.find((c) => c.id === facture.client_id);
-        
-        if (!client) {
-          console.error(`Client not found for facture: ${facture.id}`);
-          return null;
-        }
-        
-        // Fetch related data for this facture
-        const prestationsData = await getPrestationsForFacture(facture.id);
-        const paiementsData = await getPaiementsForFacture(facture.id);
-        
-        // Build and return the complete facture object
-        return buildCompleteFacture(facture, client, prestationsData, paiementsData);
-      })
-    );
-    
-    // Filter out any null values (factures that failed to load properly)
-    const validFactures = facturesWithDetails.filter(f => f !== null) as Facture[];
-    console.log("Valid factures processed:", validFactures.length);
-    
-    return validFactures;
+
+    if (!facturesData) {
+      return [];
+    }
+
+    return facturesData.map(facture => ({
+      ...facture,
+      mode: facture.mode_paiement || '',
+      prestations: facture.prestations || [],
+      status: facture.status as "brouillon" | "envoyée" | "annulée",
+      status_paiement: facture.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+      client: {
+        id: facture.client?.id || '',
+        nom: facture.client?.nom || facture.client?.raisonsociale || '',
+        adresse: typeof facture.client?.adresse === 'object' ? 
+          `${facture.client.adresse?.ville || ''} ${facture.client.adresse?.quartier || ''}`.trim() :
+          facture.client?.adresse || '',
+        telephone: typeof facture.client?.contact === 'object' ? 
+          facture.client.contact?.telephone || '' : '',
+        email: typeof facture.client?.contact === 'object' ? 
+          facture.client.contact?.email || '' : ''
+      }
+    }));
   } catch (error) {
-    console.error("Error in getFacturesData:", error);
-    // Provide a more user-friendly error message
-    if (error instanceof Error) {
-      throw new Error(`Failed to retrieve invoices: ${error.message}`);
-    } else {
-      throw new Error("An unexpected error occurred while retrieving invoices");
-    }
+    console.error('Erreur dans getFacturesData:', error);
+    throw error;
   }
 };
 

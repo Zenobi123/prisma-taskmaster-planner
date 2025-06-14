@@ -1,4 +1,3 @@
-
 import { Facture } from "@/types/facture";
 import { supabase } from "@/integrations/supabase/client";
 import { isOverdue, formatDateForDatabase } from "./factureStatusService";
@@ -41,7 +40,7 @@ export const updateFactureInDatabase = async (facture: Facture): Promise<boolean
         montant_paye: facture.montant_paye || 0,
         status: facture.status,
         status_paiement: updatedStatusPaiement,
-        mode: facture.mode,
+        mode_paiement: facture.mode,
         notes: facture.notes,
         updated_at: new Date().toISOString()
       })
@@ -102,8 +101,7 @@ export const updateFacture = async (id: string, factureData: Partial<Facture>): 
         montant: factureData.montant,
         status: factureData.status,
         status_paiement: factureData.status_paiement,
-        mode: factureData.mode,
-        prestations: factureData.prestations,
+        mode_paiement: factureData.mode,
         notes: factureData.notes
       })
       .eq('id', id)
@@ -112,10 +110,10 @@ export const updateFacture = async (id: string, factureData: Partial<Facture>): 
 
     if (error) throw error;
     
-    // Ensure prestations is always an array
     return {
       ...data,
-      prestations: data.prestations || []
+      mode: data.mode_paiement,
+      prestations: factureData.prestations || []
     };
   } catch (error) {
     console.error('Erreur lors de la mise à jour de la facture:', error);

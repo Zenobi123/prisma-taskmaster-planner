@@ -40,57 +40,57 @@ const PreviewDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[85vh] bg-white">
-        <DialogHeader className="border-b pb-4">
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <Eye className="w-6 h-6 text-blue-600" />
+      <DialogContent className="max-w-4xl max-h-[85vh] bg-white border border-gray-200">
+        <DialogHeader className="border-b border-gray-100 pb-4">
+          <DialogTitle className="flex items-center gap-2 text-xl text-gray-900">
+            <Eye className="w-5 h-5 text-[#84A98C]" />
             Aperçu du courrier
           </DialogTitle>
           <div className="flex gap-3 mt-3">
-            <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+            <Badge variant="secondary" className="bg-[#84A98C] text-white">
               <Users className="w-3 h-3 mr-1" />
               {clients.length} destinataire{clients.length > 1 ? 's' : ''}
             </Badge>
-            <Badge variant="outline" className="border-purple-200 text-purple-700">
+            <Badge variant="outline" className="border-gray-300 text-gray-700">
               <FileText className="w-3 h-3 mr-1" />
               {generationType === "masse" ? "Publipostage" : "Individuel"}
             </Badge>
-            <Badge variant="outline" className="border-green-200 text-green-700">
+            <Badge variant="outline" className="border-[#84A98C] text-[#84A98C]">
               {template.title}
             </Badge>
           </div>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
-          <div className="bg-gray-50 rounded-lg p-6 h-full overflow-y-auto">
-            <div className="bg-white rounded-lg shadow-sm p-8 mx-auto max-w-2xl">
+          <div className="bg-gray-50 rounded-lg p-4 h-full overflow-y-auto">
+            <div className="bg-white rounded border border-gray-200 p-6 mx-auto max-w-2xl">
               <div className="whitespace-pre-line text-sm leading-relaxed text-gray-800">
                 {previewContent}
               </div>
               
               {customMessage && (
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg border-l-4 border-blue-400">
-                  <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
+                <div className="mt-4 p-3 bg-blue-50 rounded border-l-4 border-[#84A98C]">
+                  <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
                     <FileText className="w-4 h-4" />
                     Message personnalisé :
                   </h4>
-                  <div className="text-blue-800 text-sm leading-relaxed">{customMessage}</div>
+                  <div className="text-gray-800 text-sm leading-relaxed">{customMessage}</div>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        <DialogFooter className="border-t pt-4 flex justify-between items-center">
+        <DialogFooter className="border-t border-gray-100 pt-4 flex justify-between items-center">
           <div className="text-sm text-gray-500 flex items-center gap-2">
             <Users className="w-4 h-4" />
             Aperçu basé sur : {previewClient.type === "morale" ? previewClient.raisonsociale : previewClient.nom}
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="border-gray-300 text-gray-700 hover:bg-gray-50">
               Fermer
             </Button>
-            <Button onClick={handleDownload} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700">
+            <Button onClick={handleDownload} className="bg-[#84A98C] hover:bg-[#6B8E74] text-white">
               <Download className="w-4 h-4 mr-2" />
               Télécharger
             </Button>

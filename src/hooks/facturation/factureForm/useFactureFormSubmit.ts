@@ -1,10 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { factureCreationService } from "@/services/factureCreationService";
-import { Facture } from "@/types/facture";
-import { toast } from "sonner";
+
+import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { FactureFormData, Prestation } from "@/types/factureForm";
-import { updateFacture } from "@/services/factureServices/factureUpdateService";
+import { addFactureToDatabase } from '@/services/factureService';
+import { Prestation } from '@/types/facture';
+import { FactureFormData } from '@/types/factureForm';
 
 export const useFactureFormSubmit = (
   selectedClientId: string,
@@ -12,97 +11,59 @@ export const useFactureFormSubmit = (
   onFactureCreated: () => void,
   onOpenChange: (open: boolean) => void
 ) => {
-  const queryClient = useQueryClient();
-
-  const createFacture = useMutation({
-    mutationFn: (factureData: Facture) => factureCreationService.createFacture(factureData),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['factures'] });
-      toast.success("Facture créée avec succès");
-    },
-    onError: (error) => {
-      console.error('Erreur lors de la création de la facture:', error);
-      toast.error("Erreur lors de la création de la facture");
-    }
-  });
-
-  const updateFacture = useMutation({
-    mutationFn: ({ id, data }: { id: string, data: Partial<Facture> }) => updateFacture(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['factures'] });
-      toast.success("Facture modifiée avec succès");
-    },
-    onError: (error) => {
-      console.error('Erreur lors de la modification de la facture:', error);
-      toast.error("Erreur lors de la modification de la facture");
-    }
-  });
-
   const onSubmit = async (data: FactureFormData) => {
-    if (!selectedClientId) {
-      toast.error("Veuillez sélectionner un client");
-      return;
-    }
-
-    if (prestations.length === 0) {
-      toast.error("Veuillez ajouter au moins une prestation");
-      return;
-    }
-
     try {
+      if (!selectedClientId) {
+        toast.error('Veuillez sélectionner un client');
+        return;
+      }
+
+      if (prestations.length === 0) {
+        toast.error('Veuillez ajouter au moins une prestation');
+        return;
+      }
+
+      const totalAmount = prestations.reduce((sum, p) => sum + p.montant, 0);
+
       const factureData = {
-        ...data,
+        id: crypto.randomUUID(),
         client_id: selectedClientId,
         date: format(data.date, 'yyyy-MM-dd'),
         echeance: format(data.echeance, 'yyyy-MM-dd'),
         prestations: prestations.map(p => ({
-          id: p.id,
+          id: p.id || crypto.randomUUID(),
           description: p.description,
           quantite: p.quantite,
           prix_unitaire: p.prix_unitaire,
-          montant: p.quantite * p.prix_unitaire
+          montant: p.montant
         })),
-        montant: prestations.reduce((sum, p) => sum + (p.quantite * p.prix_unitaire), 0)
+        montant: totalAmount,
+        status: data.status as "brouillon" | "envoyée" | "annulée",
+        status_paiement: "non_payée" as const,
+        mode: data.mode || '',
+        notes: data.notes || '',
+        client: {
+          id: '',
+          nom: '',
+          adresse: '',
+          telephone: '',
+          email: ''
+        },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        montant_paye: 0
       };
 
-      await createFacture.mutateAsync(factureData);
+      await addFactureToDatabase(factureData);
+      
+      toast.success('Facture créée avec succès');
       onFactureCreated();
       onOpenChange(false);
     } catch (error) {
       console.error('Erreur lors de la création de la facture:', error);
-      toast.error("Erreur lors de la création de la facture");
+      toast.error('Erreur lors de la création de la facture');
     }
   };
 
-  const onEdit = async (data: FactureFormData, factureId: string) => {
-    try {
-      const factureData = {
-        ...data,
-        client_id: selectedClientId,
-        date: format(data.date, 'yyyy-MM-dd'),
-        echeance: format(data.echeance, 'yyyy-MM-dd'),
-        prestations: prestations.map(p => ({
-          id: p.id,
-          description: p.description,
-          quantite: p.quantite,
-          prix_unitaire: p.prix_unitaire,
-          montant: p.quantite * p.prix_unitaire
-        })),
-        montant: prestations.reduce((sum, p) => sum + (p.quantite * p.prix_unitaire), 0)
-      };
-
-      await updateFacture.mutateAsync({ id: factureId, data: factureData });
-      onFactureCreated();
-      onOpenChange(false);
-    } catch (error) {
-      console.error('Erreur lors de la modification de la facture:', error);
-      toast.error("Erreur lors de la modification de la facture");
-    }
-  };
-
-  return {
-    onSubmit,
-    onEdit,
-    isSubmitting: createFacture.isPending || updateFacture.isPending
-  };
+  return { onSubmit };
 };
