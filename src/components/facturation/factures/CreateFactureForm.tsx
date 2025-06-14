@@ -1,239 +1,184 @@
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { format } from 'date-fns';
+import { toast } from 'sonner';
+import { Plus } from 'lucide-react';
 
-import React, { useState, useEffect, useCallback } from "react";
-import { useForm, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { DialogClose, DialogFooter } from "@/components/ui/dialog";
-import ClientSelector from "./ClientSelector";
-import DatePickerField from "./DatePickerField";
-import StatusSelector from "./StatusSelector";
-import ModePaiementSelector from "./ModePaiementSelector";
-import PrestationFields from "./PrestationFields";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Facture, Prestation } from "@/types/facture";
-import { useFactureForm } from "@/hooks/facturation/factureForm/useFactureForm";
-import { Client } from "@/types/client";
-import { toast } from "sonner";
-import { formatDate } from "@/utils/factureUtils";
+import { Textarea } from "@/components/ui/textarea";
 
-const validationSchema = z.object({
-  client_id: z.string().min(1, "Client requis"),
-  date: z.date({ required_error: "Date requise" }),
-  echeance: z.date({ required_error: "Échéance requise" }),
-  status: z.enum(["brouillon", "envoyée", "annulée"], { errorMap: () => ({ message: "Statut requis" }) }),
-  status_paiement: z.enum(["non_payée", "partiellement_payée", "payée", "en_retard"], { errorMap: () => ({ message: "Statut de paiement requis" }) }),
+import { ClientSelector } from './ClientSelector';
+import { DatePickerField } from './DatePickerField';
+import { StatusSelector } from './StatusSelector';
+import { ModePaiementSelector } from './ModePaiementSelector';
+import { PrestationFields } from './PrestationFields';
+import { TotalAmountDisplay } from './TotalAmountDisplay';
+
+import { Prestation } from '@/types/facture';
+import { useFactureFormSubmit } from '@/hooks/facturation/factureForm/useFactureFormSubmit';
+
+const factureFormSchema = z.object({
+  client_id: z.string().min(1, { message: "Veuillez sélectionner un client" }),
+  date: z.date({ required_error: "La date de facturation est requise" }),
+  echeance: z.date({ required_error: "La date d'échéance est requise" }),
+  status: z.string({ required_error: "Le statut est requis" }),
   mode: z.string().optional(),
   notes: z.string().optional(),
-  prestations: z.array(
-    z.object({
-      description: z.string().min(1, "Description requise"),
-      quantite: z.number().min(1, "Quantité doit être supérieure à 0"),
-      prix_unitaire: z.number().min(0, "Prix unitaire doit être supérieur ou égal à 0"),
-    })
-  ).min(1, "Au moins une prestation est requise"),
+  prestations: z.array(z.object({
+    id: z.string().optional(),
+    description: z.string(),
+    quantite: z.number(),
+    prix_unitaire: z.number(),
+    montant: z.number()
+  })).optional()
 });
 
-const defaultPrestation: Prestation = {
-  description: "",
-  quantite: 1,
-  prix_unitaire: 0,
-  montant: 0,
-};
+type FactureFormData = z.infer<typeof factureFormSchema>;
 
 interface CreateFactureFormProps {
-  onSuccess: (newFactureOrId: Facture | string) => void;
-  onCancel: () => void;
-  editMode?: boolean;
-  factureToEdit?: Facture | null;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onFactureCreated: () => void;
 }
 
-export const CreateFactureForm: React.FC<CreateFactureFormProps> = ({ 
-  onSuccess, 
-  onCancel, 
-  editMode = false, 
-  factureToEdit = null 
-}) => {
-  const [prestations, setPrestations] = useState<Prestation[]>(
-    factureToEdit?.prestations && factureToEdit.prestations.length > 0 
-    ? factureToEdit.prestations.map(p => ({ ...p, montant: p.montant ?? (p.quantite * p.prix_unitaire) }))
-    : [defaultPrestation]
-  );
+const CreateFactureForm = ({ open, onOpenChange, onFactureCreated }: CreateFactureFormProps) => {
+  const [selectedClientId, setSelectedClientId] = useState<string>('');
+  const [prestations, setPrestations] = useState<Prestation[]>([]);
 
   const {
-    handleSubmit,
-    control,
     register,
+    handleSubmit,
     setValue,
     watch,
-    formState: { errors },
-    reset,
-  } = useForm<any>({
-    resolver: zodResolver(validationSchema),
-    defaultValues: editMode && factureToEdit ? {
-      ...factureToEdit,
-      date: typeof factureToEdit.date === 'string' ? new Date(factureToEdit.date) : factureToEdit.date,
-      echeance: typeof factureToEdit.echeance === 'string' ? new Date(factureToEdit.echeance) : factureToEdit.echeance,
-      prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations.map(p => ({ ...p, montant: p.montant ?? (p.quantite * p.prix_unitaire) })) : [defaultPrestation],
-    } : {
-      prestations: [defaultPrestation],
-      status: "brouillon",
-      status_paiement: "non_payée",
-      mode: "Espèces",
+    formState: { errors, isSubmitting }
+  } = useForm<FactureFormData>({
+    resolver: zodResolver(factureFormSchema),
+    defaultValues: {
       date: new Date(),
-      echeance: new Date(new Date().setDate(new Date().getDate() + 30)),
-    },
+      echeance: new Date(),
+      status: 'brouillon'
+    }
   });
 
-  useEffect(() => {
-    if (editMode && factureToEdit) {
-      reset({
-        ...factureToEdit,
-        date: typeof factureToEdit.date === 'string' ? new Date(factureToEdit.date) : factureToEdit.date,
-        echeance: typeof factureToEdit.echeance === 'string' ? new Date(factureToEdit.echeance) : factureToEdit.echeance,
-        prestations: factureToEdit.prestations.length > 0 ? factureToEdit.prestations.map(p => ({ ...p, montant: p.montant ?? (p.quantite * p.prix_unitaire) })) : [defaultPrestation],
-      });
-      setPrestations(factureToEdit.prestations.length > 0 ? factureToEdit.prestations.map(p => ({ ...p, montant: p.montant ?? (p.quantite * p.prix_unitaire) })) : [defaultPrestation]);
-    }
-  }, [factureToEdit, editMode, reset]);
+  const watchDate = watch('date');
+  const watchEcheance = watch('echeance');
+  const watchStatus = watch('status');
+  const watchMode = watch('mode');
 
-  const { clients: allClients, isLoading: isLoadingClients, error: clientsError } = useFactureForm();
+  const { onSubmit } = useFactureFormSubmit(selectedClientId, prestations, onFactureCreated, onOpenChange);
 
-  const selectedClientId = watch("client_id");
+  const handleClientChange = (clientId: string) => {
+    setSelectedClientId(clientId);
+    setValue('client_id', clientId);
+  };
 
-  const calculateTotalAmount = useCallback(() => {
-    return prestations.reduce((total, p) => total + (p.quantite * (p.prix_unitaire || 0)), 0);
-  }, [prestations]);
-
-  const totalAmount = calculateTotalAmount();
-
-  useEffect(() => {
-    setValue("prestations", prestations, { shouldValidate: true });
-  }, [prestations, setValue]);
-
-  const onSubmitHandler = async (data: any) => {
-    try {
-      const toDateString = (dateVal: string | Date) =>
-        typeof dateVal === "string"
-          ? dateVal
-          : dateVal instanceof Date
-          ? dateVal.toISOString().split("T")[0]
-          : "";
-
-      const formattedData = {
-        ...data,
-        date: toDateString(data.date),
-        echeance: toDateString(data.echeance),
-        prestations: prestations.map(p => ({
-          ...p,
-          montant: p.quantite * p.prix_unitaire
-        })),
-        montant: totalAmount
-      };
-
-      console.log('Submitting facture data:', formattedData);
-      
-      if (editMode && factureToEdit) {
-        toast.success("Facture modifiée avec succès !");
-        onSuccess(factureToEdit.id);
-      } else {
-        toast.success("Facture créée avec succès !");
-        onSuccess(formattedData as Facture);
-      }
-      
-      reset();
-      setPrestations([defaultPrestation]);
-    } catch (error) {
-      toast.error(`Erreur lors de ${editMode ? "la modification" : "la création"} de la facture.`);
-      console.error(`${editMode ? "Update" : "Create"} facture error:`, error);
-    }
+  const addPrestation = () => {
+    setPrestations(prev => [...prev, { description: '', quantite: 1, prix_unitaire: 0, montant: 0 }]);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-4">
-      <ClientSelector
-        clients={allClients}
-        isLoading={isLoadingClients}
-        error={clientsError}
-        value={selectedClientId || ""}
-        onChange={(clientId) => setValue("client_id", clientId, { shouldValidate: true })}
-      />
-      {errors.client_id && <p className="text-red-500 text-sm">{errors.client_id.message}</p>}
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>Créer une nouvelle facture</DialogTitle>
+        </DialogHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Controller
-          name="date"
-          control={control}
-          render={({ field }) => (
-            <DatePickerField label="Date de la facture" date={field.value} onSelect={field.onChange} />
-          )}
-        />
-        <Controller
-          name="echeance"
-          control={control}
-          render={({ field }) => (
-            <DatePickerField label="Date d'échéance" date={field.value} onSelect={field.onChange} />
-          )}
-        />
-      </div>
-      {errors.date && <p className="text-red-500 text-sm">{errors.date.message}</p>}
-      {errors.echeance && <p className="text-red-500 text-sm">{errors.echeance.message}</p>}
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="client_id">Client *</Label>
+              <ClientSelector
+                selectedClientId={selectedClientId}
+                onClientChange={handleClientChange}
+                error={errors.client_id?.message}
+              />
+            </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Controller
-            name="status"
-            control={control}
-            render={({ field }) => (
-                <StatusSelector label="Statut de la facture" value={field.value} onChange={field.onChange} type="document"/>
-            )}
-        />
-        <Controller
-            name="status_paiement"
-            control={control}
-            render={({ field }) => (
-                <StatusSelector label="Statut de paiement" value={field.value} onChange={field.onChange} type="paiement"/>
-            )}
-        />
-      </div>
-      {errors.status && <p className="text-red-500 text-sm">{errors.status.message}</p>}
-      {errors.status_paiement && <p className="text-red-500 text-sm">{errors.status_paiement.message}</p>}
+            <div className="space-y-2">
+              <Label htmlFor="date">Date de facturation *</Label>
+              <DatePickerField
+                value={watchDate}
+                onChange={(date) => setValue('date', date)}
+                error={errors.date?.message}
+              />
+            </div>
 
-      <Controller
-        name="mode"
-        control={control}
-        render={({ field }) => (
-            <ModePaiementSelector value={field.value || ""} onChange={field.onChange} />
-        )}
-      />
-      {errors.mode && <p className="text-red-500 text-sm">{errors.mode.message}</p>}
+            <div className="space-y-2">
+              <Label htmlFor="echeance">Date d'échéance *</Label>
+              <DatePickerField
+                value={watchEcheance}
+                onChange={(date) => setValue('echeance', date)}
+                error={errors.echeance?.message}
+              />
+            </div>
 
-      <PrestationFields prestations={prestations} onPrestationsChange={setPrestations} />
-      {errors.prestations && <p className="text-red-500 text-sm">{typeof errors.prestations.message === 'string' ? errors.prestations.message : "Erreur dans les prestations"}</p>}
+            <div className="space-y-2">
+              <Label htmlFor="status">Statut *</Label>
+              <StatusSelector
+                value={watchStatus}
+                onChange={(status) => setValue('status', status)}
+                error={errors.status?.message}
+              />
+            </div>
 
-      <div className="bg-gray-50 p-3 rounded-lg">
-        <div className="flex justify-between items-center">
-          <span className="font-medium">Total :</span>
-          <span className="text-lg font-bold">{totalAmount.toLocaleString('fr-FR')} FCFA</span>
-        </div>
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="mode">Mode de paiement</Label>
+              <ModePaiementSelector
+                value={watchMode}
+                onChange={(mode) => setValue('mode', mode)}
+                error={errors.mode?.message}
+              />
+            </div>
+          </div>
 
-      <div>
-        <Label htmlFor="notes">Notes</Label>
-        <Textarea id="notes" {...register("notes")} placeholder="Ajouter des notes ici..." />
-      </div>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-lg font-semibold">Prestations *</Label>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addPrestation}
+                className="flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Ajouter une prestation
+              </Button>
+            </div>
 
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Annuler
-          </Button>
-        </DialogClose>
-        <Button type="submit">
-          {editMode ? "Modifier la facture" : "Créer la facture"}
-        </Button>
-      </DialogFooter>
-    </form>
+            <PrestationFields
+              prestations={prestations}
+              onPrestationsChange={setPrestations}
+              errors={errors.prestations}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
+              {...register('notes')}
+              placeholder="Notes additionnelles..."
+              rows={3}
+            />
+          </div>
+
+          <TotalAmountDisplay prestations={prestations} />
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Annuler
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Création...' : 'Créer la facture'}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
+
+export default CreateFactureForm;

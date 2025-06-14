@@ -1,53 +1,53 @@
+import { useState, useEffect, useMemo } from 'react';
+import { Facture } from '@/types/facture';
 
-import { useState } from "react";
-import { Facture } from "@/types/facture";
-import {
-  applySearchFilter,
-  applyStatusFilter,
-  applyClientFilter,
-  applyDateFilter
-} from "@/utils/factureUtils";
+interface DateRange {
+  from: Date | null;
+  to: Date | null;
+}
 
-export const useFactureFilters = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+export const useFactureFilters = (factures: Facture[]) => {
+  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
-  const [statusPaiementFilter, setStatusPaiementFilter] = useState<string | null>(null);
-  const [clientFilter, setClientFilter] = useState<string | null>(null);
-  const [dateFilter, setDateFilter] = useState<Date | null>(null);
-  
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange>({ from: null, to: null });
+
+  const filteredFactures = useMemo(() => {
+    return factures.filter((facture) => {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = !searchTerm || 
+        facture.client?.nom?.toLowerCase().includes(searchLower) ||
+        facture.id.toLowerCase().includes(searchLower);
+
+      const matchesStatus = !statusFilter || facture.status === statusFilter;
+
+      const matchesPaymentStatus = !paymentStatusFilter || facture.status_paiement === paymentStatusFilter;
+
+      let matchesDateRange = true;
+      if (dateRange?.from) {
+        const factureDate = new Date(facture.date);
+        const fromDate = new Date(dateRange.from);
+        matchesDateRange = factureDate >= fromDate;
+      }
+      if (dateRange?.to && matchesDateRange) {
+        const factureDate = new Date(facture.date);
+        const toDate = new Date(dateRange.to);
+        matchesDateRange = factureDate <= toDate;
+      }
+
+      return matchesSearch && matchesStatus && matchesPaymentStatus && matchesDateRange;
+    });
+  }, [factures, searchTerm, statusFilter, paymentStatusFilter, dateRange]);
+
   return {
     searchTerm,
     setSearchTerm,
     statusFilter,
     setStatusFilter,
-    statusPaiementFilter,
-    setStatusPaiementFilter,
-    clientFilter,
-    setClientFilter,
-    dateFilter,
-    setDateFilter
+    paymentStatusFilter,
+    setPaymentStatusFilter,
+    dateRange,
+    setDateRange,
+    filteredFactures,
   };
-};
-
-// Static methods for applying filters
-useFactureFilters.applyFilters = (
-  factures: Facture[],
-  searchTerm: string,
-  statusFilter: string | null,
-  statusPaiementFilter: string | null,
-  clientFilter: string | null,
-  dateFilter: Date | null
-): Facture[] => {
-  let result = applySearchFilter(factures, searchTerm);
-  result = applyStatusFilter(result, statusFilter);
-  
-  // Apply status_paiement filter
-  if (statusPaiementFilter) {
-    result = result.filter(facture => facture.status_paiement === statusPaiementFilter);
-  }
-  
-  result = applyClientFilter(result, clientFilter);
-  result = applyDateFilter(result, dateFilter);
-  
-  return result;
 };

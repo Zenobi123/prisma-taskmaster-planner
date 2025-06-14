@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Facture } from "@/types/facture";
 import { formatDate } from "@/utils/formatUtils";
@@ -173,5 +172,31 @@ export const getFacturesData = async () => {
     } else {
       throw new Error("An unexpected error occurred while retrieving invoices");
     }
+  }
+};
+
+export const getFactures = async (): Promise<Facture[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('factures')
+      .select(`
+        *,
+        client:clients(*)
+      `)
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return data.map(facture => ({
+      ...facture,
+      status_paiement: facture.status_paiement || 'non_payée',
+      prestations: facture.prestations || [],
+      montant_paye: facture.montant_paye || 0,
+      mode: facture.mode || '',
+      notes: facture.notes || ''
+    }));
+  } catch (error) {
+    console.error('Erreur lors de la récupération des factures:', error);
+    throw error;
   }
 };
