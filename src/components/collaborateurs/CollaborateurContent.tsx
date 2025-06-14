@@ -1,6 +1,5 @@
 
 import React from "react";
-import Sidebar from "@/components/dashboard/Sidebar";
 import PageLayout from "@/components/layout/PageLayout";
 import { CollaborateurHeader } from "./CollaborateurHeader";
 import { CollaborateurSearch } from "./CollaborateurSearch";
@@ -48,41 +47,38 @@ export const CollaborateurContent = ({
   onSubmit,
 }: CollaborateurContentProps) => {
   return (
-    <div className="flex h-screen">
-      <Sidebar />
-      <PageLayout>
-        <div className="p-8">
-          <CollaborateurHeader onOpenDialog={() => onOpenDialogChange(true)} />
+    <PageLayout>
+      <div className="p-8">
+        <CollaborateurHeader onOpenDialog={() => onOpenDialogChange(true)} />
 
-          <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
-            <CollaborateurSearch
-              searchTerm={searchTerm}
-              selectedStatut={selectedStatut}
-              selectedPoste={selectedPoste}
-              isFiltersOpen={isFiltersOpen}
-              postes={postes}
-              onSearchChange={onSearchChange}
-              onStatutChange={onStatutChange}
-              onPosteChange={onPosteChange}
-              onFiltersOpenChange={onFiltersOpenChange}
-            />
+        <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
+          <CollaborateurSearch
+            searchTerm={searchTerm}
+            selectedStatut={selectedStatut}
+            selectedPoste={selectedPoste}
+            isFiltersOpen={isFiltersOpen}
+            postes={postes}
+            onSearchChange={onSearchChange}
+            onStatutChange={onStatutChange}
+            onPosteChange={onPosteChange}
+            onFiltersOpenChange={onFiltersOpenChange}
+          />
 
-            <CollaborateurList 
-              collaborateurs={filteredCollaborateurs}
-              onDelete={onDelete}
-              onStatusChange={onStatusChange}
-            />
-          </div>
-
-          <CollaborateurDialog
-            isOpen={isDialogOpen}
-            onOpenChange={onOpenDialogChange}
-            collaborateur={newCollaborateur}
-            onChange={onChange}
-            onSubmit={onSubmit}
+          <CollaborateurList 
+            collaborateurs={filteredCollaborateurs}
+            onDelete={onDelete}
+            onStatusChange={onStatusChange}
           />
         </div>
-      </PageLayout>
-    </div>
+
+        <CollaborateurDialog
+          isOpen={isDialogOpen}
+          onOpenChange={onOpenDialogChange}
+          collaborateur={newCollaborateur}
+          onChange={onChange}
+          onSubmit={onSubmit}
+        />
+      </div>
+    </PageLayout>
   );
 };
