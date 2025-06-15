@@ -17,18 +17,23 @@ export const getClientsForCourrier = async (): Promise<Client[]> => {
       throw error;
     }
 
-    // Transform the data to match Client type
+    // Transform the data to match Client type with proper type conversion
     const transformedData = data?.map(client => ({
       ...client,
       type: client.type as 'physique' | 'morale',
-      contact: typeof client.contact === 'object' && client.contact !== null ? client.contact : {},
+      contact: typeof client.contact === 'object' && client.contact !== null ? 
+        {
+          telephone: (client.contact as any)?.telephone || '',
+          email: (client.contact as any)?.email || ''
+        } : 
+        { telephone: '', email: '' },
       adresse: typeof client.adresse === 'object' && client.adresse !== null && 'ville' in client.adresse ? 
         client.adresse as { ville: string; quartier: string; lieuDit: string; } : 
         { ville: '', quartier: '', lieuDit: '' },
       fiscal_data: typeof client.fiscal_data === 'object' && client.fiscal_data !== null ? client.fiscal_data : {}
     })) || [];
 
-    return transformedData as Client[];
+    return transformedData as unknown as Client[];
   } catch (error) {
     console.error('Erreur dans getClientsForCourrier:', error);
     throw error;
@@ -65,7 +70,7 @@ export const sendCourrier = async (clientIds: string[], templateId: string, cust
     // Générer le PDF pour chaque client
     for (const client of clients) {
       const clientName = client.type === 'morale' ? client.raisonsociale : client.nom;
-      const courrierContent = generateCourrierContent(client, template, customMessage);
+      const courrierContent = generateCourrierContent(client as unknown as Client, template, customMessage);
       
       // Préparer les données pour le PDF
       const pdfData = [

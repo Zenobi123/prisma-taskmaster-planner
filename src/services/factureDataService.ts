@@ -187,12 +187,20 @@ export const factureDataService = {
     try {
       const { data, error } = await supabase
         .from('paiements')
-        .select('*')
+        .select(`
+          *,
+          facture:factures(id, montant),
+          client:clients(id, nom, raisonsociale, type)
+        `)
         .eq('facture_id', factureId);
 
       if (error) throw error;
 
-      return data as Paiement[];
+      return (data || []).map(paiement => ({
+        ...paiement,
+        facture: paiement.facture || { id: '', montant: 0 },
+        client: paiement.client || { id: '', nom: '', raisonsociale: '', type: 'physique' }
+      })) as unknown as Paiement[];
     } catch (error) {
       console.error('Erreur lors de la récupération des paiements pour la facture:', error);
       throw error;
@@ -204,12 +212,20 @@ export const factureDataService = {
       const { data, error } = await supabase
         .from('paiements')
         .insert([{ ...paiement, facture_id: factureId }])
-        .select()
+        .select(`
+          *,
+          facture:factures(id, montant),
+          client:clients(id, nom, raisonsociale, type)
+        `)
         .single();
 
       if (error) throw error;
 
-      return data as Paiement;
+      return {
+        ...data,
+        facture: data.facture || { id: '', montant: 0 },
+        client: data.client || { id: '', nom: '', raisonsociale: '', type: 'physique' }
+      } as unknown as Paiement;
     } catch (error) {
       console.error('Erreur lors de l\'ajout du paiement à la facture:', error);
       throw error;
@@ -230,3 +246,6 @@ export const factureDataService = {
     }
   },
 };
+
+// Export for backward compatibility
+export const getFacturesData = factureDataService.getFactures;

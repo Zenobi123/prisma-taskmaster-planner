@@ -144,18 +144,18 @@ const Courrier: React.FC = () => {
       <div className="min-h-screen bg-gray-50">
         <CourrierHeader />
         
-        <div className="w-full px-2 sm:px-4 lg:px-6 py-4">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <div className="w-full px-0.5 sm:px-1 lg:px-1.5 py-1">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-1.5">
             {/* Sidebar - Critères de sélection */}
             <div className="lg:col-span-1">
               <Card className="shadow-sm border border-gray-200 bg-white">
-                <CardHeader className="pb-3 border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-gray-800 text-sm">
-                    <Filter className="w-4 h-4 text-[#84A98C]" />
+                <CardHeader className="pb-1.5 border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-1.5 text-gray-800 text-xs">
+                    <Filter className="w-3 h-3 text-[#84A98C]" />
                     Critères de sélection
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
+                <CardContent className="pt-1.5">
                   <CriteriaSelection 
                     selectedCriteria={selectedCriteria} 
                     onCriteriaChange={handleCriteriaChange}
@@ -167,16 +167,16 @@ const Courrier: React.FC = () => {
             </div>
 
             {/* Zone principale */}
-            <div className="lg:col-span-3 space-y-4">
+            <div className="lg:col-span-3 space-y-1.5">
               {/* Liste des clients */}
               <Card className="shadow-sm border border-gray-200 bg-white">
-                <CardHeader className="pb-3 border-b border-gray-100">
+                <CardHeader className="pb-1.5 border-b border-gray-100">
                   <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-gray-800 text-sm">
-                      <Users className="w-4 h-4 text-[#84A98C]" />
+                    <div className="flex items-center gap-1.5 text-gray-800 text-xs">
+                      <Users className="w-3 h-3 text-[#84A98C]" />
                       {generationType === "individuel" ? "Sélectionner les clients" : "Clients correspondants"}
                     </div>
-                    <Badge variant="secondary" className="bg-[#84A98C] text-white text-xs">
+                    <Badge variant="secondary" className="bg-[#84A98C] text-white text-xs px-1.5 py-0.5">
                       {generationType === "individuel" 
                         ? `${selectedClientIds.length}/${clientsForList.length} sélectionné${selectedClientIds.length > 1 ? 's' : ''}`
                         : `${finalClients.length} client${finalClients.length > 1 ? 's' : ''}`
@@ -184,7 +184,7 @@ const Courrier: React.FC = () => {
                     </Badge>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
+                <CardContent className="pt-1.5">
                   <ClientsList 
                     clients={clientsForList} 
                     selectedClientIds={selectedClientIds} 
@@ -198,13 +198,13 @@ const Courrier: React.FC = () => {
 
               {/* Sélection du modèle */}
               <Card className="shadow-sm border border-gray-200 bg-white">
-                <CardHeader className="pb-3 border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-gray-800 text-sm">
-                    <FileText className="w-4 h-4 text-[#84A98C]" />
+                <CardHeader className="pb-1.5 border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-1.5 text-gray-800 text-xs">
+                    <FileText className="w-3 h-3 text-[#84A98C]" />
                     Modèles de courrier
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
+                <CardContent className="pt-1.5">
                   <TemplateSelection 
                     selectedTemplateId={selectedTemplateId} 
                     onTemplateChange={handleTemplateChange}
@@ -215,48 +215,48 @@ const Courrier: React.FC = () => {
 
               {/* Message personnalisé */}
               <Card className="shadow-sm border border-gray-200 bg-white">
-                <CardHeader className="pb-3 border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-gray-800 text-sm">
-                    <FileText className="w-4 h-4 text-[#84A98C]" />
+                <CardHeader className="pb-1.5 border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-1.5 text-gray-800 text-xs">
+                    <FileText className="w-3 h-3 text-[#84A98C]" />
                     Message personnalisé
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
+                <CardContent className="pt-1.5">
                   <Textarea
                     value={customMessage}
                     onChange={(e) => setCustomMessage(e.target.value)}
                     placeholder="Ajoutez un message personnalisé qui sera inclus dans le courrier..."
-                    rows={4}
-                    className="border-gray-300 focus:border-[#84A98C] focus:ring-[#84A98C] text-sm"
+                    rows={3}
+                    className="border-gray-300 focus:border-[#84A98C] focus:ring-[#84A98C] text-xs"
                   />
                 </CardContent>
               </Card>
 
               {/* Actions */}
               <Card className="shadow-sm border border-gray-200 bg-white">
-                <CardHeader className="pb-3 border-b border-gray-100">
-                  <CardTitle className="flex items-center gap-2 text-gray-800 text-sm">
-                    <Mail className="w-4 h-4 text-[#84A98C]" />
+                <CardHeader className="pb-1.5 border-b border-gray-100">
+                  <CardTitle className="flex items-center gap-1.5 text-gray-800 text-xs">
+                    <Mail className="w-3 h-3 text-[#84A98C]" />
                     Actions
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-4">
-                  <div className="flex flex-col sm:flex-row gap-3">
+                <CardContent className="pt-1.5">
+                  <div className="flex flex-col sm:flex-row gap-1.5">
                     <Button 
                       onClick={handleGeneratePreview} 
                       variant="outline" 
-                      className="flex-1 border-[#84A98C] text-[#84A98C] hover:bg-[#84A98C] hover:text-white text-sm"
+                      className="flex-1 border-[#84A98C] text-[#84A98C] hover:bg-[#84A98C] hover:text-white text-xs px-2 py-1.5"
                       disabled={!selectedTemplate || finalClients.length === 0}
                     >
-                      <Eye className="w-4 h-4 mr-2" />
+                      <Eye className="w-3 h-3 mr-1" />
                       Prévisualiser
                     </Button>
                     <Button 
                       onClick={handleSendCourrier} 
-                      className="flex-1 bg-[#84A98C] hover:bg-[#6B8E74] text-white text-sm"
+                      className="flex-1 bg-[#84A98C] hover:bg-[#6B8E74] text-white text-xs px-2 py-1.5"
                       disabled={!selectedTemplate || finalClients.length === 0 || isSending}
                     >
-                      <Send className="w-4 h-4 mr-2" />
+                      <Send className="w-3 h-3 mr-1" />
                       {isSending ? "Envoi en cours..." : "Envoyer le Courrier"}
                     </Button>
                   </div>
@@ -280,10 +280,10 @@ const Courrier: React.FC = () => {
         )}
         
         {clientsError && (
-          <div className="w-full px-2 sm:px-4 lg:px-6">
+          <div className="w-full px-0.5 sm:px-1 lg:px-1.5">
             <Card className="border-red-200 bg-red-50">
-              <CardContent className="p-4">
-                <p className="text-red-600 text-sm">Erreur de chargement des clients: {clientsError.message}</p>
+              <CardContent className="p-1.5">
+                <p className="text-red-600 text-xs">Erreur de chargement des clients: {clientsError.message}</p>
               </CardContent>
             </Card>
           </div>
