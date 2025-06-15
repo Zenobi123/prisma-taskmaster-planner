@@ -5,8 +5,246 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import custom styles */
-@import './styles/base.css';
-@import './styles/components.css';
-@import './styles/utilities.css';
-@import './styles/animations.css';
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-neutral-100 text-neutral-900 font-['Inter'];
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Amélioration accessibilité (focus visible) */
+  *:focus-visible {
+    @apply outline-primary outline-2 outline-offset-2;
+  }
+  
+  /* Smooth scrolling for entire page */
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%; /* Prévient l'agrandissement de texte sur iOS */
+  }
+  
+  /* Amélioration de la lisibilité sur mobile */
+  input, button, textarea, select {
+    font-size: 16px; /* Prévient le zoom automatique sur iOS */
+  }
+  
+  /* Améliore la lisibilité des titres */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-medium tracking-tight;
+  }
+}
+
+@layer components {
+  .sidebar-link {
+    @apply flex items-center gap-2 px-2 py-1.5 text-neutral-600 hover:bg-neutral-200 rounded-md transition-all duration-300;
+    /* Améliore accessibilité sur mobile */
+    @apply min-h-[44px] md:min-h-[unset];
+  }
+
+  .sidebar-link.active {
+    @apply bg-primary text-white hover:bg-primary-hover;
+  }
+
+  .btn-primary {
+    @apply px-2 py-1.5 bg-primary text-white rounded-md hover:bg-primary-hover transition-all duration-300 disabled:opacity-50;
+    /* Touch target size for mobile */
+    @apply min-h-[44px] md:min-h-[unset];
+  }
+
+  .btn-secondary {
+    @apply px-2 py-1.5 bg-neutral-200 text-neutral-700 rounded-md hover:bg-neutral-300 transition-all duration-300;
+    /* Touch target size for mobile */
+    @apply min-h-[44px] md:min-h-[unset];
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-sm border border-neutral-200 p-1.5 sm:p-2 animate-fade-in hover:shadow transition-all duration-300;
+  }
+
+  .input-field {
+    @apply w-full px-2 py-1.5 border border-neutral-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all duration-300;
+    /* Prevent zoom on iOS */
+    @apply text-base md:text-sm;
+  }
+
+  .table-container {
+    @apply w-full overflow-x-auto rounded-lg border border-neutral-200;
+  }
+
+  .table {
+    @apply w-full text-sm text-left;
+  }
+
+  .table th {
+    @apply px-1 sm:px-2 md:px-3 py-1.5 bg-neutral-100 text-neutral-600 font-semibold;
+    /* Amélioration lisibilité mobile */
+    @apply text-xs sm:text-sm whitespace-nowrap;
+  }
+
+  .table td {
+    @apply px-1 sm:px-2 md:px-3 py-1.5 sm:py-2 border-t border-neutral-200;
+    /* Amélioration lisibilité mobile */
+    @apply text-xs sm:text-sm;
+  }
+
+  .badge {
+    @apply px-1.5 py-0.5 text-xs font-medium rounded-full transition-all duration-300;
+  }
+
+  .badge-green {
+    @apply bg-primary/10 text-primary;
+  }
+
+  .badge-gray {
+    @apply bg-neutral-200 text-neutral-700;
+  }
+  
+  /* New enhanced animations */
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+  
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1 hover:shadow-md;
+  }
+  
+  .fade-in {
+    @apply animate-fade-in;
+  }
+  
+  .slide-in {
+    @apply animate-slide-in;
+  }
+  
+  /* Responsive improvements with minimal margins */
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-1.5;
+  }
+  
+  .responsive-flex {
+    @apply flex flex-col sm:flex-row gap-1.5;
+  }
+  
+  .responsive-p {
+    @apply p-0.5 sm:p-1 md:p-1.5;
+  }
+  
+  .responsive-text {
+    @apply text-sm sm:text-base;
+  }
+  
+  /* Responsive spacing classes with minimal margins */
+  .responsive-mt {
+    @apply mt-0.5 sm:mt-1 md:mt-1.5;
+  }
+  
+  .responsive-mb {
+    @apply mb-0.5 sm:mb-1 md:mb-1.5;
+  }
+  
+  .responsive-my {
+    @apply my-0.5 sm:my-1 md:my-1.5;
+  }
+  
+  .responsive-gap {
+    @apply gap-0.5 sm:gap-1 md:gap-1.5;
+  }
+  
+  /* Container pour les éléments tactiles */
+  .touch-container {
+    @apply min-h-[44px] flex items-center;
+  }
+
+  /* Minimal container margins for maximum space utilization */
+  .container-tight {
+    @apply max-w-full px-0.5 sm:px-1 lg:px-1.5;
+  }
+}
+
+/* Enhanced animation keyframes */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.5s ease-out;
+  }
+  
+  .animate-slide-in {
+    animation: slide-in 0.5s ease-out;
+  }
+  
+  .animate-pulse-slow {
+    animation: pulse 3s infinite;
+  }
+  
+  /* Responsive text utilities */
+  .text-responsive-xs {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-sm {
+    @apply text-sm md:text-base;
+  }
+  
+  .text-responsive-base {
+    @apply text-sm md:text-base lg:text-lg;
+  }
+  
+  .text-responsive-title {
+    @apply text-lg sm:text-xl md:text-2xl;
+  }
+  
+  /* Safe area utilities for iOS */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Minimal margin utility classes */
+  .mx-minimal {
+    @apply mx-0.5 sm:mx-1 lg:mx-1.5;
+  }
+  
+  .px-minimal {
+    @apply px-0.5 sm:px-1 lg:px-1.5;
+  }
+  
+  .py-minimal {
+    @apply py-0.5 sm:py-1 lg:py-1.5;
+  }
+}
