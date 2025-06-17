@@ -46,7 +46,7 @@ export const factureCreationService = {
       
       return {
         ...data,
-        mode: data.mode_paiement,
+        mode: data.mode_paiement || "",
         status: data.status as "brouillon" | "envoyée" | "annulée",
         status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
         prestations: factureData.prestations || [],
@@ -92,7 +92,7 @@ export const factureCreationService = {
       
       return {
         ...data,
-        mode: data.mode_paiement,
+        mode: data.mode_paiement || "",
         status: data.status as "brouillon" | "envoyée" | "annulée",
         status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
         prestations: [],
