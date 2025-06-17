@@ -1,4 +1,3 @@
-
 import { Facture } from "@/types/facture";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -46,7 +45,8 @@ export const factureCreationService = {
       
       return {
         ...data,
-        mode: data.mode_paiement || "",
+        mode: data.mode_paiement,
+        montant_paye: data.montant_paye || 0,
         status: data.status as "brouillon" | "envoyée" | "annulée",
         status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
         prestations: factureData.prestations || [],
@@ -92,7 +92,7 @@ export const factureCreationService = {
       
       return {
         ...data,
-        mode: data.mode_paiement || "",
+        mode: data.mode_paiement,
         status: data.status as "brouillon" | "envoyée" | "annulée",
         status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
         prestations: [],

@@ -56,13 +56,13 @@ const Sidebar = () => {
   return (
     <aside
       className={`${
-        isSidebarOpen ? "w-56" : "w-16"
+        isSidebarOpen ? "w-64" : "w-20"
       } bg-white border-r border-neutral-200 transition-all duration-300 ease-in-out flex flex-col`}
     >
-      <div className="p-3 border-b border-neutral-200">
+      <div className="p-4 border-b border-neutral-200">
         <div className="flex items-center justify-between">
           <h1
-            className={`font-semibold text-neutral-800 transition-opacity duration-300 text-sm ${
+            className={`font-semibold text-neutral-800 transition-opacity duration-300 ${
               !isSidebarOpen && "opacity-0 hidden"
             }`}
           >
@@ -70,15 +70,15 @@ const Sidebar = () => {
           </h1>
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-1.5 hover:bg-neutral-100 rounded-md transition-colors"
+            className="p-2 hover:bg-neutral-100 rounded-md transition-colors"
             aria-label={isSidebarOpen ? "Réduire le menu" : "Agrandir le menu"}
           >
-            <Menu className="w-4 h-4 text-neutral-600" />
+            <Menu className="w-5 h-5 text-neutral-600" />
           </button>
         </div>
       </div>
 
-      <nav className="flex-1 py-3 px-1.5 space-y-0.5">
+      <nav className="flex-1 py-4 px-2 space-y-1">
         {filteredMenuItems.map((item) => (
           <Link
             key={item.path}
@@ -87,27 +87,27 @@ const Sidebar = () => {
               isActiveRoute(item.path) && "active"
             }`}
           >
-            <item.icon className="w-4 h-4 shrink-0" />
+            <item.icon className="w-5 h-5 shrink-0" />
             <span
-              className={`transition-opacity duration-300 text-sm ${
+              className={`transition-opacity duration-300 ${
                 !isSidebarOpen && "opacity-0 hidden"
               }`}
             >
               {item.label}
             </span>
             {!isSidebarOpen && (
-              <div className="absolute left-12 bg-neutral-800 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
+              <div className="absolute left-14 bg-neutral-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
                 {item.label}
               </div>
             )}
             {isActiveRoute(item.path) && (
-              <ChevronRight className={`w-3 h-3 ml-auto ${!isSidebarOpen && "hidden"}`} />
+              <ChevronRight className={`w-4 h-4 ml-auto ${!isSidebarOpen && "hidden"}`} />
             )}
           </Link>
         ))}
       </nav>
 
-      <div className={`p-3 border-t border-neutral-200 ${!isSidebarOpen && "flex justify-center"}`}>
+      <div className={`p-4 border-t border-neutral-200 ${!isSidebarOpen && "flex justify-center"}`}>
         <LogoutButton />
       </div>
     </aside>
