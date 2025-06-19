@@ -6,7 +6,7 @@ import { shouldClientBeSubjectToObligation } from "./defaultObligationRules";
 
 export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
   try {
-    console.log("Fetching clients with unpaid IGS from fiscal_data...");
+    console.log("🔍 Fetching clients with unpaid IGS...");
     
     const { data: clientsData, error } = await supabase
       .from('clients')
@@ -14,33 +14,36 @@ export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
       .eq('statut', 'actif');
 
     if (error) {
-      console.error('Error fetching clients:', error);
+      console.error('❌ Error fetching clients:', error);
       return [];
     }
 
     if (!clientsData) {
-      console.log("No clients data found");
+      console.log("⚠️ No clients data found");
       return [];
     }
 
-    console.log(`Processing ${clientsData.length} active clients for IGS status`);
+    console.log(`📊 Processing ${clientsData.length} active clients for unpaid IGS`);
 
-    // Map raw client data to Client type
     const clients = clientsData.map(mapClientRowToClient);
+    let unpaidCount = 0;
 
     const unpaidIgsClients = clients.filter(client => {
       try {
-        // Vérifier d'abord si le client devrait être assujetti à l'IGS
+        // Check if client should be subject to IGS
         const shouldBeSubject = shouldClientBeSubjectToObligation(client, "igs");
+        
         if (!shouldBeSubject) {
           return false;
         }
 
-        console.log(`Client ${client.id} should be subject to IGS`);
+        console.log(`✅ Client ${client.id} (${client.nom || client.raisonsociale}) should be subject to IGS`);
 
+        // If no fiscal data, client should pay but hasn't = unpaid
         if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
-          console.log(`Client ${client.id} has no fiscal data - considering as unpaid`);
-          return true; // Devrait être assujetti mais pas de données = non payé
+          console.log(`⚠️ Client ${client.id} has no fiscal data - considering as unpaid`);
+          unpaidCount++;
+          return true;
         }
 
         const fiscalData = client.fiscal_data as any;
@@ -49,35 +52,45 @@ export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
         const yearObligations = fiscalData.obligations?.[selectedYear];
         
         if (!yearObligations || typeof yearObligations !== 'object') {
-          console.log(`Client ${client.id} has no obligations for year ${selectedYear} - considering as unpaid`);
-          return true; // Devrait être assujetti mais pas d'obligations = non payé
+          console.log(`⚠️ Client ${client.id} has no obligations for year ${selectedYear} - considering as unpaid`);
+          unpaidCount++;
+          return true;
         }
 
         const igsObligation = yearObligations.igs;
         
         if (!igsObligation || typeof igsObligation !== 'object') {
-          console.log(`Client ${client.id} has no IGS obligation - considering as unpaid`);
-          return true; // Devrait être assujetti mais pas d'obligation IGS = non payé
+          console.log(`⚠️ Client ${client.id} has no IGS obligation data - considering as unpaid`);
+          unpaidCount++;
+          return true;
         }
 
-        // Client avec IGS non payée : assujetti = true ET payee = false
+        // Client is subject to IGS but hasn't paid
         const isSubjectToIgs = igsObligation.assujetti === true;
         const isIgsPaid = igsObligation.payee === true;
 
-        console.log(`Client ${client.id} IGS status: subject=${isSubjectToIgs}, paid=${isIgsPaid}`);
+        console.log(`📋 Client ${client.id} IGS status: subject=${isSubjectToIgs}, paid=${isIgsPaid}`);
 
-        return isSubjectToIgs && !isIgsPaid;
+        const isUnpaid = isSubjectToIgs && !isIgsPaid;
+        if (isUnpaid) {
+          unpaidCount++;
+          console.log(`💰 Client ${client.id} has unpaid IGS`);
+        }
+
+        return isUnpaid;
       } catch (error) {
-        console.error(`Error processing client ${client.id}:`, error);
+        console.error(`❌ Error processing client ${client.id}:`, error);
         return false;
       }
     });
 
-    console.log(`Found ${unpaidIgsClients.length} clients with unpaid IGS out of ${clients.length} total clients`);
+    console.log(`🎯 Final result: Found ${unpaidIgsClients.length} clients with unpaid IGS out of ${clients.length} total clients`);
+    console.log(`📝 Unpaid clients:`, unpaidIgsClients.map(c => ({ id: c.id, nom: c.nom || c.raisonsociale })));
+    
     return unpaidIgsClients;
     
   } catch (error) {
-    console.error('Error in getClientsWithUnpaidIgs:', error);
+    console.error('❌ Error in getClientsWithUnpaidIgs:', error);
     return [];
   }
 };

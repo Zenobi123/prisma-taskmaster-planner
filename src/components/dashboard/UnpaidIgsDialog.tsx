@@ -2,9 +2,9 @@
 import React from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { getClientsWithUnpaidIgs } from '@/services/unpaidIgsService';
+import { getClientsWithUnpaidIgs } from '@/services/fiscal/unpaidIgsService';
 import { useQuery } from '@tanstack/react-query';
-import { LoaderCircle, X } from 'lucide-react';
+import { LoaderCircle } from 'lucide-react';
 import { Client } from '@/types/client';
 import { useNavigate } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
@@ -21,9 +21,9 @@ export const UnpaidIgsDialog = ({ isOpen, onClose }: UnpaidIgsDialogProps) => {
   const { data: unpaidIgsClients = [], isLoading } = useQuery({
     queryKey: ['unpaidIgsClients'],
     queryFn: getClientsWithUnpaidIgs,
-    enabled: isOpen, // Only fetch when dialog is open
-    staleTime: 60 * 1000, // 1 minute
-    gcTime: 5 * 60 * 1000 // 5 minutes
+    enabled: isOpen,
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000
   });
   
   const handleViewClient = (clientId: string) => {
@@ -31,12 +31,12 @@ export const UnpaidIgsDialog = ({ isOpen, onClose }: UnpaidIgsDialogProps) => {
     onClose();
   };
   
-  // Fonction pour afficher le nom du client
   const getClientName = (client: Client) => {
     return client.nom || client.raisonsociale || 'Client sans nom';
   };
   
-  // Si la liste est vide, proposer un contenu alternatif
+  console.log("UnpaidIgsDialog - Clients found:", unpaidIgsClients.length);
+  
   if (!isLoading && unpaidIgsClients && unpaidIgsClients.length === 0) {
     return (
       <Dialog open={isOpen} onOpenChange={() => onClose()}>

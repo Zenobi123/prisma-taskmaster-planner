@@ -1,122 +1,61 @@
-import { Facture } from "@/types/facture";
+
 import { supabase } from "@/integrations/supabase/client";
-import { isOverdue, formatDateForDatabase } from "./factureStatusService";
+import { Facture } from "@/types/facture";
 
-// Update a facture in the database
-export const updateFactureInDatabase = async (facture: Facture): Promise<boolean> => {
-  try {
-    console.log("Updating facture:", facture.id);
-    
-    // Vérifier si la facture est déjà payée et si on essaie de l'annuler
-    if (facture.status === "annulée" && facture.status_paiement === "payée") {
-      throw new Error("Impossible d'annuler une facture qui est déjà payée.");
-    }
-    
-    // Check if invoice is overdue using our rule:
-    // Une facture est considérée en retard uniquement lorsqu'elle n'est pas complètement payée après sa date d'échéance
-    const isPastDue = isOverdue(
-      facture.echeance, 
-      facture.montant_paye || 0, 
-      facture.montant
-    );
-    
-    const shouldBeOverdue = isPastDue && 
-      facture.status === "envoyée" && 
-      (facture.status_paiement === "non_payée" || facture.status_paiement === "partiellement_payée");
-    
-    // Update status_paiement if overdue
-    const updatedStatusPaiement = shouldBeOverdue ? "en_retard" : facture.status_paiement;
-    
-    const formattedDate = formatDateForDatabase(facture.date);
-    const formattedEcheance = formatDateForDatabase(facture.echeance);
-    
-    // 1. Update the facture in the database
-    const { error: factureError } = await supabase
-      .from("factures")
-      .update({
-        date: formattedDate,
-        echeance: formattedEcheance,
-        montant: facture.montant,
-        montant_paye: facture.montant_paye || 0,
-        status: facture.status,
-        status_paiement: updatedStatusPaiement,
-        mode_paiement: facture.mode,
-        notes: facture.notes,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", facture.id);
-      
-    if (factureError) {
-      console.error("Error updating facture:", factureError);
-      throw new Error(`Failed to update invoice: ${factureError.message}`);
-    }
-    
-    // 2. Delete existing prestations for this facture
-    const { error: deleteError } = await supabase
-      .from("prestations")
-      .delete()
-      .eq("facture_id", facture.id);
-      
-    if (deleteError) {
-      console.error("Error deleting existing prestations:", deleteError);
-      throw new Error(`Failed to update invoice services: ${deleteError.message}`);
-    }
-    
-    // 3. Insert new prestations for this facture
-    if (facture.prestations && facture.prestations.length > 0) {
-      const prestationsToInsert = facture.prestations.map(prestation => ({
-        id: prestation.id,
-        facture_id: facture.id,
-        description: prestation.description,
-        quantite: prestation.quantite,
-        montant: prestation.montant
-      }));
-      
-      const { error: prestationsError } = await supabase
-        .from("prestations")
-        .insert(prestationsToInsert);
-        
-      if (prestationsError) {
-        console.error("Error inserting prestations:", prestationsError);
-        throw new Error(`Failed to update invoice services: ${prestationsError.message}`);
-      }
-    }
-    
-    console.log("Facture successfully updated");
-    return true;
-  } catch (error) {
-    console.error("Error in updateFactureInDatabase:", error);
-    throw error;
-  }
-};
+export const updateFactureService = {
+  async updateFacture(id: string, updates: Partial<Facture>): Promise<Facture> {
+    try {
+      const { data, error } = await supabase
+        .from('factures')
+        .update({
+          client_id: updates.client_id,
+          date: updates.date,
+          echeance: updates.echeance,
+          montant: updates.montant,
+          status: updates.status,
+          status_paiement: updates.status_paiement,
+          mode_paiement: updates.mode,
+          notes: updates.notes
+        })
+        .eq('id', id)
+        .select(`
+          *,
+          client:clients(
+            id,
+            nom,
+            raisonsociale,
+            contact,
+            adresse,
+            type
+          )
+        `)
+        .single();
 
-export const updateFacture = async (id: string, factureData: Partial<Facture>): Promise<Facture> => {
-  try {
-    const { data, error } = await supabase
-      .from('factures')
-      .update({
-        client_id: factureData.client_id,
-        date: factureData.date,
-        echeance: factureData.echeance,
-        montant: factureData.montant,
-        status: factureData.status,
-        status_paiement: factureData.status_paiement,
-        mode_paiement: factureData.mode,
-        notes: factureData.notes
-      })
-      .eq('id', id)
-      .select('*, client:clients(*)')
-      .single();
-
-    if (error) throw error;
-    
-    return {
-      ...data,
-      mode: data.mode_paiement,
-      prestations: factureData.prestations || []
-    };
-  } catch (error) {
-    console.error('Erreur lors de la mise à jour de la facture:', error);
-    throw error;
+      if (error) throw error;
+      
+      // Transform the client data to match the expected format
+      const transformedClient = data.client ? {
+        id: data.client.id,
+        nom: data.client.type === "physique" ? data.client.nom || "" : data.client.raisonsociale || "",
+        adresse: typeof data.client.adresse === 'object' && data.client.adresse && 'ville' in data.client.adresse ? 
+          String(data.client.adresse.ville) : "",
+        telephone: typeof data.client.contact === 'object' && data.client.contact && 'telephone' in data.client.contact ? 
+          String(data.client.contact.telephone) : "",
+        email: typeof data.client.contact === 'object' && data.client.contact && 'email' in data.client.contact ? 
+          String(data.client.contact.email) : ""
+      } : undefined;
+      
+      return {
+        ...data,
+        mode: data.mode_paiement,
+        status: data.status as "brouillon" | "envoyée" | "annulée",
+        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+        prestations: [],
+        client: transformedClient
+      };
+    } catch (error) {
+      console.error('Error updating facture:', error);
+      throw error;
+    }
   }
 };

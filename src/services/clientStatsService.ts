@@ -1,6 +1,9 @@
 
 import { supabase } from "@/integrations/supabase/client";
-import { getClientsWithUnpaidIgs, getClientsWithUnpaidPatente, getClientsWithUnfiledDsf, getClientsWithUnfiledDarp } from "./fiscalObligationsService";
+import { getClientsWithUnpaidIgs } from "./fiscal/unpaidIgsService";
+import { getClientsWithUnpaidPatente } from "./fiscal/unpaidPatenteService";
+import { getClientsWithUnfiledDsf } from "./fiscal/unfiledDsfService";
+import { getClientsWithUnfiledDarp } from "./fiscal/unfiledDarpService";
 
 export interface ClientStats {
   managedClients: number;
@@ -13,7 +16,7 @@ export interface ClientStats {
 
 export const getClientsStats = async (): Promise<ClientStats> => {
   try {
-    console.log("Getting client stats...");
+    console.log("📊 Getting client stats...");
     
     // Get all active clients
     const { data: clients, error } = await supabase
@@ -22,7 +25,7 @@ export const getClientsStats = async (): Promise<ClientStats> => {
       .eq('statut', 'actif');
 
     if (error) {
-      console.error('Error fetching clients:', error);
+      console.error('❌ Error fetching clients:', error);
       return {
         managedClients: 0,
         fanrH2Clients: 0,
@@ -36,36 +39,29 @@ export const getClientsStats = async (): Promise<ClientStats> => {
     const managedClients = clients?.length || 0;
     const fanrH2Clients = clients?.filter(client => client.inscriptionfanrharmony2 === true).length || 0;
 
-    console.log(`Found ${managedClients} managed clients, ${fanrH2Clients} FANR H2 clients`);
+    console.log(`📈 Found ${managedClients} managed clients, ${fanrH2Clients} FANR H2 clients`);
 
-    // Get fiscal obligations data using the updated services
+    // Get fiscal obligations data using the centralized services
     const [unpaidIgsClients, unpaidPatenteClients, unfiledDsfClients, unfiledDarpClients] = await Promise.all([
       getClientsWithUnpaidIgs().catch(err => {
-        console.error('Error getting unpaid IGS clients:', err);
+        console.error('❌ Error getting unpaid IGS clients:', err);
         return [];
       }),
       getClientsWithUnpaidPatente().catch(err => {
-        console.error('Error getting unpaid patente clients:', err);
+        console.error('❌ Error getting unpaid patente clients:', err);
         return [];
       }),
       getClientsWithUnfiledDsf().catch(err => {
-        console.error('Error getting unfiled DSF clients:', err);
+        console.error('❌ Error getting unfiled DSF clients:', err);
         return [];
       }),
       getClientsWithUnfiledDarp().catch(err => {
-        console.error('Error getting unfiled DARP clients:', err);
+        console.error('❌ Error getting unfiled DARP clients:', err);
         return [];
       })
     ]);
 
-    console.log("Client stats:", {
-      unpaidIgsCount: unpaidIgsClients.length,
-      unpaidPatenteCount: unpaidPatenteClients.length,
-      unfiledDsfCount: unfiledDsfClients.length,
-      unfiledDarpCount: unfiledDarpClients.length
-    });
-
-    return {
+    const stats = {
       managedClients,
       fanrH2Clients,
       unpaidIgsClients: unpaidIgsClients.length,
@@ -73,8 +69,12 @@ export const getClientsStats = async (): Promise<ClientStats> => {
       unfiledDsfClients: unfiledDsfClients.length,
       unfiledDarpClients: unfiledDarpClients.length
     };
+
+    console.log("📊 Final client stats:", stats);
+
+    return stats;
   } catch (error) {
-    console.error('Error in getClientsStats:', error);
+    console.error('❌ Error in getClientsStats:', error);
     return {
       managedClients: 0,
       fanrH2Clients: 0,
