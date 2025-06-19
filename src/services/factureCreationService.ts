@@ -5,9 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 export const factureCreationService = {
   async createFacture(factureData: Facture): Promise<Facture> {
     try {
+      // Generate a unique ID for the facture
+      const factureId = `FAC-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
       const { data, error } = await supabase
         .from('factures')
         .insert({
+          id: factureId,
           client_id: factureData.client_id,
           date: factureData.date,
           echeance: factureData.echeance,

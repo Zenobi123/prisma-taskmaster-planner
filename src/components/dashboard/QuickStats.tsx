@@ -207,7 +207,7 @@ const QuickStats = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="card">
           <h3 className="font-semibold text-neutral-800 mb-4">
             Clients inscrits en FANR H2
@@ -220,6 +220,20 @@ const QuickStats = () => {
             )}
           </div>
           <p className="text-neutral-600 text-sm mt-1">Total</p>
+        </div>
+
+        <div className="card">
+          <h3 className="font-semibold text-neutral-800 mb-4">
+            Missions en cours
+          </h3>
+          <div className="text-3xl font-bold text-primary">
+            {isTasksLoading ? (
+              <span className="animate-pulse">--</span>
+            ) : (
+              activeTasks
+            )}
+          </div>
+          <p className="text-neutral-600 text-sm mt-1">Tâches actives</p>
         </div>
       </div>
       
