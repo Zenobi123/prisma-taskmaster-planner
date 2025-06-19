@@ -15,8 +15,16 @@ interface UnpaidIgsDialogProps {
   clients: Client[];
 }
 
-export const UnpaidIgsDialog = ({ isOpen, onClose, clients }: UnpaidIgsDialogProps) => {
+export const UnpaidIgsDialog = ({ isOpen, onClose }: UnpaidIgsDialogProps) => {
   const navigate = useNavigate();
+  
+  const { data: unpaidIgsClients = [], isLoading } = useQuery({
+    queryKey: ['unpaidIgsClients'],
+    queryFn: getClientsWithUnpaidIgs,
+    enabled: isOpen, // Only fetch when dialog is open
+    staleTime: 60 * 1000, // 1 minute
+    gcTime: 5 * 60 * 1000 // 5 minutes
+  });
   
   const handleViewClient = (clientId: string) => {
     navigate(`/gestion?client=${clientId}&tab=obligations-fiscales`);
@@ -29,7 +37,7 @@ export const UnpaidIgsDialog = ({ isOpen, onClose, clients }: UnpaidIgsDialogPro
   };
   
   // Si la liste est vide, proposer un contenu alternatif
-  if (clients && clients.length === 0) {
+  if (!isLoading && unpaidIgsClients && unpaidIgsClients.length === 0) {
     return (
       <Dialog open={isOpen} onOpenChange={() => onClose()}>
         <DialogContent className="sm:max-w-md">
@@ -56,30 +64,36 @@ export const UnpaidIgsDialog = ({ isOpen, onClose, clients }: UnpaidIgsDialogPro
             Clients n'ayant pas payé leur IGS
           </DialogTitle>
           <DialogDescription>
-            {clients ? clients.length : 0} clients ont un IGS non payé.
+            {isLoading ? "Chargement..." : `${unpaidIgsClients.length} clients ont un IGS non payé.`}
           </DialogDescription>
         </DialogHeader>
         <Separator />
         
-        <div className="max-h-96 overflow-y-auto">
-          {clients && clients.map((client) => (
-            <div key={client.id} className="py-2">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-sm font-medium">{getClientName(client)}</p>
+        {isLoading ? (
+          <div className="flex items-center justify-center p-4">
+            <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <div className="max-h-96 overflow-y-auto">
+            {unpaidIgsClients.map((client) => (
+              <div key={client.id} className="py-2">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm font-medium">{getClientName(client)}</p>
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleViewClient(client.id)}
+                  >
+                    Gérer
+                  </Button>
                 </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleViewClient(client.id)}
-                >
-                  Gérer
-                </Button>
+                <Separator className="mt-2" />
               </div>
-              <Separator className="mt-2" />
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
         
         <div className="flex justify-end">
           <Button variant="outline" onClick={onClose}>Fermer</Button>

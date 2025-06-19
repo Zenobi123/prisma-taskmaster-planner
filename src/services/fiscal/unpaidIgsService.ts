@@ -18,7 +18,12 @@ export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
       return [];
     }
 
-    if (!clientsData) return [];
+    if (!clientsData) {
+      console.log("No clients data found");
+      return [];
+    }
+
+    console.log(`Processing ${clientsData.length} active clients for IGS status`);
 
     // Map raw client data to Client type
     const clients = clientsData.map(mapClientRowToClient);
@@ -31,7 +36,10 @@ export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
           return false;
         }
 
+        console.log(`Client ${client.id} should be subject to IGS`);
+
         if (!client.fiscal_data || typeof client.fiscal_data !== 'object') {
+          console.log(`Client ${client.id} has no fiscal data - considering as unpaid`);
           return true; // Devrait être assujetti mais pas de données = non payé
         }
 
@@ -41,18 +49,22 @@ export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
         const yearObligations = fiscalData.obligations?.[selectedYear];
         
         if (!yearObligations || typeof yearObligations !== 'object') {
+          console.log(`Client ${client.id} has no obligations for year ${selectedYear} - considering as unpaid`);
           return true; // Devrait être assujetti mais pas d'obligations = non payé
         }
 
         const igsObligation = yearObligations.igs;
         
         if (!igsObligation || typeof igsObligation !== 'object') {
+          console.log(`Client ${client.id} has no IGS obligation - considering as unpaid`);
           return true; // Devrait être assujetti mais pas d'obligation IGS = non payé
         }
 
         // Client avec IGS non payée : assujetti = true ET payee = false
         const isSubjectToIgs = igsObligation.assujetti === true;
         const isIgsPaid = igsObligation.payee === true;
+
+        console.log(`Client ${client.id} IGS status: subject=${isSubjectToIgs}, paid=${isIgsPaid}`);
 
         return isSubjectToIgs && !isIgsPaid;
       } catch (error) {
@@ -61,7 +73,7 @@ export const getClientsWithUnpaidIgs = async (): Promise<Client[]> => {
       }
     });
 
-    console.log(`Found ${unpaidIgsClients.length} clients with unpaid IGS`);
+    console.log(`Found ${unpaidIgsClients.length} clients with unpaid IGS out of ${clients.length} total clients`);
     return unpaidIgsClients;
     
   } catch (error) {

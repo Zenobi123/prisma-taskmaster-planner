@@ -83,6 +83,9 @@ const QuickStats = () => {
   const completedMissions = countCompletedMissions();
   const activeCollaborators = countActiveCollaborators();
 
+  console.log("QuickStats - Client Stats:", clientStats);
+  console.log("QuickStats - Subject Clients:", subjectClients);
+
   return (
     <div className="grid grid-cols-1 gap-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
