@@ -44,6 +44,7 @@ const QuickStats = () => {
     refetchOnWindowFocus: true
   });
 
+  // Count tasks that are currently active (en_cours)
   const activeTasks = tasks.filter((task: any) => task.status === "en_cours").length;
 
   const countCompletedMissions = () => {
