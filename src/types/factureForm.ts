@@ -33,3 +33,21 @@ export interface FactureFilters {
   sortKey: string;
   sortDirection: 'asc' | 'desc';
 }
+
+// Form type for react-hook-form compatibility
+export interface FactureCreateFormData {
+  client_id?: string;
+  date?: Date;
+  echeance?: Date;
+  montant?: number;
+  status?: string;
+  mode?: string;
+  prestations?: {
+    id?: string;
+    description?: string;
+    quantite?: number;
+    prix_unitaire?: number;
+    montant?: number;
+  }[];
+  notes?: string;
+}
