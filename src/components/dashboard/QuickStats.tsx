@@ -1,3 +1,4 @@
+
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { getTasks } from "@/services/taskService";
@@ -45,9 +46,6 @@ const QuickStats = () => {
 
   // Count tasks that are currently active (en_cours)
   const activeTasks = tasks.filter((task: any) => task.status === "en_cours").length;
-  
-  // Count tasks that are overdue (en_retard)
-  const overdueTasks = tasks.filter((task: any) => task.status === "en_retard").length;
 
   const countCompletedMissions = () => {
     let completedCount = 0;
@@ -236,12 +234,10 @@ const QuickStats = () => {
             {isTasksLoading ? (
               <span className="animate-pulse">--</span>
             ) : (
-              overdueTasks
+              activeTasks
             )}
           </div>
-          <p className="text-neutral-600 text-sm mt-1">
-            {activeTasks} Tâches actives
-          </p>
+          <p className="text-neutral-600 text-sm mt-1">Tâches actives</p>
         </div>
       </div>
       
