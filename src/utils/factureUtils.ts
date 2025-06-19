@@ -1,3 +1,4 @@
+
 import { Facture } from "@/types/facture";
 
 export const formatCurrency = (amount: number): string => {
@@ -39,6 +40,15 @@ export const parseDate = (date: string | Date): Date => {
     }
   }
   return date;
+};
+
+// New utility functions for the tests
+export const formatFactureNumber = (factureId: string): string => {
+  return factureId;
+};
+
+export const calculateFactureTotal = (facture: Facture): number => {
+  return facture.montant;
 };
 
 export const calculateFactureStatus = (facture: Facture): string => {

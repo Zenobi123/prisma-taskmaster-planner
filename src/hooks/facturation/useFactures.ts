@@ -1,120 +1,108 @@
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Facture } from "@/types/facture";
-import { useToast } from "@/components/ui/use-toast";
-import { useFacturesList } from "./useFacturesList";
-import { useFactureFilters } from "./useFactureFilters";
-import { useFactureSorting } from "./useFactureSorting";
-import { useFacturePagination } from "./useFacturePagination";
+import { getFactures } from "@/services/factureService";
 import { useFactureActions } from "./useFactureActions";
-import { useFactureDialog } from "./useFactureDialog";
+import { useToast } from "@/hooks/use-toast";
+import { 
+  applySearchFilter, 
+  applyStatusFilter, 
+  applyClientFilter, 
+  applyDateFilter,
+  sortFactures,
+  getPaginatedFactures,
+  calculateTotalPages
+} from "@/utils/factureUtils";
+
+const ITEMS_PER_PAGE = 10;
 
 export const useFactures = () => {
   const { toast } = useToast();
+  const [factures, setFactures] = useState<Facture[]>([]);
   
-  // Get factures data and clients
-  const { factures, setFactures, allClients } = useFacturesList(toast);
-  
-  // Filter states and handlers
-  const { 
-    searchTerm, 
-    setSearchTerm,
-    statusFilter, 
-    setStatusFilter,
-    statusPaiementFilter, 
-    setStatusPaiementFilter,
-    clientFilter, 
-    setClientFilter,
-    dateFilter, 
-    setDateFilter,
-    filteredFactures
-  } = useFactureFilters(factures);
-  
-  // Sorting states and handlers
-  const { 
-    sortKey, 
-    setSortKey,
-    sortDirection, 
-    setSortDirection
-  } = useFactureSorting();
-  
-  // Facture actions (view, download, edit, delete, send, cancel)
-  const { 
-    handleVoirFacture, 
-    handleTelechargerFacture,
-    addFacture,
-    updateFacture,
-    deleteFacture,
-    sendFacture,
-    cancelFacture
-  } = useFactureActions(toast, factures, setFactures);
-  
-  // Edit dialog state and handlers
-  const {
-    editFactureDialogOpen,
-    setEditFactureDialogOpen,
-    currentEditFacture,
-    setCurrentEditFacture,
-    handleEditFacture
-  } = useFactureDialog();
-  
-  // Apply sorting to filtered factures
-  const sortedFactures = useMemo(() => {
-    const sorted = [...filteredFactures].sort((a, b) => {
-      const getValue = (item: Facture, key: string) => {
-        switch (key) {
-          case 'date':
-          case 'echeance':
-            return new Date(item[key as keyof Facture] as string).getTime();
-          case 'client':
-            return item.client?.nom || '';
-          case 'montant':
-            return item.montant;
-          default:
-            return String(item[key as keyof Facture] || '');
-        }
-      };
-
-      const aValue = getValue(a, sortKey);
-      const bValue = getValue(b, sortKey);
-
-      if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
-      if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
-      return 0;
-    });
-    return sorted;
-  }, [filteredFactures, sortKey, sortDirection]);
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusPaiementFilter, setStatusPaiementFilter] = useState("all");
+  const [clientFilter, setClientFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState<Date | undefined>(undefined);
+  const [sortKey, setSortKey] = useState("date");
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>("desc");
   
   // Pagination
-  const { 
-    currentPage, 
-    setCurrentPage,
-    itemsPerPage,
-    totalPages,
-    paginatedFactures
-  } = useFacturePagination(sortedFactures);
+  const [currentPage, setCurrentPage] = useState(1);
   
-  // Reset to first page when filters change
+  // Dialog states
+  const [editFactureDialogOpen, setEditFactureDialogOpen] = useState(false);
+  const [currentEditFacture, setCurrentEditFacture] = useState<Facture | null>(null);
+
+  // Fetch data
+  const { data: facturesData = [], isLoading } = useQuery({
+    queryKey: ["factures"],
+    queryFn: getFactures,
+  });
+
+  const { data: allClients = [] } = useQuery({
+    queryKey: ["clients-for-factures"],
+    queryFn: async () => {
+      const { getClients } = await import("@/services/clientService");
+      return getClients();
+    },
+  });
+
+  // Update local state when data changes
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, statusFilter, statusPaiementFilter, clientFilter, dateFilter]);
+    setFactures(facturesData);
+  }, [facturesData]);
+
+  // Filter and sort factures
+  const filteredFactures = useMemo(() => {
+    let filtered = [...factures];
+    
+    // Apply filters
+    filtered = applySearchFilter(filtered, searchTerm);
+    filtered = applyStatusFilter(filtered, statusFilter);
+    filtered = applyClientFilter(filtered, clientFilter);
+    
+    // Apply date filter
+    if (dateFilter) {
+      filtered = applyDateFilter(filtered, dateFilter.toISOString().split('T')[0]);
+    }
+    
+    // Apply status payment filter
+    if (statusPaiementFilter !== "all") {
+      filtered = filtered.filter(facture => facture.status_paiement === statusPaiementFilter);
+    }
+    
+    // Sort
+    filtered = sortFactures(filtered, sortKey, sortDirection);
+    
+    return filtered;
+  }, [factures, searchTerm, statusFilter, statusPaiementFilter, clientFilter, dateFilter, sortKey, sortDirection]);
+
+  // Pagination
+  const totalPages = calculateTotalPages(filteredFactures.length, ITEMS_PER_PAGE);
+  const paginatedFactures = getPaginatedFactures(filteredFactures, currentPage, ITEMS_PER_PAGE);
+
+  // Actions
+  const factureActions = useFactureActions(toast, factures, setFactures);
+
+  const handleEditFacture = (facture: Facture) => {
+    setCurrentEditFacture(facture);
+    setEditFactureDialogOpen(true);
+  };
 
   return {
+    // Data
+    factures: paginatedFactures,
+    paginatedFactures,
+    allClients,
+    isLoading,
+    
+    // Filters
     searchTerm,
     setSearchTerm,
-    factures,
-    paginatedFactures,
-    filteredAndSortedFactures: sortedFactures,
-    allClients,
-    handleVoirFacture,
-    handleTelechargerFacture,
-    handleEditFacture,
-    addFacture,
-    updateFacture,
-    deleteFacture,
-    sendFacture,
-    cancelFacture,
-    // Filters
     statusFilter,
     setStatusFilter,
     statusPaiementFilter,
@@ -122,22 +110,25 @@ export const useFactures = () => {
     clientFilter,
     setClientFilter,
     dateFilter,
-    setDateFilter,
-    // Sorting
+    setDateFilter: (date: Date | undefined) => setDateFilter(date),
     sortKey,
     setSortKey,
     sortDirection,
     setSortDirection,
+    
     // Pagination
     currentPage,
     setCurrentPage,
     totalPages,
-    // Edit dialog state
+    
+    // Actions
+    ...factureActions,
+    handleEditFacture,
+    
+    // Dialog states
     editFactureDialogOpen,
     setEditFactureDialogOpen,
     currentEditFacture,
-    setCurrentEditFacture
+    setCurrentEditFacture,
   };
 };
-
-export { useFactures as default };
