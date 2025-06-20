@@ -14,12 +14,15 @@ export const useTaskStats = (tasks: any[], isLoading: boolean) => {
     // Count tasks that are currently active (en_cours)
     const activeTasks = tasks.filter((task: any) => task.status === "en_cours").length;
 
-    // Count overdue tasks
+    // Count overdue tasks - use end_date instead of deadline
     const now = new Date();
+    now.setHours(0, 0, 0, 0); // Set to beginning of day for accurate comparison
+    
     const overdueTasks = tasks.filter((task: any) => {
-      if (task.status !== "en_cours" || !task.deadline) return false;
-      const deadline = new Date(task.deadline);
-      return deadline < now;
+      if (task.status === "termine" || !task.end_date) return false;
+      const endDate = new Date(task.end_date);
+      endDate.setHours(0, 0, 0, 0); // Set to beginning of day
+      return endDate < now;
     }).length;
 
     // Count completed missions this month
@@ -29,6 +32,14 @@ export const useTaskStats = (tasks: any[], isLoading: boolean) => {
       const endDate = new Date(task.end_date);
       return endDate.getMonth() === currentMonth;
     }).length;
+
+    console.log("Task stats calculation:", {
+      totalTasks: tasks.length,
+      activeTasks,
+      overdueTasks,
+      completedMissions,
+      now: now.toISOString().split('T')[0]
+    });
 
     return {
       activeTasks,
