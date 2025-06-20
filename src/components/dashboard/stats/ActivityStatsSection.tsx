@@ -28,7 +28,7 @@ export const ActivityStatsSection = ({
       <StatsCard
         title="Missions en cours"
         value={isTasksLoading ? "--" : overdueTasks}
-        description={isTasksLoading ? "Tâches actives" : `${activeTasks} Tâches actives`}
+        description={isTasksLoading ? "-- Tâches actives" : `${activeTasks} Tâches actives`}
         isLoading={isTasksLoading}
       />
     </div>
