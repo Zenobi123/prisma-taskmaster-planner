@@ -9,8 +9,8 @@ export interface Prestation {
 
 export interface FactureFormData {
   client_id: string;
-  date: string;
-  echeance: string;
+  date: Date;
+  echeance: Date;
   montant: number;
   status: "brouillon" | "envoyée" | "annulée";
   status_paiement: "non_payée" | "partiellement_payée" | "payée" | "en_retard";
