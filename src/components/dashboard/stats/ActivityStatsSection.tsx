@@ -30,6 +30,12 @@ export const ActivityStatsSection = ({
         value={isTasksLoading ? "--" : overdueTasks}
         description={isTasksLoading ? "-- Tâches actives" : `${activeTasks} Tâches actives`}
         isLoading={isTasksLoading}
+        isOverdue={!isTasksLoading && overdueTasks > 0}
+        badge={!isTasksLoading && overdueTasks > 0 ? {
+          text: "En retard",
+          variant: "destructive",
+          className: "animate-pulse"
+        } : undefined}
       />
     </div>
   );

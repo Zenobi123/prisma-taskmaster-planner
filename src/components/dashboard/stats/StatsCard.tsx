@@ -1,5 +1,6 @@
 
 import { Badge } from "@/components/ui/badge";
+import { AlertTriangle } from "lucide-react";
 
 interface StatsCardProps {
   title: string;
@@ -13,6 +14,7 @@ interface StatsCardProps {
   };
   onClick?: () => void;
   className?: string;
+  isOverdue?: boolean;
 }
 
 export const StatsCard = ({ 
@@ -22,17 +24,21 @@ export const StatsCard = ({
   isLoading, 
   badge, 
   onClick, 
-  className = "" 
+  className = "",
+  isOverdue = false
 }: StatsCardProps) => {
-  const cardClasses = `card ${onClick ? 'cursor-pointer hover:bg-slate-50 transition-colors' : ''} ${className}`;
+  const cardClasses = `card ${onClick ? 'cursor-pointer hover:bg-slate-50 transition-colors' : ''} ${
+    isOverdue ? 'border-l-4 border-red-500 bg-red-50' : ''
+  } ${className}`;
 
   return (
     <div className={cardClasses} onClick={onClick}>
-      <h3 className="font-semibold text-neutral-800 mb-4">
+      <h3 className="font-semibold text-neutral-800 mb-4 flex items-center gap-2">
+        {isOverdue && <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse" />}
         {title}
       </h3>
       <div className="flex items-center">
-        <div className="text-3xl font-bold text-primary mr-2">
+        <div className={`text-3xl font-bold mr-2 ${isOverdue ? 'text-red-600' : 'text-primary'}`}>
           {isLoading ? (
             <span className="animate-pulse">--</span>
           ) : (
@@ -52,6 +58,12 @@ export const StatsCard = ({
           ) : (
             description
           )}
+        </p>
+      )}
+      {isOverdue && !isLoading && (
+        <p className="text-red-600 text-xs mt-2 font-medium flex items-center gap-1">
+          <AlertTriangle className="w-3 h-3" />
+          Attention requise
         </p>
       )}
     </div>
