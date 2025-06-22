@@ -24,7 +24,7 @@ export const LargeStatsCard = ({
   badge, 
   onClick, 
   className = "",
-  valueColor = "text-emerald-600"
+  valueColor = "text-primary"
 }: LargeStatsCardProps) => {
   const cardClasses = `card ${onClick ? 'cursor-pointer hover:bg-slate-50 transition-colors' : ''} ${className}`;
 
