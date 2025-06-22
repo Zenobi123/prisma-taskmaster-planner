@@ -1,7 +1,7 @@
 
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Eye, FileText, Trash, CreditCard, MoreHorizontal, CheckCircle, Clock } from "lucide-react";
+import { Eye, FileText, Trash, CreditCard, MoreHorizontal } from "lucide-react";
 import { Paiement } from "@/types/paiement";
 import ModePaiementBadge from "./ModePaiementBadge";
 import { formatMontant } from "@/utils/formatUtils";
@@ -9,10 +9,7 @@ import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import PaiementDetailsDialog from "./PaiementDetailsDialog";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface PaiementTableRowProps {
   paiement: Paiement;
@@ -22,7 +19,6 @@ interface PaiementTableRowProps {
 
 const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRowProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -52,7 +48,16 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
   };
 
   const handleViewDetails = () => {
-    setDetailsDialogOpen(true);
+    console.log("Viewing details for payment:", paiement.id);
+    // This would typically open a modal or navigate to a details page
+    alert(`Détails du paiement ${paiement.reference}
+    - Montant: ${formatMontant(paiement.montant)}
+    - Mode: ${paiement.mode}
+    - Date: ${formatDate(paiement.date)}
+    - Client: ${paiement.client}
+    - Référence: ${paiement.reference}
+    ${paiement.notes ? `- Notes: ${paiement.notes}` : ''}
+    `);
   };
 
   const handleViewReceipt = (e: React.MouseEvent) => {
@@ -63,67 +68,18 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
     onViewReceipt(paiement);
   };
 
-  // Determine payment type badge
-  const getPaymentTypeBadge = () => {
-    if (paiement.est_credit) {
-      return <Badge variant="secondary" className="bg-blue-100 text-blue-800">Avance</Badge>;
-    }
-    if (paiement.type_paiement === "partiel") {
-      return <Badge variant="outline" className="text-orange-600 border-orange-300">Partiel</Badge>;
-    }
-    return <Badge variant="outline" className="text-green-600 border-green-300">Total</Badge>;
-  };
-
-  // Determine verification status
-  const getVerificationIcon = () => {
-    if (paiement.est_verifie) {
-      return <CheckCircle className="h-4 w-4 text-green-500" />;
-    }
-    return <Clock className="h-4 w-4 text-yellow-500" />;
-  };
-
   return (
-    <TooltipProvider>
-      <TableRow key={paiement.id} className="hover:bg-gray-50">
-        <TableCell className="font-medium">
-          <div className="flex items-center gap-2">
-            <span>{paiement.reference}</span>
-            <Tooltip>
-              <TooltipTrigger>
-                {getVerificationIcon()}
-              </TooltipTrigger>
-              <TooltipContent>
-                {paiement.est_verifie ? "Paiement vérifié" : "En attente de vérification"}
-              </TooltipContent>
-            </Tooltip>
-          </div>
-        </TableCell>
-        <TableCell>
-          <div className="flex flex-col gap-1">
-            <span>{paiement.facture || (paiement.est_credit ? "Crédit" : "N/A")}</span>
-            {getPaymentTypeBadge()}
-          </div>
-        </TableCell>
-        <TableCell>
-          <div className="font-medium">{paiement.client}</div>
-        </TableCell>
+    <>
+      <TableRow key={paiement.id}>
+        <TableCell className="font-medium">{paiement.reference}</TableCell>
+        <TableCell>{paiement.facture || (paiement.est_credit ? "Crédit" : "N/A")}</TableCell>
+        <TableCell>{paiement.client}</TableCell>
         <TableCell>{formatDate(paiement.date)}</TableCell>
-        <TableCell>
-          <div className="flex flex-col">
-            <span className="font-semibold text-lg">{formatMontant(paiement.montant)}</span>
-            {paiement.reference_transaction && (
-              <span className="text-xs text-gray-500">Réf: {paiement.reference_transaction}</span>
-            )}
-          </div>
-        </TableCell>
+        <TableCell>{formatMontant(paiement.montant)}</TableCell>
         <TableCell>
           <ModePaiementBadge mode={paiement.mode} />
         </TableCell>
-        <TableCell>
-          <div className={`font-medium ${paiement.solde_restant > 0 ? 'text-red-600' : 'text-green-600'}`}>
-            {formatMontant(paiement.solde_restant)}
-          </div>
-        </TableCell>
+        <TableCell>{formatMontant(paiement.solde_restant)}</TableCell>
         <TableCell className="text-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -144,19 +100,15 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
                 className="cursor-pointer flex items-center hover:bg-gray-100"
               >
                 <Eye className="h-4 w-4 mr-2" />
-                Détails complets
+                Détails
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
               {paiement.est_credit && (
-                <>
-                  <DropdownMenuItem 
-                    className="cursor-pointer flex items-center hover:bg-gray-100"
-                  >
-                    <CreditCard className="h-4 w-4 mr-2" />
-                    Associer à une facture
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </>
+                <DropdownMenuItem 
+                  className="cursor-pointer flex items-center hover:bg-gray-100"
+                >
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Associer à une facture
+                </DropdownMenuItem>
               )}
               {onDelete && (
                 <DropdownMenuItem 
@@ -171,12 +123,6 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
           </DropdownMenu>
         </TableCell>
       </TableRow>
-
-      <PaiementDetailsDialog
-        paiement={paiement}
-        open={detailsDialogOpen}
-        onOpenChange={setDetailsDialogOpen}
-      />
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -198,7 +144,7 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </TooltipProvider>
+    </>
   );
 };
 
