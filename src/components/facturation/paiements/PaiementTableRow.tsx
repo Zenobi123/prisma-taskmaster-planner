@@ -10,6 +10,7 @@ import { fr } from "date-fns/locale";
 import { useState } from "react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import PaiementDetailsDialog from "./PaiementDetailsDialog";
 
 interface PaiementTableRowProps {
   paiement: Paiement;
@@ -19,6 +20,7 @@ interface PaiementTableRowProps {
 
 const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRowProps) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -47,19 +49,6 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
     }
   };
 
-  const handleViewDetails = () => {
-    console.log("Viewing details for payment:", paiement.id);
-    // This would typically open a modal or navigate to a details page
-    alert(`Détails du paiement ${paiement.reference}
-    - Montant: ${formatMontant(paiement.montant)}
-    - Mode: ${paiement.mode}
-    - Date: ${formatDate(paiement.date)}
-    - Client: ${paiement.client}
-    - Référence: ${paiement.reference}
-    ${paiement.notes ? `- Notes: ${paiement.notes}` : ''}
-    `);
-  };
-
   const handleViewReceipt = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -70,16 +59,18 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
 
   return (
     <>
-      <TableRow key={paiement.id}>
+      <TableRow key={paiement.id} className="hover:bg-gray-50">
         <TableCell className="font-medium">{paiement.reference}</TableCell>
         <TableCell>{paiement.facture || (paiement.est_credit ? "Crédit" : "N/A")}</TableCell>
-        <TableCell>{paiement.client}</TableCell>
+        <TableCell className="font-medium">{paiement.client}</TableCell>
         <TableCell>{formatDate(paiement.date)}</TableCell>
-        <TableCell>{formatMontant(paiement.montant)}</TableCell>
+        <TableCell className="font-bold text-primary">{formatMontant(paiement.montant)}</TableCell>
         <TableCell>
           <ModePaiementBadge mode={paiement.mode} />
         </TableCell>
-        <TableCell>{formatMontant(paiement.solde_restant)}</TableCell>
+        <TableCell className={`font-medium ${paiement.solde_restant > 0 ? 'text-orange-600' : 'text-green-600'}`}>
+          {formatMontant(paiement.solde_restant)}
+        </TableCell>
         <TableCell className="text-right">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -87,7 +78,7 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" side="top" className="w-56 bg-white">
+            <DropdownMenuContent align="end" side="top" className="w-56 bg-white z-50">
               <DropdownMenuItem 
                 onClick={handleViewReceipt}
                 className="cursor-pointer flex items-center hover:bg-gray-100"
@@ -96,11 +87,11 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
                 Voir le reçu
               </DropdownMenuItem>
               <DropdownMenuItem 
-                onClick={handleViewDetails}
+                onClick={() => setDetailsDialogOpen(true)}
                 className="cursor-pointer flex items-center hover:bg-gray-100"
               >
                 <Eye className="h-4 w-4 mr-2" />
-                Détails
+                Détails complets
               </DropdownMenuItem>
               {paiement.est_credit && (
                 <DropdownMenuItem 
@@ -124,6 +115,14 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
         </TableCell>
       </TableRow>
 
+      {/* Dialog de détails */}
+      <PaiementDetailsDialog
+        paiement={paiement}
+        open={detailsDialogOpen}
+        onOpenChange={setDetailsDialogOpen}
+      />
+
+      {/* Dialog de suppression */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
