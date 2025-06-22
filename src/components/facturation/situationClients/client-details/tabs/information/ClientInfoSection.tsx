@@ -6,19 +6,60 @@ interface ClientInfoSectionProps {
 }
 
 const ClientInfoSection = ({ client }: ClientInfoSectionProps) => {
+  console.log("ClientInfoSection - Client data:", client);
+  
+  const getClientName = () => {
+    if (client.type === "physique") {
+      return client.nom || "N/A";
+    } else {
+      return client.raisonsociale || client.nom || "N/A";
+    }
+  };
+
+  const getAddress = () => {
+    if (!client.adresse) return "N/A";
+    
+    if (typeof client.adresse === 'object') {
+      const addr = client.adresse as any;
+      const parts = [
+        addr.ville,
+        addr.quartier,
+        addr.lieuDit
+      ].filter(Boolean);
+      return parts.length > 0 ? parts.join(', ') : "N/A";
+    }
+    
+    return String(client.adresse) || "N/A";
+  };
+
+  const getContact = () => {
+    if (!client.contact) return "N/A";
+    
+    if (typeof client.contact === 'object') {
+      const contact = client.contact as any;
+      const parts = [
+        contact.telephone,
+        contact.email
+      ].filter(Boolean);
+      return parts.length > 0 ? parts.join(' | ') : "N/A";
+    }
+    
+    return String(client.contact) || "N/A";
+  };
+
   return (
     <dl className="mt-2 divide-y divide-gray-200 border border-gray-200 rounded-md">
       <div className="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt className="text-sm font-medium text-gray-500">Nom</dt>
         <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-          {client.nom || "N/A"}
+          {getClientName()}
         </dd>
       </div>
       
       <div className="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
         <dt className="text-sm font-medium text-gray-500">Type</dt>
         <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 capitalize">
-          {client.type || "N/A"}
+          {client.type === "physique" ? "Personne physique" : "Personne morale" || "N/A"}
         </dd>
       </div>
       
@@ -47,8 +88,7 @@ const ClientInfoSection = ({ client }: ClientInfoSectionProps) => {
           Adresse
         </dt>
         <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-          {client.adresse ? 
-            `${client.adresse.ville || ''}, ${client.adresse.quartier || ''}, ${client.adresse.lieuDit || ''}` : "N/A"}
+          {getAddress()}
         </dd>
       </div>
       
@@ -57,8 +97,7 @@ const ClientInfoSection = ({ client }: ClientInfoSectionProps) => {
           Contact
         </dt>
         <dd className="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-          {client.contact ? 
-            `${client.contact.telephone || ''} ${client.contact.email ? '| ' + client.contact.email : ''}` : "N/A"}
+          {getContact()}
         </dd>
       </div>
     </dl>

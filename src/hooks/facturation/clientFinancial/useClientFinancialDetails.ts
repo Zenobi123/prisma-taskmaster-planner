@@ -16,6 +16,17 @@ export const useClientFinancialDetails = () => {
       setIsLoading(true);
       console.log("Récupération des détails financiers du client:", clientId);
       
+      // First, get the client information
+      const { data: clientData, error: clientError } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('id', clientId)
+        .single();
+        
+      if (clientError) {
+        throw new Error(clientError.message);
+      }
+      
       const { data: factures, error: facturesError } = await supabase
         .from('factures')
         .select('*')
@@ -75,9 +86,12 @@ export const useClientFinancialDetails = () => {
       }, 0) || 0;
       
       const details: ClientFinancialDetails = {
+        id: clientData.id,
+        nom: clientData.nom || clientData.raisonsociale,
         factures: facturesWithRemaining,
         paiements: allPaiements,
-        solde_disponible: soldeDisponible
+        solde_disponible: soldeDisponible,
+        client: clientData // Add the full client data here
       };
       
       console.log("Détails financiers récupérés avec succès", details);

@@ -7,7 +7,11 @@ import ClientInfoSection from "./information/ClientInfoSection";
 
 const InformationTab = () => {
   const { clientDetails } = useClientDetails();
-  const [client, setClient] = useState(clientDetails?.client || {});
+  
+  console.log("InformationTab - clientDetails:", clientDetails);
+  
+  // Use the client data from clientDetails if available
+  const client = clientDetails?.client || {};
 
   return (
     <div className="space-y-4">
