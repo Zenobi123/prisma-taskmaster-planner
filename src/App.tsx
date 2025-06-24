@@ -1,13 +1,10 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "@/hooks/useAuth";
-import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import Auth from "./pages/Auth";
+import Login from "./pages/Login";
 import Collaborateurs from "./pages/Collaborateurs";
 import CollaborateurDetails from "./pages/CollaborateurDetails";
 import CollaborateurEdit from "./pages/CollaborateurEdit";
@@ -33,125 +30,128 @@ const queryClient = new QueryClient({
   },
 });
 
+const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
+  const isAuthenticated = localStorage.getItem("isAuthenticated") === "true";
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <div className="transition-all duration-300">
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/collaborateurs"
-                element={
-                  <ProtectedRoute>
-                    <Collaborateurs />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/collaborateurs/:id"
-                element={
-                  <ProtectedRoute>
-                    <CollaborateurDetails />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/collaborateurs/:id/edit"
-                element={
-                  <ProtectedRoute>
-                    <CollaborateurEdit />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/clients"
-                element={
-                  <ProtectedRoute>
-                    <Clients />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/gestion"
-                element={
-                  <ProtectedRoute>
-                    <Gestion />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/missions"
-                element={
-                  <ProtectedRoute>
-                    <Missions />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/planning"
-                element={
-                  <ProtectedRoute>
-                    <Planning />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/facturation"
-                element={
-                  <ProtectedRoute>
-                    <Facturation />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/depenses"
-                element={
-                  <ProtectedRoute>
-                    <Depenses />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/parametres"
-                element={
-                  <ProtectedRoute>
-                    <Parametres />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/courrier"
-                element={
-                  <ProtectedRoute>
-                    <Courrier />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/rapports"
-                element={
-                  <ProtectedRoute>
-                    <Rapports />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </BrowserRouter>
-        </div>
-      </TooltipProvider>
-    </AuthProvider>
+    <TooltipProvider>
+      <div className="transition-all duration-300">
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <Index />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/collaborateurs"
+              element={
+                <PrivateRoute>
+                  <Collaborateurs />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/collaborateurs/:id"
+              element={
+                <PrivateRoute>
+                  <CollaborateurDetails />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/collaborateurs/:id/edit"
+              element={
+                <PrivateRoute>
+                  <CollaborateurEdit />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/clients"
+              element={
+                <PrivateRoute>
+                  <Clients />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/gestion"
+              element={
+                <PrivateRoute>
+                  <Gestion />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/missions"
+              element={
+                <PrivateRoute>
+                  <Missions />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/planning"
+              element={
+                <PrivateRoute>
+                  <Planning />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/facturation"
+              element={
+                <PrivateRoute>
+                  <Facturation />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/depenses"
+              element={
+                <PrivateRoute>
+                  <Depenses />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/parametres"
+              element={
+                <PrivateRoute>
+                  <Parametres />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/courrier"
+              element={
+                <PrivateRoute>
+                  <Courrier />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/rapports"
+              element={
+                <PrivateRoute>
+                  <Rapports />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </BrowserRouter>
+      </div>
+    </TooltipProvider>
   </QueryClientProvider>
 );
 

@@ -883,36 +883,6 @@ export type Database = {
           },
         ]
       }
-      profiles: {
-        Row: {
-          created_at: string
-          email: string | null
-          id: string
-          nom: string | null
-          prenom: string | null
-          role: string | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          email?: string | null
-          id: string
-          nom?: string | null
-          prenom?: string | null
-          role?: string | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          email?: string | null
-          id?: string
-          nom?: string | null
-          prenom?: string | null
-          role?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       tasks: {
         Row: {
           client_id: string | null
