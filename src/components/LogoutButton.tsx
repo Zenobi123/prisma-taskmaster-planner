@@ -18,11 +18,14 @@ const LogoutButton = () => {
       }
 
       localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("userRole");
+      
       toast({
         title: "Déconnexion réussie",
         description: "À bientôt !",
       });
-      navigate("/login");
+      
+      navigate("/auth");
     } catch (error) {
       console.error("Erreur lors de la déconnexion:", error);
       toast({
