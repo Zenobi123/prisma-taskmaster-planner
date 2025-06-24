@@ -16,12 +16,12 @@ import {
   Mail
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
+import { useAuth } from "@/hooks/useAuth";
 
 type MenuItem = {
   path: string;
   icon: React.ElementType;
   label: string;
-  adminOnly?: boolean;
   allowedRoles?: string[];
 };
 
@@ -42,7 +42,7 @@ const menuItems: MenuItem[] = [
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
-  const userRole = localStorage.getItem("userRole");
+  const { userRole } = useAuth();
   
   const isActiveRoute = (path: string) => {
     return location.pathname === path;
