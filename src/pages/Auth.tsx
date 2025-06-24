@@ -5,15 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
-import { LogIn, UserPlus } from "lucide-react";
+import { LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [nom, setNom] = useState("");
-  const [prenom, setPrenom] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -74,91 +71,15 @@ const Auth = () => {
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    try {
-      const redirectUrl = `${window.location.origin}/`;
-      
-      const { data, error } = await supabase.auth.signUp({
-        email: email.toLowerCase().trim(),
-        password: password.trim(),
-        options: {
-          emailRedirectTo: redirectUrl,
-          data: {
-            nom: nom.trim(),
-            prenom: prenom.trim()
-          }
-        }
-      });
-
-      if (error) {
-        throw error;
-      }
-
-      if (data.user) {
-        toast({
-          title: "Inscription réussie",
-          description: "Veuillez vérifier votre email pour confirmer votre compte.",
-          className: "bg-white border-green-500 text-black",
-        });
-        setIsLogin(true);
-      }
-    } catch (error: any) {
-      console.error("Erreur d'inscription:", error);
-      toast({
-        variant: "destructive",
-        title: "Erreur d'inscription",
-        description: error.message || "Une erreur est survenue lors de l'inscription.",
-        className: "bg-white border-red-500 text-black",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-neutral-100">
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
         <div className="flex flex-col items-center mb-8">
           <h1 className="text-2xl font-semibold text-neutral-800">PRISMA GESTION</h1>
-          <p className="text-neutral-600 mt-2">
-            {isLogin ? "Connectez-vous à votre espace" : "Créez votre compte"}
-          </p>
+          <p className="text-neutral-600 mt-2">Connectez-vous à votre espace</p>
         </div>
         
-        <form onSubmit={isLogin ? handleLogin : handleSignup} className="space-y-6">
-          {!isLogin && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="nom">Nom</Label>
-                <Input
-                  id="nom"
-                  type="text"
-                  placeholder="Votre nom"
-                  value={nom}
-                  onChange={(e) => setNom(e.target.value)}
-                  required={!isLogin}
-                  disabled={isLoading}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="prenom">Prénom</Label>
-                <Input
-                  id="prenom"
-                  type="text"
-                  placeholder="Votre prénom"
-                  value={prenom}
-                  onChange={(e) => setPrenom(e.target.value)}
-                  required={!isLogin}
-                  disabled={isLoading}
-                />
-              </div>
-            </>
-          )}
-          
+        <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
@@ -177,12 +98,11 @@ const Auth = () => {
             <Input
               id="password"
               type="password"
-              placeholder={isLogin ? "Votre mot de passe" : "Minimum 6 caractères"}
+              placeholder="Votre mot de passe"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               disabled={isLoading}
-              minLength={6}
             />
           </div>
 
@@ -198,30 +118,16 @@ const Auth = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                {isLogin ? "Connexion..." : "Inscription..."}
+                Connexion...
               </span>
             ) : (
               <>
-                {isLogin ? <LogIn className="mr-2 h-4 w-4" /> : <UserPlus className="mr-2 h-4 w-4" />}
-                {isLogin ? "Se connecter" : "S'inscrire"}
+                <LogIn className="mr-2 h-4 w-4" />
+                Se connecter
               </>
             )}
           </Button>
         </form>
-
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => setIsLogin(!isLogin)}
-            className="text-primary hover:underline"
-            disabled={isLoading}
-          >
-            {isLogin 
-              ? "Pas encore de compte ? S'inscrire" 
-              : "Déjà un compte ? Se connecter"
-            }
-          </button>
-        </div>
       </div>
     </div>
   );
