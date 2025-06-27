@@ -6,12 +6,20 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
 import { getClientsNotInFanrH2 } from "@/services/fanrH2Service";
+import { getClientsWithNonCompliantFiscalSituation } from "@/services/fiscal/nonCompliantFiscalService";
 
 export const FanrH2Section = () => {
   const navigate = useNavigate();
   const { data: clients = [], isLoading, error } = useQuery({
     queryKey: ["clients-not-fanr-h2"],
     queryFn: getClientsNotInFanrH2,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
+
+  const { data: nonCompliantClients = [], isLoading: isLoadingNonCompliant } = useQuery({
+    queryKey: ["clients-non-compliant-fiscal"],
+    queryFn: getClientsWithNonCompliantFiscalSituation,
     refetchInterval: 10000,
     refetchOnWindowFocus: true
   });
@@ -48,9 +56,16 @@ export const FanrH2Section = () => {
         <h3 className="text-lg font-semibold text-neutral-800">
           Clients non inscrits en FANR Harmony2
         </h3>
-        <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
-          {clients.length} client{clients.length > 1 ? 's' : ''}
-        </Badge>
+        <div className="flex flex-col items-end space-y-1">
+          <Badge variant="outline" className="bg-orange-100 text-orange-800 border-orange-300">
+            {clients.length} client{clients.length > 1 ? 's' : ''}
+          </Badge>
+          {!isLoadingNonCompliant && (
+            <Badge variant="outline" className="bg-red-100 text-red-800 border-red-300 text-xs">
+              {nonCompliantClients.length} Situation Non Conforme
+            </Badge>
+          )}
+        </div>
       </div>
 
       {clients.length === 0 ? (
