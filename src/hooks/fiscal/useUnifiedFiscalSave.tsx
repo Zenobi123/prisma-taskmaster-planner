@@ -1,3 +1,4 @@
+
 import { useState, useCallback, useEffect, useRef } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses } from "./types";
@@ -59,11 +60,12 @@ export const useUnifiedFiscalSave = ({
         throw fetchError;
       }
 
-      const currentFiscalData = currentClient?.fiscal_data || {};
+      const currentFiscalData = currentClient?.fiscal_data;
+      const baseData = (currentFiscalData && typeof currentFiscalData === 'object' && !Array.isArray(currentFiscalData)) ? currentFiscalData : {};
 
       // Update fiscal data
       const updatedFiscalData = {
-        ...currentFiscalData,
+        ...baseData,
         attestation: {
           creationDate,
           validityEndDate,
@@ -71,7 +73,7 @@ export const useUnifiedFiscalSave = ({
           fiscalSituationCompliant
         },
         obligations: {
-          ...(typeof currentFiscalData === 'object' && currentFiscalData.obligations ? currentFiscalData.obligations : {}),
+          ...(baseData.obligations && typeof baseData.obligations === 'object' ? baseData.obligations : {}),
           [fiscalYear]: obligationStatuses
         },
         hiddenFromDashboard,

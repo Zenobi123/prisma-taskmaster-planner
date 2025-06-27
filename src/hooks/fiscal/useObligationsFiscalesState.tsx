@@ -35,26 +35,27 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
         }
 
         const fiscalData = client?.fiscal_data;
-        if (fiscalData && typeof fiscalData === 'object') {
+        if (fiscalData && typeof fiscalData === 'object' && !Array.isArray(fiscalData)) {
           // Load attestation data
-          if (fiscalData.attestation) {
-            setCreationDate(fiscalData.attestation.creationDate || "");
-            setValidityEndDate(fiscalData.attestation.validityEndDate || "");
-            setShowInAlert(fiscalData.attestation.showInAlert !== false);
-            setFiscalSituationCompliant(fiscalData.attestation.fiscalSituationCompliant !== false);
+          if (fiscalData.attestation && typeof fiscalData.attestation === 'object') {
+            const attestation = fiscalData.attestation as any;
+            setCreationDate(attestation.creationDate || "");
+            setValidityEndDate(attestation.validityEndDate || "");
+            setShowInAlert(attestation.showInAlert !== false);
+            setFiscalSituationCompliant(attestation.fiscalSituationCompliant !== false);
           }
 
           // Load dashboard visibility
           setHiddenFromDashboard(fiscalData.hiddenFromDashboard === true);
 
           // Load selected year
-          if (fiscalData.selectedYear) {
+          if (fiscalData.selectedYear && typeof fiscalData.selectedYear === 'string') {
             setFiscalYear(fiscalData.selectedYear);
           }
 
           // Load obligation statuses for current year
-          if (fiscalData.obligations && fiscalData.obligations[fiscalYear]) {
-            setObligationStatuses(fiscalData.obligations[fiscalYear]);
+          if (fiscalData.obligations && typeof fiscalData.obligations === 'object' && fiscalData.obligations[fiscalYear]) {
+            setObligationStatuses(fiscalData.obligations[fiscalYear] as ObligationStatuses);
           }
         }
       } catch (error) {

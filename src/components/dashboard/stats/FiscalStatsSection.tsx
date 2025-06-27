@@ -8,6 +8,7 @@ interface FiscalStatsSectionProps {
   isSubjectClientsLoading: boolean;
   onUnfiledDarpClick: () => void;
   onUnpaidIgsClick: () => void;
+  onNonCompliantClick: () => void;
 }
 
 export const FiscalStatsSection = ({
@@ -16,10 +17,11 @@ export const FiscalStatsSection = ({
   isClientStatsLoading,
   isSubjectClientsLoading,
   onUnfiledDarpClick,
-  onUnpaidIgsClick
+  onUnpaidIgsClick,
+  onNonCompliantClick
 }: FiscalStatsSectionProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <LargeStatsCard
         title="DARP non déposées"
         value={isClientStatsLoading ? "--" : (clientStats?.unfiledDarpClients || 0)}
@@ -44,6 +46,19 @@ export const FiscalStatsSection = ({
           className: "bg-red-100 text-red-800 border-red-300"
         } : undefined}
         onClick={onUnpaidIgsClick}
+      />
+
+      <LargeStatsCard
+        title="Situation non conforme"
+        value={isClientStatsLoading ? "--" : (clientStats?.nonCompliantClients || 0)}
+        description="Situation fiscale non conforme"
+        isLoading={isClientStatsLoading}
+        badge={!isClientStatsLoading && (clientStats?.nonCompliantClients || 0) > 0 ? {
+          text: "À régulariser",
+          variant: "outline",
+          className: "bg-orange-100 text-orange-800 border-orange-300"
+        } : undefined}
+        onClick={onNonCompliantClick}
       />
     </div>
   );

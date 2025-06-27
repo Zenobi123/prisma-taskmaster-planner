@@ -4,6 +4,7 @@ import { getClientsWithUnpaidIgs } from "./fiscal/unpaidIgsService";
 import { getClientsWithUnpaidPatente } from "./fiscal/unpaidPatenteService";
 import { getClientsWithUnfiledDsf } from "./fiscal/unfiledDsfService";
 import { getClientsWithUnfiledDarp } from "./fiscal/unfiledDarpService";
+import { getClientsWithNonCompliantFiscalSituation } from "./fiscal/nonCompliantFiscalService";
 
 export interface ClientStats {
   managedClients: number;
@@ -12,6 +13,7 @@ export interface ClientStats {
   unpaidPatenteClients: number;
   unfiledDsfClients: number;
   unfiledDarpClients: number;
+  nonCompliantClients: number;
 }
 
 export const getClientsStats = async (): Promise<ClientStats> => {
@@ -32,7 +34,8 @@ export const getClientsStats = async (): Promise<ClientStats> => {
         unpaidIgsClients: 0,
         unpaidPatenteClients: 0,
         unfiledDsfClients: 0,
-        unfiledDarpClients: 0
+        unfiledDarpClients: 0,
+        nonCompliantClients: 0
       };
     }
 
@@ -42,7 +45,7 @@ export const getClientsStats = async (): Promise<ClientStats> => {
     console.log(`📈 Found ${managedClients} managed clients, ${fanrH2Clients} FANR H2 clients`);
 
     // Get fiscal obligations data using the centralized services
-    const [unpaidIgsClients, unpaidPatenteClients, unfiledDsfClients, unfiledDarpClients] = await Promise.all([
+    const [unpaidIgsClients, unpaidPatenteClients, unfiledDsfClients, unfiledDarpClients, nonCompliantClients] = await Promise.all([
       getClientsWithUnpaidIgs().catch(err => {
         console.error('❌ Error getting unpaid IGS clients:', err);
         return [];
@@ -58,6 +61,10 @@ export const getClientsStats = async (): Promise<ClientStats> => {
       getClientsWithUnfiledDarp().catch(err => {
         console.error('❌ Error getting unfiled DARP clients:', err);
         return [];
+      }),
+      getClientsWithNonCompliantFiscalSituation().catch(err => {
+        console.error('❌ Error getting non-compliant clients:', err);
+        return [];
       })
     ]);
 
@@ -67,7 +74,8 @@ export const getClientsStats = async (): Promise<ClientStats> => {
       unpaidIgsClients: unpaidIgsClients.length,
       unpaidPatenteClients: unpaidPatenteClients.length,
       unfiledDsfClients: unfiledDsfClients.length,
-      unfiledDarpClients: unfiledDarpClients.length
+      unfiledDarpClients: unfiledDarpClients.length,
+      nonCompliantClients: nonCompliantClients.length
     };
 
     console.log("📊 Final client stats:", stats);
@@ -81,7 +89,8 @@ export const getClientsStats = async (): Promise<ClientStats> => {
       unpaidIgsClients: 0,
       unpaidPatenteClients: 0,
       unfiledDsfClients: 0,
-      unfiledDarpClients: 0
+      unfiledDarpClients: 0,
+      nonCompliantClients: 0
     };
   }
 };

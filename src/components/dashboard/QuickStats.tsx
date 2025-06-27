@@ -7,6 +7,7 @@ import { getClientsStats } from "@/services/clientStatsService";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { UnpaidIgsDialog } from "@/components/dashboard/UnpaidIgsDialog";
 import { UnfiledDarpDialog } from "@/components/dashboard/UnfiledDarpDialog";
+import { NonCompliantDialog } from "@/components/dashboard/NonCompliantDialog";
 import { getClientsSubjectToObligation } from "@/services/subjectClientsService";
 import { FiscalStatsSection } from "./stats/FiscalStatsSection";
 import { ClientStatsSection } from "./stats/ClientStatsSection";
@@ -17,6 +18,7 @@ const QuickStats = () => {
   const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
   const [showUnpaidIgsDialog, setShowUnpaidIgsDialog] = useState(false);
   const [showUnfiledDarpDialog, setShowUnfiledDarpDialog] = useState(false);
+  const [showNonCompliantDialog, setShowNonCompliantDialog] = useState(false);
 
   const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
     queryKey: ["tasks"],
@@ -60,6 +62,7 @@ const QuickStats = () => {
         isSubjectClientsLoading={isSubjectClientsLoading}
         onUnfiledDarpClick={() => setShowUnfiledDarpDialog(true)}
         onUnpaidIgsClick={() => setShowUnpaidIgsDialog(true)}
+        onNonCompliantClick={() => setShowNonCompliantDialog(true)}
       />
 
       <ClientStatsSection
@@ -92,6 +95,11 @@ const QuickStats = () => {
       <UnfiledDarpDialog
         open={showUnfiledDarpDialog}
         onOpenChange={setShowUnfiledDarpDialog}
+      />
+
+      <NonCompliantDialog
+        open={showNonCompliantDialog}
+        onOpenChange={setShowNonCompliantDialog}
       />
     </div>
   );
