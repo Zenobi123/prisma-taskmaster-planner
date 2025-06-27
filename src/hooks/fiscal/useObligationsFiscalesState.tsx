@@ -2,50 +2,68 @@
 import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses } from "./types";
-import { useDefaultObligationRules } from "./useDefaultObligationRules";
-import { useFiscalDataLoader } from "./useFiscalDataLoader";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UseObligationsFiscalesStateProps {
   selectedClient: Client;
 }
 
 export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFiscalesStateProps) => {
-  const [fiscalYear, setFiscalYear] = useState<string>("2025");
-  const [creationDate, setCreationDate] = useState<string>("2025-07-01");
+  const [fiscalYear, setFiscalYear] = useState<string>(new Date().getFullYear().toString());
+  const [creationDate, setCreationDate] = useState<string>("");
   const [validityEndDate, setValidityEndDate] = useState<string>("");
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-  const [isSaving, setIsSaving] = useState<boolean>(false);
-  
-  const { 
-    obligationStatuses, 
-    setObligationStatuses, 
-    getDefaultObligationStatuses 
-  } = useDefaultObligationRules(selectedClient);
+  const [fiscalSituationCompliant, setFiscalSituationCompliant] = useState<boolean>(true);
+  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({});
 
-  // Load fiscal data
-  useFiscalDataLoader({
-    selectedClient,
-    fiscalYear,
-    setCreationDate,
-    setValidityEndDate,
-    setShowInAlert,
-    setHiddenFromDashboard,
-    setFiscalYear,
-    setObligationStatuses,
-    getDefaultObligationStatuses
-  });
-
-  // Reset unsaved changes when client changes
+  // Load fiscal data when client changes
   useEffect(() => {
-    setHasUnsavedChanges(false);
-  }, [selectedClient?.id]);
+    const loadFiscalData = async () => {
+      if (!selectedClient?.id) return;
 
-  // Mark as having unsaved changes when values change
-  useEffect(() => {
-    setHasUnsavedChanges(true);
-  }, [showInAlert, hiddenFromDashboard, obligationStatuses]);
+      try {
+        const { data: client, error } = await supabase
+          .from('clients')
+          .select('fiscal_data')
+          .eq('id', selectedClient.id)
+          .single();
+
+        if (error) {
+          console.error("Error loading fiscal data:", error);
+          return;
+        }
+
+        const fiscalData = client?.fiscal_data;
+        if (fiscalData && typeof fiscalData === 'object') {
+          // Load attestation data
+          if (fiscalData.attestation) {
+            setCreationDate(fiscalData.attestation.creationDate || "");
+            setValidityEndDate(fiscalData.attestation.validityEndDate || "");
+            setShowInAlert(fiscalData.attestation.showInAlert !== false);
+            setFiscalSituationCompliant(fiscalData.attestation.fiscalSituationCompliant !== false);
+          }
+
+          // Load dashboard visibility
+          setHiddenFromDashboard(fiscalData.hiddenFromDashboard === true);
+
+          // Load selected year
+          if (fiscalData.selectedYear) {
+            setFiscalYear(fiscalData.selectedYear);
+          }
+
+          // Load obligation statuses for current year
+          if (fiscalData.obligations && fiscalData.obligations[fiscalYear]) {
+            setObligationStatuses(fiscalData.obligations[fiscalYear]);
+          }
+        }
+      } catch (error) {
+        console.error("Error loading fiscal data:", error);
+      }
+    };
+
+    loadFiscalData();
+  }, [selectedClient?.id, fiscalYear]);
 
   return {
     fiscalYear,
@@ -58,10 +76,8 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
     setShowInAlert,
     hiddenFromDashboard,
     setHiddenFromDashboard,
-    hasUnsavedChanges,
-    setHasUnsavedChanges,
-    isSaving,
-    setIsSaving,
+    fiscalSituationCompliant,
+    setFiscalSituationCompliant,
     obligationStatuses,
     setObligationStatuses
   };

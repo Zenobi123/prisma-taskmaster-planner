@@ -16,6 +16,8 @@ interface FiscalAttestationSectionProps {
   onToggleAlert: () => void;
   hiddenFromDashboard: boolean;
   onToggleDashboardVisibility: (hidden: boolean) => void;
+  fiscalSituationCompliant?: boolean;
+  onToggleFiscalSituationCompliant?: (compliant: boolean) => void;
 }
 
 export function FiscalAttestationSection({
@@ -27,6 +29,8 @@ export function FiscalAttestationSection({
   onToggleAlert,
   hiddenFromDashboard,
   onToggleDashboardVisibility,
+  fiscalSituationCompliant = true,
+  onToggleFiscalSituationCompliant,
 }: FiscalAttestationSectionProps) {
   // Détermine le statut d'expiration (pour la couleur du champ de date)
   const getExpiryStatus = () => {
@@ -115,6 +119,17 @@ export function FiscalAttestationSection({
               </p>
             )}
           </div>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="fiscalSituationCompliant"
+            checked={fiscalSituationCompliant}
+            onCheckedChange={onToggleFiscalSituationCompliant}
+          />
+          <Label htmlFor="fiscalSituationCompliant">
+            Situation fiscale conforme
+          </Label>
         </div>
 
         <div className="flex items-center space-x-2">

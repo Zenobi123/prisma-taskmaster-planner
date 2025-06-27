@@ -1,11 +1,8 @@
-
-import { useState, useCallback } from 'react';
-import { toast } from 'sonner';
-import { Client } from '@/types/client';
-import { ObligationStatuses } from './types';
-import { prepareFiscalDataForSave } from './services/fiscalDataPreparer';
-import { saveFiscalDataToDatabase } from './services/fiscalDataSaver';
-import { invalidateClientsCache } from '@/services/clientService';
+import { useState, useCallback, useEffect, useRef } from "react";
+import { Client } from "@/types/client";
+import { ObligationStatuses } from "./types";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 interface UseUnifiedFiscalSaveProps {
   selectedClient: Client;
@@ -15,7 +12,7 @@ interface UseUnifiedFiscalSaveProps {
   showInAlert: boolean;
   hiddenFromDashboard: boolean;
   obligationStatuses: ObligationStatuses;
-  onSaveSuccess?: () => void;
+  fiscalSituationCompliant?: boolean;
   autoSave?: boolean;
   autoSaveDelay?: number;
 }
@@ -28,111 +25,123 @@ export const useUnifiedFiscalSave = ({
   showInAlert,
   hiddenFromDashboard,
   obligationStatuses,
-  onSaveSuccess,
+  fiscalSituationCompliant = true,
   autoSave = false,
-  autoSaveDelay = 2000
+  autoSaveDelay = 3000
 }: UseUnifiedFiscalSaveProps) => {
+  const { toast } = useToast();
   const [isSaving, setIsSaving] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
-  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const executeSave = useCallback(async (): Promise<boolean> => {
-    if (!selectedClient?.id) {
-      toast.error("Impossible de sauvegarder : client non sélectionné");
-      return false;
-    }
+  const markAsChanged = useCallback(() => {
+    setHasUnsavedChanges(true);
+  }, []);
 
+  const resetChanges = useCallback(() => {
+    setHasUnsavedChanges(false);
+  }, []);
+
+  const saveData = useCallback(async () => {
+    if (!selectedClient?.id) return false;
+
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-      console.log(`=== DÉBUT SAUVEGARDE UNIFIÉE ===`);
-      console.log("Client ID:", selectedClient.id);
-      console.log("Année fiscale:", fiscalYear);
+      // Get current fiscal data
+      const { data: currentClient, error: fetchError } = await supabase
+        .from('clients')
+        .select('fiscal_data')
+        .eq('id', selectedClient.id)
+        .single();
 
-      // Préparer les données pour la sauvegarde
-      const fiscalDataToSave = prepareFiscalDataForSave({
-        selectedClient,
-        fiscalYear,
-        creationDate,
-        validityEndDate,
-        showInAlert,
-        hiddenFromDashboard,
-        obligationStatuses
-      });
-
-      console.log("Données préparées:", fiscalDataToSave);
-
-      // Sauvegarder dans la base de données
-      const success = await saveFiscalDataToDatabase(selectedClient.id, fiscalDataToSave);
-
-      if (success) {
-        console.log("=== SAUVEGARDE RÉUSSIE ===");
-        invalidateClientsCache();
-        setHasUnsavedChanges(false);
-        setLastSaveTime(new Date());
-        onSaveSuccess?.();
-        toast.success("Données fiscales sauvegardées avec succès");
-        return true;
-      } else {
-        toast.error("Erreur lors de la sauvegarde");
-        return false;
+      if (fetchError) {
+        throw fetchError;
       }
+
+      const currentFiscalData = currentClient?.fiscal_data || {};
+
+      // Update fiscal data
+      const updatedFiscalData = {
+        ...currentFiscalData,
+        attestation: {
+          creationDate,
+          validityEndDate,
+          showInAlert,
+          fiscalSituationCompliant
+        },
+        obligations: {
+          ...(typeof currentFiscalData === 'object' && currentFiscalData.obligations ? currentFiscalData.obligations : {}),
+          [fiscalYear]: obligationStatuses
+        },
+        hiddenFromDashboard,
+        selectedYear: fiscalYear
+      };
+
+      // Save to database
+      const { error: updateError } = await supabase
+        .from('clients')
+        .update({ fiscal_data: updatedFiscalData })
+        .eq('id', selectedClient.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      setLastSaveTime(new Date());
+      setHasUnsavedChanges(false);
+      return true;
     } catch (error) {
-      console.error("Exception lors de la sauvegarde:", error);
-      toast.error("Erreur inattendue lors de la sauvegarde");
+      console.error("Error saving fiscal data:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de sauvegarder les données fiscales",
+        variant: "destructive",
+      });
       return false;
     } finally {
       setIsSaving(false);
     }
   }, [
-    selectedClient,
+    selectedClient?.id,
     fiscalYear,
     creationDate,
     validityEndDate,
     showInAlert,
+    fiscalSituationCompliant,
     hiddenFromDashboard,
     obligationStatuses,
-    onSaveSuccess
+    toast
   ]);
 
-  const triggerAutoSave = useCallback(() => {
-    if (!autoSave) return;
-    
-    // Annuler le timeout précédent s'il existe
-    if (autoSaveTimeout) {
-      clearTimeout(autoSaveTimeout);
+  // Auto-save effect
+  useEffect(() => {
+    if (autoSave && hasUnsavedChanges) {
+      autoSaveTimeoutRef.current = setTimeout(() => {
+        saveData();
+      }, autoSaveDelay);
     }
 
-    // Créer un nouveau timeout
-    const newTimeout = setTimeout(() => {
-      console.log("Déclenchement de la sauvegarde automatique");
-      executeSave();
-    }, autoSaveDelay);
-
-    setAutoSaveTimeout(newTimeout);
-  }, [autoSave, autoSaveDelay, executeSave, autoSaveTimeout]);
-
-  const markAsChanged = useCallback(() => {
-    setHasUnsavedChanges(true);
-    triggerAutoSave();
-  }, [triggerAutoSave]);
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, [autoSave, autoSaveDelay, hasUnsavedChanges, saveData]);
 
   const manualSave = useCallback(async () => {
-    // Annuler l'auto-save en cours s'il y en a un
-    if (autoSaveTimeout) {
-      clearTimeout(autoSaveTimeout);
-      setAutoSaveTimeout(null);
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
     }
-    
-    return await executeSave();
-  }, [executeSave, autoSaveTimeout]);
+    return await saveData();
+  }, [saveData]);
 
-  // Cleanup du timeout à la destruction du hook
+  // Cleanup function
   const cleanup = useCallback(() => {
-    if (autoSaveTimeout) {
-      clearTimeout(autoSaveTimeout);
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
     }
-  }, [autoSaveTimeout]);
+  }, []);
 
   return {
     isSaving,

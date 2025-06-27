@@ -30,7 +30,9 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
     hiddenFromDashboard,
     setHiddenFromDashboard,
     obligationStatuses,
-    setObligationStatuses
+    setObligationStatuses,
+    fiscalSituationCompliant,
+    setFiscalSituationCompliant
   } = useObligationsFiscalesState({ selectedClient });
 
   const { isDeclarationObligation } = useObligationTypes();
@@ -52,6 +54,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
     showInAlert,
     hiddenFromDashboard,
     obligationStatuses,
+    fiscalSituationCompliant,
     autoSave: false, // Désactivé par défaut, peut être activé via les paramètres
     autoSaveDelay: 3000
   });
@@ -115,6 +118,11 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
         hiddenFromDashboard={hiddenFromDashboard}
         onToggleDashboardVisibility={(hidden) => {
           setHiddenFromDashboard(hidden);
+          markAsChanged();
+        }}
+        fiscalSituationCompliant={fiscalSituationCompliant}
+        onToggleFiscalSituationCompliant={(compliant) => {
+          setFiscalSituationCompliant(compliant);
           markAsChanged();
         }}
       />
