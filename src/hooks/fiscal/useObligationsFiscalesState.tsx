@@ -35,27 +35,26 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
         }
 
         const fiscalData = client?.fiscal_data;
-        if (fiscalData && typeof fiscalData === 'object' && !Array.isArray(fiscalData)) {
+        if (fiscalData && typeof fiscalData === 'object') {
           // Load attestation data
-          if (fiscalData.attestation && typeof fiscalData.attestation === 'object') {
-            const attestation = fiscalData.attestation as any;
-            setCreationDate(attestation.creationDate || "");
-            setValidityEndDate(attestation.validityEndDate || "");
-            setShowInAlert(attestation.showInAlert !== false);
-            setFiscalSituationCompliant(attestation.fiscalSituationCompliant !== false);
+          if (fiscalData.attestation) {
+            setCreationDate(fiscalData.attestation.creationDate || "");
+            setValidityEndDate(fiscalData.attestation.validityEndDate || "");
+            setShowInAlert(fiscalData.attestation.showInAlert !== false);
+            setFiscalSituationCompliant(fiscalData.attestation.fiscalSituationCompliant !== false);
           }
 
           // Load dashboard visibility
-          setHiddenFromDashboard((fiscalData as any).hiddenFromDashboard === true);
+          setHiddenFromDashboard(fiscalData.hiddenFromDashboard === true);
 
           // Load selected year
-          if ((fiscalData as any).selectedYear) {
-            setFiscalYear((fiscalData as any).selectedYear);
+          if (fiscalData.selectedYear) {
+            setFiscalYear(fiscalData.selectedYear);
           }
 
           // Load obligation statuses for current year
-          if ((fiscalData as any).obligations && (fiscalData as any).obligations[fiscalYear]) {
-            setObligationStatuses((fiscalData as any).obligations[fiscalYear]);
+          if (fiscalData.obligations && fiscalData.obligations[fiscalYear]) {
+            setObligationStatuses(fiscalData.obligations[fiscalYear]);
           }
         }
       } catch (error) {

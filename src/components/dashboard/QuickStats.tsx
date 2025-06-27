@@ -1,62 +1,100 @@
-import { useQuery } from "@tanstack/react-query";
-import { getClientsStats } from "@/services/clientStatsService";
-import { getClientsSubjectToObligation } from "@/services/subjectClientsService";
-import { ClientStatsSection } from "./stats/ClientStatsSection";
-import { FiscalStatsSection } from "./stats/FiscalStatsSection";
-import { ActivityStatsSection } from "./stats/ActivityStatsSection";
-import { FanrH2StatsCard } from "./stats/FanrH2StatsCard";
 
-export default function QuickStats() {
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { getTasks } from "@/services/taskService";
+import { getCollaborateurs } from "@/services/collaborateurService";
+import { getClientsStats } from "@/services/clientStatsService";
+import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
+import { UnpaidIgsDialog } from "@/components/dashboard/UnpaidIgsDialog";
+import { UnfiledDarpDialog } from "@/components/dashboard/UnfiledDarpDialog";
+import { getClientsSubjectToObligation } from "@/services/subjectClientsService";
+import { FiscalStatsSection } from "./stats/FiscalStatsSection";
+import { ClientStatsSection } from "./stats/ClientStatsSection";
+import { ActivityStatsSection } from "./stats/ActivityStatsSection";
+import { useTaskStats } from "./stats/hooks/useTaskStats";
+
+const QuickStats = () => {
+  const [showUnpaidPatenteDialog, setShowUnpaidPatenteDialog] = useState(false);
+  const [showUnpaidIgsDialog, setShowUnpaidIgsDialog] = useState(false);
+  const [showUnfiledDarpDialog, setShowUnfiledDarpDialog] = useState(false);
+
+  const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: getTasks,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
+
+  const { data: collaborateurs = [], isLoading: isCollaborateursLoading } = useQuery({
+    queryKey: ["collaborateurs"],
+    queryFn: getCollaborateurs,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
+  });
+
   const { data: clientStats, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientsStats,
-    refetchInterval: 30000,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
   });
 
   const { data: subjectClients, isLoading: isSubjectClientsLoading } = useQuery({
     queryKey: ["subject-clients"],
     queryFn: getClientsSubjectToObligation,
-    refetchInterval: 30000,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true
   });
 
-  const handleUnpaidPatenteClick = () => {
-    // Logic to handle unpaid patente click
-  };
+  const { activeTasks, overdueTasks } = useTaskStats(tasks, isTasksLoading);
 
-  const handleUnfiledDarpClick = () => {
-    // Logic to handle unfiled DARP click
-  };
-
-  const handleUnpaidIgsClick = () => {
-    // Logic to handle unpaid IGS click
-  };
+  console.log("QuickStats - Client Stats:", clientStats);
+  console.log("QuickStats - Subject Clients:", subjectClients);
 
   return (
-    <div className="space-y-6">
-      {/* Client Stats Section */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <ClientStatsSection
-          clientStats={clientStats}
-          subjectClients={subjectClients}
-          isClientStatsLoading={isClientStatsLoading}
-          isSubjectClientsLoading={isSubjectClientsLoading}
-          onUnpaidPatenteClick={handleUnpaidPatenteClick}
-        />
-        <FanrH2StatsCard />
-      </div>
-
-      {/* Fiscal Stats Section */}
+    <div className="grid grid-cols-1 gap-6">
       <FiscalStatsSection
         clientStats={clientStats}
         subjectClients={subjectClients}
         isClientStatsLoading={isClientStatsLoading}
         isSubjectClientsLoading={isSubjectClientsLoading}
-        onUnfiledDarpClick={handleUnfiledDarpClick}
-        onUnpaidIgsClick={handleUnpaidIgsClick}
+        onUnfiledDarpClick={() => setShowUnfiledDarpDialog(true)}
+        onUnpaidIgsClick={() => setShowUnpaidIgsDialog(true)}
       />
 
-      {/* Activity Stats Section */}
-      <ActivityStatsSection />
+      <ClientStatsSection
+        clientStats={clientStats}
+        subjectClients={subjectClients}
+        isClientStatsLoading={isClientStatsLoading}
+        isSubjectClientsLoading={isSubjectClientsLoading}
+        onUnpaidPatenteClick={() => setShowUnpaidPatenteDialog(true)}
+      />
+
+      <ActivityStatsSection
+        clientStats={clientStats}
+        overdueTasks={overdueTasks}
+        activeTasks={activeTasks}
+        isClientStatsLoading={isClientStatsLoading}
+        isTasksLoading={isTasksLoading}
+      />
+      
+      <UnpaidPatenteDialog 
+        open={showUnpaidPatenteDialog} 
+        onOpenChange={setShowUnpaidPatenteDialog} 
+      />
+
+      <UnpaidIgsDialog
+        isOpen={showUnpaidIgsDialog}
+        onClose={() => setShowUnpaidIgsDialog(false)}
+        clients={[]}
+      />
+
+      <UnfiledDarpDialog
+        open={showUnfiledDarpDialog}
+        onOpenChange={setShowUnfiledDarpDialog}
+      />
     </div>
   );
-}
+};
+
+export default QuickStats;

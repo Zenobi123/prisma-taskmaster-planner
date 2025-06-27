@@ -63,7 +63,7 @@ export const useUnifiedFiscalSave = ({
 
       // Update fiscal data
       const updatedFiscalData = {
-        ...(typeof currentFiscalData === 'object' && !Array.isArray(currentFiscalData) ? currentFiscalData : {}),
+        ...currentFiscalData,
         attestation: {
           creationDate,
           validityEndDate,
@@ -71,7 +71,7 @@ export const useUnifiedFiscalSave = ({
           fiscalSituationCompliant
         },
         obligations: {
-          ...(typeof currentFiscalData === 'object' && !Array.isArray(currentFiscalData) && (currentFiscalData as any).obligations ? (currentFiscalData as any).obligations : {}),
+          ...(typeof currentFiscalData === 'object' && currentFiscalData.obligations ? currentFiscalData.obligations : {}),
           [fiscalYear]: obligationStatuses
         },
         hiddenFromDashboard,
