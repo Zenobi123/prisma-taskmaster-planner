@@ -7,12 +7,16 @@ import MissionFilters from "@/components/missions/MissionFilters";
 import MissionList from "@/components/missions/MissionList";
 import MissionPagination from "@/components/missions/MissionPagination";
 import MissionHeader from "@/components/missions/MissionHeader";
+import { VoiceControl } from "@/components/voice/VoiceControl";
+import { VoiceHelpDialog } from "@/components/voice/VoiceHelpDialog";
 import { useMissionFilter } from "@/hooks/useMissionFilter";
+import { useVoiceCommands } from "@/hooks/useVoiceCommands";
 
 const Missions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
+  const [showNewMissionDialog, setShowNewMissionDialog] = useState(false);
   const itemsPerPage = 10;
 
   const { data: missions, isLoading } = useQuery({
@@ -80,9 +84,50 @@ const Missions = () => {
     setCurrentPage(1);
   };
 
+  const handleClearFilters = () => {
+    setSearchTerm("");
+    setStatusFilter("all");
+    setCurrentPage(1);
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  // Voice commands hook
+  const { handleVoiceCommand, showHelp, setShowHelp } = useVoiceCommands({
+    onSearchChange: handleSearchChange,
+    onStatusFilterChange: handleStatusFilterChange,
+    onNewMission: () => setShowNewMissionDialog(true),
+    onNextPage: handleNextPage,
+    onPrevPage: handlePrevPage,
+    onClearFilters: handleClearFilters,
+    currentPage,
+    totalPages
+  });
+
   return (
     <div className="container mx-auto p-6">
       <MissionHeader />
+
+      {/* Voice Control Section */}
+      <div className="mb-6 flex justify-between items-center">
+        <VoiceControl 
+          onCommand={handleVoiceCommand}
+          className="flex-shrink-0"
+        />
+        <div className="text-sm text-muted-foreground">
+          Dites "aide" pour voir les commandes disponibles
+        </div>
+      </div>
 
       <MissionFilters
         searchTerm={searchTerm}
@@ -100,6 +145,11 @@ const Missions = () => {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={setCurrentPage}
+      />
+
+      <VoiceHelpDialog 
+        open={showHelp}
+        onOpenChange={setShowHelp}
       />
     </div>
   );

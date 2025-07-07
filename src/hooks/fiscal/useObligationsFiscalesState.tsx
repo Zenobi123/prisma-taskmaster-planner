@@ -55,7 +55,14 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
 
           // Load obligation statuses for current year
           if (fiscalData.obligations && typeof fiscalData.obligations === 'object' && fiscalData.obligations[fiscalYear]) {
-            setObligationStatuses(fiscalData.obligations[fiscalYear] as ObligationStatuses);
+            const yearObligations = fiscalData.obligations[fiscalYear];
+            if (typeof yearObligations === 'object' && !Array.isArray(yearObligations)) {
+              setObligationStatuses(yearObligations as ObligationStatuses);
+            } else {
+              setObligationStatuses({});
+            }
+          } else {
+            setObligationStatuses({});
           }
         }
       } catch (error) {

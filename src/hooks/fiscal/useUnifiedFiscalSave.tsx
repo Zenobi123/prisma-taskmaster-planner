@@ -63,6 +63,9 @@ export const useUnifiedFiscalSave = ({
       const currentFiscalData = currentClient?.fiscal_data;
       const baseData = (currentFiscalData && typeof currentFiscalData === 'object' && !Array.isArray(currentFiscalData)) ? currentFiscalData : {};
 
+      // Convert ObligationStatuses to a plain object that's JSON serializable
+      const serializedObligations = JSON.parse(JSON.stringify(obligationStatuses));
+
       // Update fiscal data
       const updatedFiscalData = {
         ...baseData,
@@ -74,7 +77,7 @@ export const useUnifiedFiscalSave = ({
         },
         obligations: {
           ...(baseData.obligations && typeof baseData.obligations === 'object' ? baseData.obligations : {}),
-          [fiscalYear]: obligationStatuses
+          [fiscalYear]: serializedObligations
         },
         hiddenFromDashboard,
         selectedYear: fiscalYear
