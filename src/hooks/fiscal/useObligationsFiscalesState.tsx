@@ -15,7 +15,7 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
   const [fiscalSituationCompliant, setFiscalSituationCompliant] = useState<boolean>(true);
-  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({});
+  const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({} as ObligationStatuses);
 
   // Load fiscal data when client changes
   useEffect(() => {
@@ -59,10 +59,10 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
             if (typeof yearObligations === 'object' && !Array.isArray(yearObligations)) {
               setObligationStatuses(yearObligations as ObligationStatuses);
             } else {
-              setObligationStatuses({});
+              setObligationStatuses({} as ObligationStatuses);
             }
           } else {
-            setObligationStatuses({});
+            setObligationStatuses({} as ObligationStatuses);
           }
         }
       } catch (error) {
