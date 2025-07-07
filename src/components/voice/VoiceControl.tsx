@@ -20,71 +20,89 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
 
   // Check for browser support
   useEffect(() => {
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      setIsSupported(true);
-    } else {
-      setIsSupported(false);
-      toast({
-        title: "Non supporté",
-        description: "La reconnaissance vocale n'est pas supportée par ce navigateur",
-        variant: "destructive",
-      });
-    }
+    const checkSupport = () => {
+      if (typeof window !== 'undefined') {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+          setIsSupported(true);
+        } else {
+          setIsSupported(false);
+          toast({
+            title: "Non supporté",
+            description: "La reconnaissance vocale n'est pas supportée par ce navigateur",
+            variant: "destructive",
+          });
+        }
+      }
+    };
+
+    checkSupport();
   }, [toast]);
 
   // Initialize speech recognition
   useEffect(() => {
-    if (!isSupported) return;
+    if (!isSupported || typeof window === 'undefined') return;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.lang = 'fr-FR';
-    recognition.maxAlternatives = 1;
+    try {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
 
-    recognition.onstart = () => {
-      setIsListening(true);
-      setTranscript('');
-    };
+      const recognition = new SpeechRecognition();
+      
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'fr-FR';
+      recognition.maxAlternatives = 1;
 
-    recognition.onresult = (event) => {
-      let finalTranscript = '';
-      let interimTranscript = '';
+      recognition.onstart = () => {
+        console.log('Voice recognition started');
+        setIsListening(true);
+        setTranscript('');
+      };
 
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript;
-        } else {
-          interimTranscript += transcript;
+      recognition.onresult = (event) => {
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
         }
-      }
 
-      const currentTranscript = finalTranscript || interimTranscript;
-      setTranscript(currentTranscript);
+        const currentTranscript = finalTranscript || interimTranscript;
+        setTranscript(currentTranscript);
 
-      if (finalTranscript) {
-        processCommand(finalTranscript.trim().toLowerCase());
-      }
-    };
+        if (finalTranscript) {
+          processCommand(finalTranscript.trim().toLowerCase());
+        }
+      };
 
-    recognition.onerror = (event) => {
-      console.error('Speech recognition error:', event.error);
-      setIsListening(false);
-      toast({
-        title: "Erreur de reconnaissance",
-        description: "Impossible de reconnaître la commande vocale",
-        variant: "destructive",
-      });
-    };
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        
+        if (event.error !== 'no-speech') {
+          toast({
+            title: "Erreur de reconnaissance",
+            description: `Erreur: ${event.error}`,
+            variant: "destructive",
+          });
+        }
+      };
 
-    recognition.onend = () => {
-      setIsListening(false);
-    };
+      recognition.onend = () => {
+        console.log('Voice recognition ended');
+        setIsListening(false);
+      };
 
-    recognitionRef.current = recognition;
+      recognitionRef.current = recognition;
+    } catch (error) {
+      console.error('Error initializing speech recognition:', error);
+      setIsSupported(false);
+    }
 
     return () => {
       if (recognitionRef.current) {
@@ -96,28 +114,32 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
   const processCommand = useCallback((transcript: string) => {
     console.log('Processing voice command:', transcript);
     
-    // Parse different types of commands
-    if (transcript.includes('rechercher') || transcript.includes('chercher')) {
-      const searchTerm = transcript.replace(/^(rechercher|chercher)\s+/, '');
-      onCommand('search', searchTerm);
-    } else if (transcript.includes('filtrer par statut')) {
-      const status = extractStatus(transcript);
-      if (status) {
-        onCommand('filter-status', status);
+    try {
+      // Parse different types of commands
+      if (transcript.includes('rechercher') || transcript.includes('chercher')) {
+        const searchTerm = transcript.replace(/^(rechercher|chercher)\s+/, '');
+        onCommand('search', searchTerm);
+      } else if (transcript.includes('filtrer par statut')) {
+        const status = extractStatus(transcript);
+        if (status) {
+          onCommand('filter-status', status);
+        }
+      } else if (transcript.includes('nouvelle mission')) {
+        onCommand('new-mission', transcript);
+      } else if (transcript.includes('page suivante')) {
+        onCommand('next-page', transcript);
+      } else if (transcript.includes('page précédente')) {
+        onCommand('prev-page', transcript);
+      } else if (transcript.includes('effacer filtres') || transcript.includes('réinitialiser filtres')) {
+        onCommand('clear-filters', transcript);
+      } else if (transcript.includes('aide')) {
+        onCommand('help', transcript);
+      } else {
+        // Generic command
+        onCommand('generic', transcript);
       }
-    } else if (transcript.includes('nouvelle mission')) {
-      onCommand('new-mission', transcript);
-    } else if (transcript.includes('page suivante')) {
-      onCommand('next-page', transcript);
-    } else if (transcript.includes('page précédente')) {
-      onCommand('prev-page', transcript);
-    } else if (transcript.includes('effacer filtres') || transcript.includes('réinitialiser filtres')) {
-      onCommand('clear-filters', transcript);
-    } else if (transcript.includes('aide')) {
-      onCommand('help', transcript);
-    } else {
-      // Generic command
-      onCommand('generic', transcript);
+    } catch (error) {
+      console.error('Error processing command:', error);
     }
   }, [onCommand]);
 
@@ -133,7 +155,11 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
     if (!isSupported || !isEnabled) return;
 
     if (isListening) {
-      recognitionRef.current?.stop();
+      try {
+        recognitionRef.current?.stop();
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+      }
     } else {
       try {
         recognitionRef.current?.start();

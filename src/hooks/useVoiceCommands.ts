@@ -29,81 +29,91 @@ export const useVoiceCommands = ({
   const handleVoiceCommand = useCallback((command: string, transcript: string) => {
     console.log('Voice command received:', command, transcript);
 
-    switch (command) {
-      case 'search':
-        onSearchChange(transcript);
-        toast({
-          title: "Recherche effectuée",
-          description: `Recherche pour: "${transcript}"`,
-        });
-        break;
-
-      case 'filter-status':
-        onStatusFilterChange(transcript);
-        toast({
-          title: "Filtre appliqué",
-          description: `Filtrage par statut: ${transcript}`,
-        });
-        break;
-
-      case 'new-mission':
-        onNewMission();
-        toast({
-          title: "Nouvelle mission",
-          description: "Ouverture du dialogue de création",
-        });
-        break;
-
-      case 'next-page':
-        if (currentPage < totalPages) {
-          onNextPage();
+    try {
+      switch (command) {
+        case 'search':
+          onSearchChange(transcript);
           toast({
-            title: "Navigation",
-            description: `Page ${currentPage + 1}`,
+            title: "Recherche effectuée",
+            description: `Recherche pour: "${transcript}"`,
           });
-        } else {
+          break;
+
+        case 'filter-status':
+          onStatusFilterChange(transcript);
           toast({
-            title: "Dernière page",
-            description: "Vous êtes déjà sur la dernière page",
+            title: "Filtre appliqué",
+            description: `Filtrage par statut: ${transcript}`,
+          });
+          break;
+
+        case 'new-mission':
+          onNewMission();
+          toast({
+            title: "Nouvelle mission",
+            description: "Ouverture du dialogue de création",
+          });
+          break;
+
+        case 'next-page':
+          if (currentPage < totalPages) {
+            onNextPage();
+            toast({
+              title: "Navigation",
+              description: `Page ${currentPage + 1}`,
+            });
+          } else {
+            toast({
+              title: "Dernière page",
+              description: "Vous êtes déjà sur la dernière page",
+              variant: "destructive",
+            });
+          }
+          break;
+
+        case 'prev-page':
+          if (currentPage > 1) {
+            onPrevPage();
+            toast({
+              title: "Navigation",
+              description: `Page ${currentPage - 1}`,
+            });
+          } else {
+            toast({
+              title: "Première page",
+              description: "Vous êtes déjà sur la première page",
+              variant: "destructive",
+            });
+          }
+          break;
+
+        case 'clear-filters':
+          onClearFilters();
+          toast({
+            title: "Filtres effacés",
+            description: "Tous les filtres ont été réinitialisés",
+          });
+          break;
+
+        case 'help':
+          setShowHelp(true);
+          break;
+
+        case 'generic':
+        default:
+          toast({
+            title: "Commande non reconnue",
+            description: `"${transcript}" - Dites "aide" pour voir les commandes disponibles`,
             variant: "destructive",
           });
-        }
-        break;
-
-      case 'prev-page':
-        if (currentPage > 1) {
-          onPrevPage();
-          toast({
-            title: "Navigation",
-            description: `Page ${currentPage - 1}`,
-          });
-        } else {
-          toast({
-            title: "Première page",
-            description: "Vous êtes déjà sur la première page",
-            variant: "destructive",
-          });
-        }
-        break;
-
-      case 'clear-filters':
-        onClearFilters();
-        toast({
-          title: "Filtres effacés",
-          description: "Tous les filtres ont été réinitialisés",
-        });
-        break;
-
-      case 'help':
-        setShowHelp(true);
-        break;
-
-      default:
-        toast({
-          title: "Commande non reconnue",
-          description: `"${transcript}" - Dites "aide" pour voir les commandes disponibles`,
-          variant: "destructive",
-        });
+      }
+    } catch (error) {
+      console.error('Error handling voice command:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors du traitement de la commande vocale",
+        variant: "destructive",
+      });
     }
   }, [
     onSearchChange,
