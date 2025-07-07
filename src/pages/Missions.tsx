@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +6,7 @@ import MissionFilters from "@/components/missions/MissionFilters";
 import MissionList from "@/components/missions/MissionList";
 import MissionPagination from "@/components/missions/MissionPagination";
 import MissionHeader from "@/components/missions/MissionHeader";
+import NewMissionDialog from "@/components/missions/NewMissionDialog";
 import { VoiceControl } from "@/components/voice/VoiceControl";
 import { VoiceHelpDialog } from "@/components/voice/VoiceHelpDialog";
 import { useMissionFilter } from "@/hooks/useMissionFilter";
@@ -150,6 +150,12 @@ const Missions = () => {
       <VoiceHelpDialog 
         open={showHelp}
         onOpenChange={setShowHelp}
+      />
+
+      <NewMissionDialog 
+        isOpen={showNewMissionDialog}
+        onOpenChange={setShowNewMissionDialog}
+        showTrigger={false}
       />
     </div>
   );
