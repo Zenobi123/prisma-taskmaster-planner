@@ -4,8 +4,11 @@ import { CollaborateurUnauthorized } from "@/components/collaborateurs/Collabora
 import { CollaborateurLoading } from "@/components/collaborateurs/CollaborateurLoading";
 import { CollaborateurContent } from "@/components/collaborateurs/CollaborateurContent";
 import { useAuthorization } from "@/hooks/useAuthorization";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function Collaborateurs() {
+  const isMobile = useIsMobile();
+  
   // Vérifier les autorisations d'accès
   const { isAuthorized } = useAuthorization(
     ["admin"], 
@@ -45,24 +48,26 @@ export default function Collaborateurs() {
   }
 
   return (
-    <CollaborateurContent
-      searchTerm={searchTerm}
-      selectedStatut={selectedStatut}
-      selectedPoste={selectedPoste}
-      isFiltersOpen={isFiltersOpen}
-      postes={postes}
-      filteredCollaborateurs={filteredCollaborateurs}
-      isDialogOpen={isDialogOpen}
-      newCollaborateur={newCollaborateur}
-      onSearchChange={setSearchTerm}
-      onStatutChange={setSelectedStatut}
-      onPosteChange={setSelectedPoste}
-      onFiltersOpenChange={setIsFiltersOpen}
-      onOpenDialogChange={setIsDialogOpen}
-      onDelete={onDelete}
-      onStatusChange={handleStatusChange}
-      onChange={handleChange}
-      onSubmit={handleSubmit}
-    />
+    <div className={isMobile ? 'px-4 py-4' : ''}>
+      <CollaborateurContent
+        searchTerm={searchTerm}
+        selectedStatut={selectedStatut}
+        selectedPoste={selectedPoste}
+        isFiltersOpen={isFiltersOpen}
+        postes={postes}
+        filteredCollaborateurs={filteredCollaborateurs}
+        isDialogOpen={isDialogOpen}
+        newCollaborateur={newCollaborateur}
+        onSearchChange={setSearchTerm}
+        onStatutChange={setSelectedStatut}
+        onPosteChange={setSelectedPoste}
+        onFiltersOpenChange={setIsFiltersOpen}
+        onOpenDialogChange={setIsDialogOpen}
+        onDelete={onDelete}
+        onStatusChange={handleStatusChange}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      />
+    </div>
   );
 }

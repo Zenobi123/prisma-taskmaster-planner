@@ -1,116 +1,158 @@
 
 import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { 
-  LayoutDashboard, 
+  Home, 
   Users, 
-  Briefcase, 
-  Calendar, 
   FileText, 
-  Menu, 
-  Wallet,
-  ChevronRight,
-  FolderOpen,
-  Receipt,
+  Calendar, 
+  UserCog, 
   Settings,
-  Mail
+  Menu,
+  X
 } from "lucide-react";
-import LogoutButton from "@/components/LogoutButton";
-
-type MenuItem = {
-  path: string;
-  icon: React.ElementType;
-  label: string;
-  adminOnly?: boolean;
-  allowedRoles?: string[];
-};
-
-const menuItems: MenuItem[] = [
-  { path: "/", icon: LayoutDashboard, label: "Dashboard" },
-  { path: "/collaborateurs", icon: Users, label: "Collaborateurs", allowedRoles: ["admin"] },
-  { path: "/clients", icon: Users, label: "Clients" },
-  { path: "/gestion", icon: FolderOpen, label: "Gestion" },
-  { path: "/missions", icon: Briefcase, label: "Mission" },
-  { path: "/planning", icon: Calendar, label: "Planning" },
-  { path: "/facturation", icon: Receipt, label: "Facturation", allowedRoles: ["admin"] },
-  { path: "/depenses", icon: Wallet, label: "Dépenses" },
-  { path: "/courrier", icon: Mail, label: "Courrier" },
-  { path: "/rapports", icon: FileText, label: "Rapports" },
-  { path: "/parametres", icon: Settings, label: "Paramètres", allowedRoles: ["admin"] }
-];
+import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Sidebar = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const location = useLocation();
-  const userRole = localStorage.getItem("userRole");
-  
-  const isActiveRoute = (path: string) => {
-    return location.pathname === path;
+  const isMobile = useIsMobile();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const navigation = [
+    { name: "Dashboard", href: "/", icon: Home },
+    { name: "Clients", href: "/clients", icon: Users },
+    { name: "Missions", href: "/missions", icon: FileText },
+    { name: "Planning", href: "/planning", icon: Calendar },
+    { name: "Collaborateurs", href: "/collaborateurs", icon: UserCog },
+  ];
+
+  const isActive = (path: string) => {
+    if (path === "/") {
+      return location.pathname === "/";
+    }
+    return location.pathname.startsWith(path);
   };
 
-  // Filter menu items based on user role
-  const filteredMenuItems = menuItems.filter(item => 
-    !item.allowedRoles || item.allowedRoles.includes(userRole || "")
-  );
+  if (isMobile) {
+    return (
+      <>
+        {/* Menu hamburger pour mobile */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="fixed top-4 left-4 z-50 bg-white shadow-md"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </Button>
 
-  return (
-    <aside
-      className={`${
-        isSidebarOpen ? "w-64" : "w-20"
-      } bg-white border-r border-neutral-200 transition-all duration-300 ease-in-out flex flex-col`}
-    >
-      <div className="p-4 border-b border-neutral-200">
-        <div className="flex items-center justify-between">
-          <h1
-            className={`font-semibold text-neutral-800 transition-opacity duration-300 ${
-              !isSidebarOpen && "opacity-0 hidden"
-            }`}
-          >
-            PRISMA GESTION
-          </h1>
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 hover:bg-neutral-100 rounded-md transition-colors"
-            aria-label={isSidebarOpen ? "Réduire le menu" : "Agrandir le menu"}
-          >
-            <Menu className="w-5 h-5 text-neutral-600" />
-          </button>
-        </div>
-      </div>
+        {/* Overlay */}
+        {isOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40"
+            onClick={() => setIsOpen(false)}
+          />
+        )}
 
-      <nav className="flex-1 py-4 px-2 space-y-1">
-        {filteredMenuItems.map((item) => (
-          <Link
-            key={item.path}
-            to={item.path}
-            className={`sidebar-link group relative ${
-              isActiveRoute(item.path) && "active"
-            }`}
-          >
-            <item.icon className="w-5 h-5 shrink-0" />
-            <span
-              className={`transition-opacity duration-300 ${
-                !isSidebarOpen && "opacity-0 hidden"
-              }`}
-            >
-              {item.label}
-            </span>
-            {!isSidebarOpen && (
-              <div className="absolute left-14 bg-neutral-800 text-white px-2 py-1 rounded text-sm opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">
-                {item.label}
+        {/* Sidebar mobile */}
+        <div className={`
+          fixed top-0 left-0 h-full w-80 max-w-[80vw] bg-white shadow-xl z-50 transform transition-transform duration-300 ease-in-out
+          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        `}>
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="p-6 border-b border-neutral-200">
+              <h2 className="text-xl font-semibold text-neutral-800">Navigation</h2>
+            </div>
+
+            {/* Navigation */}
+            <nav className="flex-1 p-4">
+              <div className="space-y-2">
+                {navigation.map((item) => {
+                  const IconComponent = item.icon;
+                  return (
+                    <NavLink
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className={`
+                        flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                        ${isActive(item.href) 
+                          ? 'bg-primary text-white shadow-sm' 
+                          : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                        }
+                      `}
+                    >
+                      <IconComponent className="h-5 w-5" />
+                      <span>{item.name}</span>
+                    </NavLink>
+                  );
+                })}
               </div>
-            )}
-            {isActiveRoute(item.path) && (
-              <ChevronRight className={`w-4 h-4 ml-auto ${!isSidebarOpen && "hidden"}`} />
-            )}
-          </Link>
-        ))}
-      </nav>
+            </nav>
+          </div>
+        </div>
 
-      <div className={`p-4 border-t border-neutral-200 ${!isSidebarOpen && "flex justify-center"}`}>
-        <LogoutButton />
+        {/* Navigation bottom bar pour mobile */}
+        <div className="bg-white border-t border-neutral-200 px-2 py-2">
+          <div className="flex justify-around">
+            {navigation.slice(0, 4).map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <NavLink
+                  key={item.name}
+                  to={item.href}
+                  className={`
+                    flex flex-col items-center gap-1 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 min-w-0 flex-1
+                    ${isActive(item.href) 
+                      ? 'text-primary' 
+                      : 'text-neutral-600'
+                    }
+                  `}
+                >
+                  <IconComponent className="h-5 w-5" />
+                  <span className="truncate">{item.name}</span>
+                </NavLink>
+              );
+            })}
+          </div>
+        </div>
+      </>
+    );
+  }
+
+  // Desktop sidebar
+  return (
+    <div className="w-64 bg-white border-r border-neutral-200 flex flex-col">
+      <div className="p-6 border-b border-neutral-200">
+        <h2 className="text-xl font-semibold text-neutral-800">Navigation</h2>
       </div>
-    </aside>
+
+      <nav className="flex-1 p-4">
+        <div className="space-y-2">
+          {navigation.map((item) => {
+            const IconComponent = item.icon;
+            return (
+              <NavLink
+                key={item.name}
+                to={item.href}
+                className={`
+                  flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200
+                  ${isActive(item.href) 
+                    ? 'bg-primary text-white shadow-sm' 
+                    : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900'
+                  }
+                `}
+              >
+                <IconComponent className="h-5 w-5" />
+                <span>{item.name}</span>
+              </NavLink>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
   );
 };
 

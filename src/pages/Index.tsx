@@ -11,10 +11,12 @@ import DashboardAccordion from "@/components/dashboard/DashboardAccordion";
 import QuickStats from "@/components/dashboard/QuickStats";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { UnfiledDsfDialog } from "@/components/dashboard/UnfiledDsfDialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Index = () => {
   const queryClient = useQueryClient();
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  const isMobile = useIsMobile();
   
   // États pour les dialogues - tous fermés par défaut
   const [isUnpaidPatenteDialogOpen, setIsUnpaidPatenteDialogOpen] = useState(false);
@@ -87,20 +89,44 @@ const Index = () => {
   console.log("Index - Rendering dashboard components, last refresh:", lastRefresh.toLocaleTimeString());
 
   return (
-    <div className="min-h-screen flex">
-      <Sidebar />
+    <div className={`min-h-screen ${isMobile ? 'flex flex-col' : 'flex'}`}>
+      {isMobile ? (
+        // Layout mobile : sidebar en bas ou menu hamburger
+        <>
+          <main className="flex-1 bg-neutral-100 safe-top">
+            <DashboardHeader 
+              lastRefresh={lastRefresh} 
+              onRefresh={refreshDashboard} 
+            />
 
-      <main className="flex-1 bg-neutral-100">
-        <DashboardHeader 
-          lastRefresh={lastRefresh} 
-          onRefresh={refreshDashboard} 
-        />
+            <div className={`px-2 py-4 space-y-4 safe-bottom ${isMobile ? 'pb-20' : ''}`}>
+              <QuickStats />
+              <DashboardAccordion />
+            </div>
+          </main>
+          
+          {/* Sidebar fixe en bas sur mobile */}
+          <div className="fixed bottom-0 left-0 right-0 z-50 safe-bottom">
+            <Sidebar />
+          </div>
+        </>
+      ) : (
+        // Layout desktop classique
+        <>
+          <Sidebar />
+          <main className="flex-1 bg-neutral-100">
+            <DashboardHeader 
+              lastRefresh={lastRefresh} 
+              onRefresh={refreshDashboard} 
+            />
 
-        <div className="p-8 space-y-8">
-          <QuickStats />
-          <DashboardAccordion />
-        </div>
-      </main>
+            <div className="p-8 space-y-8">
+              <QuickStats />
+              <DashboardAccordion />
+            </div>
+          </main>
+        </>
+      )}
       
       <UnpaidPatenteDialog 
         open={isUnpaidPatenteDialogOpen} 
