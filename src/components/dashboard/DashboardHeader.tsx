@@ -2,7 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 import NewTaskDialog from "./NewTaskDialog";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface DashboardHeaderProps {
   lastRefresh: Date;
@@ -10,21 +9,19 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader = ({ lastRefresh, onRefresh }: DashboardHeaderProps) => {
-  const isMobile = useIsMobile();
-
   // Handle hidden refresh functionality
   const handleHiddenRefresh = () => {
     onRefresh();
   };
 
   return (
-    <header className={`bg-white border-b border-neutral-200 ${isMobile ? 'px-4 py-4' : 'px-8 py-6'}`}>
-      <div className={`flex ${isMobile ? 'flex-col gap-3' : 'items-center justify-between'}`}>
+    <header className="bg-white border-b border-neutral-200 px-8 py-6">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className={`font-semibold text-neutral-800 ${isMobile ? 'text-xl' : 'text-2xl'}`}>
+          <h1 className="text-2xl font-semibold text-neutral-800">
             Tableau de bord
           </h1>
-          <p className={`text-neutral-600 mt-1 ${isMobile ? 'text-sm' : ''}`}>
+          <p className="text-neutral-600 mt-1">
             Bienvenue sur votre espace de gestion
           </p>
           {/* Hidden refresh trigger - subtle visual indicator */}
@@ -38,7 +35,7 @@ const DashboardHeader = ({ lastRefresh, onRefresh }: DashboardHeaderProps) => {
             </span>
           </div>
         </div>
-        <div className={`flex ${isMobile ? 'w-full' : 'gap-2'}`}>
+        <div className="flex gap-2">
           {/* Bouton d'actualisation supprimé car l'actualisation est automatique */}
           <NewTaskDialog />
         </div>

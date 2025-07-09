@@ -11,7 +11,6 @@ import { VoiceControl } from "@/components/voice/VoiceControl";
 import { VoiceHelpDialog } from "@/components/voice/VoiceHelpDialog";
 import { useMissionFilter } from "@/hooks/useMissionFilter";
 import { useVoiceCommands } from "@/hooks/useVoiceCommands";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 const Missions = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,7 +18,6 @@ const Missions = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [showNewMissionDialog, setShowNewMissionDialog] = useState(false);
   const itemsPerPage = 10;
-  const isMobile = useIsMobile();
 
   const { data: missions, isLoading } = useQuery({
     queryKey: ['missions'],
@@ -117,16 +115,16 @@ const Missions = () => {
   });
 
   return (
-    <div className={`container mx-auto ${isMobile ? 'px-4 py-4' : 'p-6'}`}>
+    <div className="container mx-auto p-6">
       <MissionHeader />
 
       {/* Voice Control Section */}
-      <div className={`mb-6 flex ${isMobile ? 'flex-col gap-4' : 'justify-between items-center'}`}>
+      <div className="mb-6 flex justify-between items-center">
         <VoiceControl 
           onCommand={handleVoiceCommand}
           className="flex-shrink-0"
         />
-        <div className={`text-sm text-muted-foreground ${isMobile ? 'text-center' : ''}`}>
+        <div className="text-sm text-muted-foreground">
           Dites "aide" pour voir les commandes disponibles
         </div>
       </div>
