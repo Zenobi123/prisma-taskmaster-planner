@@ -22,6 +22,8 @@ export default function ClientsPage() {
     setSelectedType,
     selectedSecteur,
     setSelectedSecteur,
+    selectedRegimeFiscal,
+    setSelectedRegimeFiscal,
     showArchived,
     setShowArchived,
     showTrash,
@@ -92,6 +94,8 @@ export default function ClientsPage() {
               onTypeChange={setSelectedType}
               selectedSecteur={selectedSecteur}
               onSecteurChange={setSelectedSecteur}
+              selectedRegimeFiscal={selectedRegimeFiscal}
+              onRegimeFiscalChange={setSelectedRegimeFiscal}
               showArchived={showArchived}
               onShowArchivedChange={setShowArchived}
               onView={handleView}
@@ -111,6 +115,8 @@ export default function ClientsPage() {
             onTypeChange={setSelectedType}
             selectedSecteur={selectedSecteur}
             onSecteurChange={setSelectedSecteur}
+            selectedRegimeFiscal={selectedRegimeFiscal}
+            onRegimeFiscalChange={setSelectedRegimeFiscal}
             showArchived={showArchived}
             onShowArchivedChange={setShowArchived}
             onView={handleView}

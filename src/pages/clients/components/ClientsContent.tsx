@@ -1,5 +1,5 @@
 
-import { Client, ClientType } from "@/types/client";
+import { Client, ClientType, RegimeFiscal } from "@/types/client";
 import { ClientList } from "@/components/clients/ClientList";
 import { ClientFilters } from "@/components/clients/ClientFilters";
 
@@ -11,6 +11,8 @@ interface ClientsContentProps {
   onTypeChange: (value: ClientType | "all") => void;
   selectedSecteur: string;
   onSecteurChange: (value: string) => void;
+  selectedRegimeFiscal: RegimeFiscal | "all";
+  onRegimeFiscalChange: (value: RegimeFiscal | "all") => void;
   showArchived: boolean;
   onShowArchivedChange: (value: boolean) => void;
   onView: (client: Client) => void;
@@ -29,6 +31,8 @@ export function ClientsContent({
   onTypeChange,
   selectedSecteur,
   onSecteurChange,
+  selectedRegimeFiscal,
+  onRegimeFiscalChange,
   showArchived,
   onShowArchivedChange,
   onView,
@@ -47,6 +51,8 @@ export function ClientsContent({
         onTypeChange={onTypeChange}
         selectedSecteur={selectedSecteur}
         onSecteurChange={onSecteurChange}
+        selectedRegimeFiscal={selectedRegimeFiscal}
+        onRegimeFiscalChange={onRegimeFiscalChange}
         showArchived={showArchived}
         onShowArchivedChange={onShowArchivedChange}
         clients={clients}

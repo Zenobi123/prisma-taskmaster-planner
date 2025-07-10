@@ -1,6 +1,6 @@
 
 import { Input } from "@/components/ui/input";
-import { ClientType } from "@/types/client";
+import { ClientType, RegimeFiscal } from "@/types/client";
 import {
   Select,
   SelectContent,
@@ -21,6 +21,8 @@ interface ClientFiltersProps {
   onTypeChange: (value: ClientType | "all") => void;
   selectedSecteur: string;
   onSecteurChange: (value: string) => void;
+  selectedRegimeFiscal: RegimeFiscal | "all";
+  onRegimeFiscalChange: (value: RegimeFiscal | "all") => void;
   showArchived: boolean;
   onShowArchivedChange: (value: boolean) => void;
   clients?: Client[];
@@ -34,11 +36,26 @@ export function ClientFilters({
   onTypeChange,
   selectedSecteur,
   onSecteurChange,
+  selectedRegimeFiscal,
+  onRegimeFiscalChange,
   showArchived,
   onShowArchivedChange,
   clients = [],
   isMobile,
 }: ClientFiltersProps) {
+  const getRegimeFiscalLabel = (regime: RegimeFiscal) => {
+    switch (regime) {
+      case 'reel':
+        return 'Réel';
+      case 'igs':
+        return 'IGS';
+      case 'non_professionnel':
+        return 'Non Professionnel';
+      default:
+        return regime;
+    }
+  };
+
   return (
     <div className="space-y-4 mb-6">
       <div className={`flex ${isMobile ? 'flex-col' : 'flex-row flex-wrap'} gap-4`}>
@@ -74,6 +91,18 @@ export function ClientFilters({
             <SelectItem value="industrie">Industrie</SelectItem>
             <SelectItem value="agriculture">Agriculture</SelectItem>
             <SelectItem value="autre">Autre</SelectItem>
+          </SelectContent>
+        </Select>
+
+        <Select value={selectedRegimeFiscal} onValueChange={onRegimeFiscalChange}>
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue placeholder="Régime Fiscal" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous les régimes</SelectItem>
+            <SelectItem value="reel">Réel</SelectItem>
+            <SelectItem value="igs">IGS</SelectItem>
+            <SelectItem value="non_professionnel">Non Professionnel</SelectItem>
           </SelectContent>
         </Select>
         

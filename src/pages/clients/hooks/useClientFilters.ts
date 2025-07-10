@@ -1,11 +1,12 @@
 
 import { useState } from "react";
-import { Client, ClientType } from "@/types/client";
+import { Client, ClientType, RegimeFiscal } from "@/types/client";
 
 export function useClientFilters(clients: Client[]) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<ClientType | "all">("all");
   const [selectedSecteur, setSelectedSecteur] = useState("all");
+  const [selectedRegimeFiscal, setSelectedRegimeFiscal] = useState<RegimeFiscal | "all">("all");
   const [showArchived, setShowArchived] = useState(false);
 
   const filteredClients = clients.filter((client) => {
@@ -22,9 +23,12 @@ export function useClientFilters(clients: Client[]) {
     const matchesSecteur =
       selectedSecteur === "all" || client.secteuractivite === selectedSecteur;
 
+    const matchesRegimeFiscal = 
+      selectedRegimeFiscal === "all" || client.regimefiscal === selectedRegimeFiscal;
+
     const matchesArchiveStatus = showArchived || client.statut !== "archive";
 
-    return matchesSearch && matchesType && matchesSecteur && matchesArchiveStatus;
+    return matchesSearch && matchesType && matchesSecteur && matchesRegimeFiscal && matchesArchiveStatus;
   });
 
   return {
@@ -34,6 +38,8 @@ export function useClientFilters(clients: Client[]) {
     setSelectedType,
     selectedSecteur,
     setSelectedSecteur,
+    selectedRegimeFiscal,
+    setSelectedRegimeFiscal,
     showArchived,
     setShowArchived,
     filteredClients,
