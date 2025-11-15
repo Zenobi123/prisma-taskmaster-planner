@@ -1,0 +1,2352 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prisma Taskmaster - Version Alternative</title>
+    <style>
+        /* ==================== RESET & BASE ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #84A98C;
+            --primary-dark: #6b8a71;
+            --primary-light: #9dbba5;
+            --secondary: #52796F;
+            --accent: #CAD2C5;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #2f3e46;
+            --text-secondary: #52796f;
+            --text-muted: #6c757d;
+            --border: #dee2e6;
+            --success: #52c41a;
+            --warning: #faad14;
+            --error: #f5222d;
+            --info: #1890ff;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --radius: 8px;
+            --radius-sm: 4px;
+            --radius-lg: 12px;
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* ==================== LAYOUT ==================== */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-secondary);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background-color: var(--bg-secondary);
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 600;
+        }
+
+        .nav-item-icon {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+        }
+
+        .main-content.expanded {
+            margin-left: 0;
+        }
+
+        .top-bar {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .page-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* ==================== COMPONENTS ==================== */
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: var(--border);
+        }
+
+        .btn-danger {
+            background-color: var(--error);
+            color: white;
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background-color: #d4001a;
+        }
+
+        .btn-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+
+        .btn-lg {
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .stat-card.error {
+            border-left-color: var(--error);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success);
+        }
+
+        .stat-card.info {
+            border-left-color: var(--info);
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-change {
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-change.positive {
+            color: var(--success);
+        }
+
+        .stat-change.negative {
+            color: var(--error);
+        }
+
+        /* ==================== FORMS ==================== */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+
+        .form-label.required::after {
+            content: " *";
+            color: var(--error);
+        }
+
+        .form-input,
+        .form-select,
+        .form-textarea {
+            width: 100%;
+            padding: 0.625rem 0.875rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .form-input:focus,
+        .form-select:focus,
+        .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(132, 169, 140, 0.1);
+        }
+
+        .form-textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-error {
+            color: var(--error);
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 1.125rem;
+            height: 1.125rem;
+            cursor: pointer;
+        }
+
+        /* ==================== TABLE ==================== */
+        .table-container {
+            overflow-x: auto;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--bg-primary);
+        }
+
+        .table thead {
+            background-color: var(--bg-secondary);
+        }
+
+        .table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            border-bottom: 2px solid var(--border);
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--bg-secondary);
+        }
+
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* ==================== BADGES ==================== */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+
+        .badge-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .badge-warning {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .badge-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+        }
+
+        /* ==================== MODAL ==================== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-large {
+            max-width: 900px;
+        }
+
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 0;
+            width: 2rem;
+            height: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius);
+        }
+
+        .modal-close:hover {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.75rem;
+        }
+
+        /* ==================== TABS ==================== */
+        .tabs {
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .tab-list {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-button {
+            padding: 0.75rem 1.25rem;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            color: var(--primary);
+        }
+
+        .tab-button.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* ==================== FILTERS ==================== */
+        .filters {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: flex-end;
+        }
+
+        /* ==================== SEARCH ==================== */
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* ==================== PAGINATION ==================== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination-button {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            background: var(--bg-primary);
+            cursor: pointer;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .pagination-button:hover:not(:disabled) {
+            background-color: var(--bg-secondary);
+            border-color: var(--primary);
+        }
+
+        .pagination-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination-button.active {
+            background-color: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* ==================== TOAST ==================== */
+        .toast-container {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .toast {
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 300px;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--info);
+        }
+
+        .toast.success {
+            border-left-color: var(--success);
+        }
+
+        .toast.error {
+            border-left-color: var(--error);
+        }
+
+        .toast.warning {
+            border-left-color: var(--warning);
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* ==================== EMPTY STATE ==================== */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .empty-state-description {
+            margin-bottom: 1.5rem;
+        }
+
+        /* ==================== LOADING ==================== */
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem;
+        }
+
+        .spinner {
+            border: 3px solid var(--bg-tertiary);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==================== ACTION BUTTONS ==================== */
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            padding: 0.5rem;
+            cursor: pointer;
+            border-radius: var(--radius);
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-button:hover {
+            background-color: var(--bg-secondary);
+            color: var(--primary);
+        }
+
+        .icon-button.danger:hover {
+            background-color: #fee;
+            color: var(--error);
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 768px) {
+            :root {
+                --sidebar-width: 0;
+            }
+
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-row {
+                grid-template-columns: 1fr;
+            }
+
+            .page-content {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 1rem;
+            }
+        }
+
+        /* ==================== UTILITY CLASSES ==================== */
+        .hidden {
+            display: none !important;
+        }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flex-center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gap-1 {
+            gap: 0.5rem;
+        }
+
+        .gap-2 {
+            gap: 1rem;
+        }
+
+        .mt-1 {
+            margin-top: 0.5rem;
+        }
+
+        .mt-2 {
+            margin-top: 1rem;
+        }
+
+        .mb-1 {
+            margin-bottom: 0.5rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 1rem;
+        }
+
+        .text-muted {
+            color: var(--text-muted);
+        }
+
+        .text-small {
+            font-size: 0.875rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .w-full {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h1>Prisma Taskmaster</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <span class="nav-item-icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item" data-page="clients">
+                    <span class="nav-item-icon">👥</span>
+                    <span>Clients</span>
+                </a>
+                <a href="#" class="nav-item" data-page="missions">
+                    <span class="nav-item-icon">📋</span>
+                    <span>Missions</span>
+                </a>
+                <a href="#" class="nav-item" data-page="facturation">
+                    <span class="nav-item-icon">💰</span>
+                    <span>Facturation</span>
+                </a>
+                <a href="#" class="nav-item" data-page="gestion">
+                    <span class="nav-item-icon">📁</span>
+                    <span>Gestion</span>
+                </a>
+                <a href="#" class="nav-item" data-page="collaborateurs">
+                    <span class="nav-item-icon">👤</span>
+                    <span>Collaborateurs</span>
+                </a>
+                <a href="#" class="nav-item" data-page="rapports">
+                    <span class="nav-item-icon">📈</span>
+                    <span>Rapports</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="flex gap-2">
+                    <button class="icon-button" id="toggleSidebar">☰</button>
+                    <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input type="text" class="search-input" placeholder="Rechercher..." id="globalSearch">
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button class="icon-button" id="refreshData" title="Actualiser">🔄</button>
+                    <button class="icon-button" id="userMenu" title="Menu utilisateur">👤</button>
+                </div>
+            </div>
+
+            <!-- Page Content -->
+            <div class="page-content" id="pageContent">
+                <!-- Content will be dynamically loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==================== DATA MANAGEMENT ====================
+        class DataStore {
+            constructor() {
+                this.initializeData();
+            }
+
+            initializeData() {
+                // Initialize default data structure if not exists
+                if (!localStorage.getItem('clients')) {
+                    localStorage.setItem('clients', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('missions')) {
+                    localStorage.setItem('missions', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('factures')) {
+                    localStorage.setItem('factures', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('paiements')) {
+                    localStorage.setItem('paiements', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('collaborateurs')) {
+                    localStorage.setItem('collaborateurs', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('obligations_fiscales')) {
+                    localStorage.setItem('obligations_fiscales', JSON.stringify([]));
+                }
+
+                // Add sample data if empty
+                this.addSampleData();
+            }
+
+            addSampleData() {
+                const clients = this.getClients();
+                if (clients.length === 0) {
+                    const sampleClients = [
+                        {
+                            id: this.generateId(),
+                            type: 'morale',
+                            nom: 'ENTREPRISE ALPHA SARL',
+                            raisonsociale: 'Alpha Services',
+                            niu: 'M123456789',
+                            numerorccm: 'GA-LBV-01-2020-B12-00123',
+                            formejuridique: 'sarl',
+                            regimefiscal: 'reel',
+                            secteuractivite: 'Services',
+                            statut: 'actif',
+                            email: 'contact@alpha.ga',
+                            telephone: '+241 01 23 45 67',
+                            created_at: new Date().toISOString()
+                        },
+                        {
+                            id: this.generateId(),
+                            type: 'physique',
+                            nom: 'MBENG Jean',
+                            prenom: 'Jean',
+                            niu: 'P987654321',
+                            regimefiscal: 'igs',
+                            secteuractivite: 'Commerce',
+                            statut: 'actif',
+                            email: 'jean.mbeng@email.ga',
+                            telephone: '+241 07 98 76 54',
+                            created_at: new Date().toISOString()
+                        }
+                    ];
+                    localStorage.setItem('clients', JSON.stringify(sampleClients));
+                }
+
+                const collaborateurs = this.getCollaborateurs();
+                if (collaborateurs.length === 0) {
+                    const sampleCollaborateurs = [
+                        {
+                            id: this.generateId(),
+                            nom: 'ESSONO',
+                            prenom: 'Marie',
+                            email: 'marie.essono@prisma.ga',
+                            poste: 'expert-comptable',
+                            statut: 'actif',
+                            created_at: new Date().toISOString()
+                        },
+                        {
+                            id: this.generateId(),
+                            nom: 'OBAMA',
+                            prenom: 'Paul',
+                            email: 'paul.obama@prisma.ga',
+                            poste: 'assistant',
+                            statut: 'actif',
+                            created_at: new Date().toISOString()
+                        }
+                    ];
+                    localStorage.setItem('collaborateurs', JSON.stringify(sampleCollaborateurs));
+                }
+            }
+
+            generateId() {
+                return Date.now().toString(36) + Math.random().toString(36).substr(2);
+            }
+
+            // Clients
+            getClients() {
+                return JSON.parse(localStorage.getItem('clients') || '[]');
+            }
+
+            getClient(id) {
+                const clients = this.getClients();
+                return clients.find(c => c.id === id);
+            }
+
+            saveClient(client) {
+                const clients = this.getClients();
+                if (client.id) {
+                    const index = clients.findIndex(c => c.id === client.id);
+                    if (index !== -1) {
+                        clients[index] = { ...client, updated_at: new Date().toISOString() };
+                    }
+                } else {
+                    client.id = this.generateId();
+                    client.created_at = new Date().toISOString();
+                    clients.push(client);
+                }
+                localStorage.setItem('clients', JSON.stringify(clients));
+                return client;
+            }
+
+            deleteClient(id) {
+                let clients = this.getClients();
+                clients = clients.filter(c => c.id !== id);
+                localStorage.setItem('clients', JSON.stringify(clients));
+            }
+
+            // Missions
+            getMissions() {
+                return JSON.parse(localStorage.getItem('missions') || '[]');
+            }
+
+            saveMission(mission) {
+                const missions = this.getMissions();
+                if (mission.id) {
+                    const index = missions.findIndex(m => m.id === mission.id);
+                    if (index !== -1) {
+                        missions[index] = { ...mission, updated_at: new Date().toISOString() };
+                    }
+                } else {
+                    mission.id = this.generateId();
+                    mission.created_at = new Date().toISOString();
+                    missions.push(mission);
+                }
+                localStorage.setItem('missions', JSON.stringify(missions));
+                return mission;
+            }
+
+            deleteMission(id) {
+                let missions = this.getMissions();
+                missions = missions.filter(m => m.id !== id);
+                localStorage.setItem('missions', JSON.stringify(missions));
+            }
+
+            // Factures
+            getFactures() {
+                return JSON.parse(localStorage.getItem('factures') || '[]');
+            }
+
+            saveFacture(facture) {
+                const factures = this.getFactures();
+                if (facture.id) {
+                    const index = factures.findIndex(f => f.id === facture.id);
+                    if (index !== -1) {
+                        factures[index] = { ...facture, updated_at: new Date().toISOString() };
+                    }
+                } else {
+                    facture.id = this.generateId();
+                    facture.numero = this.generateFactureNumber();
+                    facture.created_at = new Date().toISOString();
+                    factures.push(facture);
+                }
+                localStorage.setItem('factures', JSON.stringify(factures));
+                return facture;
+            }
+
+            generateFactureNumber() {
+                const factures = this.getFactures();
+                const year = new Date().getFullYear();
+                const count = factures.filter(f => f.numero?.startsWith(`F${year}`)).length + 1;
+                return `F${year}-${String(count).padStart(4, '0')}`;
+            }
+
+            // Collaborateurs
+            getCollaborateurs() {
+                return JSON.parse(localStorage.getItem('collaborateurs') || '[]');
+            }
+
+            saveCollaborateur(collaborateur) {
+                const collaborateurs = this.getCollaborateurs();
+                if (collaborateur.id) {
+                    const index = collaborateurs.findIndex(c => c.id === collaborateur.id);
+                    if (index !== -1) {
+                        collaborateurs[index] = { ...collaborateur, updated_at: new Date().toISOString() };
+                    }
+                } else {
+                    collaborateur.id = this.generateId();
+                    collaborateur.created_at = new Date().toISOString();
+                    collaborateurs.push(collaborateur);
+                }
+                localStorage.setItem('collaborateurs', JSON.stringify(collaborateurs));
+                return collaborateur;
+            }
+
+            // Obligations Fiscales
+            getObligationsFiscales() {
+                return JSON.parse(localStorage.getItem('obligations_fiscales') || '[]');
+            }
+
+            saveObligationFiscale(obligation) {
+                const obligations = this.getObligationsFiscales();
+                if (obligation.id) {
+                    const index = obligations.findIndex(o => o.id === obligation.id);
+                    if (index !== -1) {
+                        obligations[index] = { ...obligation, updated_at: new Date().toISOString() };
+                    }
+                } else {
+                    obligation.id = this.generateId();
+                    obligation.created_at = new Date().toISOString();
+                    obligations.push(obligation);
+                }
+                localStorage.setItem('obligations_fiscales', JSON.stringify(obligations));
+                return obligation;
+            }
+        }
+
+        // Initialize data store
+        const db = new DataStore();
+
+        // ==================== UI UTILITIES ====================
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideIn 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('fr-FR');
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('fr-FR', {
+                style: 'currency',
+                currency: 'XAF',
+                minimumFractionDigits: 0
+            }).format(amount || 0);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // ==================== PAGE RENDERING ====================
+        const PageRenderer = {
+            renderDashboard() {
+                const clients = db.getClients();
+                const missions = db.getMissions();
+                const factures = db.getFactures();
+                const obligations = db.getObligationsFiscales();
+
+                const clientsActifs = clients.filter(c => c.statut === 'actif').length;
+                const missionsEnCours = missions.filter(m => m.status === 'en_cours').length;
+                const facturesImpayees = factures.filter(f => f.status_paiement === 'non_payée').length;
+                const obligationsNonDeposees = obligations.filter(o => !o.depose).length;
+
+                const totalFactures = factures.reduce((sum, f) => sum + (f.montant || 0), 0);
+                const totalPaye = factures.reduce((sum, f) => sum + (f.montant_paye || 0), 0);
+
+                return `
+                    <div>
+                        <h2 class="card-title mb-2">Dashboard</h2>
+
+                        <div class="stats-grid">
+                            <div class="stat-card success">
+                                <div class="stat-label">Clients Actifs</div>
+                                <div class="stat-value">${clientsActifs}</div>
+                                <div class="stat-change">Total: ${clients.length} clients</div>
+                            </div>
+
+                            <div class="stat-card info">
+                                <div class="stat-label">Missions en Cours</div>
+                                <div class="stat-value">${missionsEnCours}</div>
+                                <div class="stat-change">Total: ${missions.length} missions</div>
+                            </div>
+
+                            <div class="stat-card ${facturesImpayees > 0 ? 'warning' : 'success'}">
+                                <div class="stat-label">Factures Impayées</div>
+                                <div class="stat-value">${facturesImpayees}</div>
+                                <div class="stat-change">${formatCurrency(totalFactures - totalPaye)} en attente</div>
+                            </div>
+
+                            <div class="stat-card ${obligationsNonDeposees > 0 ? 'error' : 'success'}">
+                                <div class="stat-label">Obligations Non Déposées</div>
+                                <div class="stat-value">${obligationsNonDeposees}</div>
+                                <div class="stat-change">Total: ${obligations.length} obligations</div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Chiffre d'Affaires</h3>
+                            </div>
+                            <div class="stats-grid">
+                                <div>
+                                    <div class="stat-label">Total Facturé</div>
+                                    <div class="stat-value" style="font-size: 1.5rem;">${formatCurrency(totalFactures)}</div>
+                                </div>
+                                <div>
+                                    <div class="stat-label">Total Encaissé</div>
+                                    <div class="stat-value" style="font-size: 1.5rem; color: var(--success);">${formatCurrency(totalPaye)}</div>
+                                </div>
+                                <div>
+                                    <div class="stat-label">Reste à Encaisser</div>
+                                    <div class="stat-value" style="font-size: 1.5rem; color: var(--warning);">${formatCurrency(totalFactures - totalPaye)}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Missions Récentes</h3>
+                                <button class="btn btn-primary btn-sm" onclick="app.navigateTo('missions')">
+                                    Voir tout
+                                </button>
+                            </div>
+                            ${this.renderMissionsTable(missions.slice(0, 5))}
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderClients() {
+                const clients = db.getClients();
+
+                return `
+                    <div>
+                        <div class="flex-between mb-2">
+                            <h2 class="card-title">Clients</h2>
+                            <button class="btn btn-primary" onclick="PageRenderer.openClientModal()">
+                                ➕ Nouveau Client
+                            </button>
+                        </div>
+
+                        <div class="filters">
+                            <div class="filter-row">
+                                <div class="form-group">
+                                    <label class="form-label">Type</label>
+                                    <select class="form-select" id="filterType">
+                                        <option value="">Tous</option>
+                                        <option value="physique">Personne Physique</option>
+                                        <option value="morale">Personne Morale</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Régime Fiscal</label>
+                                    <select class="form-select" id="filterRegime">
+                                        <option value="">Tous</option>
+                                        <option value="reel">Réel</option>
+                                        <option value="igs">IGS</option>
+                                        <option value="non_professionnel">Non Professionnel</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Statut</label>
+                                    <select class="form-select" id="filterStatut">
+                                        <option value="">Tous</option>
+                                        <option value="actif">Actif</option>
+                                        <option value="inactif">Inactif</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="filter-actions">
+                                <button class="btn btn-secondary btn-sm" onclick="PageRenderer.resetFilters()">Réinitialiser</button>
+                                <button class="btn btn-primary btn-sm" onclick="PageRenderer.applyFilters()">Appliquer</button>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            ${this.renderClientsTable(clients)}
+                        </div>
+                    </div>
+
+                    ${this.renderClientModal()}
+                `;
+            },
+
+            renderClientsTable(clients) {
+                if (clients.length === 0) {
+                    return `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👥</div>
+                            <h3 class="empty-state-title">Aucun client</h3>
+                            <p class="empty-state-description">Commencez par ajouter votre premier client</p>
+                            <button class="btn btn-primary" onclick="PageRenderer.openClientModal()">
+                                Ajouter un client
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nom/Raison Sociale</th>
+                                    <th>Type</th>
+                                    <th>NIU</th>
+                                    <th>Régime Fiscal</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${clients.map(client => `
+                                    <tr>
+                                        <td><strong>${client.nom || client.raisonsociale}</strong></td>
+                                        <td><span class="badge badge-secondary">${client.type === 'physique' ? 'Physique' : 'Morale'}</span></td>
+                                        <td>${client.niu || '-'}</td>
+                                        <td><span class="badge badge-info">${this.getRegimeFiscalLabel(client.regimefiscal)}</span></td>
+                                        <td><span class="badge ${client.statut === 'actif' ? 'badge-success' : 'badge-secondary'}">${client.statut}</span></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="icon-button" onclick="PageRenderer.editClient('${client.id}')" title="Modifier">✏️</button>
+                                                <button class="icon-button danger" onclick="PageRenderer.deleteClient('${client.id}')" title="Supprimer">🗑️</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            },
+
+            renderClientModal() {
+                return `
+                    <div class="modal-overlay" id="clientModal">
+                        <div class="modal modal-large">
+                            <div class="modal-header">
+                                <h3 class="modal-title" id="clientModalTitle">Nouveau Client</h3>
+                                <button class="modal-close" onclick="closeModal('clientModal')">×</button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="clientForm">
+                                    <input type="hidden" id="clientId">
+
+                                    <div class="form-group">
+                                        <label class="form-label required">Type de Client</label>
+                                        <select class="form-select" id="clientType" required onchange="PageRenderer.toggleClientType()">
+                                            <option value="morale">Personne Morale</option>
+                                            <option value="physique">Personne Physique</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group" id="raisonsocialeGroup">
+                                            <label class="form-label required">Raison Sociale</label>
+                                            <input type="text" class="form-input" id="raisonsociale">
+                                        </div>
+                                        <div class="form-group hidden" id="nomGroup">
+                                            <label class="form-label required">Nom</label>
+                                            <input type="text" class="form-input" id="clientNom">
+                                        </div>
+                                        <div class="form-group hidden" id="prenomGroup">
+                                            <label class="form-label">Prénom</label>
+                                            <input type="text" class="form-input" id="clientPrenom">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label required">NIU</label>
+                                            <input type="text" class="form-input" id="clientNiu" required>
+                                        </div>
+                                        <div class="form-group" id="rccmGroup">
+                                            <label class="form-label">Numéro RCCM</label>
+                                            <input type="text" class="form-input" id="clientRccm">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label required">Régime Fiscal</label>
+                                            <select class="form-select" id="clientRegime" required>
+                                                <option value="reel">Réel</option>
+                                                <option value="igs">IGS</option>
+                                                <option value="non_professionnel">Non Professionnel</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group" id="formeJuridiqueGroup">
+                                            <label class="form-label">Forme Juridique</label>
+                                            <select class="form-select" id="clientForme">
+                                                <option value="">Sélectionner...</option>
+                                                <option value="sarl">SARL</option>
+                                                <option value="sa">SA</option>
+                                                <option value="sas">SAS</option>
+                                                <option value="snc">SNC</option>
+                                                <option value="association">Association</option>
+                                                <option value="gie">GIE</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Secteur d'Activité</label>
+                                            <input type="text" class="form-input" id="clientSecteur" placeholder="Ex: Commerce, Services...">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Statut</label>
+                                            <select class="form-select" id="clientStatut">
+                                                <option value="actif">Actif</option>
+                                                <option value="inactif">Inactif</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-input" id="clientEmail">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Téléphone</label>
+                                            <input type="tel" class="form-input" id="clientTelephone">
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" onclick="closeModal('clientModal')">Annuler</button>
+                                <button class="btn btn-primary" onclick="PageRenderer.saveClient()">Enregistrer</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            toggleClientType() {
+                const type = document.getElementById('clientType').value;
+                const isMorale = type === 'morale';
+
+                document.getElementById('raisonsocialeGroup').classList.toggle('hidden', !isMorale);
+                document.getElementById('nomGroup').classList.toggle('hidden', isMorale);
+                document.getElementById('prenomGroup').classList.toggle('hidden', isMorale);
+                document.getElementById('rccmGroup').classList.toggle('hidden', !isMorale);
+                document.getElementById('formeJuridiqueGroup').classList.toggle('hidden', !isMorale);
+            },
+
+            openClientModal(clientId = null) {
+                const modal = document.getElementById('clientModal');
+                const form = document.getElementById('clientForm');
+                form.reset();
+
+                if (clientId) {
+                    const client = db.getClient(clientId);
+                    document.getElementById('clientModalTitle').textContent = 'Modifier Client';
+                    document.getElementById('clientId').value = client.id;
+                    document.getElementById('clientType').value = client.type;
+                    this.toggleClientType();
+
+                    if (client.type === 'morale') {
+                        document.getElementById('raisonsociale').value = client.raisonsociale || '';
+                    } else {
+                        document.getElementById('clientNom').value = client.nom || '';
+                        document.getElementById('clientPrenom').value = client.prenom || '';
+                    }
+
+                    document.getElementById('clientNiu').value = client.niu || '';
+                    document.getElementById('clientRccm').value = client.numerorccm || '';
+                    document.getElementById('clientRegime').value = client.regimefiscal || 'reel';
+                    document.getElementById('clientForme').value = client.formejuridique || '';
+                    document.getElementById('clientSecteur').value = client.secteuractivite || '';
+                    document.getElementById('clientStatut').value = client.statut || 'actif';
+                    document.getElementById('clientEmail').value = client.email || '';
+                    document.getElementById('clientTelephone').value = client.telephone || '';
+                } else {
+                    document.getElementById('clientModalTitle').textContent = 'Nouveau Client';
+                    this.toggleClientType();
+                }
+
+                openModal('clientModal');
+            },
+
+            saveClient() {
+                const type = document.getElementById('clientType').value;
+                const client = {
+                    id: document.getElementById('clientId').value || null,
+                    type: type,
+                    niu: document.getElementById('clientNiu').value,
+                    regimefiscal: document.getElementById('clientRegime').value,
+                    secteuractivite: document.getElementById('clientSecteur').value,
+                    statut: document.getElementById('clientStatut').value,
+                    email: document.getElementById('clientEmail').value,
+                    telephone: document.getElementById('clientTelephone').value
+                };
+
+                if (type === 'morale') {
+                    client.raisonsociale = document.getElementById('raisonsociale').value;
+                    client.nom = document.getElementById('raisonsociale').value;
+                    client.numerorccm = document.getElementById('clientRccm').value;
+                    client.formejuridique = document.getElementById('clientForme').value;
+                } else {
+                    client.nom = document.getElementById('clientNom').value;
+                    client.prenom = document.getElementById('clientPrenom').value;
+                }
+
+                db.saveClient(client);
+                closeModal('clientModal');
+                showToast('Client enregistré avec succès', 'success');
+                app.navigateTo('clients');
+            },
+
+            editClient(id) {
+                this.openClientModal(id);
+            },
+
+            deleteClient(id) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer ce client ?')) {
+                    db.deleteClient(id);
+                    showToast('Client supprimé', 'success');
+                    app.navigateTo('clients');
+                }
+            },
+
+            renderMissions() {
+                const missions = db.getMissions();
+                const clients = db.getClients();
+                const collaborateurs = db.getCollaborateurs();
+
+                return `
+                    <div>
+                        <div class="flex-between mb-2">
+                            <h2 class="card-title">Missions</h2>
+                            <button class="btn btn-primary" onclick="PageRenderer.openMissionModal()">
+                                ➕ Nouvelle Mission
+                            </button>
+                        </div>
+
+                        <div class="card">
+                            ${this.renderMissionsTable(missions)}
+                        </div>
+                    </div>
+
+                    ${this.renderMissionModal(clients, collaborateurs)}
+                `;
+            },
+
+            renderMissionsTable(missions) {
+                if (missions.length === 0) {
+                    return `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📋</div>
+                            <h3 class="empty-state-title">Aucune mission</h3>
+                            <p class="empty-state-description">Créez votre première mission</p>
+                            <button class="btn btn-primary" onclick="PageRenderer.openMissionModal()">
+                                Créer une mission
+                            </button>
+                        </div>
+                    `;
+                }
+
+                const clients = db.getClients();
+                const collaborateurs = db.getCollaborateurs();
+
+                return `
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Titre</th>
+                                    <th>Client</th>
+                                    <th>Collaborateur</th>
+                                    <th>Début</th>
+                                    <th>Fin</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${missions.map(mission => {
+                                    const client = clients.find(c => c.id === mission.client_id);
+                                    const collaborateur = collaborateurs.find(c => c.id === mission.collaborateur_id);
+                                    return `
+                                        <tr>
+                                            <td><strong>${mission.title}</strong></td>
+                                            <td>${client ? client.nom : '-'}</td>
+                                            <td>${collaborateur ? `${collaborateur.prenom} ${collaborateur.nom}` : '-'}</td>
+                                            <td>${formatDate(mission.start_date)}</td>
+                                            <td>${formatDate(mission.end_date)}</td>
+                                            <td>${this.getStatusBadge(mission.status)}</td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="icon-button" onclick="PageRenderer.editMission('${mission.id}')" title="Modifier">✏️</button>
+                                                    <button class="icon-button danger" onclick="PageRenderer.deleteMission('${mission.id}')" title="Supprimer">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            },
+
+            renderMissionModal(clients, collaborateurs) {
+                return `
+                    <div class="modal-overlay" id="missionModal">
+                        <div class="modal">
+                            <div class="modal-header">
+                                <h3 class="modal-title" id="missionModalTitle">Nouvelle Mission</h3>
+                                <button class="modal-close" onclick="closeModal('missionModal')">×</button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="missionForm">
+                                    <input type="hidden" id="missionId">
+
+                                    <div class="form-group">
+                                        <label class="form-label required">Titre</label>
+                                        <input type="text" class="form-input" id="missionTitle" required>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Client</label>
+                                            <select class="form-select" id="missionClient">
+                                                <option value="">Sélectionner...</option>
+                                                ${clients.map(c => `
+                                                    <option value="${c.id}">${c.nom}</option>
+                                                `).join('')}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Collaborateur</label>
+                                            <select class="form-select" id="missionCollaborateur">
+                                                <option value="">Sélectionner...</option>
+                                                ${collaborateurs.map(c => `
+                                                    <option value="${c.id}">${c.prenom} ${c.nom}</option>
+                                                `).join('')}
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label">Date de Début</label>
+                                            <input type="date" class="form-input" id="missionStartDate">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Date de Fin</label>
+                                            <input type="date" class="form-input" id="missionEndDate">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Statut</label>
+                                        <select class="form-select" id="missionStatus">
+                                            <option value="en_attente">En Attente</option>
+                                            <option value="en_cours">En Cours</option>
+                                            <option value="terminée">Terminée</option>
+                                            <option value="annulée">Annulée</option>
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" onclick="closeModal('missionModal')">Annuler</button>
+                                <button class="btn btn-primary" onclick="PageRenderer.saveMission()">Enregistrer</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            openMissionModal(missionId = null) {
+                const modal = document.getElementById('missionModal');
+                const form = document.getElementById('missionForm');
+                form.reset();
+
+                if (missionId) {
+                    const mission = db.getMissions().find(m => m.id === missionId);
+                    document.getElementById('missionModalTitle').textContent = 'Modifier Mission';
+                    document.getElementById('missionId').value = mission.id;
+                    document.getElementById('missionTitle').value = mission.title;
+                    document.getElementById('missionClient').value = mission.client_id || '';
+                    document.getElementById('missionCollaborateur').value = mission.collaborateur_id || '';
+                    document.getElementById('missionStartDate').value = mission.start_date || '';
+                    document.getElementById('missionEndDate').value = mission.end_date || '';
+                    document.getElementById('missionStatus').value = mission.status || 'en_attente';
+                } else {
+                    document.getElementById('missionModalTitle').textContent = 'Nouvelle Mission';
+                }
+
+                openModal('missionModal');
+            },
+
+            saveMission() {
+                const mission = {
+                    id: document.getElementById('missionId').value || null,
+                    title: document.getElementById('missionTitle').value,
+                    client_id: document.getElementById('missionClient').value || null,
+                    collaborateur_id: document.getElementById('missionCollaborateur').value || null,
+                    start_date: document.getElementById('missionStartDate').value,
+                    end_date: document.getElementById('missionEndDate').value,
+                    status: document.getElementById('missionStatus').value
+                };
+
+                db.saveMission(mission);
+                closeModal('missionModal');
+                showToast('Mission enregistrée avec succès', 'success');
+                app.navigateTo('missions');
+            },
+
+            editMission(id) {
+                this.openMissionModal(id);
+            },
+
+            deleteMission(id) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer cette mission ?')) {
+                    db.deleteMission(id);
+                    showToast('Mission supprimée', 'success');
+                    app.navigateTo('missions');
+                }
+            },
+
+            renderFacturation() {
+                return `
+                    <div>
+                        <h2 class="card-title mb-2">Facturation</h2>
+
+                        <div class="tabs">
+                            <div class="tab-list">
+                                <button class="tab-button active" data-tab="factures">Factures</button>
+                                <button class="tab-button" data-tab="paiements">Paiements</button>
+                            </div>
+                        </div>
+
+                        <div class="tab-content active" id="factures">
+                            ${this.renderFacturesTab()}
+                        </div>
+
+                        <div class="tab-content" id="paiements">
+                            ${this.renderPaiementsTab()}
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderFacturesTab() {
+                const factures = db.getFactures();
+                const clients = db.getClients();
+
+                return `
+                    <div class="flex-between mb-2">
+                        <h3>Liste des Factures</h3>
+                        <button class="btn btn-primary" onclick="PageRenderer.openFactureModal()">
+                            ➕ Nouvelle Facture
+                        </button>
+                    </div>
+
+                    <div class="card">
+                        ${this.renderFacturesTable(factures, clients)}
+                    </div>
+
+                    ${this.renderFactureModal(clients)}
+                `;
+            },
+
+            renderFacturesTable(factures, clients) {
+                if (factures.length === 0) {
+                    return `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">💰</div>
+                            <h3 class="empty-state-title">Aucune facture</h3>
+                            <p class="empty-state-description">Créez votre première facture</p>
+                            <button class="btn btn-primary" onclick="PageRenderer.openFactureModal()">
+                                Créer une facture
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Numéro</th>
+                                    <th>Client</th>
+                                    <th>Date</th>
+                                    <th>Montant</th>
+                                    <th>Payé</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${factures.map(facture => {
+                                    const client = clients.find(c => c.id === facture.client_id);
+                                    return `
+                                        <tr>
+                                            <td><strong>${facture.numero}</strong></td>
+                                            <td>${client ? client.nom : '-'}</td>
+                                            <td>${formatDate(facture.date)}</td>
+                                            <td>${formatCurrency(facture.montant)}</td>
+                                            <td>${formatCurrency(facture.montant_paye || 0)}</td>
+                                            <td>${this.getPaymentStatusBadge(facture.status_paiement)}</td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="icon-button" onclick="PageRenderer.viewFacture('${facture.id}')" title="Voir">👁️</button>
+                                                    <button class="icon-button danger" onclick="PageRenderer.deleteFacture('${facture.id}')" title="Supprimer">🗑️</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            },
+
+            renderFactureModal(clients) {
+                return `
+                    <div class="modal-overlay" id="factureModal">
+                        <div class="modal modal-large">
+                            <div class="modal-header">
+                                <h3 class="modal-title">Nouvelle Facture</h3>
+                                <button class="modal-close" onclick="closeModal('factureModal')">×</button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="factureForm">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label required">Client</label>
+                                            <select class="form-select" id="factureClient" required>
+                                                <option value="">Sélectionner...</option>
+                                                ${clients.map(c => `
+                                                    <option value="${c.id}">${c.nom}</option>
+                                                `).join('')}
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label required">Date</label>
+                                            <input type="date" class="form-input" id="factureDate" required value="${new Date().toISOString().split('T')[0]}">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label required">Montant</label>
+                                        <input type="number" class="form-input" id="factureMontant" required min="0" step="1">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Notes</label>
+                                        <textarea class="form-textarea" id="factureNotes"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" onclick="closeModal('factureModal')">Annuler</button>
+                                <button class="btn btn-primary" onclick="PageRenderer.saveFacture()">Enregistrer</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            openFactureModal() {
+                openModal('factureModal');
+            },
+
+            saveFacture() {
+                const facture = {
+                    client_id: document.getElementById('factureClient').value,
+                    date: document.getElementById('factureDate').value,
+                    montant: parseFloat(document.getElementById('factureMontant').value),
+                    montant_paye: 0,
+                    status: 'envoyée',
+                    status_paiement: 'non_payée',
+                    notes: document.getElementById('factureNotes').value
+                };
+
+                db.saveFacture(facture);
+                closeModal('factureModal');
+                showToast('Facture créée avec succès', 'success');
+                app.navigateTo('facturation');
+            },
+
+            viewFacture(id) {
+                showToast('Fonctionnalité à venir', 'info');
+            },
+
+            deleteFacture(id) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer cette facture ?')) {
+                    const factures = db.getFactures().filter(f => f.id !== id);
+                    localStorage.setItem('factures', JSON.stringify(factures));
+                    showToast('Facture supprimée', 'success');
+                    app.navigateTo('facturation');
+                }
+            },
+
+            renderPaiementsTab() {
+                return `
+                    <div class="card">
+                        <h3>Paiements</h3>
+                        <div class="empty-state">
+                            <p>Module de paiements en développement</p>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderGestion() {
+                const clients = db.getClients();
+                const gestionExternalisee = clients.filter(c => c.gestionexternalisee);
+
+                return `
+                    <div>
+                        <h2 class="card-title mb-2">Gestion</h2>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Clients en Gestion Externalisée</h3>
+                                <span class="badge badge-info">${gestionExternalisee.length} clients</span>
+                            </div>
+
+                            <div class="table-container">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Client</th>
+                                            <th>Régime Fiscal</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${gestionExternalisee.length > 0 ? gestionExternalisee.map(client => `
+                                            <tr>
+                                                <td><strong>${client.nom}</strong></td>
+                                                <td><span class="badge badge-info">${this.getRegimeFiscalLabel(client.regimefiscal)}</span></td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-primary" onclick="PageRenderer.openGestionClient('${client.id}')">
+                                                        Gérer
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `).join('') : `
+                                            <tr>
+                                                <td colspan="3" class="text-center text-muted">Aucun client en gestion externalisée</td>
+                                            </tr>
+                                        `}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            openGestionClient(clientId) {
+                showToast('Fonctionnalité à venir', 'info');
+            },
+
+            renderCollaborateurs() {
+                const collaborateurs = db.getCollaborateurs();
+
+                return `
+                    <div>
+                        <div class="flex-between mb-2">
+                            <h2 class="card-title">Collaborateurs</h2>
+                            <button class="btn btn-primary" onclick="PageRenderer.openCollaborateurModal()">
+                                ➕ Nouveau Collaborateur
+                            </button>
+                        </div>
+
+                        <div class="card">
+                            ${this.renderCollaborateursTable(collaborateurs)}
+                        </div>
+                    </div>
+
+                    ${this.renderCollaborateurModal()}
+                `;
+            },
+
+            renderCollaborateursTable(collaborateurs) {
+                if (collaborateurs.length === 0) {
+                    return `
+                        <div class="empty-state">
+                            <div class="empty-state-icon">👤</div>
+                            <h3 class="empty-state-title">Aucun collaborateur</h3>
+                            <p class="empty-state-description">Ajoutez votre premier collaborateur</p>
+                            <button class="btn btn-primary" onclick="PageRenderer.openCollaborateurModal()">
+                                Ajouter un collaborateur
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nom</th>
+                                    <th>Email</th>
+                                    <th>Poste</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${collaborateurs.map(collab => `
+                                    <tr>
+                                        <td><strong>${collab.prenom} ${collab.nom}</strong></td>
+                                        <td>${collab.email || '-'}</td>
+                                        <td><span class="badge badge-info">${this.getPosteLabel(collab.poste)}</span></td>
+                                        <td><span class="badge ${collab.statut === 'actif' ? 'badge-success' : 'badge-secondary'}">${collab.statut}</span></td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="icon-button" onclick="PageRenderer.editCollaborateur('${collab.id}')" title="Modifier">✏️</button>
+                                                <button class="icon-button danger" onclick="PageRenderer.deleteCollaborateur('${collab.id}')" title="Supprimer">🗑️</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            },
+
+            renderCollaborateurModal() {
+                return `
+                    <div class="modal-overlay" id="collaborateurModal">
+                        <div class="modal">
+                            <div class="modal-header">
+                                <h3 class="modal-title" id="collaborateurModalTitle">Nouveau Collaborateur</h3>
+                                <button class="modal-close" onclick="closeModal('collaborateurModal')">×</button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="collaborateurForm">
+                                    <input type="hidden" id="collaborateurId">
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label required">Nom</label>
+                                            <input type="text" class="form-input" id="collabNom" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label required">Prénom</label>
+                                            <input type="text" class="form-input" id="collabPrenom" required>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-input" id="collabEmail">
+                                    </div>
+
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label class="form-label required">Poste</label>
+                                            <select class="form-select" id="collabPoste" required>
+                                                <option value="expert-comptable">Expert-Comptable</option>
+                                                <option value="assistant">Assistant</option>
+                                                <option value="fiscaliste">Fiscaliste</option>
+                                                <option value="comptable">Comptable</option>
+                                                <option value="gestionnaire">Gestionnaire</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="form-label">Statut</label>
+                                            <select class="form-select" id="collabStatut">
+                                                <option value="actif">Actif</option>
+                                                <option value="inactif">Inactif</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-secondary" onclick="closeModal('collaborateurModal')">Annuler</button>
+                                <button class="btn btn-primary" onclick="PageRenderer.saveCollaborateur()">Enregistrer</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            openCollaborateurModal(collabId = null) {
+                const modal = document.getElementById('collaborateurModal');
+                const form = document.getElementById('collaborateurForm');
+                form.reset();
+
+                if (collabId) {
+                    const collab = db.getCollaborateurs().find(c => c.id === collabId);
+                    document.getElementById('collaborateurModalTitle').textContent = 'Modifier Collaborateur';
+                    document.getElementById('collaborateurId').value = collab.id;
+                    document.getElementById('collabNom').value = collab.nom;
+                    document.getElementById('collabPrenom').value = collab.prenom;
+                    document.getElementById('collabEmail').value = collab.email || '';
+                    document.getElementById('collabPoste').value = collab.poste;
+                    document.getElementById('collabStatut').value = collab.statut;
+                } else {
+                    document.getElementById('collaborateurModalTitle').textContent = 'Nouveau Collaborateur';
+                }
+
+                openModal('collaborateurModal');
+            },
+
+            saveCollaborateur() {
+                const collaborateur = {
+                    id: document.getElementById('collaborateurId').value || null,
+                    nom: document.getElementById('collabNom').value,
+                    prenom: document.getElementById('collabPrenom').value,
+                    email: document.getElementById('collabEmail').value,
+                    poste: document.getElementById('collabPoste').value,
+                    statut: document.getElementById('collabStatut').value
+                };
+
+                db.saveCollaborateur(collaborateur);
+                closeModal('collaborateurModal');
+                showToast('Collaborateur enregistré avec succès', 'success');
+                app.navigateTo('collaborateurs');
+            },
+
+            editCollaborateur(id) {
+                this.openCollaborateurModal(id);
+            },
+
+            deleteCollaborateur(id) {
+                if (confirm('Êtes-vous sûr de vouloir supprimer ce collaborateur ?')) {
+                    const collaborateurs = db.getCollaborateurs().filter(c => c.id !== id);
+                    localStorage.setItem('collaborateurs', JSON.stringify(collaborateurs));
+                    showToast('Collaborateur supprimé', 'success');
+                    app.navigateTo('collaborateurs');
+                }
+            },
+
+            renderRapports() {
+                return `
+                    <div>
+                        <h2 class="card-title mb-2">Rapports</h2>
+
+                        <div class="card">
+                            <h3>Rapports Disponibles</h3>
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📈</div>
+                                <p>Module de rapports en développement</p>
+                                <p class="text-muted text-small">Bientôt disponible : rapports financiers, rapports clients, rapports fiscaux...</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            // Helper methods
+            getRegimeFiscalLabel(regime) {
+                const labels = {
+                    'reel': 'Réel',
+                    'igs': 'IGS',
+                    'non_professionnel': 'Non Pro'
+                };
+                return labels[regime] || regime;
+            },
+
+            getPosteLabel(poste) {
+                const labels = {
+                    'expert-comptable': 'Expert-Comptable',
+                    'assistant': 'Assistant',
+                    'fiscaliste': 'Fiscaliste',
+                    'comptable': 'Comptable',
+                    'gestionnaire': 'Gestionnaire'
+                };
+                return labels[poste] || poste;
+            },
+
+            getStatusBadge(status) {
+                const badges = {
+                    'en_attente': '<span class="badge badge-warning">En Attente</span>',
+                    'en_cours': '<span class="badge badge-info">En Cours</span>',
+                    'terminée': '<span class="badge badge-success">Terminée</span>',
+                    'annulée': '<span class="badge badge-secondary">Annulée</span>'
+                };
+                return badges[status] || `<span class="badge badge-secondary">${status}</span>`;
+            },
+
+            getPaymentStatusBadge(status) {
+                const badges = {
+                    'non_payée': '<span class="badge badge-error">Non Payée</span>',
+                    'partiellement_payée': '<span class="badge badge-warning">Partiel</span>',
+                    'payée': '<span class="badge badge-success">Payée</span>',
+                    'en_retard': '<span class="badge badge-error">En Retard</span>'
+                };
+                return badges[status] || `<span class="badge badge-secondary">${status}</span>`;
+            },
+
+            resetFilters() {
+                document.getElementById('filterType').value = '';
+                document.getElementById('filterRegime').value = '';
+                document.getElementById('filterStatut').value = '';
+            },
+
+            applyFilters() {
+                showToast('Filtres appliqués', 'success');
+                // Filter logic would go here
+            }
+        };
+
+        // ==================== APPLICATION ====================
+        class App {
+            constructor() {
+                this.currentPage = 'dashboard';
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.navigateTo('dashboard');
+            }
+
+            setupEventListeners() {
+                // Navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const page = item.dataset.page;
+                        this.navigateTo(page);
+                    });
+                });
+
+                // Sidebar toggle
+                document.getElementById('toggleSidebar').addEventListener('click', () => {
+                    const sidebar = document.getElementById('sidebar');
+                    const mainContent = document.getElementById('mainContent');
+                    sidebar.classList.toggle('hidden');
+                    mainContent.classList.toggle('expanded');
+                });
+
+                // Tabs
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('tab-button')) {
+                        const tabName = e.target.dataset.tab;
+                        const tabButtons = e.target.closest('.tab-list').querySelectorAll('.tab-button');
+                        const tabContents = e.target.closest('.page-content').querySelectorAll('.tab-content');
+
+                        tabButtons.forEach(btn => btn.classList.remove('active'));
+                        tabContents.forEach(content => content.classList.remove('active'));
+
+                        e.target.classList.add('active');
+                        document.getElementById(tabName).classList.add('active');
+                    }
+                });
+
+                // Refresh
+                document.getElementById('refreshData').addEventListener('click', () => {
+                    this.navigateTo(this.currentPage);
+                    showToast('Données actualisées', 'success');
+                });
+
+                // Click outside modal to close
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('modal-overlay')) {
+                        e.target.classList.remove('active');
+                    }
+                });
+            }
+
+            navigateTo(page) {
+                this.currentPage = page;
+
+                // Update nav
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                    if (item.dataset.page === page) {
+                        item.classList.add('active');
+                    }
+                });
+
+                // Render page
+                const content = document.getElementById('pageContent');
+
+                switch(page) {
+                    case 'dashboard':
+                        content.innerHTML = PageRenderer.renderDashboard();
+                        break;
+                    case 'clients':
+                        content.innerHTML = PageRenderer.renderClients();
+                        break;
+                    case 'missions':
+                        content.innerHTML = PageRenderer.renderMissions();
+                        break;
+                    case 'facturation':
+                        content.innerHTML = PageRenderer.renderFacturation();
+                        break;
+                    case 'gestion':
+                        content.innerHTML = PageRenderer.renderGestion();
+                        break;
+                    case 'collaborateurs':
+                        content.innerHTML = PageRenderer.renderCollaborateurs();
+                        break;
+                    case 'rapports':
+                        content.innerHTML = PageRenderer.renderRapports();
+                        break;
+                    default:
+                        content.innerHTML = '<div class="card"><h2>Page non trouvée</h2></div>';
+                }
+
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Initialize app
+        const app = new App();
+
+        // Show welcome message
+        setTimeout(() => {
+            showToast('Bienvenue dans Prisma Taskmaster - Version Alternative', 'success');
+        }, 500);
+    </script>
+</body>
+</html>
