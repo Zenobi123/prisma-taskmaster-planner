@@ -1,9 +1,15 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="fr" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prisma Taskmaster - Version Alternative</title>
+    <title>Prisma Taskmaster - Version Alternative Enhanced</title>
+
+    <!-- Google Fonts - Inter (comme l'original) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
         /* ==================== RESET & BASE ==================== */
         * {
@@ -12,38 +18,190 @@
             box-sizing: border-box;
         }
 
-        :root {
+        :root[data-theme="light"] {
+            /* Couleurs exactes de l'original */
             --primary: #84A98C;
-            --primary-dark: #6b8a71;
-            --primary-light: #9dbba5;
-            --secondary: #52796F;
-            --accent: #CAD2C5;
+            --primary-hover: #6B8E74;
+            --primary-light: #A8C1AE;
+
+            /* Neutral palette */
+            --neutral-100: #F8F9FA;
+            --neutral-200: #E9ECEF;
+            --neutral-300: #DEE2E6;
+            --neutral-400: #CED4DA;
+            --neutral-500: #ADB5BD;
+            --neutral-600: #6C757D;
+            --neutral-700: #495057;
+            --neutral-800: #343A40;
+            --neutral-900: #212529;
+
+            /* Backgrounds */
             --bg-primary: #ffffff;
-            --bg-secondary: #f8f9fa;
-            --bg-tertiary: #e9ecef;
-            --text-primary: #2f3e46;
-            --text-secondary: #52796f;
-            --text-muted: #6c757d;
-            --border: #dee2e6;
-            --success: #52c41a;
+            --bg-secondary: #F8F9FA;
+            --bg-tertiary: #E9ECEF;
+
+            /* Text colors */
+            --text-primary: #212529;
+            --text-secondary: #6C757D;
+            --text-muted: #6C757D;
+
+            /* Borders */
+            --border: #DEE2E6;
+            --border-light: #E9ECEF;
+
+            /* Status colors */
+            --success: #22c55e;
             --warning: #faad14;
-            --error: #f5222d;
+            --error: #ea384c;
             --info: #1890ff;
+
+            /* Shadows (exactement comme l'original) */
             --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
             --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
             --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --radius: 8px;
-            --radius-sm: 4px;
-            --radius-lg: 12px;
-            --sidebar-width: 260px;
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+            /* Radius */
+            --radius: 0.5rem;
+            --radius-sm: 0.25rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+
+            /* Layout */
+            --sidebar-width: 256px;
+            --topbar-height: 64px;
+        }
+
+        :root[data-theme="dark"] {
+            --primary: #84A98C;
+            --primary-hover: #A8C1AE;
+            --primary-light: #6B8E74;
+
+            --neutral-100: #1a1a1a;
+            --neutral-200: #2a2a2a;
+            --neutral-300: #3a3a3a;
+            --neutral-400: #4a4a4a;
+            --neutral-500: #6a6a6a;
+            --neutral-600: #8a8a8a;
+            --neutral-700: #aaaaaa;
+            --neutral-800: #cccccc;
+            --neutral-900: #eeeeee;
+
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --bg-tertiary: #3a3a3a;
+
+            --text-primary: #eeeeee;
+            --text-secondary: #aaaaaa;
+            --text-muted: #8a8a8a;
+
+            --border: #3a3a3a;
+            --border-light: #2a2a2a;
+
+            --success: #22c55e;
+            --warning: #faad14;
+            --error: #ea384c;
+            --info: #1890ff;
+
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
+        }
+
+        html {
+            scroll-behavior: smooth;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--bg-secondary);
             color: var(--text-primary);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 600;
+            letter-spacing: -0.025em;
+            line-height: 1.2;
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 3s infinite;
         }
 
         /* ==================== LAYOUT ==================== */
@@ -60,7 +218,7 @@
             height: 100vh;
             overflow-y: auto;
             z-index: 100;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar.hidden {
@@ -70,50 +228,65 @@
         .sidebar-header {
             padding: 1.5rem;
             border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            background: var(--bg-primary);
+            z-index: 10;
         }
 
         .sidebar-header h1 {
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             color: var(--primary);
             font-weight: 700;
+            letter-spacing: -0.025em;
         }
 
         .sidebar-nav {
-            padding: 1rem 0;
+            padding: 1rem 0.5rem;
         }
 
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 0.75rem 1.5rem;
-            color: var(--text-secondary);
+            padding: 0.625rem 0.75rem;
+            color: var(--neutral-600);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             text-decoration: none;
-            border-left: 3px solid transparent;
+            border-radius: var(--radius);
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            position: relative;
         }
 
         .nav-item:hover {
-            background-color: var(--bg-secondary);
+            background-color: var(--neutral-200);
             color: var(--primary);
+            transform: translateX(2px);
         }
 
         .nav-item.active {
-            background-color: var(--bg-secondary);
-            color: var(--primary);
-            border-left-color: var(--primary);
-            font-weight: 600;
+            background-color: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .nav-item.active:hover {
+            background-color: var(--primary-hover);
         }
 
         .nav-item-icon {
             margin-right: 0.75rem;
-            font-size: 1.25rem;
+            font-size: 1.125rem;
+            min-width: 1.25rem;
+            text-align: center;
         }
 
         .main-content {
             flex: 1;
             margin-left: var(--sidebar-width);
-            transition: margin-left 0.3s ease;
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .main-content.expanded {
@@ -123,34 +296,60 @@
         .top-bar {
             background: var(--bg-primary);
             border-bottom: 1px solid var(--border);
-            padding: 1rem 1.5rem;
+            padding: 0 2rem;
+            height: var(--topbar-height);
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
             z-index: 50;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--shadow-sm);
         }
 
         .page-content {
             padding: 2rem;
             max-width: 1400px;
             margin: 0 auto;
+            animation: fadeIn 0.3s ease-out;
         }
 
         /* ==================== COMPONENTS ==================== */
         .btn {
-            padding: 0.5rem 1rem;
+            padding: 0.625rem 1.25rem;
             border: none;
             border-radius: var(--radius);
             cursor: pointer;
             font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
             text-decoration: none;
+            font-family: 'Inter', sans-serif;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:active::before {
+            width: 300px;
+            height: 300px;
         }
 
         .btn:disabled {
@@ -161,19 +360,23 @@
         .btn-primary {
             background-color: var(--primary);
             color: white;
+            box-shadow: var(--shadow-sm);
         }
 
         .btn-primary:hover:not(:disabled) {
-            background-color: var(--primary-dark);
+            background-color: var(--primary-hover);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
         }
 
         .btn-secondary {
-            background-color: var(--bg-tertiary);
+            background-color: var(--neutral-200);
             color: var(--text-primary);
         }
 
         .btn-secondary:hover:not(:disabled) {
-            background-color: var(--border);
+            background-color: var(--neutral-300);
+            box-shadow: var(--shadow-sm);
         }
 
         .btn-danger {
@@ -182,25 +385,42 @@
         }
 
         .btn-danger:hover:not(:disabled) {
-            background-color: #d4001a;
+            background-color: #d32f40;
+            box-shadow: var(--shadow-md);
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: var(--text-primary);
+        }
+
+        .btn-ghost:hover:not(:disabled) {
+            background-color: var(--neutral-200);
         }
 
         .btn-sm {
-            padding: 0.375rem 0.75rem;
+            padding: 0.375rem 0.875rem;
             font-size: 0.8125rem;
         }
 
         .btn-lg {
-            padding: 0.75rem 1.5rem;
+            padding: 0.875rem 1.75rem;
             font-size: 1rem;
         }
 
         .card {
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow);
         }
 
         .card-header {
@@ -213,9 +433,10 @@
         }
 
         .card-title {
-            font-size: 1.25rem;
+            font-size: 1.125rem;
             font-weight: 600;
             color: var(--text-primary);
+            letter-spacing: -0.025em;
         }
 
         .stats-grid {
@@ -229,8 +450,28 @@
             background: var(--bg-primary);
             border-radius: var(--radius-lg);
             box-shadow: var(--shadow);
+            border: 1px solid var(--border);
             padding: 1.5rem;
             border-left: 4px solid var(--primary);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, transparent 50%, rgba(132, 169, 140, 0.05) 50%);
+            border-radius: 0 0 0 100px;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
         }
 
         .stat-card.warning {
@@ -253,12 +494,15 @@
             font-size: 0.875rem;
             color: var(--text-muted);
             margin-bottom: 0.5rem;
+            font-weight: 500;
         }
 
         .stat-value {
             font-size: 2rem;
             font-weight: 700;
             color: var(--text-primary);
+            line-height: 1;
+            letter-spacing: -0.025em;
         }
 
         .stat-change {
@@ -282,7 +526,7 @@
         .form-label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.875rem;
             color: var(--text-primary);
         }
@@ -300,9 +544,10 @@
             border: 1px solid var(--border);
             border-radius: var(--radius);
             font-size: 0.875rem;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             background-color: var(--bg-primary);
             color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
         }
 
         .form-input:focus,
@@ -330,23 +575,11 @@
             gap: 1rem;
         }
 
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: 1.125rem;
-            height: 1.125rem;
-            cursor: pointer;
-        }
-
         /* ==================== TABLE ==================== */
         .table-container {
             overflow-x: auto;
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
         }
 
         .table {
@@ -356,16 +589,18 @@
         }
 
         .table thead {
-            background-color: var(--bg-secondary);
+            background-color: var(--neutral-100);
         }
 
         .table th {
-            padding: 1rem;
+            padding: 0.875rem 1rem;
             text-align: left;
             font-weight: 600;
-            font-size: 0.875rem;
-            color: var(--text-secondary);
-            border-bottom: 2px solid var(--border);
+            font-size: 0.75rem;
+            color: var(--neutral-600);
+            border-bottom: 1px solid var(--border);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .table td {
@@ -374,8 +609,12 @@
             font-size: 0.875rem;
         }
 
+        .table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
         .table tbody tr:hover {
-            background-color: var(--bg-secondary);
+            background-color: var(--neutral-100);
         }
 
         .table tbody tr:last-child td {
@@ -395,27 +634,27 @@
         }
 
         .badge-success {
-            background-color: #d4edda;
-            color: #155724;
+            background-color: rgba(34, 197, 94, 0.1);
+            color: var(--success);
         }
 
         .badge-warning {
-            background-color: #fff3cd;
-            color: #856404;
+            background-color: rgba(250, 173, 20, 0.1);
+            color: var(--warning);
         }
 
         .badge-error {
-            background-color: #f8d7da;
-            color: #721c24;
+            background-color: rgba(234, 56, 76, 0.1);
+            color: var(--error);
         }
 
         .badge-info {
-            background-color: #d1ecf1;
-            color: #0c5460;
+            background-color: rgba(24, 144, 255, 0.1);
+            color: var(--info);
         }
 
         .badge-secondary {
-            background-color: var(--bg-tertiary);
+            background-color: var(--neutral-200);
             color: var(--text-secondary);
         }
 
@@ -427,7 +666,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
             z-index: 1000;
             align-items: center;
             justify-content: center;
@@ -436,16 +676,18 @@
 
         .modal-overlay.active {
             display: flex;
+            animation: fadeIn 0.2s ease-out;
         }
 
         .modal {
             background: var(--bg-primary);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
             max-width: 600px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
+            animation: scaleIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .modal-large {
@@ -478,10 +720,11 @@
             align-items: center;
             justify-content: center;
             border-radius: var(--radius);
+            transition: all 0.2s ease;
         }
 
         .modal-close:hover {
-            background-color: var(--bg-secondary);
+            background-color: var(--neutral-200);
             color: var(--text-primary);
         }
 
@@ -495,6 +738,7 @@
             display: flex;
             justify-content: flex-end;
             gap: 0.75rem;
+            background: var(--neutral-100);
         }
 
         /* ==================== TABS ==================== */
@@ -505,12 +749,12 @@
 
         .tab-list {
             display: flex;
-            gap: 0.5rem;
+            gap: 0;
             flex-wrap: wrap;
         }
 
         .tab-button {
-            padding: 0.75rem 1.25rem;
+            padding: 0.875rem 1.5rem;
             background: none;
             border: none;
             border-bottom: 2px solid transparent;
@@ -518,16 +762,19 @@
             font-size: 0.875rem;
             font-weight: 500;
             color: var(--text-secondary);
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
         }
 
         .tab-button:hover {
             color: var(--primary);
+            background-color: var(--neutral-100);
         }
 
         .tab-button.active {
             color: var(--primary);
             border-bottom-color: var(--primary);
+            font-weight: 600;
         }
 
         .tab-content {
@@ -536,6 +783,7 @@
 
         .tab-content.active {
             display: block;
+            animation: fadeIn 0.3s ease-out;
         }
 
         /* ==================== FILTERS ==================== */
@@ -544,7 +792,8 @@
             border-radius: var(--radius-lg);
             padding: 1.5rem;
             margin-bottom: 1.5rem;
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
         }
 
         .filter-row {
@@ -571,8 +820,18 @@
             width: 100%;
             padding: 0.625rem 0.875rem 0.625rem 2.5rem;
             border: 1px solid var(--border);
-            border-radius: var(--radius);
+            border-radius: var(--radius-lg);
             font-size: 0.875rem;
+            transition: all 0.2s ease;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(132, 169, 140, 0.1);
+            background-color: var(--bg-primary);
         }
 
         .search-icon {
@@ -581,41 +840,6 @@
             top: 50%;
             transform: translateY(-50%);
             color: var(--text-muted);
-        }
-
-        /* ==================== PAGINATION ==================== */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .pagination-button {
-            padding: 0.5rem 0.75rem;
-            border: 1px solid var(--border);
-            background: var(--bg-primary);
-            cursor: pointer;
-            border-radius: var(--radius);
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
-
-        .pagination-button:hover:not(:disabled) {
-            background-color: var(--bg-secondary);
-            border-color: var(--primary);
-        }
-
-        .pagination-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .pagination-button.active {
-            background-color: var(--primary);
-            color: white;
-            border-color: var(--primary);
         }
 
         /* ==================== TOAST ==================== */
@@ -631,15 +855,16 @@
 
         .toast {
             background: var(--bg-primary);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-lg);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-xl);
             padding: 1rem 1.5rem;
             display: flex;
             align-items: center;
             gap: 0.75rem;
             min-width: 300px;
-            animation: slideIn 0.3s ease;
+            animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             border-left: 4px solid var(--info);
+            border: 1px solid var(--border);
         }
 
         .toast.success {
@@ -652,17 +877,6 @@
 
         .toast.warning {
             border-left-color: var(--warning);
-        }
-
-        @keyframes slideIn {
-            from {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
         }
 
         /* ==================== EMPTY STATE ==================== */
@@ -698,16 +912,12 @@
         }
 
         .spinner {
-            border: 3px solid var(--bg-tertiary);
+            border: 3px solid var(--neutral-300);
             border-top-color: var(--primary);
             border-radius: 50%;
             width: 40px;
             height: 40px;
             animation: spin 0.8s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
         }
 
         /* ==================== ACTION BUTTONS ==================== */
@@ -723,20 +933,52 @@
             cursor: pointer;
             border-radius: var(--radius);
             color: var(--text-secondary);
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .icon-button:hover {
-            background-color: var(--bg-secondary);
+            background-color: var(--neutral-200);
             color: var(--primary);
         }
 
         .icon-button.danger:hover {
-            background-color: #fee;
+            background-color: rgba(234, 56, 76, 0.1);
             color: var(--error);
+        }
+
+        /* ==================== THEME TOGGLE ==================== */
+        .theme-toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background: var(--neutral-300);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .theme-toggle::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow);
+        }
+
+        :root[data-theme="dark"] .theme-toggle {
+            background: var(--primary);
+        }
+
+        :root[data-theme="dark"] .theme-toggle::before {
+            transform: translateX(24px);
         }
 
         /* ==================== RESPONSIVE ==================== */
@@ -751,6 +993,7 @@
 
             .sidebar.visible {
                 transform: translateX(0);
+                box-shadow: var(--shadow-xl);
             }
 
             .main-content {
@@ -775,6 +1018,10 @@
 
             .card {
                 padding: 1rem;
+            }
+
+            .top-bar {
+                padding: 0 1rem;
             }
         }
 
@@ -838,6 +1085,25 @@
         .w-full {
             width: 100%;
         }
+
+        /* ==================== SCROLLBAR ==================== */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--neutral-100);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--neutral-400);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--neutral-500);
+        }
     </style>
 </head>
 <body>
@@ -848,7 +1114,7 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <h1>Prisma Taskmaster</h1>
+                <h1>PRISMA GESTION</h1>
             </div>
             <nav class="sidebar-nav">
                 <a href="#" class="nav-item active" data-page="dashboard">
@@ -887,14 +1153,16 @@
             <!-- Top Bar -->
             <div class="top-bar">
                 <div class="flex gap-2">
-                    <button class="icon-button" id="toggleSidebar">☰</button>
+                    <button class="icon-button" id="toggleSidebar" title="Menu">☰</button>
                     <div class="search-box">
                         <span class="search-icon">🔍</span>
                         <input type="text" class="search-input" placeholder="Rechercher..." id="globalSearch">
                     </div>
                 </div>
                 <div class="flex gap-2">
+                    <div class="theme-toggle" id="themeToggle" title="Changer le thème"></div>
                     <button class="icon-button" id="refreshData" title="Actualiser">🔄</button>
+                    <button class="icon-button" id="exportData" title="Exporter">💾</button>
                     <button class="icon-button" id="userMenu" title="Menu utilisateur">👤</button>
                 </div>
             </div>
@@ -915,24 +1183,12 @@
 
             initializeData() {
                 // Initialize default data structure if not exists
-                if (!localStorage.getItem('clients')) {
-                    localStorage.setItem('clients', JSON.stringify([]));
-                }
-                if (!localStorage.getItem('missions')) {
-                    localStorage.setItem('missions', JSON.stringify([]));
-                }
-                if (!localStorage.getItem('factures')) {
-                    localStorage.setItem('factures', JSON.stringify([]));
-                }
-                if (!localStorage.getItem('paiements')) {
-                    localStorage.setItem('paiements', JSON.stringify([]));
-                }
-                if (!localStorage.getItem('collaborateurs')) {
-                    localStorage.setItem('collaborateurs', JSON.stringify([]));
-                }
-                if (!localStorage.getItem('obligations_fiscales')) {
-                    localStorage.setItem('obligations_fiscales', JSON.stringify([]));
-                }
+                const stores = ['clients', 'missions', 'factures', 'paiements', 'collaborateurs', 'obligations_fiscales'];
+                stores.forEach(store => {
+                    if (!localStorage.getItem(store)) {
+                        localStorage.setItem(store, JSON.stringify([]));
+                    }
+                });
 
                 // Add sample data if empty
                 this.addSampleData();
@@ -969,6 +1225,21 @@
                             email: 'jean.mbeng@email.ga',
                             telephone: '+241 07 98 76 54',
                             created_at: new Date().toISOString()
+                        },
+                        {
+                            id: this.generateId(),
+                            type: 'morale',
+                            nom: 'SOLUTIONS BETA SA',
+                            raisonsociale: 'Beta Tech Solutions',
+                            niu: 'M567891234',
+                            numerorccm: 'GA-LBV-01-2021-B12-00456',
+                            formejuridique: 'sa',
+                            regimefiscal: 'reel',
+                            secteuractivite: 'Technologie',
+                            statut: 'actif',
+                            email: 'info@beta.ga',
+                            telephone: '+241 02 34 56 78',
+                            created_at: new Date().toISOString()
                         }
                     ];
                     localStorage.setItem('clients', JSON.stringify(sampleClients));
@@ -998,91 +1269,125 @@
                     ];
                     localStorage.setItem('collaborateurs', JSON.stringify(sampleCollaborateurs));
                 }
+
+                // Add sample missions
+                const missions = this.getMissions();
+                if (missions.length === 0) {
+                    const clients = this.getClients();
+                    const collabs = this.getCollaborateurs();
+                    if (clients.length > 0 && collabs.length > 0) {
+                        const sampleMissions = [
+                            {
+                                id: this.generateId(),
+                                title: 'Déclaration fiscale Q4 2024',
+                                client_id: clients[0].id,
+                                collaborateur_id: collabs[0].id,
+                                start_date: '2024-11-01',
+                                end_date: '2024-11-30',
+                                status: 'en_cours',
+                                created_at: new Date().toISOString()
+                            },
+                            {
+                                id: this.generateId(),
+                                title: 'Audit comptable annuel',
+                                client_id: clients[1].id,
+                                collaborateur_id: collabs[1].id,
+                                start_date: '2024-11-15',
+                                end_date: '2024-12-15',
+                                status: 'en_attente',
+                                created_at: new Date().toISOString()
+                            }
+                        ];
+                        localStorage.setItem('missions', JSON.stringify(sampleMissions));
+                    }
+                }
+
+                // Add sample invoices
+                const factures = this.getFactures();
+                if (factures.length === 0) {
+                    const clients = this.getClients();
+                    if (clients.length > 0) {
+                        const sampleFactures = [
+                            {
+                                id: this.generateId(),
+                                numero: 'F2024-0001',
+                                client_id: clients[0].id,
+                                date: '2024-11-01',
+                                montant: 500000,
+                                montant_paye: 500000,
+                                status: 'envoyée',
+                                status_paiement: 'payée',
+                                created_at: new Date().toISOString()
+                            },
+                            {
+                                id: this.generateId(),
+                                numero: 'F2024-0002',
+                                client_id: clients[1].id,
+                                date: '2024-11-10',
+                                montant: 750000,
+                                montant_paye: 0,
+                                status: 'envoyée',
+                                status_paiement: 'non_payée',
+                                created_at: new Date().toISOString()
+                            }
+                        ];
+                        localStorage.setItem('factures', JSON.stringify(sampleFactures));
+                    }
+                }
             }
 
             generateId() {
                 return Date.now().toString(36) + Math.random().toString(36).substr(2);
             }
 
-            // Clients
-            getClients() {
-                return JSON.parse(localStorage.getItem('clients') || '[]');
+            // Generic CRUD operations
+            getAll(store) {
+                return JSON.parse(localStorage.getItem(store) || '[]');
             }
 
-            getClient(id) {
-                const clients = this.getClients();
-                return clients.find(c => c.id === id);
+            getById(store, id) {
+                const items = this.getAll(store);
+                return items.find(item => item.id === id);
             }
 
-            saveClient(client) {
-                const clients = this.getClients();
-                if (client.id) {
-                    const index = clients.findIndex(c => c.id === client.id);
+            save(store, item) {
+                const items = this.getAll(store);
+                if (item.id) {
+                    const index = items.findIndex(i => i.id === item.id);
                     if (index !== -1) {
-                        clients[index] = { ...client, updated_at: new Date().toISOString() };
+                        items[index] = { ...item, updated_at: new Date().toISOString() };
                     }
                 } else {
-                    client.id = this.generateId();
-                    client.created_at = new Date().toISOString();
-                    clients.push(client);
+                    item.id = this.generateId();
+                    item.created_at = new Date().toISOString();
+                    items.push(item);
                 }
-                localStorage.setItem('clients', JSON.stringify(clients));
-                return client;
+                localStorage.setItem(store, JSON.stringify(items));
+                return item;
             }
 
-            deleteClient(id) {
-                let clients = this.getClients();
-                clients = clients.filter(c => c.id !== id);
-                localStorage.setItem('clients', JSON.stringify(clients));
+            delete(store, id) {
+                let items = this.getAll(store);
+                items = items.filter(item => item.id !== id);
+                localStorage.setItem(store, JSON.stringify(items));
             }
 
-            // Missions
-            getMissions() {
-                return JSON.parse(localStorage.getItem('missions') || '[]');
-            }
+            // Convenience methods
+            getClients() { return this.getAll('clients'); }
+            getClient(id) { return this.getById('clients', id); }
+            saveClient(client) { return this.save('clients', client); }
+            deleteClient(id) { this.delete('clients', id); }
 
-            saveMission(mission) {
-                const missions = this.getMissions();
-                if (mission.id) {
-                    const index = missions.findIndex(m => m.id === mission.id);
-                    if (index !== -1) {
-                        missions[index] = { ...mission, updated_at: new Date().toISOString() };
-                    }
-                } else {
-                    mission.id = this.generateId();
-                    mission.created_at = new Date().toISOString();
-                    missions.push(mission);
-                }
-                localStorage.setItem('missions', JSON.stringify(missions));
-                return mission;
-            }
+            getMissions() { return this.getAll('missions'); }
+            saveMission(mission) { return this.save('missions', mission); }
+            deleteMission(id) { this.delete('missions', id); }
 
-            deleteMission(id) {
-                let missions = this.getMissions();
-                missions = missions.filter(m => m.id !== id);
-                localStorage.setItem('missions', JSON.stringify(missions));
-            }
-
-            // Factures
-            getFactures() {
-                return JSON.parse(localStorage.getItem('factures') || '[]');
-            }
-
+            getFactures() { return this.getAll('factures'); }
             saveFacture(facture) {
-                const factures = this.getFactures();
-                if (facture.id) {
-                    const index = factures.findIndex(f => f.id === facture.id);
-                    if (index !== -1) {
-                        factures[index] = { ...facture, updated_at: new Date().toISOString() };
-                    }
-                } else {
-                    facture.id = this.generateId();
+                if (!facture.numero) {
                     facture.numero = this.generateFactureNumber();
-                    facture.created_at = new Date().toISOString();
-                    factures.push(facture);
                 }
-                localStorage.setItem('factures', JSON.stringify(factures));
-                return facture;
+                return this.save('factures', facture);
             }
 
             generateFactureNumber() {
@@ -1092,46 +1397,36 @@
                 return `F${year}-${String(count).padStart(4, '0')}`;
             }
 
-            // Collaborateurs
-            getCollaborateurs() {
-                return JSON.parse(localStorage.getItem('collaborateurs') || '[]');
+            getCollaborateurs() { return this.getAll('collaborateurs'); }
+            saveCollaborateur(collab) { return this.save('collaborateurs', collab); }
+
+            getObligationsFiscales() { return this.getAll('obligations_fiscales'); }
+            saveObligationFiscale(obligation) { return this.save('obligations_fiscales', obligation); }
+
+            // Export data
+            exportData() {
+                const data = {
+                    clients: this.getClients(),
+                    missions: this.getMissions(),
+                    factures: this.getFactures(),
+                    collaborateurs: this.getCollaborateurs(),
+                    obligations_fiscales: this.getObligationsFiscales(),
+                    exportDate: new Date().toISOString()
+                };
+                return data;
             }
 
-            saveCollaborateur(collaborateur) {
-                const collaborateurs = this.getCollaborateurs();
-                if (collaborateur.id) {
-                    const index = collaborateurs.findIndex(c => c.id === collaborateur.id);
-                    if (index !== -1) {
-                        collaborateurs[index] = { ...collaborateur, updated_at: new Date().toISOString() };
-                    }
-                } else {
-                    collaborateur.id = this.generateId();
-                    collaborateur.created_at = new Date().toISOString();
-                    collaborateurs.push(collaborateur);
-                }
-                localStorage.setItem('collaborateurs', JSON.stringify(collaborateurs));
-                return collaborateur;
-            }
+            exportCSV(store) {
+                const items = this.getAll(store);
+                if (items.length === 0) return '';
 
-            // Obligations Fiscales
-            getObligationsFiscales() {
-                return JSON.parse(localStorage.getItem('obligations_fiscales') || '[]');
-            }
+                const headers = Object.keys(items[0]);
+                const csv = [
+                    headers.join(','),
+                    ...items.map(item => headers.map(h => JSON.stringify(item[h] || '')).join(','))
+                ].join('\n');
 
-            saveObligationFiscale(obligation) {
-                const obligations = this.getObligationsFiscales();
-                if (obligation.id) {
-                    const index = obligations.findIndex(o => o.id === obligation.id);
-                    if (index !== -1) {
-                        obligations[index] = { ...obligation, updated_at: new Date().toISOString() };
-                    }
-                } else {
-                    obligation.id = this.generateId();
-                    obligation.created_at = new Date().toISOString();
-                    obligations.push(obligation);
-                }
-                localStorage.setItem('obligations_fiscales', JSON.stringify(obligations));
-                return obligation;
+                return csv;
             }
         }
 
@@ -1143,13 +1438,12 @@
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
             toast.className = `toast ${type}`;
-            toast.innerHTML = `
-                <span>${message}</span>
-            `;
+            toast.innerHTML = `<span>${message}</span>`;
             container.appendChild(toast);
 
             setTimeout(() => {
-                toast.style.animation = 'slideIn 0.3s ease reverse';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(400px)';
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
@@ -1170,11 +1464,85 @@
 
         function openModal(modalId) {
             document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = '';
         }
+
+        // Theme management
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            showToast(`Thème ${newTheme === 'dark' ? 'sombre' : 'clair'} activé`, 'success');
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
+        // Export functionality
+        function exportAllData() {
+            const data = db.exportData();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `prisma-backup-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Données exportées avec succès', 'success');
+        }
+
+        function exportCSV(store, filename) {
+            const csv = db.exportCSV(store);
+            if (!csv) {
+                showToast('Aucune donnée à exporter', 'warning');
+                return;
+            }
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${filename}-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Export CSV réussi', 'success');
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + K pour la recherche
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                document.getElementById('globalSearch').focus();
+            }
+
+            // Ctrl/Cmd + D pour le dashboard
+            if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+                e.preventDefault();
+                app.navigateTo('dashboard');
+            }
+
+            // Ctrl/Cmd + T pour toggle theme
+            if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+                e.preventDefault();
+                toggleTheme();
+            }
+
+            // Escape pour fermer les modales
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                });
+            }
+        });
 
         // ==================== PAGE RENDERING ====================
         const PageRenderer = {
@@ -1194,35 +1562,36 @@
 
                 return `
                     <div>
-                        <h2 class="card-title mb-2">Dashboard</h2>
+                        <h2 class="card-title mb-2">Tableau de bord</h2>
+                        <p class="text-muted mb-2" style="font-size: 0.875rem;">Bienvenue sur votre espace de gestion</p>
 
                         <div class="stats-grid">
-                            <div class="stat-card success">
+                            <div class="stat-card success animate-fade-in">
                                 <div class="stat-label">Clients Actifs</div>
                                 <div class="stat-value">${clientsActifs}</div>
-                                <div class="stat-change">Total: ${clients.length} clients</div>
+                                <div class="stat-change text-muted">sur ${clients.length} clients total</div>
                             </div>
 
-                            <div class="stat-card info">
+                            <div class="stat-card info animate-fade-in">
                                 <div class="stat-label">Missions en Cours</div>
                                 <div class="stat-value">${missionsEnCours}</div>
-                                <div class="stat-change">Total: ${missions.length} missions</div>
+                                <div class="stat-change text-muted">${missions.length} missions total</div>
                             </div>
 
-                            <div class="stat-card ${facturesImpayees > 0 ? 'warning' : 'success'}">
+                            <div class="stat-card ${facturesImpayees > 0 ? 'warning' : 'success'} animate-fade-in">
                                 <div class="stat-label">Factures Impayées</div>
                                 <div class="stat-value">${facturesImpayees}</div>
                                 <div class="stat-change">${formatCurrency(totalFactures - totalPaye)} en attente</div>
                             </div>
 
-                            <div class="stat-card ${obligationsNonDeposees > 0 ? 'error' : 'success'}">
+                            <div class="stat-card ${obligationsNonDeposees > 0 ? 'error' : 'success'} animate-fade-in">
                                 <div class="stat-label">Obligations Non Déposées</div>
                                 <div class="stat-value">${obligationsNonDeposees}</div>
-                                <div class="stat-change">Total: ${obligations.length} obligations</div>
+                                <div class="stat-change text-muted">${obligations.length} obligations total</div>
                             </div>
                         </div>
 
-                        <div class="card">
+                        <div class="card animate-fade-in">
                             <div class="card-header">
                                 <h3 class="card-title">Chiffre d'Affaires</h3>
                             </div>
@@ -1242,11 +1611,11 @@
                             </div>
                         </div>
 
-                        <div class="card">
+                        <div class="card animate-fade-in">
                             <div class="card-header">
                                 <h3 class="card-title">Missions Récentes</h3>
-                                <button class="btn btn-primary btn-sm" onclick="app.navigateTo('missions')">
-                                    Voir tout
+                                <button class="btn btn-sm btn-primary" onclick="app.navigateTo('missions')">
+                                    Voir tout →
                                 </button>
                             </div>
                             ${this.renderMissionsTable(missions.slice(0, 5))}
@@ -1261,13 +1630,21 @@
                 return `
                     <div>
                         <div class="flex-between mb-2">
-                            <h2 class="card-title">Clients</h2>
-                            <button class="btn btn-primary" onclick="PageRenderer.openClientModal()">
-                                ➕ Nouveau Client
-                            </button>
+                            <div>
+                                <h2 class="card-title">Clients</h2>
+                                <p class="text-muted text-small">${clients.length} client(s) enregistré(s)</p>
+                            </div>
+                            <div class="flex gap-1">
+                                <button class="btn btn-secondary btn-sm" onclick="exportCSV('clients', 'clients')">
+                                    💾 Export CSV
+                                </button>
+                                <button class="btn btn-primary" onclick="PageRenderer.openClientModal()">
+                                    ➕ Nouveau Client
+                                </button>
+                            </div>
                         </div>
 
-                        <div class="filters">
+                        <div class="filters animate-fade-in">
                             <div class="filter-row">
                                 <div class="form-group">
                                     <label class="form-label">Type</label>
@@ -1301,7 +1678,7 @@
                             </div>
                         </div>
 
-                        <div class="card">
+                        <div class="card animate-fade-in">
                             ${this.renderClientsTable(clients)}
                         </div>
                     </div>
@@ -1318,7 +1695,7 @@
                             <h3 class="empty-state-title">Aucun client</h3>
                             <p class="empty-state-description">Commencez par ajouter votre premier client</p>
                             <button class="btn btn-primary" onclick="PageRenderer.openClientModal()">
-                                Ajouter un client
+                                ➕ Ajouter un client
                             </button>
                         </div>
                     `;
@@ -1558,13 +1935,16 @@
                 return `
                     <div>
                         <div class="flex-between mb-2">
-                            <h2 class="card-title">Missions</h2>
+                            <div>
+                                <h2 class="card-title">Missions</h2>
+                                <p class="text-muted text-small">${missions.length} mission(s)</p>
+                            </div>
                             <button class="btn btn-primary" onclick="PageRenderer.openMissionModal()">
                                 ➕ Nouvelle Mission
                             </button>
                         </div>
 
-                        <div class="card">
+                        <div class="card animate-fade-in">
                             ${this.renderMissionsTable(missions)}
                         </div>
                     </div>
@@ -1781,12 +2161,17 @@
                 return `
                     <div class="flex-between mb-2">
                         <h3>Liste des Factures</h3>
-                        <button class="btn btn-primary" onclick="PageRenderer.openFactureModal()">
-                            ➕ Nouvelle Facture
-                        </button>
+                        <div class="flex gap-1">
+                            <button class="btn btn-secondary btn-sm" onclick="exportCSV('factures', 'factures')">
+                                💾 Export CSV
+                            </button>
+                            <button class="btn btn-primary" onclick="PageRenderer.openFactureModal()">
+                                ➕ Nouvelle Facture
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card animate-fade-in">
                         ${this.renderFacturesTable(factures, clients)}
                     </div>
 
@@ -1921,8 +2306,7 @@
 
             deleteFacture(id) {
                 if (confirm('Êtes-vous sûr de vouloir supprimer cette facture ?')) {
-                    const factures = db.getFactures().filter(f => f.id !== id);
-                    localStorage.setItem('factures', JSON.stringify(factures));
+                    db.delete('factures', id);
                     showToast('Facture supprimée', 'success');
                     app.navigateTo('facturation');
                 }
@@ -1930,7 +2314,7 @@
 
             renderPaiementsTab() {
                 return `
-                    <div class="card">
+                    <div class="card animate-fade-in">
                         <h3>Paiements</h3>
                         <div class="empty-state">
                             <p>Module de paiements en développement</p>
@@ -1947,7 +2331,7 @@
                     <div>
                         <h2 class="card-title mb-2">Gestion</h2>
 
-                        <div class="card">
+                        <div class="card animate-fade-in">
                             <div class="card-header">
                                 <h3 class="card-title">Clients en Gestion Externalisée</h3>
                                 <span class="badge badge-info">${gestionExternalisee.length} clients</span>
@@ -1996,13 +2380,16 @@
                 return `
                     <div>
                         <div class="flex-between mb-2">
-                            <h2 class="card-title">Collaborateurs</h2>
+                            <div>
+                                <h2 class="card-title">Collaborateurs</h2>
+                                <p class="text-muted text-small">${collaborateurs.length} collaborateur(s)</p>
+                            </div>
                             <button class="btn btn-primary" onclick="PageRenderer.openCollaborateurModal()">
                                 ➕ Nouveau Collaborateur
                             </button>
                         </div>
 
-                        <div class="card">
+                        <div class="card animate-fade-in">
                             ${this.renderCollaborateursTable(collaborateurs)}
                         </div>
                     </div>
@@ -2159,8 +2546,7 @@
 
             deleteCollaborateur(id) {
                 if (confirm('Êtes-vous sûr de vouloir supprimer ce collaborateur ?')) {
-                    const collaborateurs = db.getCollaborateurs().filter(c => c.id !== id);
-                    localStorage.setItem('collaborateurs', JSON.stringify(collaborateurs));
+                    db.delete('collaborateurs', id);
                     showToast('Collaborateur supprimé', 'success');
                     app.navigateTo('collaborateurs');
                 }
@@ -2171,7 +2557,7 @@
                     <div>
                         <h2 class="card-title mb-2">Rapports</h2>
 
-                        <div class="card">
+                        <div class="card animate-fade-in">
                             <h3>Rapports Disponibles</h3>
                             <div class="empty-state">
                                 <div class="empty-state-icon">📈</div>
@@ -2262,9 +2648,20 @@
                 document.getElementById('toggleSidebar').addEventListener('click', () => {
                     const sidebar = document.getElementById('sidebar');
                     const mainContent = document.getElementById('mainContent');
-                    sidebar.classList.toggle('hidden');
-                    mainContent.classList.toggle('expanded');
+
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.toggle('visible');
+                    } else {
+                        sidebar.classList.toggle('hidden');
+                        mainContent.classList.toggle('expanded');
+                    }
                 });
+
+                // Theme toggle
+                document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+                // Export button
+                document.getElementById('exportData').addEventListener('click', exportAllData);
 
                 // Tabs
                 document.addEventListener('click', (e) => {
@@ -2291,7 +2688,13 @@
                 document.addEventListener('click', (e) => {
                     if (e.target.classList.contains('modal-overlay')) {
                         e.target.classList.remove('active');
+                        document.body.style.overflow = '';
                     }
+                });
+
+                // Global search
+                document.getElementById('globalSearch').addEventListener('input', (e) => {
+                    // Search functionality could be implemented here
                 });
             }
 
@@ -2336,7 +2739,7 @@
                 }
 
                 // Scroll to top
-                window.scrollTo(0, 0);
+                window.scrollTo({top: 0, behavior: 'smooth'});
             }
         }
 
@@ -2345,8 +2748,13 @@
 
         // Show welcome message
         setTimeout(() => {
-            showToast('Bienvenue dans Prisma Taskmaster - Version Alternative', 'success');
+            showToast('Bienvenue dans Prisma Taskmaster - Version Enhanced 🚀', 'success');
         }, 500);
+
+        // Show keyboard shortcuts hint
+        setTimeout(() => {
+            showToast('Raccourcis : Ctrl+K (recherche), Ctrl+D (dashboard), Ctrl+T (thème)', 'info');
+        }, 3000);
     </script>
 </body>
 </html>
