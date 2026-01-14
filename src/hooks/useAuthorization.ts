@@ -1,7 +1,7 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export type AuthorizedModule = "collaborateurs" | "parametres" | "facturation";
 
@@ -12,6 +12,7 @@ interface UseAuthorizationOptions {
 
 /**
  * Hook pour gérer les autorisations d'accès aux modules protégés
+ * Uses server-side role validation from Supabase instead of localStorage
  * @param authorizedRoles Les rôles autorisés à accéder au module
  * @param module Le nom du module pour les messages d'erreur
  * @param options Options de configuration (redirection, toast)
@@ -25,12 +26,12 @@ export const useAuthorization = (
   const { redirectTo = "/", showToast = true } = options;
   const navigate = useNavigate();
   const { toast } = useToast();
-  const userRole = localStorage.getItem("userRole");
+  const { userRole, isLoading } = useAuthContext();
 
-  const isAuthorized = authorizedRoles.includes(userRole || "");
+  const isAuthorized = !isLoading && authorizedRoles.includes(userRole || "");
 
   useEffect(() => {
-    if (!isAuthorized) {
+    if (!isLoading && !isAuthorized) {
       if (showToast) {
         const moduleNames = {
           collaborateurs: "la gestion des collaborateurs",
@@ -47,7 +48,7 @@ export const useAuthorization = (
       
       navigate(redirectTo);
     }
-  }, [isAuthorized, navigate, toast, showToast, module, redirectTo]);
+  }, [isAuthorized, isLoading, navigate, toast, showToast, module, redirectTo]);
 
-  return { isAuthorized, userRole };
+  return { isAuthorized, userRole, isLoading };
 };
