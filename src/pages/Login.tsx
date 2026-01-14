@@ -20,69 +20,22 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      console.log("Tentative de connexion avec:", { email, password });
-      
-      // Vérification de l'existence de l'utilisateur
-      const { data: userExists, error: userCheckError } = await supabase
-        .from('users')
-        .select('id, role')
-        .eq('email', email.toLowerCase().trim())
-        .single();
-
-      if (userCheckError) {
-        console.log("Erreur lors de la vérification de l'utilisateur:", userCheckError);
-      } else {
-        console.log("Utilisateur trouvé dans la table users:", userExists);
-      }
-      
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
         password: password.trim()
       });
 
       if (authError) {
-        console.error("Erreur d'authentification détaillée:", {
-          message: authError.message,
-          status: authError.status,
-          name: authError.name
-        });
-        
         toast({
           variant: "destructive",
           title: "Erreur de connexion",
-          description: `${authError.message}. Veuillez vérifier vos identifiants.`,
+          description: "Identifiants invalides. Veuillez réessayer.",
           className: "bg-white border-red-500 text-black",
         });
         return;
       }
 
       if (authData.user) {
-        console.log("Authentification réussie:", authData.user);
-        
-        // Récupérer le rôle de l'utilisateur depuis la table users
-        const { data: userData, error: userError } = await supabase
-          .from('users')
-          .select('role')
-          .eq('id', authData.user.id)
-          .single();
-
-        if (userError) {
-          console.error("Erreur lors de la récupération du rôle:", userError);
-          toast({
-            variant: "destructive",
-            title: "Erreur",
-            description: "Impossible de récupérer les informations de l'utilisateur.",
-            className: "bg-white border-red-500 text-black",
-          });
-          return;
-        }
-
-        console.log("Données utilisateur récupérées:", userData);
-
-        // Stocker les informations de l'utilisateur
-        localStorage.setItem("isAuthenticated", "true");
-        localStorage.setItem("userRole", userData.role);
-
         toast({
           title: "Connexion réussie",
           description: "Bienvenue sur votre espace de gestion",
@@ -90,8 +43,7 @@ const Login = () => {
         });
         navigate("/");
       }
-    } catch (error) {
-      console.error("Erreur inattendue détaillée:", error);
+    } catch {
       toast({
         variant: "destructive",
         title: "Erreur",
