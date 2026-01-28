@@ -3,11 +3,21 @@ import { Client } from "@/types/client";
 import { exportToExcel } from "./csvExporter";
 
 /**
+ * Génère un ID court de 5 caractères alphanumériques en majuscules à partir d'un UUID
+ */
+const generateShortId = (uuid: string): string => {
+  // Retire les tirets et prend les caractères alphanumériques
+  const alphanumeric = uuid.replace(/-/g, '').toUpperCase();
+  // Retourne les 5 premiers caractères
+  return alphanumeric.slice(0, 5);
+};
+
+/**
  * Formate les données client pour l'exportation en supprimant les détails complexes
  */
 const formatClientForExport = (client: Client) => {
   return {
-    ID: client.id,
+    ID: generateShortId(client.id),
     Type: client.type === "physique" ? "Personne physique" : "Personne morale",
     Nom: client.type === "physique" ? client.nom : client.raisonsociale,
     NIU: client.niu,
