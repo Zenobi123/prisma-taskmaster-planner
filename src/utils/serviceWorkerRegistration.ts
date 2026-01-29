@@ -4,29 +4,44 @@
 export function registerSW() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
+      let refreshing = false;
+
       navigator.serviceWorker
         .register('/sw.js')
-        .then(registration => {
+        .then((registration) => {
           console.log('Service Worker registered successfully');
-          
+
+          // Ensure we check for updates ASAP
+          registration.update?.();
+
+          // If there's already a waiting SW, activate it
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+
           registration.addEventListener('updatefound', () => {
             const installingWorker = registration.installing;
-            if (installingWorker) {
-              installingWorker.addEventListener('statechange', () => {
-                if (installingWorker.state === 'installed') {
-                  if (navigator.serviceWorker.controller) {
-                    console.log('New content available; please refresh.');
-                  } else {
-                    console.log('Content cached for offline use.');
-                  }
+            if (!installingWorker) return;
+
+            installingWorker.addEventListener('statechange', () => {
+              if (installingWorker.state === 'installed') {
+                if (navigator.serviceWorker.controller) {
+                  // New update available -> activate immediately
+                  installingWorker.postMessage({ type: 'SKIP_WAITING' });
                 }
-              });
-            }
+              }
+            });
+          });
+
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            if (refreshing) return;
+            refreshing = true;
+            window.location.reload();
           });
         })
-        .catch(error => {
-          // Silently handle SW registration failures - not critical for app functionality
-          console.warn('Service Worker registration skipped:', error.message);
+        .catch((error) => {
+          // SW isn't critical for app functionality
+          console.warn('Service Worker registration skipped:', error?.message || error);
         });
     });
   }
