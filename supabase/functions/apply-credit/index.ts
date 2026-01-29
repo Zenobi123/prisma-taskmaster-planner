@@ -1,3 +1,4 @@
+
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
@@ -20,48 +21,6 @@ serve(async (req) => {
   }
 
   try {
-    // Create a Supabase client with the Auth context of the function
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    )
-
-    // Verify user is authenticated
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-      )
-    }
-
-    // Verify user has appropriate role
-    const { data: userData, error: roleError } = await supabaseClient
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-
-    if (roleError || !userData) {
-      return new Response(
-        JSON.stringify({ error: 'User role not found' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-      )
-    }
-
-    // Only admin and comptable can apply credits
-    if (!['admin', 'comptable'].includes(userData.role)) {
-      return new Response(
-        JSON.stringify({ error: 'Insufficient permissions' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-      )
-    }
-
     // Parse request
     const { clientId, factureId, paiementId, montant } = await req.json() as ApplyCreditRequest
 
@@ -73,6 +32,19 @@ serve(async (req) => {
       )
     }
 
+    // Create a Supabase client with the Auth context of the function
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    )
+
+    console.log(`Applying credit payment ${paiementId} to invoice ${factureId}`)
+
     // Verify the payment exists and is a credit
     const { data: payment, error: paymentError } = await supabaseClient
       .from('paiements')
@@ -83,6 +55,7 @@ serve(async (req) => {
       .single()
 
     if (paymentError || !payment) {
+      console.error('Error fetching payment or payment not found:', paymentError)
       return new Response(
         JSON.stringify({ error: 'Credit payment not found or not valid' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
@@ -98,6 +71,7 @@ serve(async (req) => {
       .single()
 
     if (invoiceError || !invoice) {
+      console.error('Error fetching invoice or invoice not found:', invoiceError)
       return new Response(
         JSON.stringify({ error: 'Invoice not found' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
@@ -115,6 +89,7 @@ serve(async (req) => {
       .eq('id', paiementId)
 
     if (updateError) {
+      console.error('Error applying credit to invoice:', updateError)
       return new Response(
         JSON.stringify({ error: 'Failed to apply credit to invoice' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
@@ -126,8 +101,9 @@ serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
     )
   } catch (error) {
+    console.error('Error in apply-credit function:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: error.message }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }

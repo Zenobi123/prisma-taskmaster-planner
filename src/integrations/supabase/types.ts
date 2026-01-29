@@ -7,10 +7,10 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
+  // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "13.0.5"
+    PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
@@ -1047,18 +1047,18 @@ export type Database = {
       get_client_financial_summary: {
         Args: { client_id: string }
         Returns: {
-          solde_disponible: number
-          statut: string
           total_facture: number
           total_paye: number
+          solde_disponible: number
+          statut: string
         }[]
       }
       get_clients_with_financial_status: {
-        Args: never
+        Args: Record<PropertyKey, never>
         Returns: {
-          facturesmontant: number
           id: string
           nom: string
+          facturesmontant: number
           paiementsmontant: number
           solde: number
           status: string

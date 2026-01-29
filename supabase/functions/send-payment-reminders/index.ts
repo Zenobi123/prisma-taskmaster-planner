@@ -1,9 +1,10 @@
+
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-cron-secret',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
 interface PaymentReminder {
@@ -44,10 +45,6 @@ serve(async (req) => {
   }
 
   try {
-    // Check for cron secret OR authenticated admin user
-    const cronSecret = req.headers.get('x-cron-secret')
-    const expectedCronSecret = Deno.env.get('CRON_SECRET')
-    
     // Create a Supabase client with the Auth context of the function
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -59,31 +56,7 @@ serve(async (req) => {
       }
     )
 
-    // If no valid cron secret, check for authenticated admin user
-    if (!cronSecret || cronSecret !== expectedCronSecret) {
-      const { data: { user }, error: authError } = await supabaseClient.auth.getUser()
-      
-      if (authError || !user) {
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
-        )
-      }
-
-      // Verify user has admin role
-      const { data: userData, error: roleError } = await supabaseClient
-        .from('users')
-        .select('role')
-        .eq('id', user.id)
-        .single()
-
-      if (roleError || !userData || userData.role !== 'admin') {
-        return new Response(
-          JSON.stringify({ error: 'Insufficient permissions - admin role required' }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
-        )
-      }
-    }
+    console.log('Checking for payment reminders to send...')
 
     // Get all active reminders that haven't been sent in their frequency period or never sent
     const { data: reminders, error: remindersError } = await supabaseClient
@@ -93,8 +66,11 @@ serve(async (req) => {
       .or(`last_sent.is.null,last_sent.lt.${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}`)
 
     if (remindersError) {
+      console.error('Error fetching reminders:', remindersError)
       throw remindersError
     }
+
+    console.log(`Found ${reminders?.length || 0} reminders to process`)
 
     // Process each reminder
     const results = []
@@ -108,7 +84,8 @@ serve(async (req) => {
       status: 200,
     })
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Internal server error' }), {
+    console.error('Error processing payment reminders:', error)
+    return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     })
@@ -116,6 +93,8 @@ serve(async (req) => {
 })
 
 async function processReminder(supabase: any, reminder: PaymentReminder) {
+  console.log(`Processing reminder for facture ${reminder.facture_id}`)
+  
   try {
     // Get client info
     const { data: client, error: clientError } = await supabase
@@ -125,6 +104,7 @@ async function processReminder(supabase: any, reminder: PaymentReminder) {
       .single()
 
     if (clientError) {
+      console.error(`Error fetching client ${reminder.client_id}:`, clientError)
       throw clientError
     }
 
@@ -136,11 +116,13 @@ async function processReminder(supabase: any, reminder: PaymentReminder) {
       .single()
 
     if (factureError) {
+      console.error(`Error fetching facture ${reminder.facture_id}:`, factureError)
       throw factureError
     }
 
     // Check if invoice is already paid
     if (facture.status_paiement === 'payée') {
+      console.log(`Facture ${facture.id} is already paid, deactivating reminder`)
       await supabase
         .from('payment_reminders')
         .update({ is_active: false })
@@ -166,30 +148,56 @@ async function processReminder(supabase: any, reminder: PaymentReminder) {
 
     return { id: reminder.id, status: 'sent', method: reminder.method }
   } catch (error) {
-    return { id: reminder.id, status: 'error', error: 'Processing failed' }
+    console.error(`Error processing reminder ${reminder.id}:`, error)
+    return { id: reminder.id, status: 'error', error: error.message }
   }
 }
 
 async function sendEmailReminder(client: Client, facture: Facture) {
+  console.log(`Sending email reminder to ${client.nom} for facture ${facture.id}`)
+  
+  // In a real implementation, you would use an email service API here
+  // This is a placeholder for the actual email sending logic
+  
   const clientName = client.nom || client.raisonsociale
   const clientEmail = client.contact?.email
   
   if (!clientEmail) {
+    console.warn(`No email address available for client ${client.id}`)
     return false
   }
   
-  // To actually send emails, integrate with a service like Resend, SendGrid, etc.
+  console.log(`Would send email to ${clientEmail} for ${facture.id} with amount ${facture.montant_restant}`)
+  
+  // To actually send emails, you would integrate with a service like:
+  // - Resend
+  // - SendGrid
+  // - Mailgun
+  // - AWS SES
+  
   return true
 }
 
 async function sendSmsReminder(client: Client, facture: Facture) {
+  console.log(`Sending SMS reminder to ${client.nom} for facture ${facture.id}`)
+  
+  // In a real implementation, you would use an SMS API service here
+  // This is a placeholder for the actual SMS sending logic
+  
   const clientName = client.nom || client.raisonsociale
   const clientPhone = client.contact?.telephone
   
   if (!clientPhone) {
+    console.warn(`No phone number available for client ${client.id}`)
     return false
   }
   
-  // To actually send SMS, integrate with a service like Twilio, Vonage, etc.
+  console.log(`Would send SMS to ${clientPhone} for ${facture.id} with amount ${facture.montant_restant}`)
+  
+  // To actually send SMS, you would integrate with a service like:
+  // - Twilio
+  // - Vonage/Nexmo
+  // - MessageBird
+  
   return true
 }
