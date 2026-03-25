@@ -12,19 +12,22 @@ const LogoutButton = () => {
   const handleLogout = async () => {
     try {
       const { error } = await supabase.auth.signOut();
-      
+
       if (error) {
         throw error;
       }
 
+      // Nettoyer toutes les données sensibles du localStorage
       localStorage.removeItem("isAuthenticated");
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("lastSelectedGestionClientId");
+
       toast({
         title: "Déconnexion réussie",
         description: "À bientôt !",
       });
       navigate("/login");
     } catch (error) {
-      console.error("Erreur lors de la déconnexion:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -34,8 +37,8 @@ const LogoutButton = () => {
   };
 
   return (
-    <Button 
-      variant="ghost" 
+    <Button
+      variant="ghost"
       onClick={handleLogout}
       className="text-neutral-600 hover:text-neutral-900"
     >

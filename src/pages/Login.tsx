@@ -20,45 +20,23 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      console.log("Tentative de connexion avec:", { email, password });
-      
-      // Vérification de l'existence de l'utilisateur
-      const { data: userExists, error: userCheckError } = await supabase
-        .from('users')
-        .select('id, role')
-        .eq('email', email.toLowerCase().trim())
-        .single();
-
-      if (userCheckError) {
-        console.log("Erreur lors de la vérification de l'utilisateur:", userCheckError);
-      } else {
-        console.log("Utilisateur trouvé dans la table users:", userExists);
-      }
-      
+      // Authentification via Supabase Auth
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
         password: password.trim()
       });
 
       if (authError) {
-        console.error("Erreur d'authentification détaillée:", {
-          message: authError.message,
-          status: authError.status,
-          name: authError.name
-        });
-        
         toast({
           variant: "destructive",
           title: "Erreur de connexion",
-          description: `${authError.message}. Veuillez vérifier vos identifiants.`,
+          description: "Identifiants incorrects. Veuillez réessayer.",
           className: "bg-white border-red-500 text-black",
         });
         return;
       }
 
       if (authData.user) {
-        console.log("Authentification réussie:", authData.user);
-        
         // Récupérer le rôle de l'utilisateur depuis la table users
         const { data: userData, error: userError } = await supabase
           .from('users')
@@ -67,7 +45,6 @@ const Login = () => {
           .single();
 
         if (userError) {
-          console.error("Erreur lors de la récupération du rôle:", userError);
           toast({
             variant: "destructive",
             title: "Erreur",
@@ -77,10 +54,7 @@ const Login = () => {
           return;
         }
 
-        console.log("Données utilisateur récupérées:", userData);
-
-        // Stocker les informations de l'utilisateur
-        localStorage.setItem("isAuthenticated", "true");
+        // Stocker uniquement le rôle (la session Supabase gère l'authentification)
         localStorage.setItem("userRole", userData.role);
 
         toast({
@@ -91,7 +65,6 @@ const Login = () => {
         navigate("/");
       }
     } catch (error) {
-      console.error("Erreur inattendue détaillée:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -110,7 +83,7 @@ const Login = () => {
           <h1 className="text-2xl font-semibold text-neutral-800">PRISMA GESTION</h1>
           <p className="text-neutral-600 mt-2">Connectez-vous à votre espace</p>
         </div>
-        
+
         <form onSubmit={handleLogin} className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
@@ -124,7 +97,7 @@ const Login = () => {
               disabled={isLoading}
             />
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="password">Mot de passe</Label>
             <Input
@@ -137,9 +110,9 @@ const Login = () => {
             />
           </div>
 
-          <Button 
-            type="submit" 
-            className="w-full" 
+          <Button
+            type="submit"
+            className="w-full"
             size="lg"
             disabled={isLoading}
           >
