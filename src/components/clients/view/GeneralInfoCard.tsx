@@ -1,11 +1,36 @@
 
 import { Client } from "@/types/client";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { FormeJuridique } from "@/types/client";
+import { FormeJuridique, RegimeFiscal } from "@/types/client";
+import { InfoIcon, CheckCircle2, XCircle } from "lucide-react";
 
 interface GeneralInfoCardProps {
   client: Client;
+}
+
+function InfoField({ label, value, colSpan }: { label: string; value?: string | null; colSpan?: number }) {
+  return (
+    <div className={colSpan === 2 ? "col-span-2 space-y-1" : "space-y-1"}>
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="font-medium">{value || "-"}</p>
+    </div>
+  );
+}
+
+function BooleanField({ label, value }: { label: string; value?: boolean }) {
+  return (
+    <div className="space-y-1">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <div className="flex items-center gap-1.5">
+        {value ? (
+          <CheckCircle2 className="h-4 w-4 text-green-500" />
+        ) : (
+          <XCircle className="h-4 w-4 text-muted-foreground" />
+        )}
+        <p className="font-medium">{value ? "Oui" : "Non"}</p>
+      </div>
+    </div>
+  );
 }
 
 export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
@@ -22,6 +47,15 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
     }
   };
 
+  const getRegimeFiscalLabel = (regime: RegimeFiscal) => {
+    switch (regime) {
+      case "reel": return "Régime du Réel";
+      case "igs": return "Impôt Général Synthétique (IGS)";
+      case "non_professionnel": return "Non Professionnel";
+      default: return regime;
+    }
+  };
+
   const formatMontant = (montant: number) => {
     return new Intl.NumberFormat('fr-FR', { style: 'decimal' }).format(montant) + ' FCFA';
   };
@@ -34,108 +68,93 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
     });
   };
 
-  const getStatusBadgeVariant = (statut: string) => {
-    switch(statut) {
-      case "actif": return "success";
-      case "archive": return "destructive";
-      default: return "secondary";
+  const getSexeLabel = (sexe?: string) => {
+    switch (sexe) {
+      case "homme": return "Homme";
+      case "femme": return "Femme";
+      default: return sexe || "-";
     }
   };
 
-  const getStatusLabel = (statut: string) => {
-    switch(statut) {
-      case "actif": return "Client Actif";
-      case "inactif": return "Client Inactif";
-      case "archive": return "Client Archivé";
-      default: return statut;
+  const getEtatCivilLabel = (etat?: string) => {
+    switch (etat) {
+      case "celibataire": return "Célibataire";
+      case "marie": return "Marié(e)";
+      case "divorce": return "Divorcé(e)";
+      case "veuf": return "Veuf/Veuve";
+      default: return etat || "-";
     }
   };
 
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-lg font-semibold">Informations générales</CardTitle>
+        <div className="flex items-center gap-2">
+          <InfoIcon className="w-5 h-5 text-muted-foreground" />
+          <CardTitle className="text-lg font-semibold">Informations générales</CardTitle>
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="flex items-center gap-4 mb-4">
-          <Badge variant="outline" className="text-sm">
-            {client.type === "physique" ? "Personne Physique" : "Personne Morale"}
-          </Badge>
-          <Badge variant={getStatusBadgeVariant(client.statut)} className="text-sm">
-            {getStatusLabel(client.statut)}
-          </Badge>
-        </div>
-
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
+          {/* Identity section */}
           {client.type === "physique" ? (
             <>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Nom</p>
-                <p className="font-medium text-lg">{client.nom}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Sexe</p>
-                <p className="font-medium capitalize">{client.sexe}</p>
-              </div>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">État civil</p>
-                <p className="font-medium capitalize">{client.etatcivil}</p>
-              </div>
+              <InfoField label="Nom" value={client.nom} />
+              <InfoField label="Sexe" value={getSexeLabel(client.sexe)} />
+              <InfoField label="État civil" value={getEtatCivilLabel(client.etatcivil)} />
             </>
           ) : (
             <>
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Raison sociale</p>
-                <p className="font-medium text-lg">{client.raisonsociale}</p>
-              </div>
+              <InfoField label="Raison sociale" value={client.raisonsociale} />
+              {client.nomcommercial && (
+                <InfoField label="Nom commercial" value={client.nomcommercial} />
+              )}
               {client.sigle && (
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Sigle</p>
-                  <p className="font-medium">{client.sigle}</p>
-                </div>
-              )}
-              {client.datecreation && (
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Date de création</p>
-                  <p className="font-medium">{formatDate(client.datecreation)}</p>
-                </div>
-              )}
-              {client.lieucreation && (
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Lieu de création</p>
-                  <p className="font-medium">{client.lieucreation}</p>
-                </div>
-              )}
-              {client.nomdirigeant && (
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Dirigeant</p>
-                  <p className="font-medium">{client.nomdirigeant}</p>
-                </div>
+                <InfoField label="Sigle" value={client.sigle} />
               )}
               {client.formejuridique && (
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Forme juridique</p>
-                  <p className="font-medium">{getFormeJuridiqueLabel(client.formejuridique)}</p>
-                </div>
+                <InfoField label="Forme juridique" value={getFormeJuridiqueLabel(client.formejuridique)} />
+              )}
+              {client.nomdirigeant && (
+                <InfoField label="Dirigeant" value={client.nomdirigeant} />
+              )}
+              {client.datecreation && (
+                <InfoField label="Date de création" value={formatDate(client.datecreation)} />
+              )}
+              {client.lieucreation && (
+                <InfoField label="Lieu de création" value={client.lieucreation} />
               )}
             </>
           )}
-          
+
+          {/* Fiscal & administrative section */}
+          <InfoField label="NIU" value={client.niu} />
+          {client.numerorccm && (
+            <InfoField label="N RCCM" value={client.numerorccm} />
+          )}
+          {client.numerocnps && (
+            <InfoField label="Numéro CNPS" value={client.numerocnps} />
+          )}
+          <InfoField label="Centre de rattachement" value={client.centrerattachement} />
+          <InfoField label="Régime fiscal" value={getRegimeFiscalLabel(client.regimefiscal)} />
+          <InfoField label="Secteur d'activité" value={client.secteuractivite} />
+
+          {/* Real estate section */}
           {client.situationimmobiliere && (
-            <div className="col-span-2 space-y-1">
+            <div className="col-span-2 md:col-span-3 space-y-1 pt-2 border-t">
               <p className="text-sm text-muted-foreground">Situation immobilière</p>
               <p className="font-medium">
                 {client.situationimmobiliere.type === "proprietaire" ? (
                   <>
-                    Propriétaire 
-                    {client.situationimmobiliere.valeur && 
+                    Propriétaire
+                    {client.situationimmobiliere.valeur &&
                       ` - Valeur : ${formatMontant(client.situationimmobiliere.valeur)}`
                     }
                   </>
                 ) : (
                   <>
                     Locataire
-                    {client.situationimmobiliere.loyer && 
+                    {client.situationimmobiliere.loyer &&
                       ` - Loyer mensuel : ${formatMontant(client.situationimmobiliere.loyer)}`
                     }
                   </>
@@ -144,23 +163,14 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
             </div>
           )}
 
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">NIU</p>
-            <p className="font-medium">{client.niu}</p>
-          </div>
-          {client.numerocnps && (
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Numéro CNPS</p>
-              <p className="font-medium">{client.numerocnps}</p>
+          {/* Management flags */}
+          <div className="col-span-2 md:col-span-3 pt-2 border-t">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
+              <BooleanField label="Gestion externalisée" value={client.gestionexternalisee} />
+              {client.inscriptionfanrharmony2 !== undefined && (
+                <BooleanField label="Inscription FANR Harmony 2" value={client.inscriptionfanrharmony2} />
+              )}
             </div>
-          )}
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Centre de rattachement</p>
-            <p className="font-medium">{client.centrerattachement}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Secteur d'activité</p>
-            <p className="font-medium capitalize">{client.secteuractivite}</p>
           </div>
         </div>
       </CardContent>
