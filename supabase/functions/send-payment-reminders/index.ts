@@ -2,9 +2,15 @@
 import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') || '').split(',').filter(Boolean)
+
+function getCorsHeaders(req: Request) {
+  const origin = req.headers.get('Origin') || ''
+  const allowedOrigin = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0] || ''
+  return {
+    'Access-Control-Allow-Origin': allowedOrigin,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  }
 }
 
 interface PaymentReminder {
@@ -39,24 +45,33 @@ interface Facture {
 }
 
 serve(async (req) => {
+  const corsHeaders = getCorsHeaders(req)
+
   // Handle CORS
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // Create a Supabase client with the Auth context of the function
+    // Vérifier la présence du token d'authentification
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
+    // Create a Supabase client with the service role for backend operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
       {
         global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
+          headers: { Authorization: authHeader },
         },
       }
     )
-
-    console.log('Checking for payment reminders to send...')
 
     // Get all active reminders that haven't been sent in their frequency period or never sent
     const { data: reminders, error: remindersError } = await supabaseClient
@@ -66,11 +81,8 @@ serve(async (req) => {
       .or(`last_sent.is.null,last_sent.lt.${new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()}`)
 
     if (remindersError) {
-      console.error('Error fetching reminders:', remindersError)
       throw remindersError
     }
-
-    console.log(`Found ${reminders?.length || 0} reminders to process`)
 
     // Process each reminder
     const results = []
@@ -84,8 +96,7 @@ serve(async (req) => {
       status: 200,
     })
   } catch (error) {
-    console.error('Error processing payment reminders:', error)
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ error: 'Internal server error' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500,
     })
@@ -93,8 +104,6 @@ serve(async (req) => {
 })
 
 async function processReminder(supabase: any, reminder: PaymentReminder) {
-  console.log(`Processing reminder for facture ${reminder.facture_id}`)
-  
   try {
     // Get client info
     const { data: client, error: clientError } = await supabase
@@ -104,7 +113,6 @@ async function processReminder(supabase: any, reminder: PaymentReminder) {
       .single()
 
     if (clientError) {
-      console.error(`Error fetching client ${reminder.client_id}:`, clientError)
       throw clientError
     }
 
@@ -116,13 +124,11 @@ async function processReminder(supabase: any, reminder: PaymentReminder) {
       .single()
 
     if (factureError) {
-      console.error(`Error fetching facture ${reminder.facture_id}:`, factureError)
       throw factureError
     }
 
     // Check if invoice is already paid
     if (facture.status_paiement === 'payée') {
-      console.log(`Facture ${facture.id} is already paid, deactivating reminder`)
       await supabase
         .from('payment_reminders')
         .update({ is_active: false })
@@ -148,56 +154,32 @@ async function processReminder(supabase: any, reminder: PaymentReminder) {
 
     return { id: reminder.id, status: 'sent', method: reminder.method }
   } catch (error) {
-    console.error(`Error processing reminder ${reminder.id}:`, error)
-    return { id: reminder.id, status: 'error', error: error.message }
+    return { id: reminder.id, status: 'error' }
   }
 }
 
 async function sendEmailReminder(client: Client, facture: Facture) {
-  console.log(`Sending email reminder to ${client.nom} for facture ${facture.id}`)
-  
-  // In a real implementation, you would use an email service API here
-  // This is a placeholder for the actual email sending logic
-  
   const clientName = client.nom || client.raisonsociale
   const clientEmail = client.contact?.email
-  
+
   if (!clientEmail) {
-    console.warn(`No email address available for client ${client.id}`)
     return false
   }
-  
-  console.log(`Would send email to ${clientEmail} for ${facture.id} with amount ${facture.montant_restant}`)
-  
-  // To actually send emails, you would integrate with a service like:
-  // - Resend
-  // - SendGrid
-  // - Mailgun
-  // - AWS SES
-  
+
+  // TODO: Intégrer un service d'email (Resend, SendGrid, Mailgun, AWS SES)
+
   return true
 }
 
 async function sendSmsReminder(client: Client, facture: Facture) {
-  console.log(`Sending SMS reminder to ${client.nom} for facture ${facture.id}`)
-  
-  // In a real implementation, you would use an SMS API service here
-  // This is a placeholder for the actual SMS sending logic
-  
   const clientName = client.nom || client.raisonsociale
   const clientPhone = client.contact?.telephone
-  
+
   if (!clientPhone) {
-    console.warn(`No phone number available for client ${client.id}`)
     return false
   }
-  
-  console.log(`Would send SMS to ${clientPhone} for ${facture.id} with amount ${facture.montant_restant}`)
-  
-  // To actually send SMS, you would integrate with a service like:
-  // - Twilio
-  // - Vonage/Nexmo
-  // - MessageBird
-  
+
+  // TODO: Intégrer un service SMS (Twilio, Vonage, MessageBird)
+
   return true
 }

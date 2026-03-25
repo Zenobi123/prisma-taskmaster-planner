@@ -1,13 +1,13 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { 
-  LayoutDashboard, 
-  Users, 
-  Briefcase, 
-  Calendar, 
-  FileText, 
-  Menu, 
+import {
+  LayoutDashboard,
+  Users,
+  Briefcase,
+  Calendar,
+  FileText,
+  Menu,
   Wallet,
   ChevronRight,
   FolderOpen,
@@ -16,6 +16,7 @@ import {
   Mail
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
+import { supabase } from "@/integrations/supabase/client";
 
 type MenuItem = {
   path: string;
@@ -41,15 +42,32 @@ const menuItems: MenuItem[] = [
 
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
   const location = useLocation();
-  const userRole = localStorage.getItem("userRole");
-  
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        if (data) {
+          setUserRole(data.role);
+        }
+      }
+    };
+    fetchRole();
+  }, []);
+
   const isActiveRoute = (path: string) => {
     return location.pathname === path;
   };
 
   // Filter menu items based on user role
-  const filteredMenuItems = menuItems.filter(item => 
+  const filteredMenuItems = menuItems.filter(item =>
     !item.allowedRoles || item.allowedRoles.includes(userRole || "")
   );
 
