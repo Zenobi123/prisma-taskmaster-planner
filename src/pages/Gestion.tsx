@@ -9,6 +9,15 @@ import { GestionTabs } from "@/components/gestion/GestionTabs";
 import { NoClientSelected } from "@/components/gestion/NoClientSelected";
 import { useLocation, useBeforeUnload } from "react-router-dom";
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+const VALID_TABS: Record<string, string> = {
+  'entreprise': 'entreprise',
+  'obligations-fiscales': 'fiscal'
+};
+
+const VALID_ACTIVE_TABS = ['entreprise', 'fiscal'];
+
 export default function Gestion() {
   const [activeTab, setActiveTab] = useState("entreprise");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
@@ -22,19 +31,19 @@ export default function Gestion() {
     gcTime: 30 * 60 * 1000,
   });
 
-  const clientsEnGestion = React.useMemo(() => 
+  const clientsEnGestion = React.useMemo(() =>
     clients.filter(client => client.gestionexternalisee),
     [clients]
   );
 
-  const selectedClient = React.useMemo(() => 
+  const selectedClient = React.useMemo(() =>
     clientsEnGestion.find(client => client.id === selectedClientId),
     [clientsEnGestion, selectedClientId]
   );
 
   // Stocker la sélection du client dans localStorage pour persistance
   useEffect(() => {
-    if (selectedClientId) {
+    if (selectedClientId && UUID_REGEX.test(selectedClientId)) {
       localStorage.setItem('lastSelectedGestionClientId', selectedClientId);
     }
   }, [selectedClientId]);
@@ -42,14 +51,14 @@ export default function Gestion() {
   // Restaurer la sélection du client depuis localStorage au chargement
   useEffect(() => {
     const savedClientId = localStorage.getItem('lastSelectedGestionClientId');
-    if (savedClientId && !selectedClientId) {
+    if (savedClientId && UUID_REGEX.test(savedClientId) && !selectedClientId) {
       setSelectedClientId(savedClientId);
     }
   }, [selectedClientId]);
 
   // Stocker l'onglet actif dans localStorage pour persistance
   useEffect(() => {
-    if (activeTab) {
+    if (activeTab && VALID_ACTIVE_TABS.includes(activeTab)) {
       localStorage.setItem('lastActiveGestionTab', activeTab);
     }
   }, [activeTab]);
@@ -57,29 +66,23 @@ export default function Gestion() {
   // Restaurer l'onglet actif depuis localStorage au chargement
   useEffect(() => {
     const savedTab = localStorage.getItem('lastActiveGestionTab');
-    if (savedTab) {
+    if (savedTab && VALID_ACTIVE_TABS.includes(savedTab)) {
       setActiveTab(savedTab);
     }
   }, []);
 
-  // Handle URL query parameters
+  // Handle URL query parameters with validation
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const clientParam = searchParams.get('client');
     const tabParam = searchParams.get('tab');
-    
-    if (clientParam) {
+
+    if (clientParam && UUID_REGEX.test(clientParam)) {
       setSelectedClientId(clientParam);
     }
-    
+
     if (tabParam) {
-      // Map URL parameter to tab value
-      const tabMapping: Record<string, string> = {
-        'entreprise': 'entreprise',
-        'obligations-fiscales': 'fiscal'
-      };
-      
-      const tabValue = tabMapping[tabParam];
+      const tabValue = VALID_TABS[tabParam];
       if (tabValue) {
         setActiveTab(tabValue);
       }
@@ -112,8 +115,8 @@ export default function Gestion() {
   return (
     <div className="p-8 bg-[#F6F6F7]">
       <GestionHeader nombreClientsEnGestion={clientsEnGestion.length} />
-      
-      <ClientSelector 
+
+      <ClientSelector
         clients={clientsEnGestion}
         selectedClientId={selectedClientId}
         onClientSelect={handleClientSelect}
