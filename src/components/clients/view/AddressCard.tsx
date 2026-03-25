@@ -17,14 +17,14 @@ export function AddressCard({ client }: AddressCardProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-6">
+        <div className="space-y-3">
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Ville</p>
-            <p className="font-medium">{client.adresse?.ville}</p>
+            <p className="font-medium">{client.adresse?.ville || "-"}</p>
           </div>
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Quartier</p>
-            <p className="font-medium">{client.adresse?.quartier}</p>
+            <p className="font-medium">{client.adresse?.quartier || "-"}</p>
           </div>
           <div className="space-y-1">
             <p className="text-sm text-muted-foreground">Lieu-dit</p>
