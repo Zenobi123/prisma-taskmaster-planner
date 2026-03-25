@@ -65,6 +65,19 @@ const ChartContainer = React.forwardRef<
 })
 ChartContainer.displayName = "Chart"
 
+// Sanitize a CSS value to prevent injection (allow only safe color values)
+function sanitizeCssValue(value: string): string | null {
+  // Allow: hex (#fff, #ffffff), rgb/rgba, hsl/hsla, named colors, oklch, CSS variables
+  const safePattern = /^(#[0-9a-fA-F]{3,8}|rgba?\([^()]*\)|hsla?\([^()]*\)|oklch\([^()]*\)|var\(--[a-zA-Z0-9-]+\)|[a-zA-Z]{1,20})$/
+  return safePattern.test(value.trim()) ? value.trim() : null
+}
+
+// Sanitize a CSS property name (allow only valid custom property names)
+function sanitizeCssKey(key: string): string | null {
+  const safeKeyPattern = /^[a-zA-Z0-9-]+$/
+  return safeKeyPattern.test(key) ? key : null
+}
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
     ([_, config]) => config.theme || config.color
@@ -83,11 +96,15 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
+    const safeKey = sanitizeCssKey(key)
+    if (!safeKey) return null
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
       itemConfig.color
-    return color ? `  --color-${key}: ${color};` : null
+    const safeColor = color ? sanitizeCssValue(color) : null
+    return safeColor ? `  --color-${safeKey}: ${safeColor};` : null
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `

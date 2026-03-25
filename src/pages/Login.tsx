@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,15 +8,32 @@ import { useToast } from "@/components/ui/use-toast";
 import { LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_DURATION_MS = 60_000; // 1 minute
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const loginAttemptsRef = useRef(0);
+  const lockoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isLocked) {
+      toast({
+        variant: "destructive",
+        title: "Trop de tentatives",
+        description: "Veuillez patienter avant de réessayer.",
+        className: "bg-white border-red-500 text-black",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -27,6 +44,16 @@ const Login = () => {
       });
 
       if (authError) {
+        loginAttemptsRef.current += 1;
+
+        if (loginAttemptsRef.current >= MAX_LOGIN_ATTEMPTS) {
+          setIsLocked(true);
+          lockoutTimerRef.current = setTimeout(() => {
+            setIsLocked(false);
+            loginAttemptsRef.current = 0;
+          }, LOCKOUT_DURATION_MS);
+        }
+
         toast({
           variant: "destructive",
           title: "Erreur de connexion",
@@ -37,6 +64,9 @@ const Login = () => {
       }
 
       if (authData.user) {
+        // Reset attempts on success
+        loginAttemptsRef.current = 0;
+
         // Récupérer le rôle de l'utilisateur depuis la table users
         const { data: userData, error: userError } = await supabase
           .from('users')
@@ -94,7 +124,8 @@ const Login = () => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              disabled={isLoading}
+              disabled={isLoading || isLocked}
+              maxLength={254}
             />
           </div>
 
@@ -106,15 +137,22 @@ const Login = () => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={isLoading}
+              disabled={isLoading || isLocked}
+              maxLength={128}
             />
           </div>
+
+          {isLocked && (
+            <p className="text-sm text-destructive text-center">
+              Trop de tentatives. Réessayez dans 1 minute.
+            </p>
+          )}
 
           <Button
             type="submit"
             className="w-full"
             size="lg"
-            disabled={isLoading}
+            disabled={isLoading || isLocked}
           >
             {isLoading ? (
               <span className="flex items-center">
