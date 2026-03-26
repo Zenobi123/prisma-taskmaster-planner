@@ -11,7 +11,9 @@ export type FormeJuridique =
   | "association" 
   | "gie" 
   | "autre";
-export type RegimeFiscal = "reel" | "igs" | "non_professionnel";
+export type Civilite = "M." | "Mme";
+export type ModePaiement = "trimestriel" | "annuel";
+export type RegimeFiscal = "reel" | "igs" | "non_professionnel" | "obnl";
 export type ClientStatus = "actif" | "inactif" | "archive";
 
 export interface Interaction {
@@ -58,5 +60,11 @@ export interface Client {
     valeur?: number;
     loyer?: number;
   };
+  civilite?: Civilite;
+  chiffreaffaires?: number;
+  iscga?: boolean;
+  isvendeurboissons?: boolean;
+  modepaiementigs?: ModePaiement;
+  modepaiementpsl?: ModePaiement;
   fiscal_data?: any; // On conserve cette propriété pour éviter les erreurs avec les autres composants
 }

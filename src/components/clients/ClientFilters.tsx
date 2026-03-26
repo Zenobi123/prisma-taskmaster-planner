@@ -13,6 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Client } from "@/types/client";
 import { ClientExportButton } from "./ClientExportButton";
+import { ClientImportButton } from "./ClientImportButton";
 
 interface ClientFiltersProps {
   searchTerm: string;
@@ -27,6 +28,7 @@ interface ClientFiltersProps {
   onShowArchivedChange: (value: boolean) => void;
   clients?: Client[];
   isMobile?: boolean;
+  onImportClients?: (clients: any[]) => void;
 }
 
 export function ClientFilters({
@@ -42,6 +44,7 @@ export function ClientFilters({
   onShowArchivedChange,
   clients = [],
   isMobile,
+  onImportClients,
 }: ClientFiltersProps) {
   const getRegimeFiscalLabel = (regime: RegimeFiscal) => {
     switch (regime) {
@@ -103,10 +106,14 @@ export function ClientFilters({
             <SelectItem value="reel">Réel</SelectItem>
             <SelectItem value="igs">IGS</SelectItem>
             <SelectItem value="non_professionnel">Non Professionnel</SelectItem>
+            <SelectItem value="obnl">OBNL</SelectItem>
           </SelectContent>
         </Select>
         
-        {clients && clients.length > 0 && 
+        {onImportClients && (
+          <ClientImportButton onImport={onImportClients} isMobile={isMobile} />
+        )}
+        {clients && clients.length > 0 &&
           <ClientExportButton clients={clients} isMobile={isMobile} />
         }
       </div>

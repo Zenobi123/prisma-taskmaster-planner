@@ -31,7 +31,7 @@ export const mapClientRowToClient = (client: ClientRow): Client => {
     },
     secteuractivite: client.secteuractivite,
     numerocnps: client.numerocnps || null,
-    regimefiscal: client.regimefiscal as "reel" | "igs" | "non_professionnel", // Now guaranteed to be valid
+    regimefiscal: client.regimefiscal as "reel" | "igs" | "non_professionnel" | "obnl", // Now guaranteed to be valid
     inscriptionfanrharmony2: client.inscriptionfanrharmony2 || false,
     interactions: (Array.isArray(client.interactions) ? client.interactions : []).map((interaction: any) => ({
       id: interaction.id || crypto.randomUUID(),
@@ -41,6 +41,12 @@ export const mapClientRowToClient = (client: ClientRow): Client => {
     statut: client.statut as "actif" | "inactif" | "archive",
     gestionexternalisee: client.gestionexternalisee || false,
     created_at: client.created_at,
+    civilite: (client as any).civilite || undefined,
+    chiffreaffaires: (client as any).chiffreaffaires || undefined,
+    iscga: (client as any).iscga || false,
+    isvendeurboissons: (client as any).isvendeurboissons || false,
+    modepaiementigs: (client as any).modepaiementigs || undefined,
+    modepaiementpsl: (client as any).modepaiementpsl || undefined,
     fiscal_data: client.fiscal_data
   };
 };

@@ -43,7 +43,13 @@ export function useClientFormInitializer(
           type: initialData.situationimmobiliere?.type || "locataire",
           valeur: initialData.situationimmobiliere?.valeur,
           loyer: initialData.situationimmobiliere?.loyer
-        }
+        },
+        civilite: initialData.civilite || "M.",
+        chiffreaffaires: String(initialData.chiffreaffaires || ""),
+        iscga: initialData.iscga || false,
+        isvendeurboissons: initialData.isvendeurboissons || false,
+        modepaiementigs: initialData.modepaiementigs || "trimestriel",
+        modepaiementpsl: initialData.modepaiementpsl || "trimestriel"
       });
     }
   }, [initialData, setFormData]);

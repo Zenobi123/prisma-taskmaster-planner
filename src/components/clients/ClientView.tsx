@@ -4,6 +4,7 @@ import { GeneralInfoCard } from "./view/GeneralInfoCard";
 import { AddressCard } from "./view/AddressCard";
 import { ContactCard } from "./view/ContactCard";
 import { InteractionsCard } from "./view/InteractionsCard";
+import { FiscalDashboard } from "./view/FiscalDashboard";
 import { CapitalSocialSection } from "./capital/CapitalSocialSection";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -91,6 +92,8 @@ export function ClientView({ client }: ClientViewProps) {
             <CapitalSocialSection client={client} />
           </div>
         )}
+
+        <FiscalDashboard client={client} />
 
         <InteractionsCard client={client} />
 

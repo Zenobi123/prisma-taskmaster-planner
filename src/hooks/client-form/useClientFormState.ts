@@ -1,12 +1,14 @@
 
 import { useState } from "react";
-import { 
-  ClientType, 
-  Sexe, 
+import {
+  ClientType,
+  Sexe,
   EtatCivil,
   SituationImmobiliere,
   FormeJuridique,
-  RegimeFiscal
+  RegimeFiscal,
+  Civilite,
+  ModePaiement
 } from "@/types/client";
 
 export interface ClientFormState {
@@ -38,6 +40,12 @@ export interface ClientFormState {
     valeur?: number;
     loyer?: number;
   };
+  civilite: Civilite;
+  chiffreaffaires: string;
+  iscga: boolean;
+  isvendeurboissons: boolean;
+  modepaiementigs: ModePaiement;
+  modepaiementpsl: ModePaiement;
 }
 
 export const getInitialFormState = (): ClientFormState => ({
@@ -68,7 +76,13 @@ export const getInitialFormState = (): ClientFormState => ({
     type: "locataire",
     valeur: undefined,
     loyer: undefined
-  }
+  },
+  civilite: "M.",
+  chiffreaffaires: "",
+  iscga: false,
+  isvendeurboissons: false,
+  modepaiementigs: "trimestriel",
+  modepaiementpsl: "trimestriel"
 });
 
 export function useClientFormState() {
