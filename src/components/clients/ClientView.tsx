@@ -45,8 +45,8 @@ export function ClientView({ client }: ClientViewProps) {
   };
 
   return (
-    <ScrollArea className="h-[75vh]">
-      <div className="space-y-6 p-1 pr-4">
+    <ScrollArea className="max-h-[calc(90vh-8rem)] overflow-y-auto">
+      <div className="space-y-6 p-1 pr-4 pb-4">
         {/* Header banner */}
         <div className="flex items-start justify-between bg-muted/40 rounded-lg p-4 border">
           <div className="flex items-center gap-4">
