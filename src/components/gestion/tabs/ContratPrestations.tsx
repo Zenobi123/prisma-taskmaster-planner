@@ -33,7 +33,7 @@ interface Echeance {
   label: string;
   periode: string;
   description: string;
-  regimes: Array<"reel" | "igs" | "non_professionnel">;
+  regimes: string[];
   /** Month (1-12) for annual deadlines, or null for recurring */
   moisReference?: number;
   /** Day of month for the deadline */
