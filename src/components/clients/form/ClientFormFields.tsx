@@ -1,5 +1,5 @@
 
-import { ClientType, FormeJuridique, Sexe, EtatCivil, SituationImmobiliere, RegimeFiscal } from "@/types/client";
+import { ClientType, FormeJuridique, Sexe, EtatCivil, SituationImmobiliere, RegimeFiscal, Civilite, ModePaiement } from "@/types/client";
 import { ClientIdentityFields } from "../ClientIdentityFields";
 import { ClientAddressFields } from "../ClientAddressFields";
 import { ClientContactFields } from "../ClientContactFields";
@@ -25,6 +25,12 @@ interface FormDataType {
   secteuractivite: string;
   numerocnps: string;
   regimefiscal: RegimeFiscal;
+  civilite: Civilite;
+  chiffreaffaires: string;
+  iscga: boolean;
+  isvendeurboissons: boolean;
+  modepaiementigs: ModePaiement;
+  modepaiementpsl: ModePaiement;
   gestionexternalisee: boolean;
   inscriptionfanrharmony2: boolean;
   sexe: Sexe;
@@ -68,6 +74,12 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
         secteuractivite={formData.secteuractivite}
         numerocnps={formData.numerocnps}
         regimefiscal={formData.regimefiscal}
+        civilite={formData.civilite}
+        chiffreaffaires={formData.chiffreaffaires}
+        iscga={formData.iscga}
+        isvendeurboissons={formData.isvendeurboissons}
+        modepaiementigs={formData.modepaiementigs}
+        modepaiementpsl={formData.modepaiementpsl}
         gestionexternalisee={formData.gestionexternalisee}
         inscriptionfanrharmony2={formData.inscriptionfanrharmony2}
         onChange={onChange}

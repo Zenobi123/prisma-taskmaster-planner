@@ -32,7 +32,13 @@ export function useClientFormDataProcessor() {
         type: formData.situationimmobiliere?.type || "locataire",
         valeur: formData.situationimmobiliere?.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
         loyer: formData.situationimmobiliere?.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
-      }
+      },
+      civilite: formData.civilite,
+      chiffreaffaires: parseFloat(formData.chiffreaffaires) || 0,
+      iscga: formData.iscga,
+      isvendeurboissons: formData.isvendeurboissons,
+      modepaiementigs: formData.modepaiementigs,
+      modepaiementpsl: formData.modepaiementpsl
     };
 
     if (type === "physique") {
