@@ -12,7 +12,7 @@ import { Proposition as PropositionType } from "@/types/proposition";
 
 const Propositions = () => {
   const {
-    filteredPropositions,
+    propositions: filteredPropositions,
     isLoading,
     searchTerm,
     setSearchTerm,
@@ -21,10 +21,10 @@ const Propositions = () => {
     clientFilter,
     setClientFilter,
     allClients,
-    createProposition,
-    deleteProposition,
-    editProposition,
-    isSubmitting,
+    createMutation,
+    deleteMutation,
+    handleEdit: editProposition,
+    handleDelete: deletePropositionAction,
   } = usePropositions();
 
   const isMobile = useIsMobile();

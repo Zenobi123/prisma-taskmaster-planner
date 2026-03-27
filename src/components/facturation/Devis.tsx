@@ -12,7 +12,7 @@ import { Devis as DevisType } from "@/types/devis";
 
 const Devis = () => {
   const {
-    filteredDevis,
+    devis: filteredDevis,
     isLoading,
     searchTerm,
     setSearchTerm,
@@ -21,11 +21,12 @@ const Devis = () => {
     clientFilter,
     setClientFilter,
     allClients,
-    createDevis,
-    deleteDevis,
-    convertDevis,
-    editDevis,
-    isSubmitting,
+    createMutation,
+    deleteMutation,
+    convertMutation,
+    handleEdit: editDevis,
+    handleDelete: deleteDevisAction,
+    handleConvert: convertDevisAction,
   } = useDevis();
 
   const isMobile = useIsMobile();
