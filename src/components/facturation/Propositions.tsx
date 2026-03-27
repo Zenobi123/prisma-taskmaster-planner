@@ -12,7 +12,7 @@ import { Proposition as PropositionType } from "@/types/proposition";
 
 const Propositions = () => {
   const {
-    filteredPropositions,
+    propositions: filteredPropositions,
     isLoading,
     searchTerm,
     setSearchTerm,
@@ -21,10 +21,10 @@ const Propositions = () => {
     clientFilter,
     setClientFilter,
     allClients,
-    createProposition,
-    deleteProposition,
-    editProposition,
-    isSubmitting,
+    createMutation,
+    deleteMutation,
+    handleEdit: editProposition,
+    handleDelete: deletePropositionAction,
   } = usePropositions();
 
   const isMobile = useIsMobile();
@@ -35,7 +35,7 @@ const Propositions = () => {
   };
 
   const handleDelete = (propositionId: string) => {
-    deleteProposition(propositionId);
+    deleteMutation.mutate(propositionId);
   };
 
   return (
@@ -83,10 +83,10 @@ const Propositions = () => {
           onOpenChange={setCreateDialogOpen}
           clients={allClients}
           onSubmit={(data) => {
-            createProposition(data);
+            createMutation.mutate(data);
             setCreateDialogOpen(false);
           }}
-          isSubmitting={isSubmitting}
+          isSubmitting={createMutation.isPending}
         />
       </CardContent>
     </Card>

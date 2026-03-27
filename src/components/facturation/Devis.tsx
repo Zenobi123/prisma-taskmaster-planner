@@ -12,7 +12,7 @@ import { Devis as DevisType } from "@/types/devis";
 
 const Devis = () => {
   const {
-    filteredDevis,
+    devis: filteredDevis,
     isLoading,
     searchTerm,
     setSearchTerm,
@@ -21,11 +21,12 @@ const Devis = () => {
     clientFilter,
     setClientFilter,
     allClients,
-    createDevis,
-    deleteDevis,
-    convertDevis,
-    editDevis,
-    isSubmitting,
+    createMutation,
+    deleteMutation,
+    convertMutation,
+    handleEdit: editDevis,
+    handleDelete: deleteDevisAction,
+    handleConvert: convertDevisAction,
   } = useDevis();
 
   const isMobile = useIsMobile();
@@ -36,11 +37,11 @@ const Devis = () => {
   };
 
   const handleDelete = (devisId: string) => {
-    deleteDevis(devisId);
+    deleteMutation.mutate(devisId);
   };
 
   const handleConvert = (devis: DevisType) => {
-    convertDevis(devis);
+    convertMutation.mutate(devis.id);
   };
 
   return (
@@ -89,10 +90,10 @@ const Devis = () => {
           onOpenChange={setCreateDialogOpen}
           clients={allClients}
           onSubmit={(data) => {
-            createDevis(data);
+            createMutation.mutate(data);
             setCreateDialogOpen(false);
           }}
-          isSubmitting={isSubmitting}
+          isSubmitting={createMutation.isPending}
         />
       </CardContent>
     </Card>
