@@ -40,8 +40,8 @@ const Devis = () => {
     deleteMutation.mutate(devisId);
   };
 
-  const handleConvert = (devisId: string) => {
-    convertMutation.mutate(devisId);
+  const handleConvert = (devis: DevisType) => {
+    convertMutation.mutate(devis.id);
   };
 
   return (
