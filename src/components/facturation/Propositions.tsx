@@ -35,7 +35,7 @@ const Propositions = () => {
   };
 
   const handleDelete = (propositionId: string) => {
-    deleteProposition(propositionId);
+    deleteMutation.mutate(propositionId);
   };
 
   return (
@@ -83,10 +83,10 @@ const Propositions = () => {
           onOpenChange={setCreateDialogOpen}
           clients={allClients}
           onSubmit={(data) => {
-            createProposition(data);
+            createMutation.mutate(data);
             setCreateDialogOpen(false);
           }}
-          isSubmitting={isSubmitting}
+          isSubmitting={createMutation.isPending}
         />
       </CardContent>
     </Card>

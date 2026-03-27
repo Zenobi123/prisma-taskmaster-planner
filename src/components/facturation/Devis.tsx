@@ -37,11 +37,11 @@ const Devis = () => {
   };
 
   const handleDelete = (devisId: string) => {
-    deleteDevis(devisId);
+    deleteMutation.mutate(devisId);
   };
 
-  const handleConvert = (devis: DevisType) => {
-    convertDevis(devis);
+  const handleConvert = (devisId: string) => {
+    convertMutation.mutate(devisId);
   };
 
   return (
@@ -90,10 +90,10 @@ const Devis = () => {
           onOpenChange={setCreateDialogOpen}
           clients={allClients}
           onSubmit={(data) => {
-            createDevis(data);
+            createMutation.mutate(data);
             setCreateDialogOpen(false);
           }}
-          isSubmitting={isSubmitting}
+          isSubmitting={createMutation.isPending}
         />
       </CardContent>
     </Card>
