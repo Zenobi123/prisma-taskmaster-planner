@@ -4,6 +4,7 @@ import { Paiement } from '@/types/paiement';
 import { SimplifiedClient } from './types';
 import { DocumentService } from './services/DocumentService';
 import { montantEnLettres } from '@/utils/numberToWords';
+import { PDF_THEME } from './pdfTheme';
 
 /**
  * Fonction pour générer un PDF de reçu de paiement de haute qualité
@@ -67,7 +68,7 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
       angle: -45,
       fontSize: 60,
       opacity: 0.15,
-      color: '#888888'
+      color: PDF_THEME.watermark
     });
     
     // Générer le PDF
@@ -88,12 +89,12 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
 // Ajouter les détails du paiement
 const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
   // Créer une boîte pour les informations de paiement
-  doc.setFillColor(248, 248, 248);
+  doc.setFillColor(...PDF_THEME.bgLight);
   doc.roundedRect(15, 105, 180, 50, 3, 3, 'F');
   
   // Information client
   doc.setFontSize(10);
-  doc.setTextColor(60, 60, 60);
+  doc.setTextColor(...PDF_THEME.textBody);
   
   // Colonnes d'information
   const leftLabels = ["Client:", "Référence:", "Date:", "Mode:"];
@@ -165,17 +166,17 @@ const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
       case 0: value = paiement.facture; break;
       case 1: value = paiement.reference_transaction; break;
       case 2: 
-        doc.setTextColor(0, 128, 0);
+        doc.setTextColor(...PDF_THEME.statusPaid);
         value = 'Crédit (Avance)'; 
         break;
     }
     
     doc.text(value, rightDataX, y);
-    doc.setTextColor(60, 60, 60); // Réinitialiser la couleur
+    doc.setTextColor(...PDF_THEME.textBody); // Réinitialiser la couleur
   }
   
   // Dessiner une ligne horizontale de séparation
-  doc.setDrawColor(220, 220, 220);
+  doc.setDrawColor(...PDF_THEME.border);
   doc.setLineWidth(0.2);
   doc.line(25, startY + (3.5 * lineHeight), 185, startY + (3.5 * lineHeight));
   
@@ -186,7 +187,7 @@ const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
 const addLegalText = (doc: jsPDF, yPosition: number) => {
   doc.setFontSize(9);
   doc.setFont('helvetica', 'italic');
-  doc.setTextColor(100, 100, 100);
+  doc.setTextColor(...PDF_THEME.textSecondary);
   
   const centerX = doc.internal.pageSize.width / 2;
   

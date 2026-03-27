@@ -40,7 +40,7 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     docService.addSection('TOTAL À PAYER', [`${facture.montant} F CFA`]);
     
     // Add horizontal separator
-    doc.setDrawColor(220, 220, 220);
+    doc.setDrawColor(222, 226, 230);
     doc.setLineWidth(0.5);
     doc.line(15, 130, 195, 130);
     
@@ -69,7 +69,7 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
       angle: -45,
       fontSize: 60,
       opacity: 0.15,
-      color: '#888888'
+      color: '#ADB5BD'
     });
     
     console.log("Génération PDF terminée avec succès pour facture:", facture.id);
