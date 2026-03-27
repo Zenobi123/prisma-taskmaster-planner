@@ -83,8 +83,8 @@ export function EmployeePaieTable({ paies, title = "Fiches de paie", onDelete, o
                   <TableCell>
                     {getMonthName(paie.mois)} {paie.annee}
                   </TableCell>
-                  <TableCell>{formatMoney(paie.salaire_brut)} FCFA</TableCell>
-                  <TableCell>{formatMoney(paie.salaire_net)} FCFA</TableCell>
+                  <TableCell>{formatMoney(paie.salaire_brut)} F CFA</TableCell>
+                  <TableCell>{formatMoney(paie.salaire_net)} F CFA</TableCell>
                   <TableCell>{paie.mode_paiement}</TableCell>
                   <TableCell>{getStatutBadge(paie.statut)}</TableCell>
                   <TableCell className="text-right">

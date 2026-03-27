@@ -113,13 +113,13 @@ export function numberToWordsFr(amount: number): string {
 }
 
 /**
- * Convertit un montant en FCFA en toutes lettres
- * @param amount - Le montant en FCFA
- * @returns Ex: "Cinq cent mille francs CFA"
+ * Convertit un montant en F CFA en toutes lettres
+ * @param amount - Le montant en F CFA
+ * @returns Ex: "Cinq cent mille F CFA"
  */
 export function montantEnLettres(amount: number): string {
   const words = numberToWordsFr(amount);
   // Mettre la première lettre en majuscule
   const capitalized = words.charAt(0).toUpperCase() + words.slice(1);
-  return `${capitalized} francs CFA`;
+  return `${capitalized} F CFA`;
 }

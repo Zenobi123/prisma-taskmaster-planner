@@ -29,7 +29,7 @@ export function EmployerChargesCard({
           <TableHeader>
             <TableRow>
               <TableHead>Élément</TableHead>
-              <TableHead className="text-right">Montant (FCFA)</TableHead>
+              <TableHead className="text-right">Montant (F CFA)</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

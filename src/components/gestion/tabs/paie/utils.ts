@@ -1,6 +1,6 @@
 
 /**
- * Formatte un nombre en une chaîne de caractères représentant un montant en FCFA
+ * Formatte un nombre en une chaîne de caractères représentant un montant en F CFA
  * @param amount Le montant à formatter
  * @returns Le montant formatté
  */
@@ -9,12 +9,12 @@ export function formatMoney(amount: number): string {
 }
 
 /**
- * Formatte un montant en devise avec le symbole FCFA
+ * Formatte un montant en devise avec le symbole F CFA
  * @param amount Le montant à formatter
- * @returns La chaîne formatée avec le symbole FCFA
+ * @returns La chaîne formatée avec le symbole F CFA
  */
 export function formatCurrency(amount: number): string {
-  return `${formatMoney(amount)} FCFA`;
+  return `${formatMoney(amount)} F CFA`;
 }
 
 /**

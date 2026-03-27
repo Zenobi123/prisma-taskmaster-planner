@@ -17,8 +17,8 @@ export async function generateFinancialReport() {
     
     // Indicateurs financiers principaux
     const financialData = [
-      ['Total Facturé', `${stats.totalFactures.toLocaleString()} FCFA`],
-      ['Total Encaissé', `${stats.totalPaiements.toLocaleString()} FCFA`],
+      ['Total Facturé', `${stats.totalFactures.toLocaleString()} F CFA`],
+      ['Total Encaissé', `${stats.totalPaiements.toLocaleString()} F CFA`],
       ['Taux de Recouvrement', `${stats.tauxRecouvrement.toFixed(1)}%`],
       ['Factures Payées', stats.facuresPayees.toString()],
       ['Factures en Retard', stats.facturesEnRetard.toString()]

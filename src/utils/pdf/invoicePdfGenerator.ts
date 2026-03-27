@@ -37,7 +37,7 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     docService.addSection('CLIENT', clientInfoLines);
     
     // Add payment details section
-    docService.addSection('TOTAL À PAYER', [`${facture.montant} FCFA`]);
+    docService.addSection('TOTAL À PAYER', [`${facture.montant} F CFA`]);
     
     // Add horizontal separator
     doc.setDrawColor(220, 220, 220);
@@ -48,7 +48,7 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     const tableFinishY = generatePrestationsTable(doc, facture);
     
     // Add total section
-    docService.addSection('TOTAL', [`${facture.montant} FCFA`]);
+    docService.addSection('TOTAL', [`${facture.montant} F CFA`]);
     
     // Add payments section if available
     if (facture.paiements && facture.paiements.length > 0) {

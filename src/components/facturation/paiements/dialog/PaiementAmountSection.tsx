@@ -18,7 +18,7 @@ export const PaiementAmountSection = ({
     <div className="grid gap-1.5">
       <Label htmlFor="montant" className="text-xs font-medium flex items-center gap-1.5">
         <BanknoteIcon size={14} className="text-gray-500" />
-        Montant (FCFA)
+        Montant (F CFA)
       </Label>
       <div className="relative">
         <Input
@@ -29,7 +29,7 @@ export const PaiementAmountSection = ({
           placeholder="0"
         />
         <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-xs font-medium text-gray-500 bg-gray-50 border-l border-gray-300 rounded-r-md">
-          FCFA
+          F CFA
         </div>
       </div>
       {errors.montant && (

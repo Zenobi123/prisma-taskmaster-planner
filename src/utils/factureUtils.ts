@@ -3,11 +3,8 @@ import { Facture } from "@/types/facture";
 
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XOF',
-    minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(amount) + " F CFA";
 };
 
 export const formatDate = (date: string | Date): string => {

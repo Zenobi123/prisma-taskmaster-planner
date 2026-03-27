@@ -93,7 +93,7 @@ export const addPaymentsSection = (doc: jsPDF, facture: PDFFacture, startY: numb
     doc.text(paiement.reference || "-", leftMargin + colWidths[0] + colWidths[1] + 5, rowY + 7);
     
     // Fix type error by converting the formatted amount to a string
-    const amountText = `${formattedAmount} XAF`;
+    const amountText = `${formattedAmount} F CFA`;
     doc.text(amountText, leftMargin + colWidths[0] + colWidths[1] + colWidths[2] + 5, rowY + 7);
     
     rowY += 10;

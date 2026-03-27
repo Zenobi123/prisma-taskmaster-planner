@@ -41,7 +41,7 @@ const addPaymentDetailsBox = (doc: jsPDF, facture: PDFFacture) => {
   };
   
   doc.text(`Échéance: ${formatDateForDisplay(facture.echeance)}`, 130, 100);
-  doc.text(`Montant total: ${facture.montant.toLocaleString('fr-FR')} XAF`, 130, 107);
+  doc.text(`Montant total: ${facture.montant.toLocaleString('fr-FR')} F CFA`, 130, 107);
   
   // Display payment status
   let statusText = "";

@@ -21,7 +21,7 @@ export const ActionnairesTable: React.FC<ActionnairesTableProps> = ({
   };
 
   const formatAmount = (amount: number) => {
-    return amount.toLocaleString('fr-FR') + ' FCFA';
+    return amount.toLocaleString('fr-FR') + ' F CFA';
   };
 
   return (

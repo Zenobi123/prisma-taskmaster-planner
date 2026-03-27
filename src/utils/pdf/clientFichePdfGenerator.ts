@@ -167,7 +167,7 @@ export const generateClientFichePDF = (client: Client) => {
     currentY += 3;
 
     const immoInfo: string[][] = [];
-    const formatMontant = (m: number) => new Intl.NumberFormat('fr-FR').format(m) + ' FCFA';
+    const formatMontant = (m: number) => new Intl.NumberFormat('fr-FR').format(m) + ' F CFA';
     
     immoInfo.push(['Type', client.situationimmobiliere.type === 'proprietaire' ? 'Propriétaire' : 'Locataire']);
     if (client.situationimmobiliere.type === 'proprietaire' && client.situationimmobiliere.valeur) {

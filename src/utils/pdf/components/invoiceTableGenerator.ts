@@ -4,7 +4,7 @@ import autoTable from 'jspdf-autotable';
 import { PDFFacture } from '../types';
 
 export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): number => {
-  const tableColumn = ["Description", "Quantité", "Montant (XAF)", "Taux (%)", "Total (XAF)"];
+  const tableColumn = ["Description", "Quantité", "Montant (F CFA)", "Taux (%)", "Total (F CFA)"];
   const tableRows = facture.prestations.map(prestation => {
     const quantite = prestation.quantite || 1;
     const taux = prestation.taux || 0;

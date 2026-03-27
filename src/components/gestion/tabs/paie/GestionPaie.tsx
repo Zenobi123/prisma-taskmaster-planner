@@ -277,11 +277,11 @@ export function GestionPaie({ client }: GestionPaieProps) {
                         <TableRow key={item.id}>
                           <TableCell>{employee.lastname} {employee.firstname}</TableCell>
                           <TableCell>{employee.department}</TableCell>
-                          <TableCell>{formatMoney(item.grossSalary)} FCFA</TableCell>
-                          <TableCell>{formatMoney(item.cnpsEmployee)} FCFA</TableCell>
-                          <TableCell>{formatMoney(item.irpp + item.cac)} FCFA</TableCell>
-                          <TableCell>{formatMoney(autresRetenues)} FCFA</TableCell>
-                          <TableCell>{formatMoney(item.netSalary)} FCFA</TableCell>
+                          <TableCell>{formatMoney(item.grossSalary)} F CFA</TableCell>
+                          <TableCell>{formatMoney(item.cnpsEmployee)} F CFA</TableCell>
+                          <TableCell>{formatMoney(item.irpp + item.cac)} F CFA</TableCell>
+                          <TableCell>{formatMoney(autresRetenues)} F CFA</TableCell>
+                          <TableCell>{formatMoney(item.netSalary)} F CFA</TableCell>
                           <TableCell className="text-right">
                             <Dialog>
                               <DialogTrigger asChild>
@@ -329,11 +329,11 @@ export function GestionPaie({ client }: GestionPaieProps) {
                   <tfoot className="bg-primary text-white">
                     <tr>
                       <th colSpan={2} className="p-2">TOTAL</th>
-                      <th className="p-2">{formatMoney(totals.totalGross)} FCFA</th>
-                      <th className="p-2">{formatMoney(totals.totalCNPS)} FCFA</th>
-                      <th className="p-2">{formatMoney(totals.totalIRPP + totals.totalCAC)} FCFA</th>
-                      <th className="p-2">{formatMoney(totals.totalTDL + totals.totalRAV + totals.totalCFC)} FCFA</th>
-                      <th className="p-2">{formatMoney(totals.totalNet)} FCFA</th>
+                      <th className="p-2">{formatMoney(totals.totalGross)} F CFA</th>
+                      <th className="p-2">{formatMoney(totals.totalCNPS)} F CFA</th>
+                      <th className="p-2">{formatMoney(totals.totalIRPP + totals.totalCAC)} F CFA</th>
+                      <th className="p-2">{formatMoney(totals.totalTDL + totals.totalRAV + totals.totalCFC)} F CFA</th>
+                      <th className="p-2">{formatMoney(totals.totalNet)} F CFA</th>
                       <th></th>
                     </tr>
                   </tfoot>
@@ -418,7 +418,7 @@ export function GestionPaie({ client }: GestionPaieProps) {
                       <TableRow key={item.id}>
                         <TableCell>{employee.lastname} {employee.firstname}</TableCell>
                         <TableCell>{getMonthName(item.month)} {item.year}</TableCell>
-                        <TableCell>{formatMoney(item.netSalary)} FCFA</TableCell>
+                        <TableCell>{formatMoney(item.netSalary)} F CFA</TableCell>
                         <TableCell className="text-right">
                           <Button variant="outline" size="sm" className="mr-1">
                             <Printer className="h-4 w-4" />
@@ -488,19 +488,19 @@ export function GestionPaie({ client }: GestionPaieProps) {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                   <div className="bg-gray-50 p-4 rounded-lg text-center">
                     <div className="text-sm font-medium text-gray-500 mb-2">Total Brut</div>
-                    <div className="text-lg font-bold">{formatMoney(totals.totalGross)} FCFA</div>
+                    <div className="text-lg font-bold">{formatMoney(totals.totalGross)} F CFA</div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg text-center">
                     <div className="text-sm font-medium text-gray-500 mb-2">Total CNPS</div>
-                    <div className="text-lg font-bold">{formatMoney(totals.totalCNPS)} FCFA</div>
+                    <div className="text-lg font-bold">{formatMoney(totals.totalCNPS)} F CFA</div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg text-center">
                     <div className="text-sm font-medium text-gray-500 mb-2">Total IRPP+CAC</div>
-                    <div className="text-lg font-bold">{formatMoney(totals.totalIRPP + totals.totalCAC)} FCFA</div>
+                    <div className="text-lg font-bold">{formatMoney(totals.totalIRPP + totals.totalCAC)} F CFA</div>
                   </div>
                   <div className="bg-gray-50 p-4 rounded-lg text-center">
                     <div className="text-sm font-medium text-gray-500 mb-2">Total Net</div>
-                    <div className="text-lg font-bold">{formatMoney(totals.totalNet)} FCFA</div>
+                    <div className="text-lg font-bold">{formatMoney(totals.totalNet)} F CFA</div>
                   </div>
                 </div>
                 
@@ -560,15 +560,15 @@ export function GestionPaie({ client }: GestionPaieProps) {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-gray-50 p-4 rounded-lg text-center">
                       <div className="text-sm font-medium text-gray-500 mb-2">CNPS Employeur</div>
-                      <div className="text-lg font-bold">{formatMoney(employerCharges.totalCNPSEmployer)} FCFA</div>
+                      <div className="text-lg font-bold">{formatMoney(employerCharges.totalCNPSEmployer)} F CFA</div>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg text-center">
                       <div className="text-sm font-medium text-gray-500 mb-2">FNE (1%)</div>
-                      <div className="text-lg font-bold">{formatMoney(employerCharges.totalFNE)} FCFA</div>
+                      <div className="text-lg font-bold">{formatMoney(employerCharges.totalFNE)} F CFA</div>
                     </div>
                     <div className="bg-gray-50 p-4 rounded-lg text-center">
                       <div className="text-sm font-medium text-gray-500 mb-2">CFC Employeur (1.5%)</div>
-                      <div className="text-lg font-bold">{formatMoney(employerCharges.totalCFCEmployer)} FCFA</div>
+                      <div className="text-lg font-bold">{formatMoney(employerCharges.totalCFCEmployer)} F CFA</div>
                     </div>
                   </div>
                 </div>
@@ -642,8 +642,8 @@ export function GestionPaie({ client }: GestionPaieProps) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Salaire Brut Mensuel (FCFA)</TableHead>
-                          <TableHead>Montant RAV (FCFA)</TableHead>
+                          <TableHead>Salaire Brut Mensuel (F CFA)</TableHead>
+                          <TableHead>Montant RAV (F CFA)</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -664,9 +664,9 @@ export function GestionPaie({ client }: GestionPaieProps) {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead>Salaire Brut Mensuel (FCFA)</TableHead>
-                          <TableHead>Montant TDL Mensuel (FCFA)</TableHead>
-                          <TableHead>Montant TDL Annuel (FCFA)</TableHead>
+                          <TableHead>Salaire Brut Mensuel (F CFA)</TableHead>
+                          <TableHead>Montant TDL Mensuel (F CFA)</TableHead>
+                          <TableHead>Montant TDL Annuel (F CFA)</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>

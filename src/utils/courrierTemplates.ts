@@ -42,7 +42,7 @@ L'équipe de gestion`
 
 Dans le cadre de notre mission d'accompagnement fiscal, nous vous rappelons que l'Impôt Général Synthétique (IGS) pour l'exercice {{annee}} est exigible.
 
-Sur la base de votre chiffre d'affaires déclaré, votre IGS est estimé à {{montant_igs}} FCFA.
+Sur la base de votre chiffre d'affaires déclaré, votre IGS est estimé à {{montant_igs}} F CFA.
 
 Nous vous invitons à procéder au règlement auprès de {{centre}} avant la date limite afin d'éviter toute pénalité de retard.
 
@@ -65,7 +65,7 @@ Régime fiscal : {{regime}}
 Centre de rattachement : {{centre}}
 NIU : {{niu}}
 
-Votre montant de Patente estimé : {{montant_patente}} FCFA
+Votre montant de Patente estimé : {{montant_patente}} F CFA
 
 Merci de procéder au règlement dans les délais légaux. Notre cabinet se tient disponible pour vous assister.
 

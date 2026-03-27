@@ -124,7 +124,7 @@ export const CapitalSocialFormCreation: React.FC<CapitalSocialFormCreationProps>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="montant_capital">Montant du capital (FCFA)</Label>
+              <Label htmlFor="montant_capital">Montant du capital (F CFA)</Label>
               <Input
                 id="montant_capital"
                 type="number"
@@ -152,7 +152,7 @@ export const CapitalSocialFormCreation: React.FC<CapitalSocialFormCreationProps>
 
             <div>
               <Label htmlFor="valeur_action_part">
-                Valeur par {capitalData.type_capital === 'actions' ? 'action' : 'part'} (FCFA)
+                Valeur par {capitalData.type_capital === 'actions' ? 'action' : 'part'} (F CFA)
               </Label>
               <Input
                 id="valeur_action_part"
@@ -293,7 +293,7 @@ export const CapitalSocialFormCreation: React.FC<CapitalSocialFormCreationProps>
                   />
                 </div>
                 <div>
-                  <Label>Valeur du capital (FCFA)</Label>
+                  <Label>Valeur du capital (F CFA)</Label>
                   <Input
                     type="number"
                     value={actionnaireForm.valeur_capital}

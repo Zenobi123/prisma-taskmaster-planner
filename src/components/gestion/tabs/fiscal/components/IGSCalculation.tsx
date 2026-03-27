@@ -18,11 +18,11 @@ export const IGSCalculation = ({
       <div className="space-y-1">
         <div className="flex justify-between">
           <span>Montant annuel:</span>
-          <span className="font-medium">{amount.toLocaleString()} FCFA</span>
+          <span className="font-medium">{amount.toLocaleString()} F CFA</span>
         </div>
         <div className="flex justify-between">
           <span>Paiement trimestriel (25%):</span>
-          <span className="font-medium">{quarterlyAmount.toLocaleString()} FCFA</span>
+          <span className="font-medium">{quarterlyAmount.toLocaleString()} F CFA</span>
         </div>
       </div>
     </div>

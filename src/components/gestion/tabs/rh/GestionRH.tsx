@@ -252,7 +252,7 @@ export function GestionRH({ client }: GestionRHProps) {
   };
 
   const formatSalary = (amount: number) => {
-    return new Intl.NumberFormat("fr-FR").format(amount) + " FCFA";
+    return new Intl.NumberFormat("fr-FR").format(amount) + " F CFA";
   };
 
   // Employee row rendering (mobile)
@@ -659,7 +659,7 @@ export function GestionRH({ client }: GestionRHProps) {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="salaire_base">Salaire de base (FCFA) *</Label>
+                <Label htmlFor="salaire_base">Salaire de base (F CFA) *</Label>
                 <Input
                   id="salaire_base"
                   type="number"
