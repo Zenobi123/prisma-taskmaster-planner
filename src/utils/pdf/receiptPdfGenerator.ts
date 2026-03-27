@@ -3,6 +3,7 @@ import jsPDF from 'jspdf';
 import { Paiement } from '@/types/paiement';
 import { SimplifiedClient } from './types';
 import { DocumentService } from './services/DocumentService';
+import { montantEnLettres } from '@/utils/numberToWords';
 
 /**
  * Fonction pour générer un PDF de reçu de paiement de haute qualité
@@ -29,16 +30,33 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
     // Ajouter la section de détails du paiement
     addReceiptPaymentDetails(doc, paiement);
     
-    // Ajouter la section du montant
-    docService.addSection('MONTANT PAYÉ', [`${paiement.montant} FCFA`]);
-    
+    // Ajouter la section du montant avec montant en lettres
+    const montantFormate = new Intl.NumberFormat('fr-FR').format(paiement.montant);
+    const montantLettre = montantEnLettres(paiement.montant);
+    docService.addSection('MONTANT PAYÉ', [
+      `${montantFormate} FCFA`,
+      `En lettres: ${montantLettre}`
+    ]);
+
+    // Ajouter la ventilation impôts / honoraires si disponible
+    if (paiement.montant_impots || paiement.montant_honoraires) {
+      const ventilation: string[] = [];
+      if (paiement.montant_impots) {
+        ventilation.push(`Impôts & taxes: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_impots)} FCFA`);
+      }
+      if (paiement.montant_honoraires) {
+        ventilation.push(`Honoraires: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_honoraires)} FCFA`);
+      }
+      docService.addSection('VENTILATION', ventilation);
+    }
+
     // Ajouter les notes si disponibles
     if (paiement.notes) {
       docService.addSection('NOTES', [paiement.notes]);
     }
-    
+
     // Ajouter le texte légal
-    addLegalText(doc, 200);
+    addLegalText(doc, 220);
     
     // Ajouter le pied de page standard
     docService.addStandardFooter();
