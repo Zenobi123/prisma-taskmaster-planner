@@ -4,10 +4,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PageLayout from "@/components/layout/PageLayout";
 import Factures from "@/components/facturation/Factures";
 import Devis from "@/components/facturation/Devis";
+import Propositions from "@/components/facturation/Propositions";
 import Paiements from "@/components/facturation/Paiements";
 import SituationClients from "@/components/facturation/SituationClients";
 import AnalyseFacturesPaiements from "@/components/facturation/analyse/AnalyseFacturesPaiements";
-import { ArrowLeft, FileText, ClipboardList, CreditCard, Users, BarChart } from "lucide-react";
+import { ArrowLeft, FileText, ClipboardList, Send, CreditCard, Users, BarChart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthorization } from "@/hooks/useAuthorization";
@@ -68,6 +69,12 @@ const Facturation = () => {
                 <ClipboardList className="h-4 w-4" /> Devis
               </TabsTrigger>
               <TabsTrigger
+                value="propositions"
+                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all flex items-center gap-2"
+              >
+                <Send className="h-4 w-4" /> Propositions
+              </TabsTrigger>
+              <TabsTrigger
                 value="paiements" 
                 className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all flex items-center gap-2"
               >
@@ -94,6 +101,10 @@ const Facturation = () => {
 
           <TabsContent value="devis" className="mt-6 animate-fade-in">
             <Devis />
+          </TabsContent>
+
+          <TabsContent value="propositions" className="mt-6 animate-fade-in">
+            <Propositions />
           </TabsContent>
 
           <TabsContent value="paiements" className="mt-6 animate-fade-in">
