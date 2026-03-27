@@ -56,9 +56,9 @@ PRISMA GESTION`;
 
 export const getSmsTemplate = (invoiceDetails: InvoiceDetails | null): string => {
   if (!invoiceDetails) {
-    return `Cher(e) [Nom du client], votre facture N°XXXX s'élève à [Montant total] FCFA.  
-✔ Solde réglé : [Montant payé] FCFA  
-✔ Solde restant : [Montant restant] FCFA  
+    return `Cher(e) [Nom du client], votre facture N°XXXX s'élève à [Montant total] F CFA.  
+✔ Solde réglé : [Montant payé] F CFA  
+✔ Solde restant : [Montant restant] F CFA  
 
 Vous pouvez payer via :  
 ✔ Orange Money : [Numéro]  

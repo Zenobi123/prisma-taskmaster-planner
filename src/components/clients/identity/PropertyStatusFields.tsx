@@ -39,7 +39,7 @@ export function PropertyStatusFields({ situationimmobiliere, onChange }: Propert
             type="number"
             value={situationimmobiliere.valeur || ""}
             onChange={(e) => onChange("situationimmobiliere.valeur", e.target.value)}
-            placeholder="Valeur en FCFA"
+            placeholder="Valeur en F CFA"
           />
         </div>
       ) : (
@@ -49,7 +49,7 @@ export function PropertyStatusFields({ situationimmobiliere, onChange }: Propert
             type="number"
             value={situationimmobiliere.loyer || ""}
             onChange={(e) => onChange("situationimmobiliere.loyer", e.target.value)}
-            placeholder="Montant en FCFA"
+            placeholder="Montant en F CFA"
           />
         </div>
       )}

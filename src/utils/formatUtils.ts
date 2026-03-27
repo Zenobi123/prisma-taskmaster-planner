@@ -2,7 +2,7 @@
 export const formatMontant = (montant: number): string => {
   return new Intl.NumberFormat('fr-FR', {
     maximumFractionDigits: 0
-  }).format(Math.round(montant)) + " XAF";
+  }).format(Math.round(montant)) + " F CFA";
 };
 
 // Format a date string or Date object to a localized date string
@@ -26,12 +26,9 @@ export const formatNumberWithSeparator = (value: number): string => {
   return new Intl.NumberFormat('fr-FR').format(value);
 };
 
-// Format a number as currency (XAF)
+// Format a number as currency (F CFA)
 export const formatCurrency = (amount: number): string => {
   return new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'XAF',
-    currencyDisplay: 'symbol',
     maximumFractionDigits: 0
-  }).format(amount);
+  }).format(amount) + " F CFA";
 };

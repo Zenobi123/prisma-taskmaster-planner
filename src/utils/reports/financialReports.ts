@@ -21,8 +21,8 @@ export const generateChiffresAffairesReport = async () => {
     doc.text('Résumé Financier', 14, 45);
     
     const summaryData = [
-      ['Total Factures', `${stats.totalFactures.toLocaleString()} FCFA`],
-      ['Total Paiements', `${stats.totalPaiements.toLocaleString()} FCFA`],
+      ['Total Factures', `${stats.totalFactures.toLocaleString()} F CFA`],
+      ['Total Paiements', `${stats.totalPaiements.toLocaleString()} F CFA`],
       ['Taux de Recouvrement', `${stats.tauxRecouvrement.toFixed(1)}%`],
       ['Factures Payées', stats.facuresPayees.toString()],
       ['Factures en Retard', stats.facturesEnRetard.toString()]
@@ -52,7 +52,7 @@ export const generateChiffresAffairesReport = async () => {
     const monthlyData = Object.entries(facturesByMonth).map(([month, data]: [string, any]) => [
       month,
       data.count.toString(),
-      `${data.amount.toLocaleString()} FCFA`
+      `${data.amount.toLocaleString()} F CFA`
     ]);
     
     (doc as any).autoTable({
@@ -84,7 +84,7 @@ export const generateFacturationReport = async () => {
       facture.id,
       facture.clients?.nom || facture.clients?.raisonsociale || 'Client inconnu',
       new Date(facture.date).toLocaleDateString(),
-      `${(facture.montant || 0).toLocaleString()} FCFA`,
+      `${(facture.montant || 0).toLocaleString()} F CFA`,
       facture.status_paiement || 'Non défini'
     ]);
     
@@ -126,7 +126,7 @@ export const generateCreancesReport = async () => {
         facture.clients?.nom || facture.clients?.raisonsociale || 'Client inconnu',
         facture.id,
         new Date(facture.echeance).toLocaleDateString(),
-        `${montantRestant.toLocaleString()} FCFA`,
+        `${montantRestant.toLocaleString()} F CFA`,
         joursRetard > 0 ? `${joursRetard} jours` : 'Non échu'
       ];
     });

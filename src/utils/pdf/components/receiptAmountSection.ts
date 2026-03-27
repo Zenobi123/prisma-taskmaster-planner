@@ -15,9 +15,9 @@ export const addReceiptAmountSection = (doc: jsPDF, paiement: any, startY: numbe
   doc.setFontSize(16);
   doc.setTextColor(50, 98, 85);
   
-  // Format the amount with thousand separators and XAF currency
+  // Format the amount with thousand separators and F CFA currency
   const formattedAmount = new Intl.NumberFormat('fr-FR').format(paiement.montant);
-  doc.text(`${formattedAmount} XAF`, 110, startY + 25);
+  doc.text(`${formattedAmount} F CFA`, 110, startY + 25);
   
   return startY + 40; // Return the Y position for the next section
 };

@@ -51,7 +51,7 @@ export const CapitalSocialForm: React.FC<CapitalSocialFormProps> = ({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="montant_capital">Montant du capital (FCFA)</Label>
+                <Label htmlFor="montant_capital">Montant du capital (F CFA)</Label>
                 <Input
                   id="montant_capital"
                   type="number"
@@ -79,7 +79,7 @@ export const CapitalSocialForm: React.FC<CapitalSocialFormProps> = ({
 
               <div>
                 <Label htmlFor="valeur_action_part">
-                  Valeur par {formData.type_capital === 'actions' ? 'action' : 'part'} (FCFA)
+                  Valeur par {formData.type_capital === 'actions' ? 'action' : 'part'} (F CFA)
                 </Label>
                 <Input
                   id="valeur_action_part"

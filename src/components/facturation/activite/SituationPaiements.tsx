@@ -26,11 +26,11 @@ const SituationPaiements = ({ clientsRows, recusRows, totalPaye, totalReste, tau
     <div className="grid grid-cols-3 gap-3">
       <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-center">
         <p className="text-xs text-emerald-600 font-medium">Total Payé</p>
-        <p className="text-base font-bold text-emerald-800 mt-0.5">{fmt(totalPaye)} FCFA</p>
+        <p className="text-base font-bold text-emerald-800 mt-0.5">{fmt(totalPaye)} F CFA</p>
       </div>
       <div className="bg-orange-50 border border-orange-100 rounded-lg p-3 text-center">
         <p className="text-xs text-orange-600 font-medium">Total Impayé</p>
-        <p className="text-base font-bold text-orange-800 mt-0.5">{fmt(totalReste)} FCFA</p>
+        <p className="text-base font-bold text-orange-800 mt-0.5">{fmt(totalReste)} F CFA</p>
       </div>
       <div className="bg-indigo-50 border border-indigo-100 rounded-lg p-3 text-center">
         <p className="text-xs text-indigo-600 font-medium">Taux Recouvrement</p>

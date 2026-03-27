@@ -139,7 +139,7 @@ export const PaiementPrestationSection = ({
                   </Label>
                   <div className="text-xs text-gray-500 mt-1 flex items-center">
                     <span className="font-medium">Montant original:</span>
-                    <span className="ml-1">{Number(prestation.montant).toLocaleString()} FCFA</span>
+                    <span className="ml-1">{Number(prestation.montant).toLocaleString()} F CFA</span>
                   </div>
                   
                   {isChecked && (
@@ -157,7 +157,7 @@ export const PaiementPrestationSection = ({
                             className="h-8 pr-14 text-sm border-gray-300 focus:border-primary focus:ring-1 focus:ring-primary/20"
                           />
                           <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none text-xs font-medium text-gray-500 bg-gray-50 border-l border-gray-300 rounded-r-md">
-                            FCFA
+                            F CFA
                           </div>
                         </div>
                       </div>

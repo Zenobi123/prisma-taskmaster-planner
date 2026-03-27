@@ -152,7 +152,7 @@ export const ActionnaireDialog: React.FC<ActionnaireDialogProps> = ({
             </div>
 
             <div>
-              <Label htmlFor="valeur_capital">Valeur du capital (FCFA)</Label>
+              <Label htmlFor="valeur_capital">Valeur du capital (F CFA)</Label>
               <Input
                 id="valeur_capital"
                 type="number"

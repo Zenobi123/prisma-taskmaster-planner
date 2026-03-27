@@ -20,7 +20,7 @@ export const IgsCaCgaInputs: React.FC<IgsCaCgaInputsProps> = ({
   return (
     <>
       <div className="mb-4">
-        <label htmlFor="caValueInput" className="block text-sm mb-2">Chiffre d'affaires annuel HT (FCFA)</label>
+        <label htmlFor="caValueInput" className="block text-sm mb-2">Chiffre d'affaires annuel HT (F CFA)</label>
         <Input
           id="caValueInput"
           type="text"

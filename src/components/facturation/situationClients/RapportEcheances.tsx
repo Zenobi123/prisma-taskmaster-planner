@@ -145,7 +145,7 @@ const RapportEcheances = () => {
                     <td className="px-3 py-2 font-medium text-gray-800">{o.client_nom}</td>
                     <td className="px-3 py-2 text-gray-700">{o.designation}</td>
                     <td className="px-3 py-2 text-right font-semibold text-red-700">
-                      {fmt(o.montant_reste)} FCFA
+                      {fmt(o.montant_reste)} F CFA
                     </td>
                     <td className="px-3 py-2 text-center text-gray-500">{o.echeance.label}</td>
                     <td className="px-3 py-2 text-center">

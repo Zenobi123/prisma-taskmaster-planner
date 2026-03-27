@@ -80,7 +80,7 @@ export const PaiementFactureSection = ({
             {factures.length > 0 ? (
               factures.map((facture) => (
                 <SelectItem key={facture.id} value={facture.id} className="text-sm">
-                  {facture.id} - {(facture.montant - (facture.montant_paye || 0)).toLocaleString()} FCFA
+                  {facture.id} - {(facture.montant - (facture.montant_paye || 0)).toLocaleString()} F CFA
                 </SelectItem>
               ))
             ) : (

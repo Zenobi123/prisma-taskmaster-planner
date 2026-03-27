@@ -34,7 +34,7 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
     const montantFormate = new Intl.NumberFormat('fr-FR').format(paiement.montant);
     const montantLettre = montantEnLettres(paiement.montant);
     docService.addSection('MONTANT PAYÉ', [
-      `${montantFormate} FCFA`,
+      `${montantFormate} F CFA`,
       `En lettres: ${montantLettre}`
     ]);
 
@@ -42,10 +42,10 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
     if (paiement.montant_impots || paiement.montant_honoraires) {
       const ventilation: string[] = [];
       if (paiement.montant_impots) {
-        ventilation.push(`Impôts & taxes: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_impots)} FCFA`);
+        ventilation.push(`Impôts & taxes: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_impots)} F CFA`);
       }
       if (paiement.montant_honoraires) {
-        ventilation.push(`Honoraires: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_honoraires)} FCFA`);
+        ventilation.push(`Honoraires: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_honoraires)} F CFA`);
       }
       docService.addSection('VENTILATION', ventilation);
     }

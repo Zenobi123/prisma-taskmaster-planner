@@ -63,7 +63,7 @@ export class DocumentService implements DocumentHeaderFooterService {
     // Add footer text
     this.doc.setFontSize(8);
     this.doc.setFont("helvetica", "normal");
-    this.doc.text("Cabinet Comptable Example - SARL au capital de 1 000 000 FCFA", pageWidth / 2, pageHeight - 10, { align: 'center' });
+    this.doc.text("Cabinet Comptable Example - SARL au capital de 1 000 000 F CFA", pageWidth / 2, pageHeight - 10, { align: 'center' });
     this.doc.text("RCCM: AB-XYZ-12-2023 | NIU: P123456789", pageWidth / 2, pageHeight - 6, { align: 'center' });
   }
 

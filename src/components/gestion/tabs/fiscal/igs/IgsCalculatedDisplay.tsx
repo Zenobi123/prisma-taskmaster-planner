@@ -48,7 +48,7 @@ export const IgsCalculatedDisplay: React.FC<IgsCalculatedDisplayProps> = memo(({
         <span className={`mt-2 md:mt-0 px-4 py-1 rounded font-bold text-white ${displayValues.outOfRange ? 'bg-red-500' : 'bg-primary'}`}>
           {displayValues.outOfRange
             ? 'Montant : régime du réel'
-            : `Montant : ${displayValues.montantAnnuel.toLocaleString('fr-FR')} FCFA`}
+            : `Montant : ${displayValues.montantAnnuel.toLocaleString('fr-FR')} F CFA`}
         </span>
       </div>
     </div>

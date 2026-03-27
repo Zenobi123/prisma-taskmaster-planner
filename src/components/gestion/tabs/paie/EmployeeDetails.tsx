@@ -72,7 +72,7 @@ const EmployeeDetails: React.FC<EmployeeDetailsProps> = ({ employee }) => {
           </div>
           <div>
             <p className="text-sm font-medium">Salaire de base:</p>
-            <p>{employee.salaire_base} FCFA</p>
+            <p>{employee.salaire_base} F CFA</p>
           </div>
           <div>
             <p className="text-sm font-medium">Numéro CNPS:</p>

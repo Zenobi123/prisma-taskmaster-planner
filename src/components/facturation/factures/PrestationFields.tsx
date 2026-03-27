@@ -88,7 +88,7 @@ const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFields
             </div>
             <div className="col-span-2">
               <div className="bg-gray-100 rounded p-1 text-right text-xs">
-                {calculateTotal(prestation).toLocaleString('fr-FR')} XAF
+                {calculateTotal(prestation).toLocaleString('fr-FR')} F CFA
               </div>
             </div>
             <div className="col-span-1 flex items-center justify-center">

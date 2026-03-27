@@ -29,7 +29,7 @@ export class PayrollCalculator {
   public static CHARGES_FISCALES = {
     // IRPP
     abattementForfaitaire: 30, // 30% pour frais professionnels
-    abattementAnnuel: 500000, // 500 000 FCFA par an
+    abattementAnnuel: 500000, // 500 000 F CFA par an
     seuilImposition: 62000, // Pas d'IRPP en-dessous
     tranches: [
       { min: 0, max: 2000000, taux: 10 }, // Annuel

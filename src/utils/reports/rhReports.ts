@@ -17,9 +17,9 @@ export const generateMassSalarialeReport = async () => {
     
     // Résumé global
     const summaryData = [
-      ['Total Salaire Brut', `${stats.totalSalaireBrut.toLocaleString()} FCFA`],
-      ['Total Salaire Net', `${stats.totalSalaireNet.toLocaleString()} FCFA`],
-      ['Total Retenues', `${stats.totalRetenues.toLocaleString()} FCFA`],
+      ['Total Salaire Brut', `${stats.totalSalaireBrut.toLocaleString()} F CFA`],
+      ['Total Salaire Net', `${stats.totalSalaireNet.toLocaleString()} F CFA`],
+      ['Total Retenues', `${stats.totalRetenues.toLocaleString()} F CFA`],
       ['Nombre de Bulletins', stats.nombreBulletins.toString()]
     ];
     
@@ -60,8 +60,8 @@ export const generateMassSalarialeReport = async () => {
     const clientsData = Object.entries(masseSalarialeParClient).map(([client, data]: [string, any]) => [
       client,
       data.nombreEmployes.toString(),
-      `${data.totalSalaireBrut.toLocaleString()} FCFA`,
-      `${data.totalSalaireNet.toLocaleString()} FCFA`
+      `${data.totalSalaireBrut.toLocaleString()} F CFA`,
+      `${data.totalSalaireNet.toLocaleString()} F CFA`
     ]);
     
     (doc as any).autoTable({

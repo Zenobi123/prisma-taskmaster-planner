@@ -57,7 +57,7 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
   };
 
   const formatMontant = (montant: number) => {
-    return new Intl.NumberFormat('fr-FR', { style: 'decimal' }).format(montant) + ' FCFA';
+    return new Intl.NumberFormat('fr-FR', { style: 'decimal' }).format(montant) + ' F CFA';
   };
 
   const formatDate = (date: string) => {

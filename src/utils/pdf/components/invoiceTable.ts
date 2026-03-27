@@ -5,7 +5,7 @@ import { PDFFacture, Prestation } from '../types';
 
 export const addPrestationsTable = (doc: jsPDF, facture: PDFFacture): number => {
   // Prepare table data
-  const tableColumn = ["Description", "Quantité", "Montant (XAF)", "Taux (%)", "Total (XAF)"];
+  const tableColumn = ["Description", "Quantité", "Montant (F CFA)", "Taux (%)", "Total (F CFA)"];
   const tableRows: string[][] = [];
   
   facture.prestations.forEach(prestation => {
@@ -71,7 +71,7 @@ export const addTotalSection = (doc: jsPDF, facture: PDFFacture, finalY: number)
   doc.text("TOTAL:", 140, finalY + 20);
   
   doc.setFontSize(12);
-  doc.text(`${facture.montant.toLocaleString('fr-FR')} XAF`, 165, finalY + 20);
+  doc.text(`${facture.montant.toLocaleString('fr-FR')} F CFA`, 165, finalY + 20);
   
   return finalY + 30; // Return the new Y position
 };

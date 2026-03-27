@@ -55,7 +55,7 @@ export async function generateActivityReport() {
         activite,
         nombre.toString(),
         total > 0 ? `${((montant / total) * 100).toFixed(1)}%` : '0.0%',
-        `${montant.toLocaleString()} FCFA`
+        `${montant.toLocaleString()} F CFA`
       ];
     });
     
