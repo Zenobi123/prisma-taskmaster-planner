@@ -2,6 +2,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { Client } from '@/types/client';
+import { PDF_THEME } from './pdfTheme';
 
 const getFormeJuridiqueLabel = (forme: string) => {
   const map: Record<string, string> = {
@@ -28,26 +29,26 @@ const getRegimeFiscalLabel = (regime: string) => {
 export const generateClientFichePDF = (client: Client) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
-  const clientName = client.type === 'morale' 
-    ? (client.raisonsociale || client.nom || 'Client') 
+  const clientName = client.type === 'morale'
+    ? (client.raisonsociale || client.nom || 'Client')
     : (client.nom || 'Client');
 
-  // Header bar
-  doc.setFillColor(41, 128, 185);
+  // Header bar — vert sauge primary
+  doc.setFillColor(...PDF_THEME.primary);
   doc.rect(0, 0, pageWidth, 35, 'F');
-  
+
   doc.setFontSize(20);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(255, 255, 255);
+  doc.setTextColor(...PDF_THEME.textWhite);
   doc.text('FICHE CLIENT', pageWidth / 2, 15, { align: 'center' });
-  
+
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
   doc.text(clientName, pageWidth / 2, 25, { align: 'center' });
 
   // Date d'édition
   doc.setFontSize(8);
-  doc.setTextColor(200, 220, 240);
+  doc.setTextColor(...PDF_THEME.primaryLight);
   doc.text(`Éditée le ${new Date().toLocaleDateString('fr-FR')}`, pageWidth / 2, 32, { align: 'center' });
 
   let currentY = 45;
@@ -55,12 +56,12 @@ export const generateClientFichePDF = (client: Client) => {
   // === Section 1: Informations Générales ===
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(41, 128, 185);
+  doc.setTextColor(...PDF_THEME.primary);
   doc.text('INFORMATIONS GÉNÉRALES', 14, currentY);
   currentY += 3;
 
   const generalInfo: string[][] = [];
-  
+
   generalInfo.push(['Type de client', client.type === 'physique' ? 'Personne Physique' : 'Personne Morale']);
   generalInfo.push(['Statut', client.statut === 'actif' ? 'Actif' : client.statut === 'inactif' ? 'Inactif' : 'Archivé']);
 
@@ -92,10 +93,10 @@ export const generateClientFichePDF = (client: Client) => {
     theme: 'striped',
     styles: { fontSize: 9, cellPadding: 3 },
     columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: 55, textColor: [60, 60, 60] },
+      0: { fontStyle: 'bold', cellWidth: 55, textColor: PDF_THEME.textBody },
       1: { cellWidth: 120 }
     },
-    alternateRowStyles: { fillColor: [240, 248, 255] },
+    alternateRowStyles: { fillColor: PDF_THEME.bgPrimary },
     margin: { left: 14, right: 14 },
   });
 
@@ -104,7 +105,7 @@ export const generateClientFichePDF = (client: Client) => {
   // === Section 2: Adresse ===
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(41, 128, 185);
+  doc.setTextColor(...PDF_THEME.primary);
   doc.text('ADRESSE', 14, currentY);
   currentY += 3;
 
@@ -121,10 +122,10 @@ export const generateClientFichePDF = (client: Client) => {
     theme: 'striped',
     styles: { fontSize: 9, cellPadding: 3 },
     columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: 55, textColor: [60, 60, 60] },
+      0: { fontStyle: 'bold', cellWidth: 55, textColor: PDF_THEME.textBody },
       1: { cellWidth: 120 }
     },
-    alternateRowStyles: { fillColor: [240, 255, 240] },
+    alternateRowStyles: { fillColor: PDF_THEME.bgPrimary },
     margin: { left: 14, right: 14 },
   });
 
@@ -133,7 +134,7 @@ export const generateClientFichePDF = (client: Client) => {
   // === Section 3: Contact ===
   doc.setFontSize(13);
   doc.setFont('helvetica', 'bold');
-  doc.setTextColor(41, 128, 185);
+  doc.setTextColor(...PDF_THEME.primary);
   doc.text('CONTACT', 14, currentY);
   currentY += 3;
 
@@ -149,10 +150,10 @@ export const generateClientFichePDF = (client: Client) => {
     theme: 'striped',
     styles: { fontSize: 9, cellPadding: 3 },
     columnStyles: {
-      0: { fontStyle: 'bold', cellWidth: 55, textColor: [60, 60, 60] },
+      0: { fontStyle: 'bold', cellWidth: 55, textColor: PDF_THEME.textBody },
       1: { cellWidth: 120 }
     },
-    alternateRowStyles: { fillColor: [255, 248, 240] },
+    alternateRowStyles: { fillColor: PDF_THEME.bgPrimary },
     margin: { left: 14, right: 14 },
   });
 
@@ -162,13 +163,13 @@ export const generateClientFichePDF = (client: Client) => {
   if (client.situationimmobiliere) {
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(41, 128, 185);
+    doc.setTextColor(...PDF_THEME.primary);
     doc.text('SITUATION IMMOBILIÈRE', 14, currentY);
     currentY += 3;
 
     const immoInfo: string[][] = [];
     const formatMontant = (m: number) => new Intl.NumberFormat('fr-FR').format(m) + ' F CFA';
-    
+
     immoInfo.push(['Type', client.situationimmobiliere.type === 'proprietaire' ? 'Propriétaire' : 'Locataire']);
     if (client.situationimmobiliere.type === 'proprietaire' && client.situationimmobiliere.valeur) {
       immoInfo.push(['Valeur du bien', formatMontant(client.situationimmobiliere.valeur)]);
@@ -183,10 +184,10 @@ export const generateClientFichePDF = (client: Client) => {
       theme: 'striped',
       styles: { fontSize: 9, cellPadding: 3 },
       columnStyles: {
-        0: { fontStyle: 'bold', cellWidth: 55, textColor: [60, 60, 60] },
+        0: { fontStyle: 'bold', cellWidth: 55, textColor: PDF_THEME.textBody },
         1: { cellWidth: 120 }
       },
-      alternateRowStyles: { fillColor: [248, 240, 255] },
+      alternateRowStyles: { fillColor: PDF_THEME.bgPrimary },
       margin: { left: 14, right: 14 },
     });
 
@@ -195,7 +196,6 @@ export const generateClientFichePDF = (client: Client) => {
 
   // === Section 5: Interactions ===
   if (client.interactions && client.interactions.length > 0) {
-    // Check if we need a new page
     if (currentY > 230) {
       doc.addPage();
       currentY = 20;
@@ -203,7 +203,7 @@ export const generateClientFichePDF = (client: Client) => {
 
     doc.setFontSize(13);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(41, 128, 185);
+    doc.setTextColor(...PDF_THEME.primary);
     doc.text('HISTORIQUE DES INTERACTIONS', 14, currentY);
     currentY += 3;
 
@@ -217,8 +217,8 @@ export const generateClientFichePDF = (client: Client) => {
       body: interactionsData,
       startY: currentY,
       styles: { fontSize: 8, cellPadding: 3 },
-      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-      alternateRowStyles: { fillColor: [245, 245, 245] },
+      headStyles: { fillColor: PDF_THEME.primaryDark, textColor: 255 },
+      alternateRowStyles: { fillColor: PDF_THEME.bgLight },
       columnStyles: {
         0: { cellWidth: 30 },
       },
@@ -231,7 +231,7 @@ export const generateClientFichePDF = (client: Client) => {
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(8);
-    doc.setTextColor(150, 150, 150);
+    doc.setTextColor(...PDF_THEME.textMuted);
     doc.text(
       `Page ${i}/${pageCount} — Fiche client générée automatiquement`,
       pageWidth / 2,

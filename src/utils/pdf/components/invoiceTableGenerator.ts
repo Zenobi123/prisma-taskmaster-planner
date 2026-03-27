@@ -2,6 +2,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { PDFFacture } from '../types';
+import { PDF_THEME } from '../pdfTheme';
 
 export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): number => {
   const tableColumn = ["Description", "Quantité", "Montant (F CFA)", "Taux (%)", "Total (F CFA)"];
@@ -10,7 +11,7 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
     const taux = prestation.taux || 0;
     const montantHT = prestation.montant * quantite;
     const montantTTC = montantHT * (1 + taux / 100);
-    
+
     return [
       prestation.description,
       quantite.toString(),
@@ -27,7 +28,7 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
       startY: 135,
       theme: 'grid',
       headStyles: {
-        fillColor: [50, 98, 85],
+        fillColor: PDF_THEME.primaryDark,
         textColor: 255,
         fontStyle: 'bold',
         fontSize: 10,
@@ -36,7 +37,7 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
       styles: {
         fontSize: 9,
         cellPadding: 4,
-        lineColor: [220, 220, 220],
+        lineColor: PDF_THEME.border,
         lineWidth: 0.1,
       },
       columnStyles: {
@@ -47,17 +48,16 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
         4: { cellWidth: 30, halign: 'right' }
       },
       alternateRowStyles: {
-        fillColor: [248, 250, 249]
+        fillColor: PDF_THEME.bgAlternate
       },
       margin: { left: 15, right: 15 }
     });
   } catch (error) {
     console.error("Erreur pendant la génération du tableau:", error);
-    // Fallback si autoTable échoue
     const defaultY = 150;
     doc.text("Erreur lors de la génération du tableau des prestations", 15, defaultY);
     return defaultY + 10;
   }
-  
+
   return (doc as any).lastAutoTable.finalY || 150;
 };
