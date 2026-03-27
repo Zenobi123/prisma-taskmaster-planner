@@ -8,7 +8,8 @@ import Propositions from "@/components/facturation/Propositions";
 import Paiements from "@/components/facturation/Paiements";
 import SituationClients from "@/components/facturation/SituationClients";
 import AnalyseFacturesPaiements from "@/components/facturation/analyse/AnalyseFacturesPaiements";
-import { ArrowLeft, FileText, ClipboardList, Send, CreditCard, Users, BarChart } from "lucide-react";
+import VueActivite from "@/components/facturation/VueActivite";
+import { ArrowLeft, FileText, ClipboardList, Send, CreditCard, Users, BarChart, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthorization } from "@/hooks/useAuthorization";
@@ -86,11 +87,17 @@ const Facturation = () => {
               >
                 <Users className="h-4 w-4" /> Situation clients
               </TabsTrigger>
-              <TabsTrigger 
-                value="analyse" 
+              <TabsTrigger
+                value="analyse"
                 className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all flex items-center gap-2"
               >
                 <BarChart className="h-4 w-4" /> Analyse
+              </TabsTrigger>
+              <TabsTrigger
+                value="activite"
+                className="px-8 py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-base transition-all flex items-center gap-2"
+              >
+                <Activity className="h-4 w-4" /> Activité
               </TabsTrigger>
             </TabsList>
           </div>
@@ -117,6 +124,10 @@ const Facturation = () => {
           
           <TabsContent value="analyse" className="mt-6 animate-fade-in">
             <AnalyseFacturesPaiements />
+          </TabsContent>
+
+          <TabsContent value="activite" className="mt-6 animate-fade-in">
+            <VueActivite />
           </TabsContent>
         </Tabs>
       </div>
