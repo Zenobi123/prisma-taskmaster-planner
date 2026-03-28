@@ -35,7 +35,7 @@ const queryClient = new QueryClient({
 
 function PrivateRoute({ children, session }: { children: React.ReactNode; session: Session | null }) {
   if (session === null) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/login" replace />;
   }
   return <>{children}</>;
 }
