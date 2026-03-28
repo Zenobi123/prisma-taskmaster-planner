@@ -22,6 +22,12 @@ interface ObligationRow {
 const fmt = (n: number) => new Intl.NumberFormat("fr-FR").format(Math.round(n));
 const currentYear = new Date().getFullYear();
 
+const inferPrestationType = (description: string | null | undefined): "impot" | "honoraire" => {
+  const text = (description || "").toLowerCase();
+  const taxKeywords = ["impot", "impôt", "tva", "is", "irpp", "patente", "cnps", "fiscal"];
+  return taxKeywords.some((keyword) => text.includes(keyword)) ? "impot" : "honoraire";
+};
+
 const fetchObligations = async (): Promise<ObligationRow[]> => {
   // Fetch factures with their prestations and client info
   const { data: factures, error: fErr } = await supabase
@@ -37,7 +43,7 @@ const fetchObligations = async (): Promise<ObligationRow[]> => {
 
   const { data: prestations, error: prErr } = await supabase
     .from("prestations")
-    .select("id, facture_id, type, designation, total");
+    .select("id, facture_id, description, montant");
   if (prErr) throw prErr;
 
   const clientMap = new Map<string, string>();
@@ -52,13 +58,15 @@ const fetchObligations = async (): Promise<ObligationRow[]> => {
   const rows: ObligationRow[] = [];
 
   for (const pr of prestations || []) {
-    if (pr.type !== "impot") continue;
+    const prestationType = inferPrestationType(pr.description);
+    if (prestationType !== "impot") continue;
+
     const facture = factureMap.get(pr.facture_id);
     if (!facture) continue;
 
     const factureMontant = Number(facture.montant) || 0;
     const facturePaye = Number(facture.montant_paye) || 0;
-    const prTotal = Number((pr as any).total) || 0;
+    const prTotal = Number(pr.montant) || 0;
 
     // Proportional estimation of paid amount for this prestation
     const montantPaye = factureMontant > 0 ? (prTotal / factureMontant) * facturePaye : 0;
@@ -67,12 +75,13 @@ const fetchObligations = async (): Promise<ObligationRow[]> => {
     if (montantReste <= 0) continue;
 
     const year = facture.date ? parseInt(facture.date.substring(0, 4)) : currentYear;
-    const echeance = getEcheanceForImpot(pr.designation || "", year);
+    const designation = pr.description || "—";
+    const echeance = getEcheanceForImpot(designation, year);
 
     rows.push({
       client_id: facture.client_id,
       client_nom: clientMap.get(facture.client_id) || "—",
-      designation: pr.designation || "—",
+      designation,
       montant_reste: montantReste,
       echeance,
     });
