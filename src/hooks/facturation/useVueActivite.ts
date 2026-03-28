@@ -3,6 +3,12 @@ import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { getEcheanceForImpot } from "@/utils/echeancesFiscales";
 
+const inferPrestationType = (description: string | null | undefined): "impot" | "honoraire" => {
+  const text = (description || "").toLowerCase();
+  const taxKeywords = ["impot", "impôt", "tva", "is", "irpp", "patente", "cnps", "fiscal"];
+  return taxKeywords.some((keyword) => text.includes(keyword)) ? "impot" : "honoraire";
+};
+
 // ─── Types ────────────────────────────────────
 export interface ClientActiviteRow {
   client_id: string;
@@ -92,12 +98,12 @@ export function useVueActivite(year: number) {
       ] = await Promise.all([
         supabase
           .from("factures")
-          .select("id, numero, date, montant, montant_paye, client_id, status")
+          .select("id, date, montant, montant_paye, client_id, status")
           .gte("date", `${year}-01-01`)
           .lte("date", `${year}-12-31`),
         supabase
           .from("paiements")
-          .select("id, reference, date, montant, client_id, facture")
+          .select("id, reference, date, montant, client_id, facture_id")
           .gte("date", `${year}-01-01`)
           .lte("date", `${year}-12-31`),
         supabase
@@ -105,7 +111,7 @@ export function useVueActivite(year: number) {
           .select("id, nom, raisonsociale, type"),
         supabase
           .from("prestations")
-          .select("id, facture_id, type, designation, total, facture:factures(id, numero, date, client_id)"),
+          .select("id, facture_id, description, montant, facture:factures(id, date, client_id)"),
       ]);
 
       if (fErr) throw fErr;
@@ -157,8 +163,9 @@ export function useVueActivite(year: number) {
         if (!cid) continue;
         const row = clientAgg.get(cid);
         if (!row) continue;
-        const amt = Number((pr as any).total) || 0;
-        if (pr.type === "impot") row.totalImpots += amt;
+        const amt = Number(pr.montant) || 0;
+        const prestationType = inferPrestationType(pr.description);
+        if (prestationType === "impot") row.totalImpots += amt;
         else row.totalHonoraires += amt;
       }
 
@@ -205,17 +212,18 @@ export function useVueActivite(year: number) {
         const parentFacture = factureIdMap.get(fac.id);
         const factureMontant = Number(parentFacture?.montant) || 0;
         const facturePaye = Number(parentFacture?.montant_paye) || 0;
-        const prTotal = Number((pr as any).total) || 0;
+        const prTotal = Number(pr.montant) || 0;
         const montantPaye = factureMontant > 0 ? (prTotal / factureMontant) * facturePaye : 0;
+        const prestationType = inferPrestationType(pr.description);
 
         prestationsRows.push({
           id: pr.id,
           facture_id: fac.id,
-          facture_numero: fac.numero || "—",
+          facture_numero: fac.id ? `FAC-${fac.id.slice(0, 8).toUpperCase()}` : "—",
           client_id: cid || "",
           client_nom: clientMap.get(cid) || "—",
-          type: (pr.type === "impot" ? "impot" : "honoraire") as "impot" | "honoraire",
-          designation: pr.designation || "—",
+          type: prestationType,
+          designation: pr.description || "—",
           montant: prTotal,
           montant_paye: montantPaye,
           montant_reste: Math.max(0, prTotal - montantPaye),
