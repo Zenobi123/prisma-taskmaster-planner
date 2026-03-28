@@ -1,13 +1,16 @@
 
-import { Facture } from "@/types/facture";
+import { Facture, Prestation } from "@/types/facture";
 import { supabase } from "@/integrations/supabase/client";
+import { getNextFactureNumber } from "./factureServices/factureNumberService";
+import { transformClient } from "./factureTransformUtils";
 
 export const factureCreationService = {
   async createFacture(factureData: Facture): Promise<Facture> {
     try {
-      // Generate a unique ID for the facture
-      const factureId = `FAC-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      
+      // Generate proper facture number: N° XXXX/YYYY/MM
+      const numero = await getNextFactureNumber();
+      const factureId = numero;
+
       const { data, error } = await supabase
         .from('factures')
         .insert({
@@ -35,26 +38,47 @@ export const factureCreationService = {
         .single();
 
       if (error) throw error;
-      
-      // Transform the client data to match the expected format
-      const transformedClient = data.client ? {
-        id: data.client.id,
-        nom: data.client.type === "physique" ? data.client.nom || "" : data.client.raisonsociale || "",
-        adresse: typeof data.client.adresse === 'object' && data.client.adresse && 'ville' in data.client.adresse ? 
-          String(data.client.adresse.ville) : "",
-        telephone: typeof data.client.contact === 'object' && data.client.contact && 'telephone' in data.client.contact ? 
-          String(data.client.contact.telephone) : "",
-        email: typeof data.client.contact === 'object' && data.client.contact && 'email' in data.client.contact ? 
-          String(data.client.contact.email) : ""
-      } : undefined;
-      
+
+      // Persist prestations to facture_prestations table
+      if (factureData.prestations && factureData.prestations.length > 0) {
+        const prestationsToInsert = factureData.prestations.map((p) => ({
+          id: `FPRE-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          facture_id: factureId,
+          description: p.description,
+          type: p.type || "honoraire",
+          quantite: p.quantite,
+          prix_unitaire: p.prix_unitaire,
+          montant: p.montant,
+        }));
+
+        const { error: prestationsError } = await (supabase as any)
+          .from("facture_prestations")
+          .insert(prestationsToInsert);
+
+        if (prestationsError) {
+          console.error("Erreur lors de l'insertion des prestations:", prestationsError);
+          // Don't throw - facture was created, prestations insert is secondary
+        }
+      }
+
+      // Calculate totals by type
+      const montant_impots = (factureData.prestations || [])
+        .filter(p => p.type === "impot")
+        .reduce((sum, p) => sum + p.montant, 0);
+      const montant_honoraires = (factureData.prestations || [])
+        .filter(p => p.type === "honoraire")
+        .reduce((sum, p) => sum + p.montant, 0);
+
       return {
         ...data,
+        numero: factureId,
         mode: data.mode_paiement,
         status: data.status as "brouillon" | "envoyée" | "annulée",
         status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
         prestations: factureData.prestations || [],
-        client: transformedClient
+        montant_impots,
+        montant_honoraires,
+        client: transformClient(data.client)
       };
     } catch (error) {
       console.error('Erreur lors de la création de la facture:', error);
@@ -81,26 +105,39 @@ export const factureCreationService = {
         .single();
 
       if (error) throw error;
-      
-      // Transform the client data to match the expected format
-      const transformedClient = data.client ? {
-        id: data.client.id,
-        nom: data.client.type === "physique" ? data.client.nom || "" : data.client.raisonsociale || "",
-        adresse: typeof data.client.adresse === 'object' && data.client.adresse && 'ville' in data.client.adresse ? 
-          String(data.client.adresse.ville) : "",
-        telephone: typeof data.client.contact === 'object' && data.client.contact && 'telephone' in data.client.contact ? 
-          String(data.client.contact.telephone) : "",
-        email: typeof data.client.contact === 'object' && data.client.contact && 'email' in data.client.contact ? 
-          String(data.client.contact.email) : ""
-      } : undefined;
-      
+
+      // Fetch prestations
+      const { data: prestationsData } = await (supabase as any)
+        .from("facture_prestations")
+        .select("*")
+        .eq("facture_id", id);
+
+      const prestations: Prestation[] = (prestationsData || []).map((p: any) => ({
+        id: p.id,
+        description: p.description,
+        type: p.type || "honoraire",
+        quantite: p.quantite,
+        prix_unitaire: p.prix_unitaire,
+        montant: p.montant,
+      }));
+
+      const montant_impots = prestations
+        .filter(p => p.type === "impot")
+        .reduce((sum, p) => sum + p.montant, 0);
+      const montant_honoraires = prestations
+        .filter(p => p.type === "honoraire")
+        .reduce((sum, p) => sum + p.montant, 0);
+
       return {
         ...data,
+        numero: data.id,
         mode: data.mode_paiement,
         status: data.status as "brouillon" | "envoyée" | "annulée",
         status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
-        prestations: [],
-        client: transformedClient
+        prestations,
+        montant_impots,
+        montant_honoraires,
+        client: transformClient(data.client)
       };
     } catch (error) {
       console.error('Erreur lors de la récupération de la facture:', error);
@@ -110,6 +147,12 @@ export const factureCreationService = {
 
   async deleteFacture(id: string): Promise<void> {
     try {
+      // Delete prestations first
+      await (supabase as any)
+        .from("facture_prestations")
+        .delete()
+        .eq("facture_id", id);
+
       const { error } = await supabase
         .from('factures')
         .delete()

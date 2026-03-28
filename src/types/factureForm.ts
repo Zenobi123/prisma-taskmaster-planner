@@ -2,6 +2,7 @@
 export interface Prestation {
   id?: string;
   description: string;
+  type: "impot" | "honoraire";
   quantite: number;
   prix_unitaire: number;
   montant: number;

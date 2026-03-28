@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Devis, DevisFormData, DevisPrestation } from "@/types/devis";
+import { getNextFactureNumber } from "./factureServices/factureNumberService";
 
 // Helper to get next devis number: DEV-0001/YYYY/MM
 export async function getNextDevisNumber(): Promise<string> {
@@ -334,8 +335,8 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
     .select("*")
     .eq("devis_id", devisId);
 
-  // Create a facture from the devis using factureCreationService pattern
-  const factureId = `FAC-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  // Create a facture from the devis with proper numbering
+  const factureId = await getNextFactureNumber();
   const now = new Date();
   const echeance = new Date(now);
   echeance.setDate(echeance.getDate() + 30);
@@ -356,6 +357,27 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
   if (factureError) {
     console.error("Erreur lors de la création de la facture:", factureError);
     throw factureError;
+  }
+
+  // Copy prestations from devis to facture
+  if (prestationsData && prestationsData.length > 0) {
+    const facturePrestations = prestationsData.map((p: any) => ({
+      id: `FPRE-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      facture_id: factureId,
+      description: p.description,
+      type: p.type || "honoraire",
+      quantite: p.quantite,
+      prix_unitaire: p.prix_unitaire,
+      montant: p.montant,
+    }));
+
+    const { error: fpError } = await (supabase as any)
+      .from("facture_prestations")
+      .insert(facturePrestations);
+
+    if (fpError) {
+      console.error("Erreur lors de la copie des prestations vers la facture:", fpError);
+    }
   }
 
   // Update devis status to "converti" and set facture_id
