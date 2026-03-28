@@ -57,7 +57,7 @@ const Factures = () => {
           <FileText className="h-5 w-5 text-[#84A98C]" /> 
           Gestion des factures
         </CardTitle>
-        <CreateFactureDialog />
+        <CreateFactureDialog clients={allClients} />
       </CardHeader>
       <CardContent className={`p-3 ${isMobile ? '' : 'p-4'}`}>
         <FactureFilters 

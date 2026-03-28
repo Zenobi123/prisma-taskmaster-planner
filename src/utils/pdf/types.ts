@@ -3,7 +3,9 @@ import { Client } from '@/types/client';
 
 export interface Prestation {
   description: string;
+  type?: "impot" | "honoraire";
   quantite?: number;
+  prix_unitaire?: number;
   montant: number;
   taux?: number;
 }

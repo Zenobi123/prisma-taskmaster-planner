@@ -2,6 +2,7 @@
 export interface Prestation {
   id?: string;
   description: string;
+  type: "impot" | "honoraire";
   quantite: number;
   prix_unitaire: number;
   montant: number;
@@ -20,6 +21,7 @@ export interface Paiement {
 
 export interface Facture {
   id: string;
+  numero?: string;
   client_id: string;
   client?: {
     id: string;
@@ -32,12 +34,15 @@ export interface Facture {
   echeance: string;
   montant: number;
   montant_paye?: number;
+  montant_impots?: number;
+  montant_honoraires?: number;
   status: "brouillon" | "envoyée" | "annulée";
   status_paiement: "non_payée" | "partiellement_payée" | "payée" | "en_retard";
   mode?: string;
   prestations: Prestation[];
   paiements?: Paiement[];
   notes?: string;
+  devis_id?: string;
   created_at?: string;
   updated_at?: string;
 }

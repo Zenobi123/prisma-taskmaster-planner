@@ -11,19 +11,19 @@ import {
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import CreateFactureForm from "./CreateFactureForm";
-import { Facture } from "@/types/facture";
+import { Client } from "@/types/client";
 
-const CreateFactureDialog = () => {
+interface CreateFactureDialogProps {
+  clients?: Client[];
+  onFactureCreated?: () => void;
+}
+
+const CreateFactureDialog = ({ clients = [], onFactureCreated }: CreateFactureDialogProps) => {
   const [open, setOpen] = useState(false);
 
-  const handleSuccess = (newFacture: Facture | string) => {
-    console.log("Facture créée/mise à jour:", newFacture);
+  const handleSuccess = () => {
     setOpen(false);
-    // Potentially trigger a refetch of factures list here
-  };
-
-  const handleCancel = () => {
-    setOpen(false);
+    onFactureCreated?.();
   };
 
   return (
@@ -33,17 +33,18 @@ const CreateFactureDialog = () => {
           <Plus className="mr-2 h-4 w-4" /> Nouvelle facture
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[800px]">
+      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Créer une nouvelle facture</DialogTitle>
           <DialogDescription>
             Remplissez les informations pour créer une nouvelle facture.
           </DialogDescription>
         </DialogHeader>
-        <CreateFactureForm 
+        <CreateFactureForm
           open={open}
           onOpenChange={setOpen}
-          onFactureCreated={() => console.log("Facture créée")}
+          onFactureCreated={handleSuccess}
+          clients={clients}
         />
       </DialogContent>
     </Dialog>

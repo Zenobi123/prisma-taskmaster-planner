@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2, Loader2 } from "lucide-react";
+import { PREDEFINED_PRESTATIONS } from "@/utils/fiscalReferenceData";
 
 interface CreateDevisDialogProps {
   open: boolean;
@@ -30,22 +31,7 @@ interface CreateDevisDialogProps {
   isSubmitting?: boolean;
 }
 
-const predefinedPrestations: { description: string; type: "impot" | "honoraire" }[] = [
-  // Impots
-  { description: "IGS", type: "impot" },
-  { description: "Patente", type: "impot" },
-  { description: "TDL", type: "impot" },
-  { description: "PSL", type: "impot" },
-  { description: "Bail Commercial", type: "impot" },
-  { description: "Taxe Fonci\u00e8re", type: "impot" },
-  { description: "DSF", type: "impot" },
-  { description: "DARP", type: "impot" },
-  // Honoraires
-  { description: "Tenue de comptabilit\u00e9", type: "honoraire" },
-  { description: "Conseil fiscal", type: "honoraire" },
-  { description: "\u00c9tablissement des \u00e9tats financiers", type: "honoraire" },
-  { description: "Assistance contr\u00f4le fiscal", type: "honoraire" },
-];
+const predefinedPrestations = PREDEFINED_PRESTATIONS;
 
 const formatMontant = (montant: number): string => {
   return new Intl.NumberFormat("fr-FR").format(montant) + " F CFA";

@@ -33,6 +33,7 @@ export const useFactureFormSubmit = (
         prestations: prestations.map(p => ({
           id: p.id || crypto.randomUUID(),
           description: p.description,
+          type: p.type || "honoraire" as const,
           quantite: p.quantite,
           prix_unitaire: p.prix_unitaire,
           montant: p.montant
@@ -42,20 +43,10 @@ export const useFactureFormSubmit = (
         status_paiement: "non_payée" as const,
         mode: data.mode || '',
         notes: data.notes || '',
-        client: {
-          id: '',
-          nom: '',
-          adresse: '',
-          telephone: '',
-          email: ''
-        },
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        montant_paye: 0
       };
 
-      await addFactureToDatabase(factureData);
-      
+      await addFactureToDatabase(factureData as any);
+
       toast.success('Facture créée avec succès');
       onFactureCreated();
       onOpenChange(false);
