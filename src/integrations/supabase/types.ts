@@ -995,7 +995,6 @@ export type Database = {
           created_at: string
           email: string
           id: string
-          password: string
           role: Database["public"]["Enums"]["user_role"]
         }
         Insert: {
@@ -1003,7 +1002,6 @@ export type Database = {
           created_at?: string
           email: string
           id?: string
-          password: string
           role?: Database["public"]["Enums"]["user_role"]
         }
         Update: {
@@ -1011,7 +1009,6 @@ export type Database = {
           created_at?: string
           email?: string
           id?: string
-          password?: string
           role?: Database["public"]["Enums"]["user_role"]
         }
         Relationships: [

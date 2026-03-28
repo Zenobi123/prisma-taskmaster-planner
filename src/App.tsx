@@ -55,7 +55,7 @@ const App = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (!session) {
-        localStorage.removeItem("userRole");
+        // Session cleared - no localStorage cleanup needed
       }
     });
 

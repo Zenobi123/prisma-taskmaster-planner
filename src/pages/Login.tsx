@@ -84,9 +84,6 @@ const Login = () => {
           return;
         }
 
-        // Stocker uniquement le rôle (la session Supabase gère l'authentification)
-        localStorage.setItem("userRole", userData.role);
-
         toast({
           title: "Connexion réussie",
           description: "Bienvenue sur votre espace de gestion",
