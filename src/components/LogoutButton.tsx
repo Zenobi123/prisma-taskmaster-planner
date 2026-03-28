@@ -17,9 +17,8 @@ const LogoutButton = () => {
         throw error;
       }
 
-      // Nettoyer toutes les données sensibles du localStorage
+      // Nettoyer les données du localStorage
       localStorage.removeItem("isAuthenticated");
-      localStorage.removeItem("userRole");
       localStorage.removeItem("lastSelectedGestionClientId");
 
       toast({
