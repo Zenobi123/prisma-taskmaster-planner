@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { Collaborateur } from "@/types/collaborateur";
 import { getCollaborateurs, createCollaborateur, deleteCollaborateur, updateCollaborateur } from "@/services/collaborateurService";
+import { supabase } from "@/integrations/supabase/client";
 
 export const useCollaborateurs = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,7 +15,22 @@ export const useCollaborateurs = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const userRole = localStorage.getItem("userRole");
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        const { data } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+        setUserRole(data?.role ?? null);
+      }
+    };
+    fetchRole();
+  }, []);
 
   const [newCollaborateur, setNewCollaborateur] = useState<Omit<Collaborateur, 'id' | 'created_at'>>({
     nom: "",
