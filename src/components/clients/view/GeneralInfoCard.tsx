@@ -144,18 +144,30 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
             <div className="col-span-2 md:col-span-3 space-y-1 pt-2 border-t">
               <p className="text-sm text-muted-foreground">Situation immobilière</p>
               <p className="font-medium">
-                {client.situationimmobiliere.type === "proprietaire" ? (
+                {client.situationimmobiliere.type === "proprietaire" && (
                   <>
                     Propriétaire
                     {client.situationimmobiliere.valeur &&
                       ` - Valeur : ${formatMontant(client.situationimmobiliere.valeur)}`
                     }
                   </>
-                ) : (
+                )}
+                {client.situationimmobiliere.type === "locataire" && (
                   <>
                     Locataire
                     {client.situationimmobiliere.loyer &&
                       ` - Loyer mensuel : ${formatMontant(client.situationimmobiliere.loyer)}`
+                    }
+                  </>
+                )}
+                {client.situationimmobiliere.type === "les_deux" && (
+                  <>
+                    Locataire & Propriétaire
+                    {client.situationimmobiliere.loyer &&
+                      ` - Loyer : ${formatMontant(client.situationimmobiliere.loyer)}`
+                    }
+                    {client.situationimmobiliere.valeur &&
+                      ` - Valeur : ${formatMontant(client.situationimmobiliere.valeur)}`
                     }
                   </>
                 )}

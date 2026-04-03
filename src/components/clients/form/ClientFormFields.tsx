@@ -22,6 +22,7 @@ interface FormDataType {
   lieuDit: string;
   telephone: string;
   email: string;
+  contact_principal: string;
   secteuractivite: string;
   numerocnps: string;
   regimefiscal: RegimeFiscal;
@@ -82,6 +83,7 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
         modepaiementpsl={formData.modepaiementpsl}
         gestionexternalisee={formData.gestionexternalisee}
         inscriptionfanrharmony2={formData.inscriptionfanrharmony2}
+        contact_principal={formData.contact_principal}
         onChange={onChange}
       />
 
