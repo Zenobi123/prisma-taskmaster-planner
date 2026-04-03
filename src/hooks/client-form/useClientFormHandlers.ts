@@ -8,16 +8,19 @@ export function useClientFormHandlers(
 ) {
   const handleChange = (name: string, value: any) => {
     console.log("Handling change:", name, "=", value, "type:", typeof value);
-    
+
     if (name === "situationimmobiliere.type") {
-      setFormData(prev => ({
-        ...prev,
-        situationimmobiliere: {
-          type: value as SituationImmobiliere,
-          valeur: undefined,
-          loyer: undefined
-        }
-      }));
+      setFormData(prev => {
+        const newType = value as SituationImmobiliere;
+        return {
+          ...prev,
+          situationimmobiliere: {
+            type: newType,
+            valeur: (newType === "proprietaire" || newType === "les_deux") ? prev.situationimmobiliere.valeur : undefined,
+            loyer: (newType === "locataire" || newType === "les_deux") ? prev.situationimmobiliere.loyer : undefined,
+          }
+        };
+      });
     } else if (name === "situationimmobiliere.valeur" || name === "situationimmobiliere.loyer") {
       setFormData(prev => ({
         ...prev,

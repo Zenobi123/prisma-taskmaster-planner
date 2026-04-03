@@ -2,7 +2,7 @@
 export type ClientType = "physique" | "morale";
 export type Sexe = "homme" | "femme";
 export type EtatCivil = "celibataire" | "marie" | "divorce" | "veuf";
-export type SituationImmobiliere = "proprietaire" | "locataire";
+export type SituationImmobiliere = "proprietaire" | "locataire" | "les_deux";
 export type FormeJuridique = 
   | "sa" 
   | "sarl" 
@@ -45,6 +45,7 @@ export interface Client {
   contact: {
     telephone: string;
     email: string;
+    contact_principal?: string;
   };
   secteuractivite: string;
   numerocnps?: string;

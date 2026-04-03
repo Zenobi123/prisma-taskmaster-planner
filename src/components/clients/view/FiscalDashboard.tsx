@@ -49,10 +49,9 @@ export function FiscalDashboard({ client }: FiscalDashboardProps) {
   }
 
   const regime = client.regimefiscal;
-  const isLocataire =
-    client.situationimmobiliere?.type === "locataire";
-  const isProprietaire =
-    client.situationimmobiliere?.type === "proprietaire";
+  const sitType = client.situationimmobiliere?.type;
+  const isLocataire = sitType === "locataire" || sitType === "les_deux";
+  const isProprietaire = sitType === "proprietaire" || sitType === "les_deux";
 
   const taxCards: {
     key: string;

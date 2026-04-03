@@ -22,16 +22,19 @@ export function useClientFormDataProcessor() {
       contact: {
         telephone: formData.telephone || "",
         email: formData.email || "",
+        contact_principal: formData.contact_principal || "",
       },
-      secteuractivite: formData.secteuractivite || "commerce",
+      secteuractivite: formData.secteuractivite || "",
       numerocnps: formData.numerocnps || null,
       regimefiscal: finalRegimeFiscal,
       gestionexternalisee: formData.gestionexternalisee || false,
       inscriptionfanrharmony2: formData.inscriptionfanrharmony2 || false,
       situationimmobiliere: {
         type: formData.situationimmobiliere?.type || "locataire",
-        valeur: formData.situationimmobiliere?.type === "proprietaire" ? formData.situationimmobiliere.valeur : undefined,
-        loyer: formData.situationimmobiliere?.type === "locataire" ? formData.situationimmobiliere.loyer : undefined
+        valeur: (formData.situationimmobiliere?.type === "proprietaire" || formData.situationimmobiliere?.type === "les_deux")
+          ? formData.situationimmobiliere.valeur : undefined,
+        loyer: (formData.situationimmobiliere?.type === "locataire" || formData.situationimmobiliere?.type === "les_deux")
+          ? formData.situationimmobiliere.loyer : undefined
       },
       civilite: formData.civilite,
       chiffreaffaires: parseFloat(formData.chiffreaffaires) || 0,

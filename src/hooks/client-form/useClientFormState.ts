@@ -28,6 +28,7 @@ export interface ClientFormState {
   lieuDit: string;
   telephone: string;
   email: string;
+  contact_principal: string;
   secteuractivite: string;
   numerocnps: string;
   regimefiscal: RegimeFiscal;
@@ -65,7 +66,8 @@ export const getInitialFormState = (): ClientFormState => ({
   lieuDit: "",
   telephone: "",
   email: "",
-  secteuractivite: "commerce",
+  contact_principal: "",
+  secteuractivite: "",
   numerocnps: "",
   regimefiscal: "reel",
   gestionexternalisee: false,
