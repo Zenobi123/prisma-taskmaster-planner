@@ -179,9 +179,6 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
           <div className="col-span-2 md:col-span-3 pt-2 border-t">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
               <BooleanField label="Gestion externalisée" value={client.gestionexternalisee} />
-              {client.inscriptionfanrharmony2 !== undefined && (
-                <BooleanField label="Inscription FANR Harmony 2" value={client.inscriptionfanrharmony2} />
-              )}
             </div>
           </div>
         </div>

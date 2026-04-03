@@ -33,7 +33,6 @@ interface FormDataType {
   modepaiementigs: ModePaiement;
   modepaiementpsl: ModePaiement;
   gestionexternalisee: boolean;
-  inscriptionfanrharmony2: boolean;
   sexe: Sexe;
   etatcivil: EtatCivil;
   situationimmobiliere: {
@@ -82,8 +81,8 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
         modepaiementigs={formData.modepaiementigs}
         modepaiementpsl={formData.modepaiementpsl}
         gestionexternalisee={formData.gestionexternalisee}
-        inscriptionfanrharmony2={formData.inscriptionfanrharmony2}
         contact_principal={formData.contact_principal}
+        situationimmobiliere={formData.situationimmobiliere}
         onChange={onChange}
       />
 

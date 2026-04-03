@@ -33,7 +33,6 @@ export interface ClientFormState {
   numerocnps: string;
   regimefiscal: RegimeFiscal;
   gestionexternalisee: boolean;
-  inscriptionfanrharmony2: boolean;
   sexe: Sexe;
   etatcivil: EtatCivil;
   situationimmobiliere: {
@@ -71,7 +70,6 @@ export const getInitialFormState = (): ClientFormState => ({
   numerocnps: "",
   regimefiscal: "reel",
   gestionexternalisee: false,
-  inscriptionfanrharmony2: false,
   sexe: "homme",
   etatcivil: "celibataire",
   situationimmobiliere: {

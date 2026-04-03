@@ -28,7 +28,6 @@ export function useClientFormDataProcessor() {
       numerocnps: formData.numerocnps || null,
       regimefiscal: finalRegimeFiscal,
       gestionexternalisee: formData.gestionexternalisee || false,
-      inscriptionfanrharmony2: formData.inscriptionfanrharmony2 || false,
       situationimmobiliere: {
         type: formData.situationimmobiliere?.type || "locataire",
         valeur: (formData.situationimmobiliere?.type === "proprietaire" || formData.situationimmobiliere?.type === "les_deux")

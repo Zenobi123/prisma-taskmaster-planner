@@ -37,7 +37,6 @@ export function useClientFormInitializer(
         numerocnps: initialData.numerocnps || "",
         regimefiscal: validatedRegimeFiscal,
         gestionexternalisee: initialData.gestionexternalisee || false,
-        inscriptionfanrharmony2: initialData.inscriptionfanrharmony2 || false,
         sexe: initialData.sexe || "homme",
         etatcivil: initialData.etatcivil || "celibataire",
         situationimmobiliere: {
