@@ -7,6 +7,7 @@ export function useClientFilters(clients: Client[]) {
   const [selectedType, setSelectedType] = useState<ClientType | "all">("all");
   const [selectedSecteur, setSelectedSecteur] = useState("all");
   const [selectedRegimeFiscal, setSelectedRegimeFiscal] = useState<RegimeFiscal | "all">("all");
+  const [selectedCDI, setSelectedCDI] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
 
   const filteredClients = clients.filter((client) => {
@@ -20,15 +21,18 @@ export function useClientFilters(clients: Client[]) {
 
     const matchesType = selectedType === "all" || client.type === selectedType;
 
-    const matchesSecteur =
-      selectedSecteur === "all" || client.secteuractivite === selectedSecteur;
+    const matchesStatut =
+      selectedSecteur === "all" || client.statut === selectedSecteur;
 
-    const matchesRegimeFiscal = 
+    const matchesRegimeFiscal =
       selectedRegimeFiscal === "all" || client.regimefiscal === selectedRegimeFiscal;
+
+    const matchesCDI =
+      selectedCDI === "all" || client.centrerattachement === selectedCDI;
 
     const matchesArchiveStatus = showArchived || client.statut !== "archive";
 
-    return matchesSearch && matchesType && matchesSecteur && matchesRegimeFiscal && matchesArchiveStatus;
+    return matchesSearch && matchesType && matchesStatut && matchesRegimeFiscal && matchesCDI && matchesArchiveStatus;
   });
 
   return {
@@ -40,6 +44,8 @@ export function useClientFilters(clients: Client[]) {
     setSelectedSecteur,
     selectedRegimeFiscal,
     setSelectedRegimeFiscal,
+    selectedCDI,
+    setSelectedCDI,
     showArchived,
     setShowArchived,
     filteredClients,

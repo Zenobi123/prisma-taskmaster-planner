@@ -44,6 +44,8 @@ export function useClientsPage() {
     setSelectedSecteur,
     selectedRegimeFiscal,
     setSelectedRegimeFiscal,
+    selectedCDI,
+    setSelectedCDI,
     showArchived,
     setShowArchived,
     filteredClients
@@ -164,6 +166,8 @@ export function useClientsPage() {
     setSelectedSecteur,
     selectedRegimeFiscal,
     setSelectedRegimeFiscal,
+    selectedCDI,
+    setSelectedCDI,
     showArchived,
     setShowArchived,
     showTrash,

@@ -170,11 +170,13 @@ export const generateClientFichePDF = (client: Client) => {
     const immoInfo: string[][] = [];
     const formatMontant = (m: number) => new Intl.NumberFormat('fr-FR').format(m) + ' F CFA';
 
-    immoInfo.push(['Type', client.situationimmobiliere.type === 'proprietaire' ? 'Propriétaire' : 'Locataire']);
-    if (client.situationimmobiliere.type === 'proprietaire' && client.situationimmobiliere.valeur) {
+    const immoTypeLabel = client.situationimmobiliere.type === 'proprietaire' ? 'Propriétaire'
+      : client.situationimmobiliere.type === 'les_deux' ? 'Locataire & Propriétaire' : 'Locataire';
+    immoInfo.push(['Type', immoTypeLabel]);
+    if ((client.situationimmobiliere.type === 'proprietaire' || client.situationimmobiliere.type === 'les_deux') && client.situationimmobiliere.valeur) {
       immoInfo.push(['Valeur du bien', formatMontant(client.situationimmobiliere.valeur)]);
     }
-    if (client.situationimmobiliere.type === 'locataire' && client.situationimmobiliere.loyer) {
+    if ((client.situationimmobiliere.type === 'locataire' || client.situationimmobiliere.type === 'les_deux') && client.situationimmobiliere.loyer) {
       immoInfo.push(['Loyer mensuel', formatMontant(client.situationimmobiliere.loyer)]);
     }
 

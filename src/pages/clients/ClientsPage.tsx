@@ -24,6 +24,8 @@ export default function ClientsPage() {
     setSelectedSecteur,
     selectedRegimeFiscal,
     setSelectedRegimeFiscal,
+    selectedCDI,
+    setSelectedCDI,
     showArchived,
     setShowArchived,
     showTrash,
@@ -96,6 +98,8 @@ export default function ClientsPage() {
               onSecteurChange={setSelectedSecteur}
               selectedRegimeFiscal={selectedRegimeFiscal}
               onRegimeFiscalChange={setSelectedRegimeFiscal}
+              selectedCDI={selectedCDI}
+              onCDIChange={setSelectedCDI}
               showArchived={showArchived}
               onShowArchivedChange={setShowArchived}
               onView={handleView}

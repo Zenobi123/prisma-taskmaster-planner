@@ -16,6 +16,7 @@ const formatClientForExport = (client: Client) => {
     Quartier: client.adresse.quartier,
     Telephone: client.contact.telephone,
     Email: client.contact.email,
+    ContactPrincipal: client.contact.contact_principal || "",
     SecteurActivite: client.secteuractivite,
     Statut: client.statut,
     NumeroCNPS: client.numerocnps || "",
