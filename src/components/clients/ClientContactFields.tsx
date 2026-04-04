@@ -54,7 +54,6 @@ export function ClientContactFields({ telephone, email, onChange }: ClientContac
         <Label>Email</Label>
         <Input
           type="email"
-          required
           value={email}
           onChange={(e) => handleEmailChange(e.target.value)}
           maxLength={254}

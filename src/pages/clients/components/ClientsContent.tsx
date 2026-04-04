@@ -13,6 +13,8 @@ interface ClientsContentProps {
   onSecteurChange: (value: string) => void;
   selectedRegimeFiscal: RegimeFiscal | "all";
   onRegimeFiscalChange: (value: RegimeFiscal | "all") => void;
+  selectedCDI?: string;
+  onCDIChange?: (value: string) => void;
   showArchived: boolean;
   onShowArchivedChange: (value: boolean) => void;
   onView: (client: Client) => void;
@@ -33,6 +35,8 @@ export function ClientsContent({
   onSecteurChange,
   selectedRegimeFiscal,
   onRegimeFiscalChange,
+  selectedCDI,
+  onCDIChange,
   showArchived,
   onShowArchivedChange,
   onView,
@@ -53,6 +57,8 @@ export function ClientsContent({
         onSecteurChange={onSecteurChange}
         selectedRegimeFiscal={selectedRegimeFiscal}
         onRegimeFiscalChange={onRegimeFiscalChange}
+        selectedCDI={selectedCDI}
+        onCDIChange={onCDIChange}
         showArchived={showArchived}
         onShowArchivedChange={onShowArchivedChange}
         clients={clients}

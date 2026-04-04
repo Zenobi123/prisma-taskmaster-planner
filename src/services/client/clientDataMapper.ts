@@ -27,7 +27,8 @@ export const mapClientRowToClient = (client: ClientRow): Client => {
     },
     contact: {
       telephone: (client.contact as any)?.telephone || "",
-      email: (client.contact as any)?.email || ""
+      email: (client.contact as any)?.email || "",
+      contact_principal: (client.contact as any)?.contact_principal || ""
     },
     secteuractivite: client.secteuractivite,
     numerocnps: client.numerocnps || null,

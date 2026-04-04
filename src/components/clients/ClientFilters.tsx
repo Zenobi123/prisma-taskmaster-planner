@@ -1,4 +1,5 @@
 
+import { useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { ClientType, RegimeFiscal } from "@/types/client";
 import {
@@ -24,6 +25,8 @@ interface ClientFiltersProps {
   onSecteurChange: (value: string) => void;
   selectedRegimeFiscal: RegimeFiscal | "all";
   onRegimeFiscalChange: (value: RegimeFiscal | "all") => void;
+  selectedCDI?: string;
+  onCDIChange?: (value: string) => void;
   showArchived: boolean;
   onShowArchivedChange: (value: boolean) => void;
   clients?: Client[];
@@ -40,24 +43,21 @@ export function ClientFilters({
   onSecteurChange,
   selectedRegimeFiscal,
   onRegimeFiscalChange,
+  selectedCDI = "all",
+  onCDIChange,
   showArchived,
   onShowArchivedChange,
   clients = [],
   isMobile,
   onImportClients,
 }: ClientFiltersProps) {
-  const getRegimeFiscalLabel = (regime: RegimeFiscal) => {
-    switch (regime) {
-      case 'reel':
-        return 'Réel';
-      case 'igs':
-        return 'IGS';
-      case 'non_professionnel':
-        return 'Non Professionnel';
-      default:
-        return regime;
-    }
-  };
+  const cdiOptions = useMemo(() => {
+    const cdis = new Set<string>();
+    clients.forEach(c => {
+      if (c.centrerattachement) cdis.add(c.centrerattachement);
+    });
+    return Array.from(cdis).sort();
+  }, [clients]);
 
   return (
     <div className="space-y-4 mb-6">
@@ -83,20 +83,6 @@ export function ClientFilters({
           </SelectContent>
         </Select>
 
-        <Select value={selectedSecteur} onValueChange={onSecteurChange}>
-          <SelectTrigger className="w-full sm:w-44">
-            <SelectValue placeholder="Secteur" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Tous les secteurs</SelectItem>
-            <SelectItem value="commerce">Commerce</SelectItem>
-            <SelectItem value="service">Service</SelectItem>
-            <SelectItem value="industrie">Industrie</SelectItem>
-            <SelectItem value="agriculture">Agriculture</SelectItem>
-            <SelectItem value="autre">Autre</SelectItem>
-          </SelectContent>
-        </Select>
-
         <Select value={selectedRegimeFiscal} onValueChange={onRegimeFiscalChange}>
           <SelectTrigger className="w-full sm:w-44">
             <SelectValue placeholder="Régime Fiscal" />
@@ -109,7 +95,32 @@ export function ClientFilters({
             <SelectItem value="obnl">OBNL</SelectItem>
           </SelectContent>
         </Select>
-        
+
+        {onCDIChange && cdiOptions.length > 0 && (
+          <Select value={selectedCDI} onValueChange={onCDIChange}>
+            <SelectTrigger className="w-full sm:w-52">
+              <SelectValue placeholder="Centre (CDI)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Tous les CDI</SelectItem>
+              {cdiOptions.map(cdi => (
+                <SelectItem key={cdi} value={cdi}>{cdi}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+
+        <Select value={selectedSecteur} onValueChange={onSecteurChange}>
+          <SelectTrigger className="w-full sm:w-44">
+            <SelectValue placeholder="Statut" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Tous les statuts</SelectItem>
+            <SelectItem value="actif">Actif</SelectItem>
+            <SelectItem value="inactif">Inactif</SelectItem>
+          </SelectContent>
+        </Select>
+
         {onImportClients && (
           <ClientImportButton onImport={onImportClients} isMobile={isMobile} />
         )}
@@ -117,11 +128,11 @@ export function ClientFilters({
           <ClientExportButton clients={clients} isMobile={isMobile} />
         }
       </div>
-      
+
       <div className="flex items-center space-x-2">
-        <Checkbox 
-          id="show-archived" 
-          checked={showArchived} 
+        <Checkbox
+          id="show-archived"
+          checked={showArchived}
           onCheckedChange={(checked) => onShowArchivedChange(checked as boolean)}
         />
         <Label htmlFor="show-archived">Afficher les clients archivés</Label>
