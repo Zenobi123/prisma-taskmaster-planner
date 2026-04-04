@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Client, ClientType, RegimeFiscal } from "@/types/client";
 
 export function useClientFilters(clients: Client[]) {
@@ -10,7 +10,7 @@ export function useClientFilters(clients: Client[]) {
   const [selectedCDI, setSelectedCDI] = useState("all");
   const [showArchived, setShowArchived] = useState(false);
 
-  const filteredClients = clients.filter((client) => {
+  const filteredClients = useMemo(() => clients.filter((client) => {
     const matchesSearch =
       (client.type === "physique"
         ? client.nom?.toLowerCase()
@@ -33,7 +33,7 @@ export function useClientFilters(clients: Client[]) {
     const matchesArchiveStatus = showArchived || client.statut !== "archive";
 
     return matchesSearch && matchesType && matchesStatut && matchesRegimeFiscal && matchesCDI && matchesArchiveStatus;
-  });
+  }), [clients, searchTerm, selectedType, selectedSecteur, selectedRegimeFiscal, selectedCDI, showArchived]);
 
   return {
     searchTerm,

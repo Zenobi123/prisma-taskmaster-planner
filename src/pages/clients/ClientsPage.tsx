@@ -1,5 +1,4 @@
 
-import { Dialog } from "@/components/ui/dialog";
 import { useClientsPage } from "./hooks/useClientsPage";
 import { ClientsHeader } from "./components/ClientsHeader";
 import { ClientsContent } from "./components/ClientsContent";
@@ -49,7 +48,7 @@ export default function ClientsPage() {
     handleCloseTrash,
     toast
   } = useClientsPage();
-  
+
   const isMobile = useIsMobile();
 
   // Error handling
@@ -79,38 +78,14 @@ export default function ClientsPage() {
 
   return (
     <div className={isMobile ? "p-3 sm:p-4" : "p-8"}>
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <ClientsHeader 
-          onAddClientClick={() => setIsDialogOpen(true)}
-          onTrashClick={handleTrashClick}
-          isMobile={isMobile}
-        />
+      <ClientsHeader
+        onAddClientClick={() => setIsDialogOpen(true)}
+        onTrashClick={handleTrashClick}
+        isMobile={isMobile}
+      />
 
-        {isMobile ? (
-          <ScrollArea className="h-[calc(100vh-10rem)]">
-            <ClientsContent
-              clients={clients}
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              selectedType={selectedType}
-              onTypeChange={setSelectedType}
-              selectedSecteur={selectedSecteur}
-              onSecteurChange={setSelectedSecteur}
-              selectedRegimeFiscal={selectedRegimeFiscal}
-              onRegimeFiscalChange={setSelectedRegimeFiscal}
-              selectedCDI={selectedCDI}
-              onCDIChange={setSelectedCDI}
-              showArchived={showArchived}
-              onShowArchivedChange={setShowArchived}
-              onView={handleView}
-              onEdit={handleEdit}
-              onArchive={handleArchive}
-              onRestore={handleRestore}
-              onDelete={handleDelete}
-              isMobile={isMobile}
-            />
-          </ScrollArea>
-        ) : (
+      {isMobile ? (
+        <ScrollArea className="h-[calc(100vh-10rem)]">
           <ClientsContent
             clients={clients}
             searchTerm={searchTerm}
@@ -121,6 +96,8 @@ export default function ClientsPage() {
             onSecteurChange={setSelectedSecteur}
             selectedRegimeFiscal={selectedRegimeFiscal}
             onRegimeFiscalChange={setSelectedRegimeFiscal}
+            selectedCDI={selectedCDI}
+            onCDIChange={setSelectedCDI}
             showArchived={showArchived}
             onShowArchivedChange={setShowArchived}
             onView={handleView}
@@ -130,29 +107,51 @@ export default function ClientsPage() {
             onDelete={handleDelete}
             isMobile={isMobile}
           />
-        )}
-
-        <ClientDialogs
-          isAddDialogOpen={isDialogOpen}
-          setIsAddDialogOpen={setIsDialogOpen}
-          isEditDialogOpen={isEditDialogOpen}
-          setIsEditDialogOpen={setIsEditDialogOpen}
-          isViewDialogOpen={isViewDialogOpen}
-          setIsViewDialogOpen={setIsViewDialogOpen}
-          selectedClient={selectedClient}
-          newClientType={newClientType}
-          onNewClientTypeChange={setNewClientType}
-          onAddClient={(clientData) => addMutation.mutate(clientData)}
-          onUpdateClient={(clientData) => {
-            if (selectedClient) {
-              updateMutation.mutate({
-                id: selectedClient.id,
-                updates: clientData,
-              });
-            }
-          }}
+        </ScrollArea>
+      ) : (
+        <ClientsContent
+          clients={clients}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          selectedType={selectedType}
+          onTypeChange={setSelectedType}
+          selectedSecteur={selectedSecteur}
+          onSecteurChange={setSelectedSecteur}
+          selectedRegimeFiscal={selectedRegimeFiscal}
+          onRegimeFiscalChange={setSelectedRegimeFiscal}
+          selectedCDI={selectedCDI}
+          onCDIChange={setSelectedCDI}
+          showArchived={showArchived}
+          onShowArchivedChange={setShowArchived}
+          onView={handleView}
+          onEdit={handleEdit}
+          onArchive={handleArchive}
+          onRestore={handleRestore}
+          onDelete={handleDelete}
+          isMobile={isMobile}
         />
-      </Dialog>
+      )}
+
+      <ClientDialogs
+        isAddDialogOpen={isDialogOpen}
+        setIsAddDialogOpen={setIsDialogOpen}
+        isEditDialogOpen={isEditDialogOpen}
+        setIsEditDialogOpen={setIsEditDialogOpen}
+        isViewDialogOpen={isViewDialogOpen}
+        setIsViewDialogOpen={setIsViewDialogOpen}
+        selectedClient={selectedClient}
+        newClientType={newClientType}
+        onNewClientTypeChange={setNewClientType}
+        onAddClient={(clientData) => addMutation.mutate(clientData)}
+        onUpdateClient={(clientData) => {
+          if (selectedClient) {
+            updateMutation.mutate({
+              id: selectedClient.id,
+              updates: clientData,
+            });
+          }
+        }}
+      />
     </div>
   );
 }

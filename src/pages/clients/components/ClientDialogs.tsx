@@ -73,7 +73,9 @@ export function ClientDialogs({
                   Informations détaillées sur le client
                 </DialogDescription>
               </DialogHeader>
-              <ClientView client={selectedClient} />
+              <ScrollArea className="max-h-[75vh] pr-4">
+                <ClientView client={selectedClient} />
+              </ScrollArea>
             </DialogContent>
           </Dialog>
 

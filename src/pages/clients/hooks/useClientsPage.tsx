@@ -7,33 +7,33 @@ import { useToast } from "@/components/ui/use-toast";
 import { useClientMutations } from "./useClientMutations";
 import { useClientFilters } from "./useClientFilters";
 import { useClientDialogs } from "./useClientDialogs";
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 
 export function useClientsPage() {
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [isDataReady, setIsDataReady] = useState(false);
   const [showTrash, setShowTrash] = useState(false);
+  const hasLoadedOnce = useRef(false);
 
-  const { 
-    data: clients = [], 
-    isLoading, 
-    error, 
-    refetch 
+  const {
+    data: clients = [],
+    isLoading,
+    error,
+    refetch
   } = useQuery({
     queryKey: ["clients"],
-    queryFn: () => getClients(false), // Only get active clients
-    staleTime: 30000, // 30 seconds
-    gcTime: 300000, // 5 minutes 
+    queryFn: () => getClients(false),
+    staleTime: 30000,
+    gcTime: 300000,
     retry: 2,
     refetchOnWindowFocus: false,
   });
 
-  useEffect(() => {
-    if (clients.length > 0) {
-      setIsDataReady(true);
-    }
-  }, [clients]);
+  if (clients.length > 0) {
+    hasLoadedOnce.current = true;
+  }
+
+  const isDataReady = hasLoadedOnce.current || clients.length > 0;
 
   const {
     searchTerm,
@@ -98,12 +98,6 @@ export function useClientsPage() {
       }, 500);
     };
   }, [refetch]);
-
-  useEffect(() => {
-    if (isLoading) {
-      setIsDataReady(false);
-    }
-  }, [isLoading]);
 
   const handleView = (client: Client) => {
     setSelectedClient(client);

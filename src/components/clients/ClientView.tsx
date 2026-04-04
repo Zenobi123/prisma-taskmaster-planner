@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Printer, User, Building2 } from "lucide-react";
 import { generateClientFichePDF } from "@/utils/pdf/clientFichePdfGenerator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 interface ClientViewProps {
@@ -46,7 +45,7 @@ export function ClientView({ client }: ClientViewProps) {
   };
 
   return (
-    <ScrollArea className="max-h-[calc(90vh-8rem)] overflow-y-auto">
+    <div className="max-h-[calc(90vh-8rem)] overflow-y-auto">
       <div className="space-y-6 p-1 pr-4 pb-4">
         {/* Header banner */}
         <div className="flex items-start justify-between bg-muted/40 rounded-lg p-4 border">
@@ -111,6 +110,6 @@ export function ClientView({ client }: ClientViewProps) {
           </>
         )}
       </div>
-    </ScrollArea>
+    </div>
   );
 }
