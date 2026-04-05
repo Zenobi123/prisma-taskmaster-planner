@@ -16,7 +16,6 @@ import Gestion from "./pages/Gestion";
 import Missions from "./pages/Missions";
 import Planning from "./pages/Planning";
 import Facturation from "./pages/Facturation";
-import Depenses from "./pages/Depenses";
 import Parametres from "./pages/Parametres";
 import Courrier from "./pages/Courrier";
 import Rapports from "./pages/Rapports";
@@ -148,14 +147,6 @@ const App = () => {
                 element={
                   <PrivateRoute session={session}>
                     <Facturation />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/depenses"
-                element={
-                  <PrivateRoute session={session}>
-                    <Depenses />
                   </PrivateRoute>
                 }
               />
