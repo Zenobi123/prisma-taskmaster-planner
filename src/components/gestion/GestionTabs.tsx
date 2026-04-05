@@ -23,9 +23,6 @@ export function GestionTabs({
 
   useEffect(() => {
     switch (activeTab) {
-      case "entreprise":
-        setTabContent(<TabsContent.Entreprise selectedClient={selectedClient} onTabChange={onTabChange} />);
-        break;
       case "fiscal":
         setTabContent(<TabsContent.ObligationsFiscales selectedClient={selectedClient} />);
         break;
@@ -47,18 +44,8 @@ export function GestionTabs({
       case "dossier":
         setTabContent(<TabsContent.GestionDossier selectedClient={selectedClient} />);
         break;
-      // Ajout des nouveaux cas pour les modules Administration, RH, Paie
-      case "gestion-admin":
-        setTabContent(<TabsContent.GestionAdmin selectedClient={selectedClient} />);
-        break;
-      case "gestion-rh":
-        setTabContent(<TabsContent.GestionRH selectedClient={selectedClient} />);
-        break;
-      case "gestion-paie":
-        setTabContent(<TabsContent.GestionPaie selectedClient={selectedClient} />);
-        break;
       default:
-        setTabContent(<TabsContent.Entreprise selectedClient={selectedClient} onTabChange={onTabChange} />);
+        setTabContent(<TabsContent.ObligationsFiscales selectedClient={selectedClient} />);
     }
   }, [activeTab, selectedClient, selectedSubTab, onTabChange, onSubTabSelect]);
 

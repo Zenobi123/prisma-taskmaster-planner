@@ -62,15 +62,11 @@ export function CustomTabsList({ activeTab, onTabChange }: TabsListProps) {
       <ScrollArea ref={scrollRef} className="flex-1">
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
           <TabsList className="flex flex-nowrap overflow-x-auto">
-            <TabsTrigger value="entreprise">Entreprise</TabsTrigger>
             <TabsTrigger value="fiscal">Fiscal</TabsTrigger>
             <TabsTrigger value="comptable">Comptable</TabsTrigger>
             <TabsTrigger value="contrat-prestations">Contrats</TabsTrigger>
             <TabsTrigger value="cloture-exercice">Clôture</TabsTrigger>
             <TabsTrigger value="dossier">Dossier</TabsTrigger>
-            <TabsTrigger value="gestion-admin">Administration</TabsTrigger>
-            <TabsTrigger value="gestion-rh">RH</TabsTrigger>
-            <TabsTrigger value="gestion-paie">Paie</TabsTrigger>
           </TabsList>
         </Tabs>
       </ScrollArea>

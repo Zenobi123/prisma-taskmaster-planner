@@ -12,14 +12,13 @@ import { useLocation, useBeforeUnload } from "react-router-dom";
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const VALID_TABS: Record<string, string> = {
-  'entreprise': 'entreprise',
   'obligations-fiscales': 'fiscal'
 };
 
-const VALID_ACTIVE_TABS = ['entreprise', 'fiscal'];
+const VALID_ACTIVE_TABS = ['fiscal'];
 
 export default function Gestion() {
-  const [activeTab, setActiveTab] = useState("entreprise");
+  const [activeTab, setActiveTab] = useState("fiscal");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [selectedSubTab, setSelectedSubTab] = useState<string | null>(null);
   const location = useLocation();
