@@ -1,34 +1,22 @@
 
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { usePlanning } from "@/hooks/usePlanning";
 import { CollaboratorFilter } from "@/components/planning/CollaboratorFilter";
 import { CalendarView } from "@/components/planning/CalendarView";
 import { EventsList } from "@/components/planning/EventsList";
+import PageLayout from "@/components/layout/PageLayout";
 
 const Planning = () => {
-  const navigate = useNavigate();
   const planning = usePlanning();
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center gap-4 mb-8">
-        <Button
-          variant="outline"
-          onClick={() => navigate("/")}
-          className="flex items-center gap-2"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Retour
-        </Button>
-      </div>
+    <PageLayout>
+      <div className="p-8">
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-2xl font-bold">Planning</h1>
-          <p className="text-neutral-600 mt-1">
-            Consultez et gérez le planning des missions
+          <h1 className="text-2xl font-bold text-neutral-800 tracking-tight">Planning</h1>
+          <p className="text-neutral-500 mt-1 text-sm">
+            Consultez le calendrier des échéances et la charge de travail de l'équipe
           </p>
         </div>
         <CollaboratorFilter 
@@ -45,14 +33,17 @@ const Planning = () => {
           datesWithEvents={planning.datesWithEvents}
         />
 
-        <EventsList 
-          date={planning.date}
-          events={planning.filteredEvents}
-          isLoading={planning.isLoading}
-          getEventBadge={planning.getEventBadge}
-        />
+        <div className="bg-white rounded-lg shadow-sm border border-neutral-200 overflow-hidden">
+          <EventsList
+            date={planning.date}
+            events={planning.filteredEvents}
+            isLoading={planning.isLoading}
+            getEventBadge={planning.getEventBadge}
+          />
+        </div>
       </div>
-    </div>
+      </div>
+    </PageLayout>
   );
 };
 

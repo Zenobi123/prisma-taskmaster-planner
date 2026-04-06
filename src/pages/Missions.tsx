@@ -7,10 +7,8 @@ import MissionList from "@/components/missions/MissionList";
 import MissionPagination from "@/components/missions/MissionPagination";
 import MissionHeader from "@/components/missions/MissionHeader";
 import NewMissionDialog from "@/components/missions/NewMissionDialog";
-import { VoiceControl } from "@/components/voice/VoiceControl";
-import { VoiceHelpDialog } from "@/components/voice/VoiceHelpDialog";
 import { useMissionFilter } from "@/hooks/useMissionFilter";
-import { useVoiceCommands } from "@/hooks/useVoiceCommands";
+import PageLayout from "@/components/layout/PageLayout";
 
 const Missions = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -102,34 +100,13 @@ const Missions = () => {
     }
   };
 
-  // Voice commands hook
-  const { handleVoiceCommand, showHelp, setShowHelp } = useVoiceCommands({
-    onSearchChange: handleSearchChange,
-    onStatusFilterChange: handleStatusFilterChange,
-    onNewMission: () => setShowNewMissionDialog(true),
-    onNextPage: handleNextPage,
-    onPrevPage: handlePrevPage,
-    onClearFilters: handleClearFilters,
-    currentPage,
-    totalPages
-  });
-
   return (
-    <div className="container mx-auto p-6">
-      <MissionHeader />
+    <PageLayout>
+      <div className="p-8">
+        <MissionHeader />
 
-      {/* Voice Control Section */}
-      <div className="mb-6 flex justify-between items-center">
-        <VoiceControl 
-          onCommand={handleVoiceCommand}
-          className="flex-shrink-0"
-        />
-        <div className="text-sm text-muted-foreground">
-          Dites "aide" pour voir les commandes disponibles
-        </div>
-      </div>
-
-      <MissionFilters
+        <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 mb-6">
+          <MissionFilters
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}
         statusFilter={statusFilter}
@@ -146,18 +123,15 @@ const Missions = () => {
         totalPages={totalPages}
         onPageChange={setCurrentPage}
       />
-
-      <VoiceHelpDialog 
-        open={showHelp}
-        onOpenChange={setShowHelp}
-      />
+        </div>
 
       <NewMissionDialog 
         isOpen={showNewMissionDialog}
         onOpenChange={setShowNewMissionDialog}
         showTrigger={false}
       />
-    </div>
+      </div>
+    </PageLayout>
   );
 };
 
