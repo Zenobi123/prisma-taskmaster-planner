@@ -38,6 +38,7 @@ const PaymentsTable = ({ payments, onViewReceipt }: PaymentsTableProps) => {
   };
 
   return (
+    <div className="overflow-x-auto">
     <Table>
       <TableHeader>
         <TableRow>
@@ -93,6 +94,7 @@ const PaymentsTable = ({ payments, onViewReceipt }: PaymentsTableProps) => {
         )}
       </TableBody>
     </Table>
+    </div>
   );
 };
 

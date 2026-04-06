@@ -107,7 +107,7 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
           </SelectContent>
         </Select>
       </div>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="start_date">Date de début</Label>
           <Popover>
@@ -181,7 +181,7 @@ export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps)
       </div>
       
       {/* Ajout des champs pour la planche horaire */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
           <Label htmlFor="start_time" className="flex items-center">
             <Clock className="h-4 w-4 mr-1" />

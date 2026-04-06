@@ -37,7 +37,7 @@ const ClientsList = ({ clientsSummary, isLoading, onViewDetails }: ClientsListPr
       />
       
       <CardContent className={isMobile ? "px-2" : ""}>
-        <div className="border rounded-md overflow-hidden">
+        <div className="border rounded-md overflow-hidden overflow-x-auto">
           <Table>
             {!isMobile && <ClientsTableHeader handleSort={handleSort} />}
             <ClientsTableBody 

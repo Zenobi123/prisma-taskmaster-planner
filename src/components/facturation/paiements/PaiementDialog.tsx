@@ -53,7 +53,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl overflow-y-auto max-h-[90vh]">
+      <DialogContent className="sm:max-w-4xl overflow-y-auto">
         <DialogHeader className="pb-4 border-b border-gray-100">
           <DialogTitle className="flex items-center gap-2 text-primary">
             <Receipt size={20} className="text-primary" />
@@ -76,7 +76,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
                 onCreditChange={handleCreditChange}
               />
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <PaiementDateSection 
                   date={date} 
                   onDateChange={handleDateChange} 

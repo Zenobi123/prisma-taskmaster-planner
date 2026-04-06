@@ -30,6 +30,7 @@ const PaiementTable = ({
   }
 
   return (
+    <div className="overflow-x-auto">
     <Table>
       <PaiementTableHeader />
       <TableBody>
@@ -51,6 +52,7 @@ const PaiementTable = ({
         )}
       </TableBody>
     </Table>
+    </div>
   );
 };
 

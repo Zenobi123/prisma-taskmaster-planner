@@ -13,10 +13,12 @@ import {
   FolderOpen,
   Receipt,
   Settings,
-  Mail
+  Mail,
+  X
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type MenuItem = {
   path: string;
@@ -41,8 +43,10 @@ const menuItems: MenuItem[] = [
 
 const Sidebar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchRole = async () => {
@@ -61,20 +65,91 @@ const Sidebar = () => {
     fetchRole();
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const isActiveRoute = (path: string) => {
     return location.pathname === path;
   };
 
-  // Filter menu items based on user role
   const filteredMenuItems = menuItems.filter(item =>
     !item.allowedRoles || item.allowedRoles.includes(userRole || "")
   );
 
+  // Mobile: floating hamburger + overlay drawer
+  if (isMobile) {
+    return (
+      <>
+        {/* Floating menu button */}
+        {!isMobileMenuOpen && (
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="fixed top-3 left-3 z-50 p-2 bg-white border border-neutral-200 rounded-lg shadow-md"
+            aria-label="Ouvrir le menu"
+          >
+            <Menu className="w-5 h-5 text-neutral-600" />
+          </button>
+        )}
+
+        {/* Overlay backdrop */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 z-50 bg-black/50 transition-opacity"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+
+        {/* Drawer */}
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-neutral-200 flex flex-col transform transition-transform duration-300 ease-in-out ${
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="p-4 border-b border-neutral-200">
+            <div className="flex items-center justify-between">
+              <h1 className="font-semibold text-neutral-800">PRISMA GESTION</h1>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 hover:bg-neutral-100 rounded-md transition-colors"
+                aria-label="Fermer le menu"
+              >
+                <X className="w-5 h-5 text-neutral-600" />
+              </button>
+            </div>
+          </div>
+
+          <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+            {filteredMenuItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`sidebar-link group relative ${isActiveRoute(item.path) && "active"}`}
+              >
+                <item.icon className="w-5 h-5 shrink-0" />
+                <span>{item.label}</span>
+                {isActiveRoute(item.path) && (
+                  <ChevronRight className="w-4 h-4 ml-auto" />
+                )}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="p-4 border-t border-neutral-200">
+            <LogoutButton />
+          </div>
+        </aside>
+      </>
+    );
+  }
+
+  // Desktop: standard collapsible sidebar
   return (
     <aside
       className={`${
         isSidebarOpen ? "w-64" : "w-20"
-      } bg-white border-r border-neutral-200 transition-all duration-300 ease-in-out flex flex-col`}
+      } bg-white border-r border-neutral-200 transition-all duration-300 ease-in-out flex flex-col shrink-0`}
     >
       <div className="p-4 border-b border-neutral-200">
         <div className="flex items-center justify-between">

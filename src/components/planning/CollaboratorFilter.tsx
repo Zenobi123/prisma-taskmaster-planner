@@ -17,7 +17,7 @@ interface CollaboratorFilterProps {
 export const CollaboratorFilter = ({ collaborateurs, value, onChange }: CollaboratorFilterProps) => {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[200px]">
+      <SelectTrigger className="w-full sm:w-[200px]">
         <SelectValue placeholder="Filtrer par collaborateur" />
       </SelectTrigger>
       <SelectContent>

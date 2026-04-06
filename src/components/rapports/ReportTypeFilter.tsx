@@ -15,7 +15,7 @@ interface ReportTypeFilterProps {
 export const ReportTypeFilter = ({ value, onChange }: ReportTypeFilterProps) => {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[200px]">
+      <SelectTrigger className="w-full sm:w-[200px]">
         <SelectValue placeholder="Type de rapport" />
       </SelectTrigger>
       <SelectContent>

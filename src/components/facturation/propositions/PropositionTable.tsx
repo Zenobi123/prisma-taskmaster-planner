@@ -61,7 +61,7 @@ const PropositionTable = ({
   }
 
   return (
-    <div className="rounded-md border overflow-hidden">
+    <div className="rounded-md border overflow-hidden overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50">

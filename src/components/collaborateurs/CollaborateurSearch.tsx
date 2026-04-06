@@ -71,7 +71,7 @@ export function CollaborateurSearch({
             <div className="space-y-2">
               <label className="text-sm font-medium">Statut</label>
               <Select value={selectedStatut} onValueChange={onStatutChange}>
-                <SelectTrigger className="w-[200px] bg-background border-input">
+                <SelectTrigger className="w-full sm:w-[200px] bg-background border-input">
                   <SelectValue placeholder="Statut" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">
@@ -86,7 +86,7 @@ export function CollaborateurSearch({
             <div className="space-y-2">
               <label className="text-sm font-medium">Poste</label>
               <Select value={selectedPoste} onValueChange={onPosteChange}>
-                <SelectTrigger className="w-[200px] bg-background border-input">
+                <SelectTrigger className="w-full sm:w-[200px] bg-background border-input">
                   <SelectValue placeholder="Poste" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="w-full bg-white shadow-lg border z-50">

@@ -14,7 +14,7 @@ const FactureSearchBar = ({ searchTerm, setSearchTerm }: FactureSearchBarProps) 
       <Input
         type="search"
         placeholder="Rechercher..."
-        className="pl-9 w-64 border-gray-300 focus:border-[#84A98C] focus:ring-[#84A98C]/20"
+        className="pl-9 w-full sm:w-64 border-gray-300 focus:border-[#84A98C] focus:ring-[#84A98C]/20"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />

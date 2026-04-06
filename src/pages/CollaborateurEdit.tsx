@@ -60,7 +60,7 @@ export default function CollaborateurEdit() {
 
   if (isLoading) {
     return (
-      <div className="p-8">
+      <div className="p-4 sm:p-6 md:p-8">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
@@ -70,14 +70,14 @@ export default function CollaborateurEdit() {
 
   if (!collaborateur) {
     return (
-      <div className="p-8">
+      <div className="p-4 sm:p-6 md:p-8">
         <h1>Collaborateur non trouvé</h1>
       </div>
     );
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 sm:p-6 md:p-8">
       <div className="flex items-center justify-between mb-6">
         <Button
           variant="outline"

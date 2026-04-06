@@ -37,7 +37,7 @@ export const QuarterlyPaymentsSection: React.FC<QuarterlyPaymentsSectionProps> =
   return (
     <div className="mt-4 border-t pt-3">
       <h4 className="text-sm font-medium mb-2">Paiements trimestriels</h4>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <QuarterlyPayment
           quarter="1er Trimestre"
           label="1er Trimestre"

@@ -40,7 +40,7 @@ const PreviewDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[85vh] bg-white border border-gray-200">
+      <DialogContent className="sm:max-w-4xl bg-white border border-gray-200">
         <DialogHeader className="border-b border-gray-100 pb-4">
           <DialogTitle className="flex items-center gap-2 text-xl text-gray-900">
             <Eye className="w-5 h-5 text-[#84A98C]" />

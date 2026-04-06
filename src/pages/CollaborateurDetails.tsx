@@ -17,7 +17,7 @@ export default function CollaborateurDetails() {
 
   if (isLoading) {
     return (
-      <div className="p-8">
+      <div className="p-4 sm:p-6 md:p-8">
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
         </div>
@@ -27,7 +27,7 @@ export default function CollaborateurDetails() {
 
   if (!collaborateur) {
     return (
-      <div className="p-8">
+      <div className="p-4 sm:p-6 md:p-8">
         <h1>Collaborateur non trouvé</h1>
       </div>
     );
@@ -66,11 +66,11 @@ export default function CollaborateurDetails() {
           {/* En-tête */}
           <div className="text-center pb-6 border-b">
             <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-3xl text-primary font-semibold">
+              <span className="text-2xl sm:text-3xl text-primary font-semibold">
                 {collaborateur.prenom[0]}{collaborateur.nom[0]}
               </span>
             </div>
-            <h1 className="text-3xl font-bold mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">
               {collaborateur.prenom} {collaborateur.nom}
             </h1>
             <p className="text-lg text-neutral-600">{collaborateur.poste}</p>

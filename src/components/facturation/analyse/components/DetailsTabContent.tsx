@@ -13,6 +13,7 @@ export const DetailsTabContent = ({ prestations }: DetailsTabContentProps) => {
   return (
     <Card>
       <CardContent className="p-4">
+        <div className="overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -39,6 +40,7 @@ export const DetailsTabContent = ({ prestations }: DetailsTabContentProps) => {
             ))}
           </TableBody>
         </Table>
+        </div>
       </CardContent>
     </Card>
   );

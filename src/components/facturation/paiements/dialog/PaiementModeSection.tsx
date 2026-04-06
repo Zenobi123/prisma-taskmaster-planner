@@ -48,7 +48,7 @@ export const PaiementModeSection = ({
         <RadioGroup 
           value={selectedMode}
           onValueChange={(value: "espèces" | "virement" | "orange_money" | "mtn_money") => onModeChange(value)}
-          className="grid grid-cols-2 gap-3"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3"
         >
           <div className="bg-white hover:bg-gray-50 transition-colors rounded-md border border-gray-200 p-2.5 cursor-pointer flex items-center space-x-2">
             <RadioGroupItem value="espèces" id="especes" className="h-4 w-4 text-primary border-gray-400" />

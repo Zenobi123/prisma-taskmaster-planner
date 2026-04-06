@@ -14,7 +14,7 @@ const PaiementSearchBar = ({ searchTerm, setSearchTerm }: PaiementSearchBarProps
       <Input
         type="search"
         placeholder="Rechercher..."
-        className="pl-8 w-64"
+        className="pl-8 w-full sm:w-64"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />

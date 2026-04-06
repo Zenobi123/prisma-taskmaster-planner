@@ -27,7 +27,7 @@ const FactureTable = ({
   isMobile
 }: FactureTableProps) => {
   return (
-    <div className="rounded-md border overflow-hidden">
+    <div className="rounded-md border overflow-hidden overflow-x-auto">
       <Table>
         {!isMobile && <FactureTableHeader />}
         <TableBody>

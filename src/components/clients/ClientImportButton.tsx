@@ -223,7 +223,7 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
       </Button>
 
       <Dialog open={open} onOpenChange={(value) => { if (!value) handleClose(); else setOpen(true); }}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />

@@ -105,7 +105,7 @@ const AnalyseParFacture = () => {
               Aucune facture trouvée
             </div>
           ) : (
-            <div className="h-[calc(100vh-350px)] overflow-y-auto pr-2">
+            <div className="h-[calc(100vh-350px)] overflow-y-auto overflow-x-auto pr-2">
               <Table>
                 <TableHeader>
                   <TableRow>

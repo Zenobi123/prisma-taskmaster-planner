@@ -15,7 +15,7 @@ export const TaxDistributionCards = ({ stats }: TaxDistributionCardsProps) => {
           <CardTitle className="text-lg">Répartition des impôts</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg text-center">
               <h3 className="text-sm text-gray-500 mb-1">Total des impôts</h3>
               <p className="text-2xl font-bold text-[#84A98C]">{formatMontant(stats.totalImpots)}</p>
@@ -44,7 +44,7 @@ export const TaxDistributionCards = ({ stats }: TaxDistributionCardsProps) => {
           <CardTitle className="text-lg">Répartition des honoraires</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-gray-50 p-4 rounded-lg text-center">
               <h3 className="text-sm text-gray-500 mb-1">Total des honoraires</h3>
               <p className="text-2xl font-bold text-[#2F3E46]">{formatMontant(stats.totalHonoraires)}</p>

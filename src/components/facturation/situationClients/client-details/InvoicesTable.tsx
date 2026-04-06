@@ -67,6 +67,7 @@ const InvoicesTable = ({
 
   return (
     <>
+      <div className="overflow-x-auto">
       <Table>
         <InvoiceTableHeader />
         <TableBody>
@@ -89,6 +90,7 @@ const InvoicesTable = ({
           )}
         </TableBody>
       </Table>
+      </div>
 
       <InvoicePreviewDialog 
         invoice={previewInvoice}

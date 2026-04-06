@@ -35,7 +35,7 @@ export const NonCompliantDialog = ({ open, onOpenChange }: NonCompliantDialogPro
   if (isLoading) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-4xl overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Clients avec situation fiscale non conforme</DialogTitle>
           </DialogHeader>
@@ -52,7 +52,7 @@ export const NonCompliantDialog = ({ open, onOpenChange }: NonCompliantDialogPro
   if (error) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-4xl">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
             <DialogTitle>Clients avec situation fiscale non conforme</DialogTitle>
           </DialogHeader>
@@ -64,7 +64,7 @@ export const NonCompliantDialog = ({ open, onOpenChange }: NonCompliantDialogPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-4xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
             <span>Clients avec situation fiscale non conforme</span>

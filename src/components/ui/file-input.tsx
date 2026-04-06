@@ -48,7 +48,7 @@ export const FileInput: React.FC<FileInputProps> = ({
         {uploading ? "Envoi en cours..." : "Choisir un fichier"}
       </Button>
       {fileName && !uploading && (
-        <span className="text-sm text-muted-foreground truncate max-w-[150px]">
+        <span className="text-sm text-muted-foreground truncate max-w-[200px] sm:max-w-[150px]">
           {fileName}
         </span>
       )}

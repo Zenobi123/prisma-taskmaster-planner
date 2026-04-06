@@ -96,7 +96,7 @@ const Index = () => {
           onRefresh={refreshDashboard} 
         />
 
-        <div className="p-8 space-y-8">
+        <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-6 md:space-y-8">
           <QuickStats />
           <DashboardAccordion />
         </div>

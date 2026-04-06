@@ -15,10 +15,10 @@ const DashboardHeader = ({ lastRefresh, onRefresh }: DashboardHeaderProps) => {
   };
 
   return (
-    <header className="bg-white border-b border-neutral-200 px-8 py-6">
-      <div className="flex items-center justify-between">
+    <header className="bg-white border-b border-neutral-200 px-4 py-4 sm:px-6 md:px-8 md:py-6">
+      <div className="flex items-center justify-between ml-10 md:ml-0">
         <div>
-          <h1 className="text-2xl font-semibold text-neutral-800">
+          <h1 className="text-xl sm:text-2xl font-semibold text-neutral-800">
             Tableau de bord
           </h1>
           <p className="text-neutral-600 mt-1">

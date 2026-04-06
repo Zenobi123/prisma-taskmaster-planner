@@ -64,7 +64,7 @@ const AnalyseFilters = () => {
               value={period} 
               onValueChange={(value) => setFilters({ period: value as "month" | "quarter" | "year" })}
             >
-              <SelectTrigger className="w-[150px]">
+              <SelectTrigger className="w-full sm:w-[150px]">
                 <SelectValue placeholder="Période" />
               </SelectTrigger>
               <SelectContent>
@@ -81,7 +81,7 @@ const AnalyseFilters = () => {
               value={clientFilter || "all"} 
               onValueChange={(value) => setFilters({ clientFilter: value === "all" ? null : value })}
             >
-              <SelectTrigger className="w-[200px]">
+              <SelectTrigger className="w-full sm:w-[200px]">
                 <SelectValue placeholder="Tous les clients" />
               </SelectTrigger>
               <SelectContent>
@@ -101,7 +101,7 @@ const AnalyseFilters = () => {
               value={statusFilter || "all"} 
               onValueChange={(value) => setFilters({ statusFilter: value === "all" ? null : value })}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Statut paiement" />
               </SelectTrigger>
               <SelectContent>

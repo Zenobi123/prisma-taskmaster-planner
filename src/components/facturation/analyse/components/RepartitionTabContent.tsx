@@ -63,7 +63,7 @@ export const RepartitionTabContent = ({
             </ResponsiveContainer>
           </ChartContainer>
           
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <div className="text-center p-3 bg-gray-50 rounded-md">
               <p className="text-sm text-gray-500">Total impôts</p>
               <p className="text-xl font-bold text-[#84A98C]">{formatMontant(totalImpots)}</p>

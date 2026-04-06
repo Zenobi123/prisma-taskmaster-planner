@@ -33,7 +33,7 @@ const Facturation = () => {
 
   return (
     <PageLayout>
-      <div className="p-6 max-w-7xl mx-auto">
+      <div className="p-3 sm:p-4 md:p-6 max-w-7xl mx-auto">
         <div className="mb-6">
           <Button
             variant="outline"
@@ -47,7 +47,7 @@ const Facturation = () => {
 
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800">Facturation</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Facturation</h1>
             <p className="text-neutral-600 mt-1">
               Gestion de la facturation et des paiements
             </p>
