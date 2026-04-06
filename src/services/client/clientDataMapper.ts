@@ -33,7 +33,6 @@ export const mapClientRowToClient = (client: ClientRow): Client => {
     secteuractivite: client.secteuractivite,
     numerocnps: client.numerocnps || null,
     regimefiscal: client.regimefiscal as "reel" | "igs" | "non_professionnel" | "obnl", // Now guaranteed to be valid
-    inscriptionfanrharmony2: client.inscriptionfanrharmony2 || false,
     interactions: (Array.isArray(client.interactions) ? client.interactions : []).map((interaction: any) => ({
       id: interaction.id || crypto.randomUUID(),
       date: interaction.date || new Date().toISOString(),

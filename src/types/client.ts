@@ -52,7 +52,6 @@ export interface Client {
   interactions: Interaction[];
   statut: ClientStatus;
   gestionexternalisee: boolean;
-  inscriptionfanrharmony2?: boolean;
   created_at?: string;
   sexe?: Sexe;
   etatcivil?: EtatCivil;

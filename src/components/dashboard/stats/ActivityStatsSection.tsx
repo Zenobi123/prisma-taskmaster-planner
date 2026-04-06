@@ -19,9 +19,9 @@ export const ActivityStatsSection = ({
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
       <StatsCard
-        title="Clients inscrits en FANR H2"
-        value={isClientStatsLoading ? "--" : (clientStats?.fanrH2Clients || 0)}
-        description="Total"
+        title="Clients gérés"
+        value={isClientStatsLoading ? "--" : (clientStats?.managedClients || 0)}
+        description="Clients actifs"
         isLoading={isClientStatsLoading}
       />
 

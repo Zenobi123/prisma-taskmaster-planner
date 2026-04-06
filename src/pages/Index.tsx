@@ -35,7 +35,6 @@ const Index = () => {
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs-section"] });
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({ queryKey: ["client-stats"] });
-      queryClient.invalidateQueries({ queryKey: ["clients-not-fanr-h2"] });
       
       // Mettre à jour le timestamp de dernière actualisation
       setLastRefresh(new Date());

@@ -32,8 +32,7 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
     situationimmobiliere: client.situationimmobiliere,
     interactions: [],
     statut: "actif",
-    gestionexternalisee: client.gestionexternalisee || false,
-    inscriptionfanrharmony2: client.inscriptionfanrharmony2 || false
+    gestionexternalisee: client.gestionexternalisee || false
   };
 
   const { data, error } = await supabase

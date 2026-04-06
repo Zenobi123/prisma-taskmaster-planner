@@ -8,7 +8,6 @@ import { getClientsWithNonCompliantFiscalSituation } from "./fiscal/nonCompliant
 
 export interface ClientStats {
   managedClients: number;
-  fanrH2Clients: number;
   unpaidIgsClients: number;
   unpaidPatenteClients: number;
   unfiledDsfClients: number;
@@ -30,7 +29,6 @@ export const getClientsStats = async (): Promise<ClientStats> => {
       console.error('❌ Error fetching clients:', error);
       return {
         managedClients: 0,
-        fanrH2Clients: 0,
         unpaidIgsClients: 0,
         unpaidPatenteClients: 0,
         unfiledDsfClients: 0,
@@ -40,9 +38,8 @@ export const getClientsStats = async (): Promise<ClientStats> => {
     }
 
     const managedClients = clients?.length || 0;
-    const fanrH2Clients = clients?.filter(client => client.inscriptionfanrharmony2 === true).length || 0;
 
-    console.log(`📈 Found ${managedClients} managed clients, ${fanrH2Clients} FANR H2 clients`);
+    console.log(`📈 Found ${managedClients} managed clients`);
 
     // Get fiscal obligations data using the centralized services
     const [unpaidIgsClients, unpaidPatenteClients, unfiledDsfClients, unfiledDarpClients, nonCompliantClients] = await Promise.all([
@@ -70,7 +67,6 @@ export const getClientsStats = async (): Promise<ClientStats> => {
 
     const stats = {
       managedClients,
-      fanrH2Clients,
       unpaidIgsClients: unpaidIgsClients.length,
       unpaidPatenteClients: unpaidPatenteClients.length,
       unfiledDsfClients: unfiledDsfClients.length,
@@ -85,7 +81,6 @@ export const getClientsStats = async (): Promise<ClientStats> => {
     console.error('❌ Error in getClientsStats:', error);
     return {
       managedClients: 0,
-      fanrH2Clients: 0,
       unpaidIgsClients: 0,
       unpaidPatenteClients: 0,
       unfiledDsfClients: 0,

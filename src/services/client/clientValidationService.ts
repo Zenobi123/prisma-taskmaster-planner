@@ -37,7 +37,6 @@ export const cleanClientUpdateData = (updates: any): any => {
   if (updates.situationimmobiliere !== undefined) cleanedUpdates.situationimmobiliere = updates.situationimmobiliere;
   if (updates.statut !== undefined) cleanedUpdates.statut = updates.statut;
   if (updates.gestionexternalisee !== undefined) cleanedUpdates.gestionexternalisee = updates.gestionexternalisee || false;
-  if (updates.inscriptionfanrharmony2 !== undefined) cleanedUpdates.inscriptionfanrharmony2 = updates.inscriptionfanrharmony2 || false;
 
   return cleanedUpdates;
 };
