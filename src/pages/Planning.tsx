@@ -1,4 +1,7 @@
 
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { usePlanning } from "@/hooks/usePlanning";
 import { CollaboratorFilter } from "@/components/planning/CollaboratorFilter";
 import { CalendarView } from "@/components/planning/CalendarView";
@@ -6,11 +9,23 @@ import { EventsList } from "@/components/planning/EventsList";
 import PageLayout from "@/components/layout/PageLayout";
 
 const Planning = () => {
+  const navigate = useNavigate();
   const planning = usePlanning();
 
   return (
     <PageLayout>
       <div className="p-8">
+
+      <div className="flex items-center gap-4 mb-4">
+        <Button
+          variant="outline"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-2"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Retour
+        </Button>
+      </div>
 
       <div className="flex justify-between items-center mb-8">
         <div>
