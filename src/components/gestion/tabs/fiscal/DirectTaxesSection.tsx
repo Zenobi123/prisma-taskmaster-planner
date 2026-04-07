@@ -14,7 +14,8 @@ const taxItems: { key: ObligationType; name: string }[] = [
   { key: 'igs', name: 'Impôt Général Synthétique (IGS)' },
   { key: 'patente', name: 'Patente' },
   { key: 'bailCommercial', name: 'Bail Commercial' },
-  { key: 'tpf', name: 'Taxe sur la propriété (TPF)' },
+  { key: 'precompteLoyer', name: 'Précompte sur Loyer (PSL)' },
+  { key: 'tpf', name: 'Taxe Foncière (TPF)' },
 ];
 
 export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({ 

@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses } from "./types";
+import { calculateAllTaxes, FiscalInput } from "@/utils/fiscalCalculations";
 
 export const useDefaultObligationRules = (selectedClient: Client) => {
   const getDefaultObligationStatuses = (): ObligationStatuses => {
@@ -11,6 +12,22 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
       situationimmobiliere: selectedClient.situationimmobiliere,
       nom: selectedClient.nom || selectedClient.raisonsociale
     });
+
+    // Calculer les montants des impôts à partir des données du profil client
+    const fiscalInput: FiscalInput = {
+      regimeFiscal: selectedClient.regimefiscal,
+      chiffreAffaires: selectedClient.chiffreaffaires || 0,
+      isCGA: selectedClient.iscga || false,
+      isVendeurBoissons: selectedClient.isvendeurboissons || false,
+      modePaiementIGS: selectedClient.modepaiementigs || "trimestriel",
+      situationImmobiliere: selectedClient.situationimmobiliere ? {
+        type: selectedClient.situationimmobiliere.type,
+        loyerMensuel: selectedClient.situationimmobiliere.loyer,
+        valeurBien: selectedClient.situationimmobiliere.valeur,
+      } : undefined,
+      modePaiementPSL: selectedClient.modepaiementpsl || "trimestriel",
+    };
+    const calculatedTaxes = calculateAllTaxes(fiscalInput);
 
     const baseStatuses: ObligationStatuses = {
       // Direct taxes - all start as not subject by default
@@ -34,65 +51,75 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     // Règles spécifiques pour les personnes physiques
     if (selectedClient.type === "physique") {
       console.log("Applying rules for personne physique");
-      
+
       // Toutes les personnes physiques sont assujetties à la DARP
-      console.log("Applying rule: Personne physique → DARP obligatoire");
       baseStatuses.darp.assujetti = true;
 
       // Règles selon le régime fiscal pour les personnes physiques
       if (selectedClient.regimefiscal === "reel") {
-        console.log("Applying rule: Personne physique + Régime réel → Patente obligatoire");
         baseStatuses.patente.assujetti = true;
+        baseStatuses.patente.montantAnnuel = calculatedTaxes.patente;
         isSubjectToIgsOrPatente = true;
       } else if (selectedClient.regimefiscal === "igs") {
-        console.log("Applying rule: Personne physique + Régime IGS → IGS obligatoire");
         baseStatuses.igs.assujetti = true;
+        baseStatuses.igs.montantAnnuel = calculatedTaxes.igs;
         isSubjectToIgsOrPatente = true;
-      } else if (selectedClient.regimefiscal === "non_professionnel") {
-        console.log("Applying rule: Personne physique + Non professionnel → Aucune obligation fiscale professionnelle");
-        // Les non-professionnels ne sont pas assujettis aux impôts professionnels
-        // Seule la DARP reste applicable (déjà définie ci-dessus)
       }
     }
 
-    // Règles spécifiques pour les personnes morales  
+    // Règles spécifiques pour les personnes morales
     if (selectedClient.type === "morale") {
       console.log("Applying rules for personne morale");
-      
+
       // Toutes les personnes morales sont assujetties à la DBEF
-      console.log("Applying rule: Personne morale → DBEF obligatoire");
       baseStatuses.dbef.assujetti = true;
-      
+
       if (selectedClient.regimefiscal === "reel") {
-        console.log("Applying rule: Personne morale + Régime réel → Patente obligatoire");
         baseStatuses.patente.assujetti = true;
+        baseStatuses.patente.montantAnnuel = calculatedTaxes.patente;
         isSubjectToIgsOrPatente = true;
       } else if (selectedClient.regimefiscal === "igs") {
-        console.log("Applying rule: Personne morale + Régime IGS → IGS obligatoire");
         baseStatuses.igs.assujetti = true;
+        baseStatuses.igs.montantAnnuel = calculatedTaxes.igs;
         isSubjectToIgsOrPatente = true;
       }
     }
 
     // Règle automatique : Les assujettis à IGS ou Patente sont automatiquement assujettis à la DSF
     if (isSubjectToIgsOrPatente) {
-      console.log("Applying rule: Assujetti IGS/Patente → DSF obligatoire");
       baseStatuses.dsf.assujetti = true;
     }
 
     // Règles basées sur la situation immobilière
-    if (selectedClient.situationimmobiliere?.type === "proprietaire") {
-      console.log("Applying rule: Propriétaire → TPF obligatoire");
-      baseStatuses.tpf.assujetti = true;
-    } else if (selectedClient.situationimmobiliere?.type === "locataire") {
-      // Si le client est locataire, il peut être assujetti au précompte loyer
-      console.log("Applying rule: Locataire → Précompte loyer potentiel");
-      // Note: Cette règle peut dépendre d'autres critères spécifiques
-      // Pour l'instant on la laisse à false par défaut
+    const sitType = selectedClient.situationimmobiliere?.type;
+    const isLocataire = sitType === "locataire" || sitType === "les_deux";
+    const isProprietaire = sitType === "proprietaire" || sitType === "les_deux";
+
+    // Bail Commercial et Précompte sur Loyer pour les locataires
+    if (isLocataire && selectedClient.situationimmobiliere?.loyer) {
+      baseStatuses.bailCommercial.assujetti = true;
+      baseStatuses.bailCommercial.montantAnnuel = calculatedTaxes.bail;
+
+      // PSL seulement pour les régimes professionnels (pas non_professionnel)
+      if (selectedClient.regimefiscal !== "non_professionnel") {
+        baseStatuses.precompteLoyer.assujetti = true;
+        baseStatuses.precompteLoyer.montantAnnuel = calculatedTaxes.psl;
+      }
     }
 
-    console.log("Final default statuses:", baseStatuses);
-    console.log("DBEF status specifically:", baseStatuses.dbef);
+    // Taxe Foncière pour les propriétaires
+    if (isProprietaire && selectedClient.situationimmobiliere?.valeur) {
+      baseStatuses.tpf.assujetti = true;
+      baseStatuses.tpf.montantAnnuel = calculatedTaxes.tf;
+    }
+
+    console.log("Final default statuses with calculated amounts:", {
+      patente: calculatedTaxes.patente,
+      igs: calculatedTaxes.igs,
+      bail: calculatedTaxes.bail,
+      psl: calculatedTaxes.psl,
+      tf: calculatedTaxes.tf,
+    });
     return baseStatuses;
   };
 
