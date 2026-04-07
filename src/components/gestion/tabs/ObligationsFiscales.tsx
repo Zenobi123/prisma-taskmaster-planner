@@ -2,6 +2,7 @@
 import React, { useEffect } from "react";
 import { Client } from "@/types/client";
 import { FiscalAttestationSection } from "./fiscal/FiscalAttestationSection";
+import { RegistrationAttestationSection } from "./fiscal/RegistrationAttestationSection";
 import { DirectTaxesSection } from "./fiscal/DirectTaxesSection";
 import { AnnualObligationsSection } from "./fiscal/AnnualObligationsSection";
 import { UnsavedChangesAlert } from "./fiscal/UnsavedChangesAlert";
@@ -32,7 +33,9 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
     obligationStatuses,
     setObligationStatuses,
     fiscalSituationCompliant,
-    setFiscalSituationCompliant
+    setFiscalSituationCompliant,
+    registrationDate,
+    setRegistrationDate
   } = useObligationsFiscalesState({ selectedClient });
 
   const { isDeclarationObligation } = useObligationTypes();
@@ -55,6 +58,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
     hiddenFromDashboard,
     obligationStatuses,
     fiscalSituationCompliant,
+    registrationDate,
     autoSave: false, // Désactivé par défaut, peut être activé via les paramètres
     autoSaveDelay: 3000
   });
@@ -123,6 +127,15 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
         fiscalSituationCompliant={fiscalSituationCompliant}
         onToggleFiscalSituationCompliant={(compliant) => {
           setFiscalSituationCompliant(compliant);
+          markAsChanged();
+        }}
+      />
+
+      {/* Section Attestation d'Immatriculation */}
+      <RegistrationAttestationSection
+        registrationDate={registrationDate}
+        setRegistrationDate={(date) => {
+          setRegistrationDate(date);
           markAsChanged();
         }}
       />

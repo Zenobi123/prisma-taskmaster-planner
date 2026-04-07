@@ -14,6 +14,7 @@ interface UseUnifiedFiscalSaveProps {
   hiddenFromDashboard: boolean;
   obligationStatuses: ObligationStatuses;
   fiscalSituationCompliant?: boolean;
+  registrationDate?: string;
   autoSave?: boolean;
   autoSaveDelay?: number;
 }
@@ -27,6 +28,7 @@ export const useUnifiedFiscalSave = ({
   hiddenFromDashboard,
   obligationStatuses,
   fiscalSituationCompliant = true,
+  registrationDate = "",
   autoSave = false,
   autoSaveDelay = 3000
 }: UseUnifiedFiscalSaveProps) => {
@@ -75,6 +77,9 @@ export const useUnifiedFiscalSave = ({
           showInAlert,
           fiscalSituationCompliant
         },
+        registrationAttestation: {
+          registrationDate
+        },
         obligations: {
           ...(baseData.obligations && typeof baseData.obligations === 'object' ? baseData.obligations : {}),
           [fiscalYear]: serializedObligations
@@ -114,6 +119,7 @@ export const useUnifiedFiscalSave = ({
     validityEndDate,
     showInAlert,
     fiscalSituationCompliant,
+    registrationDate,
     hiddenFromDashboard,
     obligationStatuses,
     toast

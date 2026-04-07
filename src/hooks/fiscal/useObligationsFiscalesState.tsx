@@ -15,6 +15,7 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
   const [showInAlert, setShowInAlert] = useState<boolean>(true);
   const [hiddenFromDashboard, setHiddenFromDashboard] = useState<boolean>(false);
   const [fiscalSituationCompliant, setFiscalSituationCompliant] = useState<boolean>(true);
+  const [registrationDate, setRegistrationDate] = useState<string>("");
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({} as ObligationStatuses);
 
   // Load fiscal data when client changes
@@ -43,6 +44,12 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
             setValidityEndDate(attestation.validityEndDate || "");
             setShowInAlert(attestation.showInAlert !== false);
             setFiscalSituationCompliant(attestation.fiscalSituationCompliant !== false);
+          }
+
+          // Load registration attestation data
+          if (fiscalData.registrationAttestation && typeof fiscalData.registrationAttestation === 'object') {
+            const regAttestation = fiscalData.registrationAttestation as any;
+            setRegistrationDate(regAttestation.registrationDate || "");
           }
 
           // Load dashboard visibility
@@ -86,6 +93,8 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
     setHiddenFromDashboard,
     fiscalSituationCompliant,
     setFiscalSituationCompliant,
+    registrationDate,
+    setRegistrationDate,
     obligationStatuses,
     setObligationStatuses
   };
