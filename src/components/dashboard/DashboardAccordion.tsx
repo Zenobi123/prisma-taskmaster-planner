@@ -8,6 +8,7 @@ import {
 import { IgsSection } from "./sections/IgsSection"
 import DsfSection from "./sections/DsfSection"
 import PatenteSection from "./sections/PatenteSection"
+import { ImpotsImmobiliersSection } from "./sections/ImpotsImmobiliersSection"
 import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations"
 import { useExpiringFiscalAttestations } from "@/hooks/useExpiringFiscalAttestations"
 
@@ -50,6 +51,19 @@ export default function DashboardAccordion() {
         </AccordionTrigger>
         <AccordionContent>
           <PatenteSection />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="immobilier" className="border rounded-lg bg-white shadow-sm">
+        <AccordionTrigger className="px-4 hover:no-underline hover:bg-gray-50">
+          <span className="text-lg font-semibold">
+            Impôts Immobiliers (Bail, PSL, Taxe Foncière)
+          </span>
+        </AccordionTrigger>
+        <AccordionContent>
+          <div className="p-4">
+            <ImpotsImmobiliersSection />
+          </div>
         </AccordionContent>
       </AccordionItem>
 
