@@ -59,15 +59,18 @@ export function AnnualObligationsSection({
           />
         )}
         
-        <DeclarationObligationItem
-          title="Déclaration des Bénéficiaires Effectifs (DBEF)"
-          keyName="dbef"
-          status={obligationStatuses.dbef}
-          onStatusChange={handleStatusChange}
-          onAttachmentChange={handleAttachmentChange}
-          clientId={clientId}
-          selectedYear={selectedYear}
-        />
+        {/* DBEF uniquement pour les personnes morales */}
+        {selectedClient.type === "morale" && (
+          <DeclarationObligationItem
+            title="Déclaration des Bénéficiaires Effectifs (DBEF)"
+            keyName="dbef"
+            status={obligationStatuses.dbef}
+            onStatusChange={handleStatusChange}
+            onAttachmentChange={handleAttachmentChange}
+            clientId={clientId}
+            selectedYear={selectedYear}
+          />
+        )}
       </CardContent>
     </Card>
   );
