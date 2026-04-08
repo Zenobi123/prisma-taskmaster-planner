@@ -43,7 +43,6 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
         selectedDate = undefined;
       }
     } catch (error) {
-      console.error("Erreur lors du parsing de la date:", error, value);
       selectedDate = undefined;
     }
   }
@@ -52,7 +51,6 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
     if (date) {
       // Toujours formater en YYYY-MM-DD pour le stockage interne
       const formattedDate = format(date, "yyyy-MM-dd");
-      console.log("DatePickerSelector - Date sélectionnée:", formattedDate);
       onChange(formattedDate);
     }
   };
@@ -67,7 +65,6 @@ const DatePickerSelector: React.FC<DatePickerSelectorProps> = ({
       } 
       return value; // Fallback au format brut
     } catch (error) {
-      console.error("Erreur lors du formatage de la date pour l'affichage:", error);
       return value; // Fallback au format brut
     }
   };

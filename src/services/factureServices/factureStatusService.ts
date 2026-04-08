@@ -25,7 +25,6 @@ export const isOverdue = (dueDate: string, paidAmount: number, totalAmount: numb
     );
   } else {
     // Invalid date format
-    console.error(`Invalid date format: ${dueDate}`);
     return false;
   }
   

@@ -29,7 +29,6 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
 
   // Gestionnaires d'événements optimisés
   const handleAssujettiChange = useCallback((checked: boolean) => {
-    console.log(`${keyName} assujetti change:`, checked);
     onStatusChange(keyName, "assujetti", checked);
     
     // Si on active, développer automatiquement

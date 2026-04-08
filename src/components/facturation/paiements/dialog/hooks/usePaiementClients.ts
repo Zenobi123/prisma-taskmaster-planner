@@ -6,7 +6,6 @@ export const usePaiementClients = () => {
   const { clients, isLoading, error } = useClientsCommon();
 
   // Log pour déboguer
-  console.log(`usePaiementClients: ${clients.length} clients chargés`);
   
   return { 
     clients, 

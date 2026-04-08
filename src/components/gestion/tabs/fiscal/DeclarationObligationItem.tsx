@@ -40,7 +40,6 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
   // Fonctions optimisées avec useCallback
   const handleAssujettiChange = useCallback((checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
-      console.log(`${keyName} assujetti change:`, checked);
       onStatusChange(keyName, "assujetti", checked);
       
       // If turning off assujetti, also turn off depose
@@ -57,7 +56,6 @@ export const DeclarationObligationItem: React.FC<DeclarationObligationItemProps>
 
   const handleDeposeChange = useCallback((checked: boolean | "indeterminate") => {
     if (typeof checked === "boolean") {
-      console.log(`${keyName} depose change:`, checked);
       onStatusChange(keyName, "depose", checked);
       
       // Si on coche "déposé", ouvrir automatiquement le panel d'options

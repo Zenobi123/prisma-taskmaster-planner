@@ -2,7 +2,6 @@
 import { Client } from "@/types/client";
 
 export const mapClientToPdfClient = (clientData: any): Client => {
-  console.log("Mapping client data:", clientData);
   
   if (
     clientData && 

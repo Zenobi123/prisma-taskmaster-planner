@@ -53,6 +53,5 @@ export async function generateTimeReport() {
     
     doc.save(`rapport-temps-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport de temps:', error);
   }
 }

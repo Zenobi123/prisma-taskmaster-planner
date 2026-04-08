@@ -45,7 +45,6 @@ export const useObligationManagement = (markAsChanged: () => void) => {
   }, []);
 
   const handleStatusChange = useCallback((obligation: string, field: string, value: string | number | boolean) => {
-    console.log(`Updating ${obligation}.${field} to:`, value);
     
     setObligationStatuses(prev => {
       const updated = { ...prev };

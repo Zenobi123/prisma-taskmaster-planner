@@ -23,7 +23,6 @@ export const usePaymentData = () => {
     if (!forceRefresh && 
         dataFetchedRef.current && 
         now - lastFetchTime.current < CACHE_DURATION) {
-      console.log("Utilisation du cache des paiements");
       return;
     }
     
@@ -31,7 +30,6 @@ export const usePaymentData = () => {
       setIsLoading(true);
       setError(null);
       
-      console.log("Chargement des paiements depuis la base de données");
       
       const { data: paymentsData, error: paymentsError } = await supabase
         .from('paiements')
@@ -47,9 +45,7 @@ export const usePaymentData = () => {
       dataFetchedRef.current = true;
       lastFetchTime.current = now;
       
-      console.log("Paiements chargés:", paymentsData?.length || 0);
     } catch (err) {
-      console.error("Erreur lors du chargement des paiements:", err);
       setError(err instanceof Error ? err : new Error('Échec de chargement des paiements'));
       toast({
         title: "Erreur",

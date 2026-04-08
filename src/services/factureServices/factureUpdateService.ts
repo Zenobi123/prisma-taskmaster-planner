@@ -52,7 +52,6 @@ export const updateFactureInDatabase = async (facture: Facture): Promise<Facture
       client: transformedClient
     };
   } catch (error) {
-    console.error('Error updating facture:', error);
     throw error;
   }
 };

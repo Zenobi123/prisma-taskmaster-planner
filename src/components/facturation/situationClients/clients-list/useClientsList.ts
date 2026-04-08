@@ -20,7 +20,6 @@ export const useClientsList = (clientsSummary: ClientFinancialSummary[]) => {
   
   // Utilisation de useMemo pour éviter des recalculs inutiles
   const filteredClients = useMemo(() => {
-    console.log("Calcul des clients filtrés");
     return clientsSummary
       .filter(client => 
         client.nom?.toLowerCase().includes(searchTerm.toLowerCase())

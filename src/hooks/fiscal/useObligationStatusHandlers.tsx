@@ -13,12 +13,10 @@ export const useObligationStatusHandlers = ({
 }: UseObligationStatusHandlersProps) => {
   
   const handleFiscalYearChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    console.log("Changement d'année fiscale:", e.target.value);
     setHasUnsavedChanges(true);
   }, [setHasUnsavedChanges]);
 
   const handleStatusChange = useCallback((obligation: string, field: string, value: string | number | boolean) => {
-    console.log(`Mise à jour ${obligation}.${field} vers:`, value);
     
     setObligationStatuses(prev => {
       const updated = { ...prev };
@@ -41,7 +39,6 @@ export const useObligationStatusHandlers = ({
           }
         }
         
-        console.log(`Obligation ${obligation} mise à jour:`, updated[obligationType]);
       }
       
       setHasUnsavedChanges(true);
@@ -50,7 +47,6 @@ export const useObligationStatusHandlers = ({
   }, [setObligationStatuses, setHasUnsavedChanges]);
 
   const handleAttachmentChange = useCallback((obligation: string, attachmentType: string, filePath: string | null) => {
-    console.log(`Mise à jour pièce jointe ${obligation}.${attachmentType}:`, filePath);
     
     setObligationStatuses(prev => {
       const updated = { ...prev };
@@ -71,7 +67,6 @@ export const useObligationStatusHandlers = ({
           attachements
         } as any;
         
-        console.log(`Pièces jointes ${obligation} mises à jour:`, attachements);
       }
       
       setHasUnsavedChanges(true);

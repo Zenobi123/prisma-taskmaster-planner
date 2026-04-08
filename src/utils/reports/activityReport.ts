@@ -5,9 +5,7 @@ import 'jspdf-autotable';
 
 export async function generateActivityReport() {
   try {
-    console.log('Génération du rapport d\'activité...');
     const data = await ReportDataService.getAllReportData();
-    console.log('Données récupérées:', data);
     
     const doc = new jsPDF();
     
@@ -66,11 +64,8 @@ export async function generateActivityReport() {
       theme: 'grid'
     });
     
-    console.log('Téléchargement du rapport...');
     doc.save(`rapport-activite-${new Date().toISOString().slice(0, 10)}.pdf`);
-    console.log('Rapport téléchargé avec succès');
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport d\'activité:', error);
     throw error;
   }
 }

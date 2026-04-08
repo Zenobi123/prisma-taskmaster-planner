@@ -23,7 +23,6 @@ export class DocumentHeaderFooterService {
       try {
         this.doc.addImage(logoUrl, 'PNG', 10, 10, 30, 30);
       } catch (error) {
-        console.error("Erreur lors de l'ajout du logo:", error);
       }
     }
 

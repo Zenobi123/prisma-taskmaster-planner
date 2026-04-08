@@ -6,7 +6,6 @@ interface ClientInfoSectionProps {
 }
 
 const ClientInfoSection = ({ client }: ClientInfoSectionProps) => {
-  console.log("ClientInfoSection - Client data:", client);
   
   const getClientName = () => {
     if (client.type === "physique") {

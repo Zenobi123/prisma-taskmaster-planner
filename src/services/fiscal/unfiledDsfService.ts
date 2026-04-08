@@ -6,7 +6,6 @@ import { shouldClientBeSubjectToObligation } from "./defaultObligationRules";
 
 export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
   try {
-    console.log("Fetching clients with unfiled DSF from fiscal_data...");
     
     const { data: clientsData, error } = await supabase
       .from('clients')
@@ -14,7 +13,6 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
       .eq('statut', 'actif');
 
     if (error) {
-      console.error('Error fetching clients:', error);
       return [];
     }
 
@@ -56,16 +54,13 @@ export const getClientsWithUnfiledDsf = async (): Promise<Client[]> => {
 
         return isSubjectToDsf && !isDsfFiled;
       } catch (error) {
-        console.error(`Error processing client ${client.id}:`, error);
         return false;
       }
     });
 
-    console.log(`Found ${unfiledDsfClients.length} clients with unfiled DSF`);
     return unfiledDsfClients;
     
   } catch (error) {
-    console.error('Error in getClientsWithUnfiledDsf:', error);
     return [];
   }
 };

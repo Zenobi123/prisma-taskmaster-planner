@@ -12,7 +12,6 @@ export const getClientsWithUnpaidTax = async (obligationType: string): Promise<C
       .eq('statut', 'actif');
 
     if (error) {
-      console.error(`Error fetching clients for unpaid ${obligationType}:`, error);
       return [];
     }
 
@@ -46,12 +45,10 @@ export const getClientsWithUnpaidTax = async (obligationType: string): Promise<C
 
         return obligation.assujetti === true && obligation.payee !== true;
       } catch (error) {
-        console.error(`Error processing client ${client.id} for ${obligationType}:`, error);
         return false;
       }
     });
   } catch (error) {
-    console.error(`Error in getClientsWithUnpaidTax(${obligationType}):`, error);
     return [];
   }
 };

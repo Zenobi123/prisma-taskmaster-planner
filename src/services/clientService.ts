@@ -16,13 +16,11 @@ export const getClients = async (includeDeleted: boolean = false): Promise<Clien
     const { data, error } = await query;
 
     if (error) {
-      console.error('Erreur lors de la récupération des clients:', error);
       throw error;
     }
 
     return (data || []) as unknown as Client[];
   } catch (error) {
-    console.error('Erreur dans getClients:', error);
     throw error;
   }
 };
@@ -36,13 +34,11 @@ export const getDeletedClients = async (): Promise<Client[]> => {
       .order('deleted_at', { ascending: false });
 
     if (error) {
-      console.error('Erreur lors de la récupération des clients supprimés:', error);
       throw error;
     }
 
     return (data || []) as unknown as Client[];
   } catch (error) {
-    console.error('Erreur dans getDeletedClients:', error);
     throw error;
   }
 };
@@ -61,7 +57,6 @@ export const createClient = async (clientData: Omit<Client, 'id' | 'created_at'>
     if (error) throw error;
     return data as unknown as Client;
   } catch (error) {
-    console.error('Erreur lors de la création du client:', error);
     throw error;
   }
 };
@@ -85,7 +80,6 @@ export const updateClient = async (id: string, updates: Partial<Client>): Promis
     if (error) throw error;
     return data as unknown as Client;
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du client:', error);
     throw error;
   }
 };
@@ -99,7 +93,6 @@ export const deleteClient = async (id: string): Promise<void> => {
 
     if (error) throw error;
   } catch (error) {
-    console.error('Erreur lors de la suppression du client:', error);
     throw error;
   }
 };
@@ -115,7 +108,6 @@ export const restoreClient = async (id: string): Promise<void> => {
 
     if (error) throw error;
   } catch (error) {
-    console.error('Erreur lors de la restauration du client:', error);
     throw error;
   }
 };
@@ -129,7 +121,6 @@ export const permanentDeleteClient = async (id: string): Promise<void> => {
 
     if (error) throw error;
   } catch (error) {
-    console.error('Erreur lors de la suppression définitive du client:', error);
     throw error;
   }
 };
@@ -137,5 +128,4 @@ export const permanentDeleteClient = async (id: string): Promise<void> => {
 // Cache management functions
 export const invalidateClientsCache = () => {
   // This is a placeholder for cache invalidation logic
-  console.log('Cache invalidated for clients');
 };

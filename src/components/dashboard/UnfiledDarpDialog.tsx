@@ -1,7 +1,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnfiledDarp } from "@/services/unfiledDarpService";
+import { getClientsWithUnfiledDarp } from "@/services/fiscal/unfiledDarpService";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";

@@ -20,7 +20,6 @@ export const useExpiringClients = () => {
       const clients = await fetchExpiringClients();
       setExpiringClients(clients);
     } catch (error) {
-      console.error("Error fetching clients with expiring documents:", error);
       toast.error("Erreur lors de la récupération des documents clients");
     } finally {
       setLoading(false);

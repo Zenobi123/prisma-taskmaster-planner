@@ -75,7 +75,6 @@ export const generatePortefeuilleClientsReport = async () => {
     
     doc.save(`portefeuille-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
 
@@ -124,7 +123,6 @@ export const generateNouveauxClientsReport = async () => {
     
     doc.save(`nouveaux-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
 
@@ -183,6 +181,5 @@ export const generateActiviteClientsReport = async () => {
     
     doc.save(`activite-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
   }
 };

@@ -35,7 +35,6 @@ export const UnpaidIgsDialog = ({ isOpen, onClose }: UnpaidIgsDialogProps) => {
     return client.nom || client.raisonsociale || 'Client sans nom';
   };
   
-  console.log("UnpaidIgsDialog - Clients found:", unpaidIgsClients.length);
   
   if (!isLoading && unpaidIgsClients && unpaidIgsClients.length === 0) {
     return (

@@ -35,7 +35,6 @@ const formatPropertyValue = (value: string | null | undefined): string => {
 
 export const generatePersonnesMoralesReport = async () => {
   try {
-    console.log('Génération du rapport des personnes morales...');
     const data = await ReportDataService.getAllReportData();
     
     if (!data || !data.clients) {
@@ -76,16 +75,13 @@ export const generatePersonnesMoralesReport = async () => {
     }
     
     doc.save(`personnes-morales-${new Date().toISOString().slice(0, 10)}.pdf`);
-    console.log('Rapport généré avec succès');
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
     throw new Error(`Impossible de générer le rapport des personnes morales: ${error.message}`);
   }
 };
 
 export const generatePersonnesPhysiquesReport = async () => {
   try {
-    console.log('Génération du rapport des personnes physiques...');
     const data = await ReportDataService.getAllReportData();
     
     if (!data || !data.clients) {
@@ -126,16 +122,13 @@ export const generatePersonnesPhysiquesReport = async () => {
     }
     
     doc.save(`personnes-physiques-${new Date().toISOString().slice(0, 10)}.pdf`);
-    console.log('Rapport généré avec succès');
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
     throw new Error(`Impossible de générer le rapport des personnes physiques: ${error.message}`);
   }
 };
 
 export const generateClientsParCentreReport = async () => {
   try {
-    console.log('Génération du rapport par centre des impôts...');
     const data = await ReportDataService.getAllReportData();
     
     if (!data || !data.clients) {
@@ -201,16 +194,13 @@ export const generateClientsParCentreReport = async () => {
     }
     
     doc.save(`clients-par-centre-${new Date().toISOString().slice(0, 10)}.pdf`);
-    console.log('Rapport généré avec succès');
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
     throw new Error(`Impossible de générer le rapport par centre: ${error.message}`);
   }
 };
 
 export const generateClientsAssujettisIGSReport = async () => {
   try {
-    console.log('Génération du rapport des clients assujettis à l\'IGS...');
     const data = await ReportDataService.getAllReportData();
     
     if (!data || !data.clients) {
@@ -253,16 +243,13 @@ export const generateClientsAssujettisIGSReport = async () => {
     }
     
     doc.save(`clients-assujettis-igs-${new Date().toISOString().slice(0, 10)}.pdf`);
-    console.log('Rapport généré avec succès');
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
     throw new Error(`Impossible de générer le rapport IGS: ${error.message}`);
   }
 };
 
 export const generateClientsAssujettsPatenteReport = async () => {
   try {
-    console.log('Génération du rapport des clients assujettis à la Patente...');
     const data = await ReportDataService.getAllReportData();
     
     if (!data || !data.clients) {
@@ -310,16 +297,13 @@ export const generateClientsAssujettsPatenteReport = async () => {
     }
     
     doc.save(`clients-assujettis-patente-${new Date().toISOString().slice(0, 10)}.pdf`);
-    console.log('Rapport généré avec succès');
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
     throw new Error(`Impossible de générer le rapport Patente: ${error.message}`);
   }
 };
 
 export const generateClientsRegimeReelReport = async () => {
   try {
-    console.log('Génération du rapport des clients au régime du réel...');
     const data = await ReportDataService.getAllReportData();
     
     if (!data || !data.clients) {
@@ -361,9 +345,7 @@ export const generateClientsRegimeReelReport = async () => {
     }
     
     doc.save(`clients-regime-reel-${new Date().toISOString().slice(0, 10)}.pdf`);
-    console.log('Rapport généré avec succès');
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
     throw new Error(`Impossible de générer le rapport des clients au régime du réel: ${error.message}`);
   }
 };

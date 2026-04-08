@@ -26,7 +26,6 @@ export function useDocumentMutations(clientId: string) {
         .eq("client_id", clientId);
 
       if (error) {
-        console.error("Erreur lors de la récupération des documents:", error);
         throw error;
       }
       return data as DocumentAdministratif[];
@@ -45,7 +44,6 @@ export function useDocumentMutations(clientId: string) {
       .upload(filePath, file);
 
     if (error) {
-      console.error("Erreur upload file:", error);
       throw error;
     }
 
@@ -63,7 +61,6 @@ export function useDocumentMutations(clientId: string) {
         try {
           fichier_url = await uploadFile(file);
         } catch (e) {
-          console.error("Upload échoué, on utilise un faux URL pour la démo.");
           fichier_url = `mocked_url_${file.name}`;
         }
       }
@@ -91,7 +88,6 @@ export function useDocumentMutations(clientId: string) {
       });
     },
     onError: (error) => {
-      console.error("Erreur saveDocument:", error);
       toast({
         title: "Erreur",
         description: "Impossible d'enregistrer le document.",
@@ -134,7 +130,6 @@ export function useDocumentMutations(clientId: string) {
       try {
         fichier_url = await uploadFile(file);
       } catch (e) {
-        console.error("Upload échoué, on utilise un faux URL pour la démo.");
         fichier_url = `mocked_url_${file.name}`;
       }
 
@@ -156,7 +151,6 @@ export function useDocumentMutations(clientId: string) {
       });
     },
     onError: (error) => {
-      console.error("Erreur updateDocumentFile:", error);
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour le document.",

@@ -56,7 +56,6 @@ export const factureCreationService = {
           .insert(prestationsToInsert);
 
         if (prestationsError) {
-          console.error("Erreur lors de l'insertion des prestations:", prestationsError);
           // Don't throw - facture was created, prestations insert is secondary
         }
       }
@@ -81,7 +80,6 @@ export const factureCreationService = {
         client: transformClient(data.client)
       };
     } catch (error) {
-      console.error('Erreur lors de la création de la facture:', error);
       throw error;
     }
   },
@@ -140,7 +138,6 @@ export const factureCreationService = {
         client: transformClient(data.client)
       };
     } catch (error) {
-      console.error('Erreur lors de la récupération de la facture:', error);
       throw error;
     }
   },
@@ -160,7 +157,6 @@ export const factureCreationService = {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Erreur lors de la suppression de la facture:', error);
       throw error;
     }
   },

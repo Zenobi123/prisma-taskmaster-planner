@@ -11,13 +11,11 @@ export const getCollaborateurs = async (): Promise<Collaborateur[]> => {
       .order('nom', { ascending: true });
 
     if (error) {
-      console.error('Erreur lors de la récupération des collaborateurs:', error);
       throw error;
     }
 
     return (data || []) as unknown as Collaborateur[];
   } catch (error) {
-    console.error('Erreur dans getCollaborateurs:', error);
     throw error;
   }
 };
@@ -31,13 +29,11 @@ export const getCollaborateur = async (id: string): Promise<Collaborateur | null
       .single();
 
     if (error) {
-      console.error('Erreur lors de la récupération du collaborateur:', error);
       throw error;
     }
 
     return data as unknown as Collaborateur;
   } catch (error) {
-    console.error('Erreur dans getCollaborateur:', error);
     throw error;
   }
 };
@@ -53,7 +49,6 @@ export const createCollaborateur = async (collaborateurData: Omit<Collaborateur,
     if (error) throw error;
     return data as unknown as Collaborateur;
   } catch (error) {
-    console.error('Erreur lors de la création du collaborateur:', error);
     throw error;
   }
 };
@@ -72,7 +67,6 @@ export const updateCollaborateur = async (id: string, updates: Partial<Collabora
     if (error) throw error;
     return data as unknown as Collaborateur;
   } catch (error) {
-    console.error('Erreur lors de la mise à jour du collaborateur:', error);
     throw error;
   }
 };
@@ -86,7 +80,6 @@ export const deleteCollaborateur = async (id: string): Promise<void> => {
 
     if (error) throw error;
   } catch (error) {
-    console.error('Erreur lors de la suppression du collaborateur:', error);
     throw error;
   }
 };

@@ -9,7 +9,6 @@ export const useFiscalSave = (clientId: string, setHasUnsavedChanges: (value: bo
   const saveFiscalData = useCallback(async (data: ClientFiscalData) => {
     try {
       if (!clientId) {
-        console.error("Erreur: Identifiant de client non fourni");
         setSaveStatus('error');
         return false;
       }
@@ -29,12 +28,10 @@ export const useFiscalSave = (clientId: string, setHasUnsavedChanges: (value: bo
         setSaveStatus('success');
         return true;
       } else {
-        console.error("Error saving fiscal data");
         setSaveStatus('error');
         return false;
       }
     } catch (err) {
-      console.error("Error in saveFiscalData:", err);
       setSaveStatus('error');
       return false;
     }

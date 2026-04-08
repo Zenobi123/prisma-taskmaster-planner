@@ -39,18 +39,15 @@ const Index = () => {
       // Mettre à jour le timestamp de dernière actualisation
       setLastRefresh(new Date());
       
-      console.log("Actualisation manuelle du tableau de bord effectuée à", new Date().toLocaleTimeString());
       
       // Supprimer complètement l'affichage des toasts pour éviter le popup
     } catch (error) {
-      console.error("Erreur lors de l'actualisation:", error);
       // Supprimer également l'affichage du toast d'erreur
     }
   }, [queryClient]);
 
   // Configuration de l'intervalle de rafraîchissement (toutes les 30 secondes)
   useEffect(() => {
-    console.log("Mise en place de l'actualisation automatique du tableau de bord");
     
     // Configurer l'intervalle d'actualisation
     const refreshInterval = setInterval(refreshDashboard, 30000); // 30 secondes
@@ -58,14 +55,12 @@ const Index = () => {
     // Nettoyer l'intervalle lors du démontage du composant
     return () => {
       clearInterval(refreshInterval);
-      console.log("Nettoyage de l'intervalle d'actualisation");
     };
   }, [refreshDashboard]);
 
   // Rafraîchir au focus de la fenêtre
   useEffect(() => {
     const handleFocus = () => {
-      console.log("Fenêtre a reçu le focus, actualisation des données");
       refreshDashboard();
     };
 
@@ -83,7 +78,6 @@ const Index = () => {
     }
   }, []);
 
-  console.log("Index - Rendering dashboard components, last refresh:", lastRefresh.toLocaleTimeString());
 
   return (
     <div className="min-h-screen flex">

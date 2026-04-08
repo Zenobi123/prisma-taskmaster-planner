@@ -283,7 +283,6 @@ export function useVueActivite(year: number) {
         prestationsNonRealisees,
       });
     } catch (e: any) {
-      console.error("useVueActivite error:", e);
       setError(e.message || "Erreur de chargement");
     } finally {
       setIsLoading(false);

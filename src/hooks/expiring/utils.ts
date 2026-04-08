@@ -11,7 +11,6 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
   const clientsWithExpiringDocs: ExpiringClient[] = [];
   const today = new Date();
   
-  console.log(`Processing ${clients.length} clients for expiring documents`);
   
   clients.forEach((client: Client) => {
     const clientName = client.type === 'physique' 
@@ -47,16 +46,13 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
             showExpirationNotification(clientName, daysUntilExpiration, client.id);
           }
         } else {
-          console.log(`Client ${client.id} - Invalid date format: ${validityEndDate}`);
         }
       } catch (error) {
-        console.error(`Error processing client ${client.id}:`, error);
       }
     }
   });
   
   // Log the number of clients with expiring documents
-  console.log(`Found ${clientsWithExpiringDocs.length} clients with fiscal attestations`);
   
   return clientsWithExpiringDocs;
 };

@@ -40,7 +40,6 @@ export const useFinancialDataFetcher = () => {
       if (isRefetching) return;
       
       setIsRefetching(true);
-      console.log("Récupération des données financières des clients...");
       
       // Utilisation de Promise.all pour paralléliser les requêtes
       await Promise.all([
@@ -49,12 +48,7 @@ export const useFinancialDataFetcher = () => {
         fetchPayments()
       ]);
       
-      console.log("Données des clients récupérées avec succès", {
-        clients: clientsSummary.length,
-        chartData
-      });
     } catch (error) {
-      console.error("Erreur lors de la récupération des données financières des clients:", error);
     } finally {
       setIsRefetching(false);
     }

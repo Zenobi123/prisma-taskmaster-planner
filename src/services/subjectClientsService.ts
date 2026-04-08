@@ -13,7 +13,6 @@ export interface SubjectClientsCount {
 
 export const getClientsSubjectToObligation = async (): Promise<SubjectClientsCount> => {
   try {
-    console.log("Fetching all active clients to count subject clients...");
     
     const { data: clientsData, error } = await supabase
       .from('clients')
@@ -21,7 +20,6 @@ export const getClientsSubjectToObligation = async (): Promise<SubjectClientsCou
       .eq('statut', 'actif');
 
     if (error) {
-      console.error('Error fetching clients:', error);
       return { igs: 0, patente: 0, dsf: 0, darp: 0 };
     }
 
@@ -52,15 +50,12 @@ export const getClientsSubjectToObligation = async (): Promise<SubjectClientsCou
           counts.darp++;
         }
       } catch (error) {
-        console.error(`Error processing client ${client.id} for subject obligations:`, error);
       }
     });
 
-    console.log(`Subject clients count:`, counts);
     return counts;
     
   } catch (error) {
-    console.error('Error in getClientsSubjectToObligation:', error);
     return { igs: 0, patente: 0, dsf: 0, darp: 0 };
   }
 };

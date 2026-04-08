@@ -33,14 +33,6 @@ export const useTaskStats = (tasks: any[], isLoading: boolean) => {
       return endDate.getMonth() === currentMonth;
     }).length;
 
-    console.log("Task stats calculation:", {
-      totalTasks: tasks.length,
-      activeTasks,
-      overdueTasks,
-      completedMissions,
-      now: now.toISOString().split('T')[0]
-    });
-
     return {
       activeTasks,
       overdueTasks,

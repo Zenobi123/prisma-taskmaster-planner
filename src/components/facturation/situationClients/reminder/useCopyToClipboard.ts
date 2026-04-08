@@ -12,7 +12,6 @@ export const useCopyToClipboard = () => {
         });
       },
       (err) => {
-        console.error('Erreur lors de la copie :', err);
         toast({
           title: "Erreur",
           description: "Impossible de copier le message",

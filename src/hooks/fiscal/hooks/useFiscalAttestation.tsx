@@ -69,14 +69,12 @@ export const useFiscalAttestation = (
       // Si le format n'est pas reconnu, renvoyer tel quel
       return date;
     } catch (error) {
-      console.error("Erreur lors de la normalisation de la date:", error);
       return date;
     }
   };
   
   // Handler for creation date update
   const handleCreationDateChange = (date: string) => {
-    console.log("useFiscalAttestation - date de création reçue:", date);
     if (date) {
       setCreationDate(date);
       onMarkAsChanged();
@@ -85,7 +83,6 @@ export const useFiscalAttestation = (
 
   // Handler for validity end date update
   const handleValidityEndDateChange = (date: string) => {
-    console.log("useFiscalAttestation - date de fin reçue:", date);
     if (date) {
       setValidityEndDate(date);
       onMarkAsChanged();

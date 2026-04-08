@@ -49,7 +49,6 @@ export const PaiementFactureSection = ({
       if (error) throw error;
       setFactures(data || []);
     } catch (error) {
-      console.error("Erreur lors de la récupération des factures:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

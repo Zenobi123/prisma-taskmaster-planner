@@ -63,7 +63,6 @@ export const saveFiscalData = async (
   retryCount = 0
 ): Promise<boolean> => {
   try {
-    console.log(`Sauvegarde des données fiscales pour le client ${clientId}...`);
     
     // Préparation des données pour la sauvegarde
     const preparedData = {
@@ -89,12 +88,10 @@ export const saveFiscalData = async (
       .eq('id', clientId);
     
     if (error) {
-      console.error(`Erreur de sauvegarde des données fiscales:`, error);
       
       // Retry logic
       if (retryCount < 2) {
         const delay = (retryCount + 1) * 1000;
-        console.log(`Nouvel essai dans ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return saveFiscalData(clientId, data, retryCount + 1);
       }
@@ -102,14 +99,11 @@ export const saveFiscalData = async (
       return false;
     }
     
-    console.log(`Données fiscales sauvegardées avec succès pour le client ${clientId}`);
     return true;
   } catch (error) {
-    console.error(`Exception lors de la sauvegarde des données fiscales:`, error);
     
     if (retryCount < 2) {
       const delay = (retryCount + 1) * 1000;
-      console.log(`Nouvel essai après exception dans ${delay}ms...`);
       await new Promise(resolve => setTimeout(resolve, delay));
       return saveFiscalData(clientId, data, retryCount + 1);
     }

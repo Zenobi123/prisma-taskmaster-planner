@@ -12,7 +12,6 @@ export const paieService = {
       .order('mois', { ascending: false });
     
     if (error) {
-      console.error("Erreur lors de la récupération des fiches de paie:", error);
       return [];
     }
     
@@ -27,7 +26,6 @@ export const paieService = {
       .single();
     
     if (error) {
-      console.error("Erreur lors de la création de la fiche de paie:", error);
       return null;
     }
     
@@ -43,7 +41,6 @@ export const paieService = {
       .single();
     
     if (error) {
-      console.error("Erreur lors de la mise à jour de la fiche de paie:", error);
       return null;
     }
     
@@ -57,7 +54,6 @@ export const paieService = {
       .eq('id', id);
     
     if (error) {
-      console.error("Erreur lors de la suppression de la fiche de paie:", error);
       return false;
     }
     

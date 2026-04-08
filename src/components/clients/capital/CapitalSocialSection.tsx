@@ -11,8 +11,6 @@ interface CapitalSocialSectionProps {
 }
 
 export const CapitalSocialSection: React.FC<CapitalSocialSectionProps> = ({ client }) => {
-  console.log("CapitalSocialSection - Client type:", client.type);
-  console.log("CapitalSocialSection - Client ID:", client.id);
 
   const {
     capitalSocial,
@@ -28,7 +26,6 @@ export const CapitalSocialSection: React.FC<CapitalSocialSectionProps> = ({ clie
 
   // Afficher seulement pour les personnes morales
   if (client.type !== 'morale') {
-    console.log("CapitalSocialSection - Client n'est pas une personne morale, type:", client.type);
     return null;
   }
 
@@ -44,7 +41,6 @@ export const CapitalSocialSection: React.FC<CapitalSocialSectionProps> = ({ clie
     );
   }
 
-  console.log("CapitalSocialSection - Rendu de la section capital social");
 
   return (
     <div className="w-full space-y-6">

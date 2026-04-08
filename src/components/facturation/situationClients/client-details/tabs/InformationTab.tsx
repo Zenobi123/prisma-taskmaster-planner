@@ -8,7 +8,6 @@ import ClientInfoSection from "./information/ClientInfoSection";
 const InformationTab = () => {
   const { clientDetails } = useClientDetails();
   
-  console.log("InformationTab - clientDetails:", clientDetails);
   
   // Use the client data from clientDetails if available
   const client = clientDetails?.client || {};

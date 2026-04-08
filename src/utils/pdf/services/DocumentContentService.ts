@@ -100,7 +100,6 @@ export class StandardDocumentContentService implements DocumentContentService {
     try {
       this.doc.addImage(imageUrl, "JPEG", x, y, width, height);
     } catch (error) {
-      console.error("Error adding image:", error);
     }
   }
 }

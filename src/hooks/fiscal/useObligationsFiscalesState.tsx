@@ -31,7 +31,6 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
           .single();
 
         if (error) {
-          console.error("Error loading fiscal data:", error);
           return;
         }
 
@@ -73,7 +72,6 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
           }
         }
       } catch (error) {
-        console.error("Error loading fiscal data:", error);
       }
     };
 

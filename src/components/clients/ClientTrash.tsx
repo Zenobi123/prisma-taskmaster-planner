@@ -28,7 +28,6 @@ export function ClientTrash({ onClose }: ClientTrashProps) {
       try {
         await restoreMutation.mutateAsync(client.id);
       } catch (error) {
-        console.error("Erreur lors de la restauration:", error);
       }
     }
   };
@@ -38,7 +37,6 @@ export function ClientTrash({ onClose }: ClientTrashProps) {
       try {
         await permanentDeleteMutation.mutateAsync(client.id);
       } catch (error) {
-        console.error("Erreur lors de la suppression définitive:", error);
       }
     }
   };

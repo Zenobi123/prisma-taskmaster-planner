@@ -36,14 +36,12 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
           .single()
           .then(({ data, error }) => {
             if (error) {
-              console.error("Erreur lors de la récupération du montant total:", error);
               return;
             }
             
             if (data) {
               const montantRestant = Number(data.montant) - Number(data.montant_paye || 0);
               setValue("montant", montantRestant);
-              console.log("Montant total de la facture:", montantRestant);
             }
           });
       }
@@ -56,7 +54,6 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
   };
 
   const handlePrestationChange = (id: string, checked: boolean) => {
-    console.log(`Prestation ${id} ${checked ? 'selected' : 'unselected'}`);
     
     // Immédiatement mettre à jour les prestations sélectionnées
     let updatedPrestations = [...selectedPrestations];
@@ -105,7 +102,6 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
   };
 
   const handlePrestationAmountChange = (id: string, amount: number) => {
-    console.log(`Changing amount for prestation ${id} to ${amount}`);
     const newAmounts = { ...prestationAmounts, [id]: amount };
     setPrestationAmounts(newAmounts);
     
@@ -135,7 +131,6 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
           amounts[p.id] = Number(p.montant);
         });
         
-        console.log("Original prestation amounts loaded:", amounts);
         setOriginalPrestationAmounts(prev => ({...prev, ...amounts}));
         
         // Initialize prestationAmounts with original amounts if not already set
@@ -156,7 +151,6 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
         return amounts;
       }
     } catch (error) {
-      console.error("Erreur lors du chargement des données de prestation:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -174,17 +168,13 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
     const amountsToUse = customAmounts || prestationAmounts;
     
     // Log for debugging
-    console.log("Updating total amount with prestations:", prestationIds);
-    console.log("Using amounts:", amountsToUse);
     
     // If we have all the necessary prestation amounts
     if (prestationIds.every(id => id in amountsToUse)) {
       const total = prestationIds.reduce((sum, id) => sum + amountsToUse[id], 0);
-      console.log("Calculated total amount:", total);
       setValue("montant", total);
     } else {
       // Otherwise, fetch the missing data
-      console.log("Missing prestation data, fetching...");
       loadPrestationData(prestationIds);
     }
   };

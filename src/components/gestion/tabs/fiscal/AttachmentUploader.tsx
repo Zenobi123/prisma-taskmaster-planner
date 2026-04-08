@@ -67,7 +67,6 @@ export function AttachmentUploader({
         toast.success("Fichier téléchargé avec succès");
       }
     } catch (error) {
-      console.error("Upload error:", error);
       toast.error("Erreur lors du téléchargement du fichier");
     } finally {
       setIsUploading(false);
@@ -88,7 +87,6 @@ export function AttachmentUploader({
         toast.error("Impossible d'accéder au fichier");
       }
     } catch (error) {
-      console.error("Download error:", error);
       toast.error("Erreur lors du téléchargement du fichier");
     } finally {
       setIsDownloading(false);
@@ -111,7 +109,6 @@ export function AttachmentUploader({
         toast.success("Fichier supprimé avec succès");
       }
     } catch (error) {
-      console.error("Delete error:", error);
       toast.error("Erreur lors de la suppression du fichier");
     } finally {
       setIsDeleting(false);

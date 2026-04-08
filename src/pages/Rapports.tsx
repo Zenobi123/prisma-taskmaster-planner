@@ -302,7 +302,6 @@ const Rapports = () => {
         variant: "default"
       });
     } catch (error) {
-      console.error("Erreur lors de la génération du rapport:", error);
       toast({
         title: "Erreur",
         description: "Impossible de générer le rapport. Veuillez réessayer.",

@@ -31,14 +31,12 @@ export const useFactureDetail = (factureId: string) => {
       const cachedDetail = factureDetailsCache.get(factureId);
       
       if (cachedDetail && now - cachedDetail.timestamp < CACHE_DURATION) {
-        console.log(`Utilisation du cache pour les détails de la facture ${factureId}`);
         setFactureDetail(cachedDetail.data);
         setIsLoading(false);
         return;
       }
       
       try {
-        console.log(`Récupération des détails de la facture ${factureId} depuis la base de données`);
         
         // Fetch facture
         const { data: factureData, error: factureError } = await supabase
@@ -113,7 +111,6 @@ export const useFactureDetail = (factureId: string) => {
           setFactureDetail(detailData);
         }
       } catch (error) {
-        console.error("Error fetching facture details:", error);
       } finally {
         if (isMounted.current) {
           setIsLoading(false);

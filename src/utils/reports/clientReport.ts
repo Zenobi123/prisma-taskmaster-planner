@@ -32,6 +32,5 @@ export async function generateClientReport() {
     
     doc.save(`rapport-client-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport client:', error);
   }
 }

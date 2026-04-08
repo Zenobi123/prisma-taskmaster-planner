@@ -37,7 +37,6 @@ export const getCourrierRecords = async (filters?: {
     const { data, error } = await query;
     if (error) {
       // Table may not exist yet – return empty array gracefully
-      console.warn("courriers table not accessible:", error.message);
       return [];
     }
 
@@ -133,7 +132,6 @@ export const sendCourrierWithStorage = async (
         date_envoi: new Date().toISOString(),
       });
     } catch (e) {
-      console.warn("Could not persist courrier record:", e);
     }
 
     // Generate PDF

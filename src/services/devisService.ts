@@ -15,7 +15,6 @@ export async function getNextDevisNumber(): Promise<string> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Erreur lors de la récupération du numéro de devis:", error);
   }
 
   const count = data ? data.length + 1 : 1;
@@ -42,7 +41,6 @@ export async function getDevis(): Promise<Devis[]> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Erreur lors de la récupération des devis:", error);
     throw error;
   }
 
@@ -56,7 +54,6 @@ export async function getDevis(): Promise<Devis[]> {
     .in("devis_id", devisIds);
 
   if (prestationsError) {
-    console.error("Erreur lors de la récupération des prestations:", prestationsError);
   }
 
   const prestationsMap: Record<string, DevisPrestation[]> = {};
@@ -169,7 +166,6 @@ export async function createDevis(data: DevisFormData): Promise<Devis> {
     .single();
 
   if (error) {
-    console.error("Erreur lors de la création du devis:", error);
     throw error;
   }
 
@@ -190,7 +186,6 @@ export async function createDevis(data: DevisFormData): Promise<Devis> {
       .insert(prestationsToInsert);
 
     if (prestationsError) {
-      console.error("Erreur lors de l'insertion des prestations:", prestationsError);
       throw prestationsError;
     }
   }
@@ -263,7 +258,6 @@ export async function updateDevis(id: string, data: Partial<DevisFormData>): Pro
     .eq("id", id);
 
   if (error) {
-    console.error("Erreur lors de la mise à jour du devis:", error);
     throw error;
   }
 
@@ -275,7 +269,6 @@ export async function updateDevis(id: string, data: Partial<DevisFormData>): Pro
       .eq("devis_id", id);
 
     if (deleteError) {
-      console.error("Erreur lors de la suppression des prestations:", deleteError);
       throw deleteError;
     }
 
@@ -295,7 +288,6 @@ export async function updateDevis(id: string, data: Partial<DevisFormData>): Pro
         .insert(prestationsToInsert);
 
       if (insertError) {
-        console.error("Erreur lors de l'insertion des prestations:", insertError);
         throw insertError;
       }
     }
@@ -310,7 +302,6 @@ export async function deleteDevis(id: string): Promise<void> {
     .eq("id", id);
 
   if (error) {
-    console.error("Erreur lors de la suppression du devis:", error);
     throw error;
   }
 }
@@ -325,7 +316,6 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
     .single();
 
   if (devisError || !devisData) {
-    console.error("Erreur lors de la récupération du devis:", devisError);
     throw devisError || new Error("Devis introuvable");
   }
 
@@ -355,7 +345,6 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
     });
 
   if (factureError) {
-    console.error("Erreur lors de la création de la facture:", factureError);
     throw factureError;
   }
 
@@ -376,7 +365,6 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
       .insert(facturePrestations);
 
     if (fpError) {
-      console.error("Erreur lors de la copie des prestations vers la facture:", fpError);
     }
   }
 
@@ -391,7 +379,6 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
     .eq("id", devisId);
 
   if (updateError) {
-    console.error("Erreur lors de la mise à jour du devis:", updateError);
     throw updateError;
   }
 

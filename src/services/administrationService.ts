@@ -22,7 +22,6 @@ export const administrationService = {
       
       return data as Document[];
     } catch (error) {
-      console.error("Erreur lors de la récupération des documents:", error);
       return [];
     }
   },
@@ -44,7 +43,6 @@ export const administrationService = {
       
       return data as Document;
     } catch (error) {
-      console.error("Erreur lors de la récupération du document:", error);
       return null;
     }
   },
@@ -66,7 +64,6 @@ export const administrationService = {
       
       return data as Document;
     } catch (error) {
-      console.error("Erreur lors de la création du document:", error);
       return null;
     }
   },
@@ -89,7 +86,6 @@ export const administrationService = {
       
       return data as Document;
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du document:", error);
       return null;
     }
   },
@@ -110,7 +106,6 @@ export const administrationService = {
       
       return true;
     } catch (error) {
-      console.error("Erreur lors de la suppression du document:", error);
       return false;
     }
   },
@@ -131,7 +126,6 @@ export const administrationService = {
       
       return data as Procedure[];
     } catch (error) {
-      console.error("Erreur lors de la récupération des procédures:", error);
       return [];
     }
   },
@@ -153,7 +147,6 @@ export const administrationService = {
       
       return data as Procedure;
     } catch (error) {
-      console.error("Erreur lors de la récupération de la procédure:", error);
       return null;
     }
   },
@@ -175,7 +168,6 @@ export const administrationService = {
       
       return data as Procedure;
     } catch (error) {
-      console.error("Erreur lors de la création de la procédure:", error);
       return null;
     }
   },
@@ -198,7 +190,6 @@ export const administrationService = {
       
       return data as Procedure;
     } catch (error) {
-      console.error("Erreur lors de la mise à jour de la procédure:", error);
       return null;
     }
   },
@@ -219,7 +210,6 @@ export const administrationService = {
       
       return true;
     } catch (error) {
-      console.error("Erreur lors de la suppression de la procédure:", error);
       return false;
     }
   }

@@ -20,7 +20,6 @@ export const useFactureDeleteActions = (
       
       return true;
     } catch (error) {
-      console.error("Error in deleteFacture:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

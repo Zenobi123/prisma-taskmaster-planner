@@ -4,7 +4,6 @@ import { ClientFinancialDetails, ClientInvoice, ClientPayment } from "@/types/cl
 
 export const getClientFinancialDetails = async (clientId: string): Promise<ClientFinancialDetails> => {
   try {
-    console.log("Fetching client financial details for:", clientId);
     
     // Get client's invoices
     const { data: factures, error: facturesError } = await supabase
@@ -13,7 +12,6 @@ export const getClientFinancialDetails = async (clientId: string): Promise<Clien
       .eq('client_id', clientId);
       
     if (facturesError) {
-      console.error("Error fetching client invoices:", facturesError);
       throw new Error(`Failed to fetch client invoices: ${facturesError.message}`);
     }
     
@@ -24,7 +22,6 @@ export const getClientFinancialDetails = async (clientId: string): Promise<Clien
       .eq('client_id', clientId);
       
     if (paiementsError) {
-      console.error("Error fetching client payments:", paiementsError);
       throw new Error(`Failed to fetch client payments: ${paiementsError.message}`);
     }
     
@@ -61,7 +58,6 @@ export const getClientFinancialDetails = async (clientId: string): Promise<Clien
       solde_disponible: soldeDisponible
     };
   } catch (error) {
-    console.error("Error in getClientFinancialDetails:", error);
     throw error;
   }
 };

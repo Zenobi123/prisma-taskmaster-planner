@@ -10,7 +10,6 @@ export const saveFiscalDataToDatabase = async (
 ): Promise<boolean> => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      console.log(`=== TENTATIVE ${attempt}/${maxRetries} ===`);
       
       // Récupérer les données existantes
       const { data: existingClient, error: fetchError } = await supabase
@@ -20,7 +19,6 @@ export const saveFiscalDataToDatabase = async (
         .single();
 
       if (fetchError) {
-        console.error(`Erreur récupération (tentative ${attempt}):`, fetchError);
         if (attempt === maxRetries) return false;
         await delay(1000 * attempt);
         continue;
@@ -48,7 +46,6 @@ export const saveFiscalDataToDatabase = async (
         .eq("id", clientId);
 
       if (saveError) {
-        console.error(`Erreur sauvegarde (tentative ${attempt}):`, saveError);
         if (attempt === maxRetries) return false;
         await delay(1000 * attempt);
         continue;
@@ -57,16 +54,13 @@ export const saveFiscalDataToDatabase = async (
       // Vérifier la sauvegarde
       const verified = await verifyDataSaved(clientId, fiscalData.year);
       if (!verified && attempt === maxRetries) {
-        console.error("Vérification échouée");
         return false;
       }
 
       if (verified) {
-        console.log("Sauvegarde et vérification réussies");
         return true;
       }
     } catch (error) {
-      console.error(`Exception (tentative ${attempt}):`, error);
       if (attempt === maxRetries) return false;
       await delay(1000 * attempt);
     }
@@ -84,7 +78,6 @@ const verifyDataSaved = async (clientId: string, fiscalYear: string): Promise<bo
       .single();
 
     if (error) {
-      console.warn("Erreur lors de la vérification:", error);
       return false;
     }
 
@@ -93,7 +86,6 @@ const verifyDataSaved = async (clientId: string, fiscalYear: string): Promise<bo
     
     return Boolean(savedFiscalData?.obligations?.[fiscalYear]);
   } catch (error) {
-    console.warn("Exception lors de la vérification:", error);
     return false;
   }
 };

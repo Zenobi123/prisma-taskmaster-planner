@@ -16,19 +16,25 @@ export const ImpotsImmobiliersSection = () => {
   const { data: unpaidBail = [], isLoading: loadingBail } = useQuery({
     queryKey: ["clients-unpaid-bail"],
     queryFn: getClientsWithUnpaidBail,
-    staleTime: 60 * 1000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 
   const { data: unpaidPSL = [], isLoading: loadingPSL } = useQuery({
     queryKey: ["clients-unpaid-psl"],
     queryFn: getClientsWithUnpaidPSL,
-    staleTime: 60 * 1000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 
   const { data: unpaidTF = [], isLoading: loadingTF } = useQuery({
     queryKey: ["clients-unpaid-tf"],
     queryFn: getClientsWithUnpaidTF,
-    staleTime: 60 * 1000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
   });
 
   const isLoading = loadingBail || loadingPSL || loadingTF;

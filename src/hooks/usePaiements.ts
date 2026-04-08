@@ -33,7 +33,6 @@ export const usePaiements = () => {
         throw error;
       }
 
-      console.log("Fetched paiements raw data:", data);
 
       // Format data to match Paiement type
       const formattedPaiements: Paiement[] = data.map(p => {
@@ -59,12 +58,7 @@ export const usePaiements = () => {
               }));
             }
             
-            console.log("Processed elements_specifiques for payment", p.id, {
-              typePaiement,
-              prestationsPayees
-            });
           } catch (e) {
-            console.error("Error parsing elements_specifiques:", e, p.elements_specifiques);
           }
         }
         
@@ -125,10 +119,8 @@ export const usePaiements = () => {
         return paiement;
       });
       
-      console.log("Formatted paiements with calculated remaining balances:", formattedPaiements);
       setPaiements(formattedPaiements);
     } catch (error) {
-      console.error("Erreur lors de la récupération des paiements:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

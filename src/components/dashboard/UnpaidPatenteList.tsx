@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnpaidPatente } from "@/services/unpaidPatenteService";
+import { getClientsWithUnpaidPatente } from "@/services/fiscal/unpaidPatenteService";
 import { AlertTriangle, FileWarning, Phone, Building } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
@@ -14,16 +14,12 @@ const UnpaidPatenteList = () => {
     queryKey: ["clients-unpaid-patente"],
     queryFn: getClientsWithUnpaidPatente,
     // Configurer le rafraîchissement automatique
-    refetchInterval: 10000,
+    refetchInterval: 60000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true
   });
 
-  console.log("UnpaidPatenteList - Clients:", clients);
-  console.log("UnpaidPatenteList - Clients length:", clients.length);
-  console.log("UnpaidPatenteList - isLoading:", isLoading);
-  console.log("UnpaidPatenteList - isFetched:", isFetched);
-  console.log("UnpaidPatenteList - error:", error);
-  console.log("UnpaidPatenteList - Le composant est bien rendu");
 
   const handleNavigateToClient = (clientId: string) => {
     navigate(`/gestion?client=${clientId}&tab=obligations-fiscales`);
@@ -46,7 +42,6 @@ const UnpaidPatenteList = () => {
   }
 
   // Si nous avons des clients et qu'ils ne sont pas affichés, ajoutons plus de visibilité
-  console.log("UnpaidPatenteList - Clients à afficher:", clients.length > 0 ? "OUI" : "NON");
 
   return (
     <Card className="border-[3px] border-red-400 shadow-lg overflow-visible">

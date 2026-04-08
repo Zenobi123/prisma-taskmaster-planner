@@ -25,7 +25,6 @@ export const usePaiementCreate = () => {
         prestations_payees: prestationsPayeesFormatted
       };
 
-      console.log("Creating payment with elements_specifiques:", elements_specifiques);
 
       // Générer une référence au format PAY-XXX YYYY
       const currentYear = new Date().getFullYear();
@@ -54,12 +53,6 @@ export const usePaiementCreate = () => {
           const montantPayeApres = montantPayeAvant + parseFloat(paiement.montant.toString());
           
           soldeRestant = Math.max(0, factureMontant - montantPayeApres);
-          console.log("Calculated solde_restant:", {
-            factureMontant,
-            montantPayeAvant,
-            montantPayeApres,
-            soldeRestant
-          });
         }
       }
 
@@ -79,7 +72,6 @@ export const usePaiementCreate = () => {
         elements_specifiques: JSON.stringify(elements_specifiques) // Ensure we stringify the object for proper storage
       };
 
-      console.log("Sending payment data:", paiementData);
 
       const { data, error } = await supabase
         .from("paiements")
@@ -88,11 +80,9 @@ export const usePaiementCreate = () => {
         .single();
 
       if (error) {
-        console.error("Supabase insert error:", error);
         throw error;
       }
 
-      console.log("Payment saved successfully:", data);
 
       toast({
         title: "Paiement enregistré",
@@ -125,7 +115,6 @@ export const usePaiementCreate = () => {
 
       return data;
     } catch (error) {
-      console.error("Erreur lors de l'ajout du paiement:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -139,7 +128,6 @@ export const usePaiementCreate = () => {
 
   const generateReceiptFromPaiement = (paiement: Paiement) => {
     try {
-      console.log("Generating receipt for payment:", paiement);
       
       // Format the client information for the receipt
       const formattedClient = formatClientForReceipt(paiement.client);
@@ -155,7 +143,6 @@ export const usePaiementCreate = () => {
         generateReceiptPDF(paiementForReceipt, true);
       }, 500);
     } catch (error) {
-      console.error("Error generating receipt:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

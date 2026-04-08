@@ -54,7 +54,6 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
       recognition.maxAlternatives = 1;
 
       recognition.onstart = () => {
-        console.log('Voice recognition started');
         setIsListening(true);
         setTranscript('');
       };
@@ -81,7 +80,6 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
       };
 
       recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
         setIsListening(false);
         
         if (event.error !== 'no-speech') {
@@ -94,13 +92,11 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
       };
 
       recognition.onend = () => {
-        console.log('Voice recognition ended');
         setIsListening(false);
       };
 
       recognitionRef.current = recognition;
     } catch (error) {
-      console.error('Error initializing speech recognition:', error);
       setIsSupported(false);
     }
 
@@ -112,7 +108,6 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
   }, [isSupported, toast]);
 
   const processCommand = useCallback((transcript: string) => {
-    console.log('Processing voice command:', transcript);
     
     try {
       // Parse different types of commands
@@ -139,7 +134,6 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
         onCommand('generic', transcript);
       }
     } catch (error) {
-      console.error('Error processing command:', error);
     }
   }, [onCommand]);
 
@@ -158,13 +152,11 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
       try {
         recognitionRef.current?.stop();
       } catch (error) {
-        console.error('Error stopping recognition:', error);
       }
     } else {
       try {
         recognitionRef.current?.start();
       } catch (error) {
-        console.error('Error starting speech recognition:', error);
         toast({
           title: "Erreur",
           description: "Impossible de démarrer la reconnaissance vocale",

@@ -54,7 +54,6 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
       margin: { left: 15, right: 15 }
     });
   } catch (error) {
-    console.error("Erreur pendant la génération du tableau:", error);
     const defaultY = 150;
     doc.text("Erreur lors de la génération du tableau des prestations", 15, defaultY);
     return defaultY + 10;

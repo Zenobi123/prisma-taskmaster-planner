@@ -36,7 +36,6 @@ export const uploadFiscalAttachment = async (
   attachmentType: AttachmentType
 ): Promise<string | null> => {
   try {
-    console.log(`Uploading fiscal attachment: ${file.name} for ${obligationType}/${attachmentType}`);
     
     const filePath = generateFilePath(
       clientId,
@@ -54,15 +53,12 @@ export const uploadFiscalAttachment = async (
       });
 
     if (error) {
-      console.error("Upload error:", error);
       toast.error(`Erreur lors du téléchargement: ${error.message}`);
       return null;
     }
 
-    console.log(`File uploaded successfully to: ${filePath}`);
     return filePath;
   } catch (error) {
-    console.error("Upload error:", error);
     toast.error("Erreur lors du téléchargement du fichier");
     return null;
   }
@@ -75,36 +71,30 @@ export const getFiscalAttachmentUrl = async (filePath: string): Promise<string |
       .createSignedUrl(filePath, 3600); // URL valid for 1 hour
 
     if (error) {
-      console.error("Error creating signed URL:", error);
       return null;
     }
 
     return data?.signedUrl || null;
   } catch (error) {
-    console.error("Error getting file URL:", error);
     return null;
   }
 };
 
 export const deleteFiscalAttachment = async (filePath: string): Promise<boolean> => {
   try {
-    console.log(`Deleting fiscal attachment: ${filePath}`);
     
     const { error } = await supabase.storage
       .from('fiscal_attachments')
       .remove([filePath]);
 
     if (error) {
-      console.error("Delete error:", error);
       toast.error(`Erreur lors de la suppression: ${error.message}`);
       return false;
     }
 
-    console.log(`File deleted successfully: ${filePath}`);
     toast.success("Fichier supprimé avec succès");
     return true;
   } catch (error) {
-    console.error("Delete error:", error);
     toast.error("Erreur lors de la suppression du fichier");
     return false;
   }
@@ -121,7 +111,6 @@ export const getAttachmentMetadata = async (filePath: string): Promise<FiscalAtt
       });
 
     if (error || !data || data.length === 0) {
-      console.error("Metadata error:", error);
       return null;
     }
 
@@ -140,7 +129,6 @@ export const getAttachmentMetadata = async (filePath: string): Promise<FiscalAtt
       url
     };
   } catch (error) {
-    console.error("Metadata error:", error);
     return null;
   }
 };

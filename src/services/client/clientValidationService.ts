@@ -8,7 +8,6 @@ export const validateRegimeFiscal = (regimefiscal: any): RegimeFiscal => {
   if (VALID_REGIME_FISCAL.includes(regimefiscal as any)) {
     return regimefiscal as RegimeFiscal;
   }
-  console.warn(`Invalid regimefiscal value: ${regimefiscal}, defaulting to 'reel'`);
   return "reel";
 };
 

@@ -8,8 +8,10 @@ const RecentTasks = () => {
     queryKey: ["tasks"],
     queryFn: getTasks,
     // Configurer le rafraîchissement automatique
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000
   });
 
   // Filter out completed tasks and limit to 10 active tasks
@@ -78,7 +80,6 @@ const RecentTasks = () => {
     );
   }
 
-  console.log("Recent tasks data (excluding completed):", activeTasks);
 
   return (
     <div className="table-container">

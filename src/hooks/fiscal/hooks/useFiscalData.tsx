@@ -16,8 +16,6 @@ export const useFiscalData = (clientId: string) => {
 
     try {
       setIsLoading(true);
-      console.log("=== CHARGEMENT DONNÉES FISCALES ===");
-      console.log("Client ID:", clientId);
       
       const { data: client, error } = await supabase
         .from("clients")
@@ -26,12 +24,10 @@ export const useFiscalData = (clientId: string) => {
         .single();
 
       if (error) {
-        console.error("Erreur lors du chargement des données fiscales:", error);
         setFiscalData(null);
         return;
       }
 
-      console.log("Données fiscales brutes récupérées:", client?.fiscal_data);
 
       if (client?.fiscal_data && typeof client.fiscal_data === 'object' && !Array.isArray(client.fiscal_data)) {
         const fiscalDataObj = client.fiscal_data as any;
@@ -56,8 +52,6 @@ export const useFiscalData = (clientId: string) => {
           setSelectedYear(fiscalDataObj.selectedYear);
         }
         
-        console.log("Données fiscales chargées et nettoyées:", cleanedData);
-        console.log("Obligations pour l'année", selectedYear, ":", cleanedData.obligations[selectedYear]);
         
       } else {
         // Initialize with default data structure
@@ -73,11 +67,9 @@ export const useFiscalData = (clientId: string) => {
           hiddenFromDashboard: false,
           selectedYear: selectedYear
         };
-        console.log("Initialisation avec des données par défaut:", defaultData);
         setFiscalData(defaultData);
       }
     } catch (error) {
-      console.error("Exception lors du chargement des données fiscales:", error);
       setFiscalData(null);
     } finally {
       setIsLoading(false);

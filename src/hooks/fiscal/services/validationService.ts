@@ -30,7 +30,6 @@ const validateAndMigrateTaxObligation = (obligation: any, obligationName: string
   if (obligation?.q3Payee !== undefined) validatedObligation.q3Payee = Boolean(obligation.q3Payee);
   if (obligation?.q4Payee !== undefined) validatedObligation.q4Payee = Boolean(obligation.q4Payee);
 
-  console.log(`Migration réussie pour l'obligation fiscale: ${obligationName}`);
   return validatedObligation;
 };
 
@@ -54,7 +53,6 @@ const validateAndMigrateIgsObligation = (obligation: any): IgsObligationStatus =
   if (obligation?.classe !== undefined) igsObligation.classe = obligation.classe;
   if (obligation?.outOfRange !== undefined) igsObligation.outOfRange = Boolean(obligation.outOfRange);
 
-  console.log("Migration réussie pour l'obligation IGS avec propriétés spécifiques");
   return igsObligation;
 };
 
@@ -81,7 +79,6 @@ const validateAndMigrateDeclarationObligation = (
   if (obligation?.regime) validatedObligation.regime = obligation.regime;
   if (obligation?.dateSoumission) validatedObligation.dateSoumission = obligation.dateSoumission;
 
-  console.log(`Migration réussie pour l'obligation déclarative: ${obligationName}`);
   return validatedObligation;
 };
 
@@ -90,11 +87,9 @@ const validateAndMigrateDeclarationObligation = (
  */
 export const validateAndMigrateObligationStatuses = (obligations: any): ObligationStatuses => {
   if (!obligations || typeof obligations !== 'object') {
-    console.log("Création d'une nouvelle structure d'obligations vide");
     return createDefaultObligationStatuses();
   }
 
-  console.log("Début de la validation et migration des obligations fiscales");
 
   const migratedObligations: ObligationStatuses = {
     // Impôts directs avec migration des anciens noms
@@ -122,7 +117,6 @@ export const validateAndMigrateObligationStatuses = (obligations: any): Obligati
     precomptes: validateAndMigrateDeclarationObligation(obligations.precomptes, "Précomptes", "mensuelle")
   };
 
-  console.log("Migration complète des obligations terminée avec succès");
   return migratedObligations;
 };
 
@@ -153,7 +147,6 @@ export const createDefaultObligationStatuses = (): ObligationStatuses => {
  */
 export const validateAndMigrateFiscalData = (fiscalData: any): any => {
   if (!fiscalData) {
-    console.log("Aucune donnée fiscale trouvée, création d'une structure par défaut");
     return {
       obligations: {},
       attestation: null,
@@ -162,7 +155,6 @@ export const validateAndMigrateFiscalData = (fiscalData: any): any => {
     };
   }
 
-  console.log("Validation et migration des données fiscales complètes");
 
   const migratedData = {
     ...fiscalData,
@@ -174,11 +166,9 @@ export const validateAndMigrateFiscalData = (fiscalData: any): any => {
     Object.keys(fiscalData.obligations).forEach(year => {
       const yearObligations = fiscalData.obligations[year];
       migratedData.obligations[year] = validateAndMigrateObligationStatuses(yearObligations);
-      console.log(`Obligations migrées pour l'année ${year}`);
     });
   }
 
-  console.log("Migration complète des données fiscales terminée");
   return migratedData;
 };
 
@@ -211,11 +201,9 @@ export const validateObligationConsistency = (obligations: ObligationStatuses): 
   });
 
   if (errors.length > 0) {
-    console.error("Erreurs de validation détectées:", errors);
     toast.error(`Erreurs de validation: ${errors.join(', ')}`);
     return false;
   }
 
-  console.log("Validation de cohérence réussie pour toutes les obligations");
   return true;
 };

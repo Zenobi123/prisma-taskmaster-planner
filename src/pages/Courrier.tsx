@@ -126,7 +126,6 @@ const Courrier: React.FC = () => {
       setCustomMessage("");
       setSelectedClientIds([]);
     } catch (error) {
-      console.error("Erreur lors de l'envoi du courrier:", error);
       toast.error("Erreur lors de l'envoi du courrier. Veuillez réessayer.");
     } finally {
       setIsSending(false);

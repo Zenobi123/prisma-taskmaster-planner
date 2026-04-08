@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnfiledDsf } from "@/services/unfiledDsfService";
+import { getClientsWithUnfiledDsf } from "@/services/fiscal/unfiledDsfService";
 import { FileText, FileWarning, Phone, Building } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
@@ -14,16 +14,12 @@ const UnfiledDsfList = () => {
     queryKey: ["clients-unfiled-dsf"],
     queryFn: getClientsWithUnfiledDsf,
     // Configurer le rafraîchissement automatique
-    refetchInterval: 10000,
+    refetchInterval: 60000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true
   });
 
-  console.log("UnfiledDsfList - Clients:", clients);
-  console.log("UnfiledDsfList - Clients length:", clients.length);
-  console.log("UnfiledDsfList - isLoading:", isLoading);
-  console.log("UnfiledDsfList - isFetched:", isFetched);
-  console.log("UnfiledDsfList - error:", error);
-  console.log("UnfiledDsfList - Le composant est bien rendu");
 
   const handleNavigateToClient = (clientId: string) => {
     navigate(`/gestion?client=${clientId}&tab=obligations-fiscales`);

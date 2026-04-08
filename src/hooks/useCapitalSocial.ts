@@ -10,16 +10,13 @@ export const useCapitalSocial = (clientId: string | undefined) => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  console.log("useCapitalSocial - Client ID:", clientId);
 
   // Charger les données du capital social
   const fetchCapitalSocial = async () => {
     if (!clientId) {
-      console.log("useCapitalSocial - Pas de client ID");
       return;
     }
 
-    console.log("useCapitalSocial - Chargement des données pour client:", clientId);
     setIsLoading(true);
     try {
       const { data: capitalData, error: capitalError } = await supabase
@@ -29,7 +26,6 @@ export const useCapitalSocial = (clientId: string | undefined) => {
         .maybeSingle();
 
       if (capitalError) {
-        console.error("Erreur capital social:", capitalError);
         throw capitalError;
       }
 
@@ -39,12 +35,9 @@ export const useCapitalSocial = (clientId: string | undefined) => {
         .eq('client_id', clientId);
 
       if (actionnaireError) {
-        console.error("Erreur actionnaires:", actionnaireError);
         throw actionnaireError;
       }
 
-      console.log("useCapitalSocial - Données capital chargées:", capitalData);
-      console.log("useCapitalSocial - Données actionnaires chargées:", actionnaireData);
 
       // Convertir et valider les données du capital social
       const formattedCapitalData = capitalData ? {
@@ -55,7 +48,6 @@ export const useCapitalSocial = (clientId: string | undefined) => {
       setCapitalSocial(formattedCapitalData);
       setActionnaires(actionnaireData || []);
     } catch (error) {
-      console.error('Erreur lors du chargement des données:', error);
       toast.error('Erreur lors du chargement des données du capital');
     } finally {
       setIsLoading(false);
@@ -97,7 +89,6 @@ export const useCapitalSocial = (clientId: string | undefined) => {
       toast.success('Capital social sauvegardé avec succès');
       return true;
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde:', error);
       toast.error('Erreur lors de la sauvegarde du capital social');
       return false;
     }
@@ -120,7 +111,6 @@ export const useCapitalSocial = (clientId: string | undefined) => {
       toast.success('Actionnaire ajouté avec succès');
       return true;
     } catch (error) {
-      console.error('Erreur lors de l\'ajout:', error);
       toast.error('Erreur lors de l\'ajout de l\'actionnaire');
       return false;
     }
@@ -140,7 +130,6 @@ export const useCapitalSocial = (clientId: string | undefined) => {
       toast.success('Actionnaire mis à jour avec succès');
       return true;
     } catch (error) {
-      console.error('Erreur lors de la mise à jour:', error);
       toast.error('Erreur lors de la mise à jour de l\'actionnaire');
       return false;
     }
@@ -160,14 +149,12 @@ export const useCapitalSocial = (clientId: string | undefined) => {
       toast.success('Actionnaire supprimé avec succès');
       return true;
     } catch (error) {
-      console.error('Erreur lors de la suppression:', error);
       toast.error('Erreur lors de la suppression de l\'actionnaire');
       return false;
     }
   };
 
   useEffect(() => {
-    console.log("useCapitalSocial - useEffect déclenché pour client:", clientId);
     fetchCapitalSocial();
   }, [clientId]);
 

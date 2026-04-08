@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 // Delete a facture and its related prestations from the database
 export const deleteFactureFromDatabase = async (factureId: string): Promise<boolean> => {
   try {
-    console.log("Deleting facture:", factureId);
     
     // Vérifier si la facture est envoyée et payée
     const { data: factureData, error: fetchError } = await supabase
@@ -14,7 +13,6 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
       .single();
       
     if (fetchError) {
-      console.error("Error fetching facture:", fetchError);
       throw new Error(`Failed to fetch invoice: ${fetchError.message}`);
     }
     
@@ -30,7 +28,6 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
       .eq("facture_id", factureId);
       
     if (prestationsError) {
-      console.error("Error deleting prestations:", prestationsError);
       throw new Error(`Failed to delete invoice services: ${prestationsError.message}`);
     }
     
@@ -41,7 +38,6 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
       .eq("facture_id", factureId);
       
     if (paiementsError) {
-      console.error("Error deleting paiements:", paiementsError);
       throw new Error(`Failed to delete invoice payments: ${paiementsError.message}`);
     }
     
@@ -52,14 +48,11 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
       .eq("id", factureId);
       
     if (factureError) {
-      console.error("Error deleting facture:", factureError);
       throw new Error(`Failed to delete invoice: ${factureError.message}`);
     }
     
-    console.log("Facture successfully deleted");
     return true;
   } catch (error) {
-    console.error("Error in deleteFactureFromDatabase:", error);
     throw error;
   }
 };

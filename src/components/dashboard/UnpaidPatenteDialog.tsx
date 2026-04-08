@@ -1,7 +1,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnpaidPatente } from "@/services/unpaidPatenteService";
+import { getClientsWithUnpaidPatente } from "@/services/fiscal/unpaidPatenteService";
 import { FileText, AlertTriangle, FileWarning, Phone, Building } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -18,7 +18,9 @@ export const UnpaidPatenteDialog = ({ open, onOpenChange }: UnpaidPatenteDialogP
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients-unpaid-patente-dialog"],
     queryFn: getClientsWithUnpaidPatente,
-    refetchInterval: 10000,
+    refetchInterval: 60000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true
   });
 

@@ -9,7 +9,6 @@ export const applyCreditToInvoice = async (
   montant: number
 ): Promise<boolean> => {
   try {
-    console.log(`Applying credit payment ${paiementId} to invoice ${factureId}`);
     
     // Update the payment to link it to the invoice and no longer be a credit
     const { error: updateError } = await supabase
@@ -22,13 +21,11 @@ export const applyCreditToInvoice = async (
       .eq('id', paiementId);
       
     if (updateError) {
-      console.error("Error applying credit to invoice:", updateError);
       throw new Error(`Failed to apply credit to invoice: ${updateError.message}`);
     }
     
     return true;
   } catch (error) {
-    console.error("Error in applyCreditToInvoice:", error);
     throw error;
   }
 };
@@ -49,13 +46,11 @@ export const createPaymentReminder = async (
       });
       
     if (error) {
-      console.error("Error creating payment reminder:", error);
       throw new Error(`Failed to create payment reminder: ${error.message}`);
     }
     
     return true;
   } catch (error) {
-    console.error("Error in createPaymentReminder:", error);
     throw error;
   }
 };

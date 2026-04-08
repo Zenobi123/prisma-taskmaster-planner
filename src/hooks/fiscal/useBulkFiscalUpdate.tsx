@@ -29,7 +29,6 @@ export const useBulkFiscalUpdate = () => {
         failed: 0
       });
       
-      console.log("Mise à jour des données fiscales pour", clients.length, "clients");
       
       try {
         // Traitement par lots de 5 clients maximum pour éviter les timeout et réduire la charge
@@ -69,7 +68,6 @@ export const useBulkFiscalUpdate = () => {
               
               return { success: true, id: client.id };
             } catch (error) {
-              console.error(`Erreur lors de la mise à jour du client ${client.id}:`, error);
               
               // Mise à jour du compteur de clients avec erreur
               setUpdatingClients(prev => ({
@@ -101,7 +99,6 @@ export const useBulkFiscalUpdate = () => {
       }
     },
     onSuccess: (result) => {
-      console.log("Résultat de la mise à jour:", result);
       
       // Invalidation contrôlée et séquentielle des requêtes pour éviter trop de refetch simultanés
       setTimeout(() => {
@@ -133,7 +130,6 @@ export const useBulkFiscalUpdate = () => {
       });
     },
     onError: (error) => {
-      console.error("Erreur lors de la mise à jour des données fiscales:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la mise à jour des données fiscales.",

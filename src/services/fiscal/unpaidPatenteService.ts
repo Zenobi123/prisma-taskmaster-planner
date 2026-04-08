@@ -6,7 +6,6 @@ import { shouldClientBeSubjectToObligation } from "./defaultObligationRules";
 
 export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
   try {
-    console.log("Fetching clients with unpaid Patente from fiscal_data...");
     
     const { data: clientsData, error } = await supabase
       .from('clients')
@@ -14,7 +13,6 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
       .eq('statut', 'actif');
 
     if (error) {
-      console.error('Error fetching clients:', error);
       return [];
     }
 
@@ -56,16 +54,13 @@ export const getClientsWithUnpaidPatente = async (): Promise<Client[]> => {
 
         return isSubjectToPatente && !isPatentePaid;
       } catch (error) {
-        console.error(`Error processing client ${client.id}:`, error);
         return false;
       }
     });
 
-    console.log(`Found ${unpaidPatenteClients.length} clients with unpaid Patente`);
     return unpaidPatenteClients;
     
   } catch (error) {
-    console.error('Error in getClientsWithUnpaidPatente:', error);
     return [];
   }
 };

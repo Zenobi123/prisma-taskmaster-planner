@@ -18,7 +18,6 @@ export const useExpiringFiscalAttestations = () => {
   return useQuery({
     queryKey: ["expiring-fiscal-attestations"],
     queryFn: async (): Promise<FiscalAttestation[]> => {
-      console.log("Fetching clients with fiscal attestations...");
       
       // Get all clients
       const { data: clients, error } = await supabase
@@ -27,7 +26,6 @@ export const useExpiringFiscalAttestations = () => {
         .filter("fiscal_data", "not.is", null);
       
       if (error) {
-        console.error("Error fetching clients with fiscal data:", error);
         throw error;
       }
       
@@ -78,11 +76,9 @@ export const useExpiringFiscalAttestations = () => {
             }
           }
         } catch (error) {
-          console.error(`Error processing fiscal data for client ${client.id}:`, error);
         }
       });
       
-      console.log("Expiring attestations found:", expiringAttestations);
       
       // Sort by days remaining (most urgent first)
       return expiringAttestations.sort((a, b) => a.daysRemaining - b.daysRemaining);

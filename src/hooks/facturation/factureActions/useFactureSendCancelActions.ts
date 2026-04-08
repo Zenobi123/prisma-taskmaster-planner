@@ -11,7 +11,6 @@ export const useFactureSendCancelActions = (
   // Fonction pour envoyer une facture (changement de statut de brouillon à envoyée)
   const sendFacture = async (facture: Facture) => {
     try {
-      console.log("Envoi de la facture:", facture.id);
       
       const updatedFacture: Facture = {
         ...facture,
@@ -30,7 +29,6 @@ export const useFactureSendCancelActions = (
         description: `La facture ${facture.id} a été marquée comme envoyée.`,
       });
     } catch (error) {
-      console.error("Erreur lors de l'envoi de la facture:", error);
       toast({
         title: "Erreur",
         description: "Impossible d'envoyer la facture. Veuillez réessayer.",
@@ -42,7 +40,6 @@ export const useFactureSendCancelActions = (
   // Fonction pour annuler une facture
   const cancelFacture = async (facture: Facture) => {
     try {
-      console.log("Annulation de la facture:", facture.id);
       
       const updatedFacture: Facture = {
         ...facture,
@@ -61,7 +58,6 @@ export const useFactureSendCancelActions = (
         description: `La facture ${facture.id} a été annulée.`,
       });
     } catch (error) {
-      console.error("Erreur lors de l'annulation de la facture:", error);
       toast({
         title: "Erreur",
         description: "Impossible d'annuler la facture. Veuillez réessayer.",

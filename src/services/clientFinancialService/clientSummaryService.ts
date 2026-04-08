@@ -4,7 +4,6 @@ import { ClientFinancialSummary } from "@/types/clientFinancial";
 
 export const getClientsFinancialSummary = async (): Promise<ClientFinancialSummary[]> => {
   try {
-    console.log("Fetching clients financial summary...");
     
     // Alternative approach - use direct queries instead of RPC function
     // Get all clients
@@ -14,7 +13,6 @@ export const getClientsFinancialSummary = async (): Promise<ClientFinancialSumma
       .eq('statut', 'actif');
       
     if (clientsError) {
-      console.error("Error fetching clients:", clientsError);
       throw new Error(`Failed to fetch clients: ${clientsError.message}`);
     }
     
@@ -28,7 +26,6 @@ export const getClientsFinancialSummary = async (): Promise<ClientFinancialSumma
       .select('client_id, montant, montant_paye');
       
     if (facturesError) {
-      console.error("Error fetching factures:", facturesError);
       throw new Error(`Failed to fetch invoices: ${facturesError.message}`);
     }
     
@@ -38,7 +35,6 @@ export const getClientsFinancialSummary = async (): Promise<ClientFinancialSumma
       .select('client_id, montant');
       
     if (paiementsError) {
-      console.error("Error fetching paiements:", paiementsError);
       throw new Error(`Failed to fetch payments: ${paiementsError.message}`);
     }
     
@@ -77,7 +73,6 @@ export const getClientsFinancialSummary = async (): Promise<ClientFinancialSumma
     
     return summaryData;
   } catch (error) {
-    console.error("Error in getClientsFinancialSummary:", error);
     throw error;
   }
 };

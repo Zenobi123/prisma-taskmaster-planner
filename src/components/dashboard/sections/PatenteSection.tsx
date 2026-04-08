@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnpaidPatente } from "@/services/unpaidPatenteService";
+import { getClientsWithUnpaidPatente } from "@/services/fiscal/unpaidPatenteService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle } from "lucide-react";
@@ -13,8 +13,10 @@ const PatenteSection = () => {
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients-unpaid-patente-section"],
     queryFn: getClientsWithUnpaidPatente,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000
   });
 
   return (

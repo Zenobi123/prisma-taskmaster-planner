@@ -21,11 +21,9 @@ export const fetchFacturesForAnalysis = async () => {
   
   // Vérifier si le cache est valide
   if (facturesCache.data && now - facturesCache.timestamp < CACHE_DURATION) {
-    console.log("Utilisation du cache pour les factures d'analyse");
     return facturesCache.data;
   }
   
-  console.log("Récupération des factures pour analyse depuis la base de données");
   
   const { data: facturesData, error: facturesError } = await supabase
     .from("factures")
@@ -42,8 +40,6 @@ export const fetchFacturesForAnalysis = async () => {
     timestamp: now
   };
   
-  console.log("Factures récupérées pour analyse:", facturesData?.length || 0);
-  console.log("Montant total des factures pour analyse:", facturesData?.reduce((sum, f) => sum + Number(f.montant), 0) || 0);
   
   return facturesData || [];
 };
@@ -53,11 +49,9 @@ export const fetchPrestationsForAnalysis = async () => {
   
   // Vérifier si le cache est valide
   if (prestationsCache.data && now - prestationsCache.timestamp < CACHE_DURATION) {
-    console.log("Utilisation du cache pour les prestations d'analyse");
     return prestationsCache.data;
   }
   
-  console.log("Récupération des prestations pour analyse depuis la base de données");
   
   const { data: prestationsData, error: prestationsError } = await supabase
     .from("prestations")
@@ -71,7 +65,6 @@ export const fetchPrestationsForAnalysis = async () => {
     timestamp: now
   };
   
-  console.log("Prestations récupérées pour analyse:", prestationsData?.length || 0);
   
   return prestationsData || [];
 };

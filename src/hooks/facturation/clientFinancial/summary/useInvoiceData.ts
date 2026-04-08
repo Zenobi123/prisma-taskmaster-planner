@@ -25,7 +25,6 @@ export const useInvoiceData = () => {
     if (!forceRefresh && 
         dataFetchedRef.current && 
         now - lastFetchTime.current < CACHE_DURATION) {
-      console.log("Utilisation du cache des factures");
       return;
     }
     
@@ -33,7 +32,6 @@ export const useInvoiceData = () => {
       setIsLoading(true);
       setError(null);
       
-      console.log("Chargement des factures depuis la base de données");
       
       const { data: invoicesData, error: invoicesError } = await supabase
         .from('factures')
@@ -56,10 +54,7 @@ export const useInvoiceData = () => {
       dataFetchedRef.current = true;
       lastFetchTime.current = now;
       
-      console.log("Factures chargées:", sentInvoices.length);
-      console.log("Montant total des factures envoyées:", total);
     } catch (err) {
-      console.error("Erreur lors du chargement des factures:", err);
       setError(err instanceof Error ? err : new Error('Échec de chargement des factures'));
       toast({
         title: "Erreur",

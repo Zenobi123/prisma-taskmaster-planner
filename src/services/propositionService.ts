@@ -14,7 +14,6 @@ export async function getNextPropositionNumber(): Promise<string> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Erreur lors de la récupération du numéro de proposition:", error);
   }
 
   const count = data ? data.length + 1 : 1;
@@ -54,7 +53,6 @@ export async function getPropositions(): Promise<Proposition[]> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Erreur lors de la récupération des propositions:", error);
     throw error;
   }
 
@@ -159,7 +157,6 @@ export async function createProposition(data: PropositionFormData): Promise<Prop
     .single();
 
   if (error) {
-    console.error("Erreur lors de la création de la proposition:", error);
     throw error;
   }
 
@@ -241,7 +238,6 @@ export async function updateProposition(id: string, data: Partial<PropositionFor
     .eq("id", id);
 
   if (error) {
-    console.error("Erreur lors de la mise à jour de la proposition:", error);
     throw error;
   }
 }
@@ -254,7 +250,6 @@ export async function deleteProposition(id: string): Promise<void> {
     .eq("id", id);
 
   if (error) {
-    console.error("Erreur lors de la suppression de la proposition:", error);
     throw error;
   }
 }

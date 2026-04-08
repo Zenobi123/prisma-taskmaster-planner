@@ -1,7 +1,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnfiledDsf } from "@/services/unfiledDsfService";
+import { getClientsWithUnfiledDsf } from "@/services/fiscal/unfiledDsfService";
 import { FileText, AlertTriangle, FileWarning, Phone, Building } from "lucide-react";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,9 @@ export const UnfiledDsfDialog = ({ open, onOpenChange }: UnfiledDsfDialogProps) 
     queryKey: ["clients-unfiled-dsf-dialog"],
     queryFn: getClientsWithUnfiledDsf,
     // Configurer le rafraîchissement automatique
-    refetchInterval: 10000,
+    refetchInterval: 60000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
     enabled: open // Ne charge les données que si la boîte de dialogue est ouverte
   });

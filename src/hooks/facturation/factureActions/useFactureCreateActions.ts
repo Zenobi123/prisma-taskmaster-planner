@@ -21,7 +21,6 @@ export const useFactureCreateActions = (
       
       return true;
     } catch (error) {
-      console.error("Error in addFacture:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

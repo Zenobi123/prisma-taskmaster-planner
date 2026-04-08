@@ -27,7 +27,6 @@ export const useVoiceCommands = ({
   const { toast } = useToast();
 
   const handleVoiceCommand = useCallback((command: string, transcript: string) => {
-    console.log('Voice command received:', command, transcript);
 
     try {
       switch (command) {
@@ -108,7 +107,6 @@ export const useVoiceCommands = ({
           });
       }
     } catch (error) {
-      console.error('Error handling voice command:', error);
       toast({
         title: "Erreur",
         description: "Erreur lors du traitement de la commande vocale",

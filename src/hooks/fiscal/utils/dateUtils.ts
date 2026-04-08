@@ -22,13 +22,11 @@ export const calculateValidityEndDate = (creationDate: string): string => {
         // Format the end date as DD/MM/YYYY
         return format(endDate, 'dd/MM/yyyy');
       } else {
-        console.error("Invalid date format:", creationDate);
         return "";
       }
     }
     return "";
   } catch (error) {
-    console.error("Error calculating validity end date:", error);
     return "";
   }
 };
@@ -53,6 +51,5 @@ export const checkAttestationExpiration = (creationDate: string, validityEndDate
       }
     }
   } catch (error) {
-    console.error("Error checking attestation expiration:", error);
   }
 };

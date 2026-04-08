@@ -48,7 +48,6 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
   };
 
   const handleViewDetails = () => {
-    console.log("Viewing details for payment:", paiement.id);
     // This would typically open a modal or navigate to a details page
     alert(`Détails du paiement ${paiement.reference}
     - Montant: ${formatMontant(paiement.montant)}
@@ -64,7 +63,6 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
     e.preventDefault();
     e.stopPropagation();
     
-    console.log("View receipt clicked for payment:", paiement.id);
     onViewReceipt(paiement);
   };
 

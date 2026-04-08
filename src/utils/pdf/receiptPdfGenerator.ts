@@ -81,7 +81,6 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
       return blob;
     }
   } catch (error) {
-    console.error("Erreur lors de la génération du reçu PDF:", error);
     throw error;
   }
 };

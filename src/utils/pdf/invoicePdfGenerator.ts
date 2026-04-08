@@ -7,7 +7,6 @@ import { addNotesSection } from './components/invoiceNotes';
 
 export const generateInvoicePDF = (facture: PDFFacture, download: boolean = false) => {
   try {
-    console.log("Début de génération PDF pour facture:", facture.id);
     
     // Create a new document service
     const docService = new DocumentService();
@@ -72,7 +71,6 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
       color: '#ADB5BD'
     });
     
-    console.log("Génération PDF terminée avec succès pour facture:", facture.id);
     
     // Generate PDF
     if (download) {
@@ -85,7 +83,6 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
     }
     
   } catch (error) {
-    console.error("Erreur lors de la génération du PDF:", error);
     throw error;
   }
 };

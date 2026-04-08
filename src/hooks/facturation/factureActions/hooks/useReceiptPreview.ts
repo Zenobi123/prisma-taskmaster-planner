@@ -8,7 +8,6 @@ export const useReceiptPreview = () => {
 
   const handleVoirRecu = (paiement: Paiement) => {
     try {
-      console.log("Aperçu du reçu de paiement:", paiement.id);
       
       const formattedClient = paiement.client ? formatClientForReceipt(paiement.client) : undefined;
       
@@ -24,7 +23,6 @@ export const useReceiptPreview = () => {
         description: `Visualisation du reçu pour le paiement ${paiement.reference || paiement.id}`,
       });
     } catch (error) {
-      console.error("Erreur lors de l'aperçu du reçu:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -35,7 +33,6 @@ export const useReceiptPreview = () => {
 
   const handleTelechargerRecu = (paiement: Paiement) => {
     try {
-      console.log("Téléchargement du reçu de paiement:", paiement.id);
       
       const formattedClient = paiement.client ? formatClientForReceipt(paiement.client) : undefined;
       
@@ -51,7 +48,6 @@ export const useReceiptPreview = () => {
         description: `Le reçu pour le paiement ${paiement.reference || paiement.id} a été téléchargé.`,
       });
     } catch (error) {
-      console.error("Erreur lors du téléchargement du reçu:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

@@ -79,7 +79,6 @@ export const useCollaborateurs = () => {
       });
     },
     onError: (error) => {
-      console.error("Erreur lors de l'ajout du collaborateur:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'ajout du collaborateur.",
@@ -98,7 +97,6 @@ export const useCollaborateurs = () => {
       });
     },
     onError: (error) => {
-      console.error("Erreur lors de la suppression du collaborateur:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la suppression du collaborateur.",
@@ -119,7 +117,6 @@ export const useCollaborateurs = () => {
       });
     },
     onError: (error) => {
-      console.error("Erreur lors de la modification du statut:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la modification du statut.",

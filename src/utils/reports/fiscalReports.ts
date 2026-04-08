@@ -96,7 +96,6 @@ export const generateObligationsFiscalesReport = async () => {
     
     doc.save(`obligations-fiscales-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
 
@@ -146,6 +145,5 @@ export const generateRetardsFiscauxReport = async () => {
     
     doc.save(`retards-fiscaux-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
   }
 };

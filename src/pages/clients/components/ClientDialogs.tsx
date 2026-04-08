@@ -55,7 +55,6 @@ export function ClientDialogs({
               type={newClientType}
               onTypeChange={onNewClientTypeChange}
               onSubmit={(clientData) => {
-                console.log("Données du client à ajouter:", clientData);
                 onAddClient(clientData);
               }}
             />
@@ -92,7 +91,6 @@ export function ClientDialogs({
                   type={selectedClient.type}
                   initialData={selectedClient}
                   onSubmit={(clientData) => {
-                    console.log("Données du client à mettre à jour:", clientData);
                     onUpdateClient(clientData);
                   }}
                 />

@@ -11,7 +11,6 @@ export interface NonCompliantClient {
 
 export const getClientsWithNonCompliantFiscalSituation = async (): Promise<NonCompliantClient[]> => {
   try {
-    console.log("🔍 Getting clients with non-compliant fiscal situation...");
     
     const { data: clients, error } = await supabase
       .from('clients')
@@ -19,12 +18,10 @@ export const getClientsWithNonCompliantFiscalSituation = async (): Promise<NonCo
       .eq('statut', 'actif');
 
     if (error) {
-      console.error('❌ Error fetching clients:', error);
       return [];
     }
 
     if (!clients) {
-      console.log('📄 No clients found');
       return [];
     }
 
@@ -45,7 +42,6 @@ export const getClientsWithNonCompliantFiscalSituation = async (): Promise<NonCo
       return false;
     });
 
-    console.log(`📊 Found ${nonCompliantClients.length} clients with non-compliant fiscal situation`);
     
     return nonCompliantClients.map(client => ({
       id: client.id,
@@ -55,7 +51,6 @@ export const getClientsWithNonCompliantFiscalSituation = async (): Promise<NonCo
       centrerattachement: client.centrerattachement
     }));
   } catch (error) {
-    console.error('❌ Error in getClientsWithNonCompliantFiscalSituation:', error);
     return [];
   }
 };

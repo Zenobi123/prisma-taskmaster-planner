@@ -31,7 +31,6 @@ export function useInteractionMutations(clientId: string) {
       });
     },
     onError: (error) => {
-      console.error("Erreur lors de l'ajout de l'interaction:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'ajout de l'interaction.",

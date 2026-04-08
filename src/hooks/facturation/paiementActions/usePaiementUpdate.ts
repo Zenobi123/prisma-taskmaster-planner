@@ -29,7 +29,6 @@ export const usePaiementUpdate = () => {
 
       return data;
     } catch (error) {
-      console.error("Erreur lors de la mise à jour du paiement:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

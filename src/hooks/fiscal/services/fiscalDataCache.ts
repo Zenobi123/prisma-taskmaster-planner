@@ -15,11 +15,9 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
   const cachedData = fiscalDataCache.get(clientId);
   
   if (cachedData && now - cachedData.timestamp < CACHE_DURATION) {
-    console.log(`Utilisation du cache pour les données fiscales du client ${clientId}`);
     return cachedData.data;
   }
   
-  console.log(`Cache invalide ou non trouvé pour le client ${clientId}`);
   return null;
 };
 
@@ -27,7 +25,6 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
  * Mettre à jour le cache avec de nouvelles données
  */
 export const updateCache = (clientId: string, data: ClientFiscalData): void => {
-  console.log(`Mise à jour du cache pour le client ${clientId}`, data);
   fiscalDataCache.set(clientId, {
     data,
     timestamp: Date.now()
@@ -38,7 +35,6 @@ export const updateCache = (clientId: string, data: ClientFiscalData): void => {
  * Vider le cache pour un client spécifique
  */
 export const clearCache = (clientId: string): void => {
-  console.log(`Suppression du cache pour le client ${clientId}`);
   fiscalDataCache.delete(clientId);
 };
 
@@ -46,7 +42,6 @@ export const clearCache = (clientId: string): void => {
  * Vider tous les caches
  */
 export const clearAllCaches = (): void => {
-  console.log('Suppression de tous les caches de données fiscales');
   fiscalDataCache.clear();
 };
 
@@ -57,7 +52,6 @@ export const clearAllCaches = (): void => {
 export const expireCache = (clientId: string): void => {
   const cachedEntry = fiscalDataCache.get(clientId);
   if (cachedEntry) {
-    console.log(`Expiration du cache pour le client ${clientId}`);
     fiscalDataCache.set(clientId, {
       data: cachedEntry.data,
       timestamp: 0 // Mettre le timestamp à 0 pour forcer l'expiration
@@ -70,7 +64,6 @@ export const expireCache = (clientId: string): void => {
  * Cela conserve les données mais les fait toutes expirer immédiatement
  */
 export const expireAllCaches = (): void => {
-  console.log('Expiration de tous les caches de données fiscales');
   fiscalDataCache.forEach((value, key) => {
     fiscalDataCache.set(key, {
       data: value.data,

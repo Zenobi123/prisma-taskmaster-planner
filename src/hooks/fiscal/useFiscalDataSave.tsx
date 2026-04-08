@@ -39,9 +39,6 @@ export const useFiscalDataSave = ({
 
     try {
       setIsSaving(true);
-      console.log(`=== DÉBUT SAUVEGARDE ===`);
-      console.log("Client ID:", selectedClient.id);
-      console.log("Année fiscale:", fiscalYear);
 
       // Préparer les données pour la sauvegarde
       const fiscalDataToSave = prepareFiscalDataForSave({
@@ -58,7 +55,6 @@ export const useFiscalDataSave = ({
       const success = await saveFiscalDataToDatabase(selectedClient.id, fiscalDataToSave);
 
       if (success) {
-        console.log("=== SAUVEGARDE RÉUSSIE ===");
         invalidateClientsCache();
         setHasUnsavedChanges(false);
         toast.success("Données fiscales sauvegardées avec succès");
@@ -68,7 +64,6 @@ export const useFiscalDataSave = ({
         return false;
       }
     } catch (error) {
-      console.error("Exception lors de la sauvegarde:", error);
       toast.error("Erreur inattendue lors de la sauvegarde");
       return false;
     } finally {

@@ -24,7 +24,6 @@ const addPaymentDetailsBox = (doc: jsPDF, facture: PDFFacture) => {
       const date = new Date(dateString);
       return date.toLocaleDateString('fr-FR');
     } catch (error) {
-      console.error("Error formatting date:", error);
       return dateString;
     }
   };

@@ -47,7 +47,6 @@ export const getTasks = async () => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("Erreur lors de la récupération des tâches:", error);
     throw error;
   }
 
@@ -79,7 +78,6 @@ const updateCollaborateurTaskCounts = async (tasks: Task[]) => {
       .select("id, tachesencours");
       
     if (fetchError) {
-      console.error("Erreur lors de la récupération des collaborateurs:", fetchError);
       return;
     }
     
@@ -95,14 +93,11 @@ const updateCollaborateurTaskCounts = async (tasks: Task[]) => {
           .eq("id", collaborateur.id);
           
         if (updateError) {
-          console.error(`Erreur lors de la mise à jour du nombre de tâches pour le collaborateur ${collaborateur.id}:`, updateError);
         }
       }
     }
     
-    console.log("Nombre de tâches en cours des collaborateurs mis à jour avec succès");
   } catch (error) {
-    console.error("Erreur lors de la mise à jour du nombre de tâches des collaborateurs:", error);
   }
 };
 
@@ -168,7 +163,6 @@ const updateTaskStatusesBasedOnDates = async (tasks: any[]): Promise<any[]> => {
         tasks[index].status = task.status;
       }
     } catch (error) {
-      console.error(`Failed to auto-update task ${task.id} status:`, error);
     }
   }
   
@@ -176,7 +170,6 @@ const updateTaskStatusesBasedOnDates = async (tasks: any[]): Promise<any[]> => {
 };
 
 export const createTask = async (task: Omit<Task, "id" | "created_at" | "updated_at">) => {
-  console.log("Creating task with data:", task);
   
   try {
     // Determine initial status based on start date
@@ -193,11 +186,9 @@ export const createTask = async (task: Omit<Task, "id" | "created_at" | "updated
       .single();
 
     if (error) {
-      console.error("Erreur lors de la création de la tâche:", error);
       throw error;
     }
 
-    console.log("Task created successfully:", data);
     
     // Update the collaborateur's task count after creating a new task
     if (initialStatus === "en_cours") {
@@ -206,13 +197,11 @@ export const createTask = async (task: Omit<Task, "id" | "created_at" | "updated
     
     return data;
   } catch (err) {
-    console.error("Exception lors de la création de la tâche:", err);
     throw err;
   }
 };
 
 export const updateTaskStatus = async (taskId: string, status: Task["status"]) => {
-  console.log(`Updating task ${taskId} status to ${status}`);
   
   try {
     // Get the current task to compare statuses
@@ -223,7 +212,6 @@ export const updateTaskStatus = async (taskId: string, status: Task["status"]) =
       .single();
       
     if (fetchError) {
-      console.error("Erreur lors de la récupération de la tâche actuelle:", fetchError);
       throw fetchError;
     }
     
@@ -236,11 +224,9 @@ export const updateTaskStatus = async (taskId: string, status: Task["status"]) =
       .single();
 
     if (error) {
-      console.error("Erreur lors de la mise à jour du statut de la tâche:", error);
       throw error;
     }
 
-    console.log("Task status updated successfully:", data);
     
     // Update the collaborateur's task count if the status changes between en_cours and something else
     if (currentTask.collaborateur_id) {
@@ -255,13 +241,11 @@ export const updateTaskStatus = async (taskId: string, status: Task["status"]) =
     
     return data;
   } catch (err) {
-    console.error("Exception lors de la mise à jour du statut de la tâche:", err);
     throw err;
   }
 };
 
 export const deleteTask = async (taskId: string) => {
-  console.log(`Deleting task ${taskId}`);
   
   try {
     // Get the task to check status and collaborateur
@@ -272,7 +256,6 @@ export const deleteTask = async (taskId: string) => {
       .single();
       
     if (fetchError) {
-      console.error("Erreur lors de la récupération de la tâche à supprimer:", fetchError);
       throw fetchError;
     }
     
@@ -283,11 +266,9 @@ export const deleteTask = async (taskId: string) => {
       .eq("id", taskId);
 
     if (error) {
-      console.error("Erreur lors de la suppression de la tâche:", error);
       throw error;
     }
 
-    console.log("Task deleted successfully");
     
     // If the task was in progress, decrement the collaborateur's task count
     if (taskToDelete.status === "en_cours" && taskToDelete.collaborateur_id) {
@@ -296,7 +277,6 @@ export const deleteTask = async (taskId: string) => {
     
     return true;
   } catch (err) {
-    console.error("Exception lors de la suppression de la tâche:", err);
     throw err;
   }
 };
@@ -311,7 +291,6 @@ const incrementCollaborateurTaskCount = async (collaborateurId: string) => {
       .single();
       
     if (error) {
-      console.error("Erreur lors de la récupération du nombre de tâches du collaborateur:", error);
       return;
     }
     
@@ -324,10 +303,8 @@ const incrementCollaborateurTaskCount = async (collaborateurId: string) => {
       .eq("id", collaborateurId);
       
     if (updateError) {
-      console.error("Erreur lors de l'incrémentation du nombre de tâches du collaborateur:", updateError);
     }
   } catch (err) {
-    console.error("Exception lors de l'incrémentation du nombre de tâches du collaborateur:", err);
   }
 };
 
@@ -341,7 +318,6 @@ const decrementCollaborateurTaskCount = async (collaborateurId: string) => {
       .single();
       
     if (error) {
-      console.error("Erreur lors de la récupération du nombre de tâches du collaborateur:", error);
       return;
     }
     
@@ -354,9 +330,7 @@ const decrementCollaborateurTaskCount = async (collaborateurId: string) => {
       .eq("id", collaborateurId);
       
     if (updateError) {
-      console.error("Erreur lors de la décrémentation du nombre de tâches du collaborateur:", updateError);
     }
   } catch (err) {
-    console.error("Exception lors de la décrémentation du nombre de tâches du collaborateur:", err);
   }
 };

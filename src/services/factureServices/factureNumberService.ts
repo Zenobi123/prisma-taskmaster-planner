@@ -14,7 +14,6 @@ export const getNextFactureNumber = async (): Promise<string> => {
       .order('created_at', { ascending: false });
 
     if (error) {
-      console.error("Error fetching factures for numbering:", error);
       return `N° 0001/${year}/${month}`;
     }
 
@@ -39,7 +38,6 @@ export const getNextFactureNumber = async (): Promise<string> => {
     const nextNumber = (highestNumber + 1).toString().padStart(4, '0');
     return `N° ${nextNumber}/${year}/${month}`;
   } catch (error) {
-    console.error("Error in getNextFactureNumber:", error);
     const now = new Date();
     return `N° 0001/${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}`;
   }

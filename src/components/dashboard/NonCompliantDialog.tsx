@@ -23,7 +23,9 @@ export const NonCompliantDialog = ({ open, onOpenChange }: NonCompliantDialogPro
   const { data: clients = [], isLoading, error } = useQuery({
     queryKey: ["clients-non-compliant-fiscal"],
     queryFn: getClientsWithNonCompliantFiscalSituation,
-    refetchInterval: 10000,
+    refetchInterval: 60000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true
   });
 

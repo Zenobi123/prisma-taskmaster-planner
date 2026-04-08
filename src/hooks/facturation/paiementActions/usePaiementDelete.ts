@@ -26,7 +26,6 @@ export const usePaiementDelete = () => {
 
       return true;
     } catch (error) {
-      console.error("Erreur lors de la suppression du paiement:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

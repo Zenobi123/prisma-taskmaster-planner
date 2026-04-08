@@ -54,7 +54,6 @@ export default function ClientsPage() {
   // Error handling
   useEffect(() => {
     if (error) {
-      console.error("Erreur lors de la récupération des clients:", error);
       toast({
         title: "Erreur",
         description: "Impossible de récupérer la liste des clients",

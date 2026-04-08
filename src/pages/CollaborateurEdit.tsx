@@ -32,7 +32,6 @@ export default function CollaborateurEdit() {
       navigate(`/collaborateurs/${id}`);
     },
     onError: (error) => {
-      console.error("Erreur lors de la mise à jour:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la mise à jour du collaborateur.",

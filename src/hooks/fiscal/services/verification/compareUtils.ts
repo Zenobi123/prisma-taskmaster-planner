@@ -16,7 +16,6 @@ export const compareObjects = (obj1: any, obj2: any): boolean => {
     
     return sortedStringify(obj1ForComparison) === sortedStringify(obj2ForComparison);
   } catch (e) {
-    console.error("Error comparing objects:", e);
     return false;
   }
 };

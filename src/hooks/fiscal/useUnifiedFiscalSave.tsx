@@ -102,7 +102,6 @@ export const useUnifiedFiscalSave = ({
       setHasUnsavedChanges(false);
       return true;
     } catch (error) {
-      console.error("Error saving fiscal data:", error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les données fiscales",

@@ -34,7 +34,6 @@ const PreviewDialog = ({
   const previewContent = replaceVariables(templateContent, previewClient);
 
   const handleDownload = () => {
-    console.log("Génération des courriers...");
     onConfirmSend();
   };
 

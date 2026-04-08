@@ -12,7 +12,6 @@ interface ExpiringClientDocumentsProps {
 }
 
 const ExpiringClientDocuments = ({ clients }: ExpiringClientDocumentsProps) => {
-  console.log("Rendering ExpiringClientDocuments with clients:", clients);
   const navigate = useNavigate();
   
   const handleNavigateToFiscal = (clientId: string) => {

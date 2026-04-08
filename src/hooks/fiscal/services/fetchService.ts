@@ -9,7 +9,6 @@ import { validateAndMigrateFiscalData } from "./validationService";
  */
 export const fetchFiscalData = async (clientId: string, retryCount = 0): Promise<ClientFiscalData | null> => {
   try {
-    console.log(`Fetching fiscal data for client ${clientId} (attempt ${retryCount + 1})`);
     
     const { data, error } = await supabase
       .from('clients')
@@ -18,11 +17,9 @@ export const fetchFiscalData = async (clientId: string, retryCount = 0): Promise
       .single();
     
     if (error) {
-      console.error(`Error fetching fiscal data (attempt ${retryCount + 1}):`, error);
       
       if (retryCount < 2) {
         const delay = (retryCount + 1) * 1000;
-        console.log(`Retrying in ${delay}ms...`);
         await new Promise(resolve => setTimeout(resolve, delay));
         return fetchFiscalData(clientId, retryCount + 1);
       }
@@ -47,14 +44,11 @@ export const fetchFiscalData = async (clientId: string, retryCount = 0): Promise
         updatedAt: validatedData.updatedAt
       };
       
-      console.log("Données fiscales récupérées et validées avec succès");
       return fiscalData;
     }
     
-    console.log("Aucune donnée fiscale trouvée, retour de null");
     return null;
   } catch (error) {
-    console.error(`Exception during fiscal data fetch (attempt ${retryCount + 1}):`, error);
     return null;
   }
 };

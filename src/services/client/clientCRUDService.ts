@@ -6,7 +6,6 @@ import { validateRegimeFiscal, cleanClientUpdateData, VALID_REGIME_FISCAL } from
 import { invalidateClientsCache } from "./clientCacheService";
 
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
-  console.log("Données du client à ajouter:", client);
   
   // Ensure regimefiscal has a valid value - database constraint will enforce this
   const regimefiscal = VALID_REGIME_FISCAL.includes(client.regimefiscal as any) ? client.regimefiscal : "reel";
@@ -42,11 +41,9 @@ export const addClient = async (client: Omit<Client, "id" | "interactions" | "cr
     .single();
 
   if (error) {
-    console.error("Erreur lors de l'ajout du client:", error);
     throw error;
   }
 
-  console.log("Client ajouté avec succès:", data);
   
   // Invalidate cache after successful addition
   invalidateClientsCache();
@@ -62,7 +59,6 @@ export const archiveClient = async (id: string) => {
     .eq("client_id", id);
 
   if (taskCheckError) {
-    console.error("Erreur lors de la vérification des tâches associées:", taskCheckError);
     throw taskCheckError;
   }
 
@@ -75,11 +71,9 @@ export const archiveClient = async (id: string) => {
     .single();
 
   if (error) {
-    console.error("Erreur lors de l'archivage du client:", error);
     throw error;
   }
 
-  console.log("Client archivé avec succès:", data);
   
   // Invalidate cache after successful archive
   invalidateClientsCache();
@@ -95,7 +89,6 @@ export const deleteClient = async (id: string) => {
     .eq("client_id", id);
 
   if (taskCheckError) {
-    console.error("Erreur lors de la vérification des tâches associées:", taskCheckError);
     throw taskCheckError;
   }
 
@@ -104,7 +97,6 @@ export const deleteClient = async (id: string) => {
     const incompleteTasks = clientTasks.filter(task => task.status !== "termine");
     
     if (incompleteTasks.length > 0) {
-      console.error("Impossible de supprimer le client car il a des tâches non terminées");
       toast.error("Impossible de supprimer ce client car il a des tâches non terminées");
       throw new Error("Le client a des tâches non terminées et ne peut pas être supprimé");
     }
@@ -122,11 +114,9 @@ export const deleteClient = async (id: string) => {
     .single();
 
   if (error) {
-    console.error("Erreur lors de la suppression du client:", error);
     throw error;
   }
 
-  console.log("Client supprimé avec succès (soft delete):", data);
   
   // Invalidate cache after successful deletion
   invalidateClientsCache();
@@ -146,11 +136,9 @@ export const restoreClient = async (id: string) => {
     .single();
 
   if (error) {
-    console.error("Erreur lors de la restauration du client:", error);
     throw error;
   }
 
-  console.log("Client restauré avec succès:", data);
   
   // Invalidate cache after successful restoration
   invalidateClientsCache();
@@ -166,7 +154,6 @@ export const permanentDeleteClient = async (id: string) => {
     .eq("client_id", id);
 
   if (taskCheckError) {
-    console.error("Erreur lors de la vérification des tâches associées:", taskCheckError);
     throw taskCheckError;
   }
 
@@ -175,7 +162,6 @@ export const permanentDeleteClient = async (id: string) => {
     const incompleteTasks = clientTasks.filter(task => task.status !== "termine");
     
     if (incompleteTasks.length > 0) {
-      console.error("Impossible de supprimer définitivement le client car il a des tâches non terminées");
       toast.error("Impossible de supprimer définitivement ce client car il a des tâches non terminées");
       throw new Error("Le client a des tâches non terminées et ne peut pas être supprimé définitivement");
     }
@@ -188,18 +174,15 @@ export const permanentDeleteClient = async (id: string) => {
     .eq("id", id);
 
   if (error) {
-    console.error("Erreur lors de la suppression définitive du client:", error);
     throw error;
   }
 
-  console.log("Client supprimé définitivement avec succès");
   
   // Invalidate cache after successful permanent deletion
   invalidateClientsCache();
 };
 
 export const updateClient = async (id: string, updates: Partial<Omit<Client, "id" | "interactions" | "created_at">>) => {
-  console.log("Mise à jour du client:", { id, updates });
   
   // Validation for regimefiscal - database constraint will enforce this
   let regimefiscal = updates.regimefiscal;
@@ -214,7 +197,6 @@ export const updateClient = async (id: string, updates: Partial<Omit<Client, "id
     cleanedUpdates.regimefiscal = regimefiscal;
   }
 
-  console.log("Données nettoyées pour la mise à jour:", cleanedUpdates);
 
   const { data, error } = await supabase
     .from("clients")
@@ -224,12 +206,10 @@ export const updateClient = async (id: string, updates: Partial<Omit<Client, "id
     .single();
 
   if (error) {
-    console.error("Erreur lors de la mise à jour du client:", error);
     toast.error(`Erreur lors de la mise à jour: ${error.message}`);
     throw error;
   }
 
-  console.log("Client mis à jour avec succès:", data);
   
   // Invalidate cache after successful update
   invalidateClientsCache();

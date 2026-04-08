@@ -5,7 +5,6 @@ import { validateRegimeFiscal } from "./useClientFormValidation";
 
 export function useClientFormDataProcessor() {
   const prepareSubmitData = (formData: ClientFormState, type: ClientType) => {
-    console.log("Preparing submit data with regimefiscal:", formData.regimefiscal);
     
     // Final validation of regime fiscal before submission
     const finalRegimeFiscal = validateRegimeFiscal(formData.regimefiscal);

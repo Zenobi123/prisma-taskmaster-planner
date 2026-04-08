@@ -114,7 +114,6 @@ export function useClientsPage() {
       try {
         await archiveMutation.mutateAsync(client.id);
       } catch (error) {
-        console.error("Erreur lors de l'archivage:", error);
       }
     }
   };
@@ -124,7 +123,6 @@ export function useClientsPage() {
       try {
         await restoreMutation.mutateAsync(client.id);
       } catch (error) {
-        console.error("Erreur lors de la restauration:", error);
       }
     }
   };
@@ -134,7 +132,6 @@ export function useClientsPage() {
       try {
         await deleteMutation.mutateAsync(client.id);
       } catch (error) {
-        console.error("Erreur lors de la suppression:", error);
       }
     }
   };

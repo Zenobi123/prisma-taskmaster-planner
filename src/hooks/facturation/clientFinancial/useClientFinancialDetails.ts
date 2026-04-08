@@ -14,7 +14,6 @@ export const useClientFinancialDetails = () => {
   const fetchClientDetails = async (clientId: string) => {
     try {
       setIsLoading(true);
-      console.log("Récupération des détails financiers du client:", clientId);
       
       // First, get the client information
       const { data: clientData, error: clientError } = await supabase
@@ -94,11 +93,9 @@ export const useClientFinancialDetails = () => {
         client: clientData // Add the full client data here
       };
       
-      console.log("Détails financiers récupérés avec succès", details);
       setClientDetails(details);
       setSelectedClientId(clientId);
     } catch (error) {
-      console.error("Erreur lors de la récupération des détails financiers du client:", error);
       toast({
         title: "Erreur",
         description: "Impossible de récupérer les détails financiers du client",

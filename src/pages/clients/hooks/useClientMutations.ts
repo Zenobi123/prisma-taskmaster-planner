@@ -38,7 +38,6 @@ export function useClientMutations() {
       });
     },
     onError: (error) => {
-      console.error("Erreur lors de l'ajout du client:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'ajout du client.",
@@ -49,7 +48,6 @@ export function useClientMutations() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Client> }) => {
-      console.log("Mise à jour du client:", { id, updates });
       return await updateClient(id, updates);
     },
     onSuccess: () => {
@@ -60,7 +58,6 @@ export function useClientMutations() {
       });
     },
     onError: (error) => {
-      console.error("Erreur lors de la mise à jour du client:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la mise à jour du client.",
@@ -79,7 +76,6 @@ export function useClientMutations() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur lors de l'archivage du client:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'archivage du client.",
@@ -90,7 +86,6 @@ export function useClientMutations() {
 
   const restoreMutation = useMutation({
     mutationFn: async (id: string) => {
-      console.log("Restauration du client:", id);
       return await restoreClient(id);
     },
     onSuccess: () => {
@@ -101,7 +96,6 @@ export function useClientMutations() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur lors de la restauration du client:", error);
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la restauration du client.",
@@ -120,7 +114,6 @@ export function useClientMutations() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur lors de la suppression du client:", error);
       toast({
         title: "Erreur",
         description: error.message || "Une erreur est survenue lors de la suppression du client.",
@@ -139,7 +132,6 @@ export function useClientMutations() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur lors de la suppression définitive du client:", error);
       toast({
         title: "Erreur",
         description: error.message || "Une erreur est survenue lors de la suppression définitive du client.",

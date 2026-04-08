@@ -32,7 +32,6 @@ export const factureDataService = {
         .in("facture_id", factureIds);
 
       if (prestationsError) {
-        console.error("Erreur lors de la récupération des prestations:", prestationsError);
       }
 
       // Group prestations by facture_id
@@ -83,7 +82,6 @@ export const factureDataService = {
         };
       });
     } catch (error) {
-      console.error('Erreur lors de la récupération des factures:', error);
       throw error;
     }
   },
@@ -151,7 +149,6 @@ export const factureDataService = {
         client: transformClient(data.client)
       };
     } catch (error) {
-      console.error('Erreur lors de la récupération de la facture:', error);
       throw error;
     }
   },
@@ -255,7 +252,6 @@ export const factureDataService = {
         client: transformClient(data.client)
       } : null;
     } catch (error) {
-      console.error('Erreur lors de la mise à jour de la facture:', error);
       throw error;
     }
   },
@@ -275,7 +271,6 @@ export const factureDataService = {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Erreur lors de la suppression de la facture:', error);
       throw error;
     }
   },
@@ -299,7 +294,6 @@ export const factureDataService = {
         client: paiement.client || { id: '', nom: '', raisonsociale: '', type: 'physique' }
       })) as unknown as Paiement[];
     } catch (error) {
-      console.error('Erreur lors de la récupération des paiements pour la facture:', error);
       throw error;
     }
   },
@@ -324,7 +318,6 @@ export const factureDataService = {
         client: data.client || { id: '', nom: '', raisonsociale: '', type: 'physique' }
       } as unknown as Paiement;
     } catch (error) {
-      console.error('Erreur lors de l\'ajout du paiement à la facture:', error);
       throw error;
     }
   },
@@ -338,7 +331,6 @@ export const factureDataService = {
 
       if (error) throw error;
     } catch (error) {
-      console.error('Erreur lors de la suppression du paiement:', error);
       throw error;
     }
   },

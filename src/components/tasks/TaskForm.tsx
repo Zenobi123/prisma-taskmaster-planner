@@ -26,7 +26,6 @@ export const TaskForm = ({ clients, collaborateurs, onSuccess }: TaskFormProps) 
       onSuccess();
     },
     onError: (error) => {
-      console.error("Erreur lors de la création de la tâche:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

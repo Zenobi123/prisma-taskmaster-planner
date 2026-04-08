@@ -10,7 +10,6 @@ export const useInvoicePreview = () => {
 
   const handleVoirFacture = (facture: Facture) => {
     try {
-      console.log("Aperçu de la facture:", facture.id);
       
       const pdfFacture: PDFFacture = {
         id: facture.id,
@@ -26,7 +25,6 @@ export const useInvoicePreview = () => {
         notes: facture.notes && typeof facture.notes === 'string' ? facture.notes : ''
       };
       
-      console.log("PDF Facture object:", pdfFacture);
       
       generateInvoicePDF(pdfFacture, false);
       
@@ -35,7 +33,6 @@ export const useInvoicePreview = () => {
         description: `La facture ${facture.id} a été ouverte dans un nouvel onglet.`,
       });
     } catch (error) {
-      console.error("Erreur lors de l'aperçu de la facture:", error);
       toast({
         variant: "destructive",
         title: "Erreur",
@@ -46,7 +43,6 @@ export const useInvoicePreview = () => {
 
   const handleTelechargerFacture = (facture: Facture) => {
     try {
-      console.log("Téléchargement de la facture:", facture.id);
       
       const pdfFacture: PDFFacture = {
         id: facture.id,
@@ -62,7 +58,6 @@ export const useInvoicePreview = () => {
         notes: facture.notes && typeof facture.notes === 'string' ? facture.notes : ''
       };
       
-      console.log("PDF Facture object for download:", pdfFacture);
       
       generateInvoicePDF(pdfFacture, true);
       
@@ -71,7 +66,6 @@ export const useInvoicePreview = () => {
         description: `La facture ${facture.id} a été téléchargée.`,
       });
     } catch (error) {
-      console.error("Erreur lors du téléchargement de la facture:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnfiledDsf } from "@/services/unfiledDsfService";
+import { getClientsWithUnfiledDsf } from "@/services/fiscal/unfiledDsfService";
 import UnfiledDsfSummary from "../UnfiledDsfSummary";
 import { UnfiledDsfDialog } from "../UnfiledDsfDialog";
 
@@ -12,10 +12,10 @@ const DsfSection = () => {
   const { data: clients = [], isLoading } = useQuery({
     queryKey: ["clients-unfiled-dsf-section"],
     queryFn: getClientsWithUnfiledDsf,
-    refetchInterval: 10000,        // Rafraîchissement toutes les 10 secondes
-    refetchOnWindowFocus: true,    // Rafraîchissement quand la fenêtre reprend le focus
-    staleTime: 5000,               // Données considérées comme périmées après 5 secondes
-    gcTime: 30000                  // Nettoyage du cache après 30 secondes
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000
   });
 
   return (

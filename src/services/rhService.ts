@@ -11,7 +11,6 @@ export const rhService = {
       .order('nom', { ascending: true });
     
     if (error) {
-      console.error("Erreur lors de la récupération des employés:", error);
       return [];
     }
     
@@ -26,7 +25,6 @@ export const rhService = {
       .single();
     
     if (error) {
-      console.error("Erreur lors de la récupération de l'employé:", error);
       return null;
     }
     
@@ -41,7 +39,6 @@ export const rhService = {
       .single();
     
     if (error) {
-      console.error("Erreur lors de la création de l'employé:", error);
       return null;
     }
     
@@ -57,7 +54,6 @@ export const rhService = {
       .single();
     
     if (error) {
-      console.error("Erreur lors de la mise à jour de l'employé:", error);
       return null;
     }
     
@@ -70,7 +66,6 @@ export const rhService = {
       .insert(employeesData);
     
     if (error) {
-      console.error("Erreur lors de la création groupée d'employés:", error);
       return false;
     }
     
@@ -84,7 +79,6 @@ export const rhService = {
       .eq('id', id);
     
     if (error) {
-      console.error("Erreur lors de la suppression de l'employé:", error);
       return false;
     }
     

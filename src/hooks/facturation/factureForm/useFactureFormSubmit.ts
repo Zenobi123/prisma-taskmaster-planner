@@ -51,7 +51,6 @@ export const useFactureFormSubmit = (
       onFactureCreated();
       onOpenChange(false);
     } catch (error) {
-      console.error('Erreur lors de la création de la facture:', error);
       toast.error('Erreur lors de la création de la facture');
     }
   };

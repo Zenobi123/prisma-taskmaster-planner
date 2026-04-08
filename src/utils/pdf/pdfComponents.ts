@@ -11,7 +11,6 @@ export const formatDateForDisplay = (dateString: string): string => {
     const date = new Date(dateString);
     return format(date, 'dd/MM/yyyy', { locale: fr });
   } catch (error) {
-    console.error("Error formatting date:", error);
     return dateString;
   }
 };

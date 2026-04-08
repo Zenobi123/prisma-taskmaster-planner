@@ -21,10 +21,6 @@ export const prepareFiscalDataForSave = ({
   hiddenFromDashboard,
   obligationStatuses
 }: PrepareFiscalDataProps) => {
-  console.log("=== PRÉPARATION DES DONNÉES FISCALES ===");
-  console.log("Client:", selectedClient.nom || selectedClient.raisonsociale);
-  console.log("Année:", fiscalYear);
-  console.log("Statuts des obligations:", obligationStatuses);
 
   // Préparer les données d'attestation
   const attestationData = {
@@ -58,8 +54,6 @@ export const prepareFiscalDataForSave = ({
 
         // Traitement spécial pour l'IGS avec TOUS les détails de paiement
         if (obligationKey === 'igs') {
-          console.log("=== TRAITEMENT IGS COMPLET ===");
-          console.log("Données IGS reçues:", obligation);
           
           preparedObligations[obligationKey] = {
             ...taxObligation,
@@ -115,22 +109,6 @@ export const prepareFiscalDataForSave = ({
                           (Number((obligation as any).q4Montant) || 0)))
           };
           
-          console.log("=== IGS SAUVEGARDÉ ===");
-          console.log("Montant annuel:", preparedObligations[obligationKey].montantAnnuel);
-          console.log("Montant total payé:", preparedObligations[obligationKey].montantTotalPaye);
-          console.log("Solde restant:", preparedObligations[obligationKey].soldeRestant);
-          console.log("Montants trimestriels:", {
-            q1: preparedObligations[obligationKey].q1Montant,
-            q2: preparedObligations[obligationKey].q2Montant,
-            q3: preparedObligations[obligationKey].q3Montant,
-            q4: preparedObligations[obligationKey].q4Montant
-          });
-          console.log("Dates trimestrielles:", {
-            q1: preparedObligations[obligationKey].q1Date,
-            q2: preparedObligations[obligationKey].q2Date,
-            q3: preparedObligations[obligationKey].q3Date,
-            q4: preparedObligations[obligationKey].q4Date
-          });
         } else {
           preparedObligations[obligationKey] = taxObligation;
         }
@@ -166,7 +144,5 @@ export const prepareFiscalDataForSave = ({
     updatedAt: new Date().toISOString()
   };
 
-  console.log("=== DONNÉES FINALES PRÉPARÉES ===");
-  console.log("IGS dans les données finales:", fiscalDataToSave.obligations[fiscalYear].igs);
   return fiscalDataToSave;
 };

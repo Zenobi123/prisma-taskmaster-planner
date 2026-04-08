@@ -20,7 +20,6 @@ const Missions = () => {
   const { data: missions, isLoading } = useQuery({
     queryKey: ['missions'],
     queryFn: async () => {
-      console.log("Fetching missions data...");
       const { data: tasksData, error } = await supabase
         .from('tasks')
         .select(`
@@ -40,11 +39,9 @@ const Missions = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error("Erreur lors de la récupération des missions:", error);
         throw error;
       }
 
-      console.log("Tasks data:", tasksData);
 
       return tasksData.map(task => ({
         id: task.id,

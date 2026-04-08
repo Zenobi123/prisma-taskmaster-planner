@@ -48,9 +48,7 @@ export const PaiementPrestationSection = ({
 
       if (error) throw error;
       setPrestations(data || []);
-      console.log("Prestations récupérées:", data);
     } catch (error) {
-      console.error("Erreur lors de la récupération des prestations:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

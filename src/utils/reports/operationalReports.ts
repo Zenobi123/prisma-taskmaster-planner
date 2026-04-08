@@ -77,7 +77,6 @@ export const generateTachesReport = async () => {
     
     doc.save(`taches-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
   }
 };
 
@@ -138,6 +137,5 @@ export const generatePerformanceCollaborateursReport = async () => {
     
     doc.save(`performance-collaborateurs-${new Date().toISOString().slice(0, 10)}.pdf`);
   } catch (error) {
-    console.error('Erreur lors de la génération du rapport:', error);
   }
 };

@@ -10,7 +10,6 @@ export function useClientFormInitializer(
 ) {
   useEffect(() => {
     if (initialData) {
-      console.log("Setting form data from initial data:", initialData);
       
       // Validate regime fiscal from initial data
       const validatedRegimeFiscal = validateRegimeFiscal(initialData.regimefiscal);

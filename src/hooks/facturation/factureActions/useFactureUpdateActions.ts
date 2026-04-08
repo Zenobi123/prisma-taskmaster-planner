@@ -22,7 +22,6 @@ export const useFactureUpdateActions = (
       
       return true;
     } catch (error) {
-      console.error("Error in updateFacture:", error);
       
       // Restaurer les données précédentes en cas d'erreur
       setFactures(prevFactures => {

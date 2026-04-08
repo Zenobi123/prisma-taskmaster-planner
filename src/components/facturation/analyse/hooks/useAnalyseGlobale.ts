@@ -70,7 +70,6 @@ export const useAnalyseGlobale = (
         let prestationsData = cachedData.current.prestationsData;
         
         if (shouldRefetch) {
-          console.log("Récupération des données d'analyse depuis la base de données");
           // Fetch data from Supabase
           [facturesData, prestationsData] = await Promise.all([
             fetchFacturesForAnalysis(),
@@ -87,7 +86,6 @@ export const useAnalyseGlobale = (
           // Mettre à jour les derniers paramètres
           lastParams.current = {period, clientFilter, statusFilter};
         } else {
-          console.log("Utilisation des données d'analyse en cache");
         }
         
         // Filter factures by period, client, and status
@@ -152,7 +150,6 @@ export const useAnalyseGlobale = (
         setChartData(statusChartData);
         setMonthlyData(monthlyChartData);
       } catch (error) {
-        console.error("Error fetching analysis data:", error);
       } finally {
         setIsLoading(false);
       }

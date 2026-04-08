@@ -22,7 +22,6 @@ export const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
     }
   }
 
-  console.log("Client name for receipt:", clientName, "Client object:", paiement.client);
 
   doc.text(clientName, 60, 115);
 

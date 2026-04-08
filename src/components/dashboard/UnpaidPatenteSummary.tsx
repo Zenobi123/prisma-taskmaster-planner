@@ -1,6 +1,6 @@
 
 import { useQuery } from "@tanstack/react-query";
-import { getClientsWithUnpaidPatente } from "@/services/unpaidPatenteService";
+import { getClientsWithUnpaidPatente } from "@/services/fiscal/unpaidPatenteService";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,14 +14,12 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
     queryKey: ["clients-unpaid-patente-summary"],
     queryFn: getClientsWithUnpaidPatente,
     // Configurer le rafraîchissement automatique
-    refetchInterval: 10000,
+    refetchInterval: 60000,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true
   });
 
-  console.log("UnpaidPatenteSummary - Clients:", clients.length);
-  console.log("UnpaidPatenteSummary - isLoading:", isLoading);
-  console.log("UnpaidPatenteSummary - error:", error);
-  console.log("UnpaidPatenteSummary - Le composant est bien rendu");
 
   if (isLoading) {
     return (

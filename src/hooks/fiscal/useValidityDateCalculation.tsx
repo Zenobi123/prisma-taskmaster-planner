@@ -41,7 +41,6 @@ export const useValidityDateCalculation = ({
         setHasUnsavedChanges(true);
       }
     } catch (error) {
-      console.error("Erreur lors du calcul de la date de fin de validité:", error);
     }
   }, [creationDate, setValidityEndDate, setHasUnsavedChanges]);
 };

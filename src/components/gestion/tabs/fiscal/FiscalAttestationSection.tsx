@@ -61,7 +61,6 @@ export function FiscalAttestationSection({
         return "bg-emerald-50 border-emerald-300 text-emerald-700";
       }
     } catch (error) {
-      console.error("Erreur lors du calcul du statut d'expiration:", error);
       return "";
     }
   };
@@ -86,7 +85,6 @@ export function FiscalAttestationSection({
 
       return endDateObj < today;
     } catch (error) {
-      console.error("Erreur lors de la vérification de l'expiration:", error);
       return false;
     }
   };

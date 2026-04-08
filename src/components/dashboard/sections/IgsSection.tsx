@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { UnpaidIgsDialog } from '../UnpaidIgsDialog';
-import { getClientsWithUnpaidIgs } from '@/services/unpaidIgsService';
+import { getClientsWithUnpaidIgs } from '@/services/fiscal/unpaidIgsService';
 import { useQuery } from '@tanstack/react-query';
 import { LoaderCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -89,7 +89,6 @@ export class ReportDataService {
         `);
 
       if (tasksError) {
-        console.error('Erreur tasks avec relation spécifique:', tasksError);
         // Fallback : récupérer les tâches sans les collaborateurs ni les clients
         const { data: tasksDataFallback, error: tasksErrorFallback } = await supabase
           .from('tasks')
@@ -116,7 +115,6 @@ export class ReportDataService {
         tasks: tasksData || []
       };
     } catch (error) {
-      console.error('Erreur lors de la récupération des données:', error);
       return {
         clients: [],
         factures: [],
@@ -145,7 +143,6 @@ export class ReportDataService {
         unfiledDarp
       };
     } catch (error) {
-      console.error('Erreur lors de la récupération des obligations fiscales:', error);
       return {
         unpaidIgs: [],
         unpaidPatente: [],

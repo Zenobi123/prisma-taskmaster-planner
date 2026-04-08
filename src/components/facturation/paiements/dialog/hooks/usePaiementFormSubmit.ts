@@ -66,7 +66,6 @@ export const usePaiementFormSubmit = ({
         });
       }
     } catch (error) {
-      console.error("Erreur lors de la soumission du formulaire:", error);
       toast({
         variant: "destructive",
         title: "Erreur",

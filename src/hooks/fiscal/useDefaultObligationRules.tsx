@@ -6,13 +6,6 @@ import { calculateAllTaxes, FiscalInput } from "@/utils/fiscalCalculations";
 
 export const useDefaultObligationRules = (selectedClient: Client) => {
   const getDefaultObligationStatuses = (): ObligationStatuses => {
-    console.log("Applying default rules for client:", {
-      regimefiscal: selectedClient.regimefiscal,
-      type: selectedClient.type,
-      situationimmobiliere: selectedClient.situationimmobiliere,
-      nom: selectedClient.nom || selectedClient.raisonsociale
-    });
-
     // Calculer les montants des impôts à partir des données du profil client
     const fiscalInput: FiscalInput = {
       regimeFiscal: selectedClient.regimefiscal,
@@ -50,7 +43,6 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
 
     // Règles spécifiques pour les personnes physiques
     if (selectedClient.type === "physique") {
-      console.log("Applying rules for personne physique");
 
       // Toutes les personnes physiques sont assujetties à la DARP
       baseStatuses.darp.assujetti = true;
@@ -69,7 +61,6 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
 
     // Règles spécifiques pour les personnes morales
     if (selectedClient.type === "morale") {
-      console.log("Applying rules for personne morale");
 
       // Toutes les personnes morales sont assujetties à la DBEF
       baseStatuses.dbef.assujetti = true;
@@ -113,13 +104,6 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
       baseStatuses.tpf.montantAnnuel = calculatedTaxes.tf;
     }
 
-    console.log("Final default statuses with calculated amounts:", {
-      patente: calculatedTaxes.patente,
-      igs: calculatedTaxes.igs,
-      bail: calculatedTaxes.bail,
-      psl: calculatedTaxes.psl,
-      tf: calculatedTaxes.tf,
-    });
     return baseStatuses;
   };
 
@@ -127,10 +111,8 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
 
   // Re-apply default rules when client changes
   useEffect(() => {
-    console.log("Client changed, re-applying default rules");
     const newDefaultStatuses = getDefaultObligationStatuses();
     setObligationStatuses(newDefaultStatuses);
-    console.log("New obligations set:", newDefaultStatuses);
   }, [selectedClient.id, selectedClient.regimefiscal, selectedClient.type, selectedClient.situationimmobiliere?.type]);
 
   return {

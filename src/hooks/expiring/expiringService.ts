@@ -9,9 +9,7 @@ import { processExpiringClients, sortExpiringClients } from "./utils";
  */
 export const fetchExpiringClients = async (): Promise<ExpiringClient[]> => {
   try {
-    console.log("Fetching clients with expiring documents...");
     let clients = await getClients();
-    console.log(`Retrieved ${clients.length} clients, looking for those with fiscal_data`);
     
     // Check if TRIPHASE SARL exists and update its fiscal data if needed
     const triphaseClient = clients.find(client => 
@@ -19,11 +17,9 @@ export const fetchExpiringClients = async (): Promise<ExpiringClient[]> => {
       client.id === "599cf31b-d529-48c9-b451-6a10c4adbb29");
     
     if (triphaseClient) {
-      console.log("Found TRIPHASE SARL, ensuring fiscal data is set");
       
       // S'assurer que les données fiscales sont configurées pour TRIPHASE SARL
       if (!triphaseClient.fiscal_data || !triphaseClient.fiscal_data.attestation) {
-        console.log("Setting fiscal data for TRIPHASE SARL");
         
         const fiscalData = {
           attestation: {
@@ -88,7 +84,6 @@ export const fetchExpiringClients = async (): Promise<ExpiringClient[]> => {
     for (const testClient of clientsToCheck) {
       const client = clients.find(c => c.id === testClient.id);
       if (client) {
-        console.log(`Checking fiscal data for ${testClient.name}`);
         
         // Update fiscal data for this client - whether it exists or not
         // This guarantees we'll have display data
@@ -121,15 +116,12 @@ export const fetchExpiringClients = async (): Promise<ExpiringClient[]> => {
     
     // Process clients to find those with expiring documents
     const clientsWithExpiringDocs = processExpiringClients(clients);
-    console.log(`Found ${clientsWithExpiringDocs.length} clients with expiring documents`);
     
     // Sort clients by urgency
     const sortedClients = sortExpiringClients(clientsWithExpiringDocs);
-    console.log("Sorted expiring clients:", sortedClients);
     
     return sortedClients;
   } catch (error) {
-    console.error("Error fetching clients with expiring documents:", error);
     throw error;
   }
 };

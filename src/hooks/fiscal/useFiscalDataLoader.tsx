@@ -33,7 +33,6 @@ export const useFiscalDataLoader = ({
       if (!selectedClient?.id) return;
       
       try {
-        console.log("Loading fiscal data for client:", selectedClient.id);
         
         // Invalider le cache pour s'assurer d'obtenir les données les plus récentes
         invalidateClientsCache();
@@ -45,20 +44,16 @@ export const useFiscalDataLoader = ({
           .single();
 
         if (error) {
-          console.error("Erreur lors du chargement des données fiscales:", error);
           // En cas d'erreur, appliquer les règles par défaut
-          console.log("Applying default rules due to error");
           setObligationStatuses(getDefaultObligationStatuses());
           return;
         }
 
         // Toujours appliquer les règles par défaut en premier
         const defaultStatuses = getDefaultObligationStatuses();
-        console.log("Applied default rules based on client profile");
 
         if (client?.fiscal_data && typeof client.fiscal_data === 'object') {
           const fiscalData = client.fiscal_data as any;
-          console.log("Loaded fiscal data:", fiscalData);
           
           // Charger les données d'attestation
           if (fiscalData.attestation) {
@@ -79,7 +74,6 @@ export const useFiscalDataLoader = ({
           
           // Fusionner les obligations existantes avec les règles par défaut
           if (fiscalData.obligations && fiscalData.obligations[fiscalYear]) {
-            console.log("Merging existing obligations with default rules for year:", fiscalYear);
             const existingObligations = fiscalData.obligations[fiscalYear];
             
             // Créer un objet fusionné : règles par défaut + données existantes
@@ -110,22 +104,17 @@ export const useFiscalDataLoader = ({
               }
             });
             
-            console.log("Merged obligations with enforced default rules:", mergedObligations);
             setObligationStatuses(mergedObligations);
           } else {
             // Si aucune donnée n'existe pour cette année, utiliser les règles par défaut
-            console.log("No existing data for year, using default rules");
             setObligationStatuses(defaultStatuses);
           }
         } else {
           // Si aucune donnée fiscale n'existe, utiliser les règles par défaut
-          console.log("No fiscal data exists, using default rules");
           setObligationStatuses(defaultStatuses);
         }
       } catch (error) {
-        console.error("Exception lors du chargement des données fiscales:", error);
         // En cas d'erreur, appliquer les règles par défaut
-        console.log("Applying default rules due to exception");
         setObligationStatuses(getDefaultObligationStatuses());
       }
     };

@@ -4,7 +4,6 @@ import { Client } from "@/types/client";
 // Format clients for client selector
 export const formatClientsForSelector = (clientsData: any[]): Client[] => {
   if (!clientsData || !Array.isArray(clientsData)) {
-    console.warn("formatClientsForSelector: clientsData is not an array", clientsData);
     return [];
   }
   

@@ -88,7 +88,6 @@ export const UnifiedAttachmentSection: React.FC<UnifiedAttachmentSectionProps> =
         toast.success("Fichier téléchargé avec succès");
       }
     } catch (error) {
-      console.error("Upload error:", error);
       toast.error("Erreur lors du téléchargement du fichier");
     } finally {
       setUploadingStates(prev => ({ ...prev, [attachmentType]: false }));
@@ -106,7 +105,6 @@ export const UnifiedAttachmentSection: React.FC<UnifiedAttachmentSectionProps> =
         toast.error("Impossible d'accéder au fichier");
       }
     } catch (error) {
-      console.error("Download error:", error);
       toast.error("Erreur lors du téléchargement du fichier");
     } finally {
       setDownloadingStates(prev => ({ ...prev, [attachmentType]: false }));
@@ -126,7 +124,6 @@ export const UnifiedAttachmentSection: React.FC<UnifiedAttachmentSectionProps> =
         onAttachmentDelete(obligationName, attachmentType);
       }
     } catch (error) {
-      console.error("Delete error:", error);
       toast.error("Erreur lors de la suppression du fichier");
     } finally {
       setDeletingStates(prev => ({ ...prev, [attachmentType]: false }));

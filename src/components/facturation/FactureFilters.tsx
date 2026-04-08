@@ -48,7 +48,6 @@ const FactureFilters = ({
   const { sentInvoicesCount } = useInvoiceData();
   
   useEffect(() => {
-    console.log("Nombre total de factures envoyées:", sentInvoicesCount);
   }, [sentInvoicesCount]);
 
   const toggleSort = (key: string) => {

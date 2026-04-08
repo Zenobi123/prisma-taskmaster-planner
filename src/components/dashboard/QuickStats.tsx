@@ -23,35 +23,41 @@ const QuickStats = () => {
   const { data: tasks = [], isLoading: isTasksLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000
   });
 
   const { data: collaborateurs = [], isLoading: isCollaborateursLoading } = useQuery({
     queryKey: ["collaborateurs"],
     queryFn: getCollaborateurs,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000
   });
 
   const { data: clientStats, isLoading: isClientStatsLoading } = useQuery({
     queryKey: ["client-stats"],
     queryFn: getClientsStats,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000
   });
 
   const { data: subjectClients, isLoading: isSubjectClientsLoading } = useQuery({
     queryKey: ["subject-clients"],
     queryFn: getClientsSubjectToObligation,
-    refetchInterval: 10000,
-    refetchOnWindowFocus: true
+    refetchInterval: 60000,
+    refetchOnWindowFocus: true,
+    staleTime: 30000,
+    gcTime: 5 * 60 * 1000
   });
 
   const { activeTasks, overdueTasks } = useTaskStats(tasks, isTasksLoading);
 
-  console.log("QuickStats - Client Stats:", clientStats);
-  console.log("QuickStats - Subject Clients:", subjectClients);
 
   return (
     <div className="grid grid-cols-1 gap-6">

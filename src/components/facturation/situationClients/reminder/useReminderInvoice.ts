@@ -65,7 +65,6 @@ export const useReminderInvoice = (invoiceId: string | null, isDialogOpen: boole
         });
         
       } catch (error) {
-        console.error('Error fetching invoice details:', error);
       } finally {
         setIsLoading(false);
       }

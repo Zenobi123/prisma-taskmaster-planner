@@ -7,7 +7,6 @@ export function useClientFormHandlers(
   setFormData: React.Dispatch<React.SetStateAction<ClientFormState>>
 ) {
   const handleChange = (name: string, value: any) => {
-    console.log("Handling change:", name, "=", value, "type:", typeof value);
 
     if (name === "situationimmobiliere.type") {
       setFormData(prev => {
