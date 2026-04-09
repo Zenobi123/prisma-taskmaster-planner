@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/accordion"
 import { IgsSection } from "./sections/IgsSection"
 import DsfSection from "./sections/DsfSection"
+import DbefSection from "./sections/DbefSection"
 import PatenteSection from "./sections/PatenteSection"
 import { ImpotsImmobiliersSection } from "./sections/ImpotsImmobiliersSection"
 import ExpiringFiscalAttestations from "./ExpiringFiscalAttestations"
@@ -75,6 +76,17 @@ export default function DashboardAccordion() {
         </AccordionTrigger>
         <AccordionContent>
           <DsfSection />
+        </AccordionContent>
+      </AccordionItem>
+
+      <AccordionItem value="dbef" className="border rounded-lg bg-white shadow-sm">
+        <AccordionTrigger className="px-4 hover:no-underline hover:bg-gray-50">
+          <span className="text-lg font-semibold">
+            Déclarations des Bénéficiaires Effectifs (DBEF)
+          </span>
+        </AccordionTrigger>
+        <AccordionContent>
+          <DbefSection />
         </AccordionContent>
       </AccordionItem>
     </Accordion>
