@@ -4,6 +4,7 @@ import { Client } from "@/types/client";
 import { ObligationStatuses } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import { clearCache } from "./services/fiscalDataCache";
 
 interface UseUnifiedFiscalSaveProps {
   selectedClient: Client;
@@ -37,6 +38,7 @@ export const useUnifiedFiscalSave = ({
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [lastSaveTime, setLastSaveTime] = useState<Date | null>(null);
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isSavingRef = useRef(false);
 
   const markAsChanged = useCallback(() => {
     setHasUnsavedChanges(true);
@@ -48,6 +50,9 @@ export const useUnifiedFiscalSave = ({
 
   const saveData = useCallback(async () => {
     if (!selectedClient?.id) return false;
+    // Guard against concurrent saves (race condition)
+    if (isSavingRef.current) return false;
+    isSavingRef.current = true;
 
     setIsSaving(true);
     try {
@@ -98,6 +103,9 @@ export const useUnifiedFiscalSave = ({
         throw updateError;
       }
 
+      // Invalider le cache fiscal pour forcer le rechargement des donnees fraiches
+      clearCache(selectedClient.id);
+
       setLastSaveTime(new Date());
       setHasUnsavedChanges(false);
       return true;
@@ -110,6 +118,7 @@ export const useUnifiedFiscalSave = ({
       return false;
     } finally {
       setIsSaving(false);
+      isSavingRef.current = false;
     }
   }, [
     selectedClient?.id,
@@ -138,6 +147,17 @@ export const useUnifiedFiscalSave = ({
       }
     };
   }, [autoSave, autoSaveDelay, hasUnsavedChanges, saveData]);
+
+  // Protection contre la perte de donnees : avertir l'utilisateur s'il quitte la page
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [hasUnsavedChanges]);
 
   const manualSave = useCallback(async () => {
     if (autoSaveTimeoutRef.current) {

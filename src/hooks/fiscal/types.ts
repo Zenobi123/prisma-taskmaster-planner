@@ -95,6 +95,10 @@ export interface ClientFiscalData {
     creationDate: string;
     validityEndDate: string;
     showInAlert: boolean;
+    fiscalSituationCompliant?: boolean;
+  };
+  registrationAttestation?: {
+    registrationDate: string;
   };
   obligations?: Record<string, ObligationStatuses>;
   hiddenFromDashboard?: boolean;

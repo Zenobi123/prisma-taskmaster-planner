@@ -125,7 +125,5 @@ export const permanentDeleteClient = async (id: string): Promise<void> => {
   }
 };
 
-// Cache management functions
-export const invalidateClientsCache = () => {
-  // This is a placeholder for cache invalidation logic
-};
+// Re-export the actual cache invalidation from clientCacheService
+export { invalidateClientsCache } from "./client/clientCacheService";

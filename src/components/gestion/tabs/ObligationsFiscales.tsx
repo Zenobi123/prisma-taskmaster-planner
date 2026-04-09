@@ -59,7 +59,7 @@ export const ObligationsFiscales: React.FC<ObligationsFiscalesProps> = ({ select
     obligationStatuses,
     fiscalSituationCompliant,
     registrationDate,
-    autoSave: false, // Désactivé par défaut, peut être activé via les paramètres
+    autoSave: true,
     autoSaveDelay: 3000
   });
 
