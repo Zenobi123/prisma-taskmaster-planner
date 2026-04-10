@@ -41,17 +41,17 @@ export const IgsPaymentSummaryDisplay: React.FC<IgsPaymentSummaryDisplayProps> =
   };
 
   return (
-    <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="bg-blue-50 border border-blue-200 rounded p-2 sm:p-3 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-blue-800">IGS payé :</span>
-          <span className="text-sm font-bold text-blue-900">
+          <span className="text-xs sm:text-sm font-medium text-blue-800">IGS payé :</span>
+          <span className="text-xs sm:text-sm font-bold text-blue-900">
             {displayValues.montantTotalPaye.toLocaleString('fr-FR')} F CFA
           </span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-blue-800">Solde IGS à payer :</span>
-          <span className="text-sm font-bold text-blue-900">
+          <span className="text-xs sm:text-sm font-medium text-blue-800">Solde à payer :</span>
+          <span className="text-xs sm:text-sm font-bold text-blue-900">
             {displayValues.soldeRestant.toLocaleString('fr-FR')} F CFA
           </span>
         </div>

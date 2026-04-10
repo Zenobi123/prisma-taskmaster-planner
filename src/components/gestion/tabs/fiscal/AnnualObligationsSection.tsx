@@ -27,15 +27,15 @@ export function AnnualObligationsSection({
 }: AnnualObligationsSectionProps) {
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">Obligations annuelles</CardTitle>
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 sm:p-6">
+        <CardTitle className="text-base sm:text-lg">Obligations annuelles</CardTitle>
         <FiscalBulkUpdateButton 
           obligationStatuses={obligationStatuses} 
           onStatusChange={handleStatusChange}
           isDeclarationObligation={isDeclarationObligation}
         />
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4 px-3 sm:px-6">
         <DeclarationObligationItem
           title="Déclaration Statistique et Fiscale (DSF)"
           keyName="dsf"

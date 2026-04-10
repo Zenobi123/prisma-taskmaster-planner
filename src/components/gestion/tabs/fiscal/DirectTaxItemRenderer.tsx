@@ -55,7 +55,7 @@ export const DirectTaxItemRenderer: React.FC<DirectTaxItemRendererProps> = ({
   const showDetailsContent = obligation.assujetti && (obligation.payee || isDetailsOpened);
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm mb-4">
+    <div className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 shadow-sm mb-3 sm:mb-4">
       <TaxObligationItemHeader
         taxKey={taxKey}
         taxName={taxName}

@@ -103,7 +103,7 @@ export default function Gestion() {
 
   if (isLoading) {
     return (
-      <div className="p-8 bg-[#F6F6F7]">
+      <div className="px-4 py-6 sm:p-8 bg-[#F6F6F7]">
         <div className="flex items-center justify-center min-h-[200px]">
           <p className="text-muted-foreground">Chargement...</p>
         </div>
@@ -112,7 +112,7 @@ export default function Gestion() {
   }
 
   return (
-    <div className="p-8 bg-[#F6F6F7]">
+    <div className="px-4 py-6 sm:p-8 bg-[#F6F6F7]">
       <GestionHeader nombreClientsEnGestion={clientsEnGestion.length} />
 
       <ClientSelector

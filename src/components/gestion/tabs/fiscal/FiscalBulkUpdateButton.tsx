@@ -50,8 +50,9 @@ export function FiscalBulkUpdateButton({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          Actions groupées
+        <Button variant="outline" size="sm" className="text-xs sm:text-sm">
+          <span className="hidden sm:inline">Actions groupées</span>
+          <span className="sm:hidden">Actions</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

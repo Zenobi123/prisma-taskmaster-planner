@@ -40,12 +40,12 @@ export const IgsCalculatedDisplay: React.FC<IgsCalculatedDisplayProps> = memo(({
   };
   
   return (
-    <div className="bg-gray-100 border-l-4 border-primary rounded p-3 mb-4 flex items-center min-h-10">
-      <div className="flex flex-col md:flex-row md:gap-8 items-start md:items-center">
-        <span className="bg-gray-50 border border-gray-200 rounded px-2 py-1 text-gray-800 font-medium">
+    <div className="bg-gray-100 border-l-4 border-primary rounded p-2 sm:p-3 mb-4 min-h-10">
+      <div className="flex flex-col sm:flex-row sm:gap-8 items-start sm:items-center gap-2">
+        <span className="bg-gray-50 border border-gray-200 rounded px-2 py-1 text-xs sm:text-sm text-gray-800 font-medium">
           Classe : {displayValues.classe}
         </span>
-        <span className={`mt-2 md:mt-0 px-4 py-1 rounded font-bold text-white ${displayValues.outOfRange ? 'bg-red-500' : 'bg-primary'}`}>
+        <span className={`px-3 sm:px-4 py-1 rounded font-bold text-white text-xs sm:text-sm ${displayValues.outOfRange ? 'bg-red-500' : 'bg-primary'}`}>
           {displayValues.outOfRange
             ? 'Montant : régime du réel'
             : `Montant : ${displayValues.montantAnnuel.toLocaleString('fr-FR')} F CFA`}

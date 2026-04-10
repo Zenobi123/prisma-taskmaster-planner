@@ -28,18 +28,18 @@ export const ObligationHeader: React.FC<ObligationHeaderProps> = ({
   }, []);
 
   return (
-    <div className="flex items-center justify-between" onClick={stopPropagation}>
-      <div className="flex items-center space-x-3">
+    <div className="flex items-start sm:items-center justify-between gap-2" onClick={stopPropagation}>
+      <div className="flex items-center space-x-2 sm:space-x-3 min-w-0">
         <Switch
           id={`${keyName}-assujetti`}
           checked={isAssujetti}
           onCheckedChange={onAssujettiChange}
-          className="cursor-pointer"
+          className="cursor-pointer shrink-0"
           onClick={stopPropagation}
         />
-        <Label 
-          htmlFor={`${keyName}-assujetti`} 
-          className="cursor-pointer"
+        <Label
+          htmlFor={`${keyName}-assujetti`}
+          className="cursor-pointer text-sm sm:text-base leading-tight"
           onClick={(e) => {
             e.stopPropagation();
             onAssujettiChange(!isAssujetti);
@@ -49,24 +49,24 @@ export const ObligationHeader: React.FC<ObligationHeaderProps> = ({
         </Label>
       </div>
       {isAssujetti && (
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={(e) => {
             e.stopPropagation();
             toggleExpand();
-          }} 
-          className="h-8 px-2 flex items-center gap-1"
+          }}
+          className="h-7 sm:h-8 px-1.5 sm:px-2 flex items-center gap-1 shrink-0 text-xs sm:text-sm"
           type="button"
         >
           {expanded ? (
             <>
-              Réduire
+              <span className="hidden sm:inline">Réduire</span>
               <ChevronUp className="h-4 w-4" />
             </>
           ) : (
             <>
-              Plus d'options
+              <span className="hidden sm:inline">Plus d'options</span>
               <ChevronDown className="h-4 w-4" />
             </>
           )}

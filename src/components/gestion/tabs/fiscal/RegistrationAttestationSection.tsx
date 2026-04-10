@@ -66,14 +66,14 @@ export function RegistrationAttestationSection({
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">Attestation d'Immatriculation</CardTitle>
+      <CardHeader className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <CardTitle className="text-base sm:text-lg">Attestation d'Immatriculation</CardTitle>
           {getStatusBadge()}
         </div>
-        <p className="text-sm text-muted-foreground">Durée de validité : {VALIDITY_DAYS} jours</p>
+        <p className="text-xs sm:text-sm text-muted-foreground">Durée de validité : {VALIDITY_DAYS} jours</p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-4 sm:px-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label>Date de délivrance</Label>

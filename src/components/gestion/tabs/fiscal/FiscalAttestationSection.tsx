@@ -91,10 +91,10 @@ export function FiscalAttestationSection({
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Attestation de Conformité Fiscale</CardTitle>
+      <CardHeader className="p-4 sm:p-6">
+        <CardTitle className="text-base sm:text-lg">Attestation de Conformité Fiscale</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="creationDate">Date de création</Label>

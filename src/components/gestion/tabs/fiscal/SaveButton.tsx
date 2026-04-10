@@ -19,30 +19,30 @@ export const SaveButton: React.FC<SaveButtonProps> = ({
   lastSaveTime
 }) => {
   return (
-    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 pt-4 border-t">
+      <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
         {lastSaveTime && (
           <>
-            <Clock className="h-4 w-4" />
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4 shrink-0" />
             <span>
-              Dernière sauvegarde : {formatDistanceToNow(lastSaveTime, { 
-                addSuffix: true, 
-                locale: fr 
+              Sauvegardé {formatDistanceToNow(lastSaveTime, {
+                addSuffix: true,
+                locale: fr
               })}
             </span>
           </>
         )}
       </div>
-      
-      <Button 
+
+      <Button
         onClick={onSave}
         disabled={!hasUnsavedChanges || isSaving}
-        className={`min-w-[200px] ${hasUnsavedChanges 
-          ? 'bg-primary hover:bg-primary/90' 
+        className={`w-full sm:w-auto sm:min-w-[200px] ${hasUnsavedChanges
+          ? 'bg-primary hover:bg-primary/90'
           : 'bg-muted text-muted-foreground cursor-not-allowed'}`}
       >
         <Save className="h-4 w-4 mr-2" />
-        {isSaving ? 'Enregistrement...' : 'Enregistrer les modifications'}
+        {isSaving ? 'Enregistrement...' : 'Enregistrer'}
       </Button>
     </div>
   );

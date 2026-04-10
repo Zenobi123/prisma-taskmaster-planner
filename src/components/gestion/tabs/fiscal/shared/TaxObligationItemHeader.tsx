@@ -25,38 +25,38 @@ export const TaxObligationItemHeader: React.FC<TaxObligationItemHeaderProps> = (
   onToggleDetails,
 }) => {
   return (
-    <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-      <span className="font-medium text-gray-800">{taxName}</span>
-      <div className="flex flex-col sm:flex-row gap-4 mt-3 md:mt-0">
+    <div className="flex flex-col gap-2 sm:gap-0 sm:flex-row sm:justify-between sm:items-center">
+      <span className="font-medium text-sm sm:text-base text-gray-800">{taxName}</span>
+      <div className="flex flex-wrap gap-3 sm:gap-4">
         <div className="flex items-center space-x-2">
           <Switch
-            id={`${taxKey}-assujetti-switch`} // Unique ID
+            id={`${taxKey}-assujetti-switch`}
             checked={obligation.assujetti}
             onCheckedChange={onAssujettiChange}
           />
-          <Label htmlFor={`${taxKey}-assujetti-switch`}>
+          <Label htmlFor={`${taxKey}-assujetti-switch`} className="text-xs sm:text-sm">
             {obligation.assujetti ? "Assujetti" : "Non assujetti"}
           </Label>
         </div>
         <div className="flex items-center space-x-2">
           <Switch
-            id={`${taxKey}-paye-switch`} // Unique ID
+            id={`${taxKey}-paye-switch`}
             checked={obligation.payee}
             onCheckedChange={onPayeeChange}
             disabled={!obligation.assujetti}
           />
-          <Label htmlFor={`${taxKey}-paye-switch`}>
+          <Label htmlFor={`${taxKey}-paye-switch`} className="text-xs sm:text-sm">
             {obligation.payee ? "Payé" : "Non payé"}
           </Label>
         </div>
         {obligation.assujetti && !obligation.payee && !isDetailsOpened && (
           <button
             type="button"
-            className="inline-flex items-center px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+            className="inline-flex items-center px-2 sm:px-3 py-1 text-xs sm:text-sm bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
             onClick={onToggleDetails}
           >
-            <Plus className="h-4 w-4 mr-1" />
-            Voir détails
+            <Plus className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+            Détails
           </button>
         )}
       </div>

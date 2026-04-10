@@ -52,7 +52,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
   }, []);
 
   return (
-    <Card className="border p-4 rounded-md bg-background" onClick={stopPropagation}>
+    <Card className="border p-3 sm:p-4 rounded-md bg-background" onClick={stopPropagation}>
       <ObligationHeader 
         title={title}
         keyName={keyName}
@@ -63,7 +63,7 @@ export const TaxObligationItem: React.FC<TaxObligationItemProps> = ({
       />
 
       {status?.assujetti && (
-        <CardContent className="mt-4 pl-6 space-y-3 pt-4">
+        <CardContent className="mt-3 sm:mt-4 pl-2 sm:pl-6 space-y-3 pt-3 sm:pt-4">
           <ObligationFields
             keyName={keyName}
             status={status}

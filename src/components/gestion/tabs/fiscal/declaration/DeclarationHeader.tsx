@@ -38,56 +38,56 @@ export const DeclarationHeader: React.FC<DeclarationHeaderProps> = ({
   };
   
   return (
-    <div className="flex items-center justify-between w-full" onClick={stopPropagation}>
-      <div className="flex items-center space-x-2">
-        <Checkbox 
+    <div className="flex items-start sm:items-center justify-between w-full gap-2" onClick={stopPropagation}>
+      <div className="flex items-start sm:items-center space-x-2 min-w-0">
+        <Checkbox
           id={`${keyName}-assujetti`}
           checked={isAssujetti}
           onCheckedChange={handleCheckboxChange}
           onClick={stopPropagation}
-          className="cursor-pointer data-[state=checked]:bg-primary"
+          className="cursor-pointer data-[state=checked]:bg-primary mt-1 sm:mt-0 shrink-0"
         />
-        <div 
+        <div
           onClick={(e) => {
             e.stopPropagation();
             onAssujettiChange(!isAssujetti);
           }}
-          className="cursor-pointer"
+          className="cursor-pointer min-w-0"
         >
           <label
             htmlFor={`${keyName}-assujetti`}
-            className="font-medium cursor-pointer"
+            className="font-medium cursor-pointer text-sm sm:text-base leading-tight"
           >
             {title}
           </label>
-          <Badge 
-            variant={periodicity === "mensuelle" ? "outline" : "secondary"} 
-            className="ml-2 text-xs"
+          <Badge
+            variant={periodicity === "mensuelle" ? "outline" : "secondary"}
+            className="ml-1 sm:ml-2 text-[10px] sm:text-xs"
           >
             {periodicity === "mensuelle" ? "Mensuelle" : "Annuelle"}
           </Badge>
         </div>
       </div>
-      
+
       {isAssujetti && (
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={(e) => {
             e.stopPropagation();
             onToggleExpand();
           }}
-          className="h-8 px-2 flex items-center gap-1"
+          className="h-7 sm:h-8 px-1.5 sm:px-2 flex items-center gap-1 shrink-0 text-xs sm:text-sm"
           type="button"
         >
           {expanded ? (
             <>
-              Réduire
+              <span className="hidden sm:inline">Réduire</span>
               <ChevronUp className="h-4 w-4" />
             </>
           ) : (
             <>
-              Plus d'options
+              <span className="hidden sm:inline">Plus d'options</span>
               <ChevronDown className="h-4 w-4" />
             </>
           )}

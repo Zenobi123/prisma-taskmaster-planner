@@ -34,7 +34,9 @@ export const IgsQuarterlyPaymentsTable: React.FC<IgsQuarterlyPaymentsTableProps>
   return (
     <div className="mt-4">
       <h4 className="text-sm font-medium mb-3">Échéancier des paiements trimestriels</h4>
-      <div className="overflow-x-auto">
+
+      {/* Desktop: table layout */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full border border-gray-200 rounded-lg">
           <thead className="bg-gray-50">
             <tr>
@@ -76,6 +78,36 @@ export const IgsQuarterlyPaymentsTable: React.FC<IgsQuarterlyPaymentsTableProps>
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile: stacked card layout */}
+      <div className="sm:hidden space-y-3">
+        {quarters.map((quarter) => (
+          <div key={quarter.key} className="border border-gray-200 rounded-lg p-3 bg-gray-50/50">
+            <p className="text-xs font-semibold text-gray-700 mb-2">{quarter.label}</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] text-gray-500 uppercase">Montant</label>
+                <Input
+                  type="text"
+                  placeholder="0"
+                  value={quarterlyPayments[quarter.key] || ''}
+                  onChange={(e) => onPaymentChange(quarter.key, e.target.value)}
+                  className="text-sm h-8"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] text-gray-500 uppercase">Date</label>
+                <Input
+                  type="date"
+                  value={quarterlyDates[quarter.key] || ''}
+                  onChange={(e) => onDateChange(quarter.key, e.target.value)}
+                  className="text-sm h-8"
+                />
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

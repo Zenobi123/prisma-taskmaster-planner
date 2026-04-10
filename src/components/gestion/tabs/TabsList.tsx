@@ -47,36 +47,36 @@ export function CustomTabsList({ activeTab, onTabChange }: TabsListProps) {
   };
   
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1 sm:gap-2">
       {canScrollLeft && (
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => scroll("left")}
-          className="hidden sm:flex"
+          className="hidden sm:flex shrink-0"
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
       )}
-      
-      <ScrollArea ref={scrollRef} className="flex-1">
+
+      <ScrollArea ref={scrollRef} className="flex-1 -mx-1 px-1">
         <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-          <TabsList className="flex flex-nowrap overflow-x-auto">
-            <TabsTrigger value="fiscal">Fiscal</TabsTrigger>
-            <TabsTrigger value="comptable">Comptable</TabsTrigger>
-            <TabsTrigger value="contrat-prestations">Contrats</TabsTrigger>
-            <TabsTrigger value="cloture-exercice">Clôture</TabsTrigger>
-            <TabsTrigger value="dossier">Dossier</TabsTrigger>
+          <TabsList className="flex flex-nowrap overflow-x-auto scrollbar-hide w-max min-w-full sm:w-full">
+            <TabsTrigger value="fiscal" className="text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">Fiscal</TabsTrigger>
+            <TabsTrigger value="comptable" className="text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">Comptable</TabsTrigger>
+            <TabsTrigger value="contrat-prestations" className="text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">Contrats</TabsTrigger>
+            <TabsTrigger value="cloture-exercice" className="text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">Clôture</TabsTrigger>
+            <TabsTrigger value="dossier" className="text-xs sm:text-sm px-3 sm:px-4 whitespace-nowrap">Dossier</TabsTrigger>
           </TabsList>
         </Tabs>
       </ScrollArea>
-      
+
       {canScrollRight && (
-        <Button 
-          variant="ghost" 
-          size="icon" 
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => scroll("right")}
-          className="hidden sm:flex"
+          className="hidden sm:flex shrink-0"
         >
           <ChevronRight className="h-4 w-4" />
         </Button>

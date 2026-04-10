@@ -49,10 +49,10 @@ export const DirectTaxesSection: React.FC<DirectTaxesSectionProps> = ({
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-lg">Impôts directs</CardTitle>
+      <CardHeader className="flex flex-row items-center justify-between p-4 sm:p-6">
+        <CardTitle className="text-base sm:text-lg">Impôts directs</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-0">
+      <CardContent className="space-y-0 px-3 sm:px-6">
         {taxItems.map(item => {
           const obligation = obligationStatuses[item.key] as TaxObligationStatus;
           

@@ -16,23 +16,23 @@ export const GenericTaxPaymentDetailsForm: React.FC<GenericTaxPaymentDetailsForm
   onStatusChange,
 }) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4">
       <div>
-        <label htmlFor={`${obligationKey}-datePaiement`} className="block text-sm mb-2">Date de paiement</label>
+        <label htmlFor={`${obligationKey}-datePaiement`} className="block text-xs sm:text-sm mb-1.5 sm:mb-2">Date de paiement</label>
         <Input
           id={`${obligationKey}-datePaiement`}
           type="date"
-          className="w-full p-2 border border-gray-300 rounded bg-gray-50"
+          className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-sm"
           value={obligation.datePaiement || ''}
           onChange={(e) => onStatusChange(obligationKey, 'datePaiement', e.target.value)}
         />
       </div>
       <div>
-        <label htmlFor={`${obligationKey}-montant`} className="block text-sm mb-2">Montant payé</label>
+        <label htmlFor={`${obligationKey}-montant`} className="block text-xs sm:text-sm mb-1.5 sm:mb-2">Montant payé</label>
         <Input
           id={`${obligationKey}-montant`}
           type="text"
-          className="w-full p-2 border border-gray-300 rounded bg-gray-50"
+          className="w-full p-2 border border-gray-300 rounded bg-gray-50 text-sm"
           placeholder="0"
           value={formatNumberWithSpaces(String(obligation.montant || (obligationKey === 'patente' ? 75000 : 0)))}
           onChange={(e) => onStatusChange(obligationKey, 'montant', parseFormattedNumber(e.target.value))}
