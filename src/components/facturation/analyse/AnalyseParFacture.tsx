@@ -105,7 +105,7 @@ const AnalyseParFacture = () => {
               Aucune facture trouvée
             </div>
           ) : (
-            <div className="h-[calc(100vh-350px)] overflow-y-auto overflow-x-auto pr-2">
+            <div className="h-[50vh] sm:h-[calc(100vh-350px)] overflow-y-auto overflow-x-auto pr-2">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -151,7 +151,7 @@ const AnalyseParFacture = () => {
           {selectedFacture ? (
             <DetailFacture factureId={selectedFacture} />
           ) : (
-            <div className="flex flex-col items-center justify-center h-[calc(100vh-650px)] text-gray-500">
+            <div className="flex flex-col items-center justify-center h-[30vh] sm:h-[calc(100vh-650px)] text-gray-500">
               <FileText className="w-12 h-12 mb-4 opacity-30" />
               <p>Sélectionnez une facture pour voir son détail</p>
             </div>

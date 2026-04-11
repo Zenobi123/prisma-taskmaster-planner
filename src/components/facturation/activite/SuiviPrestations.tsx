@@ -74,7 +74,7 @@ const SuiviPrestations = ({ rows, totalPrestations, prestationsEffectuees }: Pro
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-3 gap-2 text-center">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center">
         <div className="bg-gray-50 rounded-md p-2 border border-gray-100">
           <p className="text-xs text-gray-500">Total</p>
           <p className="font-bold text-gray-800">{totalPrestations}</p>

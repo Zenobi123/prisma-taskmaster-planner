@@ -23,7 +23,7 @@ interface Props {
 const SituationPaiements = ({ clientsRows, recusRows, totalPaye, totalReste, tauxRecouvrement }: Props) => (
   <div className="space-y-4">
     {/* Stats */}
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3">
       <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 text-center">
         <p className="text-xs text-emerald-600 font-medium">Total Payé</p>
         <p className="text-base font-bold text-emerald-800 mt-0.5">{fmt(totalPaye)} F CFA</p>

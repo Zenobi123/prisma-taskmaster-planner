@@ -53,7 +53,7 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-4xl overflow-y-auto">
         <DialogHeader className="pb-4 border-b border-gray-100">
           <DialogTitle className="flex items-center gap-2 text-primary">
             <Receipt size={20} className="text-primary" />

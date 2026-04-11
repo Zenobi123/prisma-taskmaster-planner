@@ -33,7 +33,7 @@ const CreateFactureDialog = ({ clients = [], onFactureCreated }: CreateFactureDi
           <Plus className="mr-2 h-4 w-4" /> Nouvelle facture
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-[900px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Créer une nouvelle facture</DialogTitle>
           <DialogDescription>

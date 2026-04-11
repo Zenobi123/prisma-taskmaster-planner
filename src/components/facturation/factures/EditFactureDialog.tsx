@@ -30,7 +30,7 @@ const EditFactureDialog = ({ facture, open, onOpenChange, onSuccess }: EditFactu
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[800px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[800px]">
         <DialogHeader>
           <DialogTitle>Modifier la facture {facture.id}</DialogTitle>
           <DialogDescription>
