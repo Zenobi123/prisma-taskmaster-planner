@@ -26,7 +26,7 @@ const ClientDetailsDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-5xl overflow-y-auto">
         <ClientDetailsProvider
           clientDetails={clientDetails}
           onOpenApplyCreditDialog={onOpenApplyCreditDialog}

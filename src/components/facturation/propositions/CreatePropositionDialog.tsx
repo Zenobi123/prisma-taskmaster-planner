@@ -162,7 +162,7 @@ const CreatePropositionDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl overflow-y-auto">
+      <DialogContent className="max-w-[95vw] sm:max-w-4xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Nouvelle proposition de paiement</DialogTitle>
         </DialogHeader>

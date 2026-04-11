@@ -46,7 +46,7 @@ const InvoicePreviewDialog = ({ invoice, open, onOpenChange }: InvoicePreviewDia
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="max-w-[95vw] sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>Aperçu de facture</DialogTitle>
         </DialogHeader>
