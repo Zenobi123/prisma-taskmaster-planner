@@ -134,18 +134,18 @@ export function FiscalDashboard({ client }: FiscalDashboardProps) {
   const total = visibleCards.reduce((sum, card) => sum + card.amount, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Header */}
       <Card>
-        <CardContent className="flex flex-wrap items-center gap-4 py-4">
-          <Badge variant="outline" className="text-sm">
+        <CardContent className="flex flex-wrap items-center gap-2 sm:gap-4 py-3 sm:py-4 px-3 sm:px-6">
+          <Badge variant="outline" className="text-xs sm:text-sm">
             {REGIME_LABELS[regime] || regime}
           </Badge>
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs sm:text-sm text-muted-foreground">
             CA : <span className="font-semibold text-foreground">{formatMoney(chiffreAffaires)}</span>
           </div>
           {client.iscga && (
-            <Badge variant="secondary" className="text-sm">
+            <Badge variant="secondary" className="text-xs sm:text-sm">
               CGA
             </Badge>
           )}
@@ -154,27 +154,27 @@ export function FiscalDashboard({ client }: FiscalDashboardProps) {
 
       {/* Tax cards grid */}
       {visibleCards.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
           {visibleCards.map((card) => (
             <Card key={card.key}>
-              <CardHeader className="flex flex-row items-center gap-3 pb-2">
+              <CardHeader className="flex flex-row items-center gap-2 sm:gap-3 pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
                 {card.icon}
-                <div className="flex-1">
-                  <CardTitle className="flex items-center gap-2 text-base">
+                <div className="flex-1 min-w-0">
+                  <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
                     {card.label}
                     {card.badge && (
-                      <Badge variant="outline" className="text-xs font-normal">
+                      <Badge variant="outline" className="text-[10px] sm:text-xs font-normal">
                         {card.badge}
                       </Badge>
                     )}
                   </CardTitle>
-                  <CardDescription className="text-xs">
+                  <CardDescription className="text-[10px] sm:text-xs truncate">
                     {card.description}
                   </CardDescription>
                 </div>
               </CardHeader>
-              <CardContent>
-                <p className="text-xl font-bold">{formatMoney(card.amount)}</p>
+              <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                <p className="text-lg sm:text-xl font-bold">{formatMoney(card.amount)}</p>
               </CardContent>
             </Card>
           ))}
@@ -190,9 +190,9 @@ export function FiscalDashboard({ client }: FiscalDashboardProps) {
       {/* Total */}
       {visibleCards.length > 0 && (
         <Card className="border-primary/30 bg-primary/5">
-          <CardContent className="flex items-center justify-between py-4">
-            <span className="text-lg font-semibold">Total des obligations fiscales</span>
-            <span className="text-2xl font-bold text-primary">{formatMoney(total)}</span>
+          <CardContent className="flex items-center justify-between py-3 sm:py-4 px-3 sm:px-6 gap-2">
+            <span className="text-sm sm:text-lg font-semibold">Total obligations fiscales</span>
+            <span className="text-lg sm:text-2xl font-bold text-primary shrink-0">{formatMoney(total)}</span>
           </CardContent>
         </Card>
       )}

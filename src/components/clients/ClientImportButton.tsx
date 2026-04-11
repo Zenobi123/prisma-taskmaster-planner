@@ -223,23 +223,23 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
       </Button>
 
       <Dialog open={open} onOpenChange={(value) => { if (!value) handleClose(); else setOpen(true); }}>
-        <DialogContent className="sm:max-w-4xl overflow-y-auto">
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl overflow-y-auto max-h-[85vh]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <FileText className="h-4 w-4 sm:h-5 sm:w-5 shrink-0" />
               Importer des clients
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs sm:text-sm">
               Importez vos clients à partir d&apos;un fichier CSV. Utilisez le modèle fourni pour vous assurer du bon format.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-2 sm:py-4">
             {/* Template download */}
             <div>
               <Button
                 variant="link"
-                className="flex items-center gap-2 p-0 h-auto text-sm"
+                className="flex items-center gap-2 p-0 h-auto text-xs sm:text-sm"
                 onClick={downloadTemplate}
               >
                 <Download className="h-4 w-4" />
@@ -249,7 +249,7 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
 
             {/* File input */}
             <div>
-              <label className="block text-sm font-medium mb-2">
+              <label className="block text-xs sm:text-sm font-medium mb-2">
                 Sélectionner un fichier CSV
               </label>
               <input
@@ -257,13 +257,13 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
                 type="file"
                 accept=".csv"
                 onChange={handleFileChange}
-                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
+                className="block w-full text-xs sm:text-sm text-gray-500 file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
               />
             </div>
 
             {/* Parse errors */}
             {parseErrors.length > 0 && (
-              <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+              <div className="rounded-md bg-destructive/10 p-3 text-xs sm:text-sm text-destructive">
                 <p className="font-medium mb-1">Erreurs détectées :</p>
                 <ul className="list-disc list-inside space-y-1">
                   {parseErrors.map((err, i) => (
@@ -273,13 +273,14 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
               </div>
             )}
 
-            {/* Preview table */}
+            {/* Preview */}
             {preview.length > 0 && (
               <div>
-                <p className="text-sm font-medium mb-2">
+                <p className="text-xs sm:text-sm font-medium mb-2">
                   Aperçu ({preview.length} client{preview.length > 1 ? "s" : ""})
                 </p>
-                <div className="rounded-md border overflow-x-auto">
+                {/* Desktop table */}
+                <div className="hidden sm:block rounded-md border overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -309,15 +310,32 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
                     </TableBody>
                   </Table>
                 </div>
+                {/* Mobile card list */}
+                <div className="sm:hidden space-y-2">
+                  {preview.map((client, index) => (
+                    <div key={index} className="border rounded-lg p-3 bg-gray-50/50">
+                      <div className="flex items-center justify-between gap-2 mb-1">
+                        <p className="font-medium text-sm truncate">{client.nom || client.raisonsociale || "-"}</p>
+                        <span className="text-xs bg-gray-200 px-1.5 py-0.5 rounded capitalize shrink-0">{client.type}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                        <span>NIU: {client.niu}</span>
+                        <span>{client.regimefiscal}</span>
+                        <span>{client.adresse.ville}</span>
+                        <span>{client.contact.telephone}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={handleClose}>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
               Annuler
             </Button>
-            <Button onClick={handleImport} disabled={preview.length === 0}>
+            <Button onClick={handleImport} disabled={preview.length === 0} className="w-full sm:w-auto">
               <Upload className="h-4 w-4 mr-2" />
               Importer {preview.length > 0 ? `(${preview.length})` : ""}
             </Button>

@@ -140,10 +140,10 @@ export function ClientProfessionalFields({
   const echeances = regimefiscal === "igs" ? getIGSEcheances(modepaiementigs, currentYear) : [];
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Informations professionnelles</h3>
+    <div className="space-y-3 sm:space-y-4">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900">Informations professionnelles</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
           <Label htmlFor="niu">NIU *</Label>
           <Input
@@ -246,9 +246,9 @@ export function ClientProfessionalFields({
       </div>
 
       {/* Section fiscale */}
-      <h3 className="text-lg font-semibold text-gray-900 pt-4 border-t">Situation fiscale</h3>
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 pt-3 sm:pt-4 border-t">Situation fiscale</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
           <Label htmlFor="regimefiscal">Régime fiscal *</Label>
           <Select
@@ -306,7 +306,7 @@ export function ClientProfessionalFields({
         </Label>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         {regimefiscal === "igs" && (
           <div>
             <Label htmlFor="modepaiementigs">Mode de paiement IGS</Label>
@@ -347,7 +347,7 @@ export function ClientProfessionalFields({
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="pt-4 pb-3">
             <p className="text-sm font-semibold text-primary mb-3">Impôts calculés automatiquement</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
               {regimefiscal === "igs" && taxes.igs > 0 && (
                 <div className="space-y-0.5">
                   <p className="text-xs text-muted-foreground">IGS (Classe {taxes.igsClasse})</p>
