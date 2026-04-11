@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useAutoUpdate } from "./hooks/useAutoUpdate";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
@@ -39,6 +40,11 @@ function PrivateRoute({ children, session }: { children: React.ReactNode; sessio
   return <>{children}</>;
 }
 
+function AutoUpdateListener() {
+  useAutoUpdate();
+  return null;
+}
+
 const App = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -71,6 +77,7 @@ const App = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <AutoUpdateListener />
       <TooltipProvider>
         <div className="transition-all duration-300">
           <Toaster />

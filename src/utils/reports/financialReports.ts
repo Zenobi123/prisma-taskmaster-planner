@@ -36,7 +36,7 @@ export const generateChiffresAffairesReport = async () => {
     });
     
     // Détail des factures par mois
-    let currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = (doc as any).lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Évolution Mensuelle', 14, currentY);
     
