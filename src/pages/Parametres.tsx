@@ -30,17 +30,19 @@ const Parametres = () => {
     <div className="flex h-screen">
       <Sidebar />
       <PageLayout>
-        <div className="max-w-5xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
-          
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Paramètres</h1>
+
           <Tabs defaultValue="profile" className="w-full">
-            <TabsList className="mb-6">
-              <TabsTrigger value="profile">Profil</TabsTrigger>
-              <TabsTrigger value="application">Application</TabsTrigger>
-              <TabsTrigger value="security">Sécurité</TabsTrigger>
-              <TabsTrigger value="notifications">Notifications</TabsTrigger>
-              {isAdmin && <TabsTrigger value="users">Utilisateurs</TabsTrigger>}
+            <div className="overflow-x-auto">
+              <TabsList className="mb-4 sm:mb-6 w-max min-w-full sm:w-full">
+                <TabsTrigger value="profile" className="text-xs sm:text-sm">Profil</TabsTrigger>
+                <TabsTrigger value="application" className="text-xs sm:text-sm">Application</TabsTrigger>
+                <TabsTrigger value="security" className="text-xs sm:text-sm">Sécurité</TabsTrigger>
+                <TabsTrigger value="notifications" className="text-xs sm:text-sm">Notifications</TabsTrigger>
+              {isAdmin && <TabsTrigger value="users" className="text-xs sm:text-sm">Utilisateurs</TabsTrigger>}
             </TabsList>
+            </div>
             
             <TabsContent value="profile">
               <ProfileSettings />

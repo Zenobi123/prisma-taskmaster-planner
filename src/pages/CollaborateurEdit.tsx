@@ -88,8 +88,8 @@ export default function CollaborateurEdit() {
         </Button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
-        <h2 className="text-2xl font-semibold mb-6">
+      <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-3 sm:p-6">
+        <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-4 sm:mb-6">
           Modifier {collaborateur.prenom} {collaborateur.nom}
         </h2>
         <CollaborateurForm

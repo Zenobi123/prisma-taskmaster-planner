@@ -14,34 +14,35 @@ const Planning = () => {
 
   return (
     <PageLayout>
-      <div className="p-8">
+      <div className="px-4 py-4 sm:p-6 md:p-8">
 
       <div className="flex items-center gap-4 mb-4">
         <Button
           variant="outline"
+          size="sm"
           onClick={() => navigate("/")}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 sm:gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour
+          <span className="hidden sm:inline">Retour</span>
         </Button>
       </div>
 
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 sm:gap-0 mb-4 sm:mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-800 tracking-tight">Planning</h1>
-          <p className="text-neutral-500 mt-1 text-sm">
+          <h1 className="text-xl sm:text-2xl font-bold text-neutral-800 tracking-tight">Planning</h1>
+          <p className="text-neutral-500 mt-1 text-xs sm:text-sm hidden sm:block">
             Consultez le calendrier des échéances et la charge de travail de l'équipe
           </p>
         </div>
-        <CollaboratorFilter 
+        <CollaboratorFilter
           collaborateurs={planning.collaborateurs}
           value={planning.collaborateurFilter}
           onChange={planning.setCollaborateurFilter}
         />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4 sm:gap-6">
         <CalendarView 
           date={planning.date}
           onDateChange={planning.setDate}

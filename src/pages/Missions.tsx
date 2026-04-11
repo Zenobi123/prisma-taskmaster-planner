@@ -99,10 +99,10 @@ const Missions = () => {
 
   return (
     <PageLayout>
-      <div className="p-8">
+      <div className="px-4 py-4 sm:p-6 md:p-8">
         <MissionHeader />
 
-        <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-3 sm:p-6 mb-4 sm:mb-6">
           <MissionFilters
         searchTerm={searchTerm}
         onSearchChange={handleSearchChange}

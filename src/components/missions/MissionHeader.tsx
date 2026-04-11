@@ -8,22 +8,23 @@ const MissionHeader = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="mb-8">
+    <div className="mb-4 sm:mb-8">
       <div className="flex items-center gap-4 mb-4">
         <Button
           variant="outline"
+          size="sm"
           onClick={() => navigate("/")}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 sm:gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour
+          <span className="hidden sm:inline">Retour</span>
         </Button>
       </div>
 
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-neutral-800 tracking-tight">Missions</h1>
-          <p className="text-neutral-500 mt-1 text-sm">
+          <h1 className="text-xl sm:text-2xl font-bold text-neutral-800 tracking-tight">Missions</h1>
+          <p className="text-neutral-500 mt-1 text-xs sm:text-sm hidden sm:block">
             Gérez les missions en cours, leur attribution et leur avancement
           </p>
         </div>

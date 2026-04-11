@@ -311,28 +311,29 @@ const Rapports = () => {
   };
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="flex items-center gap-4 mb-8">
+    <div className="container mx-auto px-4 py-4 sm:p-6">
+      <div className="flex items-center gap-4 mb-4 sm:mb-8">
         <Button
           variant="outline"
+          size="sm"
           onClick={() => navigate("/")}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 sm:gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
-          Retour
+          <span className="hidden sm:inline">Retour</span>
         </Button>
       </div>
 
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Rapports</h1>
-          <p className="text-neutral-600 mt-1">
+          <h1 className="text-xl sm:text-2xl font-bold">Rapports</h1>
+          <p className="text-neutral-600 mt-1 text-xs sm:text-sm hidden sm:block">
             Consultez et générez des rapports d'analyse détaillés
           </p>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div className="flex-1">
           <SearchInput value={searchQuery} onChange={setSearchQuery} />
         </div>
