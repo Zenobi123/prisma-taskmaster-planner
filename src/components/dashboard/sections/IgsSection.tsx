@@ -23,10 +23,10 @@ export const IgsSection = () => {
 
   return (
     <Card>
-      <CardHeader className="pb-2 pt-6">
-        <CardTitle className="text-xl flex items-center">
-          <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
-          Impôt Global Synthétique (IGS)
+      <CardHeader className="pb-2 pt-4 sm:pt-6 px-4 sm:px-6">
+        <CardTitle className="text-base sm:text-xl flex items-center">
+          <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-yellow-600 mr-2 shrink-0" />
+          IGS non payé
         </CardTitle>
       </CardHeader>
       <CardContent>

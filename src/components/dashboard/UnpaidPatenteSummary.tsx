@@ -33,26 +33,27 @@ const UnpaidPatenteSummary = ({ onViewAllClick }: UnpaidPatenteSummaryProps) => 
 
   return (
     <Card className="bg-white shadow-md border-2 border-red-200">
-      <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between">
-          <div>
-            <h3 className="text-xl font-semibold text-neutral-800 flex items-center">
-              <AlertCircle className="h-5 w-5 mr-2 text-red-500" />
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h3 className="text-base sm:text-xl font-semibold text-neutral-800 flex items-center">
+              <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-red-500 shrink-0" />
               Patentes impayées
             </h3>
-            <div className="flex items-center mt-3">
-              <span className="text-4xl font-semibold text-red-600">{clients.length}</span>
-              <div className="ml-4">
-                <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
+            <div className="flex items-center mt-2 sm:mt-3 gap-3 sm:gap-4">
+              <span className="text-3xl sm:text-4xl font-semibold text-red-600">{clients.length}</span>
+              <div>
+                <span className="px-2 sm:px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">
                   À régulariser
                 </span>
-                <p className="text-neutral-500 mt-1">Clients assujettis</p>
+                <p className="text-neutral-500 mt-1 text-xs sm:text-sm">Clients assujettis</p>
               </div>
             </div>
           </div>
-          <Button 
-            variant="outline" 
-            className="mt-4 md:mt-0 border-red-300 hover:bg-red-50 hover:text-red-700" 
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-red-300 hover:bg-red-50 hover:text-red-700 shrink-0"
             onClick={onViewAllClick}
           >
             Voir tous

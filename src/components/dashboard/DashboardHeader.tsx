@@ -15,28 +15,26 @@ const DashboardHeader = ({ lastRefresh, onRefresh }: DashboardHeaderProps) => {
   };
 
   return (
-    <header className="bg-white border-b border-neutral-200 px-4 py-4 sm:px-6 md:px-8 md:py-6">
+    <header className="bg-white border-b border-neutral-200 px-4 py-3 sm:px-6 md:px-8 sm:py-4 md:py-6">
       <div className="flex items-center justify-between ml-10 md:ml-0">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-semibold text-neutral-800">
+        <div className="min-w-0">
+          <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-neutral-800 truncate">
             Tableau de bord
           </h1>
-          <p className="text-neutral-600 mt-1">
+          <p className="text-neutral-600 mt-0.5 text-sm hidden sm:block">
             Bienvenue sur votre espace de gestion
           </p>
-          {/* Hidden refresh trigger - subtle visual indicator */}
-          <div className="mt-2">
-            <span 
+          <div className="mt-1">
+            <span
               className="text-xs text-neutral-400 cursor-pointer hover:text-neutral-600 transition-colors"
               onClick={handleHiddenRefresh}
               title="Dernière actualisation"
             >
-              Dernière mise à jour : {lastRefresh.toLocaleTimeString()}
+              Màj : {lastRefresh.toLocaleTimeString()}
             </span>
           </div>
         </div>
-        <div className="flex gap-2">
-          {/* Bouton d'actualisation supprimé car l'actualisation est automatique */}
+        <div className="flex gap-2 shrink-0 ml-2">
           <NewTaskDialog />
         </div>
       </div>
