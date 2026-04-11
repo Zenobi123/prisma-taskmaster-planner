@@ -23,10 +23,10 @@ export function PersonalInfoFields({
   onChange 
 }: PersonalInfoFieldsProps) {
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Informations personnelles</h3>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-3 sm:space-y-4">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900">Informations personnelles</h3>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
         <div>
           <Label htmlFor="nom">Nom et prénoms *</Label>
           <Input
@@ -66,7 +66,7 @@ export function PersonalInfoFields({
           <RadioGroup
             value={sexe}
             onValueChange={(value) => onChange("sexe", value as Sexe)}
-            className="flex flex-row space-x-4 mt-2"
+            className="flex flex-row space-x-3 sm:space-x-4 mt-2"
           >
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="homme" id="homme" />

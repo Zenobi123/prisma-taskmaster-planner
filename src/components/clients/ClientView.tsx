@@ -46,48 +46,48 @@ export function ClientView({ client }: ClientViewProps) {
 
   return (
     <div className="max-h-[calc(90vh-8rem)] overflow-y-auto">
-      <div className="space-y-6 p-1 pr-4 pb-4">
+      <div className="space-y-4 sm:space-y-6 p-1 pr-2 sm:pr-4 pb-4">
         {/* Header banner */}
-        <div className="flex items-start justify-between bg-muted/40 rounded-lg p-4 border">
-          <div className="flex items-center gap-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
+        <div className="flex items-start justify-between gap-2 bg-muted/40 rounded-lg p-3 sm:p-4 border">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+            <div className="flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-primary/10 text-primary shrink-0">
               {isPersonneMorale ? (
-                <Building2 className="h-6 w-6" />
+                <Building2 className="h-4 w-4 sm:h-6 sm:w-6" />
               ) : (
-                <User className="h-6 w-6" />
+                <User className="h-4 w-4 sm:h-6 sm:w-6" />
               )}
             </div>
-            <div>
-              <h2 className="text-xl font-bold">{clientName}</h2>
-              <div className="flex items-center gap-2 mt-1">
-                <Badge variant="outline" className="text-xs">
-                  {isPersonneMorale ? "Personne Morale" : "Personne Physique"}
+            <div className="min-w-0">
+              <h2 className="text-base sm:text-xl font-bold truncate">{clientName}</h2>
+              <div className="flex flex-wrap items-center gap-1 sm:gap-2 mt-1">
+                <Badge variant="outline" className="text-[10px] sm:text-xs">
+                  {isPersonneMorale ? "Morale" : "Physique"}
                 </Badge>
-                <Badge variant={getStatusBadgeVariant(client.statut)} className="text-xs">
+                <Badge variant={getStatusBadgeVariant(client.statut)} className="text-[10px] sm:text-xs">
                   {getStatusLabel(client.statut)}
                 </Badge>
                 {client.sigle && (
-                  <Badge variant="outline" className="text-xs">{client.sigle}</Badge>
+                  <Badge variant="outline" className="text-[10px] sm:text-xs">{client.sigle}</Badge>
                 )}
               </div>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={handlePrint} className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={handlePrint} className="flex items-center gap-1 sm:gap-2 shrink-0 h-8 px-2 sm:px-3">
             <Printer className="h-4 w-4" />
-            Imprimer la fiche
+            <span className="hidden sm:inline">Imprimer la fiche</span>
           </Button>
         </div>
 
         <GeneralInfoCard client={client} />
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
           <AddressCard client={client} />
           <ContactCard client={client} />
         </div>
 
         {isPersonneMorale && (
           <div className="w-full">
-            <h3 className="text-lg font-semibold mb-4 text-foreground">Capital Social et Actionnaires</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 text-foreground">Capital Social et Actionnaires</h3>
             <CapitalSocialSection client={client} />
           </div>
         )}

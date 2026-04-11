@@ -60,8 +60,8 @@ export function ClientFilters({
   }, [clients]);
 
   return (
-    <div className="space-y-4 mb-6">
-      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row flex-wrap'} gap-4`}>
+    <div className="space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+      <div className={`flex ${isMobile ? 'flex-col' : 'flex-row flex-wrap'} gap-2 sm:gap-4`}>
         <div className="relative w-full sm:w-72">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input

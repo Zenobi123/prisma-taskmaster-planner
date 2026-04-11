@@ -88,14 +88,14 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
 
   return (
     <Card>
-      <CardHeader className="pb-2">
+      <CardHeader className="pb-2 px-3 sm:px-6">
         <div className="flex items-center gap-2">
-          <InfoIcon className="w-5 h-5 text-muted-foreground" />
-          <CardTitle className="text-lg font-semibold">Informations générales</CardTitle>
+          <InfoIcon className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground shrink-0" />
+          <CardTitle className="text-base sm:text-lg font-semibold">Informations générales</CardTitle>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
+      <CardContent className="px-3 sm:px-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
           {/* Identity section */}
           {client.type === "physique" ? (
             <>
@@ -141,7 +141,7 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
 
           {/* Real estate section */}
           {client.situationimmobiliere && (
-            <div className="col-span-2 md:col-span-3 space-y-1 pt-2 border-t">
+            <div className="col-span-1 sm:col-span-2 md:col-span-3 space-y-1 pt-2 border-t">
               <p className="text-sm text-muted-foreground">Situation immobilière</p>
               <p className="font-medium">
                 {client.situationimmobiliere.type === "proprietaire" && (
@@ -176,8 +176,8 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
           )}
 
           {/* Management flags */}
-          <div className="col-span-2 md:col-span-3 pt-2 border-t">
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
+          <div className="col-span-1 sm:col-span-2 md:col-span-3 pt-2 border-t">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
               <BooleanField label="Gestion externalisée" value={client.gestionexternalisee} />
             </div>
           </div>
