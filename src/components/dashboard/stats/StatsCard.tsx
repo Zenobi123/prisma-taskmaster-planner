@@ -33,12 +33,12 @@ export const StatsCard = ({
 
   return (
     <div className={cardClasses} onClick={onClick}>
-      <h3 className="font-semibold text-neutral-800 mb-4 flex items-center gap-2">
-        {isOverdue && <AlertTriangle className="w-5 h-5 text-red-500 animate-pulse" />}
+      <h3 className="font-semibold text-neutral-800 mb-2 sm:mb-4 text-sm sm:text-base flex items-center gap-2">
+        {isOverdue && <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 animate-pulse shrink-0" />}
         {title}
       </h3>
-      <div className="flex items-center">
-        <div className={`text-3xl font-bold mr-2 ${isOverdue ? 'text-red-600' : 'text-primary'}`}>
+      <div className="flex items-center flex-wrap gap-1">
+        <div className={`text-2xl sm:text-3xl font-bold mr-1 sm:mr-2 ${isOverdue ? 'text-red-600' : 'text-primary'}`}>
           {isLoading ? (
             <span className="animate-pulse">--</span>
           ) : (

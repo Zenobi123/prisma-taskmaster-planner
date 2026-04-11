@@ -54,31 +54,31 @@ export const ImpotsImmobiliersSection = () => {
   return (
     <>
       <Card>
-        <CardHeader className="pb-2 pt-6">
-          <CardTitle className="text-xl flex items-center">
-            <Home className="h-5 w-5 text-orange-600 mr-2" />
-            Impôts liés à l'immobilier
+        <CardHeader className="pb-2 pt-4 sm:pt-6 px-4 sm:px-6">
+          <CardTitle className="text-base sm:text-xl flex items-center">
+            <Home className="h-4 w-4 sm:h-5 sm:w-5 text-orange-600 mr-2 shrink-0" />
+            Impôts immobiliers
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="px-3 sm:px-6">
           {isLoading ? (
             <div className="flex items-center justify-center p-4">
               <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {taxSummary.map((tax) => (
-                <div key={tax.key} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center gap-2">
-                    {tax.count > 0 && <AlertTriangle className="h-4 w-4 text-orange-500" />}
-                    <span className="text-sm font-medium">{tax.label}</span>
+                <div key={tax.key} className="flex items-center justify-between p-2 sm:p-3 border rounded-lg gap-2">
+                  <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+                    {tax.count > 0 && <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-500 shrink-0" />}
+                    <span className="text-xs sm:text-sm font-medium truncate">{tax.label}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={`text-sm font-bold ${tax.count > 0 ? "text-orange-600" : "text-green-600"}`}>
-                      {tax.count > 0 ? `${tax.count} impayé(s)` : "Tous payés"}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`text-xs sm:text-sm font-bold ${tax.count > 0 ? "text-orange-600" : "text-green-600"}`}>
+                      {tax.count > 0 ? `${tax.count} impayé(s)` : "Payés"}
                     </span>
                     {tax.count > 0 && (
-                      <Button variant="outline" size="sm" onClick={() => setActiveDialog(tax.key)}>
+                      <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={() => setActiveDialog(tax.key)}>
                         Voir
                       </Button>
                     )}

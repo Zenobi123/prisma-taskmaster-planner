@@ -72,54 +72,69 @@ const ExpiringFiscalAttestations = ({ attestations, isLoading }: ExpiringFiscalA
       </div>
       
       {attestations && attestations.length > 0 ? (
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Client</TableHead>
-                <TableHead>Statut</TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
-                    <span>Date de création</span>
-                  </div>
-                </TableHead>
-                <TableHead>
-                  <div className="flex items-center gap-1">
-                    <CalendarClock className="h-4 w-4" />
-                    <span>Date d'expiration</span>
-                  </div>
-                </TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {attestations.map((attestation, index) => (
-                <TableRow key={index} className={attestation.daysRemaining < 0 ? "bg-red-50" : ""}>
-                  <TableCell className="font-medium">{attestation.name}</TableCell>
-                  <TableCell>
-                    {getStatusBadge(attestation.daysRemaining)}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {attestation.creationDate}
-                  </TableCell>
-                  <TableCell className="text-sm">
-                    {attestation.expiryDate}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleNavigateToFiscal(attestation.id)}
-                    >
-                      Gérer
-                    </Button>
-                  </TableCell>
+        <>
+          {/* Desktop table */}
+          <div className="hidden sm:block overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Client</TableHead>
+                  <TableHead>Statut</TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      <Calendar className="h-4 w-4" />
+                      <span>Date création</span>
+                    </div>
+                  </TableHead>
+                  <TableHead>
+                    <div className="flex items-center gap-1">
+                      <CalendarClock className="h-4 w-4" />
+                      <span>Expiration</span>
+                    </div>
+                  </TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {attestations.map((attestation, index) => (
+                  <TableRow key={index} className={attestation.daysRemaining < 0 ? "bg-red-50" : ""}>
+                    <TableCell className="font-medium">{attestation.name}</TableCell>
+                    <TableCell>{getStatusBadge(attestation.daysRemaining)}</TableCell>
+                    <TableCell className="text-sm">{attestation.creationDate}</TableCell>
+                    <TableCell className="text-sm">{attestation.expiryDate}</TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="outline" size="sm" onClick={() => handleNavigateToFiscal(attestation.id)}>
+                        Gérer
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+
+          {/* Mobile card list */}
+          <div className="sm:hidden space-y-3">
+            {attestations.map((attestation, index) => (
+              <div
+                key={index}
+                className={`border rounded-lg p-3 ${attestation.daysRemaining < 0 ? "bg-red-50 border-red-200" : "bg-white"}`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-2">
+                  <p className="font-medium text-sm leading-tight">{attestation.name}</p>
+                  <Button variant="outline" size="sm" className="h-7 px-2 text-xs shrink-0" onClick={() => handleNavigateToFiscal(attestation.id)}>
+                    Gérer
+                  </Button>
+                </div>
+                <div className="mb-2">{getStatusBadge(attestation.daysRemaining)}</div>
+                <div className="flex gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><Calendar className="h-3 w-3" />{attestation.creationDate}</span>
+                  <span className="flex items-center gap-1"><CalendarClock className="h-3 w-3" />{attestation.expiryDate}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
       ) : (
         <div className="py-8 text-center border rounded-md bg-gray-50">
           <FileWarning className="h-12 w-12 mx-auto text-orange-500 mb-3" />

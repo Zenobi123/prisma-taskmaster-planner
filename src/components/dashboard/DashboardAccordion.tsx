@@ -18,11 +18,11 @@ export default function DashboardAccordion() {
   const { data: attestations = [], isLoading } = useExpiringFiscalAttestations();
 
   return (
-    <Accordion type="single" collapsible className="w-full space-y-4">
+    <Accordion type="single" collapsible className="w-full space-y-3 sm:space-y-4">
       <AccordionItem value="igs" className="border rounded-lg bg-white shadow-sm">
-        <AccordionTrigger className="px-4 hover:no-underline hover:bg-gray-50">
-          <span className="text-lg font-semibold">
-            Gestion de l'Impôt Général Synthétique
+        <AccordionTrigger className="px-3 sm:px-4 hover:no-underline hover:bg-gray-50 text-left">
+          <span className="text-sm sm:text-base md:text-lg font-semibold leading-tight">
+            Impôt Général Synthétique (IGS)
           </span>
         </AccordionTrigger>
         <AccordionContent>
@@ -31,8 +31,8 @@ export default function DashboardAccordion() {
       </AccordionItem>
 
       <AccordionItem value="attestations" className="border rounded-lg bg-white shadow-sm">
-        <AccordionTrigger className="px-4 hover:no-underline hover:bg-gray-50">
-          <span className="text-lg font-semibold">
+        <AccordionTrigger className="px-3 sm:px-4 hover:no-underline hover:bg-gray-50 text-left">
+          <span className="text-sm sm:text-base md:text-lg font-semibold leading-tight">
             Attestations de Conformité Fiscale
           </span>
         </AccordionTrigger>
@@ -45,8 +45,8 @@ export default function DashboardAccordion() {
       </AccordionItem>
 
       <AccordionItem value="patente" className="border rounded-lg bg-white shadow-sm">
-        <AccordionTrigger className="px-4 hover:no-underline hover:bg-gray-50">
-          <span className="text-lg font-semibold">
+        <AccordionTrigger className="px-3 sm:px-4 hover:no-underline hover:bg-gray-50 text-left">
+          <span className="text-sm sm:text-base md:text-lg font-semibold leading-tight">
             Gestion des Patentes
           </span>
         </AccordionTrigger>
@@ -56,22 +56,24 @@ export default function DashboardAccordion() {
       </AccordionItem>
 
       <AccordionItem value="immobilier" className="border rounded-lg bg-white shadow-sm">
-        <AccordionTrigger className="px-4 hover:no-underline hover:bg-gray-50">
-          <span className="text-lg font-semibold">
-            Impôts Immobiliers (Bail, PSL, Taxe Foncière)
+        <AccordionTrigger className="px-3 sm:px-4 hover:no-underline hover:bg-gray-50 text-left">
+          <span className="text-sm sm:text-base md:text-lg font-semibold leading-tight">
+            <span className="hidden sm:inline">Impôts Immobiliers (Bail, PSL, Taxe Foncière)</span>
+            <span className="sm:hidden">Impôts Immobiliers</span>
           </span>
         </AccordionTrigger>
         <AccordionContent>
-          <div className="p-4">
+          <div className="p-3 sm:p-4">
             <ImpotsImmobiliersSection />
           </div>
         </AccordionContent>
       </AccordionItem>
 
       <AccordionItem value="dsf" className="border rounded-lg bg-white shadow-sm">
-        <AccordionTrigger className="px-4 hover:no-underline hover:bg-gray-50">
-          <span className="text-lg font-semibold">
-            Déclarations Statistiques et Fiscales
+        <AccordionTrigger className="px-3 sm:px-4 hover:no-underline hover:bg-gray-50 text-left">
+          <span className="text-sm sm:text-base md:text-lg font-semibold leading-tight">
+            <span className="hidden sm:inline">Déclarations Statistiques et Fiscales</span>
+            <span className="sm:hidden">Déclarations (DSF)</span>
           </span>
         </AccordionTrigger>
         <AccordionContent>
@@ -80,9 +82,10 @@ export default function DashboardAccordion() {
       </AccordionItem>
 
       <AccordionItem value="dbef" className="border rounded-lg bg-white shadow-sm">
-        <AccordionTrigger className="px-4 hover:no-underline hover:bg-gray-50">
-          <span className="text-lg font-semibold">
-            Déclarations des Bénéficiaires Effectifs (DBEF)
+        <AccordionTrigger className="px-3 sm:px-4 hover:no-underline hover:bg-gray-50 text-left">
+          <span className="text-sm sm:text-base md:text-lg font-semibold leading-tight">
+            <span className="hidden sm:inline">Déclarations des Bénéficiaires Effectifs (DBEF)</span>
+            <span className="sm:hidden">Bénéficiaires Effectifs (DBEF)</span>
           </span>
         </AccordionTrigger>
         <AccordionContent>
