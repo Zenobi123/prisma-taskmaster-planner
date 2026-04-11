@@ -229,7 +229,7 @@ export function ClientProfessionalFields({
         </div>
 
         <div>
-          <Label htmlFor="gestionexternalisee">Gestion externalisée</Label>
+          <Label htmlFor="gestionexternalisee">Gestion de dossiers clients en portefeuille</Label>
           <Select
             value={gestionexternalisee ? "Oui" : "Non"}
             onValueChange={(value) => onChange("gestionexternalisee", value === "Oui")}

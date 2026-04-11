@@ -20,7 +20,7 @@ const formatClientForExport = (client: Client) => {
     SecteurActivite: client.secteuractivite,
     Statut: client.statut,
     NumeroCNPS: client.numerocnps || "",
-    GestionExternalisee: client.gestionexternalisee ? "Oui" : "Non",
+    "Gestion de dossiers en portefeuille": client.gestionexternalisee ? "Oui" : "Non",
     DateCreation: client.created_at || ""
   };
 };

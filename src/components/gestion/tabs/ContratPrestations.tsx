@@ -254,7 +254,7 @@ export function ContratPrestations({ client }: ContratPrestationsProps) {
                   }
                   className="mt-1"
                 >
-                  {client.gestionexternalisee ? "Externalisée" : "Interne"}
+                  {client.gestionexternalisee ? "En portefeuille" : "Interne"}
                 </Badge>
               </div>
             </div>

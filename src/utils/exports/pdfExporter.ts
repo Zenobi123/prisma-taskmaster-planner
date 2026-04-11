@@ -81,7 +81,7 @@ export const exportClientDetailsToPdf = (client: Client) => {
     ['Type', client.type === 'morale' ? 'Personne Morale' : 'Personne Physique'],
     ['Téléphone', client.contact?.telephone || 'Non renseigné'],
     ['Centre de rattachement', client.centrerattachement || 'Non renseigné'],
-    ['Gestion externalisée', client.gestionexternalisee ? 'Oui' : 'Non']
+    ['Gestion de dossiers clients en portefeuille', client.gestionexternalisee ? 'Oui' : 'Non']
   ];
   
   // Add details table

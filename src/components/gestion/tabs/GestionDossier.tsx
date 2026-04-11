@@ -462,7 +462,7 @@ export function GestionDossier({ selectedClient }: GestionDossierProps) {
                     </dd>
                   </div>
                   <div>
-                    <dt className="text-xs text-muted-foreground">Gestion externalisée</dt>
+                    <dt className="text-xs text-muted-foreground">Gestion de dossiers clients en portefeuille</dt>
                     <dd className="text-sm font-medium">
                       {selectedClient.gestionexternalisee ? "Oui" : "Non"}
                     </dd>
