@@ -178,7 +178,7 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
           {/* Management flags */}
           <div className="col-span-1 sm:col-span-2 md:col-span-3 pt-2 border-t">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 sm:gap-x-6 gap-y-3 sm:gap-y-4">
-              <BooleanField label="Gestion externalisée" value={client.gestionexternalisee} />
+              <BooleanField label="Gestion de dossiers clients en portefeuille" value={client.gestionexternalisee} />
             </div>
           </div>
         </div>

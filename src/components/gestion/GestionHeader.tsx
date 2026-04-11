@@ -30,7 +30,7 @@ export function GestionHeader({ nombreClientsEnGestion }: GestionHeaderProps) {
             Gestion des dossiers clients
           </h1>
           <p className="text-[#8E9196] text-sm sm:text-lg">
-            Gestion complète des dossiers clients en externalisation
+            Gestion de dossiers clients en portefeuille
           </p>
         </div>
       </header>

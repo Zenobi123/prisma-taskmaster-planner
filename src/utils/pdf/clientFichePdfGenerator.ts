@@ -85,7 +85,7 @@ export const generateClientFichePDF = (client: Client) => {
   generalInfo.push(['Centre de rattachement', client.centrerattachement || 'Non renseigné']);
   generalInfo.push(['Secteur d\'activité', client.secteuractivite || 'Non renseigné']);
   if (client.numerocnps) generalInfo.push(['N° CNPS', client.numerocnps]);
-  generalInfo.push(['Gestion externalisée', client.gestionexternalisee ? 'Oui' : 'Non']);
+  generalInfo.push(['Gestion de dossiers clients en portefeuille', client.gestionexternalisee ? 'Oui' : 'Non']);
 
   autoTable(doc, {
     body: generalInfo,

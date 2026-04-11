@@ -20,7 +20,7 @@ export async function generateClientReport() {
       ['Total Clients', stats.total.toString()],
       ['Personnes Physiques', stats.personnesPhysiques.toString()],
       ['Personnes Morales', stats.personnesMorales.toString()],
-      ['Gestion Externalisée', stats.gestionExternalisee.toString()]
+      ['Gestion de dossiers clients en portefeuille', stats.gestionExternalisee.toString()]
     ];
     
     (doc as any).autoTable({
