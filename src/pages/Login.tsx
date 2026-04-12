@@ -1,5 +1,5 @@
 
-import { useState, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,16 +10,71 @@ import { supabase } from "@/integrations/supabase/client";
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MS = 60_000; // 1 minute
+const LOCKOUT_STORAGE_KEY = "login_lockout";
+const ATTEMPTS_STORAGE_KEY = "login_attempts";
+
+function getLockoutState(): { isLocked: boolean; attempts: number; remainingMs: number } {
+  const lockoutUntil = sessionStorage.getItem(LOCKOUT_STORAGE_KEY);
+  const attempts = parseInt(sessionStorage.getItem(ATTEMPTS_STORAGE_KEY) || "0", 10);
+
+  if (lockoutUntil) {
+    const remaining = parseInt(lockoutUntil, 10) - Date.now();
+    if (remaining > 0) {
+      return { isLocked: true, attempts, remainingMs: remaining };
+    }
+    // Lockout expired — clear state
+    sessionStorage.removeItem(LOCKOUT_STORAGE_KEY);
+    sessionStorage.removeItem(ATTEMPTS_STORAGE_KEY);
+    return { isLocked: false, attempts: 0, remainingMs: 0 };
+  }
+
+  return { isLocked: false, attempts, remainingMs: 0 };
+}
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isLocked, setIsLocked] = useState(false);
-  const loginAttemptsRef = useRef(0);
-  const lockoutTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isLocked, setIsLocked] = useState(() => getLockoutState().isLocked);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Check lockout on mount and set timer to unlock
+  useEffect(() => {
+    const state = getLockoutState();
+    setIsLocked(state.isLocked);
+
+    if (state.isLocked && state.remainingMs > 0) {
+      const timer = setTimeout(() => {
+        setIsLocked(false);
+        sessionStorage.removeItem(LOCKOUT_STORAGE_KEY);
+        sessionStorage.removeItem(ATTEMPTS_STORAGE_KEY);
+      }, state.remainingMs);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const incrementAttempts = useCallback(() => {
+    const current = parseInt(sessionStorage.getItem(ATTEMPTS_STORAGE_KEY) || "0", 10) + 1;
+    sessionStorage.setItem(ATTEMPTS_STORAGE_KEY, String(current));
+
+    if (current >= MAX_LOGIN_ATTEMPTS) {
+      const lockUntil = Date.now() + LOCKOUT_DURATION_MS;
+      sessionStorage.setItem(LOCKOUT_STORAGE_KEY, String(lockUntil));
+      setIsLocked(true);
+
+      setTimeout(() => {
+        setIsLocked(false);
+        sessionStorage.removeItem(LOCKOUT_STORAGE_KEY);
+        sessionStorage.removeItem(ATTEMPTS_STORAGE_KEY);
+      }, LOCKOUT_DURATION_MS);
+    }
+  }, []);
+
+  const resetAttempts = useCallback(() => {
+    sessionStorage.removeItem(LOCKOUT_STORAGE_KEY);
+    sessionStorage.removeItem(ATTEMPTS_STORAGE_KEY);
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,15 +99,7 @@ const Login = () => {
       });
 
       if (authError) {
-        loginAttemptsRef.current += 1;
-
-        if (loginAttemptsRef.current >= MAX_LOGIN_ATTEMPTS) {
-          setIsLocked(true);
-          lockoutTimerRef.current = setTimeout(() => {
-            setIsLocked(false);
-            loginAttemptsRef.current = 0;
-          }, LOCKOUT_DURATION_MS);
-        }
+        incrementAttempts();
 
         toast({
           variant: "destructive",
@@ -65,7 +112,7 @@ const Login = () => {
 
       if (authData.user) {
         // Reset attempts on success
-        loginAttemptsRef.current = 0;
+        resetAttempts();
 
         // Récupérer le rôle de l'utilisateur depuis la table users
         const { data: userData, error: userError } = await supabase

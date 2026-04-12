@@ -20,6 +20,8 @@ import ClientsList from "@/components/courrier/ClientsList";
 import TemplateSelection from "@/components/courrier/TemplateSelection";
 import PreviewDialog from "@/components/courrier/PreviewDialog";
 import CourrierHistorique from "@/components/courrier/CourrierHistorique";
+import { useAuthorization } from "@/hooks/useAuthorization";
+import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 
 const MODE_ENVOI_LABELS: Record<CourrierModeEnvoi, string> = {
   remise_en_main_propre: "Remise en main propre",
@@ -29,6 +31,12 @@ const MODE_ENVOI_LABELS: Record<CourrierModeEnvoi, string> = {
 };
 
 const Courrier: React.FC = () => {
+  const { isAuthorized } = useAuthorization(
+    ["admin", "comptable", "gestionnaire", "expert-comptable", "fiscaliste", "assistant"],
+    "courrier",
+    { showToast: true }
+  );
+
   const [selectedCriteria, setSelectedCriteria] = useState<Criteria>({});
   const [selectedClientIds, setSelectedClientIds] = useState<string[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(courrierTemplates[0]?.id || "");
@@ -134,6 +142,10 @@ const Courrier: React.FC = () => {
 
   const clientsForList = getClientsForList();
   const finalClients = getFilteredClients();
+
+  if (!isAuthorized) {
+    return <CollaborateurUnauthorized module="courrier" />;
+  }
 
   return (
     <PageLayout fullWidth>

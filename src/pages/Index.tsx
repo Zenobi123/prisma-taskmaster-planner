@@ -11,8 +11,15 @@ import DashboardAccordion from "@/components/dashboard/DashboardAccordion";
 import QuickStats from "@/components/dashboard/QuickStats";
 import { UnpaidPatenteDialog } from "@/components/dashboard/UnpaidPatenteDialog";
 import { UnfiledDsfDialog } from "@/components/dashboard/UnfiledDsfDialog";
+import { useAuthorization } from "@/hooks/useAuthorization";
+import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 
 const Index = () => {
+  const { isAuthorized } = useAuthorization(
+    ["admin", "comptable", "gestionnaire", "expert-comptable", "fiscaliste", "assistant"],
+    "dashboard",
+    { showToast: true }
+  );
   const queryClient = useQueryClient();
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   
@@ -78,6 +85,10 @@ const Index = () => {
     }
   }, []);
 
+
+  if (!isAuthorized) {
+    return <CollaborateurUnauthorized module="dashboard" />;
+  }
 
   return (
     <div className="min-h-screen flex">

@@ -7,10 +7,21 @@ import { CollaboratorFilter } from "@/components/planning/CollaboratorFilter";
 import { CalendarView } from "@/components/planning/CalendarView";
 import { EventsList } from "@/components/planning/EventsList";
 import PageLayout from "@/components/layout/PageLayout";
+import { useAuthorization } from "@/hooks/useAuthorization";
+import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 
 const Planning = () => {
+  const { isAuthorized } = useAuthorization(
+    ["admin", "comptable", "gestionnaire", "expert-comptable", "fiscaliste", "assistant"],
+    "planning",
+    { showToast: true }
+  );
   const navigate = useNavigate();
   const planning = usePlanning();
+
+  if (!isAuthorized) {
+    return <CollaborateurUnauthorized module="planning" />;
+  }
 
   return (
     <PageLayout>

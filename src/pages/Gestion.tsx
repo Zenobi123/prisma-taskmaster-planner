@@ -8,6 +8,8 @@ import { SelectedClientCard } from "@/components/gestion/SelectedClientCard";
 import { GestionTabs } from "@/components/gestion/GestionTabs";
 import { NoClientSelected } from "@/components/gestion/NoClientSelected";
 import { useLocation, useBeforeUnload } from "react-router-dom";
+import { useAuthorization } from "@/hooks/useAuthorization";
+import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -18,6 +20,12 @@ const VALID_TABS: Record<string, string> = {
 const VALID_ACTIVE_TABS = ['fiscal'];
 
 export default function Gestion() {
+  const { isAuthorized } = useAuthorization(
+    ["admin", "comptable", "gestionnaire", "expert-comptable", "fiscaliste", "assistant"],
+    "gestion",
+    { showToast: true }
+  );
+
   const [activeTab, setActiveTab] = useState("fiscal");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [selectedSubTab, setSelectedSubTab] = useState<string | null>(null);
@@ -100,6 +108,10 @@ export default function Gestion() {
   const handleSubTabSelect = React.useCallback((subTab: string) => {
     setSelectedSubTab(subTab);
   }, []);
+
+  if (!isAuthorized) {
+    return <CollaborateurUnauthorized module="gestion" />;
+  }
 
   if (isLoading) {
     return (

@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AuthorizedModule = "collaborateurs" | "parametres" | "facturation";
+export type AuthorizedModule = "collaborateurs" | "parametres" | "facturation" | "clients" | "gestion" | "missions" | "planning" | "courrier" | "rapports" | "dashboard";
 
 interface UseAuthorizationOptions {
   redirectTo?: string;
@@ -56,10 +56,17 @@ export const useAuthorization = (
 
         if (!authorized) {
           if (showToast) {
-            const moduleNames = {
+            const moduleNames: Record<AuthorizedModule, string> = {
               collaborateurs: "la gestion des collaborateurs",
               parametres: "la gestion des paramètres du système",
-              facturation: "la gestion de la facturation"
+              facturation: "la gestion de la facturation",
+              clients: "la gestion des clients",
+              gestion: "la gestion des dossiers clients",
+              missions: "la gestion des missions",
+              planning: "le planning",
+              courrier: "la gestion du courrier",
+              rapports: "les rapports",
+              dashboard: "le tableau de bord",
             };
 
             toast({

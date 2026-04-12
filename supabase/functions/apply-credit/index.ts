@@ -3,6 +3,7 @@ import { serve } from 'https://deno.land/std@0.177.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const ALLOWED_ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') || '').split(',').filter(Boolean)
+const ALLOWED_ROLES = ['admin', 'comptable', 'expert-comptable']
 
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get('Origin') || ''
@@ -20,6 +21,42 @@ interface ApplyCreditRequest {
   montant: number
 }
 
+async function verifyUserRole(authHeader: string): Promise<{ userId: string; role: string } | null> {
+  // Create a client with the user's JWT to verify identity
+  const userClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    {
+      global: {
+        headers: { Authorization: authHeader },
+      },
+    }
+  )
+
+  const { data: { user }, error: authError } = await userClient.auth.getUser()
+  if (authError || !user) {
+    return null
+  }
+
+  // Fetch role from public.users using service role to bypass RLS
+  const serviceClient = createClient(
+    Deno.env.get('SUPABASE_URL') ?? '',
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  )
+
+  const { data: userData, error: userError } = await serviceClient
+    .from('users')
+    .select('role')
+    .eq('id', user.id)
+    .single()
+
+  if (userError || !userData) {
+    return null
+  }
+
+  return { userId: user.id, role: userData.role }
+}
+
 serve(async (req) => {
   const corsHeaders = getCorsHeaders(req)
 
@@ -35,6 +72,22 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
+    // Verify user identity and role
+    const userInfo = await verifyUserRole(authHeader)
+    if (!userInfo) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: invalid session' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
+    if (!ALLOWED_ROLES.includes(userInfo.role)) {
+      return new Response(
+        JSON.stringify({ error: 'Forbidden: insufficient permissions' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
       )
     }
 
@@ -66,15 +119,10 @@ serve(async (req) => {
       )
     }
 
-    // Create a Supabase client with the Auth context of the function
+    // Create a Supabase client with service role for data operations
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: authHeader },
-        },
-      }
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
     // Verify the payment exists and is a credit
