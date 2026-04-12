@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const useFiscalData = (clientId: string) => {
   const [fiscalData, setFiscalData] = useState<ClientFiscalData | null>(null);
-  const [selectedYear, setSelectedYear] = useState<string>("2025");
+  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
   const [isLoading, setIsLoading] = useState(true);
 
   const loadFiscalData = useCallback(async () => {
