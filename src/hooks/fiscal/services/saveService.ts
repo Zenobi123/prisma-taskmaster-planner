@@ -75,7 +75,7 @@ export const saveFiscalData = async (
       },
       obligations: prepareObligationsForSave(data.obligations),
       hiddenFromDashboard: Boolean(data.hiddenFromDashboard),
-      selectedYear: data.selectedYear || "2025",
+      selectedYear: data.selectedYear || new Date().getFullYear().toString(),
       updatedAt: new Date().toISOString()
     };
     

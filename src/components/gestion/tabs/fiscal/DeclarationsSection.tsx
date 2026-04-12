@@ -36,7 +36,7 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
     openedDetails: {},
     declarations: {
       dsf: { assujetti: false, soumis: false, regime: '', dateLimite: '', dateSoumission: '' },
-      darp: { assujetti: false, soumis: false, dateLimite: '2025-09-30', dateSoumission: '' }
+      darp: { assujetti: false, soumis: false, dateLimite: `${new Date().getFullYear()}-09-30`, dateSoumission: '' }
     }
   });
 
