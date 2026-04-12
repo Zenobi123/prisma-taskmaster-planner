@@ -54,7 +54,7 @@ export const generateObligationsFiscalesReport = async () => {
     
     // Détail IGS non payées
     if (fiscalData.unpaidIgs.length > 0) {
-      let currentY = (doc as any).lastAutoTable.finalY + 20;
+      const currentY = (doc as any).lastAutoTable.finalY + 20;
       doc.setFontSize(14);
       doc.text('IGS Non Payées', 14, currentY);
       
@@ -75,7 +75,7 @@ export const generateObligationsFiscalesReport = async () => {
     
     // Détail DSF non déposées
     if (fiscalData.unfiledDsf.length > 0) {
-      let currentY = (doc as any).lastAutoTable.finalY + 20;
+      const currentY = (doc as any).lastAutoTable.finalY + 20;
       doc.setFontSize(14);
       doc.text('DSF Non Déposées', 14, currentY);
       

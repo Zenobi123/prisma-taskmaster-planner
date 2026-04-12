@@ -53,7 +53,7 @@ export const generateMassSalarialeReport = async () => {
       return acc;
     }, {});
     
-    let currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = (doc as any).lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Répartition par Client', 14, currentY);
     
@@ -127,7 +127,7 @@ export const generateEffectifsReport = async () => {
       return acc;
     }, {});
     
-    let currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = (doc as any).lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Effectifs par Client', 14, currentY);
     
