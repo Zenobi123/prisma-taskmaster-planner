@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, BarChart, Calendar, FileBarChart, Users, DollarSign, FileText, Clock, TrendingUp, Building, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
+import { useAuthorization } from "@/hooks/useAuthorization";
+import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 import { ReportTypeFilter } from "@/components/rapports/ReportTypeFilter";
 import { SearchInput } from "@/components/rapports/SearchInput";
 import { ReportCard } from "@/components/rapports/ReportCard";
@@ -49,6 +51,12 @@ import {
 } from "@/utils/reports/specificClientReports";
 
 const Rapports = () => {
+  const { isAuthorized } = useAuthorization(
+    ["admin", "comptable", "gestionnaire", "expert-comptable", "fiscaliste", "assistant"],
+    "rapports",
+    { showToast: true }
+  );
+
   const [typeFilter, setTypeFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
@@ -309,6 +317,10 @@ const Rapports = () => {
       });
     }
   };
+
+  if (!isAuthorized) {
+    return <CollaborateurUnauthorized module="rapports" />;
+  }
 
   return (
     <div className="container mx-auto px-4 py-4 sm:p-6">

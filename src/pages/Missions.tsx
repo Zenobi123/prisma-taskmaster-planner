@@ -9,8 +9,16 @@ import MissionHeader from "@/components/missions/MissionHeader";
 import NewMissionDialog from "@/components/missions/NewMissionDialog";
 import { useMissionFilter } from "@/hooks/useMissionFilter";
 import PageLayout from "@/components/layout/PageLayout";
+import { useAuthorization } from "@/hooks/useAuthorization";
+import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 
 const Missions = () => {
+  const { isAuthorized } = useAuthorization(
+    ["admin", "comptable", "gestionnaire", "expert-comptable", "fiscaliste", "assistant"],
+    "missions",
+    { showToast: true }
+  );
+
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,6 +104,10 @@ const Missions = () => {
       setCurrentPage(currentPage - 1);
     }
   };
+
+  if (!isAuthorized) {
+    return <CollaborateurUnauthorized module="missions" />;
+  }
 
   return (
     <PageLayout>

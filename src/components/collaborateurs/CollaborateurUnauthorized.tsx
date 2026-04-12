@@ -13,16 +13,19 @@ interface CollaborateurUnauthorizedProps {
 export const CollaborateurUnauthorized = ({ 
   module = "collaborateurs" 
 }: CollaborateurUnauthorizedProps) => {
-  const moduleText = (() => {
-    switch(module) {
-      case "parametres":
-        return "aux paramètres du système";
-      case "facturation":
-        return "à la gestion de la facturation";
-      default:
-        return "à la gestion des collaborateurs";
-    }
-  })();
+  const moduleTexts: Record<AuthorizedModule, string> = {
+    collaborateurs: "à la gestion des collaborateurs",
+    parametres: "aux paramètres du système",
+    facturation: "à la gestion de la facturation",
+    clients: "à la gestion des clients",
+    gestion: "à la gestion des dossiers clients",
+    missions: "à la gestion des missions",
+    planning: "au planning",
+    courrier: "à la gestion du courrier",
+    rapports: "aux rapports",
+    dashboard: "au tableau de bord",
+  };
+  const moduleText = moduleTexts[module] || "à ce module";
 
   return (
     <div className="flex h-screen">
