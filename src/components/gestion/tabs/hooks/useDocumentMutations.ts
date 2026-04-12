@@ -32,14 +32,29 @@ export function useDocumentMutations(clientId: string) {
     },
   });
 
+  const ALLOWED_TYPES = [
+    'application/pdf',
+    'image/jpeg',
+    'image/jpg',
+    'image/png',
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  ];
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
   const uploadFile = async (file: File) => {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      throw new Error("Type de fichier non autorisé. Utilisez PDF, Word ou images.");
+    }
+    if (file.size > MAX_FILE_SIZE) {
+      throw new Error("La taille du fichier dépasse la limite de 10 MB.");
+    }
+
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Math.random()}.${fileExt}`;
+    const fileName = `${crypto.randomUUID()}.${fileExt}`;
     const filePath = `${clientId}/${fileName}`;
 
-    // On suppose qu'un bucket "documents" existe, sinon on pourrait avoir une erreur.
-    // L'upload sera mocké en cas d'erreur de bucket.
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("documents")
       .upload(filePath, file);
 
@@ -47,22 +62,22 @@ export function useDocumentMutations(clientId: string) {
       throw error;
     }
 
-    const { data: { publicUrl } } = supabase.storage
+    const { data: signedData, error: signError } = await supabase.storage
       .from("documents")
-      .getPublicUrl(filePath);
+      .createSignedUrl(filePath, 3600);
 
-    return publicUrl;
+    if (signError || !signedData?.signedUrl) {
+      throw new Error("Impossible de générer l'URL du document.");
+    }
+
+    return signedData.signedUrl;
   };
 
   const saveDocument = useMutation({
     mutationFn: async ({ nom, type, statut, file }: { nom: string, type: string, statut: string, file?: File }) => {
       let fichier_url = "";
       if (file) {
-        try {
-          fichier_url = await uploadFile(file);
-        } catch (e) {
-          fichier_url = `mocked_url_${file.name}`;
-        }
+        fichier_url = await uploadFile(file);
       }
 
       const { data, error } = await supabase
@@ -126,12 +141,7 @@ export function useDocumentMutations(clientId: string) {
 
   const updateDocumentFile = useMutation({
     mutationFn: async ({ id, file }: { id: string, file: File }) => {
-      let fichier_url = "";
-      try {
-        fichier_url = await uploadFile(file);
-      } catch (e) {
-        fichier_url = `mocked_url_${file.name}`;
-      }
+      const fichier_url = await uploadFile(file);
 
       const { data, error } = await supabase
         .from("documents_administratifs")

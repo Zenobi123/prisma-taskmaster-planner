@@ -93,11 +93,13 @@ const updateCollaborateurTaskCounts = async (tasks: Task[]) => {
           .eq("id", collaborateur.id);
           
         if (updateError) {
+          console.error('Failed to sync collaborateur task count:', updateError);
         }
       }
     }
-    
+
   } catch (error) {
+    console.error('Error in updateTaskStatus:', error);
   }
 };
 
@@ -301,10 +303,12 @@ const incrementCollaborateurTaskCount = async (collaborateurId: string) => {
       .from("collaborateurs")
       .update({ tachesencours: newCount })
       .eq("id", collaborateurId);
-      
+
     if (updateError) {
+      console.error('Failed to increment task count:', updateError);
     }
   } catch (err) {
+    console.error('Error in incrementCollaborateurTaskCount:', err);
   }
 };
 
@@ -328,9 +332,11 @@ const decrementCollaborateurTaskCount = async (collaborateurId: string) => {
       .from("collaborateurs")
       .update({ tachesencours: newCount })
       .eq("id", collaborateurId);
-      
+
     if (updateError) {
+      console.error('Failed to decrement task count:', updateError);
     }
   } catch (err) {
+    console.error('Error in decrementCollaborateurTaskCount:', err);
   }
 };

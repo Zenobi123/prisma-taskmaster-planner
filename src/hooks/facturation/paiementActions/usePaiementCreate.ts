@@ -30,7 +30,7 @@ export const usePaiementCreate = () => {
       const currentYear = new Date().getFullYear();
       
       // Générer un nombre entre 001 et 999
-      const randomNumber = Math.floor(Math.random() * 999) + 1;
+      const randomNumber = crypto.getRandomValues(new Uint16Array(1))[0] % 999 + 1;
       const formattedNumber = randomNumber.toString().padStart(3, '0');
       
       const paymentReference = `PAY-${formattedNumber} ${currentYear}`;

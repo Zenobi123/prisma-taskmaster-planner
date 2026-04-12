@@ -120,7 +120,7 @@ export async function getPropositions(): Promise<Proposition[]> {
 
 // Create a new proposition
 export async function createProposition(data: PropositionFormData): Promise<Proposition> {
-  const propositionId = `PROP-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const propositionId = `PROP-${crypto.randomUUID()}`;
   const numero = await getNextPropositionNumber();
 
   const { total, total_impots, total_honoraires } = calculateTotals(data.lignes);

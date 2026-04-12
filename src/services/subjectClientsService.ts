@@ -50,12 +50,14 @@ export const getClientsSubjectToObligation = async (): Promise<SubjectClientsCou
           counts.darp++;
         }
       } catch (error) {
+        console.error('Error evaluating obligations for client:', error);
       }
     });
 
     return counts;
-    
+
   } catch (error) {
+    console.error('Error in getSubjectClientsCounts:', error);
     return { igs: 0, patente: 0, dsf: 0, darp: 0 };
   }
 };

@@ -19,9 +19,9 @@ export const useUserManagement = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const [users, setUsers] = useState<User[]>([
-    { id: 1, name: "Principal Admin", email: "admin@example.com", role: "admin", permissions: [] },
-    { id: 2, name: "Joel Hervé TCHOMKAM", email: "joelhervetckomkam@gmail.com", role: "comptable", permissions: [] },
-    { id: 3, name: "Fransnelle FANKAM FOSSO", email: "fankam.prisca@gmail.com", role: "assistant", permissions: [] }
+    { id: 1, name: "Administrateur", email: "admin@exemple.com", role: "admin", permissions: [] },
+    { id: 2, name: "Comptable", email: "comptable@exemple.com", role: "comptable", permissions: [] },
+    { id: 3, name: "Assistant", email: "assistant@exemple.com", role: "assistant", permissions: [] }
   ]);
 
   const [newUser, setNewUser] = useState<UserFormData>({

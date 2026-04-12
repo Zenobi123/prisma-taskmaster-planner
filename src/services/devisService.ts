@@ -134,7 +134,7 @@ export async function getDevis(): Promise<Devis[]> {
 
 // Create a new devis
 export async function createDevis(data: DevisFormData): Promise<Devis> {
-  const devisId = `DEV-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  const devisId = `DEV-${crypto.randomUUID()}`;
   const numero = await getNextDevisNumber();
 
   const montant_total = data.prestations.reduce((sum, p) => sum + p.montant, 0);
@@ -172,7 +172,7 @@ export async function createDevis(data: DevisFormData): Promise<Devis> {
   // Insert prestations
   if (data.prestations.length > 0) {
     const prestationsToInsert = data.prestations.map((p) => ({
-      id: `DPRE-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `DPRE-${crypto.randomUUID()}`,
       devis_id: devisId,
       description: p.description,
       type: p.type,
@@ -274,7 +274,7 @@ export async function updateDevis(id: string, data: Partial<DevisFormData>): Pro
 
     if (data.prestations.length > 0) {
       const prestationsToInsert = data.prestations.map((p) => ({
-        id: `DPRE-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `DPRE-${crypto.randomUUID()}`,
         devis_id: id,
         description: p.description,
         type: p.type,
@@ -351,7 +351,7 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
   // Copy prestations from devis to facture
   if (prestationsData && prestationsData.length > 0) {
     const facturePrestations = prestationsData.map((p: any) => ({
-      id: `FPRE-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      id: `FPRE-${crypto.randomUUID()}`,
       facture_id: factureId,
       description: p.description,
       type: p.type || "honoraire",

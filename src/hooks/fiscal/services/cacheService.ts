@@ -12,7 +12,7 @@ const MAX_CACHE_ENTRIES = 50;
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * Valide la structure basique d'un objet cache parsé depuis localStorage.
+ * Valide la structure basique d'un objet cache parsé depuis sessionStorage.
  */
 function isValidCacheEntry(parsed: unknown): parsed is { data: ClientFiscalData; timestamp: number } {
   if (typeof parsed !== 'object' || parsed === null) return false;
@@ -37,11 +37,11 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
     return cachedData.data;
   }
 
-  // Si le cache en mémoire n'est pas disponible, essayer localStorage
+  // Si le cache en mémoire n'est pas disponible, essayer sessionStorage
   if (typeof window !== 'undefined') {
     try {
       const cacheKey = `fiscal_cache_${clientId}`;
-      const storedCache = window.localStorage.getItem(cacheKey);
+      const storedCache = window.sessionStorage.getItem(cacheKey);
 
       if (storedCache) {
         const parsedCache = JSON.parse(storedCache);
@@ -53,8 +53,8 @@ export const getFromCache = (clientId: string): ClientFiscalData | null => {
           });
           return parsedCache.data;
         } else {
-          // Nettoyer le localStorage si le cache est périmé ou invalide
-          window.localStorage.removeItem(cacheKey);
+          // Nettoyer le sessionStorage si le cache est périmé ou invalide
+          window.sessionStorage.removeItem(cacheKey);
         }
       }
     } catch {
@@ -86,7 +86,7 @@ export const updateCache = (clientId: string, data: ClientFiscalData): void => {
     if (oldestKey) {
       fiscalDataCache.delete(oldestKey);
       if (typeof window !== 'undefined') {
-        window.localStorage.removeItem(`fiscal_cache_${oldestKey}`);
+        window.sessionStorage.removeItem(`fiscal_cache_${oldestKey}`);
       }
     }
   }
@@ -97,16 +97,16 @@ export const updateCache = (clientId: string, data: ClientFiscalData): void => {
     timestamp: Date.now()
   });
 
-  // Persister aussi dans localStorage
+  // Persister aussi dans sessionStorage
   if (typeof window !== 'undefined') {
     try {
       const cacheKey = `fiscal_cache_${clientId}`;
-      window.localStorage.setItem(cacheKey, JSON.stringify({
+      window.sessionStorage.setItem(cacheKey, JSON.stringify({
         data,
         timestamp: Date.now()
       }));
     } catch {
-      // Quota localStorage dépassé ou erreur d'écriture
+      // Quota sessionStorage dépassé ou erreur d'écriture
     }
   }
 };
@@ -120,7 +120,7 @@ export const clearCache = (clientId: string): void => {
   if (typeof window !== 'undefined') {
     try {
       const cacheKey = `fiscal_cache_${clientId}`;
-      window.localStorage.removeItem(cacheKey);
+      window.sessionStorage.removeItem(cacheKey);
     } catch {
       // Ignorer
     }
@@ -128,7 +128,7 @@ export const clearCache = (clientId: string): void => {
 };
 
 /**
- * Vider tous les caches avec nettoyage de localStorage
+ * Vider tous les caches avec nettoyage de sessionStorage
  */
 export const clearAllCaches = (): void => {
   fiscalDataCache.clear();
@@ -136,15 +136,15 @@ export const clearAllCaches = (): void => {
   if (typeof window !== 'undefined') {
     try {
       const keysToRemove: string[] = [];
-      for (let i = 0; i < window.localStorage.length; i++) {
-        const key = window.localStorage.key(i);
+      for (let i = 0; i < window.sessionStorage.length; i++) {
+        const key = window.sessionStorage.key(i);
         if (key && key.startsWith('fiscal_cache_')) {
           keysToRemove.push(key);
         }
       }
 
       keysToRemove.forEach(key => {
-        window.localStorage.removeItem(key);
+        window.sessionStorage.removeItem(key);
       });
     } catch {
       // Ignorer
@@ -177,7 +177,7 @@ export const recoverCacheFromStorage = (clientId: string): ClientFiscalData | nu
 
   try {
     const cacheKey = `fiscal_cache_${clientId}`;
-    const storedCache = window.localStorage.getItem(cacheKey);
+    const storedCache = window.sessionStorage.getItem(cacheKey);
 
     if (storedCache) {
       const parsedCache = JSON.parse(storedCache);

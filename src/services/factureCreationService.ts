@@ -42,7 +42,7 @@ export const factureCreationService = {
       // Persist prestations to facture_prestations table
       if (factureData.prestations && factureData.prestations.length > 0) {
         const prestationsToInsert = factureData.prestations.map((p) => ({
-          id: `FPRE-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+          id: `FPRE-${crypto.randomUUID()}`,
           facture_id: factureId,
           description: p.description,
           type: p.type || "honoraire",

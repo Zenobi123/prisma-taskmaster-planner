@@ -6,6 +6,18 @@
 import { Event } from "@/types/event";
 
 /**
+ * Sanitize a CSV cell value to prevent formula injection.
+ * Cells starting with =, +, -, @, \t, \r are prefixed with a single quote.
+ */
+const sanitizeCsvCell = (value: string): string => {
+  const escaped = value.replace(/"/g, '""');
+  if (/^[=+\-@\t\r]/.test(escaped)) {
+    return `"'${escaped}"`;
+  }
+  return `"${escaped}"`;
+};
+
+/**
  * Formats a date to a string in local format
  */
 export const formatDateToString = (date: Date | undefined): string => {
@@ -33,11 +45,11 @@ export const exportToCSV = (events: Event[], date: Date | undefined): void => {
   
   // Format event data for CSV
   const csvData = events.map(event => [
-    `"${event.title.replace(/"/g, '""')}"`,
-    `"${event.client.replace(/"/g, '""')}"`,
-    `"${event.collaborateur.replace(/"/g, '""')}"`,
-    `"${event.time}"`,
-    `"${event.type === "mission" ? "Mission" : "Réunion"}"`
+    sanitizeCsvCell(event.title),
+    sanitizeCsvCell(event.client),
+    sanitizeCsvCell(event.collaborateur),
+    sanitizeCsvCell(event.time),
+    sanitizeCsvCell(event.type === "mission" ? "Mission" : "Réunion")
   ].join(",")).join("\n");
   
   // Combine header and data
@@ -65,7 +77,7 @@ export const exportToExcel = (data: any[], filename: string): void => {
   const csvData = data.map(row => 
     headers.map(header => {
       const cell = row[header] !== undefined && row[header] !== null ? row[header] : '';
-      return `"${String(cell).replace(/"/g, '""')}"`;
+      return sanitizeCsvCell(String(cell));
     }).join(",")
   ).join("\n");
   
