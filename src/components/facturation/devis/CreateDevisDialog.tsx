@@ -5,10 +5,12 @@ import { Client } from "@/types/client";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -157,8 +159,14 @@ const CreateDevisDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-4xl overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Nouveau devis</DialogTitle>
+        <DialogHeader className="pb-4 border-b border-border/50">
+          <DialogTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5 text-primary" />
+            Nouveau devis
+          </DialogTitle>
+          <DialogDescription>
+            Créez un nouveau devis pour un client avec les prestations associées.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 py-4">

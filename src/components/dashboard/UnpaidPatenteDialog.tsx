@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { getClientsWithUnpaidPatente } from "@/services/fiscal/unpaidPatenteService";
 import { FileText, AlertTriangle, FileWarning, Phone, Building } from "lucide-react";
@@ -32,11 +32,14 @@ export const UnpaidPatenteDialog = ({ open, onOpenChange }: UnpaidPatenteDialogP
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-[900px] max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="pb-4 border-b border-border/50">
           <DialogTitle className="flex items-center text-base sm:text-xl">
             <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-red-500 shrink-0" />
             Patentes non payées ({clients.length})
           </DialogTitle>
+          <DialogDescription>
+            Liste des clients dont la patente n'a pas encore été réglée.
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (
