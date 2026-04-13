@@ -5,6 +5,7 @@ import { ClientsContent } from "./components/ClientsContent";
 import { ClientDialogs } from "./components/ClientDialogs";
 import { LoadingState } from "./components/LoadingState";
 import { ClientTrash } from "@/components/clients/ClientTrash";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -46,6 +47,8 @@ export default function ClientsPage() {
     handleDelete,
     handleTrashClick,
     handleCloseTrash,
+    confirmDialog,
+    closeConfirmDialog,
     toast
   } = useClientsPage();
 
@@ -150,6 +153,17 @@ export default function ClientsPage() {
             });
           }
         }}
+      />
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={closeConfirmDialog}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        confirmLabel={confirmDialog.confirmLabel}
+        variant={confirmDialog.variant}
+        isLoading={confirmDialog.isLoading}
       />
     </div>
   );
