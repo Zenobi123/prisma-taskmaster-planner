@@ -8,6 +8,7 @@ import {
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog";
+import { Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 import { ReminderDialogProps } from "./reminder/types";
@@ -40,8 +41,11 @@ const ReminderDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Envoyer un rappel de paiement</DialogTitle>
+        <DialogHeader className="pb-4 border-b border-border/50">
+          <DialogTitle className="flex items-center gap-2">
+            <Bell className="h-5 w-5 text-primary" />
+            Envoyer un rappel de paiement
+          </DialogTitle>
           <DialogDescription>
             Choisissez la méthode d'envoi du rappel pour cette facture.
           </DialogDescription>

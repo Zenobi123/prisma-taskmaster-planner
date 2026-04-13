@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Eye, FileText, Users } from "lucide-react";
@@ -39,12 +39,15 @@ const PreviewDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] sm:max-w-4xl bg-white border border-gray-200">
-        <DialogHeader className="border-b border-gray-100 pb-3 sm:pb-4">
-          <DialogTitle className="flex items-center gap-2 text-base sm:text-xl text-gray-900">
-            <Eye className="w-5 h-5 text-[#84A98C]" />
+      <DialogContent className="max-w-[95vw] sm:max-w-4xl">
+        <DialogHeader className="pb-4 border-b border-border/50">
+          <DialogTitle className="flex items-center gap-2 text-base sm:text-xl">
+            <Eye className="w-5 h-5 text-primary" />
             Aperçu du courrier
           </DialogTitle>
+          <DialogDescription>
+            Vérifiez le contenu du courrier avant de l'envoyer.
+          </DialogDescription>
           <div className="flex gap-3 mt-3">
             <Badge variant="secondary" className="bg-[#84A98C] text-white">
               <Users className="w-3 h-3 mr-1" />

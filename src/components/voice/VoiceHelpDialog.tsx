@@ -3,9 +3,11 @@ import React from 'react';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Mic } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface VoiceHelpDialogProps {
@@ -44,8 +46,14 @@ export const VoiceHelpDialog = ({ open, onOpenChange }: VoiceHelpDialogProps) =>
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Commandes vocales disponibles</DialogTitle>
+        <DialogHeader className="pb-4 border-b border-border/50">
+          <DialogTitle className="flex items-center gap-2">
+            <Mic className="h-5 w-5 text-primary" />
+            Commandes vocales disponibles
+          </DialogTitle>
+          <DialogDescription>
+            Utilisez ces commandes vocales pour naviguer et interagir avec l'application.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-6">
@@ -70,7 +78,7 @@ export const VoiceHelpDialog = ({ open, onOpenChange }: VoiceHelpDialogProps) =>
           ))}
         </div>
         
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+        <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/10">
           <h4 className="font-medium mb-2">Conseils d'utilisation :</h4>
           <ul className="text-sm text-muted-foreground space-y-1">
             <li>• Parlez clairement et attendez que le micro s'arrête</li>

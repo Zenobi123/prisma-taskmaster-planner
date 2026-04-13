@@ -12,6 +12,7 @@ import {
   DialogDescription,
   DialogFooter
 } from "@/components/ui/dialog";
+import { CreditCard } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -63,8 +64,11 @@ const ApplyCreditDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Appliquer une avance à la facture</DialogTitle>
+        <DialogHeader className="pb-4 border-b border-border/50">
+          <DialogTitle className="flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-primary" />
+            Appliquer une avance à la facture
+          </DialogTitle>
           <DialogDescription>
             Sélectionnez un paiement en avance à appliquer à cette facture.
           </DialogDescription>

@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { ClipboardList } from "lucide-react";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getClients } from "@/services/clientService";
@@ -32,8 +34,14 @@ const NewTaskDialog = () => {
         <Button>Nouvelle tâche</Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Créer une nouvelle tâche</DialogTitle>
+        <DialogHeader className="pb-4 border-b border-border/50">
+          <DialogTitle className="flex items-center gap-2">
+            <ClipboardList className="h-5 w-5 text-primary" />
+            Créer une nouvelle tâche
+          </DialogTitle>
+          <DialogDescription>
+            Assignez une tâche à un collaborateur et associez-la à un client.
+          </DialogDescription>
         </DialogHeader>
         <TaskForm 
           clients={clients} 

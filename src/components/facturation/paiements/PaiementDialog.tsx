@@ -54,12 +54,12 @@ const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) =
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-4xl overflow-y-auto">
-        <DialogHeader className="pb-4 border-b border-gray-100">
+        <DialogHeader className="pb-4 border-b border-border/50">
           <DialogTitle className="flex items-center gap-2 text-primary">
             <Receipt size={20} className="text-primary" />
             Nouveau paiement
           </DialogTitle>
-          <DialogDescription className="text-gray-500">
+          <DialogDescription>
             Enregistrez un nouveau paiement client ou un crédit
           </DialogDescription>
         </DialogHeader>

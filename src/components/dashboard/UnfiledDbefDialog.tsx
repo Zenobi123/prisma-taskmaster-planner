@@ -1,5 +1,5 @@
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useQuery } from "@tanstack/react-query";
 import { getClientsWithUnfiledDbef } from "@/services/fiscal/unfiledDbefService";
 import { FileText, FileWarning, Phone, Building } from "lucide-react";
@@ -33,11 +33,14 @@ export const UnfiledDbefDialog = ({ open, onOpenChange }: UnfiledDbefDialogProps
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-[900px] max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
+        <DialogHeader className="pb-4 border-b border-border/50">
           <DialogTitle className="flex items-center text-base sm:text-xl">
             <FileText className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-purple-500 shrink-0" />
             DBEF non déposées ({clients.length})
           </DialogTitle>
+          <DialogDescription>
+            Liste des personnes morales n'ayant pas encore déposé leur DBEF.
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (

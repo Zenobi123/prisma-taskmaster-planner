@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UserForm, { UserFormData } from './UserForm';
 
@@ -24,8 +25,14 @@ const AddUserDialog = ({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Ajouter un nouvel utilisateur</DialogTitle>
+        <DialogHeader className="pb-4 border-b border-border/50">
+          <DialogTitle className="flex items-center gap-2">
+            <UserPlus className="h-5 w-5 text-primary" />
+            Ajouter un nouvel utilisateur
+          </DialogTitle>
+          <DialogDescription>
+            Remplissez les informations pour créer un nouveau compte utilisateur.
+          </DialogDescription>
         </DialogHeader>
         <UserForm
           userData={userData}
