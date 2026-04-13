@@ -8,6 +8,7 @@ import { useClientMutations } from "./useClientMutations";
 import { useClientFilters } from "./useClientFilters";
 import { useClientDialogs } from "./useClientDialogs";
 import { useState, useCallback, useEffect, useRef } from "react";
+import { ConfirmVariant } from "@/components/ui/confirm-dialog";
 
 export function useClientsPage() {
   const { toast } = useToast();
