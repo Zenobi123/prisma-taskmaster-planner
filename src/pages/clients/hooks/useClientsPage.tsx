@@ -233,6 +233,8 @@ export function useClientsPage() {
     selectedClient,
     addMutation,
     updateMutation,
+    confirmDialog,
+    closeConfirmDialog,
     handleView,
     handleEdit,
     handleArchive,
