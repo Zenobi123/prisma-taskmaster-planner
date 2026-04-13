@@ -8,12 +8,36 @@ import { useClientMutations } from "./useClientMutations";
 import { useClientFilters } from "./useClientFilters";
 import { useClientDialogs } from "./useClientDialogs";
 import { useState, useCallback, useEffect, useRef } from "react";
+import { ConfirmVariant } from "@/components/ui/confirm-dialog";
 
 export function useClientsPage() {
   const { toast } = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const [showTrash, setShowTrash] = useState(false);
   const hasLoadedOnce = useRef(false);
+
+  // Confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    confirmLabel: string;
+    variant: ConfirmVariant;
+    onConfirm: () => void;
+    isLoading: boolean;
+  }>({
+    open: false,
+    title: "",
+    description: "",
+    confirmLabel: "",
+    variant: "danger",
+    onConfirm: () => {},
+    isLoading: false,
+  });
+
+  const closeConfirmDialog = useCallback(() => {
+    setConfirmDialog(prev => ({ ...prev, open: false, isLoading: false }));
+  }, []);
 
   const {
     data: clients = [],
@@ -109,34 +133,67 @@ export function useClientsPage() {
     setIsEditDialogOpen(true);
   };
 
-  const handleArchive = async (client: Client) => {
-    if (window.confirm("Êtes-vous sûr de vouloir archiver ce client ?")) {
-      try {
-        await archiveMutation.mutateAsync(client.id);
-      } catch (error) {
-        console.error('Error archiving client:', error);
-      }
-    }
+  const handleArchive = (client: Client) => {
+    setConfirmDialog({
+      open: true,
+      title: "Archiver ce client ?",
+      description: `Le client "${client.type === "physique" ? client.nom : client.raisonsociale}" sera archivé. Vous pourrez le restaurer ultérieurement.`,
+      confirmLabel: "Archiver",
+      variant: "warning",
+      isLoading: false,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isLoading: true }));
+        try {
+          await archiveMutation.mutateAsync(client.id);
+        } catch (error) {
+          console.error('Error archiving client:', error);
+        } finally {
+          closeConfirmDialog();
+        }
+      },
+    });
   };
 
-  const handleRestore = async (client: Client) => {
-    if (window.confirm("Êtes-vous sûr de vouloir restaurer ce client ?")) {
-      try {
-        await restoreMutation.mutateAsync(client.id);
-      } catch (error) {
-        console.error('Error restoring client:', error);
-      }
-    }
+  const handleRestore = (client: Client) => {
+    setConfirmDialog({
+      open: true,
+      title: "Restaurer ce client ?",
+      description: `Le client "${client.type === "physique" ? client.nom : client.raisonsociale}" sera restauré et redeviendra actif.`,
+      confirmLabel: "Restaurer",
+      variant: "info",
+      isLoading: false,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isLoading: true }));
+        try {
+          await restoreMutation.mutateAsync(client.id);
+        } catch (error) {
+          console.error('Error restoring client:', error);
+        } finally {
+          closeConfirmDialog();
+        }
+      },
+    });
   };
 
-  const handleDelete = async (client: Client) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer ce client ? Il sera envoyé à la corbeille.")) {
-      try {
-        await deleteMutation.mutateAsync(client.id);
-      } catch (error) {
-        console.error('Error deleting client:', error);
-      }
-    }
+  const handleDelete = (client: Client) => {
+    setConfirmDialog({
+      open: true,
+      title: "Supprimer ce client ?",
+      description: `Le client "${client.type === "physique" ? client.nom : client.raisonsociale}" sera envoyé à la corbeille. Vous pourrez le restaurer depuis la corbeille.`,
+      confirmLabel: "Supprimer",
+      variant: "danger",
+      isLoading: false,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isLoading: true }));
+        try {
+          await deleteMutation.mutateAsync(client.id);
+        } catch (error) {
+          console.error('Error deleting client:', error);
+        } finally {
+          closeConfirmDialog();
+        }
+      },
+    });
   };
 
   const handleTrashClick = () => {
@@ -176,6 +233,8 @@ export function useClientsPage() {
     selectedClient,
     addMutation,
     updateMutation,
+    confirmDialog,
+    closeConfirmDialog,
     handleView,
     handleEdit,
     handleArchive,
