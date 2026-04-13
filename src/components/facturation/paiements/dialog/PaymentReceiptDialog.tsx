@@ -2,10 +2,12 @@
 import { 
   Dialog, 
   DialogContent, 
+  DialogDescription,
   DialogHeader, 
   DialogTitle,
   DialogFooter
 } from "@/components/ui/dialog";
+import { Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Download, Printer, X, Eye } from "lucide-react";
 import { Paiement } from "@/types/paiement";
@@ -43,8 +45,14 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[95vw] sm:max-w-[550px]">
-        <DialogHeader>
-          <DialogTitle>Reçu de paiement</DialogTitle>
+        <DialogHeader className="pb-4 border-b border-border/50">
+          <DialogTitle className="flex items-center gap-2">
+            <Receipt className="h-5 w-5 text-primary" />
+            Reçu de paiement
+          </DialogTitle>
+          <DialogDescription>
+            Consultez, imprimez ou téléchargez le reçu de ce paiement.
+          </DialogDescription>
         </DialogHeader>
         
         <div className="mt-4 border rounded-md p-6 bg-white">

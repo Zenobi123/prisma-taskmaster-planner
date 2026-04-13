@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Button } from '@/components/ui/button';
 import { getClientsWithUnpaidIgs } from '@/services/fiscal/unpaidIgsService';
 import { useQuery } from '@tanstack/react-query';
-import { LoaderCircle } from 'lucide-react';
+import { LoaderCircle, AlertCircle } from 'lucide-react';
 import { Client } from '@/types/client';
 import { useNavigate } from 'react-router-dom';
 import { Separator } from '@/components/ui/separator';
@@ -40,8 +40,11 @@ export const UnpaidIgsDialog = ({ isOpen, onClose }: UnpaidIgsDialogProps) => {
     return (
       <Dialog open={isOpen} onOpenChange={() => onClose()}>
         <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Aucun client en attente de paiement IGS</DialogTitle>
+          <DialogHeader className="pb-4 border-b border-border/50">
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="h-5 w-5 text-primary" />
+              Aucun client en attente de paiement IGS
+            </DialogTitle>
             <DialogDescription>
               Tous les clients ayant une obligation IGS sont à jour.
             </DialogDescription>
@@ -58,8 +61,9 @@ export const UnpaidIgsDialog = ({ isOpen, onClose }: UnpaidIgsDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
+        <DialogHeader className="pb-4 border-b border-border/50">
+          <DialogTitle className="flex items-center gap-2">
+            <AlertCircle className="h-5 w-5 text-amber-500" />
             Clients n'ayant pas payé leur IGS
           </DialogTitle>
           <DialogDescription>
