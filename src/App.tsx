@@ -50,21 +50,51 @@ const App = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Récupérer la session au chargement
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setIsLoading(false);
-    });
+    let isMounted = true;
+
+    const resolveInitialSession = async () => {
+      try {
+        const timeoutPromise = new Promise<null>((resolve) => {
+          window.setTimeout(() => resolve(null), 5000);
+        });
+
+        const sessionPromise = supabase.auth
+          .getSession()
+          .then(({ data }) => data.session ?? null)
+          .catch((error) => {
+            console.error("Erreur lors de la récupération de la session:", error);
+            return null;
+          });
+
+        const initialSession = await Promise.race([sessionPromise, timeoutPromise]);
+
+        if (isMounted) {
+          setSession(initialSession);
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error("Échec de l'initialisation d'authentification:", error);
+        if (isMounted) {
+          setSession(null);
+          setIsLoading(false);
+        }
+      }
+    };
+
+    resolveInitialSession();
 
     // Écouter les changements de session (connexion, déconnexion, refresh token)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (!session) {
-        // Session cleared - no localStorage cleanup needed
+      if (isMounted) {
+        setSession(session);
+        setIsLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (isLoading) {
