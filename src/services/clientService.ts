@@ -32,7 +32,7 @@ export const getDeletedClients = async (): Promise<Client[]> => {
     const { data, error } = await supabase
       .from('clients')
       .select('*')
-      .eq('statut', 'supprimé')
+      .eq('statut', 'supprime')
       .order('deleted_at', { ascending: false });
 
     if (error) {
