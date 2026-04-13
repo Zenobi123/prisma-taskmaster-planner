@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses } from "./types";
 import { supabase } from "@/integrations/supabase/client";
+import { useDefaultObligationRules } from "./useDefaultObligationRules";
 
 interface UseObligationsFiscalesStateProps {
   selectedClient: Client;
@@ -17,6 +18,8 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
   const [fiscalSituationCompliant, setFiscalSituationCompliant] = useState<boolean>(true);
   const [registrationDate, setRegistrationDate] = useState<string>("");
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>({} as ObligationStatuses);
+
+  const { getDefaultObligationStatuses } = useDefaultObligationRules(selectedClient);
 
   // Load fiscal data when client changes
   useEffect(() => {
@@ -63,15 +66,32 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
           if (fiscalData.obligations && typeof fiscalData.obligations === 'object' && fiscalData.obligations[fiscalYear]) {
             const yearObligations = fiscalData.obligations[fiscalYear];
             if (typeof yearObligations === 'object' && !Array.isArray(yearObligations)) {
-              setObligationStatuses(yearObligations as ObligationStatuses);
+              // Merge saved data with defaults to ensure all obligation keys exist
+              const defaults = getDefaultObligationStatuses();
+              const merged = { ...defaults };
+              for (const key of Object.keys(yearObligations)) {
+                if (key in merged) {
+                  merged[key as keyof ObligationStatuses] = {
+                    ...merged[key as keyof ObligationStatuses],
+                    ...(yearObligations as any)[key]
+                  } as any;
+                }
+              }
+              setObligationStatuses(merged);
             } else {
-              setObligationStatuses({} as ObligationStatuses);
+              setObligationStatuses(getDefaultObligationStatuses());
             }
           } else {
-            setObligationStatuses({} as ObligationStatuses);
+            // No data for this year: initialize with defaults based on client profile
+            setObligationStatuses(getDefaultObligationStatuses());
           }
+        } else {
+          // No fiscal data at all: initialize with defaults
+          setObligationStatuses(getDefaultObligationStatuses());
         }
       } catch (error) {
+        // On error, still show defaults so the UI is usable
+        setObligationStatuses(getDefaultObligationStatuses());
       }
     };
 
