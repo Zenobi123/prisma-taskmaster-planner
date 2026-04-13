@@ -1,4 +1,3 @@
-
 import { useQuery } from "@tanstack/react-query";
 import { getDeletedClients } from "@/services/clientService";
 import { Client } from "@/types/client";
@@ -7,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RefreshCw, Trash2, Calendar } from "lucide-react";
 import { useClientMutations } from "@/pages/clients/hooks/useClientMutations";
+import { ConfirmDialog, ConfirmVariant } from "@/components/ui/confirm-dialog";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
+import { useState, useCallback } from "react";
 
 interface ClientTrashProps {
   onClose: () => void;
@@ -23,22 +24,70 @@ export function ClientTrash({ onClose }: ClientTrashProps) {
 
   const { restoreMutation, permanentDeleteMutation } = useClientMutations();
 
-  const handleRestore = async (client: Client) => {
-    if (window.confirm("Êtes-vous sûr de vouloir restaurer ce client ?")) {
-      try {
-        await restoreMutation.mutateAsync(client.id);
-      } catch (error) {
-      }
-    }
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    confirmLabel: string;
+    variant: ConfirmVariant;
+    onConfirm: () => void;
+    isLoading: boolean;
+  }>({
+    open: false,
+    title: "",
+    description: "",
+    confirmLabel: "",
+    variant: "danger",
+    onConfirm: () => {},
+    isLoading: false,
+  });
+
+  const closeConfirmDialog = useCallback(() => {
+    setConfirmDialog(prev => ({ ...prev, open: false, isLoading: false }));
+  }, []);
+
+  const handleRestore = (client: Client) => {
+    const name = client.type === "physique" ? client.nom : client.raisonsociale;
+    setConfirmDialog({
+      open: true,
+      title: "Restaurer ce client ?",
+      description: `Le client "${name}" sera restauré et redeviendra actif.`,
+      confirmLabel: "Restaurer",
+      variant: "info",
+      isLoading: false,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isLoading: true }));
+        try {
+          await restoreMutation.mutateAsync(client.id);
+        } catch (error) {
+          // handled by mutation
+        } finally {
+          closeConfirmDialog();
+        }
+      },
+    });
   };
 
-  const handlePermanentDelete = async (client: Client) => {
-    if (window.confirm("Êtes-vous sûr de vouloir supprimer définitivement ce client ? Cette action est irréversible.")) {
-      try {
-        await permanentDeleteMutation.mutateAsync(client.id);
-      } catch (error) {
-      }
-    }
+  const handlePermanentDelete = (client: Client) => {
+    const name = client.type === "physique" ? client.nom : client.raisonsociale;
+    setConfirmDialog({
+      open: true,
+      title: "Suppression définitive",
+      description: `Le client "${name}" sera supprimé de manière irréversible. Toutes les données associées seront perdues.`,
+      confirmLabel: "Supprimer définitivement",
+      variant: "danger",
+      isLoading: false,
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isLoading: true }));
+        try {
+          await permanentDeleteMutation.mutateAsync(client.id);
+        } catch (error) {
+          // handled by mutation
+        } finally {
+          closeConfirmDialog();
+        }
+      },
+    });
   };
 
   const getDeletedDate = (client: any) => {
@@ -71,93 +120,106 @@ export function ClientTrash({ onClose }: ClientTrashProps) {
   }
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2">
-          <Trash2 className="h-5 w-5" />
-          Corbeille - Clients supprimés ({deletedClients.length})
-        </CardTitle>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => refetch()}
-            disabled={isLoading}
-          >
-            <RefreshCw className="h-4 w-4 mr-2" />
-            Actualiser
-          </Button>
-          <Button variant="outline" size="sm" onClick={onClose}>
-            Fermer
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        {deletedClients.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            <Trash2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Aucun client dans la corbeille</p>
+    <>
+      <Card className="w-full max-w-4xl mx-auto">
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <Trash2 className="h-5 w-5" />
+            Corbeille - Clients supprimés ({deletedClients.length})
+          </CardTitle>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => refetch()}
+              disabled={isLoading}
+            >
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Actualiser
+            </Button>
+            <Button variant="outline" size="sm" onClick={onClose}>
+              Fermer
+            </Button>
           </div>
-        ) : (
-          <div className="space-y-4">
-            {deletedClients.map((client) => (
-              <div
-                key={client.id}
-                className="border rounded-lg p-4 bg-muted/10 hover:bg-muted/20 transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Badge 
+        </CardHeader>
+        <CardContent>
+          {deletedClients.length === 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Trash2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Aucun client dans la corbeille</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {deletedClients.map((client) => (
+                <div
+                  key={client.id}
+                  className="border rounded-lg p-4 bg-muted/10 hover:bg-muted/20 transition-colors"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-2">
+                        <Badge 
+                          variant="outline"
+                          className={
+                            client.type === "physique"
+                              ? "bg-[#D3E4FD] border-[#D3E4FD] text-blue-700"
+                              : "bg-[#FEC6A1] border-[#FEC6A1] text-orange-700"
+                          }
+                        >
+                          {client.type === "physique" ? "Physique" : "Morale"}
+                        </Badge>
+                        <h3 className="font-medium truncate">
+                          {client.type === "physique" ? client.nom : client.raisonsociale}
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span>NIU: {client.niu}</span>
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Supprimé {getDeletedDate(client)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      <Button
                         variant="outline"
-                        className={
-                          client.type === "physique"
-                            ? "bg-[#D3E4FD] border-[#D3E4FD] text-blue-700"
-                            : "bg-[#FEC6A1] border-[#FEC6A1] text-orange-700"
-                        }
+                        size="sm"
+                        onClick={() => handleRestore(client)}
+                        disabled={restoreMutation.isPending}
+                        className="text-green-600 hover:text-green-700 hover:bg-green-50"
                       >
-                        {client.type === "physique" ? "Physique" : "Morale"}
-                      </Badge>
-                      <h3 className="font-medium truncate">
-                        {client.type === "physique" ? client.nom : client.raisonsociale}
-                      </h3>
+                        <RefreshCw className="h-4 w-4 mr-1" />
+                        Restaurer
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePermanentDelete(client)}
+                        disabled={permanentDeleteMutation.isPending}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4 mr-1" />
+                        Supprimer définitivement
+                      </Button>
                     </div>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>NIU: {client.niu}</span>
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        Supprimé {getDeletedDate(client)}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2 ml-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleRestore(client)}
-                      disabled={restoreMutation.isPending}
-                      className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                    >
-                      <RefreshCw className="h-4 w-4 mr-1" />
-                      Restaurer
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handlePermanentDelete(client)}
-                      disabled={permanentDeleteMutation.isPending}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4 mr-1" />
-                      Supprimer définitivement
-                    </Button>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        onOpenChange={closeConfirmDialog}
+        onConfirm={confirmDialog.onConfirm}
+        title={confirmDialog.title}
+        description={confirmDialog.description}
+        confirmLabel={confirmDialog.confirmLabel}
+        variant={confirmDialog.variant}
+        isLoading={confirmDialog.isLoading}
+      />
+    </>
   );
 }
