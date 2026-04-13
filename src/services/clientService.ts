@@ -2,15 +2,17 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
 
-export const getClients = async (includeDeleted: boolean = false): Promise<Client[]> => {
+export const getClients = async (includeArchived: boolean = false): Promise<Client[]> => {
   try {
     let query = supabase
       .from('clients')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (!includeDeleted) {
+    if (!includeArchived) {
       query = query.eq('statut', 'actif');
+    } else {
+      query = query.in('statut', ['actif', 'archive']);
     }
 
     const { data, error } = await query;
