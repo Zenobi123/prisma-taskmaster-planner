@@ -16,6 +16,29 @@ export function useClientsPage() {
   const [showTrash, setShowTrash] = useState(false);
   const hasLoadedOnce = useRef(false);
 
+  // Confirm dialog state
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    confirmLabel: string;
+    variant: ConfirmVariant;
+    onConfirm: () => void;
+    isLoading: boolean;
+  }>({
+    open: false,
+    title: "",
+    description: "",
+    confirmLabel: "",
+    variant: "danger",
+    onConfirm: () => {},
+    isLoading: false,
+  });
+
+  const closeConfirmDialog = useCallback(() => {
+    setConfirmDialog(prev => ({ ...prev, open: false, isLoading: false }));
+  }, []);
+
   const {
     data: clients = [],
     isLoading,
