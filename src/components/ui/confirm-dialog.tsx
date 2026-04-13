@@ -76,7 +76,7 @@ export function ConfirmDialog({
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter className="mt-2 flex-row gap-3 sm:justify-center">
+        <AlertDialogFooter className="mt-2 flex-row gap-3 sm:justify-center border-none pt-2">
           <AlertDialogCancel
             disabled={isLoading}
             className="flex-1 sm:flex-none sm:min-w-[120px]"
