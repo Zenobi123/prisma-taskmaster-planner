@@ -57,11 +57,6 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
           // Load dashboard visibility
           setHiddenFromDashboard(fiscalData.hiddenFromDashboard === true);
 
-          // Load selected year
-          if (fiscalData.selectedYear && typeof fiscalData.selectedYear === 'string') {
-            setFiscalYear(fiscalData.selectedYear);
-          }
-
           // Load obligation statuses for current year
           if (fiscalData.obligations && typeof fiscalData.obligations === 'object' && fiscalData.obligations[fiscalYear]) {
             const yearObligations = fiscalData.obligations[fiscalYear];

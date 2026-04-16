@@ -67,11 +67,6 @@ export const useFiscalDataLoader = ({
             setHiddenFromDashboard(!!fiscalData.hiddenFromDashboard);
           }
           
-          // Charger l'année sélectionnée
-          if (fiscalData.selectedYear) {
-            setFiscalYear(fiscalData.selectedYear);
-          }
-          
           // Fusionner les obligations existantes avec les règles par défaut
           if (fiscalData.obligations && fiscalData.obligations[fiscalYear]) {
             const existingObligations = fiscalData.obligations[fiscalYear];
