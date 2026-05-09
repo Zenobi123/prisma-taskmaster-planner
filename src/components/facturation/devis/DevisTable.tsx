@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Edit, Trash2, FileText, Loader2 } from "lucide-react";
+import DevisPrintButton from "@/components/printable/connectors/DevisPrintButton";
 
 interface DevisTableProps {
   devis: Devis[];
@@ -123,6 +124,7 @@ const DevisTable = ({
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-center gap-1">
+                      <DevisPrintButton devis={d} variant="icon" />
                       <Button
                         variant="ghost"
                         size="icon"

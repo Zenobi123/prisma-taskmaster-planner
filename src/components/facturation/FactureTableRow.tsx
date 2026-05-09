@@ -14,6 +14,7 @@ import {
 import { Copy, Edit, MoreHorizontal, Send, Trash } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { Facture } from '@/types/facture';
+import FacturePrintButton from '@/components/printable/connectors/FacturePrintButton';
 
 interface FactureTableRowProps {
   facture: Facture;
@@ -38,6 +39,7 @@ export const FactureTableRow: React.FC<FactureTableRowProps> = ({ facture, onDel
       <td><StatusBadge status={facture.status} type="document"/></td>
       <td><StatusBadge status={status_paiement} type="paiement"/></td>
       <td className="text-right">
+        <FacturePrintButton facture={facture} variant="icon" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="h-8 w-8 p-0">
