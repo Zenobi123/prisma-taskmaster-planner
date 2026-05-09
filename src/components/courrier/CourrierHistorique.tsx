@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Search, CheckCircle, Trash2, Archive, Clock } from "lucide-react";
+import CourrierPrintButton from "@/components/printable/connectors/CourrierPrintButton";
 import {
   getCourrierRecords,
   updateCourrierStatus,
@@ -132,6 +133,7 @@ const CourrierHistorique = () => {
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex items-center justify-end gap-1">
+                      <CourrierPrintButton courrier={r} variant="icon" />
                       {r.statut === "envoye" && (
                         <Button
                           size="sm"
