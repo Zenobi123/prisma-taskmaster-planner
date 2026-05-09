@@ -3,6 +3,8 @@
 
 import type { Facture as ExistingFacture, Prestation as ExistingPrestation } from '@/types/facture';
 import type { Devis as ExistingDevis } from '@/types/devis';
+import type { Proposition as ExistingProposition } from '@/types/proposition';
+import type { Paiement as ExistingPaiement } from '@/types/paiement';
 import type { CourrierRecord } from '@/types/courrier';
 import type { Client as ExistingClient } from '@/types/client';
 
@@ -15,6 +17,8 @@ import type {
   DevisStatus as PrintableDevisStatus,
 } from '@/components/printable/PrintableDevis';
 import type { CourrierPrintData } from '@/components/printable/PrintableCourrier';
+import type { PropositionPrintData } from '@/components/printable/PrintableProposition';
+import type { RecuPrintData, RecuPaymentMode } from '@/components/printable/PrintableRecu';
 import type { CourrierStatut } from '@/lib/spec/courrierTemplates';
 import { getCiviliteLongue } from '@/lib/spec/fiscal';
 
@@ -28,20 +32,24 @@ function adaptPrestation(p: ExistingPrestation): SpecPrestation {
   };
 }
 
-function fallbackClientFromFacture(f: ExistingFacture): ClientSpec {
-  // Si la facture n'embarque pas le client complet, on construit un ClientSpec minimal.
-  const c = f.client;
+function fallbackClient(
+  name = 'Client',
+  ville = '',
+  phone = '',
+  email?: string,
+  type: ClientSpec['type'] = 'Personne morale',
+): ClientSpec {
   return {
     id: Date.now(),
-    type: 'Personne morale',
-    name: c?.nom || 'Client',
+    type,
+    name,
     niu: '',
     cdi: '',
-    ville: c?.adresse || '',
+    ville,
     quartier: '',
-    phone: c?.telephone || '',
-    email: c?.email,
-    contact: c?.nom,
+    phone,
+    email,
+    contact: name,
     civilite: 'M.',
     secteur: '',
     externalise: 'Non',
@@ -50,6 +58,12 @@ function fallbackClientFromFacture(f: ExistingFacture): ClientSpec {
     modePaiementPSL: 'annuel',
     createdAt: new Date().toISOString(),
   };
+}
+
+function fallbackClientFromFacture(f: ExistingFacture): ClientSpec {
+  // Si la facture n'embarque pas le client complet, on construit un ClientSpec minimal.
+  const c = f.client;
+  return fallbackClient(c?.nom || 'Client', c?.adresse || '', c?.telephone || '', c?.email);
 }
 
 export function factureToPrintData(
@@ -102,23 +116,7 @@ export function devisToPrintData(
   const total = devis.montant_total || totalImpots + totalHonoraires;
   const client = fullClient
     ? adaptClient(fullClient)
-    : {
-        id: Date.now(),
-        type: 'Personne morale' as const,
-        name: devis.client?.nom || 'Client',
-        niu: '',
-        cdi: '',
-        ville: devis.client?.adresse || '',
-        quartier: '',
-        phone: devis.client?.telephone || '',
-        civilite: 'M.' as const,
-        secteur: '',
-        externalise: 'Non' as const,
-        statut: 'Actif' as const,
-        modePaiementIGS: 'annuel' as const,
-        modePaiementPSL: 'annuel' as const,
-        createdAt: new Date().toISOString(),
-      };
+    : fallbackClient(devis.client?.nom || 'Client', devis.client?.adresse || '', devis.client?.telephone || '', devis.client?.email);
   return {
     number: devis.numero,
     date: devis.date,
@@ -128,6 +126,81 @@ export function devisToPrintData(
     totalImpots,
     totalHonoraires,
     total,
+  };
+}
+
+
+export function propositionToPrintData(
+  proposition: ExistingProposition,
+  fullClient?: ExistingClient | null,
+): PropositionPrintData {
+  const lignes = (proposition.lignes || []).map((ligne) => ({
+    type: ligne.type === 'impot' ? 'Impôt' as const : 'Honoraire' as const,
+    designation: ligne.designation,
+    base: ligne.base_annuelle || 0,
+    fraction: ligne.fraction || 0,
+    amount: ligne.montant || 0,
+  }));
+  const totalImpots = proposition.total_impots ?? lignes.filter((l) => l.type === 'Impôt').reduce((s, l) => s + l.amount, 0);
+  const totalHonoraires = proposition.total_honoraires ?? lignes.filter((l) => l.type === 'Honoraire').reduce((s, l) => s + l.amount, 0);
+  const total = proposition.total || totalImpots + totalHonoraires;
+  const client = fullClient
+    ? adaptClient(fullClient)
+    : fallbackClient(proposition.client?.nom || 'Client', proposition.client?.adresse || '', proposition.client?.telephone || '', proposition.client?.email);
+
+  return {
+    date: proposition.date,
+    client,
+    lignes,
+    totalImpots,
+    totalHonoraires,
+    total,
+    note: proposition.notes,
+  };
+}
+
+const PAYMENT_MODE_MAP: Record<string, RecuPaymentMode> = {
+  'espèces': 'Espèces',
+  especes: 'Espèces',
+  cash: 'Espèces',
+  virement: 'Virement bancaire',
+  orange_money: 'Mobile Money',
+  mtn_money: 'Mobile Money',
+  mobile_money: 'Mobile Money',
+  cheque: 'Chèque',
+  chèque: 'Chèque',
+};
+
+export function paiementToRecuPrintData(
+  paiement: ExistingPaiement,
+  fullClient?: ExistingClient | null,
+): RecuPrintData {
+  const embeddedClient = typeof paiement.client === 'object' && paiement.client !== null ? paiement.client as ExistingClient : null;
+  const client = fullClient
+    ? adaptClient(fullClient)
+    : embeddedClient
+      ? adaptClient(embeddedClient)
+      : fallbackClient(typeof paiement.client === 'string' ? paiement.client : 'Client');
+
+  const montant = Number(paiement.montant) || 0;
+  const prestationsPayees = paiement.prestations_payees || [];
+  const montantVentile = prestationsPayees.reduce((sum, p) => sum + (Number(p.montant_modifie) || 0), 0);
+  const montantHonoraires = 0;
+  const montantImpots = montantVentile > 0 ? montantVentile : montant;
+
+  return {
+    number: paiement.reference || `RECU-${paiement.id?.slice(-6)}`,
+    date: paiement.date,
+    client,
+    montant,
+    montantImpots,
+    montantHonoraires,
+    paymentMode: PAYMENT_MODE_MAP[paiement.mode] || 'Mobile Money',
+    motif: paiement.facture
+      ? `Paiement de la facture ${paiement.facture}`
+      : paiement.est_credit
+        ? 'Avance / crédit client'
+        : paiement.notes || 'Paiement client',
   };
 }
 

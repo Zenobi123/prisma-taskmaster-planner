@@ -39,6 +39,11 @@ import {
   generateTachesReport, 
   generatePerformanceCollaborateursReport 
 } from "@/utils/reports/operationalReports";
+import {
+  generateDevisDossierReport,
+  generatePropositionsPaiementReport,
+  generateRecusPaiementReport
+} from "@/utils/reports/billingDossierReports";
 
 // Nouveaux rapports clients spécifiques
 import {
@@ -92,6 +97,37 @@ const Rapports = () => {
       icon: TrendingUp,
       description: "Suivi des créances et des retards de paiement",
       generator: generateCreancesReport
+    },
+
+    {
+      id: 22,
+      titre: "État des Devis / Proformas",
+      date: new Date().toLocaleDateString(),
+      type: "financier",
+      taille: "1.4 MB",
+      icon: FileText,
+      description: "Suivi fidèle des devis du dossier facturation : validité, objet, statut et conversion",
+      generator: generateDevisDossierReport
+    },
+    {
+      id: 23,
+      titre: "État des Propositions de Paiement",
+      date: new Date().toLocaleDateString(),
+      type: "financier",
+      taille: "1.1 MB",
+      icon: FileBarChart,
+      description: "Ventilation des propositions entre impôts, honoraires, sources et statut d'acceptation",
+      generator: generatePropositionsPaiementReport
+    },
+    {
+      id: 24,
+      titre: "État des Reçus de Paiement",
+      date: new Date().toLocaleDateString(),
+      type: "financier",
+      taille: "1.0 MB",
+      icon: DollarSign,
+      description: "Journal des reçus et encaissements avec mode de règlement, facture et solde restant",
+      generator: generateRecusPaiementReport
     },
 
     // Rapports clients généraux
