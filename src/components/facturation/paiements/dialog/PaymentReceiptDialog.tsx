@@ -15,6 +15,7 @@ import useFactureViewActions from "@/hooks/facturation/factureActions/useFacture
 import ReceiptHeader from "./receipt-components/ReceiptHeader";
 import ReceiptContent from "./receipt-components/ReceiptContent";
 import ReceiptFooter from "./receipt-components/ReceiptFooter";
+import RecuPrintButton from "@/components/printable/connectors/RecuPrintButton";
 
 interface PaymentReceiptDialogProps {
   paiement: Paiement | null;
@@ -73,6 +74,7 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
           </Button>
           
           <div className="flex gap-2">
+            <RecuPrintButton paiement={paiement} label="Aperçu fidèle" />
             <Button
               type="button"
               variant="outline"

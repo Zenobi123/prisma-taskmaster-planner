@@ -12,6 +12,12 @@ export interface ReportData {
   tasks: any[];
 }
 
+export interface BillingDossierReportData {
+  devis: unknown[];
+  propositions: unknown[];
+  recus: unknown[];
+}
+
 export class ReportDataService {
   
   static async getAllReportData(): Promise<ReportData> {
@@ -124,6 +130,47 @@ export class ReportDataService {
         paie: [],
         tasks: []
       };
+    }
+  }
+
+
+  static async getBillingDossierData(): Promise<BillingDossierReportData> {
+    try {
+      const [devisResult, propositionsResult, recusResult] = await Promise.all([
+        supabase
+          .from('devis')
+          .select(`
+            *,
+            clients(nom, raisonsociale, niu)
+          `)
+          .order('date', { ascending: false }),
+        supabase
+          .from('propositions')
+          .select(`
+            *,
+            clients(nom, raisonsociale, niu)
+          `)
+          .order('date', { ascending: false }),
+        supabase
+          .from('paiements')
+          .select(`
+            *,
+            clients(nom, raisonsociale, niu)
+          `)
+          .order('date', { ascending: false }),
+      ]);
+
+      if (devisResult.error) throw devisResult.error;
+      if (propositionsResult.error) throw propositionsResult.error;
+      if (recusResult.error) throw recusResult.error;
+
+      return {
+        devis: devisResult.data || [],
+        propositions: propositionsResult.data || [],
+        recus: recusResult.data || [],
+      };
+    } catch (error) {
+      return { devis: [], propositions: [], recus: [] };
     }
   }
 

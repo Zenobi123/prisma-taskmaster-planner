@@ -11,6 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Edit, Trash2, Loader2 } from "lucide-react";
+import PropositionPrintButton from "@/components/printable/connectors/PropositionPrintButton";
 
 interface PropositionTableProps {
   propositions: Proposition[];
@@ -105,6 +106,7 @@ const PropositionTable = ({
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-center gap-1">
+                      <PropositionPrintButton proposition={p} />
                       <Button
                         variant="ghost"
                         size="icon"
