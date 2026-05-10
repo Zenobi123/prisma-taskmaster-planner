@@ -437,7 +437,7 @@ export function applyPlaceholders(text: string, client: ClientSpec | null | unde
   };
   let out = text;
   for (const [k, v] of Object.entries(map)) {
-    out = out.replaceAll(k, v);
+    out = out.split(k).join(v);
   }
   return out;
 }
