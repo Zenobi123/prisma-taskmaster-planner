@@ -109,13 +109,6 @@ const Facturation = () => {
             <SituationClients />
           </TabsContent>
           
-          <TabsContent value="analyse" className="mt-6 animate-fade-in">
-            <AnalyseFacturesPaiements />
-          </TabsContent>
-
-          <TabsContent value="activite" className="mt-6 animate-fade-in">
-            <VueActivite />
-          </TabsContent>
         </Tabs>
       </div>
     </PageLayout>
