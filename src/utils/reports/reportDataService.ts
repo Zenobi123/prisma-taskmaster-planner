@@ -137,14 +137,14 @@ export class ReportDataService {
   static async getBillingDossierData(): Promise<BillingDossierReportData> {
     try {
       const [devisResult, propositionsResult, recusResult] = await Promise.all([
-        supabase
+        (supabase as any)
           .from('devis')
           .select(`
             *,
             clients(nom, raisonsociale, niu)
           `)
           .order('date', { ascending: false }),
-        supabase
+        (supabase as any)
           .from('propositions')
           .select(`
             *,
