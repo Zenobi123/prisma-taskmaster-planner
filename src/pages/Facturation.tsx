@@ -7,9 +7,7 @@ import Devis from "@/components/facturation/Devis";
 import Propositions from "@/components/facturation/Propositions";
 import Paiements from "@/components/facturation/Paiements";
 import SituationClients from "@/components/facturation/SituationClients";
-import AnalyseFacturesPaiements from "@/components/facturation/analyse/AnalyseFacturesPaiements";
-import VueActivite from "@/components/facturation/VueActivite";
-import { ArrowLeft, FileText, ClipboardList, Send, CreditCard, Users, BarChart, Activity } from "lucide-react";
+import { ArrowLeft, FileText, ClipboardList, Send, CreditCard, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthorization } from "@/hooks/useAuthorization";
@@ -88,18 +86,6 @@ const Facturation = () => {
               >
                 <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> <span className="hidden sm:inline">Situation clients</span><span className="sm:hidden">Situation</span>
               </TabsTrigger>
-              <TabsTrigger
-                value="analyse"
-                className="px-3 sm:px-6 md:px-8 py-2 sm:py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-xs sm:text-sm md:text-base transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap"
-              >
-                <BarChart className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Analyse
-              </TabsTrigger>
-              <TabsTrigger
-                value="activite"
-                className="px-3 sm:px-6 md:px-8 py-2 sm:py-3 rounded-none data-[state=active]:border-b-2 data-[state=active]:border-[#84A98C] data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-[#84A98C] data-[state=active]:font-medium text-xs sm:text-sm md:text-base transition-all flex items-center gap-1 sm:gap-2 whitespace-nowrap"
-              >
-                <Activity className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Activité
-              </TabsTrigger>
             </TabsList>
           </div>
           
@@ -123,13 +109,6 @@ const Facturation = () => {
             <SituationClients />
           </TabsContent>
           
-          <TabsContent value="analyse" className="mt-6 animate-fade-in">
-            <AnalyseFacturesPaiements />
-          </TabsContent>
-
-          <TabsContent value="activite" className="mt-6 animate-fade-in">
-            <VueActivite />
-          </TabsContent>
         </Tabs>
       </div>
     </PageLayout>
