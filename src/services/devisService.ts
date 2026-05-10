@@ -3,24 +3,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { Devis, DevisFormData, DevisPrestation } from "@/types/devis";
 import { getNextFactureNumber } from "./factureServices/factureNumberService";
 
-// Helper to get next devis number: DEV-0001/YYYY/MM
+// Numéro de devis: DEVIS-NNNN/YYYY/MM (conforme à la spec)
 export async function getNextDevisNumber(): Promise<string> {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
 
-  const { data, error } = await (supabase as any)
+  const { data } = await (supabase as any)
     .from("devis")
-    .select("numero")
-    .order("created_at", { ascending: false });
+    .select("numero");
 
-  if (error) {
-  }
+  let highest = 0;
+  (data || []).forEach((d: { numero?: string }) => {
+    const m = d.numero?.match(/(\d{4})\/(\d{4})/);
+    if (m && parseInt(m[2], 10) === year) {
+      const n = parseInt(m[1], 10);
+      if (!isNaN(n) && n > highest) highest = n;
+    }
+  });
 
-  const count = data ? data.length + 1 : 1;
-  const sequence = String(count).padStart(4, "0");
-
-  return `DEV-${sequence}/${year}/${month}`;
+  const sequence = String(highest + 1).padStart(4, "0");
+  return `DEVIS-${sequence}/${year}/${month}`;
 }
 
 // Fetch all devis with client info
