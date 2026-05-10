@@ -2,23 +2,26 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Proposition, PropositionFormData, PropositionLigne } from "@/types/proposition";
 
-// Helper to get next proposition number: PROP-0001/YYYY/MM
+// Numéro de proposition: PROP-NNNN/YYYY/MM (séquentiel par année)
 export async function getNextPropositionNumber(): Promise<string> {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
 
-  const { data, error } = await (supabase as any)
+  const { data } = await (supabase as any)
     .from("propositions")
-    .select("numero")
-    .order("created_at", { ascending: false });
+    .select("numero");
 
-  if (error) {
-  }
+  let highest = 0;
+  (data || []).forEach((d: { numero?: string }) => {
+    const m = d.numero?.match(/(\d{4})\/(\d{4})/);
+    if (m && parseInt(m[2], 10) === year) {
+      const n = parseInt(m[1], 10);
+      if (!isNaN(n) && n > highest) highest = n;
+    }
+  });
 
-  const count = data ? data.length + 1 : 1;
-  const sequence = String(count).padStart(4, "0");
-
+  const sequence = String(highest + 1).padStart(4, "0");
   return `PROP-${sequence}/${year}/${month}`;
 }
 

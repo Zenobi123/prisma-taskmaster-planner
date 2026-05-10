@@ -26,14 +26,22 @@ export const usePaiementCreate = () => {
       };
 
 
-      // Générer une référence au format PAY-XXX YYYY
+      // Générer une référence séquentielle: RECU-NNNN/YYYY (conforme à la spec)
       const currentYear = new Date().getFullYear();
-      
-      // Générer un nombre entre 001 et 999
-      const randomNumber = crypto.getRandomValues(new Uint16Array(1))[0] % 999 + 1;
-      const formattedNumber = randomNumber.toString().padStart(3, '0');
-      
-      const paymentReference = `PAY-${formattedNumber} ${currentYear}`;
+      const { data: existingPaiements } = await supabase
+        .from("paiements")
+        .select("reference");
+
+      let highest = 0;
+      (existingPaiements || []).forEach((p: { reference?: string | null }) => {
+        const m = p.reference?.match(/RECU-(\d{4})\/(\d{4})/);
+        if (m && parseInt(m[2], 10) === currentYear) {
+          const n = parseInt(m[1], 10);
+          if (!isNaN(n) && n > highest) highest = n;
+        }
+      });
+      const formattedNumber = String(highest + 1).padStart(4, "0");
+      const paymentReference = `RECU-${formattedNumber}/${currentYear}`;
 
       // Calculate solde_restant for the payment
       let soldeRestant = 0;
