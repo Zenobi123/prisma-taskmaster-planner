@@ -237,7 +237,7 @@ export async function createDevis(data: DevisFormData): Promise<Devis> {
 
 // Update a devis
 export async function updateDevis(id: string, data: Partial<DevisFormData>): Promise<void> {
-  const updatePayload: Record<string, any> = {};
+  const updatePayload: Record<string, unknown> = {};
 
   if (data.client_id !== undefined) updatePayload.client_id = data.client_id;
   if (data.date !== undefined) updatePayload.date = data.date;

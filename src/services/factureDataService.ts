@@ -143,7 +143,7 @@ export const factureDataService = {
   },
 
   async updateFacture(id: string, updates: Partial<Facture>): Promise<Facture | null> {
-    const dbUpdates: Record<string, any> = {};
+    const dbUpdates: Record<string, unknown> = {};
     if (updates.client_id !== undefined) dbUpdates.client_id = updates.client_id;
     if (updates.date !== undefined) dbUpdates.date = updates.date;
     if (updates.echeance !== undefined) dbUpdates.echeance = updates.echeance;

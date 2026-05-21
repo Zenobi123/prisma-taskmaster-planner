@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { Document, Procedure, ProcedureStatut, DocumentStatut } from "@/types/administration";
 
 /**
@@ -158,7 +159,7 @@ export const administrationService = {
     try {
       const { data, error } = await supabase
         .from("procedures_administratives")
-        .insert([procedure])
+        .insert([procedure as unknown as TablesInsert<"procedures_administratives">])
         .select()
         .single();
       
@@ -179,7 +180,7 @@ export const administrationService = {
     try {
       const { data, error } = await supabase
         .from("procedures_administratives")
-        .update(procedure)
+        .update(procedure as unknown as TablesUpdate<"procedures_administratives">)
         .eq("id", procedureId)
         .select()
         .single();

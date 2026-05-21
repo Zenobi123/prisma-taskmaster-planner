@@ -7,7 +7,7 @@ interface UseStableStatusChangeProps {
 }
 
 export const useStableStatusChange = ({ handleStatusChange }: UseStableStatusChangeProps) => {
-  const lastValuesRef = useRef<Record<string, any>>({});
+  const lastValuesRef = useRef<Record<string, unknown>>({});
 
   const stableHandleStatusChange = useCallback((
     taxType: ObligationType, 

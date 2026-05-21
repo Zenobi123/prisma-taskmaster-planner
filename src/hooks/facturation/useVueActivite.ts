@@ -284,7 +284,7 @@ export function useVueActivite(year: number) {
         honorairesImpayes,
         prestationsNonRealisees,
       });
-    } catch (e: any) {
+    } catch (e) {
       setError(e.message || "Erreur de chargement");
     } finally {
       setIsLoading(false);
