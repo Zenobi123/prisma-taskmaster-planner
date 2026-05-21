@@ -58,7 +58,7 @@ export const generateObligationsFiscalesReport = async () => {
       doc.setFontSize(14);
       doc.text('IGS Non Payées', 14, currentY);
       
-      const igsData = fiscalData.unpaidIgs.map((client: any) => [
+      const igsData = fiscalData.unpaidIgs.map((client) => [
         client.nom || client.raisonsociale || 'Client inconnu',
         client.niu || 'Non renseigné',
         formatPropertyValue(client.regimefiscal)
@@ -79,7 +79,7 @@ export const generateObligationsFiscalesReport = async () => {
       doc.setFontSize(14);
       doc.text('DSF Non Déposées', 14, currentY);
       
-      const dsfData = fiscalData.unfiledDsf.map((client: any) => [
+      const dsfData = fiscalData.unfiledDsf.map((client) => [
         client.nom || client.raisonsociale || 'Client inconnu',
         client.niu || 'Non renseigné',
         formatPropertyValue(client.type)
@@ -103,7 +103,7 @@ export const generateRetardsFiscauxReport = async () => {
     const data = await ReportDataService.getAllReportData();
     
     // Filtrer les obligations en retard
-    const obligationsEnRetard = data.fiscalObligations.filter((o: any) => {
+    const obligationsEnRetard = data.fiscalObligations.filter((o) => {
       if (!o.date_echeance) return false;
       const echeance = new Date(o.date_echeance);
       const maintenant = new Date();
@@ -122,7 +122,7 @@ export const generateRetardsFiscauxReport = async () => {
     doc.setFontSize(10);
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
-    const retardsData = obligationsEnRetard.map((obligation: any) => {
+    const retardsData = obligationsEnRetard.map((obligation) => {
       const joursRetard = Math.floor((new Date().getTime() - new Date(obligation.date_echeance).getTime()) / (1000 * 60 * 60 * 24));
       
       return [

@@ -59,7 +59,7 @@ export const useFactureDetail = (factureId: string) => {
         if (prestationsError) throw prestationsError;
 
         // Map prestations to add a "type" property
-        const prestationsWithType = (prestationsData || []).map((prestation: any) => {
+        const prestationsWithType = (prestationsData || []).map((prestation) => {
           // Préférer le type réel stocké, sinon inférer depuis la désignation
           let type = prestation.type === "impot" ? "impots" : "honoraires";
 

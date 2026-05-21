@@ -9,7 +9,7 @@ export const useCollaboratorStats = (tasks: any[], collaborateurs: any[], isLoad
 
     const collaborateurTaskCount = new Map();
     
-    tasks.forEach((task: any) => {
+    tasks.forEach((task) => {
       if (task.status === "en_cours" && task.collaborateur_id) {
         const collaborateurId = task.collaborateur_id;
         const currentCount = collaborateurTaskCount.get(collaborateurId) || 0;

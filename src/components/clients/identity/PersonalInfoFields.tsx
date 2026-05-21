@@ -11,7 +11,7 @@ interface PersonalInfoFieldsProps {
   numerorccm?: string;
   sexe: Sexe;
   etatcivil: EtatCivil;
-  onChange: (name: string, value: any) => void;
+  onChange: (name: string, value) => void;
 }
 
 export function PersonalInfoFields({ 

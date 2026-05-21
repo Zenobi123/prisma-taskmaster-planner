@@ -63,7 +63,7 @@ export const updateCourrierStatus = async (
   statut: CourrierStatus,
   extra?: { date_envoi?: string; date_accuse?: string; notes?: string }
 ): Promise<void> => {
-  const payload: any = { statut, ...extra };
+  const payload = { statut, ...extra };
   const { error } = await supabase
     .from("courriers")
     .update(payload)

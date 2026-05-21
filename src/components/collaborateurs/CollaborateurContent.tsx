@@ -23,7 +23,7 @@ interface CollaborateurContentProps {
   onOpenDialogChange: (open: boolean) => void;
   onDelete: (id: string) => void;
   onStatusChange: (id: string, newStatus: "actif" | "inactif") => void;
-  onChange: (field: string, value: any) => void;
+  onChange: (field: string, value) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 

@@ -12,7 +12,7 @@ interface CompanyInfoFieldsProps {
   lieucreation?: string;
   nomdirigeant?: string;
   formejuridique?: FormeJuridique;
-  onChange: (name: string, value: any) => void;
+  onChange: (name: string, value) => void;
 }
 
 export function CompanyInfoFields({ 

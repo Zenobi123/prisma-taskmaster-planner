@@ -31,7 +31,7 @@ export const generateMassSalarialeReport = async () => {
     });
     
     // Détail par client
-    const masseSalarialeParClient = data.employes.reduce((acc: any, employe: any) => {
+    const masseSalarialeParClient = data.employes.reduce((acc, employe) => {
       const clientNom = employe.clients?.nom || employe.clients?.raisonsociale || 'Client inconnu';
       if (!acc[clientNom]) {
         acc[clientNom] = {
@@ -44,8 +44,8 @@ export const generateMassSalarialeReport = async () => {
       acc[clientNom].nombreEmployes++;
       
       // Calculer les totaux de paie pour cet employé
-      const paieEmploye = data.paie.filter((p: any) => p.employe_id === employe.id);
-      paieEmploye.forEach((p: any) => {
+      const paieEmploye = data.paie.filter((p) => p.employe_id === employe.id);
+      paieEmploye.forEach((p) => {
         acc[clientNom].totalSalaireBrut += p.salaire_brut || 0;
         acc[clientNom].totalSalaireNet += p.salaire_net || 0;
       });
@@ -89,7 +89,7 @@ export const generateEffectifsReport = async () => {
     
     // Statistiques générales
     const totalEmployes = data.employes.length;
-    const employesActifs = data.employes.filter((e: any) => e.statut === 'Actif').length;
+    const employesActifs = data.employes.filter((e) => e.statut === 'Actif').length;
     const employesInactifs = totalEmployes - employesActifs;
     
     const statsData = [
@@ -106,7 +106,7 @@ export const generateEffectifsReport = async () => {
     });
     
     // Détail des employés par client
-    const effectifsParClient = data.employes.reduce((acc: any, employe: any) => {
+    const effectifsParClient = data.employes.reduce((acc, employe) => {
       const clientNom = employe.clients?.nom || employe.clients?.raisonsociale || 'Client inconnu';
       if (!acc[clientNom]) {
         acc[clientNom] = {

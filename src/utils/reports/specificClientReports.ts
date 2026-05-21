@@ -55,7 +55,7 @@ export const generatePersonnesMoralesReport = async () => {
       doc.setFontSize(12);
       doc.text('Aucun client personne morale trouvé.', 14, 50);
     } else {
-      const clientsData = personnesMorales.map((client: any) => [
+      const clientsData = personnesMorales.map((client) => [
         client.raisonsociale || 'Non renseigné',
         client.sigle || '',
         formatPropertyValue(client.formejuridique),
@@ -102,7 +102,7 @@ export const generatePersonnesPhysiquesReport = async () => {
       doc.setFontSize(12);
       doc.text('Aucun client personne physique trouvé.', 14, 50);
     } else {
-      const clientsData = personnesPhysiques.map((client: any) => [
+      const clientsData = personnesPhysiques.map((client) => [
         client.nom || 'Non renseigné',
         formatPropertyValue(client.sexe),
         formatPropertyValue(client.etatcivil),
@@ -136,7 +136,7 @@ export const generateClientsParCentreReport = async () => {
     }
     
     // Grouper les clients par centre
-    const clientsParCentre = data.clients.reduce((acc: any, client: any) => {
+    const clientsParCentre = data.clients.reduce((acc, client) => {
       const centre = client.centrerattachement || 'Non renseigné';
       if (!acc[centre]) {
         acc[centre] = [];
@@ -167,7 +167,7 @@ export const generateClientsParCentreReport = async () => {
         doc.text(`${centre} (${clients.length} clients)`, 14, currentY);
         currentY += 10;
         
-        const clientsData = clients.map((client: any) => [
+        const clientsData = clients.map((client) => [
           client.nom || client.raisonsociale || 'Sans nom',
           client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
           client.niu || 'Non renseigné',
@@ -224,7 +224,7 @@ export const generateClientsAssujettisIGSReport = async () => {
       doc.setFontSize(12);
       doc.text('Aucun client assujetti à l\'IGS trouvé.', 14, 55);
     } else {
-      const clientsData = clientsIGS.map((client: any) => [
+      const clientsData = clientsIGS.map((client) => [
         client.raisonsociale || 'Non renseigné',
         formatPropertyValue(client.formejuridique),
         client.niu || 'Non renseigné',
@@ -278,7 +278,7 @@ export const generateClientsAssujettsPatenteReport = async () => {
       doc.setFontSize(12);
       doc.text('Aucun client assujetti à la Patente trouvé.', 14, 55);
     } else {
-      const clientsData = clientsPatente.map((client: any) => [
+      const clientsData = clientsPatente.map((client) => [
         client.nom || client.raisonsociale || 'Sans nom',
         client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
         client.niu || 'Non renseigné',
@@ -325,7 +325,7 @@ export const generateClientsRegimeReelReport = async () => {
       doc.setFontSize(12);
       doc.text('Aucun client au régime du réel trouvé.', 14, 55);
     } else {
-      const clientsData = clientsRegimeReel.map((client: any) => [
+      const clientsData = clientsRegimeReel.map((client) => [
         client.nom || client.raisonsociale || 'Sans nom',
         client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
         formatPropertyValue(client.formejuridique),

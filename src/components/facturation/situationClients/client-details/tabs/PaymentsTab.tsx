@@ -14,10 +14,10 @@ const PaymentsTab = () => {
   
   if (!clientDetails) return null;
 
-  const handleViewReceipt = (payment: any) => {
+  const handleViewReceipt = (payment) => {
     // This object is for the receipt dialog, we'll try to build it as best as we can.
     // The underlying type issue with @/types/paiement vs @/types/facture needs a deeper fix.
-    const paiementForReceipt: any = {
+    const paiementForReceipt = {
       id: payment.id,
       facture_id: payment.facture_id || "",
       client_id: clientDetails.id || "",

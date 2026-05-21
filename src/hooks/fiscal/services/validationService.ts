@@ -5,7 +5,7 @@ import { toast } from "sonner";
 /**
  * Valide et migre une obligation fiscale (impôt direct)
  */
-const validateAndMigrateTaxObligation = (obligation: any, obligationName: string): TaxObligationStatus => {
+const validateAndMigrateTaxObligation = (obligation, obligationName: string): TaxObligationStatus => {
   // Structure de base valide
   const validatedObligation: TaxObligationStatus = {
     assujetti: Boolean(obligation?.assujetti || false),
@@ -36,7 +36,7 @@ const validateAndMigrateTaxObligation = (obligation: any, obligationName: string
 /**
  * Valide et migre une obligation IGS avec ses propriétés spécifiques
  */
-const validateAndMigrateIgsObligation = (obligation: any): IgsObligationStatus => {
+const validateAndMigrateIgsObligation = (obligation): IgsObligationStatus => {
   // Commencer par la structure de base d'une obligation fiscale
   const baseObligation = validateAndMigrateTaxObligation(obligation, "IGS");
   
@@ -60,7 +60,7 @@ const validateAndMigrateIgsObligation = (obligation: any): IgsObligationStatus =
  * Valide et migre une obligation déclarative
  */
 const validateAndMigrateDeclarationObligation = (
-  obligation: any, 
+  obligation, 
   obligationName: string,
   defaultPeriodicity: "mensuelle" | "trimestrielle" | "annuelle"
 ): DeclarationObligationStatus => {
@@ -85,7 +85,7 @@ const validateAndMigrateDeclarationObligation = (
 /**
  * Valide et migre toutes les obligations d'une année vers la structure unifiée
  */
-export const validateAndMigrateObligationStatuses = (obligations: any): ObligationStatuses => {
+export const validateAndMigrateObligationStatuses = (obligations): ObligationStatuses => {
   if (!obligations || typeof obligations !== 'object') {
     return createDefaultObligationStatuses();
   }
@@ -145,7 +145,7 @@ export const createDefaultObligationStatuses = (): ObligationStatuses => {
 /**
  * Valide la structure complète des données fiscales et migre si nécessaire
  */
-export const validateAndMigrateFiscalData = (fiscalData: any): any => {
+export const validateAndMigrateFiscalData = (fiscalData) => {
   if (!fiscalData) {
     return {
       obligations: {},

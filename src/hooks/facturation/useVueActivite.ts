@@ -130,7 +130,7 @@ export function useVueActivite(year: number) {
       const paiementList = paiements || [];
       const prestationList = prestations || [];
       const factureById = new Map(factureList.map(f => [f.id, f]));
-      const prestationTypeOf = (pr: any): "impot" | "honoraire" =>
+      const prestationTypeOf = (pr): "impot" | "honoraire" =>
         pr.type === "impot" || pr.type === "honoraire"
           ? pr.type
           : inferPrestationType(pr.description);

@@ -52,7 +52,7 @@ export const usePaiements = () => {
             
             // Ensure prestations_payees is properly handled as an array with correct mapping
             if (Array.isArray(parsedElemSpec.prestations_payees)) {
-              prestationsPayees = parsedElemSpec.prestations_payees.map((pp: any) => ({
+              prestationsPayees = parsedElemSpec.prestations_payees.map((pp) => ({
                 id: pp.id,
                 montant_modifie: pp.montant_modifie !== undefined ? pp.montant_modifie : null
               }));

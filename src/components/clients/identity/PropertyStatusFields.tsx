@@ -16,7 +16,7 @@ interface PropertyStatusFieldsProps {
     valeur?: number;
     loyer?: number;
   };
-  onChange: (name: string, value: any) => void;
+  onChange: (name: string, value) => void;
 }
 
 export function PropertyStatusFields({ situationimmobiliere, onChange }: PropertyStatusFieldsProps) {

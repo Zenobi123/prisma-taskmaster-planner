@@ -17,7 +17,7 @@ interface PrestationFieldsProps {
 }
 
 const PrestationFields = ({ prestations, onPrestationsChange }: PrestationFieldsProps) => {
-  const updatePrestation = (index: number, field: keyof Prestation, value: any) => {
+  const updatePrestation = (index: number, field: keyof Prestation, value) => {
     const updatedPrestations = [...prestations];
     const p = { ...updatedPrestations[index] };
 

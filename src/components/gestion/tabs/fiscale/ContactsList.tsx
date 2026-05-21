@@ -26,7 +26,7 @@ const fiscalContacts = [
 ];
 
 interface ContactsListProps {
-  onItemClick: (item: any) => void;
+  onItemClick: (item) => void;
 }
 
 export function ContactsList({ onItemClick }: ContactsListProps) {

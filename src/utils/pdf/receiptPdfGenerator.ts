@@ -12,7 +12,7 @@ import { PDF_THEME } from './pdfTheme';
  * @param download - Si true, télécharger le PDF; si false, ouvrir dans un nouvel onglet
  * @returns Soit un Blob (si download=true) soit null (si download=false)
  */
-export const generateReceiptPDF = (paiement: any, download: boolean = false) => {
+export const generateReceiptPDF = (paiement, download: boolean = false) => {
   // Créer un nouveau service de document
   const reference = paiement.reference || paiement.id;
   const docService = new DocumentService();
@@ -82,7 +82,7 @@ export const generateReceiptPDF = (paiement: any, download: boolean = false) => 
 };
 
 // Ajouter les détails du paiement
-const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
+const addReceiptPaymentDetails = (doc: jsPDF, paiement): number => {
   // Créer une boîte pour les informations de paiement
   doc.setFillColor(...PDF_THEME.bgLight);
   doc.roundedRect(15, 105, 180, 50, 3, 3, 'F');
@@ -217,7 +217,7 @@ const formatPaymentDate = (dateString: string | Date): string => {
 };
 
 // Fonction pour formatter les informations du client pour le reçu
-export const formatClientForReceipt = (client: any): SimplifiedClient => {
+export const formatClientForReceipt = (client): SimplifiedClient => {
   // Si le client est déjà au bon format, le renvoyer
   if (typeof client === 'object' && client.nom) {
     return createSimplifiedClient(client);
@@ -245,7 +245,7 @@ export const formatClientForReceipt = (client: any): SimplifiedClient => {
 };
 
 // Fonction d'aide pour créer un client simplifié à partir d'un objet client complexe
-const createSimplifiedClient = (client: any): SimplifiedClient => {
+const createSimplifiedClient = (client): SimplifiedClient => {
   return {
     id: client.id || '',
     nom: client.nom || client.raisonsociale || 'Client',

@@ -9,7 +9,7 @@ type AddUserDialogProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   userData: UserFormData;
-  onChange: (field: string, value: any) => void;
+  onChange: (field: string, value) => void;
   onSubmit: () => void;
   roles: { value: string; label: string }[];
 };

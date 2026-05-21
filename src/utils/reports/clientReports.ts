@@ -38,14 +38,14 @@ export const generatePortefeuilleClientsReport = async () => {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Statistiques générales
-    const personnesMorales = data.clients.filter((c: any) => c.type === 'morale');
-    const personnesPhysiques = data.clients.filter((c: any) => c.type === 'physique');
+    const personnesMorales = data.clients.filter((c) => c.type === 'morale');
+    const personnesPhysiques = data.clients.filter((c) => c.type === 'physique');
     
     const statsData = [
       ['Total Clients', data.clients.length.toString()],
       ['Personnes Morales', personnesMorales.length.toString()],
       ['Personnes Physiques', personnesPhysiques.length.toString()],
-      ['Clients Actifs', data.clients.filter((c: any) => c.statut === 'actif').length.toString()]
+      ['Clients Actifs', data.clients.filter((c) => c.statut === 'actif').length.toString()]
     ];
     
     autoTable(doc, {
@@ -56,7 +56,7 @@ export const generatePortefeuilleClientsReport = async () => {
     });
     
     // Liste détaillée des clients
-    const clientsData = data.clients.map((client: any) => [
+    const clientsData = data.clients.map((client) => [
       client.nom || client.raisonsociale || 'Sans nom',
       client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
       client.niu || 'Non renseigné',
@@ -85,7 +85,7 @@ export const generateNouveauxClientsReport = async () => {
     const sixMoisAujourdhui = new Date();
     sixMoisAujourdhui.setMonth(sixMoisAujourdhui.getMonth() - 6);
     
-    const nouveauxClients = data.clients.filter((client: any) => {
+    const nouveauxClients = data.clients.filter((client) => {
       if (!client.created_at) return false;
       const dateCreation = new Date(client.created_at);
       return dateCreation >= sixMoisAujourdhui;
@@ -103,7 +103,7 @@ export const generateNouveauxClientsReport = async () => {
       doc.setFontSize(12);
       doc.text('Aucun nouveau client sur cette période.', 14, 50);
     } else {
-      const clientsData = nouveauxClients.map((client: any) => [
+      const clientsData = nouveauxClients.map((client) => [
         client.nom || client.raisonsociale || 'Sans nom',
         client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
         formatPropertyValue(client.regimefiscal),
@@ -136,7 +136,7 @@ export const generateActiviteClientsReport = async () => {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Analyser l'activité par secteur
-    const activiteParSecteur = data.clients.reduce((acc: any, client: any) => {
+    const activiteParSecteur = data.clients.reduce((acc, client) => {
       const secteur = formatPropertyValue(client.secteuractivite);
       if (!acc[secteur]) {
         acc[secteur] = [];
@@ -153,7 +153,7 @@ export const generateActiviteClientsReport = async () => {
       doc.text(`${secteur} (${clients.length} clients)`, 14, currentY);
       currentY += 10;
       
-      const secteursData = clients.map((client: any) => [
+      const secteursData = clients.map((client) => [
         client.nom || client.raisonsociale || 'Sans nom',
         client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
         formatPropertyValue(client.regimefiscal),

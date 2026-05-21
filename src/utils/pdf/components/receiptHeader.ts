@@ -4,7 +4,7 @@ import { addCompanyLogo, addInvoiceInfoBox } from '../pdfComponents';
 import { PDF_THEME } from '../pdfTheme';
 
 // Add header section to the receipt PDF
-export const addReceiptHeader = (doc: jsPDF, paiement: any) => {
+export const addReceiptHeader = (doc: jsPDF, paiement) => {
   addCompanyLogo(doc);
   addInvoiceInfoBox(doc, 'REÇU DE PAIEMENT', paiement.reference || paiement.id, paiement.date);
 

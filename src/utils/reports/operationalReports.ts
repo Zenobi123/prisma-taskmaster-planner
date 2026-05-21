@@ -16,9 +16,9 @@ export const generateTachesReport = async () => {
     
     // Statistiques des tâches
     const totalTaches = data.tasks.length;
-    const tachesTerminees = data.tasks.filter((t: any) => t.status === 'terminée').length;
-    const tachesEnCours = data.tasks.filter((t: any) => t.status === 'en_cours').length;
-    const tachesEnAttente = data.tasks.filter((t: any) => t.status === 'en_attente').length;
+    const tachesTerminees = data.tasks.filter((t) => t.status === 'terminée').length;
+    const tachesEnCours = data.tasks.filter((t) => t.status === 'en_cours').length;
+    const tachesEnAttente = data.tasks.filter((t) => t.status === 'en_attente').length;
     
     const statsData = [
       ['Total Tâches', totalTaches.toString()],
@@ -36,7 +36,7 @@ export const generateTachesReport = async () => {
     });
     
     // Détail des tâches par collaborateur
-    const tachesParCollaborateur = data.tasks.reduce((acc: any, tache: any) => {
+    const tachesParCollaborateur = data.tasks.reduce((acc, tache) => {
       const collaborateur = `${tache.collaborateurs?.prenom || ''} ${tache.collaborateurs?.nom || 'Collaborateur inconnu'}`.trim();
       if (!acc[collaborateur]) {
         acc[collaborateur] = {
@@ -91,7 +91,7 @@ export const generatePerformanceCollaborateursReport = async () => {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Calculer les performances par collaborateur
-    const performanceParCollaborateur = data.tasks.reduce((acc: any, tache: any) => {
+    const performanceParCollaborateur = data.tasks.reduce((acc, tache) => {
       const collaborateur = `${tache.collaborateurs?.prenom || ''} ${tache.collaborateurs?.nom || 'Collaborateur inconnu'}`.trim();
       if (!acc[collaborateur]) {
         acc[collaborateur] = {

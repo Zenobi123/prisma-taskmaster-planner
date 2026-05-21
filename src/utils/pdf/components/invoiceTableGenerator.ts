@@ -63,10 +63,10 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
 
   // Add subtotals by type (Impôts / Honoraires)
   const impots = facture.prestations
-    .filter((p: any) => p.type === "impot")
+    .filter((p) => p.type === "impot")
     .reduce((sum, p) => sum + (p.prix_unitaire ? p.prix_unitaire * (p.quantite || 1) : p.montant * (p.quantite || 1)), 0);
   const honoraires = facture.prestations
-    .filter((p: any) => p.type === "honoraire")
+    .filter((p) => p.type === "honoraire")
     .reduce((sum, p) => sum + (p.prix_unitaire ? p.prix_unitaire * (p.quantite || 1) : p.montant * (p.quantite || 1)), 0);
 
   if (impots > 0 || honoraires > 0) {

@@ -14,7 +14,7 @@ export async function generateActivityReport() {
   doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
   
   // Analyse des prestations par type (basée sur les descriptions des factures)
-  const prestationsAnalysis = data.factures.reduce((acc: Record<string, { nombre: number; montant: number }>, facture: any) => {
+  const prestationsAnalysis = data.factures.reduce((acc: Record<string, { nombre: number; montant: number }>, facture) => {
     // Catégorisation simple basée sur les mots-clés
     let categorie = 'Autres services';
     const description = facture.notes || '';

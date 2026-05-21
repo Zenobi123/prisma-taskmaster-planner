@@ -75,7 +75,7 @@ export function useClientMutations() {
         description: "Le client a été archivé avec succès.",
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de l'archivage du client.",
@@ -95,7 +95,7 @@ export function useClientMutations() {
         description: "Le client a été restauré avec succès.",
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Erreur",
         description: "Une erreur est survenue lors de la restauration du client.",
@@ -113,7 +113,7 @@ export function useClientMutations() {
         description: "Le client a été envoyé à la corbeille.",
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Erreur",
         description: error.message || "Une erreur est survenue lors de la suppression du client.",
@@ -131,7 +131,7 @@ export function useClientMutations() {
         description: "Le client a été définitivement supprimé.",
       });
     },
-    onError: (error: any) => {
+    onError: (error) => {
       toast({
         title: "Erreur",
         description: error.message || "Une erreur est survenue lors de la suppression définitive du client.",

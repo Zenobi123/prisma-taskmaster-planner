@@ -21,8 +21,8 @@ interface ClientDialogsProps {
   selectedClient: Client | null;
   newClientType: ClientType;
   onNewClientTypeChange: (type: ClientType) => void;
-  onAddClient: (clientData: any) => void;
-  onUpdateClient: (clientData: any) => void;
+  onAddClient: (clientData) => void;
+  onUpdateClient: (clientData) => void;
 }
 
 export function ClientDialogs({

@@ -41,7 +41,7 @@ export const generateChiffresAffairesReport = async () => {
     doc.text('Évolution Mensuelle', 14, currentY);
     
     // Grouper les factures par mois
-    const facturesByMonth = data.factures.reduce((acc: any, facture: any) => {
+    const facturesByMonth = data.factures.reduce((acc, facture) => {
       const month = new Date(facture.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
       if (!acc[month]) acc[month] = { count: 0, amount: 0 };
       acc[month].count++;
@@ -78,7 +78,7 @@ export const generateFacturationReport = async () => {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Tableau des factures
-    const facturesData = data.factures.slice(0, 50).map((facture: any) => [
+    const facturesData = data.factures.slice(0, 50).map((facture) => [
       facture.id,
       facture.clients?.nom || facture.clients?.raisonsociale || 'Client inconnu',
       new Date(facture.date).toLocaleDateString(),
@@ -103,7 +103,7 @@ export const generateCreancesReport = async () => {
     const data = await ReportDataService.getAllReportData();
     
     // Filtrer les factures impayées
-    const facturesImpayees = data.factures.filter((f: any) => 
+    const facturesImpayees = data.factures.filter((f) => 
       f.status_paiement === 'non_payée' || f.status_paiement === 'partiellement_payée'
     );
     
@@ -114,7 +114,7 @@ export const generateCreancesReport = async () => {
     doc.setFontSize(10);
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
-    const creancesData = facturesImpayees.map((facture: any) => {
+    const creancesData = facturesImpayees.map((facture) => {
       const montantRestant = (facture.montant || 0) - (facture.montant_paye || 0);
       const joursRetard = Math.floor((new Date().getTime() - new Date(facture.echeance).getTime()) / (1000 * 60 * 60 * 24));
       

@@ -3,7 +3,7 @@ import jsPDF from 'jspdf';
 import { PDF_THEME } from '../pdfTheme';
 
 // Add notes section to the receipt PDF if notes are available
-export const addReceiptNotes = (doc: jsPDF, paiement: any, startY: number): number => {
+export const addReceiptNotes = (doc: jsPDF, paiement, startY: number): number => {
   if (!paiement.notes) {
     addLegalText(doc, startY + 5);
     return startY + 5;

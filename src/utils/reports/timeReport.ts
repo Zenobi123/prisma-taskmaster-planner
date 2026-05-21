@@ -15,7 +15,7 @@ export async function generateTimeReport() {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Analyser les tâches par client/projet
-    const tempsParProjet = data.tasks.reduce((acc: any, tache: any) => {
+    const tempsParProjet = data.tasks.reduce((acc, tache) => {
       const projet = tache.clients?.nom || tache.clients?.raisonsociale || 'Projet sans client';
       if (!acc[projet]) {
         acc[projet] = {

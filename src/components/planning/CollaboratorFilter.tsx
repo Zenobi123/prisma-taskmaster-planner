@@ -22,7 +22,7 @@ export const CollaboratorFilter = ({ collaborateurs, value, onChange }: Collabor
       </SelectTrigger>
       <SelectContent>
         <SelectItem value="all">Tous les collaborateurs</SelectItem>
-        {collaborateurs?.map((collaborateur: any) => (
+        {collaborateurs?.map((collaborateur) => (
           <SelectItem 
             key={collaborateur.id} 
             value={`${collaborateur.prenom} ${collaborateur.nom}`}

@@ -5,7 +5,7 @@ import { convertToJsonCompatible } from "./jsonConverter";
 
 export const saveFiscalDataToDatabase = async (
   clientId: string, 
-  fiscalData: any,
+  fiscalData,
   maxRetries: number = 3
 ): Promise<boolean> => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {

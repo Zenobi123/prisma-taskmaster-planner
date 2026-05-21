@@ -27,7 +27,7 @@ interface CollaborateurDialogProps {
     quartier: string;
     permissions: CollaborateurPermissions[];
   };
-  onChange: (field: string, value: any) => void;
+  onChange: (field: string, value) => void;
   onSubmit: (e: React.FormEvent) => void;
 }
 

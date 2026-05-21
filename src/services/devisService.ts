@@ -50,7 +50,7 @@ export async function getDevis(): Promise<Devis[]> {
   if (!data) return [];
 
   // Fetch prestations for each devis
-  const devisIds = data.map((d: any) => d.id);
+  const devisIds = data.map((d) => d.id);
   // Récupération best-effort : une erreur prestations ne bloque pas la liste des devis.
   const { data: prestationsData } = await supabase
     .from("devis_prestations")
@@ -74,7 +74,7 @@ export async function getDevis(): Promise<Devis[]> {
     }
   }
 
-  return data.map((d: any) => {
+  return data.map((d) => {
     const prestations = prestationsMap[d.id] || [];
     const montant_impots = prestations
       .filter((p: DevisPrestation) => p.type === "impot")
@@ -351,7 +351,7 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
 
   // Copy prestations from devis to facture
   if (prestationsData && prestationsData.length > 0) {
-    const facturePrestations = prestationsData.map((p: any) => ({
+    const facturePrestations = prestationsData.map((p) => ({
       id: `FPRE-${crypto.randomUUID()}`,
       facture_id: factureId,
       description: p.description,
