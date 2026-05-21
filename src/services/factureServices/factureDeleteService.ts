@@ -22,8 +22,8 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
     }
     
     // First delete associated prestations
-    const { error: prestationsError } = await supabase
-      .from("prestations")
+    const { error: prestationsError } = await (supabase as any)
+      .from("facture_prestations")
       .delete()
       .eq("facture_id", factureId);
       

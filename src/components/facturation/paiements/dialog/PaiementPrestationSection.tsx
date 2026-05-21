@@ -41,8 +41,8 @@ export const PaiementPrestationSection = ({
   const fetchPrestationsForFacture = async (factureId: string) => {
     try {
       setIsLoading(true);
-      const { data, error } = await supabase
-        .from("prestations")
+      const { data, error } = await (supabase as any)
+        .from("facture_prestations")
         .select("*")
         .eq("facture_id", factureId);
 

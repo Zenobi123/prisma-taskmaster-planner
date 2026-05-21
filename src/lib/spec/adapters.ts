@@ -171,9 +171,57 @@ const PAYMENT_MODE_MAP: Record<string, RecuPaymentMode> = {
   chèque: 'Chèque',
 };
 
+// Ventilation Impôts / Honoraires d'un paiement, comme le reçu de référence
+// (recu-app.html) qui répartit selon les lignes payées de la facture source.
+function ventilerPaiement(
+  paiement: ExistingPaiement,
+  montant: number,
+  facture?: ExistingFacture | null,
+): { montantImpots: number; montantHonoraires: number } {
+  if (!facture) return { montantImpots: 0, montantHonoraires: 0 };
+  const prestations = facture.prestations || [];
+  const payees = paiement.prestations_payees || [];
+
+  // 1) Paiement partiel : ventilation exacte par type des prestations payées.
+  if (payees.length > 0 && prestations.length > 0) {
+    const byId = new Map(prestations.map((p) => [p.id, p]));
+    let impots = 0;
+    let honoraires = 0;
+    let matched = false;
+    for (const entry of payees) {
+      const pres = byId.get(entry.id);
+      if (!pres) continue;
+      matched = true;
+      const amount = entry.montant_modifie ?? pres.montant ?? 0;
+      if (pres.type === 'impot') impots += amount;
+      else honoraires += amount;
+    }
+    if (matched && impots + honoraires > 0) {
+      return { montantImpots: Math.round(impots), montantHonoraires: Math.round(honoraires) };
+    }
+  }
+
+  // 2) Paiement total (ou ids non concordants) : répartition au prorata de la
+  //    composition Impôts / Honoraires de la facture.
+  const factImpots = facture.montant_impots ??
+    prestations.filter((p) => p.type === 'impot').reduce((s, p) => s + (p.montant || 0), 0);
+  const factHonoraires = facture.montant_honoraires ??
+    prestations.filter((p) => p.type === 'honoraire').reduce((s, p) => s + (p.montant || 0), 0);
+  const factTotal = factImpots + factHonoraires;
+  if (factTotal > 0) {
+    const ratio = Math.min(1, montant / factTotal);
+    return {
+      montantImpots: Math.round(factImpots * ratio),
+      montantHonoraires: Math.round(factHonoraires * ratio),
+    };
+  }
+  return { montantImpots: 0, montantHonoraires: 0 };
+}
+
 export function paiementToRecuPrintData(
   paiement: ExistingPaiement,
   fullClient?: ExistingClient | null,
+  facture?: ExistingFacture | null,
 ): RecuPrintData {
   const embeddedClient = typeof paiement.client === 'object' && paiement.client !== null ? paiement.client as ExistingClient : null;
   const client = fullClient
@@ -183,10 +231,7 @@ export function paiementToRecuPrintData(
       : fallbackClient(typeof paiement.client === 'string' ? paiement.client : 'Client');
 
   const montant = Number(paiement.montant) || 0;
-  const prestationsPayees = paiement.prestations_payees || [];
-  const montantVentile = prestationsPayees.reduce((sum, p) => sum + (Number(p.montant_modifie) || 0), 0);
-  const montantHonoraires = 0;
-  const montantImpots = montantVentile > 0 ? montantVentile : montant;
+  const { montantImpots, montantHonoraires } = ventilerPaiement(paiement, montant, facture);
 
   return {
     number: paiement.reference || `RECU-${paiement.id?.slice(-6)}`,

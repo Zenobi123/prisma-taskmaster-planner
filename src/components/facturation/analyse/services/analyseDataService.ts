@@ -53,8 +53,8 @@ export const fetchPrestationsForAnalysis = async () => {
   }
   
   
-  const { data: prestationsData, error: prestationsError } = await supabase
-    .from("prestations")
+  const { data: prestationsData, error: prestationsError } = await (supabase as any)
+    .from("facture_prestations")
     .select("*");
     
   if (prestationsError) throw prestationsError;

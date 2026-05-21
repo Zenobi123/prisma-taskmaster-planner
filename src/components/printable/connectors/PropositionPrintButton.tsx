@@ -8,6 +8,7 @@ import { useCabinetConfig } from '@/lib/spec/cabinetConfig';
 import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 import PrintableProposition from '../PrintableProposition';
 import PrintPreviewDialog from '../PrintPreviewDialog';
+import { useResolvedClient } from './useResolvedClient';
 
 interface Props {
   proposition: Proposition;
@@ -24,7 +25,8 @@ export default function PropositionPrintButton({
 }: Props) {
   const [open, setOpen] = useState(false);
   const [config] = useCabinetConfig();
-  const data = useMemo(() => propositionToPrintData(proposition, client), [proposition, client]);
+  const resolvedClient = useResolvedClient(proposition.client_id, client);
+  const data = useMemo(() => propositionToPrintData(proposition, resolvedClient), [proposition, resolvedClient]);
   const filename = `Proposition_${sanitizePdfSegment(proposition.numero, 'doc')}_${sanitizePdfSegment(data.client.name, 'client')}.pdf`;
 
   return (

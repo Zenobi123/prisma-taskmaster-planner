@@ -41,9 +41,9 @@ const fetchObligations = async (): Promise<ObligationRow[]> => {
     .select("id, nom, raisonsociale, type");
   if (cErr) throw cErr;
 
-  const { data: prestations, error: prErr } = await supabase
-    .from("prestations")
-    .select("id, facture_id, description, montant");
+  const { data: prestations, error: prErr } = await (supabase as any)
+    .from("facture_prestations")
+    .select("id, facture_id, description, montant, type");
   if (prErr) throw prErr;
 
   const clientMap = new Map<string, string>();
@@ -58,7 +58,9 @@ const fetchObligations = async (): Promise<ObligationRow[]> => {
   const rows: ObligationRow[] = [];
 
   for (const pr of prestations || []) {
-    const prestationType = inferPrestationType(pr.description);
+    const prestationType = pr.type === "impot" || pr.type === "honoraire"
+      ? pr.type
+      : inferPrestationType(pr.description);
     if (prestationType !== "impot") continue;
 
     const facture = factureMap.get(pr.facture_id);
