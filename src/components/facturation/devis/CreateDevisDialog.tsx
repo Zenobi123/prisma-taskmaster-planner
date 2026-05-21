@@ -81,15 +81,15 @@ const CreateDevisDialog = ({
     ]);
   };
 
-  const addPredefinedPrestation = (predefined: { description: string; type: "impot" | "honoraire" }) => {
+  const addPredefinedPrestation = (predefined: { description: string; type: "impot" | "honoraire"; montant: number }) => {
     setPrestations((prev) => [
       ...prev,
       {
         description: predefined.description,
         type: predefined.type,
         quantite: 1,
-        prix_unitaire: 0,
-        montant: 0,
+        prix_unitaire: predefined.montant,
+        montant: predefined.montant,
       },
     ]);
   };
@@ -238,7 +238,7 @@ const CreateDevisDialog = ({
                   onClick={() => addPredefinedPrestation(p)}
                 >
                   <Plus className="h-3 w-3 mr-1" />
-                  {p.description}
+                  {p.description} ({formatMontant(p.montant)})
                 </Button>
               ))}
             </div>

@@ -10,7 +10,11 @@ import CreateDevisDialog from "./devis/CreateDevisDialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Devis as DevisType } from "@/types/devis";
 
-const Devis = () => {
+interface DevisProps {
+  onConvertSuccess?: (factureId: string) => void;
+}
+
+const Devis = ({ onConvertSuccess }: DevisProps) => {
   const {
     devis: filteredDevis,
     isLoading,
@@ -27,7 +31,7 @@ const Devis = () => {
     handleEdit: editDevis,
     handleDelete: deleteDevisAction,
     handleConvert: convertDevisAction,
-  } = useDevis();
+  } = useDevis({ onConvertSuccess });
 
   const isMobile = useIsMobile();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);

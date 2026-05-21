@@ -5,37 +5,35 @@
 export interface PredefinedPrestation {
   description: string;
   type: "impot" | "honoraire";
+  montant: number;
 }
 
 // Prestations prédéfinies (impôts et honoraires)
 export const PREDEFINED_PRESTATIONS: PredefinedPrestation[] = [
   // Impôts
-  { description: "IGS", type: "impot" },
-  { description: "Patente", type: "impot" },
-  { description: "TDL", type: "impot" },
-  { description: "PSL", type: "impot" },
-  { description: "Bail Commercial", type: "impot" },
-  { description: "Taxe Foncière", type: "impot" },
-  { description: "DSF", type: "impot" },
-  { description: "DARP", type: "impot" },
-  { description: "Solde IR/IS", type: "impot" },
-  { description: "IRPP", type: "impot" },
-  { description: "TVA", type: "impot" },
-  { description: "AIS", type: "impot" },
-  { description: "CCF", type: "impot" },
-  { description: "CAC", type: "impot" },
-  { description: "RAV", type: "impot" },
+  { description: "Précompte sur Loyer (PSL)", type: "impot", montant: 0 },
+  { description: "Bail Commercial", type: "impot", montant: 0 },
+  { description: "Taxe Foncière (TF)", type: "impot", montant: 0 },
+  { description: "Impôt Général Synthétique (IGS)", type: "impot", montant: 0 },
+  { description: "Taxe de Développement Local (TDL)", type: "impot", montant: 0 },
+  { description: "Solde IR", type: "impot", montant: 0 },
+  { description: "Patente", type: "impot", montant: 0 },
+  { description: "Impôt sur le Revenu des Personnes Physiques (IRPP)", type: "impot", montant: 0 },
+  { description: "Taxe sur la Valeur Ajoutée (TVA)", type: "impot", montant: 0 },
+  { description: "Acompte Impôt sur les Sociétés (AIS)", type: "impot", montant: 0 },
+  { description: "Contribution au Crédit Foncier (CCF)", type: "impot", montant: 0 },
+  { description: "Centimes Additionnels Communaux (CAC)", type: "impot", montant: 0 },
+  { description: "Redevance Audiovisuelle (RAV)", type: "impot", montant: 0 },
+  { description: "Inscription au Centre de Gestion Agréé", type: "impot", montant: 75000 },
+  { description: "Cotisation Annuelle au CGA", type: "impot", montant: 50000 },
   // Honoraires
-  { description: "Tenue de comptabilité", type: "honoraire" },
-  { description: "Conseil fiscal", type: "honoraire" },
-  { description: "Établissement des états financiers", type: "honoraire" },
-  { description: "Assistance contrôle fiscal", type: "honoraire" },
-  { description: "Gestion fiscale", type: "honoraire" },
-  { description: "DBEF", type: "honoraire" },
-  { description: "ATTIM", type: "honoraire" },
-  { description: "ACF", type: "honoraire" },
-  { description: "Création d'entreprise", type: "honoraire" },
-  { description: "Modification statutaire", type: "honoraire" },
+  { description: "Déclaration Annuelle des Revenus des Particuliers (DARP)", type: "honoraire", montant: 5000 },
+  { description: "Déclaration des Bénéficiaires Effectifs (DBEF)", type: "honoraire", montant: 5000 },
+  { description: "Obtention ACF (Attestation de Conformité Fiscale)", type: "honoraire", montant: 2100 },
+  { description: "Obtention ATTIM (Attestation Immatriculation)", type: "honoraire", montant: 2100 },
+  { description: "Conseil fiscal", type: "honoraire", montant: 25000 },
+  { description: "Création d'entreprise", type: "honoraire", montant: 75000 },
+  { description: "Modification statutaire", type: "honoraire", montant: 50000 },
 ];
 
 // Barèmes TDL (Taxe de Développement Local) - 9 tranches
@@ -69,24 +67,19 @@ export const FEE_SCHEDULES: Record<RegimeFiscal, FeeSchedule[]> = {
   ],
   igs: [
     { description: "DSF", montant: 30000 },
-    { description: "Gestion fiscale", montant: 50000 },
+    { description: "Gestion fiscale", montant: 60000 },
     { description: "Tenue de comptabilité", montant: 50000 },
     { description: "Établissement des états financiers", montant: 75000 },
     { description: "Assistance contrôle fiscal", montant: 100000 },
   ],
   non_professionnel: [
-    { description: "DSF", montant: 15000 },
-    { description: "Gestion fiscale", montant: 20000 },
-    { description: "Tenue de comptabilité", montant: 20000 },
-    { description: "Établissement des états financiers", montant: 25000 },
-    { description: "Assistance contrôle fiscal", montant: 30000 },
+    { description: "Déclaration des revenus fonciers", montant: 15000 },
+    { description: "Suivi fiscal annuel", montant: 30000 },
   ],
   obnl: [
-    { description: "DSF", montant: 50000 },
-    { description: "Gestion fiscale", montant: 60000 },
-    { description: "Tenue de comptabilité", montant: 50000 },
-    { description: "Établissement des états financiers", montant: 60000 },
-    { description: "Assistance contrôle fiscal", montant: 50000 },
+    { description: "Renouvellement du dossier fiscal", montant: 10000 },
+    { description: "Montage et mise en ligne DSF", montant: 50000 },
+    { description: "Tenue de comptabilité", montant: 60000 },
   ],
 };
 

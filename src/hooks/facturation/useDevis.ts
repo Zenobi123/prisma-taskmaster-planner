@@ -11,7 +11,11 @@ import {
 } from "@/services/devisService";
 import { toast } from "sonner";
 
-export function useDevis() {
+interface UseDevisOptions {
+  onConvertSuccess?: (factureId: string) => void;
+}
+
+export function useDevis(options: UseDevisOptions = {}) {
   const queryClient = useQueryClient();
 
   // Filter states
@@ -86,6 +90,7 @@ export function useDevis() {
       queryClient.invalidateQueries({ queryKey: ["devis"] });
       queryClient.invalidateQueries({ queryKey: ["factures"] });
       toast.success("Devis converti en facture avec succès");
+      options.onConvertSuccess?.(factureId);
     },
     onError: (error: Error) => {
       toast.error("Erreur lors de la conversion du devis: " + error.message);
