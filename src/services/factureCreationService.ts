@@ -6,112 +6,43 @@ import { transformClient } from "./factureTransformUtils";
 
 export const factureCreationService = {
   async createFacture(factureData: Facture): Promise<Facture> {
-    try {
-      // Generate proper facture number: N° XXXX/YYYY/MM
-      const numero = await getNextFactureNumber();
-      const factureId = numero;
+    // Generate proper facture number: N° XXXX/YYYY/MM
+    const numero = await getNextFactureNumber();
+    const factureId = numero;
 
-      const { data, error } = await supabase
-        .from('factures')
-        .insert({
-          id: factureId,
-          client_id: factureData.client_id,
-          date: factureData.date,
-          echeance: factureData.echeance,
-          montant: factureData.montant,
-          status: factureData.status,
-          status_paiement: factureData.status_paiement,
-          mode_paiement: factureData.mode,
-          notes: factureData.notes
-        })
-        .select(`
-          *,
-          client:clients(
-            id,
-            nom,
-            raisonsociale,
-            contact,
-            adresse,
-            type
-          )
-        `)
-        .single();
+    const { data, error } = await supabase
+      .from('factures')
+      .insert({
+        id: factureId,
+        client_id: factureData.client_id,
+        date: factureData.date,
+        echeance: factureData.echeance,
+        montant: factureData.montant,
+        status: factureData.status,
+        status_paiement: factureData.status_paiement,
+        mode_paiement: factureData.mode,
+        notes: factureData.notes
+      })
+      .select(`
+        *,
+        client:clients(
+          id,
+          nom,
+          raisonsociale,
+          contact,
+          adresse,
+          type
+        )
+      `)
+      .single();
 
-      if (error) throw error;
+    if (error) throw error;
 
-      // Persist prestations to facture_prestations table
-      if (factureData.prestations && factureData.prestations.length > 0) {
-        const prestationsToInsert = factureData.prestations.map((p) => ({
-          id: `FPRE-${crypto.randomUUID()}`,
-          facture_id: factureId,
-          description: p.description,
-          type: p.type || "honoraire",
-          quantite: p.quantite,
-          prix_unitaire: p.prix_unitaire,
-          montant: p.montant,
-        }));
-
-        const { error: prestationsError } = await supabase
-          .from("facture_prestations")
-          .insert(prestationsToInsert);
-
-        if (prestationsError) {
-          // Don't throw - facture was created, prestations insert is secondary
-        }
-      }
-
-      // Calculate totals by type
-      const montant_impots = (factureData.prestations || [])
-        .filter(p => p.type === "impot")
-        .reduce((sum, p) => sum + p.montant, 0);
-      const montant_honoraires = (factureData.prestations || [])
-        .filter(p => p.type === "honoraire")
-        .reduce((sum, p) => sum + p.montant, 0);
-
-      return {
-        ...data,
-        numero: factureId,
-        mode: data.mode_paiement,
-        status: data.status as "brouillon" | "envoyée" | "annulée",
-        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
-        prestations: factureData.prestations || [],
-        montant_impots,
-        montant_honoraires,
-        client: transformClient(data.client)
-      };
-    } catch (error) {
-      throw error;
-    }
-  },
-
-  async getFactureById(id: string): Promise<Facture | null> {
-    try {
-      const { data, error } = await supabase
-        .from('factures')
-        .select(`
-          *,
-          client:clients(
-            id,
-            nom,
-            raisonsociale,
-            contact,
-            adresse,
-            type
-          )
-        `)
-        .eq('id', id)
-        .single();
-
-      if (error) throw error;
-
-      // Fetch prestations
-      const { data: prestationsData } = await supabase
-        .from("facture_prestations")
-        .select("*")
-        .eq("facture_id", id);
-
-      const prestations: Prestation[] = (prestationsData || []).map((p: any) => ({
-        id: p.id,
+    // Persist prestations to facture_prestations table
+    if (factureData.prestations && factureData.prestations.length > 0) {
+      const prestationsToInsert = factureData.prestations.map((p) => ({
+        id: `FPRE-${crypto.randomUUID()}`,
+        facture_id: factureId,
         description: p.description,
         type: p.type || "honoraire",
         quantite: p.quantite,
@@ -119,45 +50,102 @@ export const factureCreationService = {
         montant: p.montant,
       }));
 
-      const montant_impots = prestations
-        .filter(p => p.type === "impot")
-        .reduce((sum, p) => sum + p.montant, 0);
-      const montant_honoraires = prestations
-        .filter(p => p.type === "honoraire")
-        .reduce((sum, p) => sum + p.montant, 0);
+      const { error: prestationsError } = await supabase
+        .from("facture_prestations")
+        .insert(prestationsToInsert);
 
-      return {
-        ...data,
-        numero: data.id,
-        mode: data.mode_paiement,
-        status: data.status as "brouillon" | "envoyée" | "annulée",
-        status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
-        prestations,
-        montant_impots,
-        montant_honoraires,
-        client: transformClient(data.client)
-      };
-    } catch (error) {
-      throw error;
+      if (prestationsError) {
+        // Don't throw - facture was created, prestations insert is secondary
+      }
     }
+
+    // Calculate totals by type
+    const montant_impots = (factureData.prestations || [])
+      .filter(p => p.type === "impot")
+      .reduce((sum, p) => sum + p.montant, 0);
+    const montant_honoraires = (factureData.prestations || [])
+      .filter(p => p.type === "honoraire")
+      .reduce((sum, p) => sum + p.montant, 0);
+
+    return {
+      ...data,
+      numero: factureId,
+      mode: data.mode_paiement,
+      status: data.status as "brouillon" | "envoyée" | "annulée",
+      status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+      prestations: factureData.prestations || [],
+      montant_impots,
+      montant_honoraires,
+      client: transformClient(data.client)
+    };
+  },
+
+  async getFactureById(id: string): Promise<Facture | null> {
+    const { data, error } = await supabase
+      .from('factures')
+      .select(`
+        *,
+        client:clients(
+          id,
+          nom,
+          raisonsociale,
+          contact,
+          adresse,
+          type
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) throw error;
+
+    // Fetch prestations
+    const { data: prestationsData } = await supabase
+      .from("facture_prestations")
+      .select("*")
+      .eq("facture_id", id);
+
+    const prestations: Prestation[] = (prestationsData || []).map((p: any) => ({
+      id: p.id,
+      description: p.description,
+      type: p.type || "honoraire",
+      quantite: p.quantite,
+      prix_unitaire: p.prix_unitaire,
+      montant: p.montant,
+    }));
+
+    const montant_impots = prestations
+      .filter(p => p.type === "impot")
+      .reduce((sum, p) => sum + p.montant, 0);
+    const montant_honoraires = prestations
+      .filter(p => p.type === "honoraire")
+      .reduce((sum, p) => sum + p.montant, 0);
+
+    return {
+      ...data,
+      numero: data.id,
+      mode: data.mode_paiement,
+      status: data.status as "brouillon" | "envoyée" | "annulée",
+      status_paiement: data.status_paiement as "non_payée" | "partiellement_payée" | "payée" | "en_retard",
+      prestations,
+      montant_impots,
+      montant_honoraires,
+      client: transformClient(data.client)
+    };
   },
 
   async deleteFacture(id: string): Promise<void> {
-    try {
-      // Delete prestations first
-      await supabase
-        .from("facture_prestations")
-        .delete()
-        .eq("facture_id", id);
+    // Delete prestations first
+    await supabase
+      .from("facture_prestations")
+      .delete()
+      .eq("facture_id", id);
 
-      const { error } = await supabase
-        .from('factures')
-        .delete()
-        .eq('id', id);
+    const { error } = await supabase
+      .from('factures')
+      .delete()
+      .eq('id', id);
 
-      if (error) throw error;
-    } catch (error) {
-      throw error;
-    }
+    if (error) throw error;
   },
 };
