@@ -109,9 +109,9 @@ export function useVueActivite(year: number) {
         supabase
           .from("clients")
           .select("id, nom, raisonsociale, type"),
-        supabase
-          .from("prestations")
-          .select("id, facture_id, description, montant, facture:factures(id, date, client_id)"),
+        (supabase as any)
+          .from("facture_prestations")
+          .select("id, facture_id, description, montant, type"),
       ]);
 
       if (fErr) throw fErr;
@@ -129,6 +129,11 @@ export function useVueActivite(year: number) {
       const factureList = factures || [];
       const paiementList = paiements || [];
       const prestationList = prestations || [];
+      const factureById = new Map(factureList.map(f => [f.id, f]));
+      const prestationTypeOf = (pr: any): "impot" | "honoraire" =>
+        pr.type === "impot" || pr.type === "honoraire"
+          ? pr.type
+          : inferPrestationType(pr.description);
 
       // ── Client aggregation ──
       const clientAgg = new Map<string, ClientActiviteRow>();
@@ -155,7 +160,7 @@ export function useVueActivite(year: number) {
 
       // Impôts / honoraires per client from prestations
       for (const pr of prestationList) {
-        const fac = (pr as any).facture;
+        const fac = factureById.get((pr as any).facture_id);
         if (!fac) continue;
         const factureDate: string = fac.date || "";
         if (!factureDate.startsWith(String(year))) continue;
@@ -164,8 +169,7 @@ export function useVueActivite(year: number) {
         const row = clientAgg.get(cid);
         if (!row) continue;
         const amt = Number(pr.montant) || 0;
-        const prestationType = inferPrestationType(pr.description);
-        if (prestationType === "impot") row.totalImpots += amt;
+        if (prestationTypeOf(pr) === "impot") row.totalImpots += amt;
         else row.totalHonoraires += amt;
       }
 
@@ -198,23 +202,21 @@ export function useVueActivite(year: number) {
       })).sort((a, b) => b.date.localeCompare(a.date));
 
       // ── Prestations rows ──
-      const factureIdMap = new Map(factureList.map(f => [f.id, f]));
       const prestationsRows: PrestationRow[] = [];
 
       for (const pr of prestationList) {
-        const fac = (pr as any).facture;
+        const fac = factureById.get((pr as any).facture_id);
         if (!fac) continue;
         const factureDate: string = fac.date || "";
         if (!factureDate.startsWith(String(year))) continue;
         const cid = fac.client_id;
 
         // Estimate paid amount proportionally from facture
-        const parentFacture = factureIdMap.get(fac.id);
-        const factureMontant = Number(parentFacture?.montant) || 0;
-        const facturePaye = Number(parentFacture?.montant_paye) || 0;
+        const factureMontant = Number(fac.montant) || 0;
+        const facturePaye = Number(fac.montant_paye) || 0;
         const prTotal = Number(pr.montant) || 0;
         const montantPaye = factureMontant > 0 ? (prTotal / factureMontant) * facturePaye : 0;
-        const prestationType = inferPrestationType(pr.description);
+        const prestationType = prestationTypeOf(pr);
 
         prestationsRows.push({
           id: pr.id,

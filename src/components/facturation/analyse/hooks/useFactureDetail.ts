@@ -51,30 +51,32 @@ export const useFactureDetail = (factureId: string) => {
         if (factureError) throw factureError;
         
         // Fetch prestations
-        const { data: prestationsData, error: prestationsError } = await supabase
-          .from("prestations")
+        const { data: prestationsData, error: prestationsError } = await (supabase as any)
+          .from("facture_prestations")
           .select("*")
           .eq("facture_id", factureId);
-        
+
         if (prestationsError) throw prestationsError;
-        
+
         // Map prestations to add a "type" property
-        const prestationsWithType = prestationsData.map(prestation => {
-          // Check if the description includes these keywords to determine type
-          let type = "honoraires";
-          
-          const descLower = prestation.description.toLowerCase();
-          if (
-            descLower.includes("patente") || 
-            descLower.includes("bail") || 
-            descLower.includes("taxe") || 
-            descLower.includes("impôt") || 
-            descLower.includes("précompte") || 
-            descLower.includes("solde ir") || 
-            descLower.includes("solde irpp") || 
-            descLower.includes("timbre")
-          ) {
-            type = "impots";
+        const prestationsWithType = (prestationsData || []).map((prestation: any) => {
+          // Préférer le type réel stocké, sinon inférer depuis la désignation
+          let type = prestation.type === "impot" ? "impots" : "honoraires";
+
+          if (prestation.type !== "impot" && prestation.type !== "honoraire") {
+            const descLower = (prestation.description || "").toLowerCase();
+            if (
+              descLower.includes("patente") ||
+              descLower.includes("bail") ||
+              descLower.includes("taxe") ||
+              descLower.includes("impôt") ||
+              descLower.includes("précompte") ||
+              descLower.includes("solde ir") ||
+              descLower.includes("solde irpp") ||
+              descLower.includes("timbre")
+            ) {
+              type = "impots";
+            }
           }
           
           return {

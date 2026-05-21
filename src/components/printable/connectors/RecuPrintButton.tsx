@@ -9,6 +9,7 @@ import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 import PrintableRecu from '../PrintableRecu';
 import PrintPreviewDialog from '../PrintPreviewDialog';
 import { useResolvedClient } from './useResolvedClient';
+import { useResolvedFacture } from './useResolvedFacture';
 
 interface Props {
   paiement: Paiement;
@@ -21,7 +22,13 @@ export default function RecuPrintButton({ paiement, client, variant = 'button', 
   const [open, setOpen] = useState(false);
   const [config] = useCabinetConfig();
   const resolvedClient = useResolvedClient(paiement.client_id, client);
-  const data = useMemo(() => paiementToRecuPrintData(paiement, resolvedClient), [paiement, resolvedClient]);
+  const factureRef = paiement.facture as string | { id?: string } | undefined;
+  const factureId = typeof factureRef === 'string' ? factureRef : factureRef?.id;
+  const resolvedFacture = useResolvedFacture(paiement.est_credit ? undefined : factureId);
+  const data = useMemo(
+    () => paiementToRecuPrintData(paiement, resolvedClient, resolvedFacture),
+    [paiement, resolvedClient, resolvedFacture],
+  );
   const filename = `Recu_${sanitizePdfSegment(data.number, 'doc')}_${sanitizePdfSegment(data.client.name, 'client')}.pdf`;
 
   return (

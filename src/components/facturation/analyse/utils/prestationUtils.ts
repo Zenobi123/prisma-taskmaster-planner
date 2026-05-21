@@ -16,16 +16,18 @@ export const calculatePrestationTotals = (
   let honorairesPendant = 0;
 
   prestations.forEach(prestation => {
-    const descLower = prestation.description.toLowerCase();
-    const isImpot = 
-      descLower.includes("patente") || 
-      descLower.includes("bail") || 
-      descLower.includes("taxe") || 
-      descLower.includes("impôt") || 
-      descLower.includes("précompte") || 
-      descLower.includes("solde ir") || 
-      descLower.includes("solde irpp") || 
-      descLower.includes("timbre");
+    const descLower = (prestation.description || "").toLowerCase();
+    const isImpot =
+      prestation.type === "impot" || prestation.type === "honoraire"
+        ? prestation.type === "impot"
+        : descLower.includes("patente") ||
+          descLower.includes("bail") ||
+          descLower.includes("taxe") ||
+          descLower.includes("impôt") ||
+          descLower.includes("précompte") ||
+          descLower.includes("solde ir") ||
+          descLower.includes("solde irpp") ||
+          descLower.includes("timbre");
     
     // Find the corresponding facture
     const facture = facturesMap.get(prestation.facture_id);
