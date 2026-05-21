@@ -16,6 +16,8 @@ import ReceiptHeader from "./receipt-components/ReceiptHeader";
 import ReceiptContent from "./receipt-components/ReceiptContent";
 import ReceiptFooter from "./receipt-components/ReceiptFooter";
 import RecuPrintButton from "@/components/printable/connectors/RecuPrintButton";
+import { useResolvedFacture } from "@/components/printable/connectors/useResolvedFacture";
+import { ventilerPaiement } from "@/lib/spec/adapters";
 
 interface PaymentReceiptDialogProps {
   paiement: Paiement | null;
@@ -25,8 +27,24 @@ interface PaymentReceiptDialogProps {
 
 const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDialogProps) => {
   const { handleTelechargerRecu, handleVoirRecu } = useFactureViewActions();
-  
+
+  const factureRef = paiement?.facture as string | { id?: string } | undefined;
+  const factureId = typeof factureRef === "string" ? factureRef : factureRef?.id;
+  const resolvedFacture = useResolvedFacture(paiement && !paiement.est_credit ? factureId : undefined);
+
   if (!paiement) return null;
+
+  // Ventilation Impôts / Honoraires commune à tous les rendus du reçu.
+  const { montantImpots, montantHonoraires } = ventilerPaiement(
+    paiement,
+    Number(paiement.montant) || 0,
+    resolvedFacture,
+  );
+  const paiementEnrichi = {
+    ...paiement,
+    montant_impots: montantImpots || undefined,
+    montant_honoraires: montantHonoraires || undefined,
+  } as Paiement;
   
   // Print the receipt
   const handlePrintReceipt = () => {
@@ -35,12 +53,12 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
   
   // Handle download receipt
   const handleDownloadReceipt = () => {
-    handleTelechargerRecu(paiement);
+    handleTelechargerRecu(paiementEnrichi);
   };
-  
+
   // Handle view receipt in a new tab
   const handleViewReceipt = () => {
-    handleVoirRecu(paiement);
+    handleVoirRecu(paiementEnrichi);
   };
   
   return (
@@ -57,9 +75,9 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
         </DialogHeader>
         
         <div className="mt-4 border rounded-md p-6 bg-white">
-          <ReceiptHeader paiement={paiement} />
-          <ReceiptContent paiement={paiement} />
-          <ReceiptFooter paiement={paiement} />
+          <ReceiptHeader paiement={paiementEnrichi} />
+          <ReceiptContent paiement={paiementEnrichi} />
+          <ReceiptFooter paiement={paiementEnrichi} />
         </div>
         
         <DialogFooter className="flex gap-2 justify-between">
