@@ -1,6 +1,6 @@
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
 export const generateChiffresAffairesReport = async () => {
@@ -28,7 +28,7 @@ export const generateChiffresAffairesReport = async () => {
       ['Factures en Retard', stats.facturesEnRetard.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 55,
       head: [['Indicateur', 'Valeur']],
       body: summaryData,
@@ -36,7 +36,7 @@ export const generateChiffresAffairesReport = async () => {
     });
     
     // Détail des factures par mois
-    const currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = doc.lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Évolution Mensuelle', 14, currentY);
     
@@ -55,7 +55,7 @@ export const generateChiffresAffairesReport = async () => {
       `${data.amount.toLocaleString()} F CFA`
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: currentY + 10,
       head: [['Mois', 'Nombre de Factures', 'Montant Total']],
       body: monthlyData,
@@ -87,7 +87,7 @@ export const generateFacturationReport = async () => {
       facture.status_paiement || 'Non défini'
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['N° Facture', 'Client', 'Date', 'Montant', 'Statut']],
       body: facturesData,
@@ -129,7 +129,7 @@ export const generateCreancesReport = async () => {
       ];
     });
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Client', 'N° Facture', 'Échéance', 'Montant Restant', 'Retard']],
       body: creancesData,

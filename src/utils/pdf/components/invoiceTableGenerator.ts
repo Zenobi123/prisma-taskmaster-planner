@@ -59,7 +59,7 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
     return defaultY + 10;
   }
 
-  let finalY = (doc as any).lastAutoTable.finalY || 150;
+  let finalY = doc.lastAutoTable.finalY || 150;
 
   // Add subtotals by type (Impôts / Honoraires)
   const impots = facture.prestations

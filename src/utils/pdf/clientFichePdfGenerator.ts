@@ -100,7 +100,7 @@ export const generateClientFichePDF = (client: Client) => {
     margin: { left: 14, right: 14 },
   });
 
-  currentY = (doc as any).lastAutoTable.finalY + 10;
+  currentY = doc.lastAutoTable.finalY + 10;
 
   // === Section 2: Adresse ===
   doc.setFontSize(13);
@@ -129,7 +129,7 @@ export const generateClientFichePDF = (client: Client) => {
     margin: { left: 14, right: 14 },
   });
 
-  currentY = (doc as any).lastAutoTable.finalY + 10;
+  currentY = doc.lastAutoTable.finalY + 10;
 
   // === Section 3: Contact ===
   doc.setFontSize(13);
@@ -157,7 +157,7 @@ export const generateClientFichePDF = (client: Client) => {
     margin: { left: 14, right: 14 },
   });
 
-  currentY = (doc as any).lastAutoTable.finalY + 10;
+  currentY = doc.lastAutoTable.finalY + 10;
 
   // === Section 4: Situation Immobilière (si renseignée) ===
   if (client.situationimmobiliere) {
@@ -193,7 +193,7 @@ export const generateClientFichePDF = (client: Client) => {
       margin: { left: 14, right: 14 },
     });
 
-    currentY = (doc as any).lastAutoTable.finalY + 10;
+    currentY = doc.lastAutoTable.finalY + 10;
   }
 
   // === Section 5: Interactions ===

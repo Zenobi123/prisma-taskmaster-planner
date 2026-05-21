@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
 // Fonction utilitaire pour formater les valeurs
@@ -48,7 +48,7 @@ export const generatePortefeuilleClientsReport = async () => {
       ['Clients Actifs', data.clients.filter((c: any) => c.statut === 'actif').length.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Catégorie', 'Nombre']],
       body: statsData,
@@ -65,8 +65,8 @@ export const generatePortefeuilleClientsReport = async () => {
       formatPropertyValue(client.statut)
     ]);
     
-    (doc as any).autoTable({
-      startY: (doc as any).lastAutoTable.finalY + 20,
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 20,
       head: [['Nom/Raison Sociale', 'Type', 'NIU', 'Régime Fiscal', 'Secteur', 'Statut']],
       body: clientsData,
       theme: 'grid',
@@ -112,7 +112,7 @@ export const generateNouveauxClientsReport = async () => {
         new Date(client.created_at).toLocaleDateString()
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 45,
         head: [['Nom/Raison Sociale', 'Type', 'Régime Fiscal', 'Secteur', 'Date Création']],
         body: clientsData,
@@ -162,7 +162,7 @@ export const generateActiviteClientsReport = async () => {
         client.niu || 'Non renseigné'
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: currentY,
         head: [['Nom/Raison Sociale', 'Type', 'Régime Fiscal', 'NIU']],
         body: secteursData,
@@ -170,7 +170,7 @@ export const generateActiviteClientsReport = async () => {
         styles: { fontSize: 8 }
       });
       
-      currentY = (doc as any).lastAutoTable.finalY + 15;
+      currentY = doc.lastAutoTable.finalY + 15;
       
       // Nouvelle page si nécessaire
       if (currentY > 250) {

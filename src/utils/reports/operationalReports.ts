@@ -1,6 +1,6 @@
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
 export const generateTachesReport = async () => {
@@ -28,7 +28,7 @@ export const generateTachesReport = async () => {
       ['Taux de Completion', `${totalTaches > 0 ? ((tachesTerminees / totalTaches) * 100).toFixed(1) : 0}%`]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Indicateur', 'Valeur']],
       body: statsData,
@@ -55,7 +55,7 @@ export const generateTachesReport = async () => {
       return acc;
     }, {});
     
-    const currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = doc.lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Tâches par Collaborateur', 14, currentY);
     
@@ -67,7 +67,7 @@ export const generateTachesReport = async () => {
       data.enAttente.toString()
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: currentY + 10,
       head: [['Collaborateur', 'Total', 'Terminées', 'En Cours', 'En Attente']],
       body: collaborateursData,
@@ -128,7 +128,7 @@ export const generatePerformanceCollaborateursReport = async () => {
       data.tachesEnRetard.toString()
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Collaborateur', 'Total Tâches', 'Terminées', 'Taux Completion', 'En Retard']],
       body: performanceData,

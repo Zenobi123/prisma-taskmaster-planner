@@ -1,7 +1,7 @@
 
 import { ReportDataService } from './reportDataService';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export async function generateActivityReport() {
   try {
@@ -57,7 +57,7 @@ export async function generateActivityReport() {
       ];
     });
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Activité', 'Nombre', 'Pourcentage', 'Montant']],
       body: activityData,

@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
 // Fonction utilitaire pour formater les valeurs
@@ -45,7 +45,7 @@ export const generateObligationsFiscalesReport = async () => {
       ['DARP non déposées', fiscalData.unfiledDarp.length.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Type d\'Obligation', 'Nombre de Clients']],
       body: summaryData,
@@ -54,7 +54,7 @@ export const generateObligationsFiscalesReport = async () => {
     
     // Détail IGS non payées
     if (fiscalData.unpaidIgs.length > 0) {
-      const currentY = (doc as any).lastAutoTable.finalY + 20;
+      const currentY = doc.lastAutoTable.finalY + 20;
       doc.setFontSize(14);
       doc.text('IGS Non Payées', 14, currentY);
       
@@ -64,7 +64,7 @@ export const generateObligationsFiscalesReport = async () => {
         formatPropertyValue(client.regimefiscal)
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: currentY + 10,
         head: [['Client', 'NIU', 'Régime Fiscal']],
         body: igsData,
@@ -75,7 +75,7 @@ export const generateObligationsFiscalesReport = async () => {
     
     // Détail DSF non déposées
     if (fiscalData.unfiledDsf.length > 0) {
-      const currentY = (doc as any).lastAutoTable.finalY + 20;
+      const currentY = doc.lastAutoTable.finalY + 20;
       doc.setFontSize(14);
       doc.text('DSF Non Déposées', 14, currentY);
       
@@ -85,7 +85,7 @@ export const generateObligationsFiscalesReport = async () => {
         formatPropertyValue(client.type)
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: currentY + 10,
         head: [['Client', 'NIU', 'Type']],
         body: dsfData,
@@ -135,7 +135,7 @@ export const generateRetardsFiscauxReport = async () => {
       ];
     });
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Client', 'Type Obligation', 'Période', 'Échéance', 'Retard']],
       body: retardsData,

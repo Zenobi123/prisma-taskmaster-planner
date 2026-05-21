@@ -1,7 +1,7 @@
 
 import { ReportDataService } from './reportDataService';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export async function generateClientReport() {
   try {
@@ -23,7 +23,7 @@ export async function generateClientReport() {
       ['Gestion de dossiers clients en portefeuille', stats.gestionExternalisee.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Type', 'Nombre']],
       body: clientStats,

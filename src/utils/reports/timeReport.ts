@@ -1,7 +1,7 @@
 
 import { ReportDataService } from './reportDataService';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export async function generateTimeReport() {
   try {
@@ -44,7 +44,7 @@ export async function generateTimeReport() {
       `${data.progression.toFixed(0)}%`
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Projet', 'Nb Tâches', 'Collaborateurs', 'Progression']],
       body: timeData,

@@ -1,6 +1,6 @@
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
 export const generateMassSalarialeReport = async () => {
@@ -23,7 +23,7 @@ export const generateMassSalarialeReport = async () => {
       ['Nombre de Bulletins', stats.nombreBulletins.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Indicateur', 'Valeur']],
       body: summaryData,
@@ -53,7 +53,7 @@ export const generateMassSalarialeReport = async () => {
       return acc;
     }, {});
     
-    const currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = doc.lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Répartition par Client', 14, currentY);
     
@@ -64,7 +64,7 @@ export const generateMassSalarialeReport = async () => {
       `${data.totalSalaireNet.toLocaleString()} F CFA`
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: currentY + 10,
       head: [['Client', 'Nb Employés', 'Total Brut', 'Total Net']],
       body: clientsData,
@@ -99,7 +99,7 @@ export const generateEffectifsReport = async () => {
       ['Employés Inactifs', employesInactifs.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Indicateur', 'Valeur']],
       body: statsData,
@@ -127,7 +127,7 @@ export const generateEffectifsReport = async () => {
       return acc;
     }, {});
     
-    const currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = doc.lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Effectifs par Client', 14, currentY);
     
@@ -138,7 +138,7 @@ export const generateEffectifsReport = async () => {
       data.inactifs.toString()
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: currentY + 10,
       head: [['Client', 'Total', 'Actifs', 'Inactifs']],
       body: effectifsData,

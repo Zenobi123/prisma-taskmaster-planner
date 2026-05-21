@@ -182,8 +182,7 @@ export const generateClientsParCentreReport = async () => {
           styles: { fontSize: 8 }
         });
         
-        // @ts-ignore - autoTable ajoute lastAutoTable à doc
-        currentY = (doc as any).lastAutoTable.finalY + 15;
+        currentY = doc.lastAutoTable.finalY + 15;
         
         // Nouvelle page si nécessaire
         if (currentY > 250 && index < centres.length - 1) {

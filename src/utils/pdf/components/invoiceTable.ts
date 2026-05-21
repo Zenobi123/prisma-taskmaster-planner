@@ -55,7 +55,7 @@ export const addPrestationsTable = (doc: jsPDF, facture: PDFFacture): number => 
     margin: { left: 15, right: 15 }
   });
 
-  return (doc as any).lastAutoTable.finalY || 150;
+  return doc.lastAutoTable.finalY || 150;
 };
 
 export const addTotalSection = (doc: jsPDF, facture: PDFFacture, finalY: number) => {
