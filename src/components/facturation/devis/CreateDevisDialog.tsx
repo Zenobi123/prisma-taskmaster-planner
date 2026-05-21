@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2, Loader2 } from "lucide-react";
-import { PREDEFINED_PRESTATIONS } from "@/utils/fiscalReferenceData";
+import { PREDEFINED_PRESTATIONS, resolvePredefinedMontant } from "@/utils/fiscalReferenceData";
 
 interface CreateDevisDialogProps {
   open: boolean;
@@ -62,6 +62,10 @@ const CreateDevisDialog = ({
   const [objet, setObjet] = useState("Devis de prestations comptables");
   const [prestations, setPrestations] = useState<DevisPrestation[]>([]);
   const [notes, setNotes] = useState("");
+  const selectedClient = useMemo(
+    () => clients.find((c) => c.id === clientId),
+    [clients, clientId]
+  );
 
   useEffect(() => {
     if (open) {
@@ -82,14 +86,15 @@ const CreateDevisDialog = ({
   };
 
   const addPredefinedPrestation = (predefined: { description: string; type: "impot" | "honoraire"; montant: number }) => {
+    const montant = resolvePredefinedMontant(predefined, selectedClient as unknown as Record<string, unknown>);
     setPrestations((prev) => [
       ...prev,
       {
         description: predefined.description,
         type: predefined.type,
         quantite: 1,
-        prix_unitaire: predefined.montant,
-        montant: predefined.montant,
+        prix_unitaire: montant,
+        montant,
       },
     ]);
   };

@@ -8,6 +8,27 @@ export interface PredefinedPrestation {
   montant: number;
 }
 
+type ClientLike = Record<string, unknown> | null | undefined;
+
+const toNumber = (value: unknown): number => {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const readClientAmount = (client: ClientLike, keys: string[]): number => {
+  if (!client) return 0;
+  for (const key of keys) {
+    const direct = toNumber((client as Record<string, unknown>)[key]);
+    if (direct > 0) return direct;
+    const fiscalData = (client as Record<string, unknown>).fiscal_data as Record<string, unknown> | undefined;
+    if (fiscalData) {
+      const nested = toNumber(fiscalData[key]);
+      if (nested > 0) return nested;
+    }
+  }
+  return 0;
+};
+
 // Prestations prédéfinies (impôts et honoraires)
 export const PREDEFINED_PRESTATIONS: PredefinedPrestation[] = [
   // Impôts
@@ -99,3 +120,25 @@ export const PATENTE_RATE = 0.00283;
 
 // PSL: 10% du loyer
 export const PSL_RATE = 0.10;
+
+export const resolvePredefinedMontant = (
+  prestation: PredefinedPrestation,
+  client?: ClientLike
+): number => {
+  switch (prestation.description) {
+    case "Précompte sur Loyer (PSL)":
+      return readClientAmount(client, ["psl"]);
+    case "Bail Commercial":
+      return readClientAmount(client, ["bail"]);
+    case "Taxe Foncière (TF)":
+      return readClientAmount(client, ["tf"]);
+    case "Impôt Général Synthétique (IGS)":
+      return readClientAmount(client, ["igs"]);
+    case "Patente":
+      return readClientAmount(client, ["patente"]);
+    case "Solde IR":
+      return readClientAmount(client, ["soldeir", "solde_ir", "soldeIR"]);
+    default:
+      return prestation.montant;
+  }
+};

@@ -21,7 +21,7 @@ import TotalAmountDisplay from './TotalAmountDisplay';
 import { Prestation } from '@/types/facture';
 import { Client } from '@/types/client';
 import { useFactureFormSubmit } from '@/hooks/facturation/factureForm/useFactureFormSubmit';
-import { PREDEFINED_PRESTATIONS } from '@/utils/fiscalReferenceData';
+import { PREDEFINED_PRESTATIONS, resolvePredefinedMontant } from '@/utils/fiscalReferenceData';
 
 const factureFormSchema = z.object({
   client_id: z.string().min(1, { message: "Veuillez sélectionner un client" }),
@@ -77,14 +77,16 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
   };
 
   const addPredefinedPrestation = (predefined: { description: string; type: "impot" | "honoraire"; montant: number }) => {
+    const selectedClient = clients.find((c) => c.id === selectedClientId);
+    const montant = resolvePredefinedMontant(predefined, selectedClient as unknown as Record<string, unknown>);
     setPrestations(prev => [
       ...prev,
       {
         description: predefined.description,
         type: predefined.type,
         quantite: 1,
-        prix_unitaire: predefined.montant,
-        montant: predefined.montant,
+        prix_unitaire: montant,
+        montant,
       },
     ]);
   };
