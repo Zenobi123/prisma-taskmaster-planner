@@ -9,6 +9,7 @@ import { useCabinetConfig } from '@/lib/spec/cabinetConfig';
 import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 import PrintableFacture from '../PrintableFacture';
 import PrintPreviewDialog from '../PrintPreviewDialog';
+import { useResolvedClient } from './useResolvedClient';
 
 interface Props {
   facture: Facture;
@@ -20,7 +21,8 @@ interface Props {
 export default function FacturePrintButton({ facture, client, variant = 'icon', label = 'Imprimer' }: Props) {
   const [open, setOpen] = useState(false);
   const [config] = useCabinetConfig();
-  const data = useMemo(() => factureToPrintData(facture, client), [facture, client]);
+  const resolvedClient = useResolvedClient(facture.client_id, client);
+  const data = useMemo(() => factureToPrintData(facture, resolvedClient), [facture, resolvedClient]);
 
   const filename = `Facture_${sanitizePdfSegment(data.number, 'doc')}_${sanitizePdfSegment(data.client.name, 'client')}.pdf`;
 

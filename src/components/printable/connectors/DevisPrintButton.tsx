@@ -8,6 +8,7 @@ import { useCabinetConfig } from '@/lib/spec/cabinetConfig';
 import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 import PrintableDevis from '../PrintableDevis';
 import PrintPreviewDialog from '../PrintPreviewDialog';
+import { useResolvedClient } from './useResolvedClient';
 
 interface Props {
   devis: Devis;
@@ -19,7 +20,8 @@ interface Props {
 export default function DevisPrintButton({ devis, client, variant = 'icon', label = 'Imprimer' }: Props) {
   const [open, setOpen] = useState(false);
   const [config] = useCabinetConfig();
-  const data = useMemo(() => devisToPrintData(devis, client), [devis, client]);
+  const resolvedClient = useResolvedClient(devis.client_id, client);
+  const data = useMemo(() => devisToPrintData(devis, resolvedClient), [devis, resolvedClient]);
 
   const filename = `Devis_${sanitizePdfSegment(data.number, 'doc')}_${sanitizePdfSegment(data.client.name, 'client')}.pdf`;
 

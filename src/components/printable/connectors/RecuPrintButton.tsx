@@ -8,6 +8,7 @@ import { useCabinetConfig } from '@/lib/spec/cabinetConfig';
 import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 import PrintableRecu from '../PrintableRecu';
 import PrintPreviewDialog from '../PrintPreviewDialog';
+import { useResolvedClient } from './useResolvedClient';
 
 interface Props {
   paiement: Paiement;
@@ -19,7 +20,8 @@ interface Props {
 export default function RecuPrintButton({ paiement, client, variant = 'button', label = 'Aperçu fidèle' }: Props) {
   const [open, setOpen] = useState(false);
   const [config] = useCabinetConfig();
-  const data = useMemo(() => paiementToRecuPrintData(paiement, client), [paiement, client]);
+  const resolvedClient = useResolvedClient(paiement.client_id, client);
+  const data = useMemo(() => paiementToRecuPrintData(paiement, resolvedClient), [paiement, resolvedClient]);
   const filename = `Recu_${sanitizePdfSegment(data.number, 'doc')}_${sanitizePdfSegment(data.client.name, 'client')}.pdf`;
 
   return (

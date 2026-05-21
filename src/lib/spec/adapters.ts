@@ -183,10 +183,11 @@ export function paiementToRecuPrintData(
       : fallbackClient(typeof paiement.client === 'string' ? paiement.client : 'Client');
 
   const montant = Number(paiement.montant) || 0;
-  const prestationsPayees = paiement.prestations_payees || [];
-  const montantVentile = prestationsPayees.reduce((sum, p) => sum + (Number(p.montant_modifie) || 0), 0);
+  // La ventilation Impôts / Honoraires n'est pas dérivable d'un paiement seul
+  // (PrestationPayee ne porte pas le type). On laisse 0/0 pour que le reçu
+  // masque le bloc plutôt que d'attribuer tort le montant total aux impôts.
+  const montantImpots = 0;
   const montantHonoraires = 0;
-  const montantImpots = montantVentile > 0 ? montantVentile : montant;
 
   return {
     number: paiement.reference || `RECU-${paiement.id?.slice(-6)}`,
