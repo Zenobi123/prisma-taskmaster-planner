@@ -109,7 +109,7 @@ export function useVueActivite(year: number) {
         supabase
           .from("clients")
           .select("id, nom, raisonsociale, type"),
-        (supabase as any)
+        supabase
           .from("facture_prestations")
           .select("id, facture_id, description, montant, type"),
       ]);

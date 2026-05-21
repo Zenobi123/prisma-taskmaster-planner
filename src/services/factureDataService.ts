@@ -26,7 +26,7 @@ export const factureDataService = {
 
       // Fetch all prestations for all factures
       const factureIds = data.map((f: any) => f.id);
-      const { data: prestationsData, error: prestationsError } = await (supabase as any)
+      const { data: prestationsData, error: prestationsError } = await supabase
         .from("facture_prestations")
         .select("*")
         .in("facture_id", factureIds);
@@ -44,7 +44,7 @@ export const factureDataService = {
           prestationsMap[p.facture_id].push({
             id: p.id,
             description: p.description,
-            type: p.type || "honoraire",
+            type: (p.type || "honoraire") as Prestation["type"],
             quantite: p.quantite,
             prix_unitaire: p.prix_unitaire,
             montant: p.montant,
@@ -108,7 +108,7 @@ export const factureDataService = {
       if (!data) return null;
 
       // Fetch prestations for this facture
-      const { data: prestationsData } = await (supabase as any)
+      const { data: prestationsData } = await supabase
         .from("facture_prestations")
         .select("*")
         .eq("facture_id", id);
@@ -188,7 +188,7 @@ export const factureDataService = {
 
       // If prestations provided, delete old and insert new
       if (updates.prestations) {
-        await (supabase as any)
+        await supabase
           .from("facture_prestations")
           .delete()
           .eq("facture_id", id);
@@ -204,14 +204,14 @@ export const factureDataService = {
             montant: p.montant,
           }));
 
-          await (supabase as any)
+          await supabase
             .from("facture_prestations")
             .insert(prestationsToInsert);
         }
       }
 
       // Fetch current prestations
-      const { data: prestationsData } = await (supabase as any)
+      const { data: prestationsData } = await supabase
         .from("facture_prestations")
         .select("*")
         .eq("facture_id", id);
@@ -259,7 +259,7 @@ export const factureDataService = {
   async deleteFacture(id: string): Promise<void> {
     try {
       // Delete prestations first
-      await (supabase as any)
+      await supabase
         .from("facture_prestations")
         .delete()
         .eq("facture_id", id);

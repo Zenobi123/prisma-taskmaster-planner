@@ -51,7 +51,7 @@ export const useFactureDetail = (factureId: string) => {
         if (factureError) throw factureError;
         
         // Fetch prestations
-        const { data: prestationsData, error: prestationsError } = await (supabase as any)
+        const { data: prestationsData, error: prestationsError } = await supabase
           .from("facture_prestations")
           .select("*")
           .eq("facture_id", factureId);

@@ -116,7 +116,7 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
     if (prestationIds.length === 0) return;
     
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("facture_prestations")
         .select("*")
         .in("id", prestationIds);

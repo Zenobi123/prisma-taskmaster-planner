@@ -9,7 +9,7 @@ export async function getNextDevisNumber(): Promise<string> {
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
 
-  const { data } = await (supabase as any)
+  const { data } = await supabase
     .from("devis")
     .select("numero");
 
@@ -28,7 +28,7 @@ export async function getNextDevisNumber(): Promise<string> {
 
 // Fetch all devis with client info
 export async function getDevis(): Promise<Devis[]> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from("devis")
     .select(`
       *,
@@ -51,7 +51,7 @@ export async function getDevis(): Promise<Devis[]> {
 
   // Fetch prestations for each devis
   const devisIds = data.map((d: any) => d.id);
-  const { data: prestationsData, error: prestationsError } = await (supabase as any)
+  const { data: prestationsData, error: prestationsError } = await supabase
     .from("devis_prestations")
     .select("*")
     .in("devis_id", devisIds);
@@ -68,7 +68,7 @@ export async function getDevis(): Promise<Devis[]> {
       prestationsMap[p.devis_id].push({
         id: p.id,
         description: p.description,
-        type: p.type,
+        type: p.type as DevisPrestation["type"],
         quantite: p.quantite,
         prix_unitaire: p.prix_unitaire,
         montant: p.montant,
@@ -142,7 +142,7 @@ export async function createDevis(data: DevisFormData): Promise<Devis> {
 
   const montant_total = data.prestations.reduce((sum, p) => sum + p.montant, 0);
 
-  const { data: devisData, error } = await (supabase as any)
+  const { data: devisData, error } = await supabase
     .from("devis")
     .insert({
       id: devisId,
@@ -184,7 +184,7 @@ export async function createDevis(data: DevisFormData): Promise<Devis> {
       montant: p.montant,
     }));
 
-    const { error: prestationsError } = await (supabase as any)
+    const { error: prestationsError } = await supabase
       .from("devis_prestations")
       .insert(prestationsToInsert);
 
@@ -255,7 +255,7 @@ export async function updateDevis(id: string, data: Partial<DevisFormData>): Pro
 
   updatePayload.updated_at = new Date().toISOString();
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("devis")
     .update(updatePayload)
     .eq("id", id);
@@ -266,7 +266,7 @@ export async function updateDevis(id: string, data: Partial<DevisFormData>): Pro
 
   // If prestations provided, delete old and insert new
   if (data.prestations) {
-    const { error: deleteError } = await (supabase as any)
+    const { error: deleteError } = await supabase
       .from("devis_prestations")
       .delete()
       .eq("devis_id", id);
@@ -286,7 +286,7 @@ export async function updateDevis(id: string, data: Partial<DevisFormData>): Pro
         montant: p.montant,
       }));
 
-      const { error: insertError } = await (supabase as any)
+      const { error: insertError } = await supabase
         .from("devis_prestations")
         .insert(prestationsToInsert);
 
@@ -299,7 +299,7 @@ export async function updateDevis(id: string, data: Partial<DevisFormData>): Pro
 
 // Delete a devis
 export async function deleteDevis(id: string): Promise<void> {
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("devis")
     .delete()
     .eq("id", id);
@@ -312,7 +312,7 @@ export async function deleteDevis(id: string): Promise<void> {
 // Convert devis to facture
 export async function convertDevisToFacture(devisId: string): Promise<string> {
   // Get the devis with prestations
-  const { data: devisData, error: devisError } = await (supabase as any)
+  const { data: devisData, error: devisError } = await supabase
     .from("devis")
     .select("*")
     .eq("id", devisId)
@@ -323,7 +323,7 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
   }
 
   // Get prestations
-  const { data: prestationsData } = await (supabase as any)
+  const { data: prestationsData } = await supabase
     .from("devis_prestations")
     .select("*")
     .eq("devis_id", devisId);
@@ -363,7 +363,7 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
       montant: p.montant,
     }));
 
-    const { error: fpError } = await (supabase as any)
+    const { error: fpError } = await supabase
       .from("facture_prestations")
       .insert(facturePrestations);
 
@@ -372,7 +372,7 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
   }
 
   // Update devis status to "converti" and set facture_id
-  const { error: updateError } = await (supabase as any)
+  const { error: updateError } = await supabase
     .from("devis")
     .update({
       status: "converti",

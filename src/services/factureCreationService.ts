@@ -51,7 +51,7 @@ export const factureCreationService = {
           montant: p.montant,
         }));
 
-        const { error: prestationsError } = await (supabase as any)
+        const { error: prestationsError } = await supabase
           .from("facture_prestations")
           .insert(prestationsToInsert);
 
@@ -105,7 +105,7 @@ export const factureCreationService = {
       if (error) throw error;
 
       // Fetch prestations
-      const { data: prestationsData } = await (supabase as any)
+      const { data: prestationsData } = await supabase
         .from("facture_prestations")
         .select("*")
         .eq("facture_id", id);
@@ -145,7 +145,7 @@ export const factureCreationService = {
   async deleteFacture(id: string): Promise<void> {
     try {
       // Delete prestations first
-      await (supabase as any)
+      await supabase
         .from("facture_prestations")
         .delete()
         .eq("facture_id", id);

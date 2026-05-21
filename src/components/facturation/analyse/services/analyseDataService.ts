@@ -53,7 +53,7 @@ export const fetchPrestationsForAnalysis = async () => {
   }
   
   
-  const { data: prestationsData, error: prestationsError } = await (supabase as any)
+  const { data: prestationsData, error: prestationsError } = await supabase
     .from("facture_prestations")
     .select("*");
     
