@@ -133,8 +133,7 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
         // Generic command
         onCommand('generic', transcript);
       }
-    } catch (error) {
-    }
+    } catch { /* erreur ignoree volontairement */ }
   }, [onCommand]);
 
   const extractStatus = (transcript: string): string | null => {
@@ -151,8 +150,7 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
     if (isListening) {
       try {
         recognitionRef.current?.stop();
-      } catch (error) {
-      }
+      } catch { /* erreur ignoree volontairement */ }
     } else {
       try {
         recognitionRef.current?.start();

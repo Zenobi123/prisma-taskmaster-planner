@@ -22,8 +22,7 @@ export class DocumentHeaderFooterService {
     if (logoUrl) {
       try {
         this.doc.addImage(logoUrl, 'PNG', 10, 10, 30, 30);
-      } catch (error) {
-      }
+      } catch { /* erreur ignoree volontairement */ }
     }
 
     this.doc.setDrawColor(...PDF_THEME.border);

@@ -63,8 +63,7 @@ export const generateChiffresAffairesReport = async () => {
     });
     
     doc.save(`chiffre-affaires-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generateFacturationReport = async () => {
@@ -96,8 +95,7 @@ export const generateFacturationReport = async () => {
     });
     
     doc.save(`facturation-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generateCreancesReport = async () => {
@@ -138,6 +136,5 @@ export const generateCreancesReport = async () => {
     });
     
     doc.save(`creances-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };

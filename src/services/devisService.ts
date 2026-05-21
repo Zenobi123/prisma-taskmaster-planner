@@ -51,13 +51,11 @@ export async function getDevis(): Promise<Devis[]> {
 
   // Fetch prestations for each devis
   const devisIds = data.map((d: any) => d.id);
-  const { data: prestationsData, error: prestationsError } = await supabase
+  // Récupération best-effort : une erreur prestations ne bloque pas la liste des devis.
+  const { data: prestationsData } = await supabase
     .from("devis_prestations")
     .select("*")
     .in("devis_id", devisIds);
-
-  if (prestationsError) {
-  }
 
   const prestationsMap: Record<string, DevisPrestation[]> = {};
   if (prestationsData) {
@@ -363,12 +361,10 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
       montant: p.montant,
     }));
 
-    const { error: fpError } = await supabase
+    // Insertion best-effort des prestations de la facture issue du devis.
+    await supabase
       .from("facture_prestations")
       .insert(facturePrestations);
-
-    if (fpError) {
-    }
   }
 
   // Update devis status to "converti" and set facture_id

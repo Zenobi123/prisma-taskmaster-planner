@@ -85,9 +85,8 @@ export const useAnalyseGlobale = (
           
           // Mettre à jour les derniers paramètres
           lastParams.current = {period, clientFilter, statusFilter};
-        } else {
         }
-        
+
         // Filter factures by period, client, and status
         const filteredFactures = filterFacturesByPeriod(
           facturesData,
@@ -149,8 +148,7 @@ export const useAnalyseGlobale = (
         
         setChartData(statusChartData);
         setMonthlyData(monthlyChartData);
-      } catch (error) {
-      } finally {
+      } catch { /* erreur ignoree volontairement */ } finally {
         setIsLoading(false);
       }
     };

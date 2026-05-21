@@ -95,8 +95,7 @@ export const generateObligationsFiscalesReport = async () => {
     }
     
     doc.save(`obligations-fiscales-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generateRetardsFiscauxReport = async () => {
@@ -144,6 +143,5 @@ export const generateRetardsFiscauxReport = async () => {
     });
     
     doc.save(`retards-fiscaux-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };

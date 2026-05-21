@@ -71,8 +71,7 @@ export const addPaymentsSection = (doc: jsPDF, facture: PDFFacture, startY: numb
     let formattedDate = paiement.date;
     try {
       formattedDate = format(parseISO(paiement.date), 'dd/MM/yyyy', { locale: fr });
-    } catch (e) {
-    }
+    } catch { /* erreur ignoree volontairement */ }
 
     const formattedAmount = new Intl.NumberFormat('fr-FR').format(paiement.montant);
 

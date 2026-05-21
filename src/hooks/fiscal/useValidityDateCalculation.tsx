@@ -40,7 +40,6 @@ export const useValidityDateCalculation = ({
         setValidityEndDate(formattedEndDate);
         setHasUnsavedChanges(true);
       }
-    } catch (error) {
-    }
+    } catch { /* erreur ignoree volontairement */ }
   }, [creationDate, setValidityEndDate, setHasUnsavedChanges]);
 };

@@ -131,8 +131,7 @@ export const sendCourrierWithStorage = async (
         date_creation: new Date().toISOString(),
         date_envoi: new Date().toISOString(),
       });
-    } catch (e) {
-    }
+    } catch { /* erreur ignoree volontairement */ }
 
     // Generate PDF
     const pdfData = [

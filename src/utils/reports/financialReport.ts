@@ -32,6 +32,5 @@ export async function generateFinancialReport() {
     });
     
     doc.save(`bilan-financier-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 }

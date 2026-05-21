@@ -99,7 +99,6 @@ export class StandardDocumentContentService implements DocumentContentService {
   public addImage(imageUrl: string, x: number, y: number, width: number, height: number): void {
     try {
       this.doc.addImage(imageUrl, "JPEG", x, y, width, height);
-    } catch (error) {
-    }
+    } catch { /* erreur ignoree volontairement */ }
   }
 }

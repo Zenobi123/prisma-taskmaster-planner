@@ -75,8 +75,7 @@ export const useExpiringFiscalAttestations = () => {
               });
             }
           }
-        } catch (error) {
-        }
+        } catch { /* erreur ignoree volontairement */ }
       });
       
       

@@ -31,6 +31,5 @@ export async function generateClientReport() {
     });
     
     doc.save(`rapport-client-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 }

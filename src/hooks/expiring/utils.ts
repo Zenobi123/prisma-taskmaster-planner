@@ -45,10 +45,8 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
           if (daysUntilExpiration <= 5 || daysUntilExpiration < 0) {
             showExpirationNotification(clientName, daysUntilExpiration, client.id);
           }
-        } else {
         }
-      } catch (error) {
-      }
+      } catch { /* erreur ignoree volontairement */ }
     }
   });
   

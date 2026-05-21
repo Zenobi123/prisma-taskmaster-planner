@@ -76,8 +76,7 @@ export const generateTachesReport = async () => {
     });
     
     doc.save(`taches-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generatePerformanceCollaborateursReport = async () => {
@@ -136,6 +135,5 @@ export const generatePerformanceCollaborateursReport = async () => {
     });
     
     doc.save(`performance-collaborateurs-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };

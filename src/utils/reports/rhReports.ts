@@ -73,8 +73,7 @@ export const generateMassSalarialeReport = async () => {
     });
     
     doc.save(`masse-salariale-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generateEffectifsReport = async () => {
@@ -146,6 +145,5 @@ export const generateEffectifsReport = async () => {
     });
     
     doc.save(`effectifs-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };

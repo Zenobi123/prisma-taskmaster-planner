@@ -24,15 +24,12 @@ export const factureDataService = {
       if (error) throw error;
       if (!data || data.length === 0) return [];
 
-      // Fetch all prestations for all factures
-      const factureIds = data.map((f: any) => f.id);
-      const { data: prestationsData, error: prestationsError } = await supabase
+      // Fetch all prestations for all factures (best-effort)
+      const factureIds = data.map((f) => f.id);
+      const { data: prestationsData } = await supabase
         .from("facture_prestations")
         .select("*")
         .in("facture_id", factureIds);
-
-      if (prestationsError) {
-      }
 
       // Group prestations by facture_id
       const prestationsMap: Record<string, Prestation[]> = {};

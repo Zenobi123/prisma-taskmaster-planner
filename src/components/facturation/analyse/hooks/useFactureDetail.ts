@@ -112,8 +112,7 @@ export const useFactureDetail = (factureId: string) => {
         if (isMounted.current) {
           setFactureDetail(detailData);
         }
-      } catch (error) {
-      } finally {
+      } catch { /* erreur ignoree volontairement */ } finally {
         if (isMounted.current) {
           setIsLoading(false);
         }

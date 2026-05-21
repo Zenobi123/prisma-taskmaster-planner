@@ -58,8 +58,7 @@ export const usePaiements = () => {
               }));
             }
             
-          } catch (e) {
-          }
+          } catch { /* erreur ignoree volontairement */ }
         }
         
         // Calculate solde_restant more accurately

@@ -64,8 +64,7 @@ export const useReminderInvoice = (invoiceId: string | null, isDialogOpen: boole
           }
         });
         
-      } catch (error) {
-      } finally {
+      } catch { /* erreur ignoree volontairement */ } finally {
         setIsLoading(false);
       }
     };

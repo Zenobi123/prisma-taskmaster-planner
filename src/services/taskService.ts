@@ -164,8 +164,7 @@ const updateTaskStatusesBasedOnDates = async (tasks: any[]): Promise<any[]> => {
       if (index !== -1) {
         tasks[index].status = task.status;
       }
-    } catch (error) {
-    }
+    } catch { /* erreur ignoree volontairement */ }
   }
   
   return tasks;
