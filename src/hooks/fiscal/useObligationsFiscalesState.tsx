@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Client } from "@/types/client";
-import { ObligationStatuses } from "./types";
+import { ObligationStatuses, ClientFiscalData } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 import { useDefaultObligationRules } from "./useDefaultObligationRules";
 
@@ -41,7 +41,7 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
         if (fiscalData && typeof fiscalData === 'object' && !Array.isArray(fiscalData)) {
           // Load attestation data
           if (fiscalData.attestation && typeof fiscalData.attestation === 'object') {
-            const attestation = fiscalData.attestation as any;
+            const attestation = fiscalData.attestation as ClientFiscalData["attestation"];
             setCreationDate(attestation.creationDate || "");
             setValidityEndDate(attestation.validityEndDate || "");
             setShowInAlert(attestation.showInAlert !== false);
@@ -50,7 +50,7 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
 
           // Load registration attestation data
           if (fiscalData.registrationAttestation && typeof fiscalData.registrationAttestation === 'object') {
-            const regAttestation = fiscalData.registrationAttestation as any;
+            const regAttestation = fiscalData.registrationAttestation as ClientFiscalData["registrationAttestation"];
             setRegistrationDate(regAttestation.registrationDate || "");
           }
 
@@ -63,16 +63,16 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
             if (typeof yearObligations === 'object' && !Array.isArray(yearObligations)) {
               // Merge saved data with defaults to ensure all obligation keys exist
               const defaults = getDefaultObligationStatuses();
-              const merged = { ...defaults };
+              const merged: Record<string, unknown> = { ...defaults };
               for (const key of Object.keys(yearObligations)) {
                 if (key in merged) {
-                  merged[key as keyof ObligationStatuses] = {
-                    ...merged[key as keyof ObligationStatuses],
-                    ...(yearObligations as any)[key]
-                  } as any;
+                  merged[key] = {
+                    ...defaults[key as keyof ObligationStatuses],
+                    ...(yearObligations as ObligationStatuses)[key as keyof ObligationStatuses]
+                  };
                 }
               }
-              setObligationStatuses(merged);
+              setObligationStatuses(merged as unknown as ObligationStatuses);
             } else {
               setObligationStatuses(getDefaultObligationStatuses());
             }

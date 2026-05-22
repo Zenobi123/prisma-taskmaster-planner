@@ -6,7 +6,7 @@ interface Window {
   __invalidateFiscalCaches?: () => void;
   __patenteCacheTimestamp?: number;
   __dsfCacheTimestamp?: number;
-  __dsfCacheData?: any[] | null;
+  __dsfCacheData?: unknown[] | null;
   __darpCacheTimestamp?: number; // Property for DARP cache timestamp
   __igsCache?: {
     data: null | any;

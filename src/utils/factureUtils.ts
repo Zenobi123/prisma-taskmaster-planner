@@ -140,8 +140,8 @@ export const calculateTotalPages = (totalItems: number, itemsPerPage: number): n
 // Fonction utilitaire pour le tri
 export const sortFactures = (factures: Facture[], sortBy: string, sortOrder: 'asc' | 'desc'): Facture[] => {
   return [...factures].sort((a, b) => {
-    let aValue: any;
-    let bValue: any;
+    let aValue: string | number | Date;
+    let bValue: string | number | Date;
 
     switch (sortBy) {
       case 'date':

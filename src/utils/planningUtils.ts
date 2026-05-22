@@ -5,7 +5,7 @@ import { Event } from "@/types/event";
 /**
  * Transforms task data from the API into event objects for the Planning view
  */
-export const transformTasksToEvents = (tasks: any[]): Event[] => {
+export const transformTasksToEvents = (tasks: Task[]): Event[] => {
   return tasks.map((task) => {
     const startTime = task.start_time || "00:00";
     const endTime = task.end_time || "00:00";
@@ -37,7 +37,7 @@ export const transformTasksToEvents = (tasks: any[]): Event[] => {
 /**
  * Extracts unique dates from tasks for calendar highlighting
  */
-export const extractDatesWithEvents = (tasks: any[]): Date[] => {
+export const extractDatesWithEvents = (tasks: Task[]): Date[] => {
   const uniqueDates = tasks
     .filter((task) => task.start_date)
     .map((task) => {
@@ -59,7 +59,7 @@ export const extractDatesWithEvents = (tasks: any[]): Date[] => {
 export const filterEvents = (events: Event[], options: {
   collaborateurFilter: string, 
   date: Date | undefined,
-  tasks: any[]
+  tasks: Task[]
 }): Event[] => {
   const { collaborateurFilter, date, tasks } = options;
   
