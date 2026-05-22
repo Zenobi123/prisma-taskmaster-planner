@@ -117,5 +117,5 @@ export const useFiscalDataLoader = ({
     };
 
     loadFiscalData();
-  }, [selectedClient?.id, selectedClient?.regimefiscal, selectedClient?.type, selectedClient?.situationimmobiliere?.type, fiscalYear]);
+  }, [selectedClient?.id, selectedClient?.regimefiscal, selectedClient?.type, selectedClient?.situationimmobiliere?.type, fiscalYear, getDefaultObligationStatuses, setObligationStatuses, setCreationDate, setValidityEndDate, setShowInAlert, setHiddenFromDashboard]);
 };

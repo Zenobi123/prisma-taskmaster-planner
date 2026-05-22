@@ -1,11 +1,11 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses } from "./types";
 import { calculateAllTaxes, FiscalInput } from "@/utils/fiscalCalculations";
 
 export const useDefaultObligationRules = (selectedClient: Client) => {
-  const getDefaultObligationStatuses = (): ObligationStatuses => {
+  const getDefaultObligationStatuses = useCallback((): ObligationStatuses => {
     // Calculer les montants des impôts à partir des données du profil client
     const fiscalInput: FiscalInput = {
       regimeFiscal: selectedClient.regimefiscal,
@@ -105,7 +105,19 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     }
 
     return baseStatuses;
-  };
+  }, [
+    selectedClient.id,
+    selectedClient.regimefiscal,
+    selectedClient.type,
+    selectedClient.chiffreaffaires,
+    selectedClient.iscga,
+    selectedClient.isvendeurboissons,
+    selectedClient.modepaiementigs,
+    selectedClient.modepaiementpsl,
+    selectedClient.situationimmobiliere?.type,
+    selectedClient.situationimmobiliere?.loyer,
+    selectedClient.situationimmobiliere?.valeur,
+  ]);
 
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(() => getDefaultObligationStatuses());
 
@@ -113,7 +125,7 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
   useEffect(() => {
     const newDefaultStatuses = getDefaultObligationStatuses();
     setObligationStatuses(newDefaultStatuses);
-  }, [selectedClient.id, selectedClient.regimefiscal, selectedClient.type, selectedClient.situationimmobiliere?.type]);
+  }, [getDefaultObligationStatuses]);
 
   return {
     obligationStatuses,

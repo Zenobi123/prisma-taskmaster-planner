@@ -91,7 +91,7 @@ export const useObligationsFiscalesState = ({ selectedClient }: UseObligationsFi
     };
 
     loadFiscalData();
-  }, [selectedClient?.id, fiscalYear]);
+  }, [selectedClient?.id, fiscalYear, getDefaultObligationStatuses]);
 
   return {
     fiscalYear,
