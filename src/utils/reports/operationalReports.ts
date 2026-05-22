@@ -59,7 +59,7 @@ export const generateTachesReport = async () => {
     doc.setFontSize(14);
     doc.text('Tâches par Collaborateur', 14, currentY);
     
-    const collaborateursData = Object.entries(tachesParCollaborateur).map(([collaborateur, data]: [string, any]) => [
+    const collaborateursData = Object.entries(tachesParCollaborateur).map(([collaborateur, data]: [string, { total: number; terminees: number; enCours: number; enAttente: number }]) => [
       collaborateur,
       data.total.toString(),
       data.terminees.toString(),
@@ -119,7 +119,7 @@ export const generatePerformanceCollaborateursReport = async () => {
       return acc;
     }, {});
     
-    const performanceData = Object.entries(performanceParCollaborateur).map(([collaborateur, data]: [string, any]) => [
+    const performanceData = Object.entries(performanceParCollaborateur).map(([collaborateur, data]: [string, { totalTaches: number; tachesTerminees: number; tauxCompletion: number; tachesEnRetard: number }]) => [
       collaborateur,
       data.totalTaches.toString(),
       data.tachesTerminees.toString(),

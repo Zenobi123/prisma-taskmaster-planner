@@ -49,7 +49,7 @@ export const generateChiffresAffairesReport = async () => {
       return acc;
     }, {});
     
-    const monthlyData = Object.entries(facturesByMonth).map(([month, data]: [string, any]) => [
+    const monthlyData = Object.entries(facturesByMonth).map(([month, data]: [string, { count: number; amount: number }]) => [
       month,
       data.count.toString(),
       `${data.amount.toLocaleString()} F CFA`

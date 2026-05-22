@@ -24,7 +24,7 @@ export const PaiementFactureSection = ({
   onFactureChange,
   onTypePaiementChange
 }: PaiementFactureSectionProps) => {
-  const [factures, setFactures] = useState<any[]>([]);
+  const [factures, setFactures] = useState<{ id: string; montant: number; montant_paye?: number }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 

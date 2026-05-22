@@ -26,7 +26,7 @@ export const PaiementPrestationSection = ({
   prestationAmounts,
   originalPrestationAmounts
 }: PaiementPrestationSectionProps) => {
-  const [prestations, setPrestations] = useState<any[]>([]);
+  const [prestations, setPrestations] = useState<{ id: string; description: string; montant: number }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 

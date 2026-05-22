@@ -2,7 +2,7 @@
 import { Client } from "@/types/client";
 
 // Format clients for client selector
-export const formatClientsForSelector = (clientsData: any[]): Client[] => {
+export const formatClientsForSelector = (clientsData: Client[]): Client[] => {
   if (!clientsData || !Array.isArray(clientsData)) {
     return [];
   }

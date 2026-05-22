@@ -37,7 +37,7 @@ export async function generateTimeReport() {
       return acc;
     }, {});
     
-    const timeData = Object.entries(tempsParProjet).map(([projet, data]: [string, any]) => [
+    const timeData = Object.entries(tempsParProjet).map(([projet, data]: [string, { taches: number; collaborateurs: Set<unknown>; progression: number }]) => [
       projet,
       data.taches.toString(),
       data.collaborateurs.size.toString(),

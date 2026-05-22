@@ -6,8 +6,8 @@ import { createTask, determineInitialStatus } from "@/services/taskService";
 import { useToast } from "@/components/ui/use-toast";
 
 interface TaskFormProps {
-  clients: any[];
-  collaborateurs: any[];
+  clients: { id: string; type?: string; nom?: string; raisonsociale?: string }[];
+  collaborateurs: { id: string; nom?: string; prenom?: string; statut?: string }[];
   onSuccess: () => void;
 }
 

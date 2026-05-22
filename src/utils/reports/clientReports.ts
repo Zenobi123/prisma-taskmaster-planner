@@ -147,7 +147,7 @@ export const generateActiviteClientsReport = async () => {
     
     let currentY = 40;
     
-    Object.entries(activiteParSecteur).forEach(([secteur, clients]: [string, any]) => {
+    Object.entries(activiteParSecteur).forEach(([secteur, clients]: [string, Array<{ nom?: string; raisonsociale?: string; type?: string; regimefiscal?: string; niu?: string }>]) => {
       // Titre du secteur
       doc.setFontSize(12);
       doc.text(`${secteur} (${clients.length} clients)`, 14, currentY);

@@ -2,10 +2,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 export const usePaymentData = () => {
   const { toast } = useToast();
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<Tables<"paiements">[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   

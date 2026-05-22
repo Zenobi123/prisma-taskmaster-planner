@@ -57,7 +57,7 @@ export const generateMassSalarialeReport = async () => {
     doc.setFontSize(14);
     doc.text('Répartition par Client', 14, currentY);
     
-    const clientsData = Object.entries(masseSalarialeParClient).map(([client, data]: [string, any]) => [
+    const clientsData = Object.entries(masseSalarialeParClient).map(([client, data]: [string, { nombreEmployes: number; totalSalaireBrut: number; totalSalaireNet: number }]) => [
       client,
       data.nombreEmployes.toString(),
       `${data.totalSalaireBrut.toLocaleString()} F CFA`,
@@ -130,7 +130,7 @@ export const generateEffectifsReport = async () => {
     doc.setFontSize(14);
     doc.text('Effectifs par Client', 14, currentY);
     
-    const effectifsData = Object.entries(effectifsParClient).map(([client, data]: [string, any]) => [
+    const effectifsData = Object.entries(effectifsParClient).map(([client, data]: [string, { total: number; actifs: number; inactifs: number }]) => [
       client,
       data.total.toString(),
       data.actifs.toString(),
