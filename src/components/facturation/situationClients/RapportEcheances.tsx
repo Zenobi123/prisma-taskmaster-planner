@@ -41,7 +41,7 @@ const fetchObligations = async (): Promise<ObligationRow[]> => {
     .select("id, nom, raisonsociale, type");
   if (cErr) throw cErr;
 
-  const { data: prestations, error: prErr } = await (supabase as any)
+  const { data: prestations, error: prErr } = await supabase
     .from("facture_prestations")
     .select("id, facture_id, description, montant, type");
   if (prErr) throw prErr;

@@ -5,7 +5,7 @@ import { convertToJsonCompatible } from "./jsonConverter";
 
 export const saveFiscalDataToDatabase = async (
   clientId: string, 
-  fiscalData: any,
+  fiscalData,
   maxRetries: number = 3
 ): Promise<boolean> => {
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -26,12 +26,12 @@ export const saveFiscalDataToDatabase = async (
 
       // Fusionner avec les données existantes
       const existingFiscalData = existingClient?.fiscal_data ? 
-        (typeof existingClient.fiscal_data === 'object' ? existingClient.fiscal_data as any : {}) : {};
+        (typeof existingClient.fiscal_data === 'object' ? existingClient.fiscal_data as Record<string, unknown> : {}) : {};
       
       const mergedData = {
         ...fiscalData,
         obligations: {
-          ...existingFiscalData?.obligations,
+          ...((existingFiscalData as { obligations?: Record<string, unknown> })?.obligations),
           ...fiscalData.obligations
         }
       };
@@ -82,7 +82,7 @@ const verifyDataSaved = async (clientId: string, fiscalYear: string): Promise<bo
     }
 
     const savedFiscalData = data?.fiscal_data ? 
-      (typeof data.fiscal_data === 'object' ? data.fiscal_data as any : {}) : {};
+      (typeof data.fiscal_data === 'object' ? data.fiscal_data as Record<string, unknown> : {}) : {};
     
     return Boolean(savedFiscalData?.obligations?.[fiscalYear]);
   } catch (error) {

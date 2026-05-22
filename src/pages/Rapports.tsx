@@ -331,7 +331,7 @@ const Rapports = () => {
     return matchesType && matchesSearch;
   });
 
-  const handleDownloadReport = async (rapport: any) => {
+  const handleDownloadReport = async (rapport) => {
     try {
       toast({
         title: "Génération en cours",

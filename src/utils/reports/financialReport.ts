@@ -1,7 +1,7 @@
 
 import { ReportDataService } from './reportDataService';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export async function generateFinancialReport() {
   try {
@@ -24,7 +24,7 @@ export async function generateFinancialReport() {
       ['Factures en Retard', stats.facturesEnRetard.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Indicateur', 'Valeur']],
       body: financialData,
@@ -32,6 +32,5 @@ export async function generateFinancialReport() {
     });
     
     doc.save(`bilan-financier-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 }

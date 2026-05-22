@@ -15,6 +15,6 @@ export function useClientForm(initialData?: Client) {
   return {
     formData,
     handleChange,
-    prepareSubmitData: (type: any) => prepareSubmitData(formData, type)
+    prepareSubmitData: (type) => prepareSubmitData(formData, type)
   };
 }

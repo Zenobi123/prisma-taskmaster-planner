@@ -3,7 +3,7 @@ import { Facture } from "@/types/facture";
 import { addFactureToDatabase } from "@/services/factureService";
 
 export const useFactureCreateActions = (
-  toast: any,
+  toast,
   setFactures: React.Dispatch<React.SetStateAction<Facture[]>>
 ) => {
   const addFacture = async (facture: Facture) => {

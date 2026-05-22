@@ -1,11 +1,12 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 export const usePaymentData = () => {
   const { toast } = useToast();
-  const [payments, setPayments] = useState<any[]>([]);
+  const [payments, setPayments] = useState<Tables<"paiements">[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   
@@ -16,7 +17,7 @@ export const usePaymentData = () => {
   // Durée de validité du cache en ms (15 secondes)
   const CACHE_DURATION = 15000;
 
-  const fetchPayments = async (forceRefresh = false) => {
+  const fetchPayments = useCallback(async (forceRefresh = false) => {
     // Si les données ont déjà été chargées et qu'on ne force pas le rafraîchissement,
     // et que le cache est encore valide, on ne recharge pas
     const now = Date.now();
@@ -55,11 +56,11 @@ export const usePaymentData = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchPayments();
-  }, []);
+  }, [fetchPayments]);
 
   return {
     payments,

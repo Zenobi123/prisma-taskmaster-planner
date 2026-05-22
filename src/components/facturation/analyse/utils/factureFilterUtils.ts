@@ -16,12 +16,14 @@ export const getDateRangeForPeriod = (period: PeriodFilter): { startDate: Date, 
   return { startDate, endDate: now };
 };
 
-export const filterFacturesByPeriod = (
-  factures: any[], 
-  period: PeriodFilter, 
-  clientFilter: string | null, 
-  statusFilter: string | null
-): any[] => {
+export const filterFacturesByPeriod = <
+  T extends { date: string; client_id?: string; status_paiement?: string },
+>(
+  factures: T[],
+  period: PeriodFilter,
+  clientFilter: string | null,
+  statusFilter: string | null,
+): T[] => {
   const { startDate, endDate } = getDateRangeForPeriod(period);
   
   return factures.filter(facture => {

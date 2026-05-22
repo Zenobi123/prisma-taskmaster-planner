@@ -1,5 +1,5 @@
 
-import { useBillingStats } from "./context/BillingStatsContext";
+import { useBillingStats } from "./context/billing-stats-context";
 import { AnalyseGlobaleSkeleton } from "./components/AnalyseGlobaleSkeleton";
 import { StatsSummaryCards } from "./components/StatsSummaryCards";
 import { StatusDistributionChart } from "./components/StatusDistributionChart";

@@ -30,7 +30,7 @@ export class DocumentWatermark {
     this.doc.setFontSize(fontSize);
     this.doc.setTextColor(color);
 
-    const gState = new (this.doc as any).GState({ opacity: opacity });
+    const gState = new (this.doc as unknown as { GState: new (o: { opacity: number }) => unknown }).GState({ opacity });
     this.doc.setGState(gState);
 
     const textWidth = this.doc.getTextWidth(text);

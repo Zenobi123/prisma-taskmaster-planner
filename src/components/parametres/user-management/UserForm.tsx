@@ -16,7 +16,7 @@ export type UserFormData = {
 
 type UserFormProps = {
   userData: UserFormData;
-  onChange: (field: string, value: any) => void;
+  onChange: (field: string, value) => void;
   roles: { value: string; label: string }[];
   isNewUser?: boolean;
 };

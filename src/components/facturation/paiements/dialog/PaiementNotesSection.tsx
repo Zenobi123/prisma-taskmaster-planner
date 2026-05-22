@@ -2,9 +2,11 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { StickyNote } from "lucide-react";
+import type { UseFormRegister } from "react-hook-form";
+import { PaiementFormData } from "../types/PaiementFormTypes";
 
 interface PaiementNotesSectionProps {
-  register: any;
+  register: UseFormRegister<PaiementFormData>;
 }
 
 export const PaiementNotesSection = ({

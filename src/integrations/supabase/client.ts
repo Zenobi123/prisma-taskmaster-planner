@@ -1,5 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from './types';
+import type { Database as GeneratedDatabase } from './types';
+import type { ExtraTables } from './extraTables';
+
+// Fusion des tables générées avec celles définies manuellement (absentes des
+// types générés mais présentes en base). Permet d'utiliser le client typé
+// partout sans recourir à `as any`.
+type Database = GeneratedDatabase & {
+  public: GeneratedDatabase['public'] & {
+    Tables: GeneratedDatabase['public']['Tables'] & ExtraTables;
+  };
+};
 
 const FALLBACK_SUPABASE_URL = 'https://xkwqgxqmwxxpzrsurchk.supabase.co';
 const FALLBACK_SUPABASE_PUBLISHABLE_KEY =

@@ -7,7 +7,7 @@ import {
   DialogDescription 
 } from "@/components/ui/dialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useClientDetails } from "./ClientDetailsContext";
+import { useClientDetails } from "./client-details-context";
 
 const ClientDetailsHeader = () => {
   const { clientDetails } = useClientDetails();

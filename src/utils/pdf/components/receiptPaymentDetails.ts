@@ -3,7 +3,7 @@ import jsPDF from 'jspdf';
 import { PDF_THEME } from '../pdfTheme';
 
 // Add payment details section to the receipt PDF
-export const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
+export const addReceiptPaymentDetails = (doc: jsPDF, paiement): number => {
   doc.setFillColor(...PDF_THEME.bgLight);
   doc.roundedRect(15, 105, 180, 50, 3, 3, 'F');
 

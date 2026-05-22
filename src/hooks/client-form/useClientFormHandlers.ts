@@ -6,7 +6,7 @@ import { validateRegimeFiscal } from "./useClientFormValidation";
 export function useClientFormHandlers(
   setFormData: React.Dispatch<React.SetStateAction<ClientFormState>>
 ) {
-  const handleChange = (name: string, value: any) => {
+  const handleChange = (name: string, value) => {
 
     if (name === "situationimmobiliere.type") {
       setFormData(prev => {

@@ -48,11 +48,10 @@ export const useFinancialDataFetcher = () => {
         fetchPayments()
       ]);
       
-    } catch (error) {
-    } finally {
+    } catch { /* erreur ignoree volontairement */ } finally {
       setIsRefetching(false);
     }
-  }, [fetchClients, fetchInvoices, fetchPayments, clientsSummary.length, chartData, isRefetching]);
+  }, [fetchClients, fetchInvoices, fetchPayments, isRefetching]);
 
   return {
     clientsSummary,

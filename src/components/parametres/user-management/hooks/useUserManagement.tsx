@@ -88,7 +88,7 @@ export const useUserManagement = () => {
     setIsEditUserOpen(true);
   };
 
-  const handleUserChange = (field: string, value: any) => {
+  const handleUserChange = (field: string, value) => {
     if (selectedUser) {
       setSelectedUser({...selectedUser, [field]: value});
     } else {

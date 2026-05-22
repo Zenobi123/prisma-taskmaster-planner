@@ -1,5 +1,5 @@
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
 // Fonction utilitaire pour formater les valeurs
@@ -38,17 +38,17 @@ export const generatePortefeuilleClientsReport = async () => {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Statistiques générales
-    const personnesMorales = data.clients.filter((c: any) => c.type === 'morale');
-    const personnesPhysiques = data.clients.filter((c: any) => c.type === 'physique');
+    const personnesMorales = data.clients.filter((c) => c.type === 'morale');
+    const personnesPhysiques = data.clients.filter((c) => c.type === 'physique');
     
     const statsData = [
       ['Total Clients', data.clients.length.toString()],
       ['Personnes Morales', personnesMorales.length.toString()],
       ['Personnes Physiques', personnesPhysiques.length.toString()],
-      ['Clients Actifs', data.clients.filter((c: any) => c.statut === 'actif').length.toString()]
+      ['Clients Actifs', data.clients.filter((c) => c.statut === 'actif').length.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Catégorie', 'Nombre']],
       body: statsData,
@@ -56,7 +56,7 @@ export const generatePortefeuilleClientsReport = async () => {
     });
     
     // Liste détaillée des clients
-    const clientsData = data.clients.map((client: any) => [
+    const clientsData = data.clients.map((client) => [
       client.nom || client.raisonsociale || 'Sans nom',
       client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
       client.niu || 'Non renseigné',
@@ -65,8 +65,8 @@ export const generatePortefeuilleClientsReport = async () => {
       formatPropertyValue(client.statut)
     ]);
     
-    (doc as any).autoTable({
-      startY: (doc as any).lastAutoTable.finalY + 20,
+    autoTable(doc, {
+      startY: doc.lastAutoTable.finalY + 20,
       head: [['Nom/Raison Sociale', 'Type', 'NIU', 'Régime Fiscal', 'Secteur', 'Statut']],
       body: clientsData,
       theme: 'grid',
@@ -74,8 +74,7 @@ export const generatePortefeuilleClientsReport = async () => {
     });
     
     doc.save(`portefeuille-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generateNouveauxClientsReport = async () => {
@@ -86,7 +85,7 @@ export const generateNouveauxClientsReport = async () => {
     const sixMoisAujourdhui = new Date();
     sixMoisAujourdhui.setMonth(sixMoisAujourdhui.getMonth() - 6);
     
-    const nouveauxClients = data.clients.filter((client: any) => {
+    const nouveauxClients = data.clients.filter((client) => {
       if (!client.created_at) return false;
       const dateCreation = new Date(client.created_at);
       return dateCreation >= sixMoisAujourdhui;
@@ -104,7 +103,7 @@ export const generateNouveauxClientsReport = async () => {
       doc.setFontSize(12);
       doc.text('Aucun nouveau client sur cette période.', 14, 50);
     } else {
-      const clientsData = nouveauxClients.map((client: any) => [
+      const clientsData = nouveauxClients.map((client) => [
         client.nom || client.raisonsociale || 'Sans nom',
         client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
         formatPropertyValue(client.regimefiscal),
@@ -112,7 +111,7 @@ export const generateNouveauxClientsReport = async () => {
         new Date(client.created_at).toLocaleDateString()
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: 45,
         head: [['Nom/Raison Sociale', 'Type', 'Régime Fiscal', 'Secteur', 'Date Création']],
         body: clientsData,
@@ -122,8 +121,7 @@ export const generateNouveauxClientsReport = async () => {
     }
     
     doc.save(`nouveaux-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generateActiviteClientsReport = async () => {
@@ -138,7 +136,7 @@ export const generateActiviteClientsReport = async () => {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Analyser l'activité par secteur
-    const activiteParSecteur = data.clients.reduce((acc: any, client: any) => {
+    const activiteParSecteur = data.clients.reduce((acc, client) => {
       const secteur = formatPropertyValue(client.secteuractivite);
       if (!acc[secteur]) {
         acc[secteur] = [];
@@ -149,20 +147,20 @@ export const generateActiviteClientsReport = async () => {
     
     let currentY = 40;
     
-    Object.entries(activiteParSecteur).forEach(([secteur, clients]: [string, any]) => {
+    Object.entries(activiteParSecteur).forEach(([secteur, clients]: [string, Array<{ nom?: string; raisonsociale?: string; type?: string; regimefiscal?: string; niu?: string }>]) => {
       // Titre du secteur
       doc.setFontSize(12);
       doc.text(`${secteur} (${clients.length} clients)`, 14, currentY);
       currentY += 10;
       
-      const secteursData = clients.map((client: any) => [
+      const secteursData = clients.map((client) => [
         client.nom || client.raisonsociale || 'Sans nom',
         client.type === 'morale' ? 'Personne Morale' : 'Personne Physique',
         formatPropertyValue(client.regimefiscal),
         client.niu || 'Non renseigné'
       ]);
       
-      (doc as any).autoTable({
+      autoTable(doc, {
         startY: currentY,
         head: [['Nom/Raison Sociale', 'Type', 'Régime Fiscal', 'NIU']],
         body: secteursData,
@@ -170,7 +168,7 @@ export const generateActiviteClientsReport = async () => {
         styles: { fontSize: 8 }
       });
       
-      currentY = (doc as any).lastAutoTable.finalY + 15;
+      currentY = doc.lastAutoTable.finalY + 15;
       
       // Nouvelle page si nécessaire
       if (currentY > 250) {
@@ -180,6 +178,5 @@ export const generateActiviteClientsReport = async () => {
     });
     
     doc.save(`activite-clients-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };

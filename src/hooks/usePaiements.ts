@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement, PrestationPayee } from "@/types/paiement";
@@ -13,11 +13,7 @@ export const usePaiements = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const paiementActions = usePaiementActions();
 
-  useEffect(() => {
-    fetchPaiements();
-  }, []);
-
-  const fetchPaiements = async () => {
+  const fetchPaiements = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -52,14 +48,13 @@ export const usePaiements = () => {
             
             // Ensure prestations_payees is properly handled as an array with correct mapping
             if (Array.isArray(parsedElemSpec.prestations_payees)) {
-              prestationsPayees = parsedElemSpec.prestations_payees.map((pp: any) => ({
+              prestationsPayees = parsedElemSpec.prestations_payees.map((pp) => ({
                 id: pp.id,
                 montant_modifie: pp.montant_modifie !== undefined ? pp.montant_modifie : null
               }));
             }
             
-          } catch (e) {
-          }
+          } catch { /* erreur ignoree volontairement */ }
         }
         
         // Calculate solde_restant more accurately
@@ -129,7 +124,11 @@ export const usePaiements = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchPaiements();
+  }, [fetchPaiements]);
 
   const addPaiement = async (newPaiement: Omit<Paiement, "id">) => {
     const result = await paiementActions.addPaiement(newPaiement);
@@ -161,7 +160,7 @@ export const usePaiements = () => {
     
     const searchTermLower = searchTerm.toLowerCase();
     return (
-      paiement.client.toLowerCase().includes(searchTermLower) ||
+      (typeof paiement.client === "string" ? paiement.client : "").toLowerCase().includes(searchTermLower) ||
       paiement.id.toLowerCase().includes(searchTermLower) ||
       paiement.facture.toLowerCase().includes(searchTermLower) ||
       paiement.reference.toLowerCase().includes(searchTermLower)

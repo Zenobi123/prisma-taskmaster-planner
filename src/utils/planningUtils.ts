@@ -5,8 +5,8 @@ import { Event } from "@/types/event";
 /**
  * Transforms task data from the API into event objects for the Planning view
  */
-export const transformTasksToEvents = (tasks: any[]): Event[] => {
-  return tasks.map((task: any) => {
+export const transformTasksToEvents = (tasks: Task[]): Event[] => {
+  return tasks.map((task) => {
     const startTime = task.start_time || "00:00";
     const endTime = task.end_time || "00:00";
     const timeString = `${startTime} - ${endTime}`;
@@ -37,10 +37,10 @@ export const transformTasksToEvents = (tasks: any[]): Event[] => {
 /**
  * Extracts unique dates from tasks for calendar highlighting
  */
-export const extractDatesWithEvents = (tasks: any[]): Date[] => {
+export const extractDatesWithEvents = (tasks: Task[]): Date[] => {
   const uniqueDates = tasks
-    .filter((task: any) => task.start_date)
-    .map((task: any) => {
+    .filter((task) => task.start_date)
+    .map((task) => {
       const date = new Date(task.start_date);
       return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     });
@@ -59,14 +59,14 @@ export const extractDatesWithEvents = (tasks: any[]): Date[] => {
 export const filterEvents = (events: Event[], options: {
   collaborateurFilter: string, 
   date: Date | undefined,
-  tasks: any[]
+  tasks: Task[]
 }): Event[] => {
   const { collaborateurFilter, date, tasks } = options;
   
   return events.filter((event) => {
     const isSameCollaborateur = collaborateurFilter === "all" || event.collaborateur === collaborateurFilter;
     
-    const taskData = tasks?.find((task: any) => task.id === event.id);
+    const taskData = tasks?.find((task) => task.id === event.id);
     const taskDate = taskData?.start_date ? new Date(taskData.start_date) : null;
     
     let isSameDate = false;

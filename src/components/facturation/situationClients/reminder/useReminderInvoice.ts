@@ -42,10 +42,10 @@ export const useReminderInvoice = (invoiceId: string | null, isDialogOpen: boole
         const contact = data.clients.contact ? data.clients.contact : {};
         // Safely access the contact properties
         const clientPhone = typeof contact === 'object' && contact !== null 
-          ? (contact as Record<string, any>).telephone || 'N/A' 
+          ? (contact as Record<string, string>).telephone || 'N/A' 
           : 'N/A';
         const clientEmail = typeof contact === 'object' && contact !== null 
-          ? (contact as Record<string, any>).email || 'N/A' 
+          ? (contact as Record<string, string>).email || 'N/A' 
           : 'N/A';
         
         // Calculate montant_restant
@@ -64,8 +64,7 @@ export const useReminderInvoice = (invoiceId: string | null, isDialogOpen: boole
           }
         });
         
-      } catch (error) {
-      } finally {
+      } catch { /* erreur ignoree volontairement */ } finally {
         setIsLoading(false);
       }
     };

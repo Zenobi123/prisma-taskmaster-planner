@@ -9,7 +9,7 @@ import { Json } from "@/integrations/supabase/types";
 const prepareObligationsForSave = (obligations: Record<string, ObligationStatuses> | undefined): Json => {
   if (!obligations) return {};
 
-  const prepared: any = {};
+  const prepared = {};
 
   Object.keys(obligations).forEach(year => {
     const yearObligations = obligations[year];

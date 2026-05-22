@@ -157,13 +157,19 @@ export const invalidateAllFiscalCaches = (): void => {
   clearAllCaches();
 
   if (typeof window !== 'undefined') {
-    (window as any).__patenteCacheTimestamp = 0;
-    (window as any).__dsfCacheTimestamp = 0;
-    (window as any).__darpCacheTimestamp = 0;
+    const w = window as Window & {
+      __patenteCacheTimestamp?: number;
+      __dsfCacheTimestamp?: number;
+      __darpCacheTimestamp?: number;
+      __igsCache?: { timestamp: number; data: unknown };
+    };
+    w.__patenteCacheTimestamp = 0;
+    w.__dsfCacheTimestamp = 0;
+    w.__darpCacheTimestamp = 0;
 
-    if ((window as any).__igsCache) {
-      (window as any).__igsCache.timestamp = 0;
-      (window as any).__igsCache.data = null;
+    if (w.__igsCache) {
+      w.__igsCache.timestamp = 0;
+      w.__igsCache.data = null;
     }
   }
 };

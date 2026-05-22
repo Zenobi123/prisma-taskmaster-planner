@@ -16,6 +16,9 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
   const [transcript, setTranscript] = useState('');
   const [isSupported, setIsSupported] = useState(false);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  // Référence stable vers le dernier processCommand : évite de réinitialiser la
+  // reconnaissance vocale à chaque changement d'identité du callback.
+  const processCommandRef = useRef<((transcript: string) => void) | null>(null);
   const { toast } = useToast();
 
   // Check for browser support
@@ -75,7 +78,7 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
         setTranscript(currentTranscript);
 
         if (finalTranscript) {
-          processCommand(finalTranscript.trim().toLowerCase());
+          processCommandRef.current?.(finalTranscript.trim().toLowerCase());
         }
       };
 
@@ -133,9 +136,13 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
         // Generic command
         onCommand('generic', transcript);
       }
-    } catch (error) {
-    }
+    } catch { /* erreur ignoree volontairement */ }
   }, [onCommand]);
+
+  // Garder la référence à jour sans relancer l'effet de reconnaissance vocale.
+  useEffect(() => {
+    processCommandRef.current = processCommand;
+  }, [processCommand]);
 
   const extractStatus = (transcript: string): string | null => {
     if (transcript.includes('en cours')) return 'en_cours';
@@ -151,8 +158,7 @@ export const VoiceControl = ({ onCommand, isEnabled = true, className = "" }: Vo
     if (isListening) {
       try {
         recognitionRef.current?.stop();
-      } catch (error) {
-      }
+      } catch { /* erreur ignoree volontairement */ }
     } else {
       try {
         recognitionRef.current?.start();

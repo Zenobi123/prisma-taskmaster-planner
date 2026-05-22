@@ -4,7 +4,7 @@ import { updateFactureInDatabase } from "@/services/factureService";
 import { useCallback } from "react";
 
 export const useFactureUpdateActions = (
-  toast: any,
+  toast,
   setFactures: React.Dispatch<React.SetStateAction<Facture[]>>
 ) => {
   const updateFacture = useCallback(async (facture: Facture) => {

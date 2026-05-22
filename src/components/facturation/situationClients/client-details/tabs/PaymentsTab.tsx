@@ -2,8 +2,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Eye } from "lucide-react";
-import { useClientDetails } from "../ClientDetailsContext";
+import { useClientDetails } from "../client-details-context";
 import { Paiement } from "@/types/facture"; // Changed to use a consistent type
+import type { Paiement as RecuPaiement } from "@/types/paiement";
 import PaymentsTable from "../PaymentsTable";
 import PaymentReceiptDialog from "../../../paiements/dialog/PaymentReceiptDialog";
 
@@ -14,10 +15,10 @@ const PaymentsTab = () => {
   
   if (!clientDetails) return null;
 
-  const handleViewReceipt = (payment: any) => {
+  const handleViewReceipt = (payment) => {
     // This object is for the receipt dialog, we'll try to build it as best as we can.
     // The underlying type issue with @/types/paiement vs @/types/facture needs a deeper fix.
-    const paiementForReceipt: any = {
+    const paiementForReceipt = {
       id: payment.id,
       facture_id: payment.facture_id || "",
       client_id: clientDetails.id || "",
@@ -59,7 +60,7 @@ const PaymentsTab = () => {
         <PaymentReceiptDialog
           open={isPaymentReceiptDialogOpen}
           onOpenChange={setIsPaymentReceiptDialogOpen}
-          paiement={selectedPaiement as any}
+          paiement={selectedPaiement as unknown as RecuPaiement}
         />
       )}
     </div>

@@ -1,8 +1,8 @@
 
 import { Json } from "@/integrations/supabase/types";
 
-export const convertToJsonCompatible = (data: any): Json => {
-  const convertValue = (value: any): Json => {
+export const convertToJsonCompatible = (data): Json => {
+  const convertValue = (value): Json => {
     if (value === null || value === undefined) {
       return null;
     }

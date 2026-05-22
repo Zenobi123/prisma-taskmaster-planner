@@ -85,7 +85,7 @@ export const NonCompliantDialog = ({ open, onOpenChange }: NonCompliantDialogPro
           </div>
         ) : (
           <div className="space-y-3 sm:space-y-4">
-            {clients.map((client: any) => (
+            {clients.map((client) => (
               <div key={client.id} className="border rounded-lg p-3 sm:p-4 hover:bg-slate-50 transition-colors">
                 <div className="flex items-start sm:items-center justify-between gap-2">
                   <div className="flex-1 min-w-0">

@@ -30,7 +30,7 @@ export const useFiscalData = (clientId: string) => {
 
 
       if (client?.fiscal_data && typeof client.fiscal_data === 'object' && !Array.isArray(client.fiscal_data)) {
-        const fiscalDataObj = client.fiscal_data as any;
+        const fiscalDataObj = client.fiscal_data as unknown as ClientFiscalData;
         
         // Valider et nettoyer les données
         const cleanedData: ClientFiscalData = {

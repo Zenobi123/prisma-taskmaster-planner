@@ -7,8 +7,8 @@ import { formatDate } from "@/utils/factureUtils";
 interface UseFactureFormInitializerProps {
   editMode: boolean;
   factureToEdit: Facture | null;
-  setValue: (name: keyof Facture, value: any) => void;
-  reset: (values?: any) => void;
+  setValue: (name: keyof Facture, value) => void;
+  reset: (values?) => void;
 }
 
 export const useFactureFormInitializer = ({

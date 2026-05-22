@@ -33,7 +33,7 @@ const ClientsChart = ({ chartData }: ClientsChartProps) => {
     }
   };
 
-  const getBarColor = (entry: any) => {
+  const getBarColor = (entry) => {
     if (entry.name === "À jour") return "#84A98C";
     if (entry.name === "Partiellement payé") return "#F9CB40";
     if (entry.name === "En retard") return "#E3625F";

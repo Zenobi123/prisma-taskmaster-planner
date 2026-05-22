@@ -25,7 +25,7 @@ export const getCourrierRecords = async (filters?: {
   search?: string;
 }): Promise<CourrierRecord[]> => {
   try {
-    let query = (supabase as any)
+    let query = supabase
       .from("courriers")
       .select("*")
       .order("date_creation", { ascending: false });
@@ -63,8 +63,8 @@ export const updateCourrierStatus = async (
   statut: CourrierStatus,
   extra?: { date_envoi?: string; date_accuse?: string; notes?: string }
 ): Promise<void> => {
-  const payload: any = { statut, ...extra };
-  const { error } = await (supabase as any)
+  const payload = { statut, ...extra };
+  const { error } = await supabase
     .from("courriers")
     .update(payload)
     .eq("id", id);
@@ -72,7 +72,7 @@ export const updateCourrierStatus = async (
 };
 
 export const deleteCourrierRecord = async (id: string): Promise<void> => {
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("courriers")
     .delete()
     .eq("id", id);
@@ -116,7 +116,7 @@ export const sendCourrierWithStorage = async (
 
     // Save to courriers table (best-effort — table may not exist yet)
     try {
-      await (supabase as any).from("courriers").insert({
+      await supabase.from("courriers").insert({
         reference,
         client_id: client.id,
         client_nom: clientName,
@@ -131,8 +131,7 @@ export const sendCourrierWithStorage = async (
         date_creation: new Date().toISOString(),
         date_envoi: new Date().toISOString(),
       });
-    } catch (e) {
-    }
+    } catch { /* erreur ignoree volontairement */ }
 
     // Generate PDF
     const pdfData = [
@@ -169,8 +168,8 @@ export const getClientsForCourrier = async (): Promise<Client[]> => {
     contact:
       typeof client.contact === "object" && client.contact !== null
         ? {
-            telephone: (client.contact as any)?.telephone || "",
-            email: (client.contact as any)?.email || "",
+            telephone: (client.contact as { telephone?: string; email?: string })?.telephone || "",
+            email: (client.contact as { telephone?: string; email?: string })?.email || "",
           }
         : { telephone: "", email: "" },
     adresse:

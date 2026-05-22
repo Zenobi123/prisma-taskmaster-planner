@@ -70,7 +70,7 @@ export const exportToCSV = (events: Event[], date: Date | undefined): void => {
 /**
  * Generic function to export data to Excel (CSV) format
  */
-export const exportToExcel = (data: any[], filename: string): void => {
+export const exportToExcel = (data: Record<string, unknown>[], filename: string): void => {
   const headers = Object.keys(data[0] || {});
   const csvHeader = headers.join(",");
   

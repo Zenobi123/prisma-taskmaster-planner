@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { SummaryStats, ChartDataItem, MonthlyChartItem, PeriodFilter } from "../types/AnalyseTypes";
 import { useInvoiceData } from "@/hooks/facturation/clientFinancial/summary/useInvoiceData";
 import { usePaymentData } from "@/hooks/facturation/clientFinancial/summary/usePaymentData";
-import { fetchFacturesForAnalysis, fetchPrestationsForAnalysis } from "../services/analyseDataService";
+import { fetchFacturesForAnalysis, fetchPrestationsForAnalysis, type FactureAnalyseRow, type PrestationAnalyseRow } from "../services/analyseDataService";
 import { filterFacturesByPeriod } from "../utils/factureFilterUtils";
 import { calculatePrestationTotals } from "../utils/prestationUtils";
 import { prepareStatusChartData, prepareMonthlyChartData } from "../utils/chartDataUtils";
@@ -38,8 +38,8 @@ export const useAnalyseGlobale = (
   // Pour éviter de refaire des calculs inutiles
   const lastParams = useRef({period, clientFilter, statusFilter});
   const cachedData = useRef<{
-    facturesData: any[];
-    prestationsData: any[];
+    facturesData: FactureAnalyseRow[];
+    prestationsData: PrestationAnalyseRow[];
     timestamp: number;
   }>({
     facturesData: [],
@@ -85,9 +85,8 @@ export const useAnalyseGlobale = (
           
           // Mettre à jour les derniers paramètres
           lastParams.current = {period, clientFilter, statusFilter};
-        } else {
         }
-        
+
         // Filter factures by period, client, and status
         const filteredFactures = filterFacturesByPeriod(
           facturesData,
@@ -149,8 +148,7 @@ export const useAnalyseGlobale = (
         
         setChartData(statusChartData);
         setMonthlyData(monthlyChartData);
-      } catch (error) {
-      } finally {
+      } catch { /* erreur ignoree volontairement */ } finally {
         setIsLoading(false);
       }
     };

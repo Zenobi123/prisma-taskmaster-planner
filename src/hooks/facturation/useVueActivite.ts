@@ -109,7 +109,7 @@ export function useVueActivite(year: number) {
         supabase
           .from("clients")
           .select("id, nom, raisonsociale, type"),
-        (supabase as any)
+        supabase
           .from("facture_prestations")
           .select("id, facture_id, description, montant, type"),
       ]);
@@ -130,7 +130,7 @@ export function useVueActivite(year: number) {
       const paiementList = paiements || [];
       const prestationList = prestations || [];
       const factureById = new Map(factureList.map(f => [f.id, f]));
-      const prestationTypeOf = (pr: any): "impot" | "honoraire" =>
+      const prestationTypeOf = (pr): "impot" | "honoraire" =>
         pr.type === "impot" || pr.type === "honoraire"
           ? pr.type
           : inferPrestationType(pr.description);
@@ -160,7 +160,7 @@ export function useVueActivite(year: number) {
 
       // Impôts / honoraires per client from prestations
       for (const pr of prestationList) {
-        const fac = factureById.get((pr as any).facture_id);
+        const fac = factureById.get(pr.facture_id);
         if (!fac) continue;
         const factureDate: string = fac.date || "";
         if (!factureDate.startsWith(String(year))) continue;
@@ -193,11 +193,11 @@ export function useVueActivite(year: number) {
       // ── Reçus / paiements rows ──
       const recusRows: RecuRow[] = paiementList.map(p => ({
         id: p.id,
-        reference: (p as any).reference || p.id,
+        reference: p.reference || p.id,
         date: p.date,
         client_nom: clientMap.get(p.client_id) || "—",
-        montant_impots: Number((p as any).montant_impots) || 0,
-        montant_honoraires: Number((p as any).montant_honoraires) || 0,
+        montant_impots: 0,
+        montant_honoraires: 0,
         montant: Number(p.montant) || 0,
       })).sort((a, b) => b.date.localeCompare(a.date));
 
@@ -205,7 +205,7 @@ export function useVueActivite(year: number) {
       const prestationsRows: PrestationRow[] = [];
 
       for (const pr of prestationList) {
-        const fac = factureById.get((pr as any).facture_id);
+        const fac = factureById.get(pr.facture_id);
         if (!fac) continue;
         const factureDate: string = fac.date || "";
         if (!factureDate.startsWith(String(year))) continue;
@@ -284,7 +284,7 @@ export function useVueActivite(year: number) {
         honorairesImpayes,
         prestationsNonRealisees,
       });
-    } catch (e: any) {
+    } catch (e) {
       setError(e.message || "Erreur de chargement");
     } finally {
       setIsLoading(false);

@@ -1,7 +1,7 @@
 
 import { ReportDataService } from './reportDataService';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export async function generateTimeReport() {
   try {
@@ -15,7 +15,7 @@ export async function generateTimeReport() {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Analyser les tâches par client/projet
-    const tempsParProjet = data.tasks.reduce((acc: any, tache: any) => {
+    const tempsParProjet = data.tasks.reduce((acc, tache) => {
       const projet = tache.clients?.nom || tache.clients?.raisonsociale || 'Projet sans client';
       if (!acc[projet]) {
         acc[projet] = {
@@ -37,14 +37,14 @@ export async function generateTimeReport() {
       return acc;
     }, {});
     
-    const timeData = Object.entries(tempsParProjet).map(([projet, data]: [string, any]) => [
+    const timeData = Object.entries(tempsParProjet).map(([projet, data]: [string, { taches: number; collaborateurs: Set<unknown>; progression: number }]) => [
       projet,
       data.taches.toString(),
       data.collaborateurs.size.toString(),
       `${data.progression.toFixed(0)}%`
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Projet', 'Nb Tâches', 'Collaborateurs', 'Progression']],
       body: timeData,
@@ -52,6 +52,5 @@ export async function generateTimeReport() {
     });
     
     doc.save(`rapport-temps-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 }

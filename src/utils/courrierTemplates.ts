@@ -468,7 +468,7 @@ export const getTemplateContent = (templateId: string): string => {
  * Supports: {{nom}}, {{civilite}}, {{niu}}, {{centre}}, {{secteur}}, {{regime}},
  *           {{annee}}, {{montant_igs}}, {{montant_patente}}
  */
-export const replaceVariables = (content: string, client: any): string => {
+export const replaceVariables = (content: string, client): string => {
   const clientName = client.type === "morale"
     ? (client.raisonsociale || client.nom || "")
     : (client.nom || "");
@@ -500,7 +500,7 @@ export const replaceVariables = (content: string, client: any): string => {
 };
 
 export const generateCourrierContent = (
-  client: any,
+  client,
   template: Template,
   customMessage?: string
 ): string => {

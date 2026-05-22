@@ -9,7 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useClientData } from "@/hooks/facturation/clientFinancial/summary/useClientData";
 import { exportToExcel } from "@/utils/exportUtils";
 import { exportToPdf } from "@/utils/exports";
-import { useBillingStats } from "./context/BillingStatsContext";
+import { useBillingStats } from "./context/billing-stats-context";
 
 const AnalyseFilters = () => {
   const { toast } = useToast();

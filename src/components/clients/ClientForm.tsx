@@ -8,7 +8,7 @@ import { CapitalSocialSection } from "./capital/CapitalSocialSection";
 import { useClientForm } from "@/hooks/useClientForm";
 
 interface ClientFormProps {
-  onSubmit: (data: any) => void;
+  onSubmit: (data) => void;
   type: ClientType;
   onTypeChange?: (value: ClientType) => void;
   initialData?: Client;

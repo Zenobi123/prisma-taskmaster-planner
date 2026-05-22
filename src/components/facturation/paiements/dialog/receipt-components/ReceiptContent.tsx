@@ -9,7 +9,7 @@ interface ReceiptContentProps {
 }
 
 const ReceiptContent = ({ paiement }: ReceiptContentProps) => {
-  const pmt = paiement as any;
+  const pmt = paiement as Paiement & { montant_impots?: number; montant_honoraires?: number };
   const montantImpots = pmt.montant_impots as number | undefined;
   const montantHonoraires = pmt.montant_honoraires as number | undefined;
   const hasVentilation = montantImpots || montantHonoraires;

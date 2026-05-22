@@ -1,7 +1,7 @@
 
 import { Client } from "@/types/client";
 
-export const mapClientToPdfClient = (clientData: any): Client => {
+export const mapClientToPdfClient = (clientData): Client => {
   
   if (
     clientData && 

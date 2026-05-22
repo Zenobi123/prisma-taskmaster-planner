@@ -1,9 +1,11 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
+import type { UseFormSetValue } from "react-hook-form";
+import { PaiementFormData } from "../../types/PaiementFormTypes";
 
 interface UsePaiementFacturesProps {
-  setValue: any;
+  setValue: UseFormSetValue<PaiementFormData>;
   setSelectedClientId: (id: string | null) => void;
   setSelectedFactureId: (id: string | null) => void;
 }

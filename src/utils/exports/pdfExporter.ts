@@ -100,7 +100,7 @@ export const exportClientDetailsToPdf = (client: Client) => {
 };
 
 // Add a more generic export function that can be used by other modules
-export const exportToPdf = (title: string, data: any[], filename: string) => {
+export const exportToPdf = (title: string, data: Record<string, unknown>[], filename: string) => {
   const doc = new jsPDF();
   
   // Set title

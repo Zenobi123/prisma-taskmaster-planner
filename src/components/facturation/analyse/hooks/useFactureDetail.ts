@@ -51,7 +51,7 @@ export const useFactureDetail = (factureId: string) => {
         if (factureError) throw factureError;
         
         // Fetch prestations
-        const { data: prestationsData, error: prestationsError } = await (supabase as any)
+        const { data: prestationsData, error: prestationsError } = await supabase
           .from("facture_prestations")
           .select("*")
           .eq("facture_id", factureId);
@@ -59,7 +59,7 @@ export const useFactureDetail = (factureId: string) => {
         if (prestationsError) throw prestationsError;
 
         // Map prestations to add a "type" property
-        const prestationsWithType = (prestationsData || []).map((prestation: any) => {
+        const prestationsWithType = (prestationsData || []).map((prestation) => {
           // Préférer le type réel stocké, sinon inférer depuis la désignation
           let type = prestation.type === "impot" ? "impots" : "honoraires";
 
@@ -112,8 +112,7 @@ export const useFactureDetail = (factureId: string) => {
         if (isMounted.current) {
           setFactureDetail(detailData);
         }
-      } catch (error) {
-      } finally {
+      } catch { /* erreur ignoree volontairement */ } finally {
         if (isMounted.current) {
           setIsLoading(false);
         }

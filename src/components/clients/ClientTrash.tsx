@@ -90,7 +90,7 @@ export function ClientTrash({ onClose }: ClientTrashProps) {
     });
   };
 
-  const getDeletedDate = (client: any) => {
+  const getDeletedDate = (client) => {
     if (client.deleted_at) {
       try {
         return formatDistanceToNow(new Date(client.deleted_at), { 

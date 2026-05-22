@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { CapitalSocial, Actionnaire } from "@/types/capitalSocial";
 import { toast } from "sonner";
@@ -12,7 +12,7 @@ export const useCapitalSocial = (clientId: string | undefined) => {
 
 
   // Charger les données du capital social
-  const fetchCapitalSocial = async () => {
+  const fetchCapitalSocial = useCallback(async () => {
     if (!clientId) {
       return;
     }
@@ -52,7 +52,7 @@ export const useCapitalSocial = (clientId: string | undefined) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [clientId]);
 
   // Sauvegarder le capital social
   const saveCapitalSocial = async (data: Partial<CapitalSocial>) => {
@@ -156,7 +156,7 @@ export const useCapitalSocial = (clientId: string | undefined) => {
 
   useEffect(() => {
     fetchCapitalSocial();
-  }, [clientId]);
+  }, [fetchCapitalSocial]);
 
   return {
     capitalSocial,

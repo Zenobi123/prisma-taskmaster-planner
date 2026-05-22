@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
-import { useClientDetails } from "../ClientDetailsContext";
+import { useClientDetails } from "../client-details-context";
 import ClientInfoSection from "./information/ClientInfoSection";
 
 const InformationTab = () => {

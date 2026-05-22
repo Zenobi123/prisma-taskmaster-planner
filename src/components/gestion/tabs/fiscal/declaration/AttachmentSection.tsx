@@ -9,7 +9,7 @@ interface AttachmentSectionProps {
   onAttachmentDelete: (obligationName: string, attachmentType: string) => void;
   clientId?: string;
   selectedYear?: string;
-  status?: any;
+  status?: string;
 }
 
 const AttachmentSection: React.FC<AttachmentSectionProps> = ({

@@ -11,7 +11,7 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
     const montant = prestation.prix_unitaire
       ? prestation.prix_unitaire * quantite
       : prestation.montant * quantite;
-    const typeLabel = (prestation as any).type === "impot" ? "Impôt" : "Honoraire";
+    const typeLabel = (prestation as { type?: string }).type === "impot" ? "Impôt" : "Honoraire";
 
     return [
       prestation.description,
@@ -59,14 +59,14 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
     return defaultY + 10;
   }
 
-  let finalY = (doc as any).lastAutoTable.finalY || 150;
+  let finalY = doc.lastAutoTable.finalY || 150;
 
   // Add subtotals by type (Impôts / Honoraires)
   const impots = facture.prestations
-    .filter((p: any) => p.type === "impot")
+    .filter((p) => p.type === "impot")
     .reduce((sum, p) => sum + (p.prix_unitaire ? p.prix_unitaire * (p.quantite || 1) : p.montant * (p.quantite || 1)), 0);
   const honoraires = facture.prestations
-    .filter((p: any) => p.type === "honoraire")
+    .filter((p) => p.type === "honoraire")
     .reduce((sum, p) => sum + (p.prix_unitaire ? p.prix_unitaire * (p.quantite || 1) : p.montant * (p.quantite || 1)), 0);
 
   if (impots > 0 || honoraires > 0) {

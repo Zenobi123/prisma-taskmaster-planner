@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { Proposition, PropositionFormData, PropositionLigne } from "@/types/proposition";
 
 // Numéro de proposition: PROP-NNNN/YYYY/MM (séquentiel par année)
@@ -8,7 +9,7 @@ export async function getNextPropositionNumber(): Promise<string> {
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
 
-  const { data } = await (supabase as any)
+  const { data } = await supabase
     .from("propositions")
     .select("numero");
 
@@ -40,7 +41,7 @@ function calculateTotals(lignes: PropositionLigne[]) {
 
 // Fetch all propositions with client info
 export async function getPropositions(): Promise<Proposition[]> {
-  const { data, error } = await (supabase as any)
+  const { data, error } = await supabase
     .from("propositions")
     .select(`
       *,
@@ -61,11 +62,12 @@ export async function getPropositions(): Promise<Proposition[]> {
 
   if (!data) return [];
 
-  return data.map((d: any) => {
-    const lignes: PropositionLigne[] = Array.isArray(d.lignes)
-      ? d.lignes
-      : typeof d.lignes === "string"
-        ? JSON.parse(d.lignes)
+  return data.map((d) => {
+    const rawLignes = d.lignes;
+    const lignes: PropositionLigne[] = Array.isArray(rawLignes)
+      ? (rawLignes as unknown as PropositionLigne[])
+      : typeof rawLignes === "string"
+        ? (JSON.parse(rawLignes) as PropositionLigne[])
         : [];
 
     const { total, total_impots, total_honoraires } = calculateTotals(lignes);
@@ -128,7 +130,7 @@ export async function createProposition(data: PropositionFormData): Promise<Prop
 
   const { total, total_impots, total_honoraires } = calculateTotals(data.lignes);
 
-  const { data: propositionData, error } = await (supabase as any)
+  const { data: propositionData, error } = await supabase
     .from("propositions")
     .insert({
       id: propositionId,
@@ -139,7 +141,7 @@ export async function createProposition(data: PropositionFormData): Promise<Prop
       source_type: data.source_type || null,
       source_id: data.source_id || null,
       source_numero: data.source_numero || null,
-      lignes: data.lignes,
+      lignes: data.lignes as unknown as Json,
       total,
       total_impots,
       total_honoraires,
@@ -214,7 +216,7 @@ export async function createProposition(data: PropositionFormData): Promise<Prop
 
 // Update a proposition
 export async function updateProposition(id: string, data: Partial<PropositionFormData>): Promise<void> {
-  const updatePayload: Record<string, any> = {};
+  const updatePayload: Record<string, unknown> = {};
 
   if (data.client_id !== undefined) updatePayload.client_id = data.client_id;
   if (data.date !== undefined) updatePayload.date = data.date;
@@ -235,7 +237,7 @@ export async function updateProposition(id: string, data: Partial<PropositionFor
 
   updatePayload.updated_at = new Date().toISOString();
 
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("propositions")
     .update(updatePayload)
     .eq("id", id);
@@ -247,7 +249,7 @@ export async function updateProposition(id: string, data: Partial<PropositionFor
 
 // Delete a proposition
 export async function deleteProposition(id: string): Promise<void> {
-  const { error } = await (supabase as any)
+  const { error } = await supabase
     .from("propositions")
     .delete()
     .eq("id", id);

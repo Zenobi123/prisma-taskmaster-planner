@@ -1,18 +1,18 @@
 
-import { RegimeFiscal } from "@/types/client";
+import { RegimeFiscal, Client } from "@/types/client";
 
 // Valid regime fiscal values - now strictly enforced by database constraint
 export const VALID_REGIME_FISCAL = ["reel", "igs", "non_professionnel"] as const;
 
-export const validateRegimeFiscal = (regimefiscal: any): RegimeFiscal => {
-  if (VALID_REGIME_FISCAL.includes(regimefiscal as any)) {
+export const validateRegimeFiscal = (regimefiscal: string): RegimeFiscal => {
+  if ((VALID_REGIME_FISCAL as readonly string[]).includes(regimefiscal)) {
     return regimefiscal as RegimeFiscal;
   }
   return "reel";
 };
 
-export const cleanClientUpdateData = (updates: any): any => {
-  const cleanedUpdates: any = {};
+export const cleanClientUpdateData = (updates: Partial<Client>): Record<string, unknown> => {
+  const cleanedUpdates: Record<string, unknown> = {};
   
   // Only include fields that have actual values and are valid
   if (updates.type !== undefined) cleanedUpdates.type = updates.type;

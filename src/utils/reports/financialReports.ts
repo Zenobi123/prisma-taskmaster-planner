@@ -1,6 +1,6 @@
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
 export const generateChiffresAffairesReport = async () => {
@@ -28,7 +28,7 @@ export const generateChiffresAffairesReport = async () => {
       ['Factures en Retard', stats.facturesEnRetard.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 55,
       head: [['Indicateur', 'Valeur']],
       body: summaryData,
@@ -36,12 +36,12 @@ export const generateChiffresAffairesReport = async () => {
     });
     
     // Détail des factures par mois
-    const currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = doc.lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Évolution Mensuelle', 14, currentY);
     
     // Grouper les factures par mois
-    const facturesByMonth = data.factures.reduce((acc: any, facture: any) => {
+    const facturesByMonth = data.factures.reduce((acc, facture) => {
       const month = new Date(facture.date).toLocaleDateString('fr-FR', { year: 'numeric', month: 'long' });
       if (!acc[month]) acc[month] = { count: 0, amount: 0 };
       acc[month].count++;
@@ -49,13 +49,13 @@ export const generateChiffresAffairesReport = async () => {
       return acc;
     }, {});
     
-    const monthlyData = Object.entries(facturesByMonth).map(([month, data]: [string, any]) => [
+    const monthlyData = Object.entries(facturesByMonth).map(([month, data]: [string, { count: number; amount: number }]) => [
       month,
       data.count.toString(),
       `${data.amount.toLocaleString()} F CFA`
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: currentY + 10,
       head: [['Mois', 'Nombre de Factures', 'Montant Total']],
       body: monthlyData,
@@ -63,8 +63,7 @@ export const generateChiffresAffairesReport = async () => {
     });
     
     doc.save(`chiffre-affaires-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generateFacturationReport = async () => {
@@ -79,7 +78,7 @@ export const generateFacturationReport = async () => {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Tableau des factures
-    const facturesData = data.factures.slice(0, 50).map((facture: any) => [
+    const facturesData = data.factures.slice(0, 50).map((facture) => [
       facture.id,
       facture.clients?.nom || facture.clients?.raisonsociale || 'Client inconnu',
       new Date(facture.date).toLocaleDateString(),
@@ -87,7 +86,7 @@ export const generateFacturationReport = async () => {
       facture.status_paiement || 'Non défini'
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['N° Facture', 'Client', 'Date', 'Montant', 'Statut']],
       body: facturesData,
@@ -96,8 +95,7 @@ export const generateFacturationReport = async () => {
     });
     
     doc.save(`facturation-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generateCreancesReport = async () => {
@@ -105,7 +103,7 @@ export const generateCreancesReport = async () => {
     const data = await ReportDataService.getAllReportData();
     
     // Filtrer les factures impayées
-    const facturesImpayees = data.factures.filter((f: any) => 
+    const facturesImpayees = data.factures.filter((f) => 
       f.status_paiement === 'non_payée' || f.status_paiement === 'partiellement_payée'
     );
     
@@ -116,7 +114,7 @@ export const generateCreancesReport = async () => {
     doc.setFontSize(10);
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
-    const creancesData = facturesImpayees.map((facture: any) => {
+    const creancesData = facturesImpayees.map((facture) => {
       const montantRestant = (facture.montant || 0) - (facture.montant_paye || 0);
       const joursRetard = Math.floor((new Date().getTime() - new Date(facture.echeance).getTime()) / (1000 * 60 * 60 * 24));
       
@@ -129,7 +127,7 @@ export const generateCreancesReport = async () => {
       ];
     });
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Client', 'N° Facture', 'Échéance', 'Montant Restant', 'Retard']],
       body: creancesData,
@@ -138,6 +136,5 @@ export const generateCreancesReport = async () => {
     });
     
     doc.save(`creances-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };

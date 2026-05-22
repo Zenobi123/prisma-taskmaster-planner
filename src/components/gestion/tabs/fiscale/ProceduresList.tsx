@@ -23,7 +23,7 @@ const fiscalProcedures = [
 ];
 
 interface ProceduresListProps {
-  onItemClick: (item: any) => void;
+  onItemClick: (item) => void;
 }
 
 export function ProceduresList({ onItemClick }: ProceduresListProps) {

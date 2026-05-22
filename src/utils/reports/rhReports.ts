@@ -1,6 +1,6 @@
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
 export const generateMassSalarialeReport = async () => {
@@ -23,7 +23,7 @@ export const generateMassSalarialeReport = async () => {
       ['Nombre de Bulletins', stats.nombreBulletins.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Indicateur', 'Valeur']],
       body: summaryData,
@@ -31,7 +31,7 @@ export const generateMassSalarialeReport = async () => {
     });
     
     // Détail par client
-    const masseSalarialeParClient = data.employes.reduce((acc: any, employe: any) => {
+    const masseSalarialeParClient = data.employes.reduce((acc, employe) => {
       const clientNom = employe.clients?.nom || employe.clients?.raisonsociale || 'Client inconnu';
       if (!acc[clientNom]) {
         acc[clientNom] = {
@@ -44,8 +44,8 @@ export const generateMassSalarialeReport = async () => {
       acc[clientNom].nombreEmployes++;
       
       // Calculer les totaux de paie pour cet employé
-      const paieEmploye = data.paie.filter((p: any) => p.employe_id === employe.id);
-      paieEmploye.forEach((p: any) => {
+      const paieEmploye = data.paie.filter((p) => p.employe_id === employe.id);
+      paieEmploye.forEach((p) => {
         acc[clientNom].totalSalaireBrut += p.salaire_brut || 0;
         acc[clientNom].totalSalaireNet += p.salaire_net || 0;
       });
@@ -53,18 +53,18 @@ export const generateMassSalarialeReport = async () => {
       return acc;
     }, {});
     
-    const currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = doc.lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Répartition par Client', 14, currentY);
     
-    const clientsData = Object.entries(masseSalarialeParClient).map(([client, data]: [string, any]) => [
+    const clientsData = Object.entries(masseSalarialeParClient).map(([client, data]: [string, { nombreEmployes: number; totalSalaireBrut: number; totalSalaireNet: number }]) => [
       client,
       data.nombreEmployes.toString(),
       `${data.totalSalaireBrut.toLocaleString()} F CFA`,
       `${data.totalSalaireNet.toLocaleString()} F CFA`
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: currentY + 10,
       head: [['Client', 'Nb Employés', 'Total Brut', 'Total Net']],
       body: clientsData,
@@ -73,8 +73,7 @@ export const generateMassSalarialeReport = async () => {
     });
     
     doc.save(`masse-salariale-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generateEffectifsReport = async () => {
@@ -90,7 +89,7 @@ export const generateEffectifsReport = async () => {
     
     // Statistiques générales
     const totalEmployes = data.employes.length;
-    const employesActifs = data.employes.filter((e: any) => e.statut === 'Actif').length;
+    const employesActifs = data.employes.filter((e) => e.statut === 'Actif').length;
     const employesInactifs = totalEmployes - employesActifs;
     
     const statsData = [
@@ -99,7 +98,7 @@ export const generateEffectifsReport = async () => {
       ['Employés Inactifs', employesInactifs.toString()]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Indicateur', 'Valeur']],
       body: statsData,
@@ -107,7 +106,7 @@ export const generateEffectifsReport = async () => {
     });
     
     // Détail des employés par client
-    const effectifsParClient = data.employes.reduce((acc: any, employe: any) => {
+    const effectifsParClient = data.employes.reduce((acc, employe) => {
       const clientNom = employe.clients?.nom || employe.clients?.raisonsociale || 'Client inconnu';
       if (!acc[clientNom]) {
         acc[clientNom] = {
@@ -127,18 +126,18 @@ export const generateEffectifsReport = async () => {
       return acc;
     }, {});
     
-    const currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = doc.lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Effectifs par Client', 14, currentY);
     
-    const effectifsData = Object.entries(effectifsParClient).map(([client, data]: [string, any]) => [
+    const effectifsData = Object.entries(effectifsParClient).map(([client, data]: [string, { total: number; actifs: number; inactifs: number }]) => [
       client,
       data.total.toString(),
       data.actifs.toString(),
       data.inactifs.toString()
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: currentY + 10,
       head: [['Client', 'Total', 'Actifs', 'Inactifs']],
       body: effectifsData,
@@ -146,6 +145,5 @@ export const generateEffectifsReport = async () => {
     });
     
     doc.save(`effectifs-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };

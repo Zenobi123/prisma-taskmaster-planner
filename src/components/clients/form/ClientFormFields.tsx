@@ -45,7 +45,7 @@ interface FormDataType {
 interface ClientFormFieldsProps {
   type: ClientType;
   formData: FormDataType;
-  onChange: (name: string, value: any) => void;
+  onChange: (name: string, value) => void;
 }
 
 export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsProps) {

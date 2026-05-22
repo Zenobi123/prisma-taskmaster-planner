@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import type { ClientFiscalData } from "@/hooks/fiscal/types";
 
 export interface NonCompliantClient {
   id: string;
@@ -31,7 +32,7 @@ export const getClientsWithNonCompliantFiscalSituation = async (): Promise<NonCo
         return false;
       }
 
-      const fiscalData = client.fiscal_data as any;
+      const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
       
       // Check if attestation exists and fiscal situation is not compliant
       if (fiscalData.attestation && typeof fiscalData.attestation === 'object') {

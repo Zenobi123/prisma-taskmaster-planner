@@ -1,15 +1,33 @@
 
 import { supabase } from "@/integrations/supabase/client";
 
+export interface FactureAnalyseRow {
+  id: string;
+  date: string;
+  montant: number;
+  montant_paye: number | null;
+  status_paiement: string;
+  client_id: string;
+  status: string;
+}
+
+export interface PrestationAnalyseRow {
+  id: string;
+  facture_id: string;
+  description: string;
+  type: string;
+  montant: number;
+}
+
 // Cache pour les données des factures
 let facturesCache = {
-  data: null as any[] | null,
+  data: null as FactureAnalyseRow[] | null,
   timestamp: 0
 };
 
 // Cache pour les données des prestations
 let prestationsCache = {
-  data: null as any[] | null,
+  data: null as PrestationAnalyseRow[] | null,
   timestamp: 0
 };
 
@@ -53,7 +71,7 @@ export const fetchPrestationsForAnalysis = async () => {
   }
   
   
-  const { data: prestationsData, error: prestationsError } = await (supabase as any)
+  const { data: prestationsData, error: prestationsError } = await supabase
     .from("facture_prestations")
     .select("*");
     

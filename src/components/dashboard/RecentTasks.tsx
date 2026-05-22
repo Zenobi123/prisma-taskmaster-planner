@@ -16,7 +16,7 @@ const RecentTasks = () => {
 
   // Filter out completed tasks and limit to 10 active tasks
   const activeTasks = tasks
-    .filter((task: any) => task.status !== "termine") // Remove all completed tasks
+    .filter((task) => task.status !== "termine") // Remove all completed tasks
     .slice(0, 10); // Limit to 10 tasks maximum on the dashboard
 
   const getStatusBadge = (status: string, startDate: string | null, endDate: string | null) => {
@@ -95,7 +95,7 @@ const RecentTasks = () => {
         </thead>
         <tbody>
           {activeTasks.length > 0 ? (
-            activeTasks.map((task: any) => {
+            activeTasks.map((task) => {
               const today = new Date();
               today.setHours(0, 0, 0, 0);
               

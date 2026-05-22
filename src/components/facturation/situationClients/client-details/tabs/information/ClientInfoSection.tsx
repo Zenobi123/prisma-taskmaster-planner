@@ -19,7 +19,7 @@ const ClientInfoSection = ({ client }: ClientInfoSectionProps) => {
     if (!client.adresse) return "N/A";
     
     if (typeof client.adresse === 'object') {
-      const addr = client.adresse as any;
+      const addr = client.adresse as { ville?: string; quartier?: string; lieuDit?: string };
       const parts = [
         addr.ville,
         addr.quartier,
@@ -35,7 +35,7 @@ const ClientInfoSection = ({ client }: ClientInfoSectionProps) => {
     if (!client.contact) return "N/A";
     
     if (typeof client.contact === 'object') {
-      const contact = client.contact as any;
+      const contact = client.contact as { telephone?: string; email?: string };
       const parts = [
         contact.telephone,
         contact.email

@@ -23,8 +23,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useRef } from "react";
 
 interface TaskFormFieldsProps {
-  clients: any[];
-  collaborateurs: any[];
+  clients: { id: string; type?: string; nom?: string; raisonsociale?: string }[];
+  collaborateurs: { id: string; nom?: string; prenom?: string; statut?: string }[];
 }
 
 export const TaskFormFields = ({ clients, collaborateurs }: TaskFormFieldsProps) => {

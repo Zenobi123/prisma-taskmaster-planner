@@ -28,7 +28,7 @@ export interface Procedure {
   responsable?: string;
   statut: string;
   priorite: string;
-  etapes?: Record<string, any>[];
+  etapes?: Record<string, unknown>[];
   created_at: string;
   updated_at: string;
 }

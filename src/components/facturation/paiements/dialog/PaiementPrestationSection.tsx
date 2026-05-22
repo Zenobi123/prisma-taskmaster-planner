@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -26,22 +26,14 @@ export const PaiementPrestationSection = ({
   prestationAmounts,
   originalPrestationAmounts
 }: PaiementPrestationSectionProps) => {
-  const [prestations, setPrestations] = useState<any[]>([]);
+  const [prestations, setPrestations] = useState<{ id: string; description: string; montant: number }[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (selectedFactureId && typePaiement === "partiel") {
-      fetchPrestationsForFacture(selectedFactureId);
-    } else {
-      setPrestations([]);
-    }
-  }, [selectedFactureId, typePaiement]);
-
-  const fetchPrestationsForFacture = async (factureId: string) => {
+  const fetchPrestationsForFacture = useCallback(async (factureId: string) => {
     try {
       setIsLoading(true);
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("facture_prestations")
         .select("*")
         .eq("facture_id", factureId);
@@ -57,7 +49,15 @@ export const PaiementPrestationSection = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    if (selectedFactureId && typePaiement === "partiel") {
+      fetchPrestationsForFacture(selectedFactureId);
+    } else {
+      setPrestations([]);
+    }
+  }, [selectedFactureId, typePaiement, fetchPrestationsForFacture]);
 
   // Optimiser le rendu des prestations en utilisant un callback mémorisé pour les changements
   const handleCheckChange = (id: string) => (checked: boolean) => {

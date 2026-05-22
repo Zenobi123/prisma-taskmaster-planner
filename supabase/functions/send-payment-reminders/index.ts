@@ -149,7 +149,7 @@ serve(async (req) => {
   }
 })
 
-async function processReminder(supabase: any, reminder: PaymentReminder) {
+async function processReminder(supabase: ReturnType<typeof createClient>, reminder: PaymentReminder) {
   try {
     // Get client info
     const { data: client, error: clientError } = await supabase

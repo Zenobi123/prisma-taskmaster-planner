@@ -1,11 +1,12 @@
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 export const useInvoiceData = () => {
   const { toast } = useToast();
-  const [invoices, setInvoices] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<Tables<"factures">[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   const [sentInvoicesCount, setSentInvoicesCount] = useState(0);
@@ -18,7 +19,7 @@ export const useInvoiceData = () => {
   // Durée de validité du cache en ms (15 secondes)
   const CACHE_DURATION = 15000;
 
-  const fetchInvoices = async (forceRefresh = false) => {
+  const fetchInvoices = useCallback(async (forceRefresh = false) => {
     // Si les données ont déjà été chargées et qu'on ne force pas le rafraîchissement,
     // et que le cache est encore valide, on ne recharge pas
     const now = Date.now();
@@ -64,11 +65,11 @@ export const useInvoiceData = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchInvoices();
-  }, []);
+  }, [fetchInvoices]);
 
   return {
     invoices,

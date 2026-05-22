@@ -34,7 +34,7 @@ export function FiscalDashboard({ client }: FiscalDashboardProps) {
         }
       : undefined,
     modePaiementPSL: client.modepaiementpsl || "trimestriel",
-  }), [client]);
+  }), [client, chiffreAffaires]);
 
   const result: FiscalResult = useMemo(() => calculateAllTaxes(input), [input]);
 

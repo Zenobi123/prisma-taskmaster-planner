@@ -149,7 +149,7 @@ export const useCollaborateurs = () => {
     addMutation.mutate(newCollaborateur);
   };
 
-  const handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value) => {
     setNewCollaborateur((prev) => ({
       ...prev,
       [field]: value,

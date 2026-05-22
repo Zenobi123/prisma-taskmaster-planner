@@ -2,10 +2,10 @@
 /**
  * Utilities for comparing fiscal data objects
  */
-export const compareObjects = (obj1: any, obj2: any): boolean => {
+export const compareObjects = (obj1, obj2): boolean => {
   try {
     // Comparison using stringification with sorted keys
-    const sortedStringify = (obj: any) => JSON.stringify(obj, Object.keys(obj).sort());
+    const sortedStringify = (obj) => JSON.stringify(obj, Object.keys(obj).sort());
     
     // Remove metadata fields for comparison
     const obj1ForComparison = { ...obj1 };

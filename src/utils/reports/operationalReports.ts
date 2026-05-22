@@ -1,6 +1,6 @@
 
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { ReportDataService } from './reportDataService';
 
 export const generateTachesReport = async () => {
@@ -16,9 +16,9 @@ export const generateTachesReport = async () => {
     
     // Statistiques des tâches
     const totalTaches = data.tasks.length;
-    const tachesTerminees = data.tasks.filter((t: any) => t.status === 'terminée').length;
-    const tachesEnCours = data.tasks.filter((t: any) => t.status === 'en_cours').length;
-    const tachesEnAttente = data.tasks.filter((t: any) => t.status === 'en_attente').length;
+    const tachesTerminees = data.tasks.filter((t) => t.status === 'terminée').length;
+    const tachesEnCours = data.tasks.filter((t) => t.status === 'en_cours').length;
+    const tachesEnAttente = data.tasks.filter((t) => t.status === 'en_attente').length;
     
     const statsData = [
       ['Total Tâches', totalTaches.toString()],
@@ -28,7 +28,7 @@ export const generateTachesReport = async () => {
       ['Taux de Completion', `${totalTaches > 0 ? ((tachesTerminees / totalTaches) * 100).toFixed(1) : 0}%`]
     ];
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Indicateur', 'Valeur']],
       body: statsData,
@@ -36,7 +36,7 @@ export const generateTachesReport = async () => {
     });
     
     // Détail des tâches par collaborateur
-    const tachesParCollaborateur = data.tasks.reduce((acc: any, tache: any) => {
+    const tachesParCollaborateur = data.tasks.reduce((acc, tache) => {
       const collaborateur = `${tache.collaborateurs?.prenom || ''} ${tache.collaborateurs?.nom || 'Collaborateur inconnu'}`.trim();
       if (!acc[collaborateur]) {
         acc[collaborateur] = {
@@ -55,11 +55,11 @@ export const generateTachesReport = async () => {
       return acc;
     }, {});
     
-    const currentY = (doc as any).lastAutoTable.finalY + 20;
+    const currentY = doc.lastAutoTable.finalY + 20;
     doc.setFontSize(14);
     doc.text('Tâches par Collaborateur', 14, currentY);
     
-    const collaborateursData = Object.entries(tachesParCollaborateur).map(([collaborateur, data]: [string, any]) => [
+    const collaborateursData = Object.entries(tachesParCollaborateur).map(([collaborateur, data]: [string, { total: number; terminees: number; enCours: number; enAttente: number }]) => [
       collaborateur,
       data.total.toString(),
       data.terminees.toString(),
@@ -67,7 +67,7 @@ export const generateTachesReport = async () => {
       data.enAttente.toString()
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: currentY + 10,
       head: [['Collaborateur', 'Total', 'Terminées', 'En Cours', 'En Attente']],
       body: collaborateursData,
@@ -76,8 +76,7 @@ export const generateTachesReport = async () => {
     });
     
     doc.save(`taches-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };
 
 export const generatePerformanceCollaborateursReport = async () => {
@@ -92,7 +91,7 @@ export const generatePerformanceCollaborateursReport = async () => {
     doc.text(`Généré le ${new Date().toLocaleDateString()}`, 14, 30);
     
     // Calculer les performances par collaborateur
-    const performanceParCollaborateur = data.tasks.reduce((acc: any, tache: any) => {
+    const performanceParCollaborateur = data.tasks.reduce((acc, tache) => {
       const collaborateur = `${tache.collaborateurs?.prenom || ''} ${tache.collaborateurs?.nom || 'Collaborateur inconnu'}`.trim();
       if (!acc[collaborateur]) {
         acc[collaborateur] = {
@@ -120,7 +119,7 @@ export const generatePerformanceCollaborateursReport = async () => {
       return acc;
     }, {});
     
-    const performanceData = Object.entries(performanceParCollaborateur).map(([collaborateur, data]: [string, any]) => [
+    const performanceData = Object.entries(performanceParCollaborateur).map(([collaborateur, data]: [string, { totalTaches: number; tachesTerminees: number; tauxCompletion: number; tachesEnRetard: number }]) => [
       collaborateur,
       data.totalTaches.toString(),
       data.tachesTerminees.toString(),
@@ -128,7 +127,7 @@ export const generatePerformanceCollaborateursReport = async () => {
       data.tachesEnRetard.toString()
     ]);
     
-    (doc as any).autoTable({
+    autoTable(doc, {
       startY: 40,
       head: [['Collaborateur', 'Total Tâches', 'Terminées', 'Taux Completion', 'En Retard']],
       body: performanceData,
@@ -136,6 +135,5 @@ export const generatePerformanceCollaborateursReport = async () => {
     });
     
     doc.save(`performance-collaborateurs-${new Date().toISOString().slice(0, 10)}.pdf`);
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };

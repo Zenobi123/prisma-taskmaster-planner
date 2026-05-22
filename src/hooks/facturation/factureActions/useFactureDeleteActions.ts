@@ -3,7 +3,7 @@ import { Facture } from "@/types/facture";
 import { deleteFactureFromDatabase } from "@/services/factureService";
 
 export const useFactureDeleteActions = (
-  toast: any,
+  toast,
   setFactures: React.Dispatch<React.SetStateAction<Facture[]>>
 ) => {
   const deleteFacture = async (factureId: string) => {

@@ -126,7 +126,7 @@ export const DeclarationsSection: React.FC<DeclarationProps> = ({
   };
 
   // Get display value for a declaration field
-  const getDeclarationValue = (declaration: string, field: keyof DeclarationStatus): any => {
+  const getDeclarationValue = (declaration: string, field: keyof DeclarationStatus) => {
     return state.declarations[declaration]?.[field] || '';
   };
 

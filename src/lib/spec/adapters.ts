@@ -173,7 +173,9 @@ const PAYMENT_MODE_MAP: Record<string, RecuPaymentMode> = {
 
 // Ventilation Impôts / Honoraires d'un paiement, comme le reçu de référence
 // (recu-app.html) qui répartit selon les lignes payées de la facture source.
-function ventilerPaiement(
+// Exporté pour que tous les rendus de reçu (aperçu fidèle, dialogue, PDF jsPDF)
+// partagent exactement la même logique.
+export function ventilerPaiement(
   paiement: ExistingPaiement,
   montant: number,
   facture?: ExistingFacture | null,

@@ -7,7 +7,7 @@ import { useFactureDeleteActions } from "./factureActions/useFactureDeleteAction
 import { useFactureSendCancelActions } from "./factureActions/useFactureSendCancelActions";
 
 export const useFactureActions = (
-  toast: any,
+  toast,
   factures: Facture[],
   setFactures: React.Dispatch<React.SetStateAction<Facture[]>>
 ) => {

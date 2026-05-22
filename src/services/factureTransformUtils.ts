@@ -1,6 +1,6 @@
 
 // Shared client transformation utility for facture services
-export function transformClient(client: any): { id: string; nom: string; adresse: string; telephone: string; email: string } | undefined {
+export function transformClient(client): { id: string; nom: string; adresse: string; telephone: string; email: string } | undefined {
   if (!client) return undefined;
 
   return {

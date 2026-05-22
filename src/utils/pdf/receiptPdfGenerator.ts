@@ -12,81 +12,77 @@ import { PDF_THEME } from './pdfTheme';
  * @param download - Si true, télécharger le PDF; si false, ouvrir dans un nouvel onglet
  * @returns Soit un Blob (si download=true) soit null (si download=false)
  */
-export const generateReceiptPDF = (paiement: any, download: boolean = false) => {
-  try {
-    // Créer un nouveau service de document
-    const reference = paiement.reference || paiement.id;
-    const docService = new DocumentService();
-    const doc = docService.getDocument();
-    
-    // Ajouter l'en-tête standard
-    docService.addStandardHeader();
-    
-    // Ajouter un titre
-    docService.addTitle(`Reçu de paiement ${reference}`);
-    
-    // Ajouter une sous-titre avec la date
-    docService.addSubtitle(`Date: ${paiement.date}`);
-    
-    // Ajouter la section de détails du paiement
-    addReceiptPaymentDetails(doc, paiement);
-    
-    // Ajouter la section du montant avec montant en lettres
-    const montantFormate = new Intl.NumberFormat('fr-FR').format(paiement.montant);
-    const montantLettre = montantEnLettres(paiement.montant);
-    docService.addSection('MONTANT PAYÉ', [
-      `${montantFormate} F CFA`,
-      `En lettres: ${montantLettre}`
-    ]);
+export const generateReceiptPDF = (paiement, download: boolean = false) => {
+  // Créer un nouveau service de document
+  const reference = paiement.reference || paiement.id;
+  const docService = new DocumentService();
+  const doc = docService.getDocument();
+  
+  // Ajouter l'en-tête standard
+  docService.addStandardHeader();
+  
+  // Ajouter un titre
+  docService.addTitle(`Reçu de paiement ${reference}`);
+  
+  // Ajouter une sous-titre avec la date
+  docService.addSubtitle(`Date: ${paiement.date}`);
+  
+  // Ajouter la section de détails du paiement
+  addReceiptPaymentDetails(doc, paiement);
+  
+  // Ajouter la section du montant avec montant en lettres
+  const montantFormate = new Intl.NumberFormat('fr-FR').format(paiement.montant);
+  const montantLettre = montantEnLettres(paiement.montant);
+  docService.addSection('MONTANT PAYÉ', [
+    `${montantFormate} F CFA`,
+    `En lettres: ${montantLettre}`
+  ]);
 
-    // Ajouter la ventilation impôts / honoraires si disponible
-    if (paiement.montant_impots || paiement.montant_honoraires) {
-      const ventilation: string[] = [];
-      if (paiement.montant_impots) {
-        ventilation.push(`Impôts & taxes: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_impots)} F CFA`);
-      }
-      if (paiement.montant_honoraires) {
-        ventilation.push(`Honoraires: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_honoraires)} F CFA`);
-      }
-      docService.addSection('VENTILATION', ventilation);
+  // Ajouter la ventilation impôts / honoraires si disponible
+  if (paiement.montant_impots || paiement.montant_honoraires) {
+    const ventilation: string[] = [];
+    if (paiement.montant_impots) {
+      ventilation.push(`Impôts & taxes: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_impots)} F CFA`);
     }
+    if (paiement.montant_honoraires) {
+      ventilation.push(`Honoraires: ${new Intl.NumberFormat('fr-FR').format(paiement.montant_honoraires)} F CFA`);
+    }
+    docService.addSection('VENTILATION', ventilation);
+  }
 
-    // Ajouter les notes si disponibles
-    if (paiement.notes) {
-      docService.addSection('NOTES', [paiement.notes]);
-    }
+  // Ajouter les notes si disponibles
+  if (paiement.notes) {
+    docService.addSection('NOTES', [paiement.notes]);
+  }
 
-    // Ajouter le texte légal
-    addLegalText(doc, 220);
-    
-    // Ajouter le pied de page standard
-    docService.addStandardFooter();
-    
-    // Ajouter un filigrane
-    docService.addWatermark({
-      text: `REÇU ${reference}`,
-      angle: -45,
-      fontSize: 60,
-      opacity: 0.15,
-      color: PDF_THEME.watermark
-    });
-    
-    // Générer le PDF
-    if (download) {
-      docService.save(`recu_${reference}.pdf`);
-      return null;
-    } else {
-      const blob = doc.output('blob');
-      window.open(URL.createObjectURL(blob));
-      return blob;
-    }
-  } catch (error) {
-    throw error;
+  // Ajouter le texte légal
+  addLegalText(doc, 220);
+  
+  // Ajouter le pied de page standard
+  docService.addStandardFooter();
+  
+  // Ajouter un filigrane
+  docService.addWatermark({
+    text: `REÇU ${reference}`,
+    angle: -45,
+    fontSize: 60,
+    opacity: 0.15,
+    color: PDF_THEME.watermark
+  });
+  
+  // Générer le PDF
+  if (download) {
+    docService.save(`recu_${reference}.pdf`);
+    return null;
+  } else {
+    const blob = doc.output('blob');
+    window.open(URL.createObjectURL(blob));
+    return blob;
   }
 };
 
 // Ajouter les détails du paiement
-const addReceiptPaymentDetails = (doc: jsPDF, paiement: any): number => {
+const addReceiptPaymentDetails = (doc: jsPDF, paiement): number => {
   // Créer une boîte pour les informations de paiement
   doc.setFillColor(...PDF_THEME.bgLight);
   doc.roundedRect(15, 105, 180, 50, 3, 3, 'F');
@@ -221,7 +217,7 @@ const formatPaymentDate = (dateString: string | Date): string => {
 };
 
 // Fonction pour formatter les informations du client pour le reçu
-export const formatClientForReceipt = (client: any): SimplifiedClient => {
+export const formatClientForReceipt = (client): SimplifiedClient => {
   // Si le client est déjà au bon format, le renvoyer
   if (typeof client === 'object' && client.nom) {
     return createSimplifiedClient(client);
@@ -249,7 +245,7 @@ export const formatClientForReceipt = (client: any): SimplifiedClient => {
 };
 
 // Fonction d'aide pour créer un client simplifié à partir d'un objet client complexe
-const createSimplifiedClient = (client: any): SimplifiedClient => {
+const createSimplifiedClient = (client): SimplifiedClient => {
   return {
     id: client.id || '',
     nom: client.nom || client.raisonsociale || 'Client',

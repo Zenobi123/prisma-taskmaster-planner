@@ -1,9 +1,11 @@
 
 import { StatsCard } from "./StatsCard";
+import type { ClientStats } from "@/services/clientStatsService";
+import type { SubjectClientsCount } from "@/services/subjectClientsService";
 
 interface ClientStatsSectionProps {
-  clientStats: any;
-  subjectClients: any;
+  clientStats: ClientStats | null;
+  subjectClients: SubjectClientsCount | null;
   isClientStatsLoading: boolean;
   isSubjectClientsLoading: boolean;
   onUnpaidPatenteClick: () => void;

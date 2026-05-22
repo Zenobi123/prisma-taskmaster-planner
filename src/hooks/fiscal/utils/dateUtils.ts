@@ -50,6 +50,5 @@ export const checkAttestationExpiration = (creationDate: string, validityEndDate
         toast.error(`L'Attestation de Conformité Fiscale est expirée depuis ${Math.abs(daysUntilExpiration)} jour${Math.abs(daysUntilExpiration) > 1 ? 's' : ''}.`);
       }
     }
-  } catch (error) {
-  }
+  } catch { /* erreur ignoree volontairement */ }
 };

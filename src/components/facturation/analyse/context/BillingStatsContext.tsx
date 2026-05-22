@@ -1,16 +1,12 @@
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import { 
-  BillingStatsContextData, 
-  PeriodFilter, 
-  SummaryStats, 
-  ChartDataItem,
-  MonthlyChartItem 
+import React, { useState, useCallback } from "react";
+import {
+  BillingStatsContextData,
+  PeriodFilter,
+  SummaryStats,
 } from "../types/AnalyseTypes";
 import { useAnalyseGlobale } from "../hooks/useAnalyseGlobale";
-
-// Create context with a default empty value
-const BillingStatsContext = createContext<BillingStatsContextData | undefined>(undefined);
+import { BillingStatsContext } from "./billing-stats-context";
 
 // Default summary stats
 const defaultStats: SummaryStats = {
@@ -82,13 +78,4 @@ export const BillingStatsProvider: React.FC<BillingStatsProviderProps> = ({ chil
       {children}
     </BillingStatsContext.Provider>
   );
-};
-
-// Custom hook to use the billing stats context
-export const useBillingStats = (): BillingStatsContextData => {
-  const context = useContext(BillingStatsContext);
-  if (context === undefined) {
-    throw new Error("useBillingStats must be used within a BillingStatsProvider");
-  }
-  return context;
 };

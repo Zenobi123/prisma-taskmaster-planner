@@ -16,7 +16,7 @@ export const prepareStatusChartData = (facturesParStatut: {
 };
 
 export const prepareMonthlyChartData = (
-  filteredFactures: any[],
+  filteredFactures: { date: string; montant: number | string; montant_paye?: number | string }[],
 ): MonthlyChartItem[] => {
   const monthlyChartData: MonthlyChartItem[] = [];
   

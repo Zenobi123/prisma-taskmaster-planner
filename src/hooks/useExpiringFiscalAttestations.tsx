@@ -2,8 +2,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import type { ClientFiscalData } from "@/hooks/fiscal/types";
 import { differenceInDays, isValid, parse } from "date-fns";
-import { Json } from "@/integrations/supabase/types";
+import { Json, type Tables } from "@/integrations/supabase/types";
 
 export interface FiscalAttestation {
   id: string;
@@ -32,9 +33,9 @@ export const useExpiringFiscalAttestations = () => {
       // Filter and process clients with fiscal attestations
       const expiringAttestations: FiscalAttestation[] = [];
       
-      clients.forEach((client: any) => {
+      clients.forEach((client: Tables<"clients">) => {
         try {
-          const fiscalData = client.fiscal_data;
+          const fiscalData = client.fiscal_data as unknown as ClientFiscalData;
           
           // Skip if hidden from dashboard
           if (fiscalData.hiddenFromDashboard === true) {
@@ -75,8 +76,7 @@ export const useExpiringFiscalAttestations = () => {
               });
             }
           }
-        } catch (error) {
-        }
+        } catch { /* erreur ignoree volontairement */ }
       });
       
       

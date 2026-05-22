@@ -8,7 +8,7 @@ import { invalidateClientsCache } from "./clientCacheService";
 export const addClient = async (client: Omit<Client, "id" | "interactions" | "created_at">) => {
   
   // Ensure regimefiscal has a valid value - database constraint will enforce this
-  const regimefiscal = VALID_REGIME_FISCAL.includes(client.regimefiscal as any) ? client.regimefiscal : "reel";
+  const regimefiscal = (VALID_REGIME_FISCAL as readonly string[]).includes(client.regimefiscal) ? client.regimefiscal : "reel";
   
   const clientData = {
     type: client.type,
