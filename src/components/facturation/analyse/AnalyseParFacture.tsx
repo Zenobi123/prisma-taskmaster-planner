@@ -10,7 +10,7 @@ import { useFactures } from "@/hooks/facturation/useFactures";
 import { useFactureViewActions } from "@/hooks/facturation/factureActions/useFactureViewActions";
 import DetailFacture from "./DetailFacture";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useBillingStats } from "./context/BillingStatsContext";
+import { useBillingStats } from "./context/billing-stats-context";
 
 const AnalyseParFacture = () => {
   const { factures } = useFactures();

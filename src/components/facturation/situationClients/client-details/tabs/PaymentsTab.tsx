@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Eye } from "lucide-react";
-import { useClientDetails } from "../ClientDetailsContext";
+import { useClientDetails } from "../client-details-context";
 import { Paiement } from "@/types/facture"; // Changed to use a consistent type
 import type { Paiement as RecuPaiement } from "@/types/paiement";
 import PaymentsTable from "../PaymentsTable";

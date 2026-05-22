@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, Eye } from "lucide-react";
 import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Facture } from "@/types/facture";
-import { useClientDetails } from "../ClientDetailsContext";
+import { useClientDetails } from "../client-details-context";
 import InvoicesTable from "../InvoicesTable";
 import InvoicePreviewDialog from "../../dialogs/InvoicePreviewDialog";
 
