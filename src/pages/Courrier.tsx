@@ -95,7 +95,7 @@ const Courrier: React.FC = () => {
         return true;
       })
     );
-  }, [clients, generationType, selectedCriteria]);
+  }, [clients, selectedCriteria]);
 
   const handleGeneratePreview = () => {
     if (!selectedTemplate) {

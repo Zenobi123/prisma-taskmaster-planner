@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement, PrestationPayee } from "@/types/paiement";
@@ -13,11 +13,7 @@ export const usePaiements = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const paiementActions = usePaiementActions();
 
-  useEffect(() => {
-    fetchPaiements();
-  }, []);
-
-  const fetchPaiements = async () => {
+  const fetchPaiements = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error } = await supabase
@@ -128,7 +124,11 @@ export const usePaiements = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    fetchPaiements();
+  }, [fetchPaiements]);
 
   const addPaiement = async (newPaiement: Omit<Paiement, "id">) => {
     const result = await paiementActions.addPaiement(newPaiement);
