@@ -22,7 +22,7 @@ export function LoadingState({ isMobile }: LoadingStateProps) {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />

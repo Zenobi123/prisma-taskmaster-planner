@@ -13,7 +13,7 @@ export const StatsSummaryCards = ({ stats }: StatsSummaryCardsProps) => {
   const { sentInvoicesCount, totalInvoiceAmount } = useInvoiceData();
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
       <Card>
         <CardContent className="p-4 flex items-center">
           <FileText className="h-10 w-10 mr-4 text-[#84A98C]" />

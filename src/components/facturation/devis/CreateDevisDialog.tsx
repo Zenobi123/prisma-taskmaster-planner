@@ -171,7 +171,7 @@ const CreateDevisDialog = ({
 
         <div className="space-y-6 py-4">
           {/* Client & dates */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="client">Client</Label>
               <Select value={clientId} onValueChange={setClientId}>
