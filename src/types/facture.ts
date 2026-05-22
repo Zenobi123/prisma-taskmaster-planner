@@ -8,7 +8,10 @@ export interface Prestation {
   montant: number;
 }
 
-export interface Paiement {
+// Paiement embarqué dans une facture (sous-enregistrement). Le paiement
+// "métier" qui constate un règlement et génère le reçu est le type autonome
+// défini dans @/types/paiement.
+export interface FacturePaiement {
   id: string;
   facture_id: string;
   date: string;
@@ -40,7 +43,7 @@ export interface Facture {
   status_paiement: "non_payée" | "partiellement_payée" | "payée" | "en_retard";
   mode?: string;
   prestations: Prestation[];
-  paiements?: Paiement[];
+  paiements?: FacturePaiement[];
   notes?: string;
   devis_id?: string;
   created_at?: string;
