@@ -5,6 +5,13 @@ import { ObligationStatuses } from "./types";
 import { calculateAllTaxes, FiscalInput } from "@/utils/fiscalCalculations";
 
 export const useDefaultObligationRules = (selectedClient: Client) => {
+  // Primitives extraites pour des dépendances de hook stables (évite de dépendre
+  // de l'objet situationimmobiliere dont l'identité peut changer à chaque rendu).
+  const hasImmo = !!selectedClient.situationimmobiliere;
+  const immoType = selectedClient.situationimmobiliere?.type;
+  const immoLoyer = selectedClient.situationimmobiliere?.loyer;
+  const immoValeur = selectedClient.situationimmobiliere?.valeur;
+
   const getDefaultObligationStatuses = useCallback((): ObligationStatuses => {
     // Calculer les montants des impôts à partir des données du profil client
     const fiscalInput: FiscalInput = {
@@ -13,10 +20,10 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
       isCGA: selectedClient.iscga || false,
       isVendeurBoissons: selectedClient.isvendeurboissons || false,
       modePaiementIGS: selectedClient.modepaiementigs || "trimestriel",
-      situationImmobiliere: selectedClient.situationimmobiliere ? {
-        type: selectedClient.situationimmobiliere.type,
-        loyerMensuel: selectedClient.situationimmobiliere.loyer,
-        valeurBien: selectedClient.situationimmobiliere.valeur,
+      situationImmobiliere: hasImmo ? {
+        type: immoType,
+        loyerMensuel: immoLoyer,
+        valeurBien: immoValeur,
       } : undefined,
       modePaiementPSL: selectedClient.modepaiementpsl || "trimestriel",
     };
@@ -82,12 +89,11 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     }
 
     // Règles basées sur la situation immobilière
-    const sitType = selectedClient.situationimmobiliere?.type;
-    const isLocataire = sitType === "locataire" || sitType === "les_deux";
-    const isProprietaire = sitType === "proprietaire" || sitType === "les_deux";
+    const isLocataire = immoType === "locataire" || immoType === "les_deux";
+    const isProprietaire = immoType === "proprietaire" || immoType === "les_deux";
 
     // Bail Commercial et Précompte sur Loyer pour les locataires
-    if (isLocataire && selectedClient.situationimmobiliere?.loyer) {
+    if (isLocataire && immoLoyer) {
       baseStatuses.bailCommercial.assujetti = true;
       baseStatuses.bailCommercial.montantAnnuel = calculatedTaxes.bail;
 
@@ -99,14 +105,13 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     }
 
     // Taxe Foncière pour les propriétaires
-    if (isProprietaire && selectedClient.situationimmobiliere?.valeur) {
+    if (isProprietaire && immoValeur) {
       baseStatuses.tpf.assujetti = true;
       baseStatuses.tpf.montantAnnuel = calculatedTaxes.tf;
     }
 
     return baseStatuses;
   }, [
-    selectedClient.id,
     selectedClient.regimefiscal,
     selectedClient.type,
     selectedClient.chiffreaffaires,
@@ -114,9 +119,10 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
     selectedClient.isvendeurboissons,
     selectedClient.modepaiementigs,
     selectedClient.modepaiementpsl,
-    selectedClient.situationimmobiliere?.type,
-    selectedClient.situationimmobiliere?.loyer,
-    selectedClient.situationimmobiliere?.valeur,
+    hasImmo,
+    immoType,
+    immoLoyer,
+    immoValeur,
   ]);
 
   const [obligationStatuses, setObligationStatuses] = useState<ObligationStatuses>(() => getDefaultObligationStatuses());

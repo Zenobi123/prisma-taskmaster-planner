@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { UseFormSetValue } from "react-hook-form";
 import { PaiementFormData } from "../../types/PaiementFormTypes";
 
@@ -114,7 +114,7 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
     setValue("montant", newTotal);
   };
   
-  const loadPrestationData = async (prestationIds: string[]) => {
+  const loadPrestationData = useCallback(async (prestationIds: string[]) => {
     if (prestationIds.length === 0) return;
     
     try {
@@ -159,8 +159,8 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
         description: "Impossible de charger les détails des prestations"
       });
     }
-  };
-  
+  }, [prestationAmounts, selectedPrestations, setValue, toast]);
+
   const updateTotalAmount = (prestationIds: string[], customAmounts?: Record<string, number>) => {
     if (prestationIds.length === 0) {
       setValue("montant", 0);
@@ -192,7 +192,7 @@ export const usePaiementType = ({ setValue, selectedPrestations, selectedFacture
         loadPrestationData(missingPrestations);
       }
     }
-  }, [selectedPrestations]);
+  }, [selectedPrestations, originalPrestationAmounts, loadPrestationData]);
 
   return {
     handleTypePaiementChange,
