@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import type { Json } from "@/integrations/supabase/types";
 import { Client } from "@/types/client";
 
 export const getClients = async (includeArchived: boolean = false): Promise<Client[]> => {
@@ -42,7 +43,7 @@ export const createClient = async (clientData: Omit<Client, 'id' | 'created_at'>
     .from('clients')
     .insert([{
       ...clientData,
-      interactions: clientData.interactions || [] as any
+      interactions: (clientData.interactions || []) as unknown as Json
     }])
     .select()
     .single();
@@ -56,7 +57,7 @@ export const addClient = createClient; // Alias for backward compatibility
 export const updateClient = async (id: string, updates: Partial<Client>): Promise<Client> => {
   const updateData = {
     ...updates,
-    interactions: updates.interactions as any
+    interactions: updates.interactions as unknown as Json
   };
   
   const { data, error } = await supabase

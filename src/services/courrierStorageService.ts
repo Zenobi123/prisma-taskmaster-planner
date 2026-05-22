@@ -168,8 +168,8 @@ export const getClientsForCourrier = async (): Promise<Client[]> => {
     contact:
       typeof client.contact === "object" && client.contact !== null
         ? {
-            telephone: (client.contact as any)?.telephone || "",
-            email: (client.contact as any)?.email || "",
+            telephone: (client.contact as { telephone?: string; email?: string })?.telephone || "",
+            email: (client.contact as { telephone?: string; email?: string })?.email || "",
           }
         : { telephone: "", email: "" },
     adresse:

@@ -8,7 +8,7 @@ export interface Paie {
   heures_sup?: number;
   taux_horaire_sup?: number;
   montant_heures_sup?: number;
-  primes?: any[];
+  primes?: { libelle?: string; montant?: number }[];
   total_primes?: number;
   salaire_brut: number;
   cnps_employe?: number;
@@ -18,7 +18,7 @@ export interface Paie {
   cfc?: number;
   tdl?: number;
   rav?: number;
-  autres_retenues?: any[];
+  autres_retenues?: { libelle?: string; montant?: number }[];
   total_retenues?: number;
   salaire_net: number;
   date_paiement?: string;

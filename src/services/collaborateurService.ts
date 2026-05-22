@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import type { TablesInsert, TablesUpdate } from "@/integrations/supabase/types";
 import { Collaborateur } from "@/types/collaborateur";
 
 export const getCollaborateurs = async (): Promise<Collaborateur[]> => {
@@ -33,7 +34,7 @@ export const getCollaborateur = async (id: string): Promise<Collaborateur | null
 export const createCollaborateur = async (collaborateurData: Omit<Collaborateur, 'id' | 'created_at'>): Promise<Collaborateur> => {
   const { data, error } = await supabase
     .from('collaborateurs')
-    .insert([collaborateurData as any])
+    .insert([collaborateurData as unknown as TablesInsert<"collaborateurs">])
     .select()
     .single();
 
@@ -46,7 +47,7 @@ export const addCollaborateur = createCollaborateur; // Alias for backward compa
 export const updateCollaborateur = async (id: string, updates: Partial<Collaborateur>): Promise<Collaborateur> => {
   const { data, error } = await supabase
     .from('collaborateurs')
-    .update(updates as any)
+    .update(updates as unknown as TablesUpdate<"collaborateurs">)
     .eq('id', id)
     .select()
     .single();

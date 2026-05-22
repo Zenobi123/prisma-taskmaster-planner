@@ -105,10 +105,10 @@ export const factureDataService = {
       .select("*")
       .eq("facture_id", id);
 
-    const prestations: Prestation[] = (prestationsData || []).map((p: any) => ({
+    const prestations: Prestation[] = (prestationsData || []).map((p) => ({
       id: p.id,
       description: p.description,
-      type: p.type || "honoraire",
+      type: (p.type || "honoraire") as Prestation["type"],
       quantite: p.quantite,
       prix_unitaire: p.prix_unitaire,
       montant: p.montant,
@@ -204,10 +204,10 @@ export const factureDataService = {
       .select("*")
       .eq("facture_id", id);
 
-    const prestations: Prestation[] = (prestationsData || []).map((p: any) => ({
+    const prestations: Prestation[] = (prestationsData || []).map((p) => ({
       id: p.id,
       description: p.description,
-      type: p.type || "honoraire",
+      type: (p.type || "honoraire") as Prestation["type"],
       quantite: p.quantite,
       prix_unitaire: p.prix_unitaire,
       montant: p.montant,

@@ -1,7 +1,11 @@
 
 import { useMemo } from "react";
 
-export const useCollaboratorStats = (tasks: any[], collaborateurs: any[], isLoading: boolean) => {
+export const useCollaboratorStats = (
+  tasks: { status?: string; collaborateur_id?: string | null }[],
+  collaborateurs: { id: string; statut?: string }[],
+  isLoading: boolean,
+) => {
   return useMemo(() => {
     if (isLoading || !tasks || !collaborateurs) {
       return 0;

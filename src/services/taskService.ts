@@ -51,7 +51,7 @@ export const getTasks = async () => {
   }
 
   // Mise à jour des statuts sans filtrage par date
-  const updatedTasks = await updateTaskStatusesBasedOnDates(data);
+  const updatedTasks = await updateTaskStatusesBasedOnDates(data as Task[]);
   
   // Mettre à jour le nombre de tâches en cours pour chaque collaborateur
   await updateCollaborateurTaskCounts(updatedTasks);
@@ -119,7 +119,7 @@ export const determineInitialStatus = (startDate: string | null | undefined): Ta
 };
 
 // Function to check and update task statuses based on their dates
-const updateTaskStatusesBasedOnDates = async (tasks: any[]): Promise<any[]> => {
+const updateTaskStatusesBasedOnDates = async (tasks: Task[]): Promise<Task[]> => {
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Set to beginning of day
   
