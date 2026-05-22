@@ -31,7 +31,7 @@ interface ClientFiltersProps {
   onShowArchivedChange: (value: boolean) => void;
   clients?: Client[];
   isMobile?: boolean;
-  onImportClients?: (clients: any[]) => void;
+  onImportClients?: (clients: Partial<Client>[]) => void;
 }
 
 export function ClientFilters({

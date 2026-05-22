@@ -1,8 +1,10 @@
 
 import { useState } from "react";
+import type { UseFormSetValue } from "react-hook-form";
+import { PaiementFormData } from "../../types/PaiementFormTypes";
 
 interface UsePaiementDatesProps {
-  setValue: any;
+  setValue: UseFormSetValue<PaiementFormData>;
 }
 
 export const usePaiementDates = ({ setValue }: UsePaiementDatesProps) => {

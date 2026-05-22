@@ -1,4 +1,3 @@
-
 export interface ClientFinancialSummary {
   id: string;
   nom: string;
@@ -35,5 +34,5 @@ export interface ClientFinancialDetails {
   factures: ClientInvoice[];
   paiements: ClientPayment[];
   solde_disponible: number;
-  client?: any; // Add client property to store client details
+  client?: { id?: string; nom?: string; raisonsociale?: string; telephone?: string; email?: string; [key: string]: unknown }; // Add client property to store client details
 }

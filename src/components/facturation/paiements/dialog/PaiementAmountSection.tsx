@@ -1,12 +1,12 @@
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { FieldErrors } from "react-hook-form";
+import { FieldErrors, UseFormRegister } from "react-hook-form";
 import { PaiementFormData } from "../types/PaiementFormTypes";
 import { BanknoteIcon } from "lucide-react";
 
 interface PaiementAmountSectionProps {
-  register: any;
+  register: UseFormRegister<PaiementFormData>;
   errors: FieldErrors<PaiementFormData>;
 }
 

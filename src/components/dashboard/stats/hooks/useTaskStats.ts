@@ -1,7 +1,7 @@
 
 import { useMemo } from "react";
 
-export const useTaskStats = (tasks: any[], isLoading: boolean) => {
+export const useTaskStats = (tasks: { status?: string; end_date?: string }[], isLoading: boolean) => {
   return useMemo(() => {
     if (isLoading || !tasks) {
       return {

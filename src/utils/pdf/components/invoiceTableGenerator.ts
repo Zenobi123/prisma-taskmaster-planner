@@ -11,7 +11,7 @@ export const generatePrestationsTable = (doc: jsPDF, facture: PDFFacture): numbe
     const montant = prestation.prix_unitaire
       ? prestation.prix_unitaire * quantite
       : prestation.montant * quantite;
-    const typeLabel = (prestation as any).type === "impot" ? "Impôt" : "Honoraire";
+    const typeLabel = (prestation as { type?: string }).type === "impot" ? "Impôt" : "Honoraire";
 
     return [
       prestation.description,

@@ -7,8 +7,8 @@ export interface PrestationResult {
 }
 
 export const calculatePrestationTotals = (
-  prestations: any[],
-  facturesMap: Map<string, any>
+  prestations: { description?: string; type?: string; montant: number | string; facture_id: string }[],
+  facturesMap: Map<string, { montant?: number; montant_paye?: number; status_paiement?: string }>
 ): PrestationResult => {
   let totalImpots = 0;
   let totalHonoraires = 0;

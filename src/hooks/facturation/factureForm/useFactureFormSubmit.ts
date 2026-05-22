@@ -45,7 +45,7 @@ export const useFactureFormSubmit = (
         notes: data.notes || '',
       };
 
-      await addFactureToDatabase(factureData as any);
+      await addFactureToDatabase(factureData as Parameters<typeof addFactureToDatabase>[0]);
 
       toast.success('Facture créée avec succès');
       onFactureCreated();

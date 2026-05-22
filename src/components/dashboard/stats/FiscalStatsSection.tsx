@@ -1,9 +1,11 @@
 
 import { LargeStatsCard } from "./LargeStatsCard";
+import type { ClientStats } from "@/services/clientStatsService";
+import type { SubjectClientsCount } from "@/services/subjectClientsService";
 
 interface FiscalStatsSectionProps {
-  clientStats: any;
-  subjectClients: any;
+  clientStats: ClientStats | null;
+  subjectClients: SubjectClientsCount | null;
   isClientStatsLoading: boolean;
   isSubjectClientsLoading: boolean;
   onUnfiledDarpClick: () => void;

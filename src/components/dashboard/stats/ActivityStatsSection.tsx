@@ -1,8 +1,10 @@
 
 import { StatsCard } from "./StatsCard";
+import type { ClientStats } from "@/services/clientStatsService";
+import type { SubjectClientsCount } from "@/services/subjectClientsService";
 
 interface ActivityStatsSectionProps {
-  clientStats: any;
+  clientStats: ClientStats | null;
   overdueTasks: number;
   activeTasks: number;
   isClientStatsLoading: boolean;
