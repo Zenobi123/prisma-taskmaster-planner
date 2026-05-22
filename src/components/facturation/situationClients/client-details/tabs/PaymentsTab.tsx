@@ -1,10 +1,10 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Eye } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useClientDetails } from "../client-details-context";
-import { Paiement } from "@/types/facture"; // Changed to use a consistent type
-import type { Paiement as RecuPaiement } from "@/types/paiement";
+import { Paiement } from "@/types/paiement";
+import type { ClientPayment } from "@/types/clientFinancial";
 import PaymentsTable from "../PaymentsTable";
 import PaymentReceiptDialog from "../../../paiements/dialog/PaymentReceiptDialog";
 
@@ -12,32 +12,24 @@ const PaymentsTab = () => {
   const { clientDetails } = useClientDetails();
   const [selectedPaiement, setSelectedPaiement] = useState<Paiement | null>(null);
   const [isPaymentReceiptDialogOpen, setIsPaymentReceiptDialogOpen] = useState(false);
-  
+
   if (!clientDetails) return null;
 
-  const handleViewReceipt = (payment) => {
-    // This object is for the receipt dialog, we'll try to build it as best as we can.
-    // The underlying type issue with @/types/paiement vs @/types/facture needs a deeper fix.
-    const paiementForReceipt = {
+  // Le reçu est toujours généré à partir du paiement (type autonome @/types/paiement).
+  const handleViewReceipt = (payment: ClientPayment) => {
+    const paiementForReceipt: Paiement = {
       id: payment.id,
-      facture_id: payment.facture_id || "",
+      facture: payment.facture_id || "",
+      client: clientDetails.nom || "",
       client_id: clientDetails.id || "",
       date: payment.date,
       montant: payment.montant,
-      mode: payment.mode,
+      mode: payment.mode as Paiement["mode"],
       reference: payment.reference,
       solde_restant: 0,
       est_credit: payment.est_credit,
-      // Ajout de client pour correspondre au type Paiement du reçu
-      client: {
-        id: clientDetails.id,
-        nom: clientDetails.nom,
-        adresse: clientDetails.client?.adresse || '',
-        telephone: clientDetails.client?.telephone || '',
-        email: clientDetails.client?.email || '',
-      }
     };
-    
+
     setSelectedPaiement(paiementForReceipt);
     setIsPaymentReceiptDialogOpen(true);
   };
@@ -50,8 +42,8 @@ const PaymentsTab = () => {
           Ajouter un paiement
         </Button>
       </div>
-      
-      <PaymentsTable 
+
+      <PaymentsTable
         payments={clientDetails.paiements}
         onViewReceipt={handleViewReceipt}
       />
@@ -60,7 +52,7 @@ const PaymentsTab = () => {
         <PaymentReceiptDialog
           open={isPaymentReceiptDialogOpen}
           onOpenChange={setIsPaymentReceiptDialogOpen}
-          paiement={selectedPaiement as unknown as RecuPaiement}
+          paiement={selectedPaiement}
         />
       )}
     </div>
