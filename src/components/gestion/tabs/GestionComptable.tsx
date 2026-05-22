@@ -160,7 +160,7 @@ export function GestionComptable({ selectedClient }: GestionComptableProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-1">
               <p className="text-sm font-medium text-muted-foreground">Régime fiscal</p>
               <div className="flex items-center gap-2">

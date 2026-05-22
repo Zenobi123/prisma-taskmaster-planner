@@ -35,7 +35,7 @@ const ExpandedFilters = ({
   clients,
 }: ExpandedFiltersProps) => {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pb-2 pt-1">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pb-2 pt-1">
       <div className="space-y-1">
         <Label htmlFor="status" className="text-xs">Statut document</Label>
         <Select 
