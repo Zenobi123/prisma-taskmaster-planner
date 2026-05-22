@@ -9,7 +9,7 @@ export interface PrestationPayee {
 export interface Paiement {
   id: string;
   facture: string;
-  client: string | Client | any; // Can be either a string ID or a Client object
+  client: string | Client; // Can be either a string ID or a Client object
   client_id: string;
   date: string;
   montant: number;

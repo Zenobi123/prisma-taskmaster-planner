@@ -29,7 +29,7 @@ export const fetchFiscalData = async (clientId: string, retryCount = 0): Promise
     
     if (data?.fiscal_data) {
       // Conversion sécurisée en utilisant unknown comme intermédiaire
-      const rawFiscalData = data.fiscal_data as unknown as any;
+      const rawFiscalData = data.fiscal_data as unknown as ClientFiscalData;
       
       // Validation et migration automatique des données
       const validatedData = validateAndMigrateFiscalData(rawFiscalData);

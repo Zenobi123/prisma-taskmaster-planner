@@ -71,7 +71,7 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
       <TableRow key={paiement.id}>
         <TableCell className="font-medium">{paiement.reference}</TableCell>
         <TableCell>{paiement.facture || (paiement.est_credit ? "Crédit" : "N/A")}</TableCell>
-        <TableCell>{paiement.client}</TableCell>
+        <TableCell>{typeof paiement.client === "string" ? paiement.client : (paiement.client?.nom || paiement.client?.raisonsociale || "")}</TableCell>
         <TableCell>{formatDate(paiement.date)}</TableCell>
         <TableCell>{formatMontant(paiement.montant)}</TableCell>
         <TableCell>

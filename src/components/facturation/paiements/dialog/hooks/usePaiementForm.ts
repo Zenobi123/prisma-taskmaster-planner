@@ -11,7 +11,7 @@ import { usePaiementFormSubmit } from "./usePaiementFormSubmit";
 import { Paiement } from "@/types/paiement";
 
 interface UsePaiementFormProps {
-  onSubmit: (paiement: Omit<Paiement, "id">) => Promise<any>;
+  onSubmit: (paiement: Omit<Paiement, "id">) => Promise<unknown>;
   onOpenChange: (open: boolean) => void;
 }
 

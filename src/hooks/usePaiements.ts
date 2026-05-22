@@ -160,7 +160,7 @@ export const usePaiements = () => {
     
     const searchTermLower = searchTerm.toLowerCase();
     return (
-      paiement.client.toLowerCase().includes(searchTermLower) ||
+      (typeof paiement.client === "string" ? paiement.client : "").toLowerCase().includes(searchTermLower) ||
       paiement.id.toLowerCase().includes(searchTermLower) ||
       paiement.facture.toLowerCase().includes(searchTermLower) ||
       paiement.reference.toLowerCase().includes(searchTermLower)

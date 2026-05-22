@@ -66,5 +66,5 @@ export interface Client {
   isvendeurboissons?: boolean;
   modepaiementigs?: ModePaiement;
   modepaiementpsl?: ModePaiement;
-  fiscal_data?: any; // On conserve cette propriété pour éviter les erreurs avec les autres composants
+  fiscal_data?: unknown; // Données fiscales (forme ClientFiscalData) — typées côté consommateurs
 }

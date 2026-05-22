@@ -17,7 +17,7 @@ interface ClientSelectorProps {
   includeEmpty?: boolean;
   disabled?: boolean;
   isLoading?: boolean;
-  error?: any;
+  error?: unknown;
 }
 
 const ClientSelector = ({ 

@@ -22,7 +22,7 @@ import { Loader2, Receipt } from "lucide-react";
 interface PaiementDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (paiement: Omit<Paiement, "id">) => Promise<any>;
+  onSubmit: (paiement: Omit<Paiement, "id">) => Promise<unknown>;
 }
 
 const PaiementDialog = ({ open, onOpenChange, onSubmit }: PaiementDialogProps) => {

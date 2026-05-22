@@ -34,7 +34,7 @@ export const ExportOptions = ({ events, date }: ExportOptionsProps) => {
           Exporter en CSV
         </DropdownMenuItem>
         <DropdownMenuItem 
-          onClick={() => exportToPdf("Planning d'événements", events, `planning-${date?.toISOString().split('T')[0] || 'complet'}`)}
+          onClick={() => exportToPdf("Planning d'événements", events as unknown as Record<string, unknown>[], `planning-${date?.toISOString().split('T')[0] || 'complet'}`)}
           className="cursor-pointer"
         >
           <Printer className="w-4 h-4 mr-2" />

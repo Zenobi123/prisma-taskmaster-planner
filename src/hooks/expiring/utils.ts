@@ -1,6 +1,7 @@
 
 import { differenceInDays, parse, isValid } from "date-fns";
 import { Client } from "@/types/client";
+import type { ClientFiscalData } from "@/hooks/fiscal/types";
 import { ExpiringClient } from "./types";
 import { toast } from "sonner";
 
@@ -18,10 +19,11 @@ export const processExpiringClients = (clients: Client[]): ExpiringClient[] => {
       : client.raisonsociale || 'Entreprise sans nom';
       
     // Check if client has fiscal_data with attestation
-    if (client.fiscal_data && client.fiscal_data.attestation && client.fiscal_data.attestation.validityEndDate) {
-      const validityEndDate = client.fiscal_data.attestation.validityEndDate;
+    const fiscalData = client.fiscal_data as ClientFiscalData | undefined;
+    if (fiscalData?.attestation?.validityEndDate) {
+      const validityEndDate = fiscalData.attestation.validityEndDate;
       // Utiliser une valeur par défaut si creationDate n'est pas défini
-      const creationDate = client.fiscal_data.attestation.creationDate || 'Non spécifiée';
+      const creationDate = fiscalData.attestation.creationDate || 'Non spécifiée';
       
       try {
         // Parse date in format DD/MM/YYYY

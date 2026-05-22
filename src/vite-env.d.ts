@@ -9,7 +9,7 @@ interface Window {
   __dsfCacheData?: unknown[] | null;
   __darpCacheTimestamp?: number; // Property for DARP cache timestamp
   __igsCache?: {
-    data: null | any;
+    data: null | unknown;
     timestamp: number;
   };
   

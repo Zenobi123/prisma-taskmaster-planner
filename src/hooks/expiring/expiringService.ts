@@ -1,6 +1,7 @@
 
 import { getClients } from "@/services/clientService";
 import { supabase } from "@/integrations/supabase/client";
+import type { ClientFiscalData } from "@/hooks/fiscal/types";
 import { ExpiringClient } from "./types";
 import { processExpiringClients, sortExpiringClients } from "./utils";
 
@@ -18,7 +19,7 @@ export const fetchExpiringClients = async (): Promise<ExpiringClient[]> => {
   if (triphaseClient) {
     
     // S'assurer que les données fiscales sont configurées pour TRIPHASE SARL
-    if (!triphaseClient.fiscal_data || !triphaseClient.fiscal_data.attestation) {
+    if (!(triphaseClient.fiscal_data as ClientFiscalData | undefined)?.attestation) {
       
       const fiscalData = {
         attestation: {

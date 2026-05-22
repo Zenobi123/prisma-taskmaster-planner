@@ -1,5 +1,6 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import type { ClientFiscalData } from "@/hooks/fiscal/types";
 import { Client } from "@/types/client";
 import { mapClientRowToClient } from "@/services/client/clientDataMapper";
 import { shouldClientBeSubjectToObligation } from "./defaultObligationRules";
@@ -28,7 +29,7 @@ export const getClientsWithUnpaidTax = async (obligationType: string): Promise<C
           return true;
         }
 
-        const fiscalData = client.fiscal_data as any;
+        const fiscalData = client.fiscal_data as ClientFiscalData;
         const currentYear = new Date().getFullYear().toString();
         const selectedYear = fiscalData.selectedYear || currentYear;
         const yearObligations = fiscalData.obligations?.[selectedYear];
