@@ -2,7 +2,7 @@
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { FileText, AlertCircle } from "lucide-react";
@@ -28,15 +28,7 @@ export const PaiementFactureSection = ({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (selectedClientId && !estCredit) {
-      fetchFacturesForClient(selectedClientId);
-    } else {
-      setFactures([]);
-    }
-  }, [selectedClientId, estCredit]);
-
-  const fetchFacturesForClient = async (clientId: string) => {
+  const fetchFacturesForClient = useCallback(async (clientId: string) => {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
@@ -57,7 +49,15 @@ export const PaiementFactureSection = ({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    if (selectedClientId && !estCredit) {
+      fetchFacturesForClient(selectedClientId);
+    } else {
+      setFactures([]);
+    }
+  }, [selectedClientId, estCredit, fetchFacturesForClient]);
 
   if (estCredit || !selectedClientId) {
     return null;
