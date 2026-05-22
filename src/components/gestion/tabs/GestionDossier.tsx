@@ -232,17 +232,17 @@ export function GestionDossier({ selectedClient }: GestionDossierProps) {
       <CardContent>
         <Tabs defaultValue="checklist" className="w-full">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="checklist" className="flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Checklist documentaire
+            <TabsTrigger value="checklist" className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 text-xs sm:text-sm min-w-0">
+              <FileText className="h-4 w-4 shrink-0" />
+              <span className="truncate">Checklist documentaire</span>
             </TabsTrigger>
-            <TabsTrigger value="interactions" className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Interactions
+            <TabsTrigger value="interactions" className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 text-xs sm:text-sm min-w-0">
+              <MessageSquare className="h-4 w-4 shrink-0" />
+              <span className="truncate">Interactions</span>
             </TabsTrigger>
-            <TabsTrigger value="historique" className="flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Historique
+            <TabsTrigger value="historique" className="flex items-center gap-1 sm:gap-2 px-1 sm:px-3 text-xs sm:text-sm min-w-0">
+              <Clock className="h-4 w-4 shrink-0" />
+              <span className="truncate">Historique</span>
             </TabsTrigger>
           </TabsList>
 
