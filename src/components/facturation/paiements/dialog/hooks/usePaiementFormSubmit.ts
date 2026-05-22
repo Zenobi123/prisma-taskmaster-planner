@@ -1,15 +1,22 @@
 
 import { format } from "date-fns";
+import type { UseFormHandleSubmit, UseFormReset } from "react-hook-form";
 import { useToast } from "@/components/ui/use-toast";
 import { PaiementFormData } from "../../types/PaiementFormTypes";
 import { Paiement, PrestationPayee } from "@/types/paiement";
 
+interface SubmitClient {
+  id: string;
+  nom?: string | null;
+  raisonsociale?: string | null;
+}
+
 interface UsePaiementFormSubmitProps {
-  clients: any[];
-  handleSubmit: any;
-  onSubmit: (paiement: Omit<Paiement, "id">) => Promise<any>;
+  clients: SubmitClient[];
+  handleSubmit: UseFormHandleSubmit<PaiementFormData>;
+  onSubmit: (paiement: Omit<Paiement, "id">) => Promise<unknown>;
   onOpenChange: (open: boolean) => void;
-  reset: any;
+  reset: UseFormReset<PaiementFormData>;
   setIsSubmitting: (isSubmitting: boolean) => void;
   prestationAmounts: Record<string, number>;
 }

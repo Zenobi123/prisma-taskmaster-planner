@@ -3,19 +3,37 @@ import { useMemo } from "react";
 import { isOverdue } from "@/services/factureServices/factureStatusService";
 import { ClientFinancialSummary } from "@/types/clientFinancial";
 
+interface StatusInvoice {
+  id: string;
+  client_id: string;
+  montant: number | string;
+  echeance?: string;
+  montant_paye?: number;
+}
+interface StatusPayment {
+  facture_id?: string;
+  montant: number | string;
+}
+interface StatusClient {
+  id: string;
+  type?: string;
+  nom?: string | null;
+  raisonsociale?: string | null;
+}
+
 interface ClientData {
   [clientId: string]: {
-    factures: any[];
-    paiements: any[];
+    factures: StatusInvoice[];
+    paiements: StatusPayment[];
     facturesMontant: number;
     paiementsMontant: number;
   };
 }
 
 export const useClientStatusCalculator = (
-  clients: any[],
-  invoices: any[],
-  payments: any[]
+  clients: StatusClient[],
+  invoices: StatusInvoice[],
+  payments: StatusPayment[]
 ) => {
   const statusGroups = useMemo(() => {
     return {

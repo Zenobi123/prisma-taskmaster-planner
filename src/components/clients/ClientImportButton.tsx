@@ -19,10 +19,10 @@ import {
 } from "@/components/ui/table";
 import { Upload, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { RegimeFiscal, ClientType } from "@/types/client";
+import { RegimeFiscal, ClientType, Client } from "@/types/client";
 
 interface ClientImportButtonProps {
-  onImport: (clients: any[]) => void;
+  onImport: (clients: Partial<Client>[]) => void;
   isMobile?: boolean;
 }
 
@@ -63,7 +63,7 @@ function downloadTemplate() {
   URL.revokeObjectURL(url);
 }
 
-function parseCSV(text: string): { clients: any[]; errors: string[] } {
+function parseCSV(text: string): { clients: Partial<Client>[]; errors: string[] } {
   const errors: string[] = [];
   const lines = text
     .split(/\r?\n/)
@@ -77,7 +77,7 @@ function parseCSV(text: string): { clients: any[]; errors: string[] } {
 
   // Skip header row
   const dataLines = lines.slice(1);
-  const clients: any[] = [];
+  const clients: Partial<Client>[] = [];
 
   dataLines.forEach((line, index) => {
     const values = line.split(";");
@@ -155,7 +155,7 @@ function parseCSV(text: string): { clients: any[]; errors: string[] } {
 export function ClientImportButton({ onImport, isMobile }: ClientImportButtonProps) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<any[]>([]);
+  const [preview, setPreview] = useState<Partial<Client>[]>([]);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
