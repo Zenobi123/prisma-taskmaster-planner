@@ -1,6 +1,6 @@
 
 import { Client } from "@/types/client";
-import { ObligationStatuses } from "../types";
+import { ObligationStatuses, IgsObligationStatus } from "../types";
 
 interface PrepareFiscalDataProps {
   selectedClient: Client;
@@ -30,7 +30,7 @@ export const prepareFiscalDataForSave = ({
   };
 
   // Préparer les obligations avec une attention particulière pour l'IGS
-  const preparedObligations: Record<string, any> = {};
+  const preparedObligations: Record<string, unknown> = {};
   
   Object.entries(obligationStatuses).forEach(([obligationKey, obligation]) => {
     if (obligation) {
@@ -54,61 +54,61 @@ export const prepareFiscalDataForSave = ({
 
         // Traitement spécial pour l'IGS avec TOUS les détails de paiement
         if (obligationKey === 'igs') {
-          
+          const igs = obligation as IgsObligationStatus;
           preparedObligations[obligationKey] = {
             ...taxObligation,
             // Données spécifiques IGS - Calcul
-            caValue: (obligation as any).caValue || "",
-            isCGA: Boolean((obligation as any).isCGA),
-            classe: (obligation as any).classe || "",
-            outOfRange: Boolean((obligation as any).outOfRange),
-            montantAnnuel: (obligation as any).montantAnnuel || 0,
-            
+            caValue: igs.caValue || "",
+            isCGA: Boolean(igs.isCGA),
+            classe: igs.classe || "",
+            outOfRange: Boolean(igs.outOfRange),
+            montantAnnuel: igs.montantAnnuel || 0,
+
             // Paiements trimestriels - STATUTS
-            q1Payee: Boolean((obligation as any).q1Payee),
-            q2Payee: Boolean((obligation as any).q2Payee),
-            q3Payee: Boolean((obligation as any).q3Payee),
-            q4Payee: Boolean((obligation as any).q4Payee),
-            
+            q1Payee: Boolean(igs.q1Payee),
+            q2Payee: Boolean(igs.q2Payee),
+            q3Payee: Boolean(igs.q3Payee),
+            q4Payee: Boolean(igs.q4Payee),
+
             // Montants trimestriels - IMPORTANT pour le calcul des soldes
-            q1Montant: Number((obligation as any).q1Montant) || 0,
-            q2Montant: Number((obligation as any).q2Montant) || 0,
-            q3Montant: Number((obligation as any).q3Montant) || 0,
-            q4Montant: Number((obligation as any).q4Montant) || 0,
-            
+            q1Montant: Number(igs.q1Montant) || 0,
+            q2Montant: Number(igs.q2Montant) || 0,
+            q3Montant: Number(igs.q3Montant) || 0,
+            q4Montant: Number(igs.q4Montant) || 0,
+
             // Dates trimestrielles de paiement - IMPORTANT pour le suivi
-            q1Date: (obligation as any).q1Date || "",
-            q2Date: (obligation as any).q2Date || "",
-            q3Date: (obligation as any).q3Date || "",
-            q4Date: (obligation as any).q4Date || "",
-            
+            q1Date: igs.q1Date || "",
+            q2Date: igs.q2Date || "",
+            q3Date: igs.q3Date || "",
+            q4Date: igs.q4Date || "",
+
             // Références de paiement trimestrielles
-            q1Reference: (obligation as any).q1Reference || "",
-            q2Reference: (obligation as any).q2Reference || "",
-            q3Reference: (obligation as any).q3Reference || "",
-            q4Reference: (obligation as any).q4Reference || "",
-            
+            q1Reference: igs.q1Reference || "",
+            q2Reference: igs.q2Reference || "",
+            q3Reference: igs.q3Reference || "",
+            q4Reference: igs.q4Reference || "",
+
             // Modes de paiement trimestriels
-            q1Mode: (obligation as any).q1Mode || "",
-            q2Mode: (obligation as any).q2Mode || "",
-            q3Mode: (obligation as any).q3Mode || "",
-            q4Mode: (obligation as any).q4Mode || "",
-            
+            q1Mode: igs.q1Mode || "",
+            q2Mode: igs.q2Mode || "",
+            q3Mode: igs.q3Mode || "",
+            q4Mode: igs.q4Mode || "",
+
             // Montants calculés - CRITIQUES pour l'affichage des soldes
-            montantTotal: (obligation as any).montantTotal || 0,
-            montantTotalPaye: Number((obligation as any).montantTotalPaye) || 
-                             (Number((obligation as any).q1Montant) || 0) + 
-                             (Number((obligation as any).q2Montant) || 0) + 
-                             (Number((obligation as any).q3Montant) || 0) + 
-                             (Number((obligation as any).q4Montant) || 0),
-            soldeRestant: Number((obligation as any).soldeRestant) || 
-                         Math.max(0, (Number((obligation as any).montantAnnuel) || 0) - 
-                         ((Number((obligation as any).q1Montant) || 0) + 
-                          (Number((obligation as any).q2Montant) || 0) + 
-                          (Number((obligation as any).q3Montant) || 0) + 
-                          (Number((obligation as any).q4Montant) || 0)))
+            montantTotal: igs.montantTotal || 0,
+            montantTotalPaye: Number(igs.montantTotalPaye) ||
+                             (Number(igs.q1Montant) || 0) +
+                             (Number(igs.q2Montant) || 0) +
+                             (Number(igs.q3Montant) || 0) +
+                             (Number(igs.q4Montant) || 0),
+            soldeRestant: Number(igs.soldeRestant) ||
+                         Math.max(0, (Number(igs.montantAnnuel) || 0) -
+                         ((Number(igs.q1Montant) || 0) +
+                          (Number(igs.q2Montant) || 0) +
+                          (Number(igs.q3Montant) || 0) +
+                          (Number(igs.q4Montant) || 0)))
           };
-          
+
         } else {
           preparedObligations[obligationKey] = taxObligation;
         }

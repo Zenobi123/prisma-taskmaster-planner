@@ -1,15 +1,22 @@
 import { supabase } from "@/integrations/supabase/client";
 import { Client } from "@/types/client";
+import type { Tables } from "@/integrations/supabase/types";
 import { getClientsWithUnpaidIgs, getClientsWithUnpaidPatente, getClientsWithUnfiledDsf, getClientsWithUnfiledDarp } from "@/services/fiscalObligationsService";
+
+type EmbeddedClient = { nom?: string | null; raisonsociale?: string | null; niu?: string | null } | null;
+type WithClient<T> = T & { clients?: EmbeddedClient };
 
 export interface ReportData {
   clients: Client[];
-  factures: any[];
-  paiements: any[];
-  fiscalObligations: any[];
-  employes: any[];
-  paie: any[];
-  tasks: any[];
+  factures: WithClient<Tables<'factures'>>[];
+  paiements: WithClient<Tables<'paiements'>>[];
+  fiscalObligations: WithClient<Tables<'fiscal_obligations'>>[];
+  employes: WithClient<Tables<'employes'>>[];
+  paie: Tables<'paie'>[];
+  tasks: (Tables<'tasks'> & {
+    clients?: EmbeddedClient;
+    collaborateurs?: { nom?: string | null; prenom?: string | null } | null;
+  })[];
 }
 
 export interface BillingDossierReportData {
@@ -31,10 +38,10 @@ export class ReportDataService {
       if (clientsError) throw clientsError;
 
       // Mapper les données clients au bon type
-      const clients: Client[] = (clientsData || []).map((client: any) => ({
+      const clients: Client[] = (clientsData || []).map((client) => ({
         ...client,
         type: client.type as 'physique' | 'morale'
-      }));
+      })) as unknown as Client[];
 
       // Récupérer toutes les factures avec les informations clients
       const { data: facturesData, error: facturesError } = await supabase
@@ -199,7 +206,10 @@ export class ReportDataService {
     }
   }
 
-  static calculateFinancialStats(factures: any[], paiements: any[]) {
+  static calculateFinancialStats(
+    factures: { montant?: number | string | null; status_paiement?: string | null; echeance?: string | null }[],
+    paiements: { montant?: number | string | null }[],
+  ) {
     const totalFactures = factures.reduce((sum, f) => sum + (Number(f.montant) || 0), 0);
     const totalPaiements = paiements.reduce((sum, p) => sum + (Number(p.montant) || 0), 0);
     const facuresPayees = factures.filter(f => f.status_paiement === 'payée').length;
@@ -217,7 +227,7 @@ export class ReportDataService {
     };
   }
 
-  static calculateClientStats(clients: any[]) {
+  static calculateClientStats(clients: { type?: string | null; gestionexternalisee?: boolean | null }[]) {
     const total = clients.length;
     const personnesPhysiques = clients.filter(c => c.type === 'physique').length;
     const personnesMorales = clients.filter(c => c.type === 'morale').length;
@@ -231,7 +241,9 @@ export class ReportDataService {
     };
   }
 
-  static calculatePayrollStats(paieData: any[]) {
+  static calculatePayrollStats(
+    paieData: { annee?: number | null; salaire_brut?: number | string | null; salaire_net?: number | string | null; total_retenues?: number | string | null }[],
+  ) {
     const currentYear = new Date().getFullYear();
     const currentYearData = paieData.filter(p => p.annee === currentYear);
     
