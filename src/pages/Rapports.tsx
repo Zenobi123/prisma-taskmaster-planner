@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import { useAuthorization } from "@/hooks/useAuthorization";
 import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
+import PageLayout from "@/components/layout/PageLayout";
 import { ReportTypeFilter } from "@/components/rapports/ReportTypeFilter";
 import { SearchInput } from "@/components/rapports/SearchInput";
 import { ReportCard } from "@/components/rapports/ReportCard";
@@ -359,7 +360,8 @@ const Rapports = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-4 sm:p-6">
+    <PageLayout>
+    <div className="px-4 py-4 sm:p-6">
       <div className="flex items-center gap-4 mb-4 sm:mb-8">
         <Button
           variant="outline"
@@ -402,6 +404,7 @@ const Rapports = () => {
         )}
       </div>
     </div>
+    </PageLayout>
   );
 };
 

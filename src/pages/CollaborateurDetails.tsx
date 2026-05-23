@@ -42,26 +42,26 @@ export default function CollaborateurDetails() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-6">
+    <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <Button
           variant="outline"
           onClick={() => navigate("/collaborateurs")}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 sm:gap-2"
         >
           <ArrowLeft className="h-4 w-4" />
-          Retour
+          <span className="hidden sm:inline">Retour</span>
         </Button>
         <Button
           onClick={() => navigate(`/collaborateurs/${id}/edit`)}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 sm:gap-2"
         >
           <Edit className="h-4 w-4" />
-          Modifier
+          <span className="hidden sm:inline">Modifier</span>
         </Button>
       </div>
 
-      <Card className="bg-white p-8">
+      <Card className="bg-white p-4 sm:p-6 md:p-8">
         <div className="space-y-8">
           {/* En-tête */}
           <div className="text-center pb-6 border-b">

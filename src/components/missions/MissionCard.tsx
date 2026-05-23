@@ -89,25 +89,26 @@ const MissionCard = ({ mission }: MissionCardProps) => {
   };
 
   return (
-    <div className="p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex justify-between items-start">
-        <div>
-          <h3 className="font-semibold text-lg">{mission.title}</h3>
-          <p className="text-gray-600">{mission.client}</p>
-          <p className="text-sm text-gray-500">Assigné à: {mission.assignedTo}</p>
-          <div className="flex gap-2 mt-2">
-            <span className="text-sm text-gray-500">
+    <div className="p-3 sm:p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex justify-between items-start gap-3">
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold text-base sm:text-lg truncate">{mission.title}</h3>
+          <p className="text-gray-600 text-sm truncate">{mission.client}</p>
+          <p className="text-xs sm:text-sm text-gray-500 truncate">Assigné à : {mission.assignedTo}</p>
+          <div className="flex gap-2 mt-1.5">
+            <span className="text-xs sm:text-sm text-gray-500">
               Du {mission.startDate} au {mission.endDate}
             </span>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end gap-2 shrink-0">
           {getStatusBadge(mission.status)}
           <div className="flex gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm">
-                  Changer le statut
+                <Button variant="outline" size="sm" className="text-xs sm:text-sm px-2 sm:px-3">
+                  <span className="hidden sm:inline">Changer le statut</span>
+                  <span className="sm:hidden">Statut</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
