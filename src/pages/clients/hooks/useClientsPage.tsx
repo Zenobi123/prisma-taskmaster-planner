@@ -113,14 +113,14 @@ export function useClientsPage() {
     }
   }, [searchParams, clients, setSelectedClient, setIsEditDialogOpen, setSearchParams]);
 
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const debouncedRefetch = useCallback(() => {
-    let timeoutId: ReturnType<typeof setTimeout>;
-    return () => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        refetch();
-      }, 500);
-    };
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      refetch();
+    }, 500);
   }, [refetch]);
 
   const handleView = (client: Client) => {

@@ -1,5 +1,6 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRef } from "react";
 import { Client } from "@/types/client";
 import { addClient, archiveClient, updateClient, deleteClient, restoreClient, permanentDeleteClient } from "@/services/clientService";
 import { useToast } from "@/components/ui/use-toast";
@@ -7,21 +8,21 @@ import { useToast } from "@/components/ui/use-toast";
 export function useClientMutations() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const secondaryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Helper for staged query invalidation to prevent UI freezing
   const invalidateQueries = () => {
-    // First invalidate the primary query
-    setTimeout(() => {
-      queryClient.invalidateQueries({ queryKey: ["clients"] });
-      queryClient.invalidateQueries({ queryKey: ["deleted-clients"] });
-    }, 100);
-    
-    // Then invalidate related queries with delays
-    setTimeout(() => {
+    // Invalidate primary queries immediately so the list refreshes right away
+    queryClient.invalidateQueries({ queryKey: ["clients"] });
+    queryClient.invalidateQueries({ queryKey: ["deleted-clients"] });
+
+    // Debounce secondary dashboard queries — cancel any pending batch and schedule
+    // a new one so rapid successive mutations never stack up multiple rounds of
+    // invalidations that would overwhelm React Query and freeze the UI.
+    if (secondaryTimerRef.current) {
+      clearTimeout(secondaryTimerRef.current);
+    }
+    secondaryTimerRef.current = setTimeout(() => {
       queryClient.invalidateQueries({ queryKey: ["expiring-fiscal-attestations"] });
-    }, 500);
-    
-    setTimeout(() => {
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-patente"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unpaid-igs"] });
       queryClient.invalidateQueries({ queryKey: ["clients-unfiled-dsf"] });
