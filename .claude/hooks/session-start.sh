@@ -15,6 +15,14 @@ cd "$CLAUDE_PROJECT_DIR"
 npm install
 
 # Navigateur pour les tests responsive visuels (Playwright). Best-effort :
-# si la politique réseau bloque le téléchargement, on continue sans échouer.
-npx playwright install chromium \
-  || echo "[session-start] Chromium Playwright non installé (réseau ?) — tests visuels indisponibles cette session."
+# - si un Chromium pré-installé existe dans le conteneur, on évite un téléchargement
+#   bloqué par la politique réseau (les scripts visuels pointent dessus via
+#   `executablePath`).
+# - sinon on tente le téléchargement, sans faire échouer la session si réseau ko.
+preinstalled_chrome=$(ls /opt/pw-browsers/chromium-*/chrome-linux/chrome 2>/dev/null | head -n1 || true)
+if [ -n "$preinstalled_chrome" ]; then
+  echo "[session-start] Chromium pré-installé détecté : $preinstalled_chrome — téléchargement Playwright sauté."
+else
+  npx playwright install chromium \
+    || echo "[session-start] Chromium Playwright non installé (réseau ?) — tests visuels indisponibles cette session."
+fi
