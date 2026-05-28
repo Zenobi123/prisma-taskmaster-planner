@@ -13,6 +13,7 @@ export const useInvoicePreview = () => {
       
       const pdfFacture: PDFFacture = {
         id: facture.id,
+        numero: facture.numero,
         client: mapClientToPdfClient(facture.client),
         date: facture.date,
         echeance: facture.echeance,
@@ -46,6 +47,7 @@ export const useInvoicePreview = () => {
       
       const pdfFacture: PDFFacture = {
         id: facture.id,
+        numero: facture.numero,
         client: mapClientToPdfClient(facture.client),
         date: facture.date,
         echeance: facture.echeance,

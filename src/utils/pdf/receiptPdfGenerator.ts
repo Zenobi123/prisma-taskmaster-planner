@@ -5,6 +5,7 @@ import { SimplifiedClient } from './types';
 import { DocumentService } from './services/DocumentService';
 import { montantEnLettres } from '@/utils/numberToWords';
 import { PDF_THEME } from './pdfTheme';
+import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 
 /**
  * Fonction pour générer un PDF de reçu de paiement de haute qualité
@@ -15,9 +16,14 @@ import { PDF_THEME } from './pdfTheme';
 export const generateReceiptPDF = (paiement, download: boolean = false) => {
   // Créer un nouveau service de document
   const reference = paiement.reference || paiement.id;
+  const clientNom = paiement.client?.nom || paiement.client?.raisonsociale || '';
   const docService = new DocumentService();
   const doc = docService.getDocument();
-  
+
+  // Nom du document (métadonnée PDF) — utilisé par les visionneuses et le
+  // « Enregistrer au format PDF » lors de l'aperçu en nouvel onglet.
+  doc.setProperties({ title: `Reçu ${reference}` });
+
   // Ajouter l'en-tête standard
   docService.addStandardHeader();
   
@@ -72,7 +78,7 @@ export const generateReceiptPDF = (paiement, download: boolean = false) => {
   
   // Générer le PDF
   if (download) {
-    docService.save(`recu_${reference}.pdf`);
+    docService.save(`Recu_${sanitizePdfSegment(reference, 'doc')}_${sanitizePdfSegment(clientNom, 'client')}.pdf`);
     return null;
   } else {
     const blob = doc.output('blob');

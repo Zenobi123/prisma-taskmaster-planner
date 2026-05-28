@@ -4,18 +4,27 @@ import { DocumentService } from './services/DocumentService';
 import { generatePrestationsTable } from './components/invoiceTableGenerator';
 import { addPaymentsSection } from './components/invoicePayments';
 import { addNotesSection } from './components/invoiceNotes';
+import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 
 export const generateInvoicePDF = (facture: PDFFacture, download: boolean = false) => {
-  
+
+  // Référence lisible (numéro de facture) avec repli sur l'id technique
+  const ref = facture.numero || facture.id;
+  const clientNom = facture.client?.nom || facture.client?.raisonsociale || '';
+
   // Create a new document service
   const docService = new DocumentService();
   const doc = docService.getDocument();
-  
+
+  // Nom du document (métadonnée PDF) — utilisé par les visionneuses et le
+  // « Enregistrer au format PDF » lors de l'aperçu en nouvel onglet.
+  doc.setProperties({ title: `Facture ${ref}` });
+
   // Add standard header
   docService.addStandardHeader();
-  
+
   // Add title
-  docService.addTitle(`Facture ${facture.id}`);
+  docService.addTitle(`Facture ${ref}`);
   
   // Add subtitle with date
   docService.addSubtitle(`Date: ${facture.date}`);
@@ -63,7 +72,7 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
   
   // Add watermark if needed
   docService.addWatermark({
-    text: `FACTURE ${facture.id}`,
+    text: `FACTURE ${ref}`,
     angle: -45,
     fontSize: 60,
     opacity: 0.15,
@@ -73,7 +82,7 @@ export const generateInvoicePDF = (facture: PDFFacture, download: boolean = fals
   
   // Generate PDF
   if (download) {
-    docService.save(`facture_${facture.id}.pdf`);
+    docService.save(`Facture_${sanitizePdfSegment(ref, 'doc')}_${sanitizePdfSegment(clientNom, 'client')}.pdf`);
     return null;
   } else {
     const blob = doc.output('blob');
