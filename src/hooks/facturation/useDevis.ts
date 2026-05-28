@@ -10,9 +10,11 @@ import {
   convertDevisToFacture,
 } from "@/services/devisService";
 import { toast } from "sonner";
+import { useExercice } from "@/contexts/ExerciceContext";
 
 export function useDevis() {
   const queryClient = useQueryClient();
+  const { isVisibleByDate } = useExercice();
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -96,6 +98,9 @@ export function useDevis() {
   const filteredDevis = useMemo(() => {
     let filtered = [...allDevis];
 
+    // Exercice comptable : masquer les années clôturées (sauf consultation)
+    filtered = filtered.filter((d) => isVisibleByDate(d.date));
+
     // Search by numero, objet, or client name
     if (searchTerm) {
       const lowerSearch = searchTerm.toLowerCase();
@@ -121,7 +126,7 @@ export function useDevis() {
     filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return filtered;
-  }, [allDevis, searchTerm, statusFilter, clientFilter]);
+  }, [allDevis, searchTerm, statusFilter, clientFilter, isVisibleByDate]);
 
   // Actions
   const handleEdit = (devis: Devis) => {

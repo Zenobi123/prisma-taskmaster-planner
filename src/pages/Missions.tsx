@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -11,6 +11,8 @@ import { useMissionFilter } from "@/hooks/useMissionFilter";
 import PageLayout from "@/components/layout/PageLayout";
 import { useAuthorization } from "@/hooks/useAuthorization";
 import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
+import { useExercice } from "@/contexts/ExerciceContext";
+import { ExerciceSelector, ExerciceReadOnlyBanner } from "@/components/exercice/ExerciceControls";
 
 const Missions = () => {
   const { isAuthorized } = useAuthorization(
@@ -18,6 +20,7 @@ const Missions = () => {
     "missions",
     { showToast: true }
   );
+  const { isVisibleByYear, isConsultingClosed, getYearFromDate } = useExercice();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -61,13 +64,25 @@ const Missions = () => {
         endDate: task.end_date ? new Date(task.end_date).toLocaleDateString() : 'Non définie',
         clientId: task.client_id,
         collaborateurId: task.collaborateur_id,
-        createdAt: task.created_at
+        createdAt: task.created_at,
+        refYear: getYearFromDate(task.start_date || task.end_date || task.created_at)
       }));
     }
   });
 
+  // Exercice comptable : masquer les missions des années clôturées (sauf consultation)
+  const visibleMissions = useMemo(
+    () => (missions ?? []).filter((mission) => isVisibleByYear(mission.refYear)),
+    [missions, isVisibleByYear]
+  );
+
   // Use the custom hook for filtering and sorting
-  const filteredAndSortedMissions = useMissionFilter(missions, searchTerm, statusFilter);
+  const filteredAndSortedMissions = useMissionFilter(
+    visibleMissions,
+    searchTerm,
+    statusFilter,
+    isConsultingClosed
+  );
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredAndSortedMissions.length / itemsPerPage);
@@ -112,7 +127,12 @@ const Missions = () => {
   return (
     <PageLayout>
       <div className="px-4 py-4 sm:p-6 md:p-8">
-        <MissionHeader />
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <MissionHeader />
+          <ExerciceSelector />
+        </div>
+
+        <ExerciceReadOnlyBanner className="mb-4" />
 
         <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-3 sm:p-6 mb-4 sm:mb-6">
           <MissionFilters

@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAutoUpdate } from "./hooks/useAutoUpdate";
+import { ExerciceProvider } from "@/contexts/ExerciceContext";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
@@ -112,6 +113,7 @@ const App = () => {
         <div className="transition-all duration-300">
           <Toaster />
           <Sonner />
+          <ExerciceProvider>
           <BrowserRouter>
             <Routes>
               <Route path="/login" element={session ? <Navigate to="/" /> : <Login />} />
@@ -213,6 +215,7 @@ const App = () => {
               />
             </Routes>
           </BrowserRouter>
+          </ExerciceProvider>
         </div>
       </TooltipProvider>
     </QueryClientProvider>
