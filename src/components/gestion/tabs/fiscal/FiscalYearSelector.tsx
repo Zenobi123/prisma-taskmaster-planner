@@ -1,6 +1,7 @@
 
 import React, { useMemo } from "react";
 import { Label } from "@/components/ui/label";
+import { useClotures } from "@/lib/spec/clotureComptable";
 
 interface FiscalYearSelectorProps {
   fiscalYear: string;
@@ -13,6 +14,8 @@ export const FiscalYearSelector: React.FC<FiscalYearSelectorProps> = ({
   fiscalYear,
   onYearChange
 }) => {
+  const { isYearClosed } = useClotures();
+
   const years = useMemo(() => {
     const currentYear = new Date().getFullYear();
     const result: number[] = [];
@@ -32,7 +35,9 @@ export const FiscalYearSelector: React.FC<FiscalYearSelectorProps> = ({
         onChange={onYearChange}
       >
         {years.map((year) => (
-          <option key={year} value={String(year)}>{year}</option>
+          <option key={year} value={String(year)}>
+            {isYearClosed(year) ? `${year} (clôturé)` : year}
+          </option>
         ))}
       </select>
     </div>

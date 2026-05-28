@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuthorization } from "@/hooks/useAuthorization";
 import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
+import { ExerciceSelector, ExerciceReadOnlyBanner } from "@/components/exercice/ExerciceControls";
 
 const Facturation = () => {
   const [activeTab, setActiveTab] = useState("devis");
@@ -54,7 +55,14 @@ const Facturation = () => {
               Gestion de la facturation et des paiements
             </p>
           </div>
+          <ExerciceSelector />
         </div>
+
+        <div className="sm:hidden mb-3">
+          <ExerciceSelector />
+        </div>
+
+        <ExerciceReadOnlyBanner className="mb-4" />
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="border-b border-gray-200 overflow-x-auto sticky top-0 bg-background z-10 -mx-2 px-2 sm:mx-0 sm:px-0">

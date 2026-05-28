@@ -9,9 +9,11 @@ import {
   deleteProposition,
 } from "@/services/propositionService";
 import { toast } from "sonner";
+import { useExercice } from "@/contexts/ExerciceContext";
 
 export function usePropositions() {
   const queryClient = useQueryClient();
+  const { isVisibleByDate } = useExercice();
 
   // Filter states
   const [searchTerm, setSearchTerm] = useState("");
@@ -82,6 +84,9 @@ export function usePropositions() {
   const filteredPropositions = useMemo(() => {
     let filtered = [...allPropositions];
 
+    // Exercice comptable : masquer les années clôturées (sauf consultation)
+    filtered = filtered.filter((p) => isVisibleByDate(p.date));
+
     // Search by numero or client name
     if (searchTerm) {
       const lowerSearch = searchTerm.toLowerCase();
@@ -106,7 +111,7 @@ export function usePropositions() {
     filtered.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
     return filtered;
-  }, [allPropositions, searchTerm, statusFilter, clientFilter]);
+  }, [allPropositions, searchTerm, statusFilter, clientFilter, isVisibleByDate]);
 
   // Actions
   const handleEdit = (proposition: Proposition) => {

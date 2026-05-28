@@ -4,8 +4,10 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement, PrestationPayee } from "@/types/paiement";
 import { usePaiementActions } from "./facturation/paiementActions/usePaiementActions";
+import { useExercice } from "@/contexts/ExerciceContext";
 
 export const usePaiements = () => {
+  const { isVisibleByDate } = useExercice();
   const [searchTerm, setSearchTerm] = useState("");
   const [paiements, setPaiements] = useState<Paiement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -154,10 +156,13 @@ export const usePaiements = () => {
     return success;
   };
 
-  // Filter paiements based on search term
+  // Filter paiements: exercice comptable (masquer années clôturées) + recherche
   const filteredPaiements = paiements.filter(paiement => {
+    // Exercice comptable : masquer les années clôturées (sauf consultation)
+    if (!isVisibleByDate(paiement.date)) return false;
+
     if (!searchTerm) return true;
-    
+
     const searchTermLower = searchTerm.toLowerCase();
     return (
       (typeof paiement.client === "string" ? paiement.client : "").toLowerCase().includes(searchTermLower) ||

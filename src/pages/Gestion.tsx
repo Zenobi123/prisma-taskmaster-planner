@@ -10,6 +10,7 @@ import { NoClientSelected } from "@/components/gestion/NoClientSelected";
 import { useLocation, useBeforeUnload } from "react-router-dom";
 import { useAuthorization } from "@/hooks/useAuthorization";
 import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
+import { ExerciceSelector, ExerciceReadOnlyBanner } from "@/components/exercice/ExerciceControls";
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -125,7 +126,12 @@ export default function Gestion() {
 
   return (
     <div className="px-4 py-6 sm:p-8 bg-[#F6F6F7]">
-      <GestionHeader nombreClientsEnGestion={clientsEnGestion.length} />
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+        <GestionHeader nombreClientsEnGestion={clientsEnGestion.length} />
+        <ExerciceSelector />
+      </div>
+
+      <ExerciceReadOnlyBanner className="mb-4" />
 
       <ClientSelector
         clients={clientsEnGestion}

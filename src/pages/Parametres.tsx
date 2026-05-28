@@ -8,6 +8,7 @@ import AppSettings from "@/components/parametres/AppSettings";
 import SecuritySettings from "@/components/parametres/SecuritySettings";
 import NotificationSettings from "@/components/parametres/NotificationSettings";
 import CabinetConfigSettings from "@/components/parametres/CabinetConfigSettings";
+import ClotureAnnuelleSettings from "@/components/parametres/ClotureAnnuelleSettings";
 import UserManagement from "@/components/parametres/user-management/UserManagement";
 import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 import { useAuthorization } from "@/hooks/useAuthorization";
@@ -40,6 +41,7 @@ const Parametres = () => {
                 <TabsList className="mb-4 sm:mb-6 w-max min-w-full sm:w-full">
                   <TabsTrigger value="profile" className="text-xs sm:text-sm">Profil</TabsTrigger>
                   <TabsTrigger value="cabinet" className="text-xs sm:text-sm">Cabinet (impressions)</TabsTrigger>
+                  <TabsTrigger value="cloture" className="text-xs sm:text-sm">Clôture annuelle</TabsTrigger>
                   <TabsTrigger value="application" className="text-xs sm:text-sm">Application</TabsTrigger>
                   <TabsTrigger value="security" className="text-xs sm:text-sm">Sécurité</TabsTrigger>
                   <TabsTrigger value="notifications" className="text-xs sm:text-sm">Notifications</TabsTrigger>
@@ -53,6 +55,10 @@ const Parametres = () => {
 
               <TabsContent value="cabinet">
                 <CabinetConfigSettings />
+              </TabsContent>
+
+              <TabsContent value="cloture">
+                <ClotureAnnuelleSettings />
               </TabsContent>
 
               <TabsContent value="application">

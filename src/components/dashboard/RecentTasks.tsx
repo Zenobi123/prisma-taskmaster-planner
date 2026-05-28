@@ -2,8 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { getTasks } from "@/services/taskService";
 import { AlertTriangle, Clock, Flame } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useExercice } from "@/contexts/ExerciceContext";
 
 const RecentTasks = () => {
+  const { isVisibleByDate } = useExercice();
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
     queryFn: getTasks,
@@ -14,10 +16,12 @@ const RecentTasks = () => {
     gcTime: 5 * 60 * 1000
   });
 
-  // Filter out completed tasks and limit to 10 active tasks
+  // Exercice comptable : masquer les missions des années clôturées (sauf consultation),
+  // puis retirer les tâches terminées et limiter à 10 tâches actives.
   const activeTasks = tasks
-    .filter((task) => task.status !== "termine") // Remove all completed tasks
-    .slice(0, 10); // Limit to 10 tasks maximum on the dashboard
+    .filter((task) => isVisibleByDate(task.start_date || task.end_date || task.created_at))
+    .filter((task) => task.status !== "termine")
+    .slice(0, 10);
 
   const getStatusBadge = (status: string, startDate: string | null, endDate: string | null) => {
     const today = new Date();

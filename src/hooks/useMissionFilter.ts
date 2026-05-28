@@ -12,12 +12,16 @@ interface Mission {
   clientId: string;
   collaborateurId: string;
   createdAt: string;
+  refYear?: number | null;
 }
 
 export const useMissionFilter = (
   missions: Mission[] | undefined,
   searchTerm: string,
-  statusFilter: string
+  statusFilter: string,
+  // En consultation d'un exercice clôturé, on affiche tout l'historique
+  // (pas de masquage des missions terminées au-delà de 30 jours).
+  showAllCompleted: boolean = false
 ) => {
   const filteredAndSortedMissions = useMemo(() => {
     // Filter missions
@@ -27,15 +31,15 @@ export const useMissionFilter = (
         mission.assignedTo.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = statusFilter === "all" || mission.status === statusFilter;
-      
-      if (mission.status === "termine") {
+
+      if (mission.status === "termine" && !showAllCompleted) {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         const missionCreatedAt = new Date(mission.createdAt);
-        
+
         return matchesSearch && matchesStatus && missionCreatedAt >= thirtyDaysAgo;
       }
-      
+
       return matchesSearch && matchesStatus;
     }) || [];
 
@@ -53,7 +57,7 @@ export const useMissionFilter = (
       
       return priorityA - priorityB;
     });
-  }, [missions, searchTerm, statusFilter]);
+  }, [missions, searchTerm, statusFilter, showAllCompleted]);
 
   return filteredAndSortedMissions;
 };

@@ -5,6 +5,7 @@ import { Facture } from "@/types/facture";
 import { getFactures } from "@/services/factureService";
 import { useFactureActions } from "./useFactureActions";
 import { useToast } from "@/hooks/use-toast";
+import { useExercice } from "@/contexts/ExerciceContext";
 import { 
   applySearchFilter, 
   applyStatusFilter, 
@@ -19,6 +20,7 @@ const ITEMS_PER_PAGE = 10;
 
 export const useFactures = () => {
   const { toast } = useToast();
+  const { isVisibleByDate } = useExercice();
   const [factures, setFactures] = useState<Facture[]>([]);
   
   // Filter states
@@ -59,7 +61,10 @@ export const useFactures = () => {
   // Filter and sort factures
   const filteredFactures = useMemo(() => {
     let filtered = [...factures];
-    
+
+    // Exercice comptable : masquer les années clôturées (sauf consultation)
+    filtered = filtered.filter((facture) => isVisibleByDate(facture.date));
+
     // Apply filters
     filtered = applySearchFilter(filtered, searchTerm);
     filtered = applyStatusFilter(filtered, statusFilter);
@@ -79,7 +84,7 @@ export const useFactures = () => {
     filtered = sortFactures(filtered, sortKey, sortDirection);
     
     return filtered;
-  }, [factures, searchTerm, statusFilter, statusPaiementFilter, clientFilter, dateFilter, sortKey, sortDirection]);
+  }, [factures, searchTerm, statusFilter, statusPaiementFilter, clientFilter, dateFilter, sortKey, sortDirection, isVisibleByDate]);
 
   // Pagination
   const totalPages = calculateTotalPages(filteredFactures.length, ITEMS_PER_PAGE);
