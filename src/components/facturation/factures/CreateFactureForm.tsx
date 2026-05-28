@@ -21,7 +21,13 @@ import TotalAmountDisplay from './TotalAmountDisplay';
 import { Prestation } from '@/types/facture';
 import { Client } from '@/types/client';
 import { useFactureFormSubmit } from '@/hooks/facturation/factureForm/useFactureFormSubmit';
-import { PREDEFINED_PRESTATIONS } from '@/utils/fiscalReferenceData';
+import { adaptClient, type ExistingClientLike } from '@/lib/spec/fiscal';
+import {
+  getImpotsForSelect,
+  getHonorairesForClient,
+  QUICK_IMPOT_BUTTONS,
+} from '@/lib/spec/facturePrestations';
+import { toSpecPrestation, toFormPrestation } from '@/lib/spec/prestationBridge';
 
 const factureFormSchema = z.object({
   client_id: z.string().min(1, { message: "Veuillez sélectionner un client" }),
@@ -67,6 +73,22 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
 
   const { onSubmit } = useFactureFormSubmit(selectedClientId, prestations, onFactureCreated, onOpenChange);
 
+  // Client sélectionné → ClientSpec (avec impôts calculés) pour l'ajout rapide fidèle.
+  const selectedClient = useMemo(
+    () => clients.find((c) => c.id === selectedClientId),
+    [clients, selectedClientId],
+  );
+  const clientSpec = useMemo(
+    () => (selectedClient ? adaptClient(selectedClient as ExistingClientLike) : null),
+    [selectedClient],
+  );
+  const impotsOptions = useMemo(() => getImpotsForSelect(clientSpec), [clientSpec]);
+  const honorairesOptions = useMemo(() => getHonorairesForClient(clientSpec), [clientSpec]);
+  const impotButtons = useMemo(
+    () => (clientSpec ? QUICK_IMPOT_BUTTONS.filter((b) => b.applies(clientSpec)) : []),
+    [clientSpec],
+  );
+
   const handleClientChange = (clientId: string) => {
     setSelectedClientId(clientId);
     setValue('client_id', clientId);
@@ -76,17 +98,29 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
     setPrestations(prev => [...prev, { description: '', type: 'honoraire', quantite: 1, prix_unitaire: 0, montant: 0 }]);
   };
 
-  const addPredefinedPrestation = (predefined: { description: string; type: "impot" | "honoraire" }) => {
-    setPrestations(prev => [
-      ...prev,
-      {
-        description: predefined.description,
-        type: predefined.type,
-        quantite: 1,
-        prix_unitaire: 0,
-        montant: 0,
-      },
-    ]);
+  // Ajout rapide « Impôts du client & CGA » : injecte les montants réels du client
+  // (IGS classe + TDL + pénalités via cascade, PSL, Bail, TF, Solde, Patente, CGA).
+  const applyImpotButton = (btn: (typeof QUICK_IMPOT_BUTTONS)[number]) => {
+    if (!clientSpec) return;
+    const next = btn.apply(prestations.map(toSpecPrestation), clientSpec);
+    setPrestations(next.map(toFormPrestation));
+  };
+
+  // Ajout rapide « Honoraires selon le régime » (liste fidèle à la référence).
+  const addHonoraire = (def: { designation: string; montant: number }) => {
+    setPrestations(prev => {
+      if (prev.some((p) => p.description === def.designation)) return prev;
+      return [
+        ...prev,
+        {
+          description: def.designation,
+          type: 'honoraire',
+          quantite: 1,
+          prix_unitaire: def.montant,
+          montant: def.montant,
+        },
+      ];
+    });
   };
 
   const totals = useMemo(() => {
@@ -156,25 +190,51 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
         </div>
       </div>
 
-      {/* Predefined prestations quick-add */}
+      {/* Ajout rapide — Impôts du client & CGA (montants réels calculés) */}
       <div className="space-y-2">
-        <Label>Ajout rapide de prestations</Label>
+        <Label>Impôts du client &amp; CGA</Label>
+        {clientSpec ? (
+          impotButtons.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {impotButtons.map((btn) => (
+                <Button
+                  key={btn.key}
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  className={btn.color}
+                  onClick={() => applyImpotButton(btn)}
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  {btn.label.replace(/^\+\s*/, '')}
+                </Button>
+              ))}
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500">Aucun impôt calculé pour ce client.</p>
+          )
+        ) : (
+          <p className="text-xs text-gray-500">Sélectionnez un client pour proposer ses impôts.</p>
+        )}
+      </div>
+
+      {/* Ajout rapide — Honoraires selon le régime fiscal */}
+      <div className="space-y-2">
+        <Label>
+          Honoraires selon le régime{!selectedClient ? ' (IGS par défaut)' : ''}
+        </Label>
         <div className="flex flex-wrap gap-2">
-          {PREDEFINED_PRESTATIONS.map((p) => (
+          {honorairesOptions.map((def) => (
             <Button
-              key={p.description}
+              key={def.designation}
               type="button"
               variant="outline"
               size="sm"
-              className={
-                p.type === "impot"
-                  ? "border-orange-300 text-orange-700 hover:bg-orange-50"
-                  : "border-blue-300 text-blue-700 hover:bg-blue-50"
-              }
-              onClick={() => addPredefinedPrestation(p)}
+              className="border-blue-300 text-blue-700 hover:bg-blue-50"
+              onClick={() => addHonoraire(def)}
             >
               <Plus className="h-3 w-3 mr-1" />
-              {p.description}
+              {def.designation}
             </Button>
           ))}
         </div>
@@ -197,6 +257,8 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
         <PrestationFields
           prestations={prestations}
           onPrestationsChange={setPrestations}
+          impotsOptions={impotsOptions}
+          honorairesOptions={honorairesOptions}
         />
       </div>
 

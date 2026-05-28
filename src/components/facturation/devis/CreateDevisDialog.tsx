@@ -23,7 +23,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2, Loader2 } from "lucide-react";
-import { PREDEFINED_PRESTATIONS } from "@/utils/fiscalReferenceData";
+import { adaptClient, type ExistingClientLike } from "@/lib/spec/fiscal";
+import {
+  getImpotsForSelect,
+  getHonorairesForClient,
+  QUICK_IMPOT_BUTTONS,
+  type PrestationDef,
+} from "@/lib/spec/facturePrestations";
+import { toSpecPrestation, toFormPrestation } from "@/lib/spec/prestationBridge";
 
 interface CreateDevisDialogProps {
   open: boolean;
@@ -32,8 +39,6 @@ interface CreateDevisDialogProps {
   onSubmit: (data: DevisFormData) => void;
   isSubmitting?: boolean;
 }
-
-const predefinedPrestations = PREDEFINED_PRESTATIONS;
 
 const formatMontant = (montant: number): string => {
   return new Intl.NumberFormat("fr-FR").format(montant) + " F CFA";
@@ -81,17 +86,52 @@ const CreateDevisDialog = ({
     ]);
   };
 
-  const addPredefinedPrestation = (predefined: { description: string; type: "impot" | "honoraire" }) => {
-    setPrestations((prev) => [
-      ...prev,
-      {
-        description: predefined.description,
-        type: predefined.type,
-        quantite: 1,
-        prix_unitaire: 0,
-        montant: 0,
-      },
-    ]);
+  const clientSpec = useMemo(() => {
+    const c = clients.find((cl) => cl.id === clientId);
+    return c ? adaptClient(c as ExistingClientLike) : null;
+  }, [clients, clientId]);
+  const impotsOptions = useMemo(() => getImpotsForSelect(clientSpec), [clientSpec]);
+  const honorairesOptions = useMemo(() => getHonorairesForClient(clientSpec), [clientSpec]);
+  const impotButtons = useMemo(
+    () => (clientSpec ? QUICK_IMPOT_BUTTONS.filter((b) => b.applies(clientSpec)) : []),
+    [clientSpec],
+  );
+
+  const applyImpotButton = (btn: (typeof QUICK_IMPOT_BUTTONS)[number]) => {
+    if (!clientSpec) return;
+    const next = btn.apply(prestations.map(toSpecPrestation), clientSpec);
+    setPrestations(next.map(toFormPrestation));
+  };
+
+  const addHonoraire = (def: PrestationDef) => {
+    setPrestations((prev) => {
+      if (prev.some((p) => p.description === def.designation)) return prev;
+      return [
+        ...prev,
+        {
+          description: def.designation,
+          type: "honoraire",
+          quantite: 1,
+          prix_unitaire: def.montant,
+          montant: def.montant,
+        },
+      ];
+    });
+  };
+
+  const selectPredefined = (index: number, designation: string) => {
+    const p = prestations[index];
+    const options = p.type === "impot" ? impotsOptions : honorairesOptions;
+    const found = options.find((o) => o.designation === designation);
+    if (!found) return;
+    setPrestations((prev) => {
+      const updated = [...prev];
+      const next = { ...updated[index], description: found.designation };
+      if (found.montant > 0) next.prix_unitaire = found.montant;
+      next.montant = next.quantite * next.prix_unitaire;
+      updated[index] = next;
+      return updated;
+    });
   };
 
   const removePrestation = (index: number) => {
@@ -220,25 +260,49 @@ const CreateDevisDialog = ({
             />
           </div>
 
-          {/* Predefined prestations quick-add */}
+          {/* Ajout rapide — Impôts du client & CGA (montants réels calculés) */}
           <div className="space-y-2">
-            <Label>Ajout rapide de prestations</Label>
+            <Label>Impôts du client &amp; CGA</Label>
+            {clientSpec ? (
+              impotButtons.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {impotButtons.map((btn) => (
+                    <Button
+                      key={btn.key}
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className={btn.color}
+                      onClick={() => applyImpotButton(btn)}
+                    >
+                      <Plus className="h-3 w-3 mr-1" />
+                      {btn.label.replace(/^\+\s*/, "")}
+                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-gray-500">Aucun impôt calculé pour ce client.</p>
+              )
+            ) : (
+              <p className="text-xs text-gray-500">Sélectionnez un client pour proposer ses impôts.</p>
+            )}
+          </div>
+
+          {/* Ajout rapide — Honoraires selon le régime fiscal */}
+          <div className="space-y-2">
+            <Label>Honoraires selon le régime{!clientId ? " (IGS par défaut)" : ""}</Label>
             <div className="flex flex-wrap gap-2">
-              {predefinedPrestations.map((p) => (
+              {honorairesOptions.map((def) => (
                 <Button
-                  key={p.description}
+                  key={def.designation}
                   type="button"
                   variant="outline"
                   size="sm"
-                  className={
-                    p.type === "impot"
-                      ? "border-orange-300 text-orange-700 hover:bg-orange-50"
-                      : "border-blue-300 text-blue-700 hover:bg-blue-50"
-                  }
-                  onClick={() => addPredefinedPrestation(p)}
+                  className="border-blue-300 text-blue-700 hover:bg-blue-50"
+                  onClick={() => addHonoraire(def)}
                 >
                   <Plus className="h-3 w-3 mr-1" />
-                  {p.description}
+                  {def.designation}
                 </Button>
               ))}
             </div>
@@ -265,11 +329,32 @@ const CreateDevisDialog = ({
               </p>
             )}
 
-            {prestations.map((prestation, index) => (
-              <div
-                key={index}
-                className="grid grid-cols-12 gap-2 items-end p-3 border rounded-md bg-gray-50"
-              >
+            {prestations.map((prestation, index) => {
+              const options = prestation.type === "impot" ? impotsOptions : honorairesOptions;
+              const selectValue = options.some((o) => o.designation === prestation.description)
+                ? prestation.description
+                : "";
+              return (
+              <div key={index} className="p-3 border rounded-md bg-gray-50 space-y-2">
+                {options.length > 0 && (
+                  <div className="space-y-1">
+                    <Label className="text-xs">Désignation prédéfinie</Label>
+                    <Select value={selectValue} onValueChange={(val) => selectPredefined(index, val)}>
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue placeholder="Choisir une désignation prédéfinie (ou saisie libre ci-dessous)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {options.map((o) => (
+                          <SelectItem key={o.designation} value={o.designation}>
+                            {o.designation}
+                            {o.montant > 0 ? ` — ${o.montant.toLocaleString("fr-FR")} F CFA` : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+                <div className="grid grid-cols-12 gap-2 items-end">
                 <div className="col-span-12 md:col-span-4 space-y-1">
                   <Label className="text-xs">Description</Label>
                   <Input
@@ -339,8 +424,10 @@ const CreateDevisDialog = ({
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
+                </div>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Totals */}
