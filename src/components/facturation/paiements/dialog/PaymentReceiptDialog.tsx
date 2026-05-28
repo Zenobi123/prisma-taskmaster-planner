@@ -18,6 +18,8 @@ import ReceiptFooter from "./receipt-components/ReceiptFooter";
 import RecuPrintButton from "@/components/printable/connectors/RecuPrintButton";
 import { useResolvedFacture } from "@/components/printable/connectors/useResolvedFacture";
 import { ventilerPaiement } from "@/lib/spec/adapters";
+import { sanitizePdfSegment } from "@/lib/spec/fiscal";
+import { printWithDocumentTitle } from "@/lib/spec/usePrint";
 
 interface PaymentReceiptDialogProps {
   paiement: Paiement | null;
@@ -46,9 +48,15 @@ const PaymentReceiptDialog = ({ paiement, open, onOpenChange }: PaymentReceiptDi
     montant_honoraires: montantHonoraires || undefined,
   } as Paiement;
   
-  // Print the receipt
+  // Print the receipt (avec un nom de document généré pour le PDF)
   const handlePrintReceipt = () => {
-    window.print();
+    const clientName =
+      typeof paiement.client === "string"
+        ? paiement.client
+        : paiement.client?.nom || paiement.client?.raisonsociale || "";
+    const dateStr = paiement.date ? new Date(paiement.date).toISOString().slice(0, 10) : "";
+    const docName = `Recu_${sanitizePdfSegment(clientName, "client")}_${sanitizePdfSegment(dateStr, "date")}`;
+    printWithDocumentTitle(docName);
   };
   
   // Handle download receipt

@@ -13,6 +13,8 @@ import useFactureViewActions from "@/hooks/facturation/factureActions/useFacture
 import InvoiceHeader from "./invoice-components/InvoiceHeader";
 import InvoiceContent from "./invoice-components/InvoiceContent";
 import InvoiceFooter from "./invoice-components/InvoiceFooter";
+import { sanitizePdfSegment } from "@/lib/spec/fiscal";
+import { printWithDocumentTitle } from "@/lib/spec/usePrint";
 
 interface InvoicePreviewDialogProps {
   invoice: Facture | null;
@@ -25,9 +27,10 @@ const InvoicePreviewDialog = ({ invoice, open, onOpenChange }: InvoicePreviewDia
   
   if (!invoice) return null;
   
-  // Print the invoice
+  // Print the invoice (avec un nom de document généré pour le PDF)
   const handlePrintInvoice = () => {
-    window.print();
+    const docName = `Facture_${sanitizePdfSegment(invoice.numero, "doc")}_${sanitizePdfSegment(invoice.client?.nom, "client")}`;
+    printWithDocumentTitle(docName);
   };
   
   // Handle view invoice in new tab

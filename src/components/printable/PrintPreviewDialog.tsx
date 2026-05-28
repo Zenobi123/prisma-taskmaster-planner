@@ -29,7 +29,10 @@ export default function PrintPreviewDialog({
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const pageStyle = variant === 'courrier' ? PAGE_STYLE_A4_COURRIER : PAGE_STYLE_A4_DEFAULT;
-  const print = usePrintIframe(() => ref.current, { pageStyle });
+  // Le nom d'impression (et donc le « Enregistrer au format PDF ») reprend le
+  // nom du fichier PDF, sans l'extension.
+  const documentTitle = pdfFilename ? pdfFilename.replace(/\.pdf$/i, '') : undefined;
+  const print = usePrintIframe(() => ref.current, { pageStyle, documentTitle });
 
   const handleDownload = async () => {
     const node = ref.current;

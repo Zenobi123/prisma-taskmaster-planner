@@ -22,6 +22,7 @@ export type PaiementStatus = "non_payée" | "partiellement_payée" | "payée" | 
 
 export interface PDFFacture {
   id: string;
+  numero?: string;
   client: Client;
   date: string;
   echeance: string;

@@ -44,8 +44,10 @@ export default function ClotureAnnuelleSettings() {
   const { toast } = useToast();
 
   const reportRef = useRef<HTMLDivElement>(null);
+  const [printState, setPrintState] = useState<PrintState | null>(null);
   const printReport = usePrintIframe(() => reportRef.current, {
     pageStyle: PAGE_STYLE_A4_DEFAULT,
+    documentTitle: printState ? `Point_de_cloture_${printState.data.year}` : undefined,
   });
 
   const currentYear = new Date().getFullYear();
@@ -59,7 +61,6 @@ export default function ClotureAnnuelleSettings() {
 
   const [yearToClose, setYearToClose] = useState<string>("");
   const [busy, setBusy] = useState(false);
-  const [printState, setPrintState] = useState<PrintState | null>(null);
 
   useEffect(() => {
     if (candidateYears.length && !candidateYears.includes(Number(yearToClose))) {

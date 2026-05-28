@@ -9,7 +9,45 @@ export interface PrintOptions {
   stylePrefix: string;
   /** Bloc CSS à injecter pour l'impression (page size, marges, etc.). */
   pageStyle: string;
+  /**
+   * Nom du document utilisé par la boîte de dialogue d'impression
+   * (et donc le nom par défaut lors d'un « Enregistrer au format PDF »).
+   * Sans extension : le navigateur ajoute « .pdf ».
+   */
+  documentTitle?: string;
 }
+
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * Lance window.print() en donnant temporairement au document un nom
+ * (document.title), restauré après impression. Utile pour les impressions
+ * directes (window.print) afin que « Enregistrer au format PDF » propose un
+ * nom de fichier généré plutôt que le titre générique de l'application.
+ */
+export function printWithDocumentTitle(documentTitle?: string): void {
+  if (typeof window === 'undefined') return;
+  const original = document.title;
+  if (documentTitle) document.title = documentTitle;
+
+  const restore = () => {
+    document.title = original;
+    window.removeEventListener('afterprint', restore);
+  };
+  window.addEventListener('afterprint', restore);
+
+  window.print();
+
+  // Filet de sécurité si l'événement afterprint ne se déclenche pas.
+  window.setTimeout(restore, 1500);
+}
+
 
 export const PAGE_STYLE_A4_DEFAULT = `
   @page { size: A4; margin: 10mm 10mm; }
@@ -38,6 +76,7 @@ export const PAGE_STYLE_A4_COURRIER = `
 export function usePrint(getNode: () => HTMLElement | null, options: Partial<PrintOptions> = {}) {
   const stylePrefix = options.stylePrefix ?? 'prisma';
   const pageStyle = options.pageStyle ?? PAGE_STYLE_A4_DEFAULT;
+  const documentTitle = options.documentTitle;
 
   return useCallback(() => {
     const node = getNode();
@@ -55,11 +94,16 @@ export function usePrint(getNode: () => HTMLElement | null, options: Partial<Pri
     const bodyContent = node.innerHTML;
     const originalContent = document.body.innerHTML;
     const originalScroll = window.scrollY;
+    const originalTitle = document.title;
 
     document.body.innerHTML = bodyContent;
+    if (documentTitle) document.title = documentTitle;
 
     // Lance l'impression
     window.print();
+
+    // Restaure le titre (le rechargement ci-dessous le réinitialise aussi).
+    document.title = originalTitle;
 
     // Restaure
     document.body.innerHTML = originalContent;
@@ -70,7 +114,7 @@ export function usePrint(getNode: () => HTMLElement | null, options: Partial<Pri
     // L'utilisateur garde son URL et sera replacé sur la même section.
     window.scrollTo({ top: originalScroll, behavior: 'auto' });
     window.location.reload();
-  }, [getNode, stylePrefix, pageStyle]);
+  }, [getNode, stylePrefix, pageStyle, documentTitle]);
 }
 
 /**
@@ -79,6 +123,7 @@ export function usePrint(getNode: () => HTMLElement | null, options: Partial<Pri
  */
 export function usePrintIframe(getNode: () => HTMLElement | null, options: Partial<PrintOptions> = {}) {
   const pageStyle = options.pageStyle ?? PAGE_STYLE_A4_DEFAULT;
+  const documentTitle = options.documentTitle;
 
   return useCallback(() => {
     const node = getNode();
@@ -105,11 +150,14 @@ export function usePrintIframe(getNode: () => HTMLElement | null, options: Parti
       return;
     }
 
+    const titleTag = documentTitle ? `<title>${escapeHtml(documentTitle)}</title>` : '';
+
     doc.open();
     doc.write(`<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8" />
+${titleTag}
 ${headLinks}
 <style>${pageStyle}</style>
 </head>
@@ -119,6 +167,9 @@ ${headLinks}
 
     const onLoad = () => {
       try {
+        // Certains navigateurs lisent doc.title (et non la balise <title>) pour
+        // nommer le PDF : on le force juste avant l'impression.
+        if (documentTitle) doc.title = documentTitle;
         iframe.contentWindow?.focus();
         iframe.contentWindow?.print();
       } finally {
@@ -132,5 +183,5 @@ ${headLinks}
     } else {
       iframe.addEventListener('load', onLoad);
     }
-  }, [getNode, pageStyle]);
+  }, [getNode, pageStyle, documentTitle]);
 }
