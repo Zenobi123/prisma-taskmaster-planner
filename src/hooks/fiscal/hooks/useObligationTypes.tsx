@@ -35,7 +35,7 @@ export const useObligationTypes = () => {
       precompteLoyer: "Précompte Loyer",
       tpf: "Taxe sur la propriété (TPF)",
       dsf: "Déclaration Statistique et Fiscale (DSF)",
-      darp: "Déclaration Annuelle de Revenus Professionnels (DARP)",
+      darp: "Déclaration Annuelle des Revenus des Particuliers (DARP)",
       dbef: "Déclaration des Bénéficiaires Effectifs (DBEF)",
       cntps: "Caisse Nationale de Prévoyance Sociale (CNTPS)",
       precomptes: "Précomptes"
