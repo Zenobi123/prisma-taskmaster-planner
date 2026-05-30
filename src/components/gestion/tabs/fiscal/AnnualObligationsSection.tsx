@@ -49,7 +49,7 @@ export function AnnualObligationsSection({
         {/* DARP uniquement pour les personnes physiques */}
         {selectedClient.type === "physique" && (
           <DeclarationObligationItem
-            title="Déclaration Annuelle des Revenus Professionnels (DARP)"
+            title="Déclaration Annuelle des Revenus des Particuliers (DARP)"
             keyName="darp"
             status={obligationStatuses.darp}
             onStatusChange={handleStatusChange}
