@@ -53,30 +53,14 @@ const Index = () => {
     }
   }, [queryClient]);
 
-  // Configuration de l'intervalle de rafraîchissement (toutes les 30 secondes)
+  // Rafraîchissement périodique (toutes les 2 minutes) — les changements temps réel
+  // sont déjà gérés par useAutoUpdate, on espace donc l'intervalle.
+  // Pas de refresh au focus : React Query est configuré avec refetchOnWindowFocus=false.
   useEffect(() => {
-    
-    // Configurer l'intervalle d'actualisation
-    const refreshInterval = setInterval(refreshDashboard, 30000); // 30 secondes
-
-    // Nettoyer l'intervalle lors du démontage du composant
-    return () => {
-      clearInterval(refreshInterval);
-    };
+    const refreshInterval = setInterval(refreshDashboard, 120000);
+    return () => clearInterval(refreshInterval);
   }, [refreshDashboard]);
 
-  // Rafraîchir au focus de la fenêtre
-  useEffect(() => {
-    const handleFocus = () => {
-      refreshDashboard();
-    };
-
-    window.addEventListener('focus', handleFocus);
-    
-    return () => {
-      window.removeEventListener('focus', handleFocus);
-    };
-  }, [refreshDashboard]);
 
   // Invalidation manuelle des caches
   useEffect(() => {
