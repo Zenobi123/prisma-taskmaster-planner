@@ -39,39 +39,55 @@ interface ClientProfessionalFieldsProps {
   onChange: (name: string, value: string | boolean) => void;
 }
 
-const CDI_OPTIONS = [
+// Source : DGI — https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots
+// Yaoundé 3 et 4 absents de la cartographie officielle (12 CFLP numérotés 1,2,5–14)
+const CFLP_OPTIONS = [
   {
     group: "Yaoundé",
     options: [
-      { value: "CDI YAOUNDE 1", label: "CDI Yaoundé 1" },
-      { value: "CDI YAOUNDE 2", label: "CDI Yaoundé 2" },
-      { value: "CDI YAOUNDE 3", label: "CDI Yaoundé 3" },
-      { value: "CDI YAOUNDE 4", label: "CDI Yaoundé 4" },
+      { value: "CFLP YAOUNDE 1",  label: "CFLP Yaoundé 1" },
+      { value: "CFLP YAOUNDE 2",  label: "CFLP Yaoundé 2" },
+      { value: "CFLP YAOUNDE 5",  label: "CFLP Yaoundé 5" },
+      { value: "CFLP YAOUNDE 6",  label: "CFLP Yaoundé 6" },
+      { value: "CFLP YAOUNDE 7",  label: "CFLP Yaoundé 7" },
+      { value: "CFLP YAOUNDE 8",  label: "CFLP Yaoundé 8" },
+      { value: "CFLP YAOUNDE 9",  label: "CFLP Yaoundé 9" },
+      { value: "CFLP YAOUNDE 10", label: "CFLP Yaoundé 10" },
+      { value: "CFLP YAOUNDE 11", label: "CFLP Yaoundé 11" },
+      { value: "CFLP YAOUNDE 12", label: "CFLP Yaoundé 12" },
+      { value: "CFLP YAOUNDE 13", label: "CFLP Yaoundé 13" },
+      { value: "CFLP YAOUNDE 14", label: "CFLP Yaoundé 14" },
     ],
   },
   {
     group: "Douala",
     options: [
-      { value: "CDI DOUALA 1", label: "CDI Douala 1" },
-      { value: "CDI DOUALA 2", label: "CDI Douala 2" },
-      { value: "CDI DOUALA 3", label: "CDI Douala 3" },
+      { value: "CFLP DOUALA 1", label: "CFLP Douala 1" },
+      { value: "CFLP DOUALA 2", label: "CFLP Douala 2" },
+      { value: "CFLP DOUALA 3", label: "CFLP Douala 3" },
     ],
   },
   {
     group: "Autres Régions",
     options: [
-      { value: "CDI BAFOUSSAM", label: "CDI Bafoussam" },
-      { value: "CDI BAMENDA", label: "CDI Bamenda" },
-      { value: "CDI GAROUA", label: "CDI Garoua" },
-      { value: "CDI MAROUA", label: "CDI Maroua" },
-      { value: "CDI BERTOUA", label: "CDI Bertoua" },
-      { value: "CDI EBOLOWA", label: "CDI Ebolowa" },
+      { value: "CFLP BAFOUSSAM", label: "CFLP Bafoussam" },
+      { value: "CFLP BAMENDA",   label: "CFLP Bamenda" },
+      { value: "CFLP GAROUA",    label: "CFLP Garoua" },
+      { value: "CFLP MAROUA",    label: "CFLP Maroua" },
+      { value: "CFLP BERTOUA",   label: "CFLP Bertoua" },
+      { value: "CFLP EBOLOWA",   label: "CFLP Ebolowa" },
     ],
   },
   {
     group: "Centres Spéciaux",
     options: [
-      { value: "CDI MEFOU ET AFAMBA", label: "CDI Mefou et Afamba" },
+      { value: "CFLP MEFOU ET AFAMBA", label: "CFLP Mefou et Afamba" },
+    ],
+  },
+  {
+    group: "",
+    options: [
+      { value: "Autre", label: "Autre" },
     ],
   },
 ];
@@ -155,29 +171,39 @@ export function ClientProfessionalFields({
           />
         </div>
 
-        <div>
-          <Label htmlFor="centrerattachement">Centre de rattachement fiscal *</Label>
-          <Select
-            value={centrerattachement}
-            onValueChange={(value) => onChange("centrerattachement", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Sélectionnez un CDI" />
-            </SelectTrigger>
-            <SelectContent>
-              {CDI_OPTIONS.map((group) => (
-                <SelectGroup key={group.group}>
-                  <SelectLabel>{group.group}</SelectLabel>
-                  {group.options.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {regimefiscal === "igs" && (
+          <div>
+            <Label htmlFor="centrerattachement">CFLP (Centre de rattachement fiscal) *</Label>
+            <Select
+              value={centrerattachement}
+              onValueChange={(value) => onChange("centrerattachement", value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Sélectionnez un CFLP" />
+              </SelectTrigger>
+              <SelectContent>
+                {CFLP_OPTIONS.map((group) =>
+                  group.group ? (
+                    <SelectGroup key={group.group}>
+                      <SelectLabel>{group.group}</SelectLabel>
+                      {group.options.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  ) : (
+                    group.options.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))
+                  )
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div>
           <Label htmlFor="civilite">Civilité</Label>
