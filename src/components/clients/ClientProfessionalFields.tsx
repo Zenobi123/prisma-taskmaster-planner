@@ -39,14 +39,24 @@ interface ClientProfessionalFieldsProps {
   onChange: (name: string, value: string | boolean) => void;
 }
 
+// Source : DGI — https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots
+// Yaoundé 3 et 4 absents de la cartographie officielle (12 CFLP numérotés 1,2,5–14)
 const CFLP_OPTIONS = [
   {
     group: "Yaoundé",
     options: [
-      { value: "CFLP YAOUNDE 1", label: "CFLP Yaoundé 1" },
-      { value: "CFLP YAOUNDE 2", label: "CFLP Yaoundé 2" },
-      { value: "CFLP YAOUNDE 3", label: "CFLP Yaoundé 3" },
-      { value: "CFLP YAOUNDE 4", label: "CFLP Yaoundé 4" },
+      { value: "CFLP YAOUNDE 1",  label: "CFLP Yaoundé 1" },
+      { value: "CFLP YAOUNDE 2",  label: "CFLP Yaoundé 2" },
+      { value: "CFLP YAOUNDE 5",  label: "CFLP Yaoundé 5" },
+      { value: "CFLP YAOUNDE 6",  label: "CFLP Yaoundé 6" },
+      { value: "CFLP YAOUNDE 7",  label: "CFLP Yaoundé 7" },
+      { value: "CFLP YAOUNDE 8",  label: "CFLP Yaoundé 8" },
+      { value: "CFLP YAOUNDE 9",  label: "CFLP Yaoundé 9" },
+      { value: "CFLP YAOUNDE 10", label: "CFLP Yaoundé 10" },
+      { value: "CFLP YAOUNDE 11", label: "CFLP Yaoundé 11" },
+      { value: "CFLP YAOUNDE 12", label: "CFLP Yaoundé 12" },
+      { value: "CFLP YAOUNDE 13", label: "CFLP Yaoundé 13" },
+      { value: "CFLP YAOUNDE 14", label: "CFLP Yaoundé 14" },
     ],
   },
   {
@@ -61,11 +71,11 @@ const CFLP_OPTIONS = [
     group: "Autres Régions",
     options: [
       { value: "CFLP BAFOUSSAM", label: "CFLP Bafoussam" },
-      { value: "CFLP BAMENDA", label: "CFLP Bamenda" },
-      { value: "CFLP GAROUA", label: "CFLP Garoua" },
-      { value: "CFLP MAROUA", label: "CFLP Maroua" },
-      { value: "CFLP BERTOUA", label: "CFLP Bertoua" },
-      { value: "CFLP EBOLOWA", label: "CFLP Ebolowa" },
+      { value: "CFLP BAMENDA",   label: "CFLP Bamenda" },
+      { value: "CFLP GAROUA",    label: "CFLP Garoua" },
+      { value: "CFLP MAROUA",    label: "CFLP Maroua" },
+      { value: "CFLP BERTOUA",   label: "CFLP Bertoua" },
+      { value: "CFLP EBOLOWA",   label: "CFLP Ebolowa" },
     ],
   },
   {
