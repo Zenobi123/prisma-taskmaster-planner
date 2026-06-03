@@ -47,8 +47,8 @@ const VALID_REGIMES: RegimeFiscal[] = ["reel", "igs", "non_professionnel", "obnl
 
 function generateTemplate(): string {
   const header = CSV_COLUMNS.join(";");
-  const row1 = "physique;Dupont Jean;;NIU001;CDI DOUALA 1;reel;Douala;Akwa;+237600000000;jean@example.com;Dupont;Commerce;5000000";
-  const row2 = "morale;;Entreprise SARL;NIU002;CDI YAOUNDE 1;igs;Yaoundé;Bastos;+237600000001;contact@entreprise.cm;M. Kamga;Services;12000000";
+  const row1 = "physique;Dupont Jean;;NIU001;CFLP DOUALA 1;reel;Douala;Akwa;+237600000000;jean@example.com;Dupont;Commerce;5000000";
+  const row2 = "morale;;Entreprise SARL;NIU002;CFLP YAOUNDE 1;igs;Yaoundé;Bastos;+237600000001;contact@entreprise.cm;M. Kamga;Services;12000000";
   return [header, row1, row2].join("\n");
 }
 

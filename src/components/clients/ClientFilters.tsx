@@ -99,10 +99,10 @@ export function ClientFilters({
         {onCDIChange && cdiOptions.length > 0 && (
           <Select value={selectedCDI} onValueChange={onCDIChange}>
             <SelectTrigger className="w-full sm:w-52">
-              <SelectValue placeholder="Centre (CDI)" />
+              <SelectValue placeholder="Centre (CFLP)" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Tous les CDI</SelectItem>
+              <SelectItem value="all">Tous les CFLP</SelectItem>
               {cdiOptions.map(cdi => (
                 <SelectItem key={cdi} value={cdi}>{cdi}</SelectItem>
               ))}
