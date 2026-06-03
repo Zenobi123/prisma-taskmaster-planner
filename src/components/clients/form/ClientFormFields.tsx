@@ -71,6 +71,7 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
       <ClientProfessionalFields
         niu={formData.niu}
         centrerattachement={formData.centrerattachement}
+        ville={formData.ville}
         secteuractivite={formData.secteuractivite}
         numerocnps={formData.numerocnps}
         regimefiscal={formData.regimefiscal}
