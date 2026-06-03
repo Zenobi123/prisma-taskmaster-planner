@@ -20,6 +20,7 @@ import { calculateAllTaxes, formatMoney, FiscalInput } from "@/utils/fiscalCalcu
 interface ClientProfessionalFieldsProps {
   niu: string;
   centrerattachement: string;
+  ville: string;
   secteuractivite: string;
   numerocnps: string;
   regimefiscal: RegimeFiscal;
@@ -192,6 +193,109 @@ const CFLP_OPTIONS = [
   },
 ];
 
+// Options pour les contribuables du régime Réel (CIME, DGE, CSI)
+// Source : DGI — https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots
+const REEL_OPTIONS = [
+  {
+    group: "DGE",
+    options: [
+      { value: "DGE", label: "Direction des Grandes Entreprises (DGE)" },
+    ],
+  },
+  {
+    group: "Yaoundé",
+    options: [
+      { value: "CIME YAOUNDE EST",       label: "CIME Yaoundé-Est" },
+      { value: "CIME YAOUNDE OUEST",     label: "CIME Yaoundé-Ouest" },
+      { value: "CIME YAOUNDE EXTERIEUR", label: "CIME Yaoundé-Extérieur" },
+      { value: "SISPLI YAOUNDE",         label: "CSI Professions Libérales et Immobilier — Yaoundé" },
+      { value: "CSI EPA YAOUNDE",        label: "CSI EPA, CTD et Organismes — Yaoundé" },
+    ],
+  },
+  {
+    group: "Douala",
+    options: [
+      { value: "CIME DOUALA AKWA 1",    label: "CIME Douala-Akwa 1" },
+      { value: "CIME DOUALA AKWA 2",    label: "CIME Douala-Akwa 2" },
+      { value: "CIME DOUALA BONANJO",   label: "CIME Douala-Bonanjo" },
+      { value: "CIME DOUALA EXTERIEUR", label: "CIME Douala-Extérieur" },
+    ],
+  },
+  {
+    group: "Adamaoua",
+    options: [
+      { value: "CIME NGAOUNDERE", label: "CIME Ngaoundéré" },
+    ],
+  },
+  {
+    group: "Est",
+    options: [
+      { value: "CIME BERTOUA", label: "CIME Bertoua" },
+    ],
+  },
+  {
+    group: "Extrême-Nord",
+    options: [
+      { value: "CIME MAROUA", label: "CIME Maroua" },
+    ],
+  },
+  {
+    group: "Ouest",
+    options: [
+      { value: "CIME BAFOUSSAM", label: "CIME Bafoussam" },
+    ],
+  },
+  {
+    group: "Sud-Ouest",
+    options: [
+      { value: "CIME LIMBE", label: "CIME Limbe" },
+    ],
+  },
+  {
+    group: "",
+    options: [
+      { value: "Autre", label: "Autre" },
+    ],
+  },
+];
+
+// Détecte le groupe CFLP/CIME correspondant à la ville saisie
+function detectCenterGroup(ville: string): string {
+  const v = ville.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+  if (!v) return "";
+
+  const cityMap: [string[], string][] = [
+    [["yaounde", "soa", "mbankomo", "nkolafamba", "biyem"], "Yaoundé"],
+    [["obala", "mbandjock", "monatelé", "monatele", "sa'a", "saa", "mfou", "akonolinga", "eseka", "mbalmayo", "ayos", "nanga-eboko", "nanga eboko", "ntui"], "Région Centre (hors Yaoundé)"],
+    [["douala", "bonaberi", "bassa", "ndog"], "Douala"],
+    [["ngaoundere", "tibati", "ngaoundal", "meiganga", "banyo", "tignere", "vina"], "Adamaoua"],
+    [["bertoua", "abong-mbang", "abong mbang", "yokadouma", "moloundou", "batouri", "belabo"], "Est"],
+    [["maroua", "kousseri", "mora", "mokolo", "yagoua", "kaele", "waza", "guime"], "Extrême-Nord"],
+    [["garoua", "guider", "poli", "figuil", "touboro", "ngong"], "Nord"],
+    [["bamenda", "wum", "kumbo", "bali", "ndop", "nkambe", "tubah", "santa"], "Nord-Ouest"],
+    [["bafoussam", "foumbot", "mbouda", "dschang", "bangangte", "foumban", "baham", "bafang", "bafia"], "Ouest"],
+    [["ebolowa", "kribi", "sangmelima", "ambam", "meyomessala", "zoetele", "lolodorf", "meyomessala"], "Sud"],
+    [["buea", "limbe", "kumba", "mamfe", "tiko", "muyuka", "mundemba", "ekondo"], "Sud-Ouest"],
+  ];
+
+  for (const [cities, group] of cityMap) {
+    if (cities.some(c => v.includes(c))) return group;
+  }
+  return "";
+}
+
+type CenterOption = { group: string; options: { value: string; label: string }[] };
+
+function filterByVille(options: CenterOption[], ville: string, alwaysShow?: string[]): CenterOption[] {
+  const group = detectCenterGroup(ville);
+  if (!group) return options;
+  return options.filter(g =>
+    g.group === group ||
+    g.group === "" ||
+    (alwaysShow?.includes(g.group) ?? false)
+  );
+}
+
 function getIGSEcheances(modePaiement: ModePaiement, year: number) {
   if (modePaiement === "trimestriel") {
     return [
@@ -219,6 +323,7 @@ function getEcheanceStatus(echeance: Date) {
 export function ClientProfessionalFields({
   niu,
   centrerattachement,
+  ville,
   secteuractivite,
   numerocnps,
   regimefiscal,
@@ -271,39 +376,45 @@ export function ClientProfessionalFields({
           />
         </div>
 
-        {regimefiscal === "igs" && (
-          <div>
-            <Label htmlFor="centrerattachement">CFLP (Centre de rattachement fiscal) *</Label>
-            <Select
-              value={centrerattachement}
-              onValueChange={(value) => onChange("centrerattachement", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionnez un CFLP" />
-              </SelectTrigger>
-              <SelectContent>
-                {CFLP_OPTIONS.map((group) =>
-                  group.group ? (
-                    <SelectGroup key={group.group}>
-                      <SelectLabel>{group.group}</SelectLabel>
-                      {group.options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  ) : (
-                    group.options.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))
-                  )
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        {(regimefiscal === "igs" || regimefiscal === "reel") && (() => {
+          const isIgs = regimefiscal === "igs";
+          const label    = isIgs ? "CFLP (Centre de rattachement fiscal) *" : "Centre de rattachement fiscal *";
+          const placeholder = isIgs ? "Sélectionnez un CFLP" : "Sélectionnez un centre";
+          const rawOptions  = isIgs
+            ? filterByVille(CFLP_OPTIONS, ville)
+            : filterByVille(REEL_OPTIONS, ville, ["DGE"]);
+
+          const renderGroup = (group: CenterOption) =>
+            group.group ? (
+              <SelectGroup key={group.group}>
+                <SelectLabel>{group.group}</SelectLabel>
+                {group.options.map(o => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectGroup>
+            ) : (
+              group.options.map(o => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))
+            );
+
+          return (
+            <div>
+              <Label htmlFor="centrerattachement">{label}</Label>
+              <Select
+                value={centrerattachement}
+                onValueChange={(value) => onChange("centrerattachement", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={placeholder} />
+                </SelectTrigger>
+                <SelectContent>
+                  {rawOptions.map(renderGroup)}
+                </SelectContent>
+              </Select>
+            </div>
+          );
+        })()}
 
         <div>
           <Label htmlFor="civilite">Civilité</Label>
