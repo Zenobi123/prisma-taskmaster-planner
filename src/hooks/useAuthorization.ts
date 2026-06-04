@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-export type AuthorizedModule = "collaborateurs" | "parametres" | "facturation" | "clients" | "gestion" | "missions" | "planning" | "courrier" | "rapports" | "dashboard";
+export type AuthorizedModule = "collaborateurs" | "parametres" | "facturation" | "clients" | "gestion" | "missions" | "planning" | "courrier" | "rapports" | "dashboard" | "aide";
 
 interface UseAuthorizationOptions {
   redirectTo?: string;
@@ -67,6 +67,7 @@ export const useAuthorization = (
               courrier: "la gestion du courrier",
               rapports: "les rapports",
               dashboard: "le tableau de bord",
+              aide: "l'aide",
             };
 
             toast({

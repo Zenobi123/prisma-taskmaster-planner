@@ -24,6 +24,7 @@ export const CollaborateurUnauthorized = ({
     courrier: "à la gestion du courrier",
     rapports: "aux rapports",
     dashboard: "au tableau de bord",
+    aide: "à l'aide",
   };
   const moduleText = moduleTexts[module] || "à ce module";
 

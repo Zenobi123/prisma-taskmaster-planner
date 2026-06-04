@@ -14,6 +14,7 @@ import {
   Receipt,
   Settings,
   Mail,
+  HelpCircle,
   X
 } from "lucide-react";
 import LogoutButton from "@/components/LogoutButton";
@@ -38,7 +39,8 @@ const menuItems: MenuItem[] = [
   { path: "/facturation", icon: Receipt, label: "Facturation", allowedRoles: ["admin"] },
   { path: "/courrier", icon: Mail, label: "Courrier" },
   { path: "/rapports", icon: FileText, label: "Rapports" },
-  { path: "/parametres", icon: Settings, label: "Paramètres", allowedRoles: ["admin"] }
+  { path: "/parametres", icon: Settings, label: "Paramètres", allowedRoles: ["admin"] },
+  { path: "/aide", icon: HelpCircle, label: "Aide" }
 ];
 
 const Sidebar = () => {
