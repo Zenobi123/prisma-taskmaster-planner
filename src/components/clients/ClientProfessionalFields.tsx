@@ -20,6 +20,7 @@ import { calculateAllTaxes, formatMoney, FiscalInput } from "@/utils/fiscalCalcu
 interface ClientProfessionalFieldsProps {
   niu: string;
   centrerattachement: string;
+  ville: string;
   secteuractivite: string;
   numerocnps: string;
   regimefiscal: RegimeFiscal;
@@ -40,7 +41,9 @@ interface ClientProfessionalFieldsProps {
 }
 
 // Source : DGI — https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots
-// Yaoundé 3 et 4 absents de la cartographie officielle (12 CFLP numérotés 1,2,5–14)
+// Yaoundé 3 et 4 absents de la cartographie officielle (12 CFLP : 1,2,5–14)
+// Douala 3–9 absents de la cartographie officielle (7 numérotés + 6 nommés)
+// Nord (Garoua) absent du fichier officiel consulté — entrée conservée provisoirement
 const CFLP_OPTIONS = [
   {
     group: "Yaoundé",
@@ -60,28 +63,126 @@ const CFLP_OPTIONS = [
     ],
   },
   {
+    group: "Région Centre (hors Yaoundé)",
+    options: [
+      { value: "CFLP OBALA",            label: "CFLP Obala" },
+      { value: "CFLP HAUTE SANAGA",     label: "CFLP Haute Sanaga" },
+      { value: "CFLP MEFOU ET AFAMBA",  label: "CFLP Mefou et Afamba" },
+      { value: "CFLP MEFOU ET AKONO",   label: "CFLP Mefou et Akono" },
+      { value: "CFLP MBANDJOCK",        label: "CFLP Mbandjock" },
+      { value: "CFLP MONATELÉ",         label: "CFLP Monatélé" },
+      { value: "CFLP SAA",              label: "CFLP Sa'a" },
+      { value: "CFLP MBAM ET INOUBOU",  label: "CFLP Mbam et Inoubou" },
+      { value: "CFLP MBAM ET KIM",      label: "CFLP Mbam et Kim" },
+      { value: "CFLP NYONG ET KELLE",   label: "CFLP Nyong et Kellé" },
+      { value: "CFLP NYONG ET MFOUMOU", label: "CFLP Nyong et Mfoumou" },
+      { value: "CFLP NYONG ET SOO",     label: "CFLP Nyong et So'o" },
+    ],
+  },
+  {
     group: "Douala",
     options: [
-      { value: "CFLP DOUALA 1", label: "CFLP Douala 1" },
-      { value: "CFLP DOUALA 2", label: "CFLP Douala 2" },
-      { value: "CFLP DOUALA 3", label: "CFLP Douala 3" },
+      { value: "CFLP DOUALA 1",        label: "CFLP Douala 1" },
+      { value: "CFLP DOUALA 2",        label: "CFLP Douala 2" },
+      { value: "CFLP DOUALA 10",       label: "CFLP Douala 10" },
+      { value: "CFLP DOUALA 11",       label: "CFLP Douala 11" },
+      { value: "CFLP DOUALA 12",       label: "CFLP Douala 12" },
+      { value: "CFLP DOUALA 13",       label: "CFLP Douala 13" },
+      { value: "CFLP DOUALA 14",       label: "CFLP Douala 14" },
+      { value: "CFLP BONABERI",        label: "CFLP Bonaberi" },
+      { value: "CFLP BONABERI 2",      label: "CFLP Bonaberi 2" },
+      { value: "CFLP SANAGA MARITIME", label: "CFLP Sanaga Maritime" },
+      { value: "CFLP MBANGA",          label: "CFLP Mbanga" },
+      { value: "CFLP MOUNGO",          label: "CFLP Moungo" },
+      { value: "CFLP NKAM",            label: "CFLP Nkam" },
     ],
   },
   {
-    group: "Autres Régions",
+    group: "Adamaoua",
     options: [
-      { value: "CFLP BAFOUSSAM", label: "CFLP Bafoussam" },
-      { value: "CFLP BAMENDA",   label: "CFLP Bamenda" },
-      { value: "CFLP GAROUA",    label: "CFLP Garoua" },
-      { value: "CFLP MAROUA",    label: "CFLP Maroua" },
-      { value: "CFLP BERTOUA",   label: "CFLP Bertoua" },
-      { value: "CFLP EBOLOWA",   label: "CFLP Ebolowa" },
+      { value: "CFLP VINA",       label: "CFLP Vina" },
+      { value: "CFLP DJEREM",     label: "CFLP Djerem" },
+      { value: "CFLP FARO ET DEO", label: "CFLP Faro & Deo" },
+      { value: "CFLP MAYO-BANYO", label: "CFLP Mayo-Banyo" },
+      { value: "CFLP MBERE",      label: "CFLP Mbéré" },
     ],
   },
   {
-    group: "Centres Spéciaux",
+    group: "Est",
     options: [
-      { value: "CFLP MEFOU ET AFAMBA", label: "CFLP Mefou et Afamba" },
+      { value: "CFLP BOUMBA ET NGOKO", label: "CFLP Boumba et Ngoko" },
+      { value: "CFLP KADEY",           label: "CFLP Kadey" },
+      { value: "CFLP HAUT NYONG",      label: "CFLP Haut Nyong" },
+      { value: "CFLP LOM ET DJEREM",   label: "CFLP Lom et Djérem" },
+    ],
+  },
+  {
+    group: "Extrême-Nord",
+    options: [
+      { value: "CFLP DIAMARE",          label: "CFLP Diamaré" },
+      { value: "CFLP LOGONE ET CHARI",  label: "CFLP Logone et Chari" },
+      { value: "CFLP MAYO DANAY",       label: "CFLP Mayo Danay" },
+      { value: "CFLP MAYO KANI",        label: "CFLP Mayo Kani" },
+      { value: "CFLP MAYO TSANAGA",     label: "CFLP Mayo Tsanaga" },
+    ],
+  },
+  {
+    group: "Nord",
+    options: [
+      { value: "CFLP GAROUA", label: "CFLP Garoua" },
+    ],
+  },
+  {
+    group: "Nord-Ouest",
+    options: [
+      { value: "CFLP BAMENDA",      label: "CFLP Bamenda" },
+      { value: "CFLP DONGA MANTUG", label: "CFLP Donga Mantug" },
+      { value: "CFLP MEZAM",        label: "CFLP Mezam" },
+      { value: "CFLP MOMO",         label: "CFLP Momo" },
+      { value: "CFLP MENCHUM",      label: "CFLP Menchum" },
+      { value: "CFLP NGOKETUNJIA",  label: "CFLP Ngoketunjia" },
+      { value: "CFLP BOYO",         label: "CFLP Boyo" },
+      { value: "CFLP BUI",          label: "CFLP Bui" },
+    ],
+  },
+  {
+    group: "Ouest",
+    options: [
+      { value: "CFLP FOUMBOT",        label: "CFLP Foumbot" },
+      { value: "CFLP MENOUA",         label: "CFLP Menoua" },
+      { value: "CFLP BAMBOUTOS",      label: "CFLP Bamboutos" },
+      { value: "CFLP HAUTS-PLATEAUX", label: "CFLP Hauts-Plateaux" },
+      { value: "CFLP HAUT NKAM",      label: "CFLP Haut Nkam" },
+      { value: "CFLP KOUNG-KHI",      label: "CFLP Koung-Khi" },
+      { value: "CFLP NDE",            label: "CFLP Ndé" },
+      { value: "CFLP NOUN",           label: "CFLP Noun" },
+    ],
+  },
+  {
+    group: "Sud",
+    options: [
+      { value: "CFLP KRIBI",        label: "CFLP Kribi" },
+      { value: "CFLP OCEAN",        label: "CFLP Océan" },
+      { value: "CFLP MVILA",        label: "CFLP Mvila" },
+      { value: "CFLP MEYOMESSALA",  label: "CFLP Meyomessala" },
+      { value: "CFLP ZOETELE",      label: "CFLP Zoétélé" },
+      { value: "CFLP DJA ET LOBO",  label: "CFLP Dja et Lobo" },
+      { value: "CFLP NTEM",         label: "CFLP Ntem" },
+    ],
+  },
+  {
+    group: "Sud-Ouest",
+    options: [
+      { value: "CFLP BAKASSI",           label: "CFLP Bakassi" },
+      { value: "CFLP EKONDO TITI",       label: "CFLP Ekondo Titi" },
+      { value: "CFLP BUEA",             label: "CFLP Buea" },
+      { value: "CFLP MANYU",            label: "CFLP Manyu" },
+      { value: "CFLP MEME",             label: "CFLP Meme" },
+      { value: "CFLP LIMBE",            label: "CFLP Limbe" },
+      { value: "CFLP MUYUKA",           label: "CFLP Muyuka" },
+      { value: "CFLP TIKO",             label: "CFLP Tiko" },
+      { value: "CFLP KOUPE-MANENGOUBA", label: "CFLP Koupé-Manengouba" },
+      { value: "CFLP LEBIALEM",         label: "CFLP Lebialem" },
     ],
   },
   {
@@ -91,6 +192,109 @@ const CFLP_OPTIONS = [
     ],
   },
 ];
+
+// Options pour les contribuables du régime Réel (CIME, DGE, CSI)
+// Source : DGI — https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots
+const REEL_OPTIONS = [
+  {
+    group: "DGE",
+    options: [
+      { value: "DGE", label: "Direction des Grandes Entreprises (DGE)" },
+    ],
+  },
+  {
+    group: "Yaoundé",
+    options: [
+      { value: "CIME YAOUNDE EST",       label: "CIME Yaoundé-Est" },
+      { value: "CIME YAOUNDE OUEST",     label: "CIME Yaoundé-Ouest" },
+      { value: "CIME YAOUNDE EXTERIEUR", label: "CIME Yaoundé-Extérieur" },
+      { value: "SISPLI YAOUNDE",         label: "CSI Professions Libérales et Immobilier — Yaoundé" },
+      { value: "CSI EPA YAOUNDE",        label: "CSI EPA, CTD et Organismes — Yaoundé" },
+    ],
+  },
+  {
+    group: "Douala",
+    options: [
+      { value: "CIME DOUALA AKWA 1",    label: "CIME Douala-Akwa 1" },
+      { value: "CIME DOUALA AKWA 2",    label: "CIME Douala-Akwa 2" },
+      { value: "CIME DOUALA BONANJO",   label: "CIME Douala-Bonanjo" },
+      { value: "CIME DOUALA EXTERIEUR", label: "CIME Douala-Extérieur" },
+    ],
+  },
+  {
+    group: "Adamaoua",
+    options: [
+      { value: "CIME NGAOUNDERE", label: "CIME Ngaoundéré" },
+    ],
+  },
+  {
+    group: "Est",
+    options: [
+      { value: "CIME BERTOUA", label: "CIME Bertoua" },
+    ],
+  },
+  {
+    group: "Extrême-Nord",
+    options: [
+      { value: "CIME MAROUA", label: "CIME Maroua" },
+    ],
+  },
+  {
+    group: "Ouest",
+    options: [
+      { value: "CIME BAFOUSSAM", label: "CIME Bafoussam" },
+    ],
+  },
+  {
+    group: "Sud-Ouest",
+    options: [
+      { value: "CIME LIMBE", label: "CIME Limbe" },
+    ],
+  },
+  {
+    group: "",
+    options: [
+      { value: "Autre", label: "Autre" },
+    ],
+  },
+];
+
+// Détecte le groupe CFLP/CIME correspondant à la ville saisie
+function detectCenterGroup(ville: string): string {
+  const v = ville.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").trim();
+  if (!v) return "";
+
+  const cityMap: [string[], string][] = [
+    [["yaounde", "soa", "mbankomo", "nkolafamba", "biyem"], "Yaoundé"],
+    [["obala", "mbandjock", "monatelé", "monatele", "sa'a", "saa", "mfou", "akonolinga", "eseka", "mbalmayo", "ayos", "nanga-eboko", "nanga eboko", "ntui"], "Région Centre (hors Yaoundé)"],
+    [["douala", "bonaberi", "bassa", "ndog"], "Douala"],
+    [["ngaoundere", "tibati", "ngaoundal", "meiganga", "banyo", "tignere", "vina"], "Adamaoua"],
+    [["bertoua", "abong-mbang", "abong mbang", "yokadouma", "moloundou", "batouri", "belabo"], "Est"],
+    [["maroua", "kousseri", "mora", "mokolo", "yagoua", "kaele", "waza", "guime"], "Extrême-Nord"],
+    [["garoua", "guider", "poli", "figuil", "touboro", "ngong"], "Nord"],
+    [["bamenda", "wum", "kumbo", "bali", "ndop", "nkambe", "tubah", "santa"], "Nord-Ouest"],
+    [["bafoussam", "foumbot", "mbouda", "dschang", "bangangte", "foumban", "baham", "bafang", "bafia"], "Ouest"],
+    [["ebolowa", "kribi", "sangmelima", "ambam", "meyomessala", "zoetele", "lolodorf", "meyomessala"], "Sud"],
+    [["buea", "limbe", "kumba", "mamfe", "tiko", "muyuka", "mundemba", "ekondo"], "Sud-Ouest"],
+  ];
+
+  for (const [cities, group] of cityMap) {
+    if (cities.some(c => v.includes(c))) return group;
+  }
+  return "";
+}
+
+type CenterOption = { group: string; options: { value: string; label: string }[] };
+
+function filterByVille(options: CenterOption[], ville: string, alwaysShow?: string[]): CenterOption[] {
+  const group = detectCenterGroup(ville);
+  if (!group) return options;
+  return options.filter(g =>
+    g.group === group ||
+    g.group === "" ||
+    (alwaysShow?.includes(g.group) ?? false)
+  );
+}
 
 function getIGSEcheances(modePaiement: ModePaiement, year: number) {
   if (modePaiement === "trimestriel") {
@@ -119,6 +323,7 @@ function getEcheanceStatus(echeance: Date) {
 export function ClientProfessionalFields({
   niu,
   centrerattachement,
+  ville,
   secteuractivite,
   numerocnps,
   regimefiscal,
@@ -171,39 +376,45 @@ export function ClientProfessionalFields({
           />
         </div>
 
-        {regimefiscal === "igs" && (
-          <div>
-            <Label htmlFor="centrerattachement">CFLP (Centre de rattachement fiscal) *</Label>
-            <Select
-              value={centrerattachement}
-              onValueChange={(value) => onChange("centrerattachement", value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Sélectionnez un CFLP" />
-              </SelectTrigger>
-              <SelectContent>
-                {CFLP_OPTIONS.map((group) =>
-                  group.group ? (
-                    <SelectGroup key={group.group}>
-                      <SelectLabel>{group.group}</SelectLabel>
-                      {group.options.map((option) => (
-                        <SelectItem key={option.value} value={option.value}>
-                          {option.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  ) : (
-                    group.options.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))
-                  )
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        {(regimefiscal === "igs" || regimefiscal === "reel") && (() => {
+          const isIgs = regimefiscal === "igs";
+          const label    = isIgs ? "CFLP (Centre de rattachement fiscal) *" : "Centre de rattachement fiscal *";
+          const placeholder = isIgs ? "Sélectionnez un CFLP" : "Sélectionnez un centre";
+          const rawOptions  = isIgs
+            ? filterByVille(CFLP_OPTIONS, ville)
+            : filterByVille(REEL_OPTIONS, ville, ["DGE"]);
+
+          const renderGroup = (group: CenterOption) =>
+            group.group ? (
+              <SelectGroup key={group.group}>
+                <SelectLabel>{group.group}</SelectLabel>
+                {group.options.map(o => (
+                  <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                ))}
+              </SelectGroup>
+            ) : (
+              group.options.map(o => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))
+            );
+
+          return (
+            <div>
+              <Label htmlFor="centrerattachement">{label}</Label>
+              <Select
+                value={centrerattachement}
+                onValueChange={(value) => onChange("centrerattachement", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={placeholder} />
+                </SelectTrigger>
+                <SelectContent>
+                  {rawOptions.map(renderGroup)}
+                </SelectContent>
+              </Select>
+            </div>
+          );
+        })()}
 
         <div>
           <Label htmlFor="civilite">Civilité</Label>

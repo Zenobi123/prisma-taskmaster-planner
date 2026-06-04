@@ -245,7 +245,7 @@ function ClientMobileCard({ client, onView, onEdit, onArchive, onRestore, onDele
           <span className="font-mono text-xs">{client.niu}</span>
         </div>
         <div>
-          <span className="text-muted-foreground text-xs">CFLP:</span>{" "}
+          <span className="text-muted-foreground text-xs">Centre des impôts:</span>{" "}
           <span className="text-xs">{client.centrerattachement || "-"}</span>
         </div>
         <div className="col-span-2">
@@ -299,7 +299,7 @@ export function ClientList({ clients, onView, onEdit, onArchive, onRestore, onDe
             <TableHead>Type</TableHead>
             <TableHead>Nom / Raison sociale</TableHead>
             <TableHead>NIU</TableHead>
-            <TableHead className="hidden lg:table-cell">CFLP</TableHead>
+            <TableHead className="hidden lg:table-cell">Centre des impôts de rattachement</TableHead>
             <TableHead className="hidden md:table-cell">Ville</TableHead>
             <TableHead className="hidden xl:table-cell">Immo</TableHead>
             <TableHead className="hidden lg:table-cell">Fiscal</TableHead>
