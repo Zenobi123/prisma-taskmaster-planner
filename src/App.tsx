@@ -23,6 +23,7 @@ const Facturation = lazy(() => import("./pages/Facturation"));
 const Parametres = lazy(() => import("./pages/Parametres"));
 const Courrier = lazy(() => import("./pages/Courrier"));
 const Rapports = lazy(() => import("./pages/Rapports"));
+const Aide = lazy(() => import("./pages/Aide"));
 
 // Configuration optimisée de React Query
 const queryClient = new QueryClient({
@@ -135,6 +136,7 @@ const App = () => {
                   <Route path="/parametres" element={<PrivateRoute session={session}><Parametres /></PrivateRoute>} />
                   <Route path="/courrier" element={<PrivateRoute session={session}><Courrier /></PrivateRoute>} />
                   <Route path="/rapports" element={<PrivateRoute session={session}><Rapports /></PrivateRoute>} />
+                  <Route path="/aide" element={<PrivateRoute session={session}><Aide /></PrivateRoute>} />
                 </Routes>
               </Suspense>
             </BrowserRouter>
