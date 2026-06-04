@@ -6,7 +6,6 @@ import MissionFilters from "@/components/missions/MissionFilters";
 import MissionList from "@/components/missions/MissionList";
 import MissionPagination from "@/components/missions/MissionPagination";
 import MissionHeader from "@/components/missions/MissionHeader";
-import NewMissionDialog from "@/components/missions/NewMissionDialog";
 import { useMissionFilter } from "@/hooks/useMissionFilter";
 import PageLayout from "@/components/layout/PageLayout";
 import { useAuthorization } from "@/hooks/useAuthorization";
@@ -25,7 +24,6 @@ const Missions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [showNewMissionDialog, setShowNewMissionDialog] = useState(false);
   const itemsPerPage = 10;
 
   const { data: missions, isLoading } = useQuery({
@@ -155,12 +153,6 @@ const Missions = () => {
         onPageChange={setCurrentPage}
       />
         </div>
-
-      <NewMissionDialog 
-        isOpen={showNewMissionDialog}
-        onOpenChange={setShowNewMissionDialog}
-        showTrigger={false}
-      />
       </div>
     </PageLayout>
   );

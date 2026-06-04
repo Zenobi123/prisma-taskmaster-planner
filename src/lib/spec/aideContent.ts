@@ -40,7 +40,7 @@ export interface ChangelogEntry {
 }
 
 /** Version courante de l'application telle qu'affichée dans l'aide. */
-export const APP_VERSION = "1.1.0";
+export const APP_VERSION = "1.2.0";
 
 /** Date de la dernière mise à jour de l'aide (AAAA-MM-JJ). */
 export const LAST_UPDATED = "2026-06-04";
@@ -50,6 +50,15 @@ export const LAST_UPDATED = "2026-06-04";
  * Ajoutez une entrée à chaque changement majeur.
  */
 export const changelog: ChangelogEntry[] = [
+  {
+    version: "1.2.0",
+    date: "2026-06-04",
+    title: "Création de mission opérationnelle",
+    changes: [
+      "Le bouton « Nouvelle mission » crée désormais réellement une mission (titre, client, collaborateur, dates).",
+      "Le formulaire charge les clients et collaborateurs réels et enregistre la mission ; le tableau de bord et le planning sont mis à jour automatiquement.",
+    ],
+  },
   {
     version: "1.1.0",
     date: "2026-06-04",
@@ -332,6 +341,11 @@ export const aideSections: AideSection[] = [
         question: "À quoi sert le module Mission ?",
         answer:
           "Il liste les missions et tâches du cabinet sous forme de cartes (paginées), chacune rattachée à un client et à un collaborateur, avec ses dates et son statut. Comme les autres modules, il suit l'exercice comptable sélectionné.",
+      },
+      {
+        question: "Comment créer une mission ?",
+        answer:
+          "Cliquez sur « Nouvelle mission » en haut du module : renseignez le titre, choisissez éventuellement un client, assignez un collaborateur (parmi les collaborateurs actifs) et fixez les dates de début et de fin. À l'enregistrement, la mission apparaît dans la liste, alimente le planning et remonte dans le tableau de bord ; son statut initial (en attente ou en cours) est déduit de la date de début.",
       },
       {
         question: "Comment suivre l'avancement d'une mission ?",

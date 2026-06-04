@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import NewTaskDialog from "@/components/dashboard/NewTaskDialog";
+import NewMissionDialog from "@/components/missions/NewMissionDialog";
 
 const MissionHeader = () => {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const MissionHeader = () => {
             Gérez les missions en cours, leur attribution et leur avancement
           </p>
         </div>
-        <NewTaskDialog />
+        <NewMissionDialog />
       </div>
     </div>
   );
