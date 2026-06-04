@@ -15,6 +15,14 @@ import {
 } from "@/services/courrierStorageService";
 import { CourrierRecord, CourrierStatus } from "@/types/courrier";
 
+const MISSION_DOC_LABEL: Record<string, string> = {
+  ordre_missionnaire: "OM — Missionnaire",
+  ordre_superviseur: "OM — Superviseur",
+  ordre_client: "OM — Contribuable",
+  rapport_superviseur: "RM — Superviseur",
+  rapport_client: "RM — Client",
+};
+
 const STATUS_LABELS: Record<CourrierStatus, string> = {
   brouillon: "Brouillon",
   envoye: "Envoyé",
@@ -124,7 +132,18 @@ const CourrierHistorique = () => {
                 <tr key={r.id} className="border-b border-gray-50 hover:bg-gray-50/50">
                   <td className="px-3 py-2 font-mono text-gray-600">{r.reference}</td>
                   <td className="px-3 py-2 text-gray-800">{r.client_nom || "—"}</td>
-                  <td className="px-3 py-2 text-gray-600">{r.template_titre}</td>
+                  <td className="px-3 py-2 text-gray-600">
+                    {r.mission_doc_type ? (
+                      <span className="inline-flex items-center gap-1">
+                        <Badge className="text-xs px-1.5 py-0 bg-indigo-100 text-indigo-800 shrink-0">
+                          {MISSION_DOC_LABEL[r.mission_doc_type] ?? "Mission"}
+                        </Badge>
+                        <span className="truncate max-w-[140px]">{r.template_titre}</span>
+                      </span>
+                    ) : (
+                      r.template_titre
+                    )}
+                  </td>
                   <td className="px-3 py-2 text-gray-500">{formatDate(r.date_envoi)}</td>
                   <td className="px-3 py-2">
                     <Badge className={`text-xs px-1.5 py-0 ${STATUS_COLORS[r.statut]}`}>

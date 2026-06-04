@@ -18,6 +18,8 @@ export interface CourrierRecord {
   date_envoi?: string;
   date_accuse?: string;
   notes?: string;
+  task_id?: string | null;
+  mission_doc_type?: string | null;
 }
 
 export interface CourrierFormData {
