@@ -225,6 +225,8 @@ export type ExtraTables = {
       mode_envoi: string | null;
       date_creation: string;
       date_envoi: string | null;
+      task_id: string | null;
+      mission_doc_type: string | null;
       created_at: string | null;
       updated_at: string | null;
     };
@@ -242,6 +244,8 @@ export type ExtraTables = {
       mode_envoi?: string | null;
       date_creation?: string;
       date_envoi?: string | null;
+      task_id?: string | null;
+      mission_doc_type?: string | null;
       created_at?: string | null;
       updated_at?: string | null;
     };
@@ -259,10 +263,59 @@ export type ExtraTables = {
       mode_envoi?: string | null;
       date_creation?: string;
       date_envoi?: string | null;
+      task_id?: string | null;
+      mission_doc_type?: string | null;
       created_at?: string | null;
       updated_at?: string | null;
     };
     Relationships: [];
+  };
+  rapports_mission: {
+    Row: {
+      id: string;
+      task_id: string;
+      file_format: string;
+      contenu_parse: string | null;
+      file_path: string | null;
+      statut: string;
+      rapport_superviseur_id: string | null;
+      rapport_client_id: string | null;
+      created_at: string;
+      updated_at: string;
+    };
+    Insert: {
+      id?: string;
+      task_id: string;
+      file_format?: string;
+      contenu_parse?: string | null;
+      file_path?: string | null;
+      statut?: string;
+      rapport_superviseur_id?: string | null;
+      rapport_client_id?: string | null;
+      created_at?: string;
+      updated_at?: string;
+    };
+    Update: {
+      id?: string;
+      task_id?: string;
+      file_format?: string;
+      contenu_parse?: string | null;
+      file_path?: string | null;
+      statut?: string;
+      rapport_superviseur_id?: string | null;
+      rapport_client_id?: string | null;
+      created_at?: string;
+      updated_at?: string;
+    };
+    Relationships: [
+      {
+        foreignKeyName: "rapports_mission_task_id_fkey";
+        columns: ["task_id"];
+        isOneToOne: false;
+        referencedRelation: "tasks";
+        referencedColumns: ["id"];
+      },
+    ];
   };
 };
 

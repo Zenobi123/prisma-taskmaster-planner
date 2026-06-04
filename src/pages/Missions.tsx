@@ -62,6 +62,8 @@ const Missions = () => {
         status: task.status,
         startDate: task.start_date ? new Date(task.start_date).toLocaleDateString() : 'Non définie',
         endDate: task.end_date ? new Date(task.end_date).toLocaleDateString() : 'Non définie',
+        rawStartDate: task.start_date ?? null,
+        rawEndDate: task.end_date ?? null,
         clientId: task.client_id,
         collaborateurId: task.collaborateur_id,
         createdAt: task.created_at,

@@ -9,6 +9,8 @@ interface Mission {
   status: string;
   startDate: string;
   endDate: string;
+  rawStartDate: string | null;
+  rawEndDate: string | null;
   clientId: string;
   collaborateurId: string;
   createdAt: string;
