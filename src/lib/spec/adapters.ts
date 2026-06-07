@@ -19,7 +19,7 @@ import type {
 import type { CourrierPrintData } from '@/components/printable/PrintableCourrier';
 import type { PropositionPrintData } from '@/components/printable/PrintableProposition';
 import type { RecuPrintData, RecuPaymentMode } from '@/components/printable/PrintableRecu';
-import type { CourrierStatut } from '@/lib/spec/courrierTemplates';
+import type { CourrierStatut } from '@/lib/spec/courrierStatut';
 import { getCiviliteLongue } from '@/lib/spec/fiscal';
 
 function adaptPrestation(p: ExistingPrestation): SpecPrestation {
