@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Eye, Edit, Archive, RotateCcw, Trash2 } from "lucide-react";
 import { Client } from "@/types/client";
 import { useMemo } from "react";
-import { calculateAllTaxes, formatMoney, FiscalInput } from "@/utils/fiscalCalculations";
+import { computeClientTaxes, formatMoney } from "@/utils/clientFiscalSummary";
 
 interface ClientListProps {
   clients: Client[];
@@ -32,23 +32,7 @@ interface ClientListProps {
 }
 
 function ClientFiscalBadges({ client }: { client: Client }) {
-  const input: FiscalInput = useMemo(() => ({
-    regimeFiscal: client.regimefiscal,
-    chiffreAffaires: client.chiffreaffaires || 0,
-    isCGA: client.iscga || false,
-    isVendeurBoissons: client.isvendeurboissons || false,
-    modePaiementIGS: client.modepaiementigs || "annuel",
-    situationImmobiliere: client.situationimmobiliere
-      ? {
-          type: client.situationimmobiliere.type,
-          loyerMensuel: client.situationimmobiliere.loyer,
-          valeurBien: client.situationimmobiliere.valeur,
-        }
-      : undefined,
-    modePaiementPSL: client.modepaiementpsl || "annuel",
-  }), [client]);
-
-  const result = useMemo(() => calculateAllTaxes(input), [input]);
+  const result = useMemo(() => computeClientTaxes(client), [client]);
 
   if (!client.chiffreaffaires && client.regimefiscal !== "non_professionnel" && client.regimefiscal !== "obnl") {
     return <span className="text-muted-foreground text-xs">-</span>;
@@ -91,23 +75,7 @@ function ClientFiscalBadges({ client }: { client: Client }) {
 }
 
 function ClientImmoBadges({ client }: { client: Client }) {
-  const input: FiscalInput = useMemo(() => ({
-    regimeFiscal: client.regimefiscal,
-    chiffreAffaires: client.chiffreaffaires || 0,
-    isCGA: client.iscga || false,
-    isVendeurBoissons: client.isvendeurboissons || false,
-    modePaiementIGS: client.modepaiementigs || "annuel",
-    situationImmobiliere: client.situationimmobiliere
-      ? {
-          type: client.situationimmobiliere.type,
-          loyerMensuel: client.situationimmobiliere.loyer,
-          valeurBien: client.situationimmobiliere.valeur,
-        }
-      : undefined,
-    modePaiementPSL: client.modepaiementpsl || "annuel",
-  }), [client]);
-
-  const result = useMemo(() => calculateAllTaxes(input), [input]);
+  const result = useMemo(() => computeClientTaxes(client), [client]);
 
   const badges: { label: string; amount: number; color: string }[] = [];
 

@@ -40,7 +40,7 @@ Authentication is Supabase Auth; `App.tsx` wraps all routes in a `PrivateRoute` 
 
 ### Key source directories
 
-- `src/lib/spec/` — **Canonical business logic**: `fiscal.ts` (all tax computation), `fiscal-constants.ts` (IGS brackets, Patente rates, TDL brackets, etc.), `courrierTemplates.ts` (20+ letter templates), `pdfExport.ts`, `usePrint.ts`. Tests live in `src/lib/spec/__tests__/`.
+- `src/lib/spec/` — **Canonical business logic**: `fiscal.ts` (all tax computation), `fiscal-constants.ts` (IGS brackets, Patente rates, TDL brackets, etc.), `courrierStatut.ts` (courrier status labels/badges for the printable view), `pdfExport.ts`, `usePrint.ts`. Tests live in `src/lib/spec/__tests__/`.
 - `src/config/fiscalConstants.ts` — Duplicate constants used by some older components; prefer `src/lib/spec/fiscal-constants.ts`.
 - `src/services/` — Supabase data access layer (one file per domain: `clientService.ts`, `factureService.ts`, `devisService.ts`, `propositionService.ts`, `courrierService.ts`, etc.).
 - `src/integrations/supabase/` — `client.ts` (typed Supabase client), `types.ts` (auto-generated DB types), `extraTables.ts` (manual type extensions for tables not in generated types).
@@ -92,7 +92,9 @@ Always `Math.round(amount || 0).toLocaleString('fr-FR') + ' F CFA'`. Never displ
 
 ### Letter templates
 
-`src/lib/spec/courrierTemplates.ts` defines ~20 templates in 3 categories (fiscal/DGI, client, administratif). Dynamic templates call `getDynamicModelePayload()` to inject live client fiscal figures. Placeholders `{CLIENT_NOM}`, `{CLIENT_NIU}`, `{CLIENT_VILLE}`, `{CLIENT_QUARTIER}`, `{CLIENT_CONTACT}`, `{CIVILITE}` are substituted at render time. Civilité longue is always `Madame` / `Monsieur` (not `Mme.`/`M.`).
+`src/utils/courrierTemplates.ts` is the **single source** of letter templates (~21 templates in 5 categories: fiscal, relance, client, information, convocation). It drives the Courrier page (`Courrier.tsx`, `TemplateSelection`, `PreviewDialog`) and `courrierStorageService`. Placeholders use the `{{...}}` syntax (`{{nom}}`, `{{niu}}`, `{{centre}}`, `{{regime}}`, `{{secteur}}`, `{{annee}}`, `{{montant_igs}}`, `{{montant_patente}}`, `{{civilite}}`) and are substituted at render time. Civilité longue is always `Madame` / `Monsieur` (not `Mme.`/`M.`).
+
+Courrier *status* metadata (labels/badges) for the printable view lives separately in `src/lib/spec/courrierStatut.ts`.
 
 ### Supabase notes
 

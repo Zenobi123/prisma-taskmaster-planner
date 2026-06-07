@@ -5,7 +5,7 @@ import {
   COURRIER_STATUT_BADGE,
   COURRIER_STATUT_LABEL,
   type CourrierStatut,
-} from '@/lib/spec/courrierTemplates';
+} from '@/lib/spec/courrierStatut';
 import SignatureBlock from './SignatureBlock';
 import PrismaFooter from './PrismaFooter';
 

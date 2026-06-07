@@ -15,7 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { RegimeFiscal, Civilite, ModePaiement } from "@/types/client";
-import { calculateAllTaxes, formatMoney, FiscalInput } from "@/utils/fiscalCalculations";
+import { computeClientTaxes, formatMoney } from "@/utils/clientFiscalSummary";
 
 interface ClientProfessionalFieldsProps {
   niu: string;
@@ -340,21 +340,15 @@ export function ClientProfessionalFields({
 }: ClientProfessionalFieldsProps) {
   const ca = parseFloat(chiffreaffaires) || 0;
 
-  const fiscalInput: FiscalInput = useMemo(() => ({
-    regimeFiscal: regimefiscal,
-    chiffreAffaires: ca,
-    isCGA: iscga,
-    isVendeurBoissons: isvendeurboissons,
-    modePaiementIGS: modepaiementigs,
-    situationImmobiliere: situationimmobiliere ? {
-      type: situationimmobiliere.type,
-      loyerMensuel: situationimmobiliere.loyer,
-      valeurBien: situationimmobiliere.valeur,
-    } : undefined,
-    modePaiementPSL: modepaiementpsl,
+  const taxes = useMemo(() => computeClientTaxes({
+    regimefiscal,
+    chiffreaffaires: ca,
+    iscga,
+    isvendeurboissons,
+    modepaiementigs,
+    modepaiementpsl,
+    situationimmobiliere,
   }), [regimefiscal, ca, iscga, isvendeurboissons, modepaiementigs, situationimmobiliere, modepaiementpsl]);
-
-  const taxes = useMemo(() => calculateAllTaxes(fiscalInput), [fiscalInput]);
 
   const showFiscalPreview = ca > 0 && regimefiscal !== "non_professionnel" && regimefiscal !== "obnl";
   const currentYear = new Date().getFullYear();

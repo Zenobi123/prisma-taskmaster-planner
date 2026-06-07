@@ -1,50 +1,14 @@
 
-import { ClientType, FormeJuridique, Sexe, EtatCivil, SituationImmobiliere, RegimeFiscal, Civilite, ModePaiement } from "@/types/client";
+import { ClientType } from "@/types/client";
+import { ClientFormState } from "@/hooks/client-form/useClientFormState";
 import { ClientIdentityFields } from "../ClientIdentityFields";
 import { ClientAddressFields } from "../ClientAddressFields";
 import { ClientContactFields } from "../ClientContactFields";
 import { ClientProfessionalFields } from "../ClientProfessionalFields";
 
-interface FormDataType {
-  nom: string;
-  nomcommercial: string;
-  numerorccm: string;
-  raisonsociale: string;
-  sigle: string;
-  datecreation: string;
-  lieucreation: string;
-  nomdirigeant: string;
-  formejuridique?: FormeJuridique;
-  niu: string;
-  centrerattachement: string;
-  ville: string;
-  quartier: string;
-  lieuDit: string;
-  telephone: string;
-  email: string;
-  contact_principal: string;
-  secteuractivite: string;
-  numerocnps: string;
-  regimefiscal: RegimeFiscal;
-  civilite: Civilite;
-  chiffreaffaires: string;
-  iscga: boolean;
-  isvendeurboissons: boolean;
-  modepaiementigs: ModePaiement;
-  modepaiementpsl: ModePaiement;
-  gestionexternalisee: boolean;
-  sexe: Sexe;
-  etatcivil: EtatCivil;
-  situationimmobiliere: {
-    type: SituationImmobiliere;
-    valeur?: number;
-    loyer?: number;
-  };
-}
-
 interface ClientFormFieldsProps {
   type: ClientType;
-  formData: FormDataType;
+  formData: ClientFormState;
   onChange: (name: string, value) => void;
 }
 
