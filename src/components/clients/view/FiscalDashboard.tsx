@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { Client } from "@/types/client";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { calculateAllTaxes, formatMoney, FiscalInput, FiscalResult } from "@/utils/fiscalCalculations";
+import { computeClientTaxes, formatMoney } from "@/utils/clientFiscalSummary";
 import { Building2, Landmark, Receipt, Home, Store, Wine, Calculator, TrendingUp } from "lucide-react";
 
 interface FiscalDashboardProps {
@@ -20,23 +20,7 @@ const REGIME_LABELS: Record<string, string> = {
 export function FiscalDashboard({ client }: FiscalDashboardProps) {
   const chiffreAffaires = client.chiffreaffaires || 0;
 
-  const input: FiscalInput = useMemo(() => ({
-    regimeFiscal: client.regimefiscal,
-    chiffreAffaires,
-    isCGA: client.iscga || false,
-    isVendeurBoissons: client.isvendeurboissons || false,
-    modePaiementIGS: client.modepaiementigs || "trimestriel",
-    situationImmobiliere: client.situationimmobiliere
-      ? {
-          type: client.situationimmobiliere.type,
-          loyerMensuel: client.situationimmobiliere.loyer,
-          valeurBien: client.situationimmobiliere.valeur,
-        }
-      : undefined,
-    modePaiementPSL: client.modepaiementpsl || "trimestriel",
-  }), [client, chiffreAffaires]);
-
-  const result: FiscalResult = useMemo(() => calculateAllTaxes(input), [input]);
+  const result = useMemo(() => computeClientTaxes(client), [client]);
 
   if (chiffreAffaires === 0) {
     return (
@@ -89,11 +73,11 @@ export function FiscalDashboard({ client }: FiscalDashboardProps) {
     },
     {
       key: "soldeIR",
-      label: "Solde IR",
+      label: client.type === "morale" ? "Solde IS" : "Solde IR",
       amount: result.soldeIR,
-      description: "Solde de l'Impôt sur le Revenu",
+      description: "Solde de l'Impôt sur les sociétés / sur le revenu",
       icon: <TrendingUp className="h-5 w-5 text-orange-500" />,
-      show: regime === "reel" && result.soldeIR > 0,
+      show: result.soldeIR > 0,
     },
     {
       key: "licence",

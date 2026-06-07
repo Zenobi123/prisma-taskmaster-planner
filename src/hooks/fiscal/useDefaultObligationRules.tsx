@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Client } from "@/types/client";
 import { ObligationStatuses } from "./types";
-import { calculateAllTaxes, FiscalInput } from "@/utils/fiscalCalculations";
+import { computeClientTaxes } from "@/utils/clientFiscalSummary";
 
 export const useDefaultObligationRules = (selectedClient: Client) => {
   // Primitives extraites pour des dépendances de hook stables (évite de dépendre
@@ -13,21 +13,19 @@ export const useDefaultObligationRules = (selectedClient: Client) => {
   const immoValeur = selectedClient.situationimmobiliere?.valeur;
 
   const getDefaultObligationStatuses = useCallback((): ObligationStatuses => {
-    // Calculer les montants des impôts à partir des données du profil client
-    const fiscalInput: FiscalInput = {
-      regimeFiscal: selectedClient.regimefiscal,
-      chiffreAffaires: selectedClient.chiffreaffaires || 0,
-      isCGA: selectedClient.iscga || false,
-      isVendeurBoissons: selectedClient.isvendeurboissons || false,
-      modePaiementIGS: selectedClient.modepaiementigs || "trimestriel",
-      situationImmobiliere: hasImmo ? {
-        type: immoType,
-        loyerMensuel: immoLoyer,
-        valeurBien: immoValeur,
-      } : undefined,
-      modePaiementPSL: selectedClient.modepaiementpsl || "trimestriel",
-    };
-    const calculatedTaxes = calculateAllTaxes(fiscalInput);
+    // Calculer les montants des impôts via le moteur fiscal canonique
+    const calculatedTaxes = computeClientTaxes({
+      type: selectedClient.type,
+      regimefiscal: selectedClient.regimefiscal,
+      chiffreaffaires: selectedClient.chiffreaffaires || 0,
+      iscga: selectedClient.iscga || false,
+      isvendeurboissons: selectedClient.isvendeurboissons || false,
+      modepaiementigs: selectedClient.modepaiementigs || "trimestriel",
+      modepaiementpsl: selectedClient.modepaiementpsl || "trimestriel",
+      situationimmobiliere: hasImmo
+        ? { type: immoType, loyer: immoLoyer, valeur: immoValeur }
+        : undefined,
+    });
 
     const baseStatuses: ObligationStatuses = {
       // Direct taxes - all start as not subject by default
