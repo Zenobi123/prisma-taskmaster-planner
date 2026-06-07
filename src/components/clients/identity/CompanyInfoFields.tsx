@@ -6,6 +6,7 @@ import { FormeJuridique } from "@/types/client";
 
 interface CompanyInfoFieldsProps {
   raisonsociale: string;
+  nomcommercial?: string;
   sigle?: string;
   numerorccm?: string;
   datecreation?: string;
@@ -15,15 +16,16 @@ interface CompanyInfoFieldsProps {
   onChange: (name: string, value) => void;
 }
 
-export function CompanyInfoFields({ 
-  raisonsociale, 
+export function CompanyInfoFields({
+  raisonsociale,
+  nomcommercial = "",
   sigle = "",
   numerorccm = "",
-  datecreation = "", 
-  lieucreation = "", 
+  datecreation = "",
+  lieucreation = "",
   nomdirigeant = "",
   formejuridique,
-  onChange 
+  onChange
 }: CompanyInfoFieldsProps) {
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -39,6 +41,17 @@ export function CompanyInfoFields({
             onChange={(e) => onChange("raisonsociale", e.target.value)}
             placeholder="Entrez la raison sociale"
             required
+          />
+        </div>
+
+        <div>
+          <Label htmlFor="nomcommercial">Nom commercial</Label>
+          <Input
+            id="nomcommercial"
+            type="text"
+            value={nomcommercial}
+            onChange={(e) => onChange("nomcommercial", e.target.value)}
+            placeholder="Nom commercial (optionnel)"
           />
         </div>
 
