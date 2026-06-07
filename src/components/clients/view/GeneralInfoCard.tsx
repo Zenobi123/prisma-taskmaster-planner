@@ -100,6 +100,9 @@ export function GeneralInfoCard({ client }: GeneralInfoCardProps) {
           {client.type === "physique" ? (
             <>
               <InfoField label="Nom" value={client.nom} />
+              {client.nomcommercial && (
+                <InfoField label="Nom commercial" value={client.nomcommercial} />
+              )}
               <InfoField label="Sexe" value={getSexeLabel(client.sexe)} />
               <InfoField label="État civil" value={getEtatCivilLabel(client.etatcivil)} />
             </>

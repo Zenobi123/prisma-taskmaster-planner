@@ -55,6 +55,7 @@ export function ClientIdentityFields({
       ) : (
         <CompanyInfoFields
           raisonsociale={raisonsociale}
+          nomcommercial={nomcommercial}
           sigle={sigle}
           numerorccm={numerorccm}
           datecreation={datecreation}
