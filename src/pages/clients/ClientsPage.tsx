@@ -45,6 +45,7 @@ export default function ClientsPage() {
     handleArchive,
     handleRestore,
     handleDelete,
+    handleImportClients,
     handleTrashClick,
     handleCloseTrash,
     confirmDialog,
@@ -107,6 +108,7 @@ export default function ClientsPage() {
             onArchive={handleArchive}
             onRestore={handleRestore}
             onDelete={handleDelete}
+            onImportClients={handleImportClients}
             isMobile={isMobile}
           />
         </ScrollArea>
@@ -130,6 +132,7 @@ export default function ClientsPage() {
           onArchive={handleArchive}
           onRestore={handleRestore}
           onDelete={handleDelete}
+          onImportClients={handleImportClients}
           isMobile={isMobile}
         />
       )}
