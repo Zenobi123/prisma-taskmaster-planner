@@ -6,6 +6,7 @@ import { usePlanning } from "@/hooks/usePlanning";
 import { CollaboratorFilter } from "@/components/planning/CollaboratorFilter";
 import { CalendarView } from "@/components/planning/CalendarView";
 import { EventsList } from "@/components/planning/EventsList";
+import { PlanningImportExport } from "@/components/planning/PlanningImportExport";
 import PageLayout from "@/components/layout/PageLayout";
 import { useAuthorization } from "@/hooks/useAuthorization";
 import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
@@ -46,11 +47,14 @@ const Planning = () => {
             Consultez le calendrier des échéances et la charge de travail de l'équipe
           </p>
         </div>
-        <CollaboratorFilter
-          collaborateurs={planning.collaborateurs}
-          value={planning.collaborateurFilter}
-          onChange={planning.setCollaborateurFilter}
-        />
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <PlanningImportExport />
+          <CollaboratorFilter
+            collaborateurs={planning.collaborateurs}
+            value={planning.collaborateurFilter}
+            onChange={planning.setCollaborateurFilter}
+          />
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-4 sm:gap-6">

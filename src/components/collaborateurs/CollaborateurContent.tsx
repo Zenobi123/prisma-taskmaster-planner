@@ -5,6 +5,7 @@ import { CollaborateurHeader } from "./CollaborateurHeader";
 import { CollaborateurSearch } from "./CollaborateurSearch";
 import { CollaborateurList } from "./CollaborateurList";
 import { CollaborateurDialog } from "./CollaborateurDialog";
+import { CollaborateurImportExport } from "./CollaborateurImportExport";
 import { Collaborateur } from "@/types/collaborateur";
 
 interface CollaborateurContentProps {
@@ -50,6 +51,10 @@ export const CollaborateurContent = ({
     <PageLayout>
       <div className="px-4 py-4 sm:p-6 md:p-8">
         <CollaborateurHeader onOpenDialog={() => onOpenDialogChange(true)} />
+
+        <div className="flex justify-end mb-3 sm:mb-4">
+          <CollaborateurImportExport collaborateurs={filteredCollaborateurs} />
+        </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-3 sm:p-6">
           <CollaborateurSearch

@@ -14,6 +14,7 @@ import {
   deleteCourrierRecord,
 } from "@/services/courrierStorageService";
 import { CourrierRecord, CourrierStatus } from "@/types/courrier";
+import { CourrierImportExport } from "@/components/courrier/CourrierImportExport";
 
 const MISSION_DOC_LABEL: Record<string, string> = {
   ordre_missionnaire: "OM — Missionnaire",
@@ -107,6 +108,7 @@ const CourrierHistorique = () => {
             <SelectItem value="classe">Classé</SelectItem>
           </SelectContent>
         </Select>
+        <CourrierImportExport records={records} />
       </div>
 
       {/* Table */}
