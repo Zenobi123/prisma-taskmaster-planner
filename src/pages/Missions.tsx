@@ -12,6 +12,7 @@ import { useAuthorization } from "@/hooks/useAuthorization";
 import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 import { useExercice } from "@/contexts/ExerciceContext";
 import { ExerciceSelector, ExerciceReadOnlyBanner } from "@/components/exercice/ExerciceControls";
+import { MissionImportExport } from "@/components/missions/MissionImportExport";
 
 const Missions = () => {
   const { isAuthorized } = useAuthorization(
@@ -133,6 +134,10 @@ const Missions = () => {
         </div>
 
         <ExerciceReadOnlyBanner className="mb-4" />
+
+        <div className="flex justify-end mb-3 sm:mb-4">
+          <MissionImportExport missions={filteredAndSortedMissions} />
+        </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-neutral-200 p-3 sm:p-6 mb-4 sm:mb-6">
           <MissionFilters
