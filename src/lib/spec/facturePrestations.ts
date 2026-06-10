@@ -22,7 +22,7 @@ export interface PrestationDef {
 export const LISTE_IMPOTS: PrestationDef[] = [
   { designation: 'Précompte sur Loyer (PSL)', montant: 0 },
   { designation: 'Bail Commercial', montant: 0 },
-  { designation: 'Taxe Foncière (TF)', montant: 0 },
+  { designation: 'Taxe Foncière (TPF)', montant: 0 },
   { designation: 'Impôt Général Synthétique (IGS)', montant: 0 },
   { designation: 'Taxe de Développement Local (TDL)', montant: 0 },
   { designation: 'Solde IR', montant: 0 },
