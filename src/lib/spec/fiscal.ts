@@ -473,6 +473,7 @@ export interface ExistingClientLike {
   modepaiementpsl?: 'trimestriel' | 'annuel';
   situationimmobiliere?: { type?: string; valeur?: number; loyer?: number };
   fiscal_data?: unknown;
+  agences?: AgenceSpec[] | null;
   created_at?: string;
 }
 
