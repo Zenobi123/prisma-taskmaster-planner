@@ -44,7 +44,8 @@ export const createClient = async (clientData: Omit<Client, 'id' | 'created_at'>
     .insert([{
       ...clientData,
       interactions: (clientData.interactions || []) as unknown as Json,
-      fiscal_data: (clientData.fiscal_data ?? null) as Json
+      fiscal_data: (clientData.fiscal_data ?? null) as Json,
+      agences: (clientData.agences ?? null) as unknown as Json,
     }])
     .select()
     .single();
