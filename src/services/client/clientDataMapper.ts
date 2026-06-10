@@ -69,6 +69,7 @@ export const mapClientRowToClient = (client: ClientRow): Client => {
     isvendeurboissons: extra.isvendeurboissons || false,
     modepaiementigs: extra.modepaiementigs || undefined,
     modepaiementpsl: extra.modepaiementpsl || undefined,
-    fiscal_data: client.fiscal_data
+    fiscal_data: client.fiscal_data,
+    agences: Array.isArray(extra.agences) ? (extra.agences as Agence[]) : undefined
   };
 };
