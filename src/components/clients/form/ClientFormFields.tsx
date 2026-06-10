@@ -64,6 +64,22 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
         email={formData.email}
         onChange={onChange}
       />
+
+      <AgencesEditor
+        agences={formData.agences}
+        ville={formData.ville}
+        quartier={formData.quartier}
+        regimefiscal={formData.regimefiscal}
+        fallbackCA={formData.chiffreaffaires}
+        fallbackLoyerMensuel={formData.situationimmobiliere?.loyer}
+        fallbackValeurBien={formData.situationimmobiliere?.valeur}
+        fallbackStatutImmo={
+          formData.situationimmobiliere?.type === "proprietaire" ? "proprietaire"
+          : formData.situationimmobiliere?.type === "les_deux" ? "les_deux"
+          : "locataire"
+        }
+        onChange={onChange}
+      />
     </div>
   );
 }
