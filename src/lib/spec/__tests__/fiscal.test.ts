@@ -195,3 +195,72 @@ describe('SPEC §10.5 — sanitizePdfSegment', () => {
     expect(sanitizePdfSegment('', 'fallback')).toBe('fallback');
   });
 });
+
+// === Multi-agences ===
+const agence = (o: Partial<AgenceSpec> = {}): AgenceSpec => ({
+  libelle: '', ville: '', quartier: '', principale: false,
+  chiffreAffaires: 0, statutImmo: '', loyerMensuel: 0, valeurBien: 0,
+  ...o,
+});
+
+describe('SPEC multi-agences — buildImmoTaxLabel', () => {
+  it('avec ville/quartier', () => {
+    expect(buildImmoTaxLabel('PSL', { ville: 'Douala', quartier: 'Akwa' })).toBe('PSL_Douala/Akwa');
+  });
+  it('repli sur libellé si pas de localisation', () => {
+    expect(buildImmoTaxLabel('Bail', { libelle: 'Dépôt' })).toBe('Bail_Dépôt');
+  });
+  it('repli sur acronyme seul', () => {
+    expect(buildImmoTaxLabel('TPF', {})).toBe('TPF');
+  });
+});
+
+describe('SPEC multi-agences — computeAgencyImmo', () => {
+  it('locataire IGS : PSL=120 000, Bail=120 000', () => {
+    const r = computeAgencyImmo(agence({ statutImmo: 'locataire', loyerMensuel: 100_000 }), 'IGS');
+    expect(r.psl).toBe(120_000);
+    expect(r.bail).toBe(120_000);
+  });
+  it('OBNL : PSL=0, Bail=5%', () => {
+    const r = computeAgencyImmo(agence({ statutImmo: 'locataire', loyerMensuel: 100_000 }), 'OBNL');
+    expect(r.psl).toBe(0);
+    expect(r.bail).toBe(60_000);
+  });
+  it('propriétaire : TPF = 0,1 %', () => {
+    const r = computeAgencyImmo(agence({ statutImmo: 'proprietaire', valeurBien: 50_000_000 }), 'IGS');
+    expect(r.tf).toBe(50_000);
+  });
+});
+
+describe('SPEC multi-agences — cumuls et rétrocompat', () => {
+  const base: ClientSpec = {
+    id: 1, type: 'Personne morale', name: 'T', niu: '', cdi: '', ville: '', quartier: '',
+    phone: '', civilite: 'M.', secteur: '', externalise: 'Non', statut: 'Actif',
+    modePaiementIGS: 'annuel', modePaiementPSL: 'annuel', createdAt: new Date().toISOString(),
+    regimeFiscal: 'IGS',
+  };
+  it('cumul PSL/Bail/TPF sur 2 agences', () => {
+    const c: ClientSpec = {
+      ...base,
+      agences: [
+        agence({ ville: 'Yaoundé', quartier: 'Bastos', statutImmo: 'locataire', loyerMensuel: 100_000, chiffreAffaires: 2_000_000 }),
+        agence({ ville: 'Douala', quartier: 'Akwa', statutImmo: 'proprietaire', valeurBien: 50_000_000, chiffreAffaires: 1_000_000 }),
+      ],
+    };
+    const r = calculateImmoTaxes(c);
+    expect(r.psl).toBe(120_000);
+    expect(r.bail).toBe(120_000);
+    expect(r.tf).toBe(50_000);
+    const biens = getClientBiensImmo(c);
+    expect(biens).toHaveLength(2);
+    expect(buildImmoTaxLabel('PSL', biens[0])).toBe('PSL_Yaoundé/Bastos');
+    expect(buildImmoTaxLabel('TPF', biens[1])).toBe('TPF_Douala/Akwa');
+  });
+  it('rétrocompat : sans agences → bien unique depuis champs à plat', () => {
+    const c: ClientSpec = { ...base, statutImmo: 'Locataire', loyerMensuel: 100_000 };
+    const biens = getClientBiensImmo(c);
+    expect(biens).toHaveLength(1);
+    expect(biens[0].psl).toBe(120_000);
+    expect(biens[0].bail).toBe(120_000);
+  });
+});
