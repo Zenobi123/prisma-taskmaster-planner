@@ -32,6 +32,8 @@ export function useClientFormHandlers(
       // Always validate regime fiscal
       const validatedValue = validateRegimeFiscal(value);
       setFormData(prev => ({ ...prev, regimefiscal: validatedValue }));
+    } else if (name === "agences") {
+      setFormData(prev => ({ ...prev, agences: Array.isArray(value) ? value : [] }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
