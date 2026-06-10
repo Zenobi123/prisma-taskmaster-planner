@@ -1,6 +1,6 @@
 // SPEC_LOVABLE.md §5 — Listes prédéfinies, prestations & quick-add (factures / devis)
 import type { ClientSpec } from './fiscal';
-import { getIGSPenaliteLines, getSoldeTaxLabel, calculateTDL, calculateIGS } from './fiscal';
+import { getIGSPenaliteLines, getSoldeTaxLabel, calculateTDL, calculateIGS, getClientBiensImmo, buildImmoTaxLabel } from './fiscal';
 import type { RegimeFiscalSpec } from './fiscal-constants';
 
 export type PrestationType = 'Impôt' | 'Honoraire';
