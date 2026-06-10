@@ -57,13 +57,14 @@ export const createClient = async (clientData: Omit<Client, 'id' | 'created_at'>
 export const addClient = createClient; // Alias for backward compatibility
 
 export const updateClient = async (id: string, updates: Partial<Client>): Promise<Client> => {
-  const updateData = {
-    ...updates,
-    interactions: updates.interactions as unknown as Json,
-    fiscal_data: (updates.fiscal_data ?? null) as Json,
-    agences: (updates.agences ?? null) as unknown as Json,
-  };
-  
+  // Mise à jour partielle : ne réécrire les colonnes JSON que si la clé est
+  // fournie, sinon `?? null` effacerait agences / fiscal_data existants
+  // (ex. ajout d'une interaction seule depuis la page Gestion).
+  const updateData: Record<string, unknown> = { ...updates };
+  if ('interactions' in updates) updateData.interactions = updates.interactions as unknown as Json;
+  if ('fiscal_data' in updates) updateData.fiscal_data = (updates.fiscal_data ?? null) as Json;
+  if ('agences' in updates) updateData.agences = (updates.agences ?? null) as unknown as Json;
+
   const { data, error } = await supabase
     .from('clients')
     .update(updateData)
