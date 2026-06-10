@@ -89,7 +89,7 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
   const impotsOptions = useMemo(() => getImpotsForSelect(clientSpec), [clientSpec]);
   const honorairesOptions = useMemo(() => getHonorairesForClient(clientSpec), [clientSpec]);
   const impotButtons = useMemo(
-    () => (clientSpec ? QUICK_IMPOT_BUTTONS.filter((b) => b.applies(clientSpec)) : []),
+    () => getQuickImpotButtons(clientSpec),
     [clientSpec],
   );
 
