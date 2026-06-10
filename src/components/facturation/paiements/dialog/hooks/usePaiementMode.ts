@@ -14,7 +14,7 @@ export const usePaiementMode = ({ setValue }: UsePaiementModeProps) => {
     }
   };
 
-  const handleModeChange = (value: "espèces" | "virement" | "orange_money" | "mtn_money") => {
+  const handleModeChange = (value: PaiementFormData["mode"]) => {
     setValue("mode", value);
   };
 

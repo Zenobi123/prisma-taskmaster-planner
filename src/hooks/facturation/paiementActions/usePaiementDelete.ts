@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { recalculerStatutPaiementFacture } from "@/services/factureServices/facturePaiementSyncService";
 
 export const usePaiementDelete = () => {
   const { toast } = useToast();
@@ -10,6 +11,13 @@ export const usePaiementDelete = () => {
   const deletePaiement = async (id: string) => {
     setIsLoading(true);
     try {
+      // Conserver la facture liée pour recalculer son état après suppression.
+      const { data: paiement } = await supabase
+        .from("paiements")
+        .select("facture_id")
+        .eq("id", id)
+        .maybeSingle();
+
       const { error } = await supabase
         .from("paiements")
         .delete()
@@ -18,6 +26,8 @@ export const usePaiementDelete = () => {
       if (error) {
         throw error;
       }
+
+      await recalculerStatutPaiementFacture(paiement?.facture_id);
 
       toast({
         title: "Paiement supprimé",

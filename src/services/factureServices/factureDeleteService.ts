@@ -45,10 +45,22 @@ export const deleteFactureFromDatabase = async (factureId: string): Promise<bool
     .from("factures")
     .delete()
     .eq("id", factureId);
-    
+
   if (factureError) {
     throw new Error(`Failed to delete invoice: ${factureError.message}`);
   }
-  
+
+  // Référence : la suppression d'une facture issue d'un devis « libère » le
+  // devis, qui redevient convertible (statut « accepté », lien effacé).
+  await supabase
+    .from("devis")
+    .update({
+      status: "accepte",
+      facture_id: null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("facture_id", factureId)
+    .eq("status", "converti");
+
   return true;
 };

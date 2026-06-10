@@ -340,7 +340,8 @@ export async function convertDevisToFacture(devisId: string): Promise<string> {
       date: now.toISOString().split("T")[0],
       echeance: echeance.toISOString().split("T")[0],
       montant: devisData.montant_total,
-      status: "brouillon",
+      // Référence : la facture issue d'un devis est immédiatement « émise »
+      status: "envoyée",
       status_paiement: "non_payée",
       notes: devisData.notes || null,
     });

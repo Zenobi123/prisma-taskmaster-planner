@@ -13,7 +13,7 @@ export interface Paiement {
   client_id: string;
   date: string;
   montant: number;
-  mode: "espèces" | "virement" | "orange_money" | "mtn_money";
+  mode: "espèces" | "virement" | "orange_money" | "mtn_money" | "cheque";
   reference: string;
   solde_restant: number;
   est_credit?: boolean;

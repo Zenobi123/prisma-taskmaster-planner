@@ -48,7 +48,7 @@ const ExpandedFilters = ({
           <SelectContent>
             <SelectItem value="all">Tous les statuts</SelectItem>
             <SelectItem value="brouillon">Brouillon</SelectItem>
-            <SelectItem value="envoyée">Envoyée</SelectItem>
+            <SelectItem value="envoyée">Émise</SelectItem>
             <SelectItem value="annulée">Annulée</SelectItem>
           </SelectContent>
         </Select>
@@ -68,6 +68,7 @@ const ExpandedFilters = ({
             <SelectItem value="non_payée">Non payée</SelectItem>
             <SelectItem value="partiellement_payée">Partiellement payée</SelectItem>
             <SelectItem value="payée">Payée</SelectItem>
+            <SelectItem value="en_retard">En retard</SelectItem>
           </SelectContent>
         </Select>
       </div>

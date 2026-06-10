@@ -38,10 +38,11 @@ const StatusSelector = ({
           )}
           
           {type === "document" ? (
-            // Options pour le statut du document
+            // Options pour le statut du document (« Émise » = valeur DB « envoyée »,
+            // libellé de la référence)
             <>
               <SelectItem value="brouillon">Brouillon</SelectItem>
-              <SelectItem value="envoyée">Envoyée</SelectItem>
+              <SelectItem value="envoyée">Émise</SelectItem>
               <SelectItem value="annulée">Annulée</SelectItem>
             </>
           ) : (

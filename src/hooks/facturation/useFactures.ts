@@ -102,6 +102,7 @@ export const useFactures = () => {
     // Data
     factures: paginatedFactures,
     paginatedFactures,
+    filteredFactures,
     allClients,
     isLoading,
     

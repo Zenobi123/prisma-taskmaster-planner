@@ -5,13 +5,13 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "@/components/ui/input";
 import { UseFormRegister, FieldErrors } from "react-hook-form";
 import { PaiementFormData } from "../types/PaiementFormTypes";
-import { CreditCard, Banknote, Hash, SmartphoneNfc } from "lucide-react";
+import { CreditCard, Banknote, Hash, SmartphoneNfc, FileSignature } from "lucide-react";
 
 interface PaiementModeSectionProps {
   est_credit: boolean;
-  selectedMode: "espèces" | "virement" | "orange_money" | "mtn_money";
+  selectedMode: PaiementFormData["mode"];
   onCreditChange: (checked: boolean) => void;
-  onModeChange: (value: "espèces" | "virement" | "orange_money" | "mtn_money") => void;
+  onModeChange: (value: PaiementFormData["mode"]) => void;
   register: UseFormRegister<PaiementFormData>;
   errors: FieldErrors<PaiementFormData>;
 }
@@ -45,9 +45,9 @@ export const PaiementModeSection = ({
 
       <div className="grid gap-2">
         <Label className="text-xs font-medium mb-1">Mode de paiement</Label>
-        <RadioGroup 
+        <RadioGroup
           value={selectedMode}
-          onValueChange={(value: "espèces" | "virement" | "orange_money" | "mtn_money") => onModeChange(value)}
+          onValueChange={(value: PaiementFormData["mode"]) => onModeChange(value)}
           className="grid grid-cols-1 sm:grid-cols-2 gap-3"
         >
           <div className="bg-white hover:bg-gray-50 transition-colors rounded-md border border-gray-200 p-2.5 cursor-pointer flex items-center space-x-2">
@@ -76,6 +76,13 @@ export const PaiementModeSection = ({
             <Label htmlFor="mtn_money" className="text-sm cursor-pointer flex items-center gap-2">
               <SmartphoneNfc size={16} className="text-yellow-500" />
               MTN Money
+            </Label>
+          </div>
+          <div className="bg-white hover:bg-gray-50 transition-colors rounded-md border border-gray-200 p-2.5 cursor-pointer flex items-center space-x-2">
+            <RadioGroupItem value="cheque" id="cheque" className="h-4 w-4 text-primary border-gray-400" />
+            <Label htmlFor="cheque" className="text-sm cursor-pointer flex items-center gap-2">
+              <FileSignature size={16} className="text-purple-500" />
+              Chèque
             </Label>
           </div>
         </RadioGroup>

@@ -435,6 +435,8 @@ export const REQUIRED_CLIENT_FIELDS: Array<{ key: keyof ClientSpec; label: strin
 export function getMissingClientFields(client: ClientSpec | null | undefined): string[] {
   if (!client) return REQUIRED_CLIENT_FIELDS.map((f) => f.label);
   return REQUIRED_CLIENT_FIELDS.filter((f) => {
+    // La référence n'a qu'un champ « contact » : téléphone ou contact principal suffit.
+    if (f.key === 'contact') return !client.contact && !client.phone;
     const v = client[f.key];
     return v === undefined || v === null || v === '';
   }).map((f) => f.label);
