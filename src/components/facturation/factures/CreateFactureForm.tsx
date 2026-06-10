@@ -113,7 +113,7 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
 
   // Ajout rapide « Impôts du client & CGA » : injecte les montants réels du client
   // (IGS classe + TDL + pénalités via cascade, PSL, Bail, TF, Solde, Patente, CGA).
-  const applyImpotButton = (btn: (typeof QUICK_IMPOT_BUTTONS)[number]) => {
+  const applyImpotButton = (btn: QuickImpotButton) => {
     if (!clientSpec) return;
     const next = btn.apply(prestations.map(toSpecPrestation), clientSpec);
     setPrestations(next.map(toFormPrestation));
