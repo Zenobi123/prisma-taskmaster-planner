@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion - PRISMA GESTION</title>
+    <script src="assets/css/tailwindcss.min.js"></script>
+    <link rel="stylesheet" href="prisma-print.css">
+    <link rel="stylesheet" href="assets/css/inter-font.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        /* Onglets */
+        .tab-btn { padding: 0.75rem 1rem; border-bottom: 3px solid transparent; color: #6b7280; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+        .tab-btn:hover { color: #1e3a8a; background-color: #f9fafb; }
+        .tab-btn.active { color: #1e3a8a; border-bottom-color: #1e3a8a; font-weight: 700; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        /* Switch (toggle) */
+        .switch { position: relative; display: inline-flex; align-items: center; cursor: pointer; user-select: none; }
+        .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+        .switch .slider { width: 44px; height: 24px; background-color: #d1d5db; border-radius: 9999px; transition: background-color 0.2s; position: relative; flex-shrink: 0; }
+        .switch .slider::before { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background-color: white; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+        .switch input:checked + .slider { background-color: #1e3a8a; }
+        .switch input:checked + .slider::before { transform: translateX(20px); }
+        .switch input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
+        .switch .label { margin-left: 0.5rem; font-size: 0.875rem; color: #374151; }
+        /* Sections collapsibles */
+        .section-card { background: white; border-radius: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); margin-bottom: 1rem; overflow: hidden; }
+        .section-header { padding: 0.875rem 1rem; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: space-between; background-color: #f9fafb; border-bottom: 1px solid #e5e7eb; }
+        .section-header:hover { background-color: #f3f4f6; }
+        .section-header .chevron { transition: transform 0.2s; }
+        .section-card.collapsed .section-body { display: none; }
+        .section-card.collapsed .section-header .chevron { transform: rotate(-90deg); }
+        .section-body { padding: 1rem; }
+        /* Status colors (ACF/ATTIM) */
+        .status-expired { background-color: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+        .status-imminent { background-color: #ffedd5; color: #9a3412; border-color: #fdba74; }
+        .status-valid { background-color: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+        /* Auto-save indicator */
+        .autosave-pending { color: #ea580c; }
+        .autosave-saved { color: #16a34a; }
+        .autosave-saving { color: #2563eb; }
+        @media (max-width: 768px) {
+            .tab-btn { padding: 0.5rem 0.75rem; font-size: 0.875rem; }
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <nav class="bg-blue-900 text-white p-4 shadow-lg no-print">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="index.html" class="inline-flex items-center px-3 py-1.5 border border-white rounded-lg shadow-sm text-white hover:bg-white hover:text-blue-900 transition-colors duration-200">← PRISMA GESTION</a>
+            <span class="text-sm text-blue-200">Module Gestion</span>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto p-6">
+
+        <!-- =================================================================
+             GestionHeader : titre + compteur clients en gestion
+        ================================================================= -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Gestion des Dossiers Clients</h1>
+                    <p class="text-sm text-gray-600 mt-1">Suivi centralisé des clients dont la gestion est externalisée au cabinet.</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-50 border border-blue-200 px-4 py-2 rounded-lg text-center">
+                        <p class="text-2xl font-bold text-blue-900" id="gestionCount">0</p>
+                        <p class="text-xs text-blue-700">client(s) en gestion</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             Sélecteurs : Exercice + Client
+        ================================================================= -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-4">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <!-- ExerciceSelector -->
+                <div class="md:col-span-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Exercice fiscal</label>
+                    <div class="flex gap-2">
+                        <select id="exerciceSelect" onchange="onExerciceChange()" class="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                            <!-- options injectées dynamiquement -->
+                        </select>
+                        <button onclick="toggleExerciceCloture()" id="btnCloture" title="Clôturer / rouvrir l'exercice" class="bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-2 rounded-lg text-sm">
+                            <span id="btnClotureLabel">Clôturer</span>
+                        </button>
+                    </div>
+                </div>
+                <!-- ClientSelector -->
+                <div class="md:col-span-8">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">
+                        Client <span class="text-xs font-normal text-gray-500">(seuls les clients en gestion externalisée sont listés)</span>
+                    </label>
+                    <select id="clientSelect" onchange="onClientChange()" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500">
+                        <option value="">-- Sélectionner un client --</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Bannière lecture seule (exercice clôturé) -->
+            <div id="clotureBanner" class="hidden mt-4 bg-orange-50 border-l-4 border-orange-500 p-3 rounded-r">
+                <div class="flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-orange-600 flex-shrink-0">
+                        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                    </svg>
+                    <p class="text-sm text-orange-800">
+                        <strong>Exercice clôturé — lecture seule.</strong> Les modifications sont désactivées sur cet exercice. Rouvrir l'exercice pour le modifier.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             Aucun client message (état initial)
+        ================================================================= -->
+        <div id="noClientMessage" class="bg-blue-50 border border-blue-200 rounded-lg p-8 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto text-blue-400 mb-3">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <p class="text-blue-900 font-semibold mb-1">Sélectionnez un client pour démarrer</p>
+            <p class="text-sm text-blue-700">Seuls les clients avec <em>Gestion externalisée = Oui</em> apparaissent ci-dessus. Modifier la fiche d'un client pour activer la gestion externalisée.</p>
+        </div>
+
+        <!-- =================================================================
+             SelectedClientCard : rappel infos client sélectionné
+        ================================================================= -->
+        <div id="selectedClientCard" class="hidden bg-white rounded-lg shadow-md p-5 mb-4">
+            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 text-sm">
+                <div class="md:col-span-2">
+                    <p class="text-xs text-gray-500 uppercase">Raison sociale / Nom</p>
+                    <p class="font-bold text-gray-800" id="card-name">-</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase">Type</p>
+                    <p class="font-semibold text-gray-700" id="card-type">-</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase">NIU</p>
+                    <p class="font-semibold text-gray-700" id="card-niu">-</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase">CFLP</p>
+                    <p class="font-semibold text-gray-700" id="card-cdi">-</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase">Régime</p>
+                    <p class="font-semibold text-gray-700" id="card-regime">-</p>
+                </div>
+                <div class="md:col-span-3">
+                    <p class="text-xs text-gray-500 uppercase">Localisation</p>
+                    <p class="font-semibold text-gray-700" id="card-localisation">-</p>
+                </div>
+                <div class="md:col-span-2">
+                    <p class="text-xs text-gray-500 uppercase">Contact</p>
+                    <p class="font-semibold text-gray-700" id="card-contact">-</p>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 uppercase">CGA</p>
+                    <p class="font-semibold text-gray-700" id="card-cga">-</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- =================================================================
+             GestionTabs : 5 onglets
+        ================================================================= -->
+        <div id="tabsContainer" class="hidden bg-white rounded-lg shadow-md mb-4 overflow-hidden">
+            <nav class="flex border-b border-gray-200 overflow-x-auto bg-gray-50">
+                <button class="tab-btn active" data-tab="fiscal" onclick="switchTab('fiscal')">📋 Fiscal</button>
+                <button class="tab-btn" data-tab="comptable" onclick="switchTab('comptable')">💼 Comptable</button>
+                <button class="tab-btn" data-tab="contrats" onclick="switchTab('contrats')">📑 Contrats</button>
+                <button class="tab-btn" data-tab="cloture" onclick="switchTab('cloture')">🔒 Clôture</button>
+                <button class="tab-btn" data-tab="dossier" onclick="switchTab('dossier')">🗂 Dossier</button>
+            </nav>
+
+            <!-- =================================================================
+                 Onglet Fiscal — ObligationsFiscales
+            ================================================================= -->
+            <div id="tab-fiscal" class="tab-content active p-5">
+
+                <!-- En-tête onglet + sélecteur année + auto-save -->
+                <div class="flex items-center justify-between flex-wrap gap-3 mb-4 pb-3 border-b border-gray-200">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">Obligations fiscales</h2>
+                        <p class="text-xs text-gray-500">Suivi des obligations pour l'année fiscale sélectionnée.</p>
+                    </div>
+                    <div class="flex items-center gap-3 flex-wrap">
+                        <div>
+                            <label class="block text-xs text-gray-600 mb-1">Année fiscale</label>
+                            <select id="anneeFiscale" onchange="onAnneeFiscaleChange()" class="border border-gray-300 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-blue-500">
+                                <!-- options injectées dynamiquement -->
+                            </select>
+                        </div>
+                        <div class="text-xs text-right">
+                            <p id="autosaveStatus" class="autosave-saved">Tout est enregistré</p>
+                            <p class="text-gray-500" id="autosaveDetail">—</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Alerte modifications non enregistrées -->
+                <div id="dirtyAlert" class="hidden mb-4 bg-orange-50 border-l-4 border-orange-500 p-3 rounded-r">
+                    <p class="text-sm text-orange-800">
+                        <strong>Modifications non enregistrées.</strong> L'enregistrement automatique est planifié dans <span id="dirtyCountdown">3</span>&nbsp;s. Vous pouvez aussi cliquer sur « Enregistrer » en bas.
+                    </p>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- 3. ACF — Attestation de Conformité Fiscale  -->
+                <!-- ============================================ -->
+                <div class="section-card" id="acfSection">
+                    <div class="section-header" onclick="toggleSection('acfSection')">
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-700">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+                            </svg>
+                            <h3 class="text-base font-semibold text-gray-800">Attestation de Conformité Fiscale (ACF)</h3>
+                            <span id="acfStatusBadge" class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border"></span>
+                        </div>
+                        <span class="chevron text-gray-400">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Date de création</label>
+                                <input type="date" id="acfDateCreation" onchange="onACFDateCreationChange()" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 mt-1">Validité automatique : 90 jours</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Date de fin de validité</label>
+                                <input type="date" id="acfDateFin" readonly class="w-full border-2 rounded-lg px-3 py-2 cursor-not-allowed" placeholder="—">
+                                <p class="text-xs mt-1" id="acfFinValiditeMsg">—</p>
+                            </div>
+                        </div>
+                        <div class="space-y-3 border-t pt-3">
+                            <label class="switch flex items-center cursor-pointer">
+                                <input type="checkbox" id="acfConformite" onchange="onACFToggleChange()">
+                                <span class="slider"></span>
+                                <span class="label">Situation fiscale conforme</span>
+                            </label>
+                            <label class="switch flex items-center cursor-pointer">
+                                <input type="checkbox" id="acfAfficherAlertes" onchange="onACFToggleChange()" checked>
+                                <span class="slider"></span>
+                                <span class="label">Afficher dans les alertes d'expiration</span>
+                            </label>
+                            <label class="switch flex items-center cursor-pointer">
+                                <input type="checkbox" id="acfMasquerDashboard" onchange="onACFToggleChange()">
+                                <span class="slider"></span>
+                                <span class="label">Masquer du tableau de bord</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- 4. ATTIM — Attestation d'Immatriculation    -->
+                <!-- ============================================ -->
+                <div class="section-card" id="attimSection">
+                    <div class="section-header" onclick="toggleSection('attimSection')">
+                        <div class="flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-purple-700">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            <h3 class="text-base font-semibold text-gray-800">Attestation d'Immatriculation</h3>
+                            <span id="attimStatusBadge" class="ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border"></span>
+                        </div>
+                        <span class="chevron text-gray-400">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Date de délivrance</label>
+                                <input type="date" id="attimDateDelivrance" onchange="onATTIMChange()" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500">
+                                <p class="text-xs text-gray-500 mt-1">Validité automatique : 30 jours</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Date d'expiration</label>
+                                <input type="date" id="attimDateExpiration" readonly class="w-full border-2 rounded-lg px-3 py-2 cursor-not-allowed" placeholder="—">
+                                <p class="text-xs mt-1" id="attimExpirationMsg">—</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ============================================ -->
+                <!-- 5. Impôts directs (DirectTaxesSection)      -->
+                <!-- ============================================ -->
+                <div class="mt-6 mb-2">
+                    <h2 class="text-lg font-bold text-gray-800 mb-1">Impôts directs</h2>
+                    <p class="text-xs text-gray-500 mb-3">L'IGS est toujours affiché. Les autres impôts apparaissent si le client y est marqué assujetti.</p>
+                </div>
+
+                <!-- IGS — Impôt Général Synthétique -->
+                <div class="section-card" id="igsSection">
+                    <div class="section-header" onclick="toggleSection('igsSection')">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2 py-0.5 text-xs font-bold rounded bg-blue-100 text-blue-800">IGS</span>
+                            <h3 class="text-base font-semibold text-gray-800">Impôt Général Synthétique</h3>
+                            <span id="igsBadge" class="ml-2 text-xs text-gray-600"></span>
+                        </div>
+                        <span class="chevron text-gray-400">▼</span>
+                    </div>
+                    <div class="section-body">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-1">Chiffre d'affaires annuel (F CFA)</label>
+                                <input type="number" id="igsCA" min="0" step="1000" onchange="onIGSChange()" oninput="onIGSChange()" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" placeholder="0">
+                            </div>
+                            <div class="flex items-end">
+                                <label class="switch flex items-center cursor-pointer">
+                                    <input type="checkbox" id="igsCGA" onchange="onIGSChange()">
+                                    <span class="slider"></span>
+                                    <span class="label">Adhérent CGA (réduction 50%)</span>
+                                </label>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                                <p class="text-xs text-gray-600">Classe</p>
+                                <p class="font-bold text-blue-900" id="igsClasse">—</p>
+                                <p class="text-xs text-gray-600 mt-1">Montant annuel calculé</p>
+                                <p class="text-lg font-bold text-blue-900" id="igsMontant">0 F CFA</p>
+                            </div>
+                        </div>
+                        <div id="igsHorsBaremeMsg" class="hidden mb-3 bg-orange-50 border border-orange-200 rounded-lg p-3 text-sm text-orange-800">
+                            ⚠ <strong>CA ≥ 50 000 000 F CFA</strong> — hors barème IGS. Ce contribuable relève du <strong>Régime Réel</strong> (Patente).
+                        </div>
+
+                        <!-- Échéancier trimestriel -->
+                        <div>
+                            <h4 class="text-sm font-bold text-gray-700 mb-2">Échéancier trimestriel (acompte théorique = 25% du montant annuel)</h4>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-sm border border-gray-200 rounded-lg">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-3 py-2 text-left">Trimestre</th>
+                                            <th class="px-3 py-2 text-right">Acompte théorique</th>
+                                            <th class="px-3 py-2 text-right">Montant payé</th>
+                                            <th class="px-3 py-2 text-left">Date de paiement</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="igsTrimestres">
+                                        <!-- Lignes injectées par renderIGSTrimestres() -->
+                                    </tbody>
+                                    <tfoot class="bg-blue-50 font-semibold">
+                                        <tr>
+                                            <td class="px-3 py-2">Total</td>
+                                            <td class="px-3 py-2 text-right" id="igsTotalTheorique">0 F CFA</td>
+                                            <td class="px-3 py-2 text-right" id="igsTotalPaye">0 F CFA</td>
+                                            <td class="px-3 py-2">
+                                                Solde : <span id="igsSolde" class="text-red-700">0 F CFA</span>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Conteneur des autres impôts directs (Patente, Bail, PSL, TPF) -->
+                <div id="autresImpotsDirects"></div>
+
+                <!-- ============================================ -->
+                <!-- 6. Obligations annuelles (AnnualObligations) -->
+                <!-- ============================================ -->
+                <div class="mt-6 mb-2 flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                        <h2 class="text-lg font-bold text-gray-800">Obligations annuelles</h2>
+                        <p class="text-xs text-gray-500">DSF, DARP (PP), DBEF (PM)</p>
+                    </div>
+                    <div class="relative">
+                        <button onclick="toggleBulkMenu()" class="bg-gray-100 hover:bg-gray-200 border border-gray-300 px-3 py-1.5 rounded-lg text-sm">
+                            Actions groupées ▾
+                        </button>
+                        <div id="bulkMenu" class="hidden absolute right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-10 w-56">
+                            <button onclick="bulkAction('assujetti', true)" class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100">✓ Tout marquer assujetti</button>
+                            <button onclick="bulkAction('assujetti', false)" class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100">✗ Tout marquer non assujetti</button>
+                            <button onclick="bulkAction('depose', true)" class="block w-full text-left px-3 py-2 text-sm hover:bg-gray-100">📩 Tout marquer traité (déposé)</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="obligationsAnnuelles"></div>
+
+                <!-- ============================================ -->
+                <!-- 7. Bouton d'enregistrement                  -->
+                <!-- ============================================ -->
+                <div class="mt-6 pt-4 border-t border-gray-200 flex items-center justify-between flex-wrap gap-3">
+                    <div class="text-sm text-gray-600">
+                        <p>État : <span id="saveBtnStatus" class="font-semibold">aucune modification en attente</span></p>
+                        <p class="text-xs">Dernier enregistrement : <span id="saveBtnLast">—</span></p>
+                    </div>
+                    <button onclick="manualSave()" id="manualSaveBtn" class="bg-blue-700 hover:bg-blue-800 text-white px-5 py-2 rounded-lg shadow-sm font-semibold flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Enregistrer
+                    </button>
+                </div>
+            </div>
+
+            <!-- =================================================================
+                 Onglet Comptable
+            ================================================================= -->
+            <div id="tab-comptable" class="tab-content p-5">
+                <h2 class="text-lg font-bold text-gray-800 mb-1">Gestion comptable</h2>
+                <p class="text-sm text-gray-600 mb-4">Suivi des journaux, balance, grand livre et états comptables du dossier.</p>
+                <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center text-gray-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="mx-auto mb-3 text-gray-400"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
+                    <p class="font-semibold mb-1">Module en cours de structuration</p>
+                    <p class="text-sm">Cet onglet centralisera les journaux comptables, balance, grand livre et états de synthèse. La saisie comptable détaillée fera l'objet d'une livraison ultérieure.</p>
+                </div>
+            </div>
+
+            <!-- =================================================================
+                 Onglet Contrats
+            ================================================================= -->
+            <div id="tab-contrats" class="tab-content p-5">
+                <h2 class="text-lg font-bold text-gray-800 mb-1">Contrats et prestations</h2>
+                <p class="text-sm text-gray-600 mb-4">Vue des contrats actifs du client sélectionné (lien avec le module Contrats).</p>
+                <div id="contratsListContainer" class="space-y-2">
+                    <!-- injecté dynamiquement -->
+                </div>
+                <div class="mt-4">
+                    <a id="contratsLien" href="contrats.html" class="inline-flex items-center gap-2 text-sm text-blue-700 hover:underline">
+                        Ouvrir le module Contrats →
+                    </a>
+                </div>
+            </div>
+
+            <!-- =================================================================
+                 Onglet Clôture
+            ================================================================= -->
+            <div id="tab-cloture" class="tab-content p-5">
+                <h2 class="text-lg font-bold text-gray-800 mb-1">Clôture d'exercice et montage DSF</h2>
+                <p class="text-sm text-gray-600 mb-4">Checklist de clôture pour l'exercice <span id="clotureExerciceLabel" class="font-semibold">—</span>.</p>
+                <div id="clotureChecklist"></div>
+                <div class="mt-4 flex items-center gap-3 flex-wrap">
+                    <button onclick="toggleExerciceCloture()" class="bg-blue-700 hover:bg-blue-800 text-white px-4 py-2 rounded-lg text-sm font-semibold">
+                        Clôturer / Rouvrir l'exercice
+                    </button>
+                    <span class="text-xs text-gray-500" id="clotureStatutLabel">—</span>
+                </div>
+            </div>
+
+            <!-- =================================================================
+                 Onglet Dossier
+            ================================================================= -->
+            <div id="tab-dossier" class="tab-content p-5">
+                <h2 class="text-lg font-bold text-gray-800 mb-1">Pièces du dossier</h2>
+                <p class="text-sm text-gray-600 mb-4">Documents permanents (statuts, NIU, contrats, etc.) et pièces de l'exercice.</p>
+                <div id="dossierPiecesContainer"></div>
+                <div class="mt-4">
+                    <label class="inline-flex items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-2 rounded-lg text-sm text-blue-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Ajouter une pièce
+                        <input type="file" id="dossierPieceInput" class="hidden" onchange="onDossierPieceUpload(event)">
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="prisma-components.js"></script>
+    <script>
+        // ============================================================
+        // CONSTANTES & ÉTAT GLOBAL
+        // ============================================================
+        const LS_FISCAL_KEY    = 'gestionFiscalData';   // données fiscales par client/exercice
+        const LS_EXERCICES_KEY = 'gestionExercices';    // statut clôture par exercice
+        const LS_CONTEXT_KEY   = 'gestionContext';      // dernière sélection (client/exercice/onglet)
+        const LS_PIECES_KEY    = 'gestionPieces';       // pièces jointes par client/exercice
+        const ACF_VALIDITE_JOURS   = 90;
+        const ATTIM_VALIDITE_JOURS = 30;
+        const AUTOSAVE_DELAY_MS    = 3000;
+        const ANNEE_COURANTE       = new Date().getFullYear();
+
+        // Barème IGS officiel (Article C 40 LPF)
+        const BAREME_IGS = [
+            { min: 0,          max: 499999,    montant: 20000,   classe: 1 },
+            { min: 500000,     max: 999999,    montant: 30000,   classe: 2 },
+            { min: 1000000,    max: 1499999,   montant: 40000,   classe: 3 },
+            { min: 1500000,    max: 1999999,   montant: 50000,   classe: 4 },
+            { min: 2000000,    max: 2499999,   montant: 60000,   classe: 5 },
+            { min: 2500000,    max: 4999999,   montant: 150000,  classe: 6 },
+            { min: 5000000,    max: 9999999,   montant: 300000,  classe: 7 },
+            { min: 10000000,   max: 19999999,  montant: 500000,  classe: 8 },
+            { min: 20000000,   max: 29999999,  montant: 1000000, classe: 9 },
+            { min: 30000000,   max: 49999999,  montant: 2000000, classe: 10 }
+        ];
+
+        // Définition des impôts directs additionnels (clé technique → métadonnées)
+        // L'IGS est traité séparément (toujours affiché, calcul détaillé).
+        const IMPOTS_DIRECTS_DEFINITIONS = [
+            { key: 'patente', label: 'Patente',                    sigle: 'PAT', color: 'orange' },
+            { key: 'bail',    label: 'Bail Commercial',            sigle: 'BAIL', color: 'pink' },
+            { key: 'psl',     label: 'Précompte sur Loyer (PSL)',  sigle: 'PSL', color: 'teal' },
+            { key: 'tpf',     label: 'Taxe Foncière (TPF)',        sigle: 'TPF', color: 'green' }
+        ];
+
+        // Définition des obligations annuelles (clé → label + visibilité par type client)
+        const OBLIGATIONS_ANNUELLES_DEFINITIONS = [
+            { key: 'dsf',  label: 'DSF — Déclaration Statistique et Fiscale',         visiblePour: 'all' },
+            { key: 'darp', label: 'DARP — Déclaration Annuelle des Revenus (PP)',     visiblePour: 'Personne physique' },
+            { key: 'dbef', label: 'DBEF — Déclaration des Bénéficiaires Effectifs',   visiblePour: 'Personne morale' }
+        ];
+
+        // État courant (mémoire vive)
+        let state = {
+            clientId: '',
+            exercice: String(ANNEE_COURANTE),
+            anneeFiscale: String(ANNEE_COURANTE),
+            tab: 'fiscal',
+            currentClient: null,
+            currentData: null,    // données fiscales pour le couple (client, anneeFiscale)
+            dirty: false,
+            autoSaveTimer: null,
+            countdownTimer: null,
+            lastSaveAt: null
+        };
+
+        // ============================================================
+        // UTILITAIRES
+        // ============================================================
+        function getAllClients() {
+            return PrismaBackup.safeParseJSON('clients', []);
+        }
+        function getGestionClients() {
+            // Filtre : seuls les clients en gestion externalisée
+            return getAllClients().filter(c => c && (c.externalise === 'Oui' || c.gestionexternalisee === true));
+        }
+        function getClientById(id) {
+            if (!id) return null;
+            const all = getAllClients();
+            // id peut être l'identifiant numérique (Date.now()) ou le nom (rétrocompat)
+            return all.find(c => String(c.id) === String(id)) || all.find(c => c.name === id) || null;
+        }
+        function getClientKey(client) {
+            // Clé stable pour stockage : préfère l'id numérique, fallback sur le nom
+            return client ? String(client.id || client.name) : '';
+        }
+        function fmtFCFA(n) {
+            const v = Number(n) || 0;
+            return v.toLocaleString('fr-FR') + ' F CFA';
+        }
+        function toISOdate(d) {
+            if (!d) return '';
+            const dt = (d instanceof Date) ? d : new Date(d);
+            if (isNaN(dt.getTime())) return '';
+            return dt.toISOString().split('T')[0];
+        }
+        function addDays(dateStr, n) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr + 'T12:00:00');
+            d.setDate(d.getDate() + n);
+            return toISOdate(d);
+        }
+        function diffJours(dateStr) {
+            if (!dateStr) return null;
+            const today = new Date(); today.setHours(0,0,0,0);
+            const d = new Date(dateStr + 'T12:00:00');
+            return Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+        }
+        function nowISO() { return new Date().toISOString(); }
+        function fmtDateTime(iso) {
+            if (!iso) return '—';
+            const d = new Date(iso);
+            return d.toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        }
+
+        // ============================================================
+        // PERSISTANCE — chargement / sauvegarde
+        // ============================================================
+        function loadFiscalData(clientKey, annee) {
+            if (!clientKey || !annee) return defaultFiscalData();
+            const all = PrismaBackup.safeParseJSON(LS_FISCAL_KEY, {});
+            const clientData = all[clientKey] || {};
+            const yearData = clientData[String(annee)];
+            return yearData ? mergeFiscalDefaults(yearData) : defaultFiscalData();
+        }
+        function saveFiscalData(clientKey, annee, data) {
+            if (!clientKey || !annee) return;
+            const all = PrismaBackup.safeParseJSON(LS_FISCAL_KEY, {});
+            if (!all[clientKey]) all[clientKey] = {};
+            data.lastSaved = nowISO();
+            all[clientKey][String(annee)] = data;
+            localStorage.setItem(LS_FISCAL_KEY, JSON.stringify(all));
+            state.lastSaveAt = data.lastSaved;
+        }
+        function defaultFiscalData() {
+            return {
+                acf: { dateCreation: '', conformite: false, afficherAlertes: true, masquerDashboard: false },
+                attim: { dateDelivrance: '' },
+                impots: {
+                    igs:     { ca: 0, isCGA: false, montantAnnuel: 0, classe: 0, horsBareme: false,
+                               trimestres: [
+                                   { paye: 0, date: '' }, { paye: 0, date: '' },
+                                   { paye: 0, date: '' }, { paye: 0, date: '' }
+                               ] },
+                    patente: { assujetti: false, montant: 0, paye: 0, dateePaiement: '', observations: '' },
+                    bail:    { assujetti: false, montant: 0, paye: 0, dateePaiement: '', observations: '' },
+                    psl:     { assujetti: false, montant: 0, paye: 0, dateePaiement: '', observations: '' },
+                    tpf:     { assujetti: false, montant: 0, paye: 0, dateePaiement: '', observations: '' }
+                },
+                obligations: {
+                    dsf:  { assujetti: true, depose: false, dateDepot: '', observations: '', pieces: [] },
+                    darp: { assujetti: false, depose: false, dateDepot: '', observations: '', pieces: [] },
+                    dbef: { assujetti: false, depose: false, dateDepot: '', observations: '', pieces: [] }
+                },
+                lastSaved: null
+            };
+        }
+        function mergeFiscalDefaults(loaded) {
+            // Garantit que les clés attendues existent (rétrocompat schéma)
+            const def = defaultFiscalData();
+            const result = JSON.parse(JSON.stringify(def));
+            try {
+                if (loaded.acf)         Object.assign(result.acf, loaded.acf);
+                if (loaded.attim)       Object.assign(result.attim, loaded.attim);
+                if (loaded.impots) {
+                    for (const k of Object.keys(result.impots)) {
+                        if (loaded.impots[k]) Object.assign(result.impots[k], loaded.impots[k]);
+                    }
+                    // garde les trimestres si présents
+                    if (loaded.impots.igs && Array.isArray(loaded.impots.igs.trimestres)) {
+                        result.impots.igs.trimestres = loaded.impots.igs.trimestres;
+                    }
+                }
+                if (loaded.obligations) {
+                    for (const k of Object.keys(result.obligations)) {
+                        if (loaded.obligations[k]) Object.assign(result.obligations[k], loaded.obligations[k]);
+                    }
+                }
+                result.lastSaved = loaded.lastSaved || null;
+            } catch (e) { console.warn('mergeFiscalDefaults error', e); }
+            return result;
+        }
+        function loadExercices() {
+            return PrismaBackup.safeParseJSON(LS_EXERCICES_KEY, {});
+        }
+        function saveExercices(obj) {
+            localStorage.setItem(LS_EXERCICES_KEY, JSON.stringify(obj));
+        }
+        function isExerciceClos(annee) {
+            const ex = loadExercices();
+            return !!(ex[String(annee)] && ex[String(annee)].cloture);
+        }
+        function loadContext() {
+            return PrismaBackup.safeParseJSON(LS_CONTEXT_KEY, { clientId: '', exercice: '', tab: 'fiscal' });
+        }
+        function saveContext() {
+            localStorage.setItem(LS_CONTEXT_KEY, JSON.stringify({
+                clientId: state.clientId,
+                exercice: state.exercice,
+                tab: state.tab
+            }));
+        }
+
+        // ============================================================
+        // CALCUL IGS
+        // ============================================================
+        function calculateIGS(ca, isCGA) {
+            const caNum = Number(ca) || 0;
+            if (caNum >= 50000000) return { montant: 0, classe: null, horsBareme: true };
+            const tranche = BAREME_IGS.find(t => caNum >= t.min && caNum <= t.max);
+            if (!tranche) return { montant: 0, classe: null, horsBareme: false };
+            const montant = isCGA ? tranche.montant / 2 : tranche.montant;
+            return { montant: Math.round(montant), classe: tranche.classe, horsBareme: false };
+        }
+
+        // ============================================================
+        // INITIALISATION
+        // ============================================================
+        function init() {
+            // Restaurer la sélection depuis l'URL ou le localStorage
+            const url = new URL(window.location.href);
+            const urlClient = url.searchParams.get('client');
+            const urlTab = url.searchParams.get('tab');
+            const urlExercice = url.searchParams.get('exercice');
+            const ctx = loadContext();
+
+            state.clientId = urlClient || ctx.clientId || '';
+            state.exercice = urlExercice || ctx.exercice || String(ANNEE_COURANTE);
+            state.anneeFiscale = state.exercice;
+            state.tab = urlTab || ctx.tab || 'fiscal';
+
+            renderClientSelect();
+            renderExerciceSelect();
+            renderAnneeFiscaleSelect();
+
+            if (state.clientId) {
+                document.getElementById('clientSelect').value = state.clientId;
+                loadCurrentSelection();
+            } else {
+                document.getElementById('noClientMessage').classList.remove('hidden');
+            }
+
+            // Sync entre onglets : si la liste clients change ailleurs, recharger
+            if (window.PrismaSync) {
+                PrismaSync.watch('clients', () => renderClientSelect());
+            }
+            // Avertissement à la fermeture si modifications en cours
+            window.addEventListener('beforeunload', e => {
+                if (state.dirty) { e.preventDefault(); e.returnValue = ''; }
+            });
+        }
+
+        // ============================================================
+        // SÉLECTEURS (rendu)
+        // ============================================================
+        function renderClientSelect() {
+            const select = document.getElementById('clientSelect');
+            const previous = state.clientId;
+            const gestionClients = getGestionClients();
+            document.getElementById('gestionCount').textContent = gestionClients.length;
+
+            // Trier alphabétiquement
+            gestionClients.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+
+            select.innerHTML = '<option value="">-- Sélectionner un client --</option>' +
+                gestionClients.map(c => {
+                    const key = getClientKey(c);
+                    const label = (c.name || '(sans nom)') + (c.niu ? ' — ' + c.niu : '');
+                    return `<option value="${key}">${label}</option>`;
+                }).join('');
+            // Restaurer la sélection si toujours présente
+            if (previous && [...select.options].some(o => o.value === previous)) {
+                select.value = previous;
+            }
+        }
+        function renderExerciceSelect() {
+            const select = document.getElementById('exerciceSelect');
+            const years = [];
+            for (let y = ANNEE_COURANTE + 1; y >= ANNEE_COURANTE - 5; y--) years.push(y);
+            select.innerHTML = years.map(y => {
+                const closed = isExerciceClos(y);
+                const label = y + (closed ? ' 🔒' : '');
+                return `<option value="${y}" ${String(y) === state.exercice ? 'selected' : ''}>${label}</option>`;
+            }).join('');
+            updateClotureBanner();
+        }
+        function renderAnneeFiscaleSelect() {
+            const select = document.getElementById('anneeFiscale');
+            const years = [];
+            for (let y = ANNEE_COURANTE + 1; y >= ANNEE_COURANTE - 5; y--) years.push(y);
+            select.innerHTML = years.map(y =>
+                `<option value="${y}" ${String(y) === state.anneeFiscale ? 'selected' : ''}>Année ${y}</option>`
+            ).join('');
+        }
+        function updateClotureBanner() {
+            const banner = document.getElementById('clotureBanner');
+            const closed = isExerciceClos(state.exercice);
+            banner.classList.toggle('hidden', !closed);
+            const btn = document.getElementById('btnClotureLabel');
+            if (btn) btn.textContent = closed ? 'Rouvrir' : 'Clôturer';
+            // Désactiver les inputs si exercice clos
+            const form = document.getElementById('tabsContainer');
+            if (form) {
+                form.querySelectorAll('input, select, button').forEach(el => {
+                    // Ne pas désactiver les onglets eux-mêmes
+                    if (el.classList.contains('tab-btn')) return;
+                    if (el.id === 'manualSaveBtn') { el.disabled = closed; return; }
+                    if (el.tagName === 'BUTTON' && el.textContent && el.textContent.includes('Clôturer')) return;
+                    el.disabled = closed;
+                });
+            }
+        }
+
+        // ============================================================
+        // HANDLERS — sélection client/exercice
+        // ============================================================
+        // Force la sauvegarde des modifications en cours avant un changement de contexte
+        // (évite la perte de saisies si l'utilisateur change de client/exercice avant l'autosave 3s).
+        function flushDirtyBeforeSwitch() {
+            if (state.dirty && state.currentData && state.clientId && !isExerciceClos(state.exercice)) {
+                if (state.autoSaveTimer) clearTimeout(state.autoSaveTimer);
+                doAutoSave();
+            }
+        }
+        function onClientChange() {
+            flushDirtyBeforeSwitch();
+            state.clientId = document.getElementById('clientSelect').value;
+            saveContext();
+            loadCurrentSelection();
+        }
+        function onExerciceChange() {
+            flushDirtyBeforeSwitch();
+            state.exercice = document.getElementById('exerciceSelect').value;
+            state.anneeFiscale = state.exercice;
+            renderAnneeFiscaleSelect();
+            saveContext();
+            loadCurrentSelection();
+        }
+        function onAnneeFiscaleChange() {
+            flushDirtyBeforeSwitch();
+            state.anneeFiscale = document.getElementById('anneeFiscale').value;
+            loadCurrentSelection();
+        }
+        function toggleExerciceCloture() {
+            const ex = loadExercices();
+            const key = String(state.exercice);
+            const closed = !!(ex[key] && ex[key].cloture);
+            ex[key] = { cloture: !closed, clotureDate: !closed ? nowISO() : null };
+            saveExercices(ex);
+            renderExerciceSelect();
+            PrismaToast.success(closed ? 'Exercice rouvert' : 'Exercice clôturé (lecture seule)');
+            renderClotureChecklist();
+        }
+
+        function loadCurrentSelection() {
+            // Pas de client sélectionné → afficher message
+            if (!state.clientId) {
+                document.getElementById('noClientMessage').classList.remove('hidden');
+                document.getElementById('selectedClientCard').classList.add('hidden');
+                document.getElementById('tabsContainer').classList.add('hidden');
+                return;
+            }
+            const client = getClientById(state.clientId);
+            if (!client) {
+                PrismaToast.warning('Client introuvable. Sélectionnez à nouveau.');
+                document.getElementById('clientSelect').value = '';
+                state.clientId = '';
+                saveContext();
+                return;
+            }
+            state.currentClient = client;
+            state.currentData = loadFiscalData(state.clientId, state.anneeFiscale);
+            state.lastSaveAt = state.currentData.lastSaved;
+            state.dirty = false;
+
+            document.getElementById('noClientMessage').classList.add('hidden');
+            document.getElementById('selectedClientCard').classList.remove('hidden');
+            document.getElementById('tabsContainer').classList.remove('hidden');
+
+            renderClientCard(client);
+            switchTab(state.tab);
+            renderFiscalTab();
+            renderContratsTab();
+            renderClotureTab();
+            renderDossierTab();
+            updateClotureBanner();
+            updateAutoSaveUI();
+        }
+
+        function renderClientCard(c) {
+            document.getElementById('card-name').textContent = c.name || '—';
+            document.getElementById('card-type').textContent = c.type || '—';
+            document.getElementById('card-niu').textContent = c.niu || '—';
+            document.getElementById('card-cdi').textContent = c.cdi || '—';
+            document.getElementById('card-regime').textContent = c.regimeFiscal || '—';
+            document.getElementById('card-localisation').textContent = [c.ville, c.quartier].filter(Boolean).join(' — ') || '—';
+            document.getElementById('card-contact').textContent = [c.contact, c.phone, c.email].filter(Boolean).join(' · ') || '—';
+            document.getElementById('card-cga').textContent = c.isCGA ? 'Oui (réduction 50%)' : 'Non';
+        }
+
+        // ============================================================
+        // ONGLETS
+        // ============================================================
+        function switchTab(tab) {
+            const valid = ['fiscal', 'comptable', 'contrats', 'cloture', 'dossier'];
+            if (!valid.includes(tab)) tab = 'fiscal';
+            state.tab = tab;
+            saveContext();
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + tab));
+            // Mettre à jour l'URL sans recharger
+            const url = new URL(window.location.href);
+            url.searchParams.set('tab', tab);
+            if (state.clientId) url.searchParams.set('client', state.clientId);
+            window.history.replaceState({}, '', url.toString());
+        }
+
+        function toggleSection(id) {
+            document.getElementById(id).classList.toggle('collapsed');
+        }
+
+        // ============================================================
+        // ONGLET FISCAL — rendu
+        // ============================================================
+        function renderFiscalTab() {
+            if (!state.currentData) return;
+            renderACF();
+            renderATTIM();
+            renderIGS();
+            renderAutresImpotsDirects();
+            renderObligationsAnnuelles();
+            updateAutoSaveUI();
+        }
+
+        // --- ACF ---
+        function renderACF() {
+            const acf = state.currentData.acf;
+            document.getElementById('acfDateCreation').value = acf.dateCreation || '';
+            const finValid = acf.dateCreation ? addDays(acf.dateCreation, ACF_VALIDITE_JOURS) : '';
+            document.getElementById('acfDateFin').value = finValid;
+            document.getElementById('acfConformite').checked = !!acf.conformite;
+            document.getElementById('acfAfficherAlertes').checked = acf.afficherAlertes !== false;
+            document.getElementById('acfMasquerDashboard').checked = !!acf.masquerDashboard;
+            applyValiditeStyling('acfDateFin', 'acfFinValiditeMsg', 'acfStatusBadge', finValid, ACF_VALIDITE_JOURS, 4, 'ACF');
+        }
+        function applyValiditeStyling(inputId, msgId, badgeId, dateFin, _validiteJours, seuilImminentJours, label) {
+            const input = document.getElementById(inputId);
+            const msg = document.getElementById(msgId);
+            const badge = document.getElementById(badgeId);
+            // Reset classes
+            ['status-expired', 'status-imminent', 'status-valid', 'border-gray-300'].forEach(c => input.classList.remove(c));
+            if (!dateFin) {
+                input.classList.add('border-gray-300');
+                msg.textContent = '—';
+                msg.className = 'text-xs mt-1 text-gray-500';
+                if (badge) { badge.textContent = ''; badge.className = ''; }
+                return;
+            }
+            const diff = diffJours(dateFin);
+            if (diff <= 0) {
+                input.classList.add('status-expired');
+                msg.textContent = `🟥 ${label} expirée depuis ${Math.abs(diff)} jour(s) — renouvellement nécessaire.`;
+                msg.className = 'text-xs mt-1 text-red-700 font-semibold';
+                if (badge) { badge.textContent = 'Expirée'; badge.className = 'ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border status-expired'; }
+            } else if (diff <= seuilImminentJours) {
+                input.classList.add('status-imminent');
+                msg.textContent = `🟧 Expiration imminente : ${diff} jour(s) restant(s).`;
+                msg.className = 'text-xs mt-1 text-orange-700 font-semibold';
+                if (badge) { badge.textContent = diff + ' j restant(s)'; badge.className = 'ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border status-imminent'; }
+            } else {
+                input.classList.add('status-valid');
+                msg.textContent = `🟩 Valide — ${diff} jour(s) restant(s).`;
+                msg.className = 'text-xs mt-1 text-green-700';
+                if (badge) { badge.textContent = diff + ' j'; badge.className = 'ml-2 px-2 py-0.5 text-xs font-semibold rounded-full border status-valid'; }
+            }
+        }
+        function onACFDateCreationChange() {
+            state.currentData.acf.dateCreation = document.getElementById('acfDateCreation').value || '';
+            renderACF();
+            markDirty();
+        }
+        function onACFToggleChange() {
+            state.currentData.acf.conformite       = document.getElementById('acfConformite').checked;
+            state.currentData.acf.afficherAlertes  = document.getElementById('acfAfficherAlertes').checked;
+            state.currentData.acf.masquerDashboard = document.getElementById('acfMasquerDashboard').checked;
+            markDirty();
+        }
+
+        // --- ATTIM ---
+        function renderATTIM() {
+            const at = state.currentData.attim;
+            document.getElementById('attimDateDelivrance').value = at.dateDelivrance || '';
+            const exp = at.dateDelivrance ? addDays(at.dateDelivrance, ATTIM_VALIDITE_JOURS) : '';
+            document.getElementById('attimDateExpiration').value = exp;
+            applyValiditeStyling('attimDateExpiration', 'attimExpirationMsg', 'attimStatusBadge', exp, ATTIM_VALIDITE_JOURS, 7, 'ATTIM');
+        }
+        function onATTIMChange() {
+            state.currentData.attim.dateDelivrance = document.getElementById('attimDateDelivrance').value || '';
+            renderATTIM();
+            markDirty();
+        }
+
+        // --- IGS ---
+        function renderIGS() {
+            const igs = state.currentData.impots.igs;
+            document.getElementById('igsCA').value = igs.ca || '';
+            document.getElementById('igsCGA').checked = !!igs.isCGA;
+            const calc = calculateIGS(igs.ca, igs.isCGA);
+            igs.montantAnnuel = calc.montant;
+            igs.classe = calc.classe;
+            igs.horsBareme = calc.horsBareme;
+            document.getElementById('igsClasse').textContent = calc.classe ? `Classe ${calc.classe}` : (calc.horsBareme ? '—' : '—');
+            document.getElementById('igsMontant').textContent = fmtFCFA(calc.montant);
+            document.getElementById('igsHorsBaremeMsg').classList.toggle('hidden', !calc.horsBareme);
+            document.getElementById('igsBadge').textContent = calc.horsBareme ? 'Hors barème' : (calc.classe ? `Classe ${calc.classe} · ${fmtFCFA(calc.montant)}` : '');
+            renderIGSTrimestres();
+        }
+        function renderIGSTrimestres() {
+            const igs = state.currentData.impots.igs;
+            const tbody = document.getElementById('igsTrimestres');
+            const acompteTheorique = Math.round((igs.montantAnnuel || 0) / 4);
+            const labels = ['T1 (15 Janvier)', 'T2 (15 Mars)', 'T3 (15 Juillet)', 'T4 (15 Octobre)'];
+            tbody.innerHTML = igs.trimestres.map((t, i) => `
+                <tr class="border-t border-gray-200">
+                    <td class="px-3 py-2">${labels[i]}</td>
+                    <td class="px-3 py-2 text-right text-gray-600">${fmtFCFA(acompteTheorique)}</td>
+                    <td class="px-3 py-2">
+                        <input type="number" min="0" step="1000" value="${t.paye || ''}" onchange="onIGSTrimestreChange(${i}, 'paye', this.value)" oninput="onIGSTrimestreChange(${i}, 'paye', this.value)" class="w-full text-right border border-gray-300 rounded px-2 py-1 text-sm">
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="date" value="${t.date || ''}" onchange="onIGSTrimestreChange(${i}, 'date', this.value)" class="w-full border border-gray-300 rounded px-2 py-1 text-sm">
+                    </td>
+                </tr>
+            `).join('');
+            const totalPaye = igs.trimestres.reduce((s, t) => s + (Number(t.paye) || 0), 0);
+            const solde = Math.max(0, (igs.montantAnnuel || 0) - totalPaye);
+            document.getElementById('igsTotalTheorique').textContent = fmtFCFA(igs.montantAnnuel || 0);
+            document.getElementById('igsTotalPaye').textContent = fmtFCFA(totalPaye);
+            document.getElementById('igsSolde').textContent = fmtFCFA(solde);
+            document.getElementById('igsSolde').className = solde === 0 ? 'text-green-700 font-semibold' : 'text-red-700 font-semibold';
+        }
+        function onIGSChange() {
+            const igs = state.currentData.impots.igs;
+            igs.ca = Number(document.getElementById('igsCA').value) || 0;
+            igs.isCGA = document.getElementById('igsCGA').checked;
+            renderIGS();
+            markDirty();
+        }
+        function onIGSTrimestreChange(idx, field, value) {
+            const igs = state.currentData.impots.igs;
+            if (!igs.trimestres[idx]) return;
+            igs.trimestres[idx][field] = (field === 'paye') ? (Number(value) || 0) : value;
+            renderIGSTrimestres();
+            markDirty();
+        }
+
+        // --- Autres impôts directs (Patente, Bail, PSL, TPF) ---
+        function renderAutresImpotsDirects() {
+            const container = document.getElementById('autresImpotsDirects');
+            const client = state.currentClient || {};
+            // Détermine quels impôts sont visibles (assujetti défini sur la fiche client OU dans gestionFiscalData)
+            const html = IMPOTS_DIRECTS_DEFINITIONS.map(def => {
+                const data = state.currentData.impots[def.key];
+                // Visible si déjà marqué assujetti dans gestion ou si la fiche client présente un montant
+                const clientHasIt = (def.key === 'patente' && client.patente) ||
+                                    (def.key === 'bail' && client.bail) ||
+                                    (def.key === 'psl' && client.psl) ||
+                                    (def.key === 'tpf' && client.tf);
+                if (!data.assujetti && !clientHasIt) return ''; // pas affiché si non assujetti
+                if (!data.assujetti && clientHasIt) data.assujetti = true;
+                return renderImpotDirectCard(def, data);
+            }).filter(Boolean).join('');
+
+            // Bouton pour ajouter un impôt manquant (assujettir explicitement)
+            const missing = IMPOTS_DIRECTS_DEFINITIONS.filter(def => !state.currentData.impots[def.key].assujetti);
+            const addBtns = missing.length > 0
+                ? `<div class="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-sm">
+                       <p class="text-gray-600 mb-2">Activer un impôt direct non listé :</p>
+                       <div class="flex flex-wrap gap-2">
+                           ${missing.map(def => `<button onclick="activerImpotDirect('${def.key}')" class="bg-white border border-gray-300 hover:bg-gray-100 px-3 py-1 rounded text-xs">+ ${def.label}</button>`).join('')}
+                       </div>
+                   </div>`
+                : '';
+
+            container.innerHTML = html + addBtns;
+        }
+        function renderImpotDirectCard(def, data) {
+            return `
+            <div class="section-card">
+                <div class="section-header" onclick="toggleSection(this.parentElement.id)">
+                    <div class="flex items-center gap-2">
+                        <span class="px-2 py-0.5 text-xs font-bold rounded bg-${def.color}-100 text-${def.color}-800">${def.sigle}</span>
+                        <h3 class="text-base font-semibold text-gray-800">${def.label}</h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="switch flex items-center cursor-pointer" onclick="event.stopPropagation()">
+                            <input type="checkbox" ${data.assujetti ? 'checked' : ''} onchange="onImpotDirectFieldChange('${def.key}', 'assujetti', this.checked)">
+                            <span class="slider"></span>
+                            <span class="label">Assujetti</span>
+                        </label>
+                        <span class="chevron text-gray-400">▼</span>
+                    </div>
+                </div>
+                <div class="section-body">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Montant dû (F CFA)</label>
+                            <input type="number" min="0" step="1000" value="${data.montant || ''}" onchange="onImpotDirectFieldChange('${def.key}', 'montant', Number(this.value))" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Montant payé (F CFA)</label>
+                            <input type="number" min="0" step="1000" value="${data.paye || ''}" onchange="onImpotDirectFieldChange('${def.key}', 'paye', Number(this.value))" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Date de paiement</label>
+                            <input type="date" value="${data.dateePaiement || ''}" onchange="onImpotDirectFieldChange('${def.key}', 'dateePaiement', this.value)" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Observations</label>
+                        <textarea rows="2" onchange="onImpotDirectFieldChange('${def.key}', 'observations', this.value)" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm">${data.observations || ''}</textarea>
+                    </div>
+                </div>
+            </div>`;
+        }
+        function onImpotDirectFieldChange(key, field, value) {
+            const t = state.currentData.impots[key];
+            if (!t) return;
+            t[field] = value;
+            markDirty();
+            // Re-rendre si le toggle assujetti change (peut faire apparaître/disparaître la carte)
+            if (field === 'assujetti') renderAutresImpotsDirects();
+        }
+        function activerImpotDirect(key) {
+            state.currentData.impots[key].assujetti = true;
+            renderAutresImpotsDirects();
+            markDirty();
+        }
+
+        // --- Obligations annuelles (DSF/DARP/DBEF) ---
+        function renderObligationsAnnuelles() {
+            const container = document.getElementById('obligationsAnnuelles');
+            const clientType = (state.currentClient && state.currentClient.type) || '';
+            const visibles = OBLIGATIONS_ANNUELLES_DEFINITIONS.filter(def =>
+                def.visiblePour === 'all' || def.visiblePour === clientType
+            );
+            container.innerHTML = visibles.map(def => renderObligationCard(def)).join('');
+        }
+        function renderObligationCard(def) {
+            const data = state.currentData.obligations[def.key];
+            const sectId = 'obl-' + def.key;
+            const pieces = data.pieces || [];
+            const piecesHTML = pieces.length > 0
+                ? `<ul class="mt-2 space-y-1">
+                        ${pieces.map((p, i) => `
+                            <li class="flex items-center justify-between bg-gray-50 px-2 py-1 rounded text-xs">
+                                <span>📎 ${p.name} (${p.sizeKb} Ko)</span>
+                                <div class="flex gap-1">
+                                    <a href="${p.dataUrl}" download="${p.name}" class="text-blue-700 hover:underline">Télécharger</a>
+                                    <button onclick="removePiece('${def.key}', ${i})" class="text-red-600 hover:underline">Supprimer</button>
+                                </div>
+                            </li>`).join('')}
+                  </ul>`
+                : '<p class="text-xs text-gray-500 mt-2">Aucune pièce jointe.</p>';
+            return `
+            <div class="section-card" id="${sectId}">
+                <div class="section-header" onclick="toggleSection('${sectId}')">
+                    <div class="flex items-center gap-2">
+                        <h3 class="text-base font-semibold text-gray-800">${def.label}</h3>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="switch flex items-center cursor-pointer" onclick="event.stopPropagation()">
+                            <input type="checkbox" ${data.assujetti ? 'checked' : ''} onchange="onObligationFieldChange('${def.key}', 'assujetti', this.checked)">
+                            <span class="slider"></span>
+                            <span class="label">Assujetti</span>
+                        </label>
+                        <span class="chevron text-gray-400">▼</span>
+                    </div>
+                </div>
+                <div class="section-body ${data.assujetti ? '' : 'opacity-50'}">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                            <label class="switch flex items-center cursor-pointer">
+                                <input type="checkbox" ${data.depose ? 'checked' : ''} ${data.assujetti ? '' : 'disabled'} onchange="onObligationFieldChange('${def.key}', 'depose', this.checked)">
+                                <span class="slider"></span>
+                                <span class="label">Déposée / Traitée</span>
+                            </label>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Date de dépôt</label>
+                            <input type="date" value="${data.dateDepot || ''}" ${data.assujetti ? '' : 'disabled'} onchange="onObligationFieldChange('${def.key}', 'dateDepot', this.value)" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Observations</label>
+                        <textarea rows="2" ${data.assujetti ? '' : 'disabled'} onchange="onObligationFieldChange('${def.key}', 'observations', this.value)" class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm">${data.observations || ''}</textarea>
+                    </div>
+                    <div class="mt-3">
+                        <label class="inline-flex items-center gap-2 cursor-pointer bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2 py-1 rounded text-xs text-blue-800 ${data.assujetti ? '' : 'opacity-50 pointer-events-none'}">
+                            📎 Ajouter une pièce
+                            <input type="file" class="hidden" onchange="onObligationPieceUpload('${def.key}', event)">
+                        </label>
+                        ${piecesHTML}
+                    </div>
+                </div>
+            </div>`;
+        }
+        function onObligationFieldChange(key, field, value) {
+            const o = state.currentData.obligations[key];
+            if (!o) return;
+            o[field] = value;
+            // Si on dé-assujetti, on désactive aussi le dépôt
+            if (field === 'assujetti' && !value) o.depose = false;
+            renderObligationsAnnuelles();
+            markDirty();
+        }
+        function onObligationPieceUpload(key, event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                PrismaToast.error('Fichier trop volumineux (max 5 Mo).');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function() {
+                const piece = {
+                    name: file.name,
+                    sizeKb: Math.round(file.size / 1024),
+                    dataUrl: reader.result,
+                    addedAt: nowISO()
+                };
+                if (!Array.isArray(state.currentData.obligations[key].pieces)) {
+                    state.currentData.obligations[key].pieces = [];
+                }
+                state.currentData.obligations[key].pieces.push(piece);
+                renderObligationsAnnuelles();
+                markDirty();
+                PrismaToast.success('Pièce ajoutée.');
+            };
+            reader.readAsDataURL(file);
+        }
+        function removePiece(key, idx) {
+            PrismaModal.confirmDelete('Supprimer cette pièce jointe ?', () => {
+                state.currentData.obligations[key].pieces.splice(idx, 1);
+                renderObligationsAnnuelles();
+                markDirty();
+            });
+        }
+        function bulkAction(field, value) {
+            document.getElementById('bulkMenu').classList.add('hidden');
+            const clientType = (state.currentClient && state.currentClient.type) || '';
+            OBLIGATIONS_ANNUELLES_DEFINITIONS.forEach(def => {
+                if (def.visiblePour !== 'all' && def.visiblePour !== clientType) return;
+                state.currentData.obligations[def.key][field] = value;
+                // Cohérence : si on dé-assujetti, on désactive aussi le dépôt
+                if (field === 'assujetti' && !value) state.currentData.obligations[def.key].depose = false;
+            });
+            renderObligationsAnnuelles();
+            markDirty();
+            PrismaToast.success('Action groupée appliquée.');
+        }
+        function toggleBulkMenu() {
+            document.getElementById('bulkMenu').classList.toggle('hidden');
+        }
+
+        // ============================================================
+        // AUTO-SAVE
+        // ============================================================
+        function markDirty() {
+            state.dirty = true;
+            if (state.autoSaveTimer) clearTimeout(state.autoSaveTimer);
+            if (state.countdownTimer) clearInterval(state.countdownTimer);
+            // Affiche compte à rebours
+            document.getElementById('dirtyAlert').classList.remove('hidden');
+            let remain = Math.ceil(AUTOSAVE_DELAY_MS / 1000);
+            document.getElementById('dirtyCountdown').textContent = remain;
+            state.countdownTimer = setInterval(() => {
+                remain--;
+                if (remain >= 0) document.getElementById('dirtyCountdown').textContent = remain;
+                else clearInterval(state.countdownTimer);
+            }, 1000);
+            state.autoSaveTimer = setTimeout(() => {
+                doAutoSave();
+            }, AUTOSAVE_DELAY_MS);
+            updateAutoSaveUI();
+        }
+        function doAutoSave() {
+            if (!state.currentData || !state.clientId) return;
+            if (isExerciceClos(state.exercice)) return;
+            updateAutoSaveStatus('saving');
+            try {
+                saveFiscalData(state.clientId, state.anneeFiscale, state.currentData);
+                state.dirty = false;
+                if (state.countdownTimer) clearInterval(state.countdownTimer);
+                document.getElementById('dirtyAlert').classList.add('hidden');
+                updateAutoSaveStatus('saved');
+            } catch (e) {
+                console.error(e);
+                PrismaToast.error('Erreur de sauvegarde : ' + e.message);
+            }
+        }
+        function manualSave() {
+            if (state.autoSaveTimer) clearTimeout(state.autoSaveTimer);
+            doAutoSave();
+            PrismaToast.success('Modifications enregistrées.');
+        }
+        function updateAutoSaveStatus(state_) {
+            const el = document.getElementById('autosaveStatus');
+            const det = document.getElementById('autosaveDetail');
+            if (state_ === 'saving') {
+                el.textContent = 'Enregistrement en cours…';
+                el.className = 'autosave-saving';
+            } else if (state_ === 'pending') {
+                el.textContent = 'Modifications en attente…';
+                el.className = 'autosave-pending';
+            } else {
+                el.textContent = 'Tout est enregistré';
+                el.className = 'autosave-saved';
+            }
+            det.textContent = state.lastSaveAt ? 'Dernier : ' + fmtDateTime(state.lastSaveAt) : '—';
+            // Mise à jour du bouton enregistrer
+            const sbs = document.getElementById('saveBtnStatus');
+            const sbl = document.getElementById('saveBtnLast');
+            if (sbs) sbs.textContent = state.dirty ? 'modifications en attente' : 'aucune modification en attente';
+            if (sbl) sbl.textContent = state.lastSaveAt ? fmtDateTime(state.lastSaveAt) : '—';
+        }
+        function updateAutoSaveUI() {
+            updateAutoSaveStatus(state.dirty ? 'pending' : 'saved');
+        }
+
+        // ============================================================
+        // ONGLET CONTRATS — vue lecture
+        // ============================================================
+        function renderContratsTab() {
+            const container = document.getElementById('contratsListContainer');
+            if (!state.currentClient) { container.innerHTML = ''; return; }
+            // Compat : contrats.html stocke `clientName` + `clientId` ; on tente les deux pour rétrocompat
+            const cn = state.currentClient.name;
+            const cid = state.currentClient.id;
+            const contrats = PrismaBackup.safeParseJSON('contrats', []).filter(c =>
+                c.clientName === cn || (cid && String(c.clientId) === String(cid)) || c.client === cn
+            );
+            if (contrats.length === 0) {
+                container.innerHTML = `<div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center text-gray-500">
+                    <p>Aucun contrat enregistré pour ce client.</p>
+                </div>`;
+                return;
+            }
+            container.innerHTML = contrats.map(c => `
+                <div class="border border-gray-200 rounded-lg p-3 bg-white hover:bg-gray-50">
+                    <div class="flex items-center justify-between flex-wrap gap-2">
+                        <div class="min-w-0 flex-1">
+                            <p class="font-semibold text-gray-800">${c.reference || 'Contrat'} — ${c.type || ''}</p>
+                            <p class="text-xs text-gray-600">${c.prestations || ''}</p>
+                            <p class="text-xs text-gray-500">${c.dateDebut || ''} ${c.dateFin ? '→ ' + c.dateFin : ''} · Facturation : ${c.facturation || '—'}</p>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-sm text-blue-700 font-semibold">${fmtFCFA(c.montant || 0)}</p>
+                            <p class="text-xs text-gray-500">${c.statut || ''}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================================
+        // ONGLET CLÔTURE — checklist simple
+        // ============================================================
+        function renderClotureTab() {
+            document.getElementById('clotureExerciceLabel').textContent = state.exercice;
+            const list = document.getElementById('clotureChecklist');
+            const ex = loadExercices()[state.exercice];
+            const closed = !!(ex && ex.cloture);
+            const items = [
+                'Toutes les obligations annuelles (DSF / DARP / DBEF) sont marquées déposées.',
+                'Les acomptes IGS des 4 trimestres sont saisis.',
+                'L\'ATTIM est à jour (ou en cours de renouvellement).',
+                'L\'ACF est en vigueur ou en cours de demande.',
+                'Les pièces justificatives de l\'exercice sont déposées dans l\'onglet Dossier.'
+            ];
+            list.innerHTML = items.map((txt, i) => `
+                <div class="flex items-start gap-2 p-2 bg-gray-50 rounded mb-1">
+                    <span class="text-blue-700 font-bold mt-0.5">${i + 1}.</span>
+                    <p class="text-sm text-gray-700">${txt}</p>
+                </div>
+            `).join('');
+            document.getElementById('clotureStatutLabel').textContent = closed
+                ? `Exercice clôturé le ${fmtDateTime(ex.clotureDate)}`
+                : 'Exercice ouvert';
+        }
+        function renderClotureChecklist() { renderClotureTab(); }
+
+        // ============================================================
+        // ONGLET DOSSIER — pièces du dossier
+        // ============================================================
+        function renderDossierTab() {
+            const container = document.getElementById('dossierPiecesContainer');
+            if (!state.currentClient) { container.innerHTML = ''; return; }
+            const key = getClientKey(state.currentClient);
+            const all = PrismaBackup.safeParseJSON(LS_PIECES_KEY, {});
+            const pieces = (all[key] && all[key][state.anneeFiscale]) || [];
+            if (pieces.length === 0) {
+                container.innerHTML = `<div class="bg-gray-50 border border-gray-200 rounded-lg p-6 text-center text-gray-500">
+                    <p>Aucune pièce dans le dossier de l'exercice ${state.anneeFiscale}.</p>
+                    <p class="text-xs mt-1">Cliquez sur « Ajouter une pièce » ci-dessous pour téléverser un document.</p>
+                </div>`;
+                return;
+            }
+            container.innerHTML = `
+                <ul class="space-y-2">
+                    ${pieces.map((p, i) => `
+                        <li class="flex items-center justify-between bg-white border border-gray-200 rounded-lg p-3">
+                            <div>
+                                <p class="font-semibold text-gray-800">📎 ${p.name}</p>
+                                <p class="text-xs text-gray-500">${p.sizeKb} Ko · ajouté le ${fmtDateTime(p.addedAt)}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <a href="${p.dataUrl}" download="${p.name}" class="text-blue-700 hover:underline text-sm">Télécharger</a>
+                                <button onclick="removeDossierPiece(${i})" class="text-red-600 hover:underline text-sm">Supprimer</button>
+                            </div>
+                        </li>
+                    `).join('')}
+                </ul>`;
+        }
+        function onDossierPieceUpload(event) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                PrismaToast.error('Fichier trop volumineux (max 5 Mo).');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function() {
+                const all = PrismaBackup.safeParseJSON(LS_PIECES_KEY, {});
+                const key = getClientKey(state.currentClient);
+                if (!all[key]) all[key] = {};
+                if (!Array.isArray(all[key][state.anneeFiscale])) all[key][state.anneeFiscale] = [];
+                all[key][state.anneeFiscale].push({
+                    name: file.name,
+                    sizeKb: Math.round(file.size / 1024),
+                    dataUrl: reader.result,
+                    addedAt: nowISO()
+                });
+                localStorage.setItem(LS_PIECES_KEY, JSON.stringify(all));
+                renderDossierTab();
+                PrismaToast.success('Pièce ajoutée au dossier.');
+            };
+            reader.readAsDataURL(file);
+            // Reset input pour permettre de re-uploader le même fichier
+            event.target.value = '';
+        }
+        function removeDossierPiece(idx) {
+            PrismaModal.confirmDelete('Supprimer cette pièce du dossier ?', () => {
+                const all = PrismaBackup.safeParseJSON(LS_PIECES_KEY, {});
+                const key = getClientKey(state.currentClient);
+                if (!all[key] || !all[key][state.anneeFiscale]) return;
+                all[key][state.anneeFiscale].splice(idx, 1);
+                localStorage.setItem(LS_PIECES_KEY, JSON.stringify(all));
+                renderDossierTab();
+            });
+        }
+
+        // ============================================================
+        // DÉMARRAGE
+        // ============================================================
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Clic global pour fermer le menu bulk si on clique ailleurs
+        document.addEventListener('click', (e) => {
+            const menu = document.getElementById('bulkMenu');
+            if (!menu) return;
+            if (!menu.contains(e.target) && !e.target.matches('button[onclick*="toggleBulkMenu"]')) {
+                menu.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
