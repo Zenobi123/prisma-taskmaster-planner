@@ -2,7 +2,6 @@
 import { ClientType, FormeJuridique, Sexe, EtatCivil, SituationImmobiliere } from "@/types/client";
 import { PersonalInfoFields } from "./identity/PersonalInfoFields";
 import { CompanyInfoFields } from "./identity/CompanyInfoFields";
-import { PropertyStatusFields } from "./identity/PropertyStatusFields";
 
 interface ClientIdentityFieldsProps {
   type: ClientType;
@@ -25,7 +24,7 @@ interface ClientIdentityFieldsProps {
   onChange: (name: string, value) => void;
 }
 
-export function ClientIdentityFields({ 
+export function ClientIdentityFields({
   type,
   nom = "",
   nomcommercial = "",
@@ -38,8 +37,7 @@ export function ClientIdentityFields({
   formejuridique,
   sexe = "homme",
   etatcivil = "celibataire",
-  situationimmobiliere = { type: "locataire" },
-  onChange 
+  onChange,
 }: ClientIdentityFieldsProps) {
   return (
     <div className="space-y-6">
@@ -65,11 +63,7 @@ export function ClientIdentityFields({
           onChange={onChange}
         />
       )}
-
-      <PropertyStatusFields
-        situationimmobiliere={situationimmobiliere}
-        onChange={onChange}
-      />
     </div>
   );
 }
+
