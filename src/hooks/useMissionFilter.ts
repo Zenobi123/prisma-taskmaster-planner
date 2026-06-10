@@ -15,14 +15,14 @@ interface Mission {
   refYear?: number | null;
 }
 
-export const useMissionFilter = (
-  missions: Mission[] | undefined,
+export const useMissionFilter = <T extends Mission>(
+  missions: T[] | undefined,
   searchTerm: string,
   statusFilter: string,
   // En consultation d'un exercice clôturé, on affiche tout l'historique
   // (pas de masquage des missions terminées au-delà de 30 jours).
   showAllCompleted: boolean = false
-) => {
+): T[] => {
   const filteredAndSortedMissions = useMemo(() => {
     // Filter missions
     const filtered = missions?.filter((mission) => {
