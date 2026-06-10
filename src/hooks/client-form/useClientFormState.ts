@@ -84,7 +84,8 @@ export const getInitialFormState = (): ClientFormState => ({
   iscga: false,
   isvendeurboissons: false,
   modepaiementigs: "trimestriel",
-  modepaiementpsl: "trimestriel"
+  modepaiementpsl: "trimestriel",
+  agences: []
 });
 
 export function useClientFormState() {
