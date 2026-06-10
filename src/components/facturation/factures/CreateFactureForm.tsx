@@ -26,7 +26,8 @@ import { adaptClient, getMissingClientFields, type ExistingClientLike } from '@/
 import {
   getImpotsForSelect,
   getHonorairesForClient,
-  QUICK_IMPOT_BUTTONS,
+  getQuickImpotButtons,
+  type QuickImpotButton,
 } from '@/lib/spec/facturePrestations';
 import { toSpecPrestation, toFormPrestation } from '@/lib/spec/prestationBridge';
 
