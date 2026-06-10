@@ -16,6 +16,17 @@ export type ModePaiement = "trimestriel" | "annuel";
 export type RegimeFiscal = "reel" | "igs" | "non_professionnel" | "obnl";
 export type ClientStatus = "actif" | "inactif" | "archive";
 
+export interface Agence {
+  libelle: string;
+  ville: string;
+  quartier: string;
+  principale: boolean;
+  chiffreAffaires: number;
+  statutImmo: "locataire" | "proprietaire" | "les_deux" | "";
+  loyerMensuel: number;
+  valeurBien: number;
+}
+
 export interface Interaction {
   id: string;
   date: string;
