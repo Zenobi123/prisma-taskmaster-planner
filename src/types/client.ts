@@ -78,4 +78,5 @@ export interface Client {
   modepaiementigs?: ModePaiement;
   modepaiementpsl?: ModePaiement;
   fiscal_data?: unknown; // Données fiscales (forme ClientFiscalData) — typées côté consommateurs
+  agences?: Agence[]; // Établissements multiples (PSL/Bail/TPF par bien)
 }
