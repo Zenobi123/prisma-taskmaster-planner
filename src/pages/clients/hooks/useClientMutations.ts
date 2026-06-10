@@ -123,6 +123,40 @@ export function useClientMutations() {
     },
   });
 
+  const importMutation = useMutation({
+    mutationFn: async (clientsToImport: Partial<Client>[]) => {
+      const results = await Promise.allSettled(
+        clientsToImport.map((client) =>
+          addClient(client as Omit<Client, "id" | "created_at">)
+        )
+      );
+      const succeeded = results.filter((r) => r.status === "fulfilled").length;
+      return { succeeded, failed: results.length - succeeded };
+    },
+    onSuccess: ({ succeeded, failed }) => {
+      invalidateQueries();
+      if (failed > 0) {
+        toast({
+          title: "Import partiel",
+          description: `${succeeded} client(s) importé(s), ${failed} en échec.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Import réussi",
+          description: `${succeeded} client(s) importé(s) avec succès.`,
+        });
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Erreur",
+        description: "Une erreur est survenue lors de l'import des clients.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const permanentDeleteMutation = useMutation({
     mutationFn: permanentDeleteClient,
     onSuccess: () => {
@@ -148,5 +182,6 @@ export function useClientMutations() {
     restoreMutation,
     deleteMutation,
     permanentDeleteMutation,
+    importMutation,
   };
 }

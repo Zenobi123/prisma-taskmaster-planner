@@ -93,7 +93,8 @@ export function useClientsPage() {
     updateMutation,
     archiveMutation,
     restoreMutation,
-    deleteMutation
+    deleteMutation,
+    importMutation
   } = useClientMutations();
 
   // Handle URL parameter for editing client
@@ -196,6 +197,10 @@ export function useClientsPage() {
     });
   };
 
+  const handleImportClients = (clientsToImport: Partial<Client>[]) => {
+    importMutation.mutate(clientsToImport);
+  };
+
   const handleTrashClick = () => {
     setShowTrash(true);
   };
@@ -240,6 +245,7 @@ export function useClientsPage() {
     handleArchive,
     handleRestore,
     handleDelete,
+    handleImportClients,
     handleTrashClick,
     handleCloseTrash,
     toast,

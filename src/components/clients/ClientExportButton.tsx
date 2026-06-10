@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
 import { Client } from "@/types/client";
-import { exportClientsToCSV, exportClientsToJSON, exportClientsToXLS } from "@/utils/exports";
+import { exportClientsToCSV, exportClientsToJSON, exportClientsToXLS, exportClientsToText } from "@/utils/exports";
 
 interface ClientExportButtonProps {
   clients: Client[];
@@ -42,6 +42,9 @@ export function ClientExportButton({ clients, isMobile }: ClientExportButtonProp
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => exportClientsToJSON(clients, getFileName())}>
           Exporter en JSON
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => exportClientsToText(clients, getFileName())}>
+          Exporter en texte
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

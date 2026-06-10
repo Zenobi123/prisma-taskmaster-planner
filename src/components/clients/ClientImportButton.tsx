@@ -10,6 +10,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Table,
   TableHeader,
   TableRow,
@@ -19,137 +25,28 @@ import {
 } from "@/components/ui/table";
 import { Upload, Download, FileText } from "lucide-react";
 import { toast } from "sonner";
-import { RegimeFiscal, ClientType, Client } from "@/types/client";
+import { Client } from "@/types/client";
+import {
+  ImportFormat,
+  getFormat,
+  parseByFormat,
+  buildTemplate,
+} from "@/utils/clientImport";
 
 interface ClientImportButtonProps {
   onImport: (clients: Partial<Client>[]) => void;
   isMobile?: boolean;
 }
 
-const CSV_COLUMNS = [
-  "type",
-  "nom",
-  "raisonsociale",
-  "niu",
-  "centrerattachement",
-  "regimefiscal",
-  "ville",
-  "quartier",
-  "telephone",
-  "email",
-  "contact_principal",
-  "secteuractivite",
-  "chiffreaffaires",
-] as const;
-
-const VALID_TYPES: ClientType[] = ["physique", "morale"];
-const VALID_REGIMES: RegimeFiscal[] = ["reel", "igs", "non_professionnel", "obnl"];
-
-function generateTemplate(): string {
-  const header = CSV_COLUMNS.join(";");
-  const row1 = "physique;Dupont Jean;;NIU001;CFLP DOUALA 1;reel;Douala;Akwa;+237600000000;jean@example.com;Dupont;Commerce;5000000";
-  const row2 = "morale;;Entreprise SARL;NIU002;CFLP YAOUNDE 1;igs;Yaoundé;Bastos;+237600000001;contact@entreprise.cm;M. Kamga;Services;12000000";
-  return [header, row1, row2].join("\n");
-}
-
-function downloadTemplate() {
-  const csv = generateTemplate();
-  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+function downloadTemplate(format: ImportFormat) {
+  const { content, mime, fileName, bom } = buildTemplate(format);
+  const blob = new Blob([bom ? "﻿" + content : content], { type: mime });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "modele_import_clients.csv";
+  link.download = fileName;
   link.click();
   URL.revokeObjectURL(url);
-}
-
-function parseCSV(text: string): { clients: Partial<Client>[]; errors: string[] } {
-  const errors: string[] = [];
-  const lines = text
-    .split(/\r?\n/)
-    .map((l) => l.trim())
-    .filter((l) => l.length > 0);
-
-  if (lines.length < 2) {
-    errors.push("Le fichier doit contenir au moins un en-tête et une ligne de données.");
-    return { clients: [], errors };
-  }
-
-  // Skip header row
-  const dataLines = lines.slice(1);
-  const clients: Partial<Client>[] = [];
-
-  dataLines.forEach((line, index) => {
-    const values = line.split(";");
-    const rowNum = index + 2; // 1-indexed, accounting for header
-
-    if (values.length < CSV_COLUMNS.length) {
-      errors.push(`Ligne ${rowNum}: nombre de colonnes insuffisant (${values.length}/${CSV_COLUMNS.length}).`);
-      return;
-    }
-
-    const type = values[0].trim().toLowerCase() as ClientType;
-    const nom = values[1].trim();
-    const raisonsociale = values[2].trim();
-    const niu = values[3].trim();
-    const centrerattachement = values[4].trim();
-    const regimefiscal = values[5].trim().toLowerCase() as RegimeFiscal;
-    const ville = values[6].trim();
-    const quartier = values[7].trim();
-    const telephone = values[8].trim();
-    const email = values[9].trim();
-    const contact_principal = values[10].trim();
-    const secteuractivite = values[11].trim();
-    const chiffreaffairesStr = values[12].trim();
-
-    // Validations
-    if (!VALID_TYPES.includes(type)) {
-      errors.push(`Ligne ${rowNum}: type "${values[0].trim()}" invalide (attendu: physique ou morale).`);
-      return;
-    }
-
-    if (!niu) {
-      errors.push(`Ligne ${rowNum}: le NIU est obligatoire.`);
-      return;
-    }
-
-    if (!VALID_REGIMES.includes(regimefiscal)) {
-      errors.push(`Ligne ${rowNum}: régime fiscal "${values[5].trim()}" invalide (attendu: ${VALID_REGIMES.join(", ")}).`);
-      return;
-    }
-
-    const chiffreaffaires = chiffreaffairesStr ? Number(chiffreaffairesStr) : undefined;
-    if (chiffreaffairesStr && isNaN(chiffreaffaires!)) {
-      errors.push(`Ligne ${rowNum}: chiffre d'affaires "${chiffreaffairesStr}" n'est pas un nombre valide.`);
-      return;
-    }
-
-    clients.push({
-      type,
-      nom: nom || undefined,
-      raisonsociale: raisonsociale || undefined,
-      niu,
-      centrerattachement,
-      regimefiscal,
-      adresse: {
-        ville,
-        quartier,
-        lieuDit: "",
-      },
-      contact: {
-        telephone,
-        email,
-        contact_principal,
-      },
-      secteuractivite,
-      chiffreaffaires,
-      interactions: [],
-      statut: "actif",
-      gestionexternalisee: false,
-    });
-  });
-
-  return { clients, errors };
 }
 
 export function ClientImportButton({ onImport, isMobile }: ClientImportButtonProps) {
@@ -163,8 +60,9 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    if (!selectedFile.name.endsWith(".csv")) {
-      toast.error("Veuillez sélectionner un fichier CSV.");
+    const format = getFormat(selectedFile.name);
+    if (!format) {
+      toast.error("Veuillez sélectionner un fichier CSV, JSON ou texte (.txt).");
       return;
     }
 
@@ -173,7 +71,7 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
-      const { clients, errors } = parseCSV(text);
+      const { clients, errors } = parseByFormat(format, text);
 
       if (errors.length > 0) {
         errors.forEach((err) => toast.error(err));
@@ -230,32 +128,37 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
               Importer des clients
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
-              Importez vos clients à partir d&apos;un fichier CSV. Utilisez le modèle fourni pour vous assurer du bon format.
+              Importez vos clients à partir d&apos;un fichier CSV, JSON ou texte (.txt). Utilisez un modèle pour vous assurer du bon format.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2 sm:py-4">
             {/* Template download */}
             <div>
-              <Button
-                variant="link"
-                className="flex items-center gap-2 p-0 h-auto text-xs sm:text-sm"
-                onClick={downloadTemplate}
-              >
-                <Download className="h-4 w-4" />
-                Télécharger le modèle
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="link" className="flex items-center gap-2 p-0 h-auto text-xs sm:text-sm">
+                    <Download className="h-4 w-4" />
+                    Télécharger un modèle
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem onClick={() => downloadTemplate("csv")}>Modèle CSV</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => downloadTemplate("json")}>Modèle JSON</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => downloadTemplate("txt")}>Modèle texte (.txt)</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             {/* File input */}
             <div>
               <label className="block text-xs sm:text-sm font-medium mb-2">
-                Sélectionner un fichier CSV
+                Sélectionner un fichier (CSV, JSON ou .txt)
               </label>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".csv"
+                accept=".csv,.json,.txt"
                 onChange={handleFileChange}
                 className="block w-full text-xs sm:text-sm text-gray-500 file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
               />

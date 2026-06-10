@@ -60,3 +60,32 @@ export const exportClientsToXLS = (clients: Client[], filename = "clients") => {
   const formattedClients = clients.map(formatClientForExport);
   exportToExcel(formattedClients, `${filename}`);
 };
+
+/**
+ * Exporte la liste des clients au format texte brut (.txt)
+ * Chaque client est présenté sous forme de bloc « Champ: valeur »,
+ * les blocs étant séparés par une ligne de tirets.
+ */
+export const exportClientsToText = (clients: Client[], filename = "clients") => {
+  const separator = "\n" + "-".repeat(40) + "\n";
+  const content = clients
+    .map((client) => {
+      const formatted = formatClientForExport(client);
+      return Object.entries(formatted)
+        .map(([key, value]) => `${key}: ${value ?? ""}`)
+        .join("\n");
+    })
+    .join(separator);
+
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.setAttribute("href", url);
+  link.setAttribute("download", `${filename}.txt`);
+  link.style.visibility = "hidden";
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};

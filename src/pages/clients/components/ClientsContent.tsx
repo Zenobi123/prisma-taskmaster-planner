@@ -22,6 +22,7 @@ interface ClientsContentProps {
   onArchive: (client: Client) => void;
   onRestore: (client: Client) => void;
   onDelete: (client: Client) => void;
+  onImportClients?: (clients: Partial<Client>[]) => void;
   isMobile?: boolean;
 }
 
@@ -44,6 +45,7 @@ export function ClientsContent({
   onArchive,
   onRestore,
   onDelete,
+  onImportClients,
   isMobile
 }: ClientsContentProps) {
   return (
@@ -62,6 +64,7 @@ export function ClientsContent({
         showArchived={showArchived}
         onShowArchivedChange={onShowArchivedChange}
         clients={clients}
+        onImportClients={onImportClients}
         isMobile={isMobile}
       />
 
