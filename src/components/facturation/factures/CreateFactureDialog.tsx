@@ -12,6 +12,8 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 import CreateFactureForm from "./CreateFactureForm";
 import { Client } from "@/types/client";
+import { Facture } from "@/types/facture";
+import { useDocumentPreview } from "@/components/printable/DocumentPreviewProvider";
 
 interface CreateFactureDialogProps {
   clients?: Client[];
@@ -20,10 +22,13 @@ interface CreateFactureDialogProps {
 
 const CreateFactureDialog = ({ clients = [], onFactureCreated }: CreateFactureDialogProps) => {
   const [open, setOpen] = useState(false);
+  const { previewFacture } = useDocumentPreview();
 
-  const handleSuccess = () => {
+  const handleSuccess = (facture?: Facture) => {
     setOpen(false);
     onFactureCreated?.();
+    // Fluidité : aperçu fidèle ouvert automatiquement après création.
+    if (facture) previewFacture(facture);
   };
 
   return (

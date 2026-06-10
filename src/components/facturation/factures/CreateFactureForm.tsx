@@ -45,7 +45,7 @@ type FactureFormData = z.infer<typeof factureFormSchema>;
 interface CreateFactureFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onFactureCreated: () => void;
+  onFactureCreated: (facture?: import('@/types/facture').Facture) => void;
   clients?: Client[];
 }
 

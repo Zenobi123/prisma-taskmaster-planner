@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAutoUpdate } from "./hooks/useAutoUpdate";
 import { ExerciceProvider } from "@/contexts/ExerciceContext";
+import { DocumentPreviewProvider } from "@/components/printable/DocumentPreviewProvider";
 import { useState, useEffect, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
@@ -121,6 +122,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <ExerciceProvider>
+            <DocumentPreviewProvider>
             <BrowserRouter>
               <Suspense fallback={<RouteFallback />}>
                 <Routes>
@@ -142,6 +144,7 @@ const App = () => {
                 </Routes>
               </Suspense>
             </BrowserRouter>
+            </DocumentPreviewProvider>
           </ExerciceProvider>
         </div>
       </TooltipProvider>

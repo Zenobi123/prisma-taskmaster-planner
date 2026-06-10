@@ -2,14 +2,14 @@
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { addFactureToDatabase } from '@/services/factureService';
-import { Prestation } from '@/types/facture';
+import { Facture, Prestation } from '@/types/facture';
 import { FactureFormData } from '@/types/factureForm';
 import { getMissingClientFields, type ClientSpec } from '@/lib/spec/fiscal';
 
 export const useFactureFormSubmit = (
   selectedClientId: string,
   prestations: Prestation[],
-  onFactureCreated: () => void,
+  onFactureCreated: (facture?: Facture) => void,
   onOpenChange: (open: boolean) => void,
   clientSpec?: ClientSpec | null
 ) => {
@@ -56,10 +56,13 @@ export const useFactureFormSubmit = (
         notes: data.notes || '',
       };
 
-      await addFactureToDatabase(factureData as Parameters<typeof addFactureToDatabase>[0]);
+      const created = await addFactureToDatabase(
+        factureData as Parameters<typeof addFactureToDatabase>[0],
+      );
 
       toast.success('Facture créée avec succès');
-      onFactureCreated();
+      // On renvoie la facture créée (avec numéro) pour l'aperçu fidèle automatique.
+      onFactureCreated(created);
       onOpenChange(false);
     } catch (error) {
       toast.error('Erreur lors de la création de la facture');

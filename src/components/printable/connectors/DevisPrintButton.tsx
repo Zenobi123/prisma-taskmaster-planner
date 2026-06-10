@@ -5,6 +5,7 @@ import type { Devis } from '@/types/devis';
 import type { Client } from '@/types/client';
 import { devisToPrintData } from '@/lib/spec/adapters';
 import { useCabinetConfig } from '@/lib/spec/cabinetConfig';
+import { PAGE_STYLE_DEVIS } from '@/lib/spec/printStyles';
 import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 import PrintableDevis from '../PrintableDevis';
 import PrintPreviewDialog from '../PrintPreviewDialog';
@@ -41,6 +42,7 @@ export default function DevisPrintButton({ devis, client, variant = 'icon', labe
         onOpenChange={setOpen}
         title={`Aperçu — ${data.number}`}
         pdfFilename={filename}
+        pageStyle={PAGE_STYLE_DEVIS}
       >
         <PrintableDevis data={data} config={config} />
       </PrintPreviewDialog>

@@ -1,63 +1,16 @@
-
-import { useToast } from "@/components/ui/use-toast";
-import { Paiement } from "@/types/paiement";
-import { generateReceiptPDF, formatClientForReceipt } from "@/utils/pdf/receiptPdfGenerator";
+// Aperçu / téléchargement de REÇU — route vers le rendu fidèle unifié
+// (DocumentPreviewProvider) au lieu du PDF jsPDF programmatique.
+import { Paiement } from '@/types/paiement';
+import { useDocumentPreview } from '@/components/printable/DocumentPreviewProvider';
 
 export const useReceiptPreview = () => {
-  const { toast } = useToast();
+  const { previewRecu, downloadRecu } = useDocumentPreview();
 
-  const handleVoirRecu = (paiement: Paiement) => {
-    try {
-      
-      const formattedClient = paiement.client ? formatClientForReceipt(paiement.client) : undefined;
-      
-      const paiementWithFormattedClient = {
-        ...paiement,
-        client: formattedClient
-      };
-      
-      generateReceiptPDF(paiementWithFormattedClient, false);
-      
-      toast({
-        title: "Reçu de paiement",
-        description: `Visualisation du reçu pour le paiement ${paiement.reference || paiement.id}`,
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible d'afficher le reçu de paiement."
-      });
-    }
-  };
-
-  const handleTelechargerRecu = (paiement: Paiement) => {
-    try {
-      
-      const formattedClient = paiement.client ? formatClientForReceipt(paiement.client) : undefined;
-      
-      const paiementWithFormattedClient = {
-        ...paiement,
-        client: formattedClient
-      };
-      
-      generateReceiptPDF(paiementWithFormattedClient, true);
-      
-      toast({
-        title: "Reçu téléchargé",
-        description: `Le reçu pour le paiement ${paiement.reference || paiement.id} a été téléchargé.`,
-      });
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        title: "Erreur",
-        description: "Impossible de télécharger le reçu de paiement."
-      });
-    }
-  };
+  const handleVoirRecu = (paiement: Paiement) => previewRecu(paiement);
+  const handleTelechargerRecu = (paiement: Paiement) => downloadRecu(paiement);
 
   return {
     handleVoirRecu,
-    handleTelechargerRecu
+    handleTelechargerRecu,
   };
 };
