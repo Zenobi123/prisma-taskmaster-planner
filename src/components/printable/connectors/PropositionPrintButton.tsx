@@ -5,6 +5,7 @@ import type { Proposition } from '@/types/proposition';
 import type { Client } from '@/types/client';
 import { propositionToPrintData } from '@/lib/spec/adapters';
 import { useCabinetConfig } from '@/lib/spec/cabinetConfig';
+import { PAGE_STYLE_PROPOSITION } from '@/lib/spec/printStyles';
 import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 import PrintableProposition from '../PrintableProposition';
 import PrintPreviewDialog from '../PrintPreviewDialog';
@@ -45,6 +46,7 @@ export default function PropositionPrintButton({
         onOpenChange={setOpen}
         title={`Aperçu — ${proposition.numero}`}
         pdfFilename={filename}
+        pageStyle={PAGE_STYLE_PROPOSITION}
       >
         <PrintableProposition data={data} config={config} />
       </PrintPreviewDialog>

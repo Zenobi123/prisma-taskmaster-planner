@@ -5,6 +5,7 @@ import type { Paiement } from '@/types/paiement';
 import type { Client } from '@/types/client';
 import { paiementToRecuPrintData } from '@/lib/spec/adapters';
 import { useCabinetConfig } from '@/lib/spec/cabinetConfig';
+import { PAGE_STYLE_RECU } from '@/lib/spec/printStyles';
 import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 import PrintableRecu from '../PrintableRecu';
 import PrintPreviewDialog from '../PrintPreviewDialog';
@@ -47,6 +48,7 @@ export default function RecuPrintButton({ paiement, client, variant = 'button', 
         onOpenChange={setOpen}
         title={`Aperçu — ${data.number}`}
         pdfFilename={filename}
+        pageStyle={PAGE_STYLE_RECU}
       >
         <PrintableRecu data={data} config={config} />
       </PrintPreviewDialog>

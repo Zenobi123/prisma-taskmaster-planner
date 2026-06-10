@@ -6,6 +6,7 @@ import type { Facture } from '@/types/facture';
 import type { Client } from '@/types/client';
 import { factureToPrintData } from '@/lib/spec/adapters';
 import { useCabinetConfig } from '@/lib/spec/cabinetConfig';
+import { PAGE_STYLE_FACTURE } from '@/lib/spec/printStyles';
 import { sanitizePdfSegment } from '@/lib/spec/fiscal';
 import PrintableFacture from '../PrintableFacture';
 import PrintPreviewDialog from '../PrintPreviewDialog';
@@ -42,6 +43,7 @@ export default function FacturePrintButton({ facture, client, variant = 'icon', 
         onOpenChange={setOpen}
         title={`Aperçu — ${data.number}`}
         pdfFilename={filename}
+        pageStyle={PAGE_STYLE_FACTURE}
       >
         <PrintableFacture data={data} config={config} />
       </PrintPreviewDialog>

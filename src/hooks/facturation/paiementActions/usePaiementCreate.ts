@@ -3,11 +3,12 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement, PrestationPayee } from "@/types/paiement";
-import { generateReceiptPDF, formatClientForReceipt } from "@/utils/pdfUtils";
 import { recalculerStatutPaiementFacture } from "@/services/factureServices/facturePaiementSyncService";
+import { useDocumentPreview } from "@/components/printable/DocumentPreviewProvider";
 
 export const usePaiementCreate = () => {
   const { toast } = useToast();
+  const { previewRecu } = useDocumentPreview();
   const [isLoading, setIsLoading] = useState(false);
 
   const addPaiement = async (paiement: Omit<Paiement, "id">) => {
@@ -116,13 +117,18 @@ export const usePaiementCreate = () => {
         .eq("id", paiement.client_id)
         .single();
 
-      // Create a payment object with client details for the receipt
+      // Create a payment object with client details for the receipt.
+      // On normalise `facture` (la table stocke `facture_id`) et on conserve la
+      // ventilation détaillée pour un reçu fidèle.
       const paiementWithClient = {
         ...data,
-        client: clientData || paiement.client
+        facture: data.facture_id ?? undefined,
+        client: clientData || paiement.client,
+        prestations_payees: paiement.prestations_payees,
+        type_paiement: paiement.type_paiement,
       };
 
-      // Générer le reçu PDF
+      // Aperçu fidèle du reçu (identique au vanilla)
       generateReceiptFromPaiement(paiementWithClient as unknown as Paiement);
 
       return data;
@@ -140,20 +146,9 @@ export const usePaiementCreate = () => {
 
   const generateReceiptFromPaiement = (paiement: Paiement) => {
     try {
-      
-      // Format the client information for the receipt
-      const formattedClient = formatClientForReceipt(paiement.client);
-      
-      // Create a payment object with properly formatted client
-      const paiementForReceipt = {
-        ...paiement,
-        client: formattedClient
-      };
-      
-      // Generate the PDF with automatic download option
-      setTimeout(() => {
-        generateReceiptPDF(paiementForReceipt, true);
-      }, 500);
+      // Aperçu fidèle du reçu (rendu unifié identique au vanilla), au lieu du
+      // PDF jsPDF programmatique divergent.
+      previewRecu(paiement);
     } catch (error) {
       toast({
         variant: "destructive",
