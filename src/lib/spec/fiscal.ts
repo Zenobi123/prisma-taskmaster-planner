@@ -62,6 +62,30 @@ export interface ClientSpec {
   soldeIR?: number;
   licence?: number;
   createdAt: string;
+  // Multi-agences (établissements). Si présent, les calculs immobiliers se font
+  // par bien et le CA est cumulé sur l'ensemble des agences.
+  agences?: AgenceSpec[];
+}
+
+export interface AgenceSpec {
+  libelle: string;
+  ville: string;
+  quartier: string;
+  principale: boolean;
+  chiffreAffaires: number;
+  statutImmo: 'locataire' | 'proprietaire' | 'les_deux' | '';
+  loyerMensuel: number;
+  valeurBien: number;
+}
+
+export interface BienImmo {
+  libelle: string;
+  ville: string;
+  quartier: string;
+  psl: number;
+  bail: number;
+  tf: number;
+  tauxBail: 10 | 5;
 }
 
 export interface IGSResult {
