@@ -8,7 +8,8 @@ import {
   FormeJuridique,
   RegimeFiscal,
   Civilite,
-  ModePaiement
+  ModePaiement,
+  Agence,
 } from "@/types/client";
 
 export interface ClientFormState {
