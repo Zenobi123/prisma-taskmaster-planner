@@ -60,7 +60,8 @@ export const updateClient = async (id: string, updates: Partial<Client>): Promis
   const updateData = {
     ...updates,
     interactions: updates.interactions as unknown as Json,
-    fiscal_data: (updates.fiscal_data ?? null) as Json
+    fiscal_data: (updates.fiscal_data ?? null) as Json,
+    agences: (updates.agences ?? null) as unknown as Json,
   };
   
   const { data, error } = await supabase
