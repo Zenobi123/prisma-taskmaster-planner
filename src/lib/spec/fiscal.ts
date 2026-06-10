@@ -495,8 +495,19 @@ export function adaptClient(c: ExistingClientLike): ClientSpec {
   const regime = (REGIME_ADAPTER[(c.regimefiscal ?? '').toLowerCase()] ?? '') as ClientSpec['regimeFiscal'];
   const statutImmo: StatutImmoSpec =
     STATUT_IMMO_ADAPTER[(c.situationimmobiliere?.type ?? '').toLowerCase()] ?? '';
-  const loyerMensuel = c.situationimmobiliere?.loyer ?? 0;
-  const valeurBien = c.situationimmobiliere?.valeur ?? 0;
+
+  const agences = c.agences && c.agences.length > 0 ? c.agences : undefined;
+  // CA cumulé sur les agences si présentes, sinon le champ à plat
+  const chiffreAffaires = agences
+    ? agences.reduce((s, a) => s + (a.chiffreAffaires || 0), 0)
+    : (c.chiffreaffaires ?? 0);
+  // Loyer/valeur cumulés sur les agences si présentes
+  const loyerMensuel = agences
+    ? agences.reduce((s, a) => s + (a.loyerMensuel || 0), 0)
+    : (c.situationimmobiliere?.loyer ?? 0);
+  const valeurBien = agences
+    ? agences.reduce((s, a) => s + (a.valeurBien || 0), 0)
+    : (c.situationimmobiliere?.valeur ?? 0);
 
   const partial: ClientSpec = {
     id: typeof c.id === 'number' ? c.id : Date.now(),
@@ -519,13 +530,15 @@ export function adaptClient(c: ExistingClientLike): ClientSpec {
     loyerAnnuel: loyerMensuel ? loyerMensuel * 12 : 0,
     valeurBien,
     regimeFiscal: regime,
-    chiffreAffaires: c.chiffreaffaires ?? 0,
+    chiffreAffaires,
     isCGA: !!c.iscga,
     isVendeurBoissons: !!c.isvendeurboissons,
     modePaiementIGS: c.modepaiementigs || 'annuel',
     modePaiementPSL: c.modepaiementpsl || 'annuel',
     createdAt: c.created_at || new Date().toISOString(),
+    agences,
   };
+
 
   // Compléter avec calculs
   const f = computeAllTaxes(partial);
