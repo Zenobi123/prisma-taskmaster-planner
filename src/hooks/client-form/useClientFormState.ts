@@ -47,6 +47,7 @@ export interface ClientFormState {
   isvendeurboissons: boolean;
   modepaiementigs: ModePaiement;
   modepaiementpsl: ModePaiement;
+  agences: Agence[];
 }
 
 export const getInitialFormState = (): ClientFormState => ({
