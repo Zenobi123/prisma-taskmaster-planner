@@ -5,6 +5,7 @@ import { ClientIdentityFields } from "../ClientIdentityFields";
 import { ClientAddressFields } from "../ClientAddressFields";
 import { ClientContactFields } from "../ClientContactFields";
 import { ClientProfessionalFields } from "../ClientProfessionalFields";
+import { AgencesEditor } from "../identity/AgencesEditor";
 
 interface ClientFormFieldsProps {
   type: ClientType;
