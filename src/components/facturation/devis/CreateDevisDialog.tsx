@@ -23,7 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Plus, Trash2, Loader2 } from "lucide-react";
-import { adaptClient, type ExistingClientLike } from "@/lib/spec/fiscal";
+import { toast } from "sonner";
+import { adaptClient, getMissingClientFields, type ExistingClientLike } from "@/lib/spec/fiscal";
 import {
   getImpotsForSelect,
   getHonorairesForClient,
@@ -90,6 +91,19 @@ const CreateDevisDialog = ({
     const c = clients.find((cl) => cl.id === clientId);
     return c ? adaptClient(c as ExistingClientLike) : null;
   }, [clients, clientId]);
+
+  // Référence : avertissement non bloquant dès la sélection du client si sa
+  // fiche est incomplète (le blocage intervient à l'émission du devis).
+  const handleClientChange = (id: string) => {
+    setClientId(id);
+    const c = clients.find((cl) => cl.id === id);
+    if (c) {
+      const manquants = getMissingClientFields(adaptClient(c as ExistingClientLike));
+      if (manquants.length > 0) {
+        toast.warning(`Fiche client incomplète ! Champs manquants : ${manquants.join(', ')}`);
+      }
+    }
+  };
   const impotsOptions = useMemo(() => getImpotsForSelect(clientSpec), [clientSpec]);
   const honorairesOptions = useMemo(() => getHonorairesForClient(clientSpec), [clientSpec]);
   const impotButtons = useMemo(
@@ -179,6 +193,13 @@ const CreateDevisDialog = ({
   }, [prestations]);
 
   const handleSubmit = () => {
+    // Référence : l'émission est bloquée tant que la fiche client est incomplète.
+    const champsManquants = getMissingClientFields(clientSpec);
+    if (clientSpec && champsManquants.length > 0) {
+      toast.error(`Impossible d'émettre le devis. Fiche client incomplète : ${champsManquants.join(', ')}`);
+      return;
+    }
+
     const formData: DevisFormData = {
       client_id: clientId,
       date,
@@ -214,7 +235,7 @@ const CreateDevisDialog = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="client">Client</Label>
-              <Select value={clientId} onValueChange={setClientId}>
+              <Select value={clientId} onValueChange={handleClientChange}>
                 <SelectTrigger id="client">
                   <SelectValue placeholder="S\u00e9lectionner un client" />
                 </SelectTrigger>

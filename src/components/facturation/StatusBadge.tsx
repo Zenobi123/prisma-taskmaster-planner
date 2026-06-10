@@ -16,7 +16,8 @@ export const StatusBadge = ({ status, type }: StatusBadgeProps) => {
         case 'brouillon':
           return 'Brouillon';
         case 'envoyée':
-          return 'Envoyée';
+          // Libellé de la référence : une facture générée est « émise »
+          return 'Émise';
         case 'annulée':
           return 'Annulée';
         default:

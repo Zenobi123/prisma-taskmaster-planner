@@ -4,18 +4,29 @@ import { format } from 'date-fns';
 import { addFactureToDatabase } from '@/services/factureService';
 import { Prestation } from '@/types/facture';
 import { FactureFormData } from '@/types/factureForm';
+import { getMissingClientFields, type ClientSpec } from '@/lib/spec/fiscal';
 
 export const useFactureFormSubmit = (
   selectedClientId: string,
   prestations: Prestation[],
   onFactureCreated: () => void,
-  onOpenChange: (open: boolean) => void
+  onOpenChange: (open: boolean) => void,
+  clientSpec?: ClientSpec | null
 ) => {
   const onSubmit = async (data: FactureFormData) => {
     try {
       if (!selectedClientId) {
         toast.error('Veuillez sélectionner un client');
         return;
+      }
+
+      // Référence : l'émission est bloquée tant que la fiche client est incomplète.
+      if (clientSpec) {
+        const champsManquants = getMissingClientFields(clientSpec);
+        if (champsManquants.length > 0) {
+          toast.error(`Impossible d'émettre la facture. Fiche client incomplète : ${champsManquants.join(', ')}`);
+          return;
+        }
       }
 
       if (prestations.length === 0) {

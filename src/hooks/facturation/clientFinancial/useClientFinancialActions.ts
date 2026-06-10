@@ -1,6 +1,7 @@
 
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { recalculerStatutPaiementFacture } from "@/services/factureServices/facturePaiementSyncService";
 
 export const useClientFinancialActions = (
   onSuccess?: () => Promise<void>
@@ -9,21 +10,24 @@ export const useClientFinancialActions = (
 
   const handleApplyCreditToInvoice = async (invoiceId: string, creditId: string, amount: number) => {
     try {
-      
+
       const { error } = await supabase
         .functions
         .invoke('apply-credit', {
-          body: { 
+          body: {
             invoiceId,
             creditId,
             amount
           }
         });
-      
+
       if (error) {
         throw new Error(error.message);
       }
-      
+
+      // L'avance appliquée fait évoluer l'état de la facture (partielle / payée).
+      await recalculerStatutPaiementFacture(invoiceId);
+
       toast({
         title: "Succès",
         description: "Le crédit a été appliqué à la facture",

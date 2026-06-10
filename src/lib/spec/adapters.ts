@@ -243,8 +243,9 @@ export function paiementToRecuPrintData(
     montantImpots,
     montantHonoraires,
     paymentMode: PAYMENT_MODE_MAP[paiement.mode] || 'Mobile Money',
+    // Référence (recu-app.html) : motif pré-rempli « Règlement facture N° ... »
     motif: paiement.facture
-      ? `Paiement de la facture ${paiement.facture}`
+      ? `Règlement facture ${paiement.facture}`
       : paiement.est_credit
         ? 'Avance / crédit client'
         : paiement.notes || 'Paiement client',

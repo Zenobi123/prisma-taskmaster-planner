@@ -21,8 +21,9 @@ const ModePaiementBadge = ({ mode, className }: ModePaiementBadgeProps) => {
           bgColor: "bg-green-100 text-green-800"
         };
       case "chèque":
-        return { 
-          icon: <CreditCard className="h-4 w-4 mr-1" />, 
+      case "cheque":
+        return {
+          icon: <CreditCard className="h-4 w-4 mr-1" />,
           bgColor: "bg-purple-100 text-purple-800"
         };
       case "orange_money":

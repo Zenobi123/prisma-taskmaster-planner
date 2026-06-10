@@ -31,12 +31,14 @@ export const PaiementFactureSection = ({
   const fetchFacturesForClient = useCallback(async (clientId: string) => {
     try {
       setIsLoading(true);
+      // Référence : toutes les factures non soldées du client sont payables
+      // (toute facture créée est « émise ») ; seules les annulées sont exclues.
       const { data, error } = await supabase
         .from("factures")
         .select("*")
         .eq("client_id", clientId)
         .or("status_paiement.eq.non_payée,status_paiement.eq.partiellement_payée,status_paiement.eq.en_retard")
-        .eq("status", "envoyée");
+        .neq("status", "annulée");
 
       if (error) throw error;
       setFactures(data || []);

@@ -4,6 +4,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Paiement, PrestationPayee } from "@/types/paiement";
 import { generateReceiptPDF, formatClientForReceipt } from "@/utils/pdfUtils";
+import { recalculerStatutPaiementFacture } from "@/services/factureServices/facturePaiementSyncService";
 
 export const usePaiementCreate = () => {
   const { toast } = useToast();
@@ -91,6 +92,9 @@ export const usePaiementCreate = () => {
         throw error;
       }
 
+      // Le paiement fait évoluer l'état de la facture (partiellement payée / payée),
+      // comme dans l'application de référence.
+      await recalculerStatutPaiementFacture(paiementData.facture_id);
 
       toast({
         title: "Paiement enregistré",

@@ -3,8 +3,9 @@ import React, { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { format } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import { Plus } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
@@ -21,7 +22,7 @@ import TotalAmountDisplay from './TotalAmountDisplay';
 import { Prestation } from '@/types/facture';
 import { Client } from '@/types/client';
 import { useFactureFormSubmit } from '@/hooks/facturation/factureForm/useFactureFormSubmit';
-import { adaptClient, type ExistingClientLike } from '@/lib/spec/fiscal';
+import { adaptClient, getMissingClientFields, type ExistingClientLike } from '@/lib/spec/fiscal';
 import {
   getImpotsForSelect,
   getHonorairesForClient,
@@ -61,8 +62,10 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
     resolver: zodResolver(factureFormSchema),
     defaultValues: {
       date: new Date(),
-      echeance: new Date(),
-      status: 'brouillon'
+      // Référence : « Échéance : 30 jours à compter de la date d'émission »
+      echeance: addDays(new Date(), 30),
+      // Référence : toute facture générée est immédiatement « émise »
+      status: 'envoyée'
     }
   });
 
@@ -70,8 +73,6 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
   const watchEcheance = watch('echeance');
   const watchStatus = watch('status');
   const watchMode = watch('mode');
-
-  const { onSubmit } = useFactureFormSubmit(selectedClientId, prestations, onFactureCreated, onOpenChange);
 
   // Client sélectionné → ClientSpec (avec impôts calculés) pour l'ajout rapide fidèle.
   const selectedClient = useMemo(
@@ -82,6 +83,8 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
     () => (selectedClient ? adaptClient(selectedClient as ExistingClientLike) : null),
     [selectedClient],
   );
+
+  const { onSubmit } = useFactureFormSubmit(selectedClientId, prestations, onFactureCreated, onOpenChange, clientSpec);
   const impotsOptions = useMemo(() => getImpotsForSelect(clientSpec), [clientSpec]);
   const honorairesOptions = useMemo(() => getHonorairesForClient(clientSpec), [clientSpec]);
   const impotButtons = useMemo(
@@ -92,6 +95,15 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
   const handleClientChange = (clientId: string) => {
     setSelectedClientId(clientId);
     setValue('client_id', clientId);
+    // Référence : avertissement non bloquant dès la sélection si la fiche
+    // client est incomplète (le blocage intervient à l'émission).
+    const client = clients.find((c) => c.id === clientId);
+    if (client) {
+      const manquants = getMissingClientFields(adaptClient(client as ExistingClientLike));
+      if (manquants.length > 0) {
+        toast.warning(`Fiche client incomplète ! Champs manquants : ${manquants.join(', ')}`);
+      }
+    }
   };
 
   const addPrestation = () => {

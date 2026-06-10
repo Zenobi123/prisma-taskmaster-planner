@@ -9,7 +9,7 @@ export type PaiementFormData = {
   facture_id: string;
   date: Date;
   montant: number;
-  mode: "espèces" | "virement" | "orange_money" | "mtn_money";
+  mode: "espèces" | "virement" | "orange_money" | "mtn_money" | "cheque";
   est_credit: boolean;
   reference_transaction: string;
   notes: string;
