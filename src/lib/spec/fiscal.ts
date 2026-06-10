@@ -62,6 +62,30 @@ export interface ClientSpec {
   soldeIR?: number;
   licence?: number;
   createdAt: string;
+  // Multi-agences (établissements). Si présent, les calculs immobiliers se font
+  // par bien et le CA est cumulé sur l'ensemble des agences.
+  agences?: AgenceSpec[];
+}
+
+export interface AgenceSpec {
+  libelle: string;
+  ville: string;
+  quartier: string;
+  principale: boolean;
+  chiffreAffaires: number;
+  statutImmo: 'locataire' | 'proprietaire' | 'les_deux' | '';
+  loyerMensuel: number;
+  valeurBien: number;
+}
+
+export interface BienImmo {
+  libelle: string;
+  ville: string;
+  quartier: string;
+  psl: number;
+  bail: number;
+  tf: number;
+  tauxBail: 10 | 5;
 }
 
 export interface IGSResult {
@@ -126,8 +150,23 @@ export interface ImmoResult {
 }
 
 export function calculateImmoTaxes(client: ClientSpec): ImmoResult {
-  const isOBNLorNonPro =
-    client.regimeFiscal === 'OBNL' || client.regimeFiscal === 'NonPro';
+  const regime = client.regimeFiscal || '';
+  const isOBNLorNonPro = regime === 'OBNL' || regime === 'NonPro';
+
+  // Mode multi-agences : on agrège PSL/Bail/TPF par bien.
+  if (client.agences && client.agences.length > 0) {
+    let psl = 0;
+    let bail = 0;
+    let tf = 0;
+    for (const a of client.agences) {
+      const r = computeAgencyImmo(a, regime);
+      psl += r.psl;
+      bail += r.bail;
+      tf += r.tf;
+    }
+    return { psl, bail, tf, tauxBail: isOBNLorNonPro ? 5 : 10 };
+  }
+
   let psl = 0;
   let bail = 0;
   let tf = 0;
@@ -146,6 +185,88 @@ export function calculateImmoTaxes(client: ClientSpec): ImmoResult {
 
   return { psl, bail, tf, tauxBail };
 }
+
+// === Multi-agences : ventilation des impôts immobiliers par bien ===
+
+export function computeAgencyImmo(
+  agence: AgenceSpec,
+  regime: ClientSpec['regimeFiscal'] | undefined,
+): { psl: number; bail: number; tf: number; tauxBail: 10 | 5 } {
+  const isOBNLorNonPro = regime === 'OBNL' || regime === 'NonPro';
+  const loyerAnnuel = (agence.loyerMensuel || 0) * 12;
+  let psl = 0;
+  let bail = 0;
+  let tf = 0;
+  const tauxBail: 10 | 5 = isOBNLorNonPro ? 5 : 10;
+
+  if (agence.statutImmo === 'locataire' || agence.statutImmo === 'les_deux') {
+    if (!isOBNLorNonPro) psl = Math.round(loyerAnnuel * PSL_TAUX);
+    const tauxFloat = isOBNLorNonPro ? BAIL_TAUX_OBNL : BAIL_TAUX_NORMAL;
+    bail = Math.round(loyerAnnuel * tauxFloat);
+  }
+  if (agence.statutImmo === 'proprietaire' || agence.statutImmo === 'les_deux') {
+    tf = Math.round((agence.valeurBien || 0) * TF_TAUX);
+  }
+
+  return { psl, bail, tf, tauxBail };
+}
+
+export function getClientBiensImmo(client: ClientSpec): BienImmo[] {
+  const regime = client.regimeFiscal;
+  const isOBNLorNonPro = regime === 'OBNL' || regime === 'NonPro';
+  if (client.agences && client.agences.length > 0) {
+    return client.agences.map((a) => {
+      const r = computeAgencyImmo(a, regime);
+      return {
+        libelle: a.libelle,
+        ville: a.ville,
+        quartier: a.quartier,
+        psl: r.psl,
+        bail: r.bail,
+        tf: r.tf,
+        tauxBail: r.tauxBail,
+      };
+    });
+  }
+  const statutImmo: AgenceSpec['statutImmo'] =
+    client.statutImmo === 'Locataire' ? 'locataire'
+    : client.statutImmo === 'Proprietaire' ? 'proprietaire'
+    : client.statutImmo === 'Les deux' ? 'les_deux'
+    : '';
+  const fakeAgence: AgenceSpec = {
+    libelle: 'Établissement principal',
+    ville: client.ville || '',
+    quartier: client.quartier || '',
+    principale: true,
+    chiffreAffaires: client.chiffreAffaires || 0,
+    statutImmo,
+    loyerMensuel: client.loyerMensuel || 0,
+    valeurBien: client.valeurBien || 0,
+  };
+  const r = computeAgencyImmo(fakeAgence, regime);
+  return [{
+    libelle: fakeAgence.libelle,
+    ville: fakeAgence.ville,
+    quartier: fakeAgence.quartier,
+    psl: r.psl,
+    bail: r.bail,
+    tf: r.tf,
+    tauxBail: isOBNLorNonPro ? 5 : 10,
+  }];
+}
+
+export function buildImmoTaxLabel(
+  acronyme: 'PSL' | 'Bail' | 'TPF',
+  bien: { libelle?: string; ville?: string; quartier?: string },
+): string {
+  const loc = [bien.ville, bien.quartier]
+    .map((s) => (s || '').trim())
+    .filter(Boolean)
+    .join('/');
+  const suffixe = loc || (bien.libelle || '').trim() || '';
+  return suffixe ? `${acronyme}_${suffixe}` : acronyme;
+}
+
 
 export function getSoldeTaxLabel(client: Pick<ClientSpec, 'type'> | undefined | null): 'Solde IR' | 'Solde IS' {
   return client?.type === 'Personne morale' ? 'Solde IS' : 'Solde IR';
@@ -352,6 +473,7 @@ export interface ExistingClientLike {
   modepaiementpsl?: 'trimestriel' | 'annuel';
   situationimmobiliere?: { type?: string; valeur?: number; loyer?: number };
   fiscal_data?: unknown;
+  agences?: AgenceSpec[] | null;
   created_at?: string;
 }
 
@@ -373,8 +495,19 @@ export function adaptClient(c: ExistingClientLike): ClientSpec {
   const regime = (REGIME_ADAPTER[(c.regimefiscal ?? '').toLowerCase()] ?? '') as ClientSpec['regimeFiscal'];
   const statutImmo: StatutImmoSpec =
     STATUT_IMMO_ADAPTER[(c.situationimmobiliere?.type ?? '').toLowerCase()] ?? '';
-  const loyerMensuel = c.situationimmobiliere?.loyer ?? 0;
-  const valeurBien = c.situationimmobiliere?.valeur ?? 0;
+
+  const agences = c.agences && c.agences.length > 0 ? c.agences : undefined;
+  // CA cumulé sur les agences si présentes, sinon le champ à plat
+  const chiffreAffaires = agences
+    ? agences.reduce((s, a) => s + (a.chiffreAffaires || 0), 0)
+    : (c.chiffreaffaires ?? 0);
+  // Loyer/valeur cumulés sur les agences si présentes
+  const loyerMensuel = agences
+    ? agences.reduce((s, a) => s + (a.loyerMensuel || 0), 0)
+    : (c.situationimmobiliere?.loyer ?? 0);
+  const valeurBien = agences
+    ? agences.reduce((s, a) => s + (a.valeurBien || 0), 0)
+    : (c.situationimmobiliere?.valeur ?? 0);
 
   const partial: ClientSpec = {
     id: typeof c.id === 'number' ? c.id : Date.now(),
@@ -397,13 +530,15 @@ export function adaptClient(c: ExistingClientLike): ClientSpec {
     loyerAnnuel: loyerMensuel ? loyerMensuel * 12 : 0,
     valeurBien,
     regimeFiscal: regime,
-    chiffreAffaires: c.chiffreaffaires ?? 0,
+    chiffreAffaires,
     isCGA: !!c.iscga,
     isVendeurBoissons: !!c.isvendeurboissons,
     modePaiementIGS: c.modepaiementigs || 'annuel',
     modePaiementPSL: c.modepaiementpsl || 'annuel',
     createdAt: c.created_at || new Date().toISOString(),
+    agences,
   };
+
 
   // Compléter avec calculs
   const f = computeAllTaxes(partial);

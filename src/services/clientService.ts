@@ -44,7 +44,8 @@ export const createClient = async (clientData: Omit<Client, 'id' | 'created_at'>
     .insert([{
       ...clientData,
       interactions: (clientData.interactions || []) as unknown as Json,
-      fiscal_data: (clientData.fiscal_data ?? null) as Json
+      fiscal_data: (clientData.fiscal_data ?? null) as Json,
+      agences: (clientData.agences ?? null) as unknown as Json,
     }])
     .select()
     .single();
@@ -59,7 +60,8 @@ export const updateClient = async (id: string, updates: Partial<Client>): Promis
   const updateData = {
     ...updates,
     interactions: updates.interactions as unknown as Json,
-    fiscal_data: (updates.fiscal_data ?? null) as Json
+    fiscal_data: (updates.fiscal_data ?? null) as Json,
+    agences: (updates.agences ?? null) as unknown as Json,
   };
   
   const { data, error } = await supabase

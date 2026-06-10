@@ -48,7 +48,8 @@ export function useClientFormInitializer(
         iscga: initialData.iscga || false,
         isvendeurboissons: initialData.isvendeurboissons || false,
         modepaiementigs: initialData.modepaiementigs || "trimestriel",
-        modepaiementpsl: initialData.modepaiementpsl || "trimestriel"
+        modepaiementpsl: initialData.modepaiementpsl || "trimestriel",
+        agences: Array.isArray(initialData.agences) ? initialData.agences : []
       });
     }
   }, [initialData, setFormData]);

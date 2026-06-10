@@ -108,6 +108,7 @@ export type Database = {
       clients: {
         Row: {
           adresse: Json
+          agences: Json | null
           centrerattachement: string
           contact: Json
           created_at: string
@@ -138,6 +139,7 @@ export type Database = {
         }
         Insert: {
           adresse: Json
+          agences?: Json | null
           centrerattachement: string
           contact: Json
           created_at?: string
@@ -168,6 +170,7 @@ export type Database = {
         }
         Update: {
           adresse?: Json
+          agences?: Json | null
           centrerattachement?: string
           contact?: Json
           created_at?: string

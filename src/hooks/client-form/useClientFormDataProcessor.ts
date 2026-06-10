@@ -5,10 +5,30 @@ import { validateRegimeFiscal } from "./useClientFormValidation";
 
 export function useClientFormDataProcessor() {
   const prepareSubmitData = (formData: ClientFormState, type: ClientType) => {
-    
+
     // Final validation of regime fiscal before submission
     const finalRegimeFiscal = validateRegimeFiscal(formData.regimefiscal);
-    
+
+    // Multi-agences : si saisi, cumul des champs à plat pour rétrocompatibilité
+    // avec les modules qui lisent encore `chiffreaffaires` et `situationimmobiliere`.
+    const hasAgences = Array.isArray(formData.agences) && formData.agences.length > 0;
+    const cumulCA = hasAgences
+      ? formData.agences.reduce((s, a) => s + (a.chiffreAffaires || 0), 0)
+      : parseFloat(formData.chiffreaffaires) || 0;
+    const cumulLoyer = hasAgences
+      ? formData.agences.reduce((s, a) => s + (a.loyerMensuel || 0), 0)
+      : (formData.situationimmobiliere?.loyer ?? undefined);
+    const cumulValeur = hasAgences
+      ? formData.agences.reduce((s, a) => s + (a.valeurBien || 0), 0)
+      : (formData.situationimmobiliere?.valeur ?? undefined);
+    // Statut immo cumulé : si au moins une agence locataire ET au moins une propriétaire → les_deux
+    let cumulStatutImmo = formData.situationimmobiliere?.type || "locataire";
+    if (hasAgences) {
+      const hasLoc = formData.agences.some(a => a.statutImmo === "locataire" || a.statutImmo === "les_deux");
+      const hasProp = formData.agences.some(a => a.statutImmo === "proprietaire" || a.statutImmo === "les_deux");
+      cumulStatutImmo = hasLoc && hasProp ? "les_deux" : hasLoc ? "locataire" : hasProp ? "proprietaire" : "locataire";
+    }
+
     const baseData = {
       type,
       niu: formData.niu || "",
@@ -28,18 +48,17 @@ export function useClientFormDataProcessor() {
       regimefiscal: finalRegimeFiscal,
       gestionexternalisee: formData.gestionexternalisee || false,
       situationimmobiliere: {
-        type: formData.situationimmobiliere?.type || "locataire",
-        valeur: (formData.situationimmobiliere?.type === "proprietaire" || formData.situationimmobiliere?.type === "les_deux")
-          ? formData.situationimmobiliere.valeur : undefined,
-        loyer: (formData.situationimmobiliere?.type === "locataire" || formData.situationimmobiliere?.type === "les_deux")
-          ? formData.situationimmobiliere.loyer : undefined
+        type: cumulStatutImmo,
+        valeur: (cumulStatutImmo === "proprietaire" || cumulStatutImmo === "les_deux") ? cumulValeur : undefined,
+        loyer: (cumulStatutImmo === "locataire" || cumulStatutImmo === "les_deux") ? cumulLoyer : undefined,
       },
       civilite: formData.civilite,
-      chiffreaffaires: parseFloat(formData.chiffreaffaires) || 0,
+      chiffreaffaires: cumulCA,
       iscga: formData.iscga,
       isvendeurboissons: formData.isvendeurboissons,
       modepaiementigs: formData.modepaiementigs,
-      modepaiementpsl: formData.modepaiementpsl
+      modepaiementpsl: formData.modepaiementpsl,
+      agences: hasAgences ? formData.agences : undefined,
     };
 
     if (type === "physique") {
@@ -77,3 +96,4 @@ export function useClientFormDataProcessor() {
 
   return { prepareSubmitData };
 }
+

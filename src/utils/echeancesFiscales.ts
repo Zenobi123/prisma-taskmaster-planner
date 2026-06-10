@@ -86,7 +86,7 @@ export function getEcheanceForImpot(designation: string, year: number): Echeance
   if (d.includes("BAIL") || d.includes("TAXE FONCIÈRE BAIL")) {
     return fixedEcheance(year, "02-28", "28 Février");
   }
-  if (d.includes("TF") || d.includes("TAXE FONCIÈRE")) {
+  if (d.includes("TPF") || d.includes("TF") || d.includes("TAXE FONCIÈRE")) {
     return fixedEcheance(year, "02-28", "28 Février");
   }
   if (d.includes("DSF") || d.includes("DÉCLARATION STATISTIQUE")) {

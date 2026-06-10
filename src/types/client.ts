@@ -16,6 +16,17 @@ export type ModePaiement = "trimestriel" | "annuel";
 export type RegimeFiscal = "reel" | "igs" | "non_professionnel" | "obnl";
 export type ClientStatus = "actif" | "inactif" | "archive";
 
+export interface Agence {
+  libelle: string;
+  ville: string;
+  quartier: string;
+  principale: boolean;
+  chiffreAffaires: number;
+  statutImmo: "locataire" | "proprietaire" | "les_deux" | "";
+  loyerMensuel: number;
+  valeurBien: number;
+}
+
 export interface Interaction {
   id: string;
   date: string;
@@ -67,4 +78,5 @@ export interface Client {
   modepaiementigs?: ModePaiement;
   modepaiementpsl?: ModePaiement;
   fiscal_data?: unknown; // Données fiscales (forme ClientFiscalData) — typées côté consommateurs
+  agences?: Agence[]; // Établissements multiples (PSL/Bail/TPF par bien)
 }

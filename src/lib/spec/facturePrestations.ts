@@ -1,6 +1,6 @@
 // SPEC_LOVABLE.md §5 — Listes prédéfinies, prestations & quick-add (factures / devis)
 import type { ClientSpec } from './fiscal';
-import { getIGSPenaliteLines, getSoldeTaxLabel, calculateTDL, calculateIGS } from './fiscal';
+import { getIGSPenaliteLines, getSoldeTaxLabel, calculateTDL, calculateIGS, getClientBiensImmo, buildImmoTaxLabel } from './fiscal';
 import type { RegimeFiscalSpec } from './fiscal-constants';
 
 export type PrestationType = 'Impôt' | 'Honoraire';
@@ -22,7 +22,7 @@ export interface PrestationDef {
 export const LISTE_IMPOTS: PrestationDef[] = [
   { designation: 'Précompte sur Loyer (PSL)', montant: 0 },
   { designation: 'Bail Commercial', montant: 0 },
-  { designation: 'Taxe Foncière (TF)', montant: 0 },
+  { designation: 'Taxe Foncière (TPF)', montant: 0 },
   { designation: 'Impôt Général Synthétique (IGS)', montant: 0 },
   { designation: 'Taxe de Développement Local (TDL)', montant: 0 },
   { designation: 'Solde IR', montant: 0 },
@@ -182,13 +182,9 @@ const quickImpotButton = (
   },
 });
 
+// Boutons statiques (non-immobiliers). Les boutons PSL/Bail/TPF sont désormais
+// générés dynamiquement par bien (cf. getQuickImpotButtons).
 export const QUICK_IMPOT_BUTTONS: QuickImpotButton[] = [
-  quickImpotButton('psl', '+ PSL', 'bg-blue-100 text-blue-800 hover:bg-blue-200',
-    (c) => (c.psl ?? 0) > 0, 'Précompte sur Loyer (PSL)', (c) => c.psl ?? 0),
-  quickImpotButton('bail', '+ Bail', 'bg-teal-100 text-teal-800 hover:bg-teal-200',
-    (c) => (c.bail ?? 0) > 0, 'Bail Commercial', (c) => c.bail ?? 0),
-  quickImpotButton('tf', '+ TF', 'bg-orange-100 text-orange-800 hover:bg-orange-200',
-    (c) => (c.tf ?? 0) > 0, 'Taxe Foncière (TF)', (c) => c.tf ?? 0),
   // IGS = cas spécial (cascade)
   {
     key: 'igs',
@@ -217,6 +213,38 @@ export const QUICK_IMPOT_BUTTONS: QuickImpotButton[] = [
   quickImpotButton('cga_cotisation', '+ Cotisation CGA', 'bg-sky-100 text-sky-800 hover:bg-sky-200',
     () => true, 'Cotisation Annuelle au CGA', () => 50_000),
 ];
+
+// === Génération dynamique des boutons rapides « Impôts du client & CGA » ===
+// Ventile PSL / Bail / TPF par bien (multi-agences), puis ajoute les boutons
+// fiscaux non-immobiliers applicables.
+export function getQuickImpotButtons(client: ClientSpec | null | undefined): QuickImpotButton[] {
+  if (!client) return [];
+  const colorPSL = 'bg-blue-100 text-blue-800 hover:bg-blue-200';
+  const colorBail = 'bg-teal-100 text-teal-800 hover:bg-teal-200';
+  const colorTPF = 'bg-orange-100 text-orange-800 hover:bg-orange-200';
+
+  const immoBtns: QuickImpotButton[] = [];
+  for (const bien of getClientBiensImmo(client)) {
+    if (bien.psl > 0) {
+      const desig = buildImmoTaxLabel('PSL', bien);
+      immoBtns.push(quickImpotButton(`psl:${desig}`, `+ ${desig}`, colorPSL,
+        () => true, desig, () => bien.psl));
+    }
+    if (bien.bail > 0) {
+      const desig = buildImmoTaxLabel('Bail', bien);
+      immoBtns.push(quickImpotButton(`bail:${desig}`, `+ ${desig}`, colorBail,
+        () => true, desig, () => bien.bail));
+    }
+    if (bien.tf > 0) {
+      const desig = buildImmoTaxLabel('TPF', bien);
+      immoBtns.push(quickImpotButton(`tpf:${desig}`, `+ ${desig}`, colorTPF,
+        () => true, desig, () => bien.tf));
+    }
+  }
+
+  const nonImmo = QUICK_IMPOT_BUTTONS.filter((b) => b.applies(client));
+  return [...immoBtns, ...nonImmo];
+}
 
 // === Numérotation automatique (SPEC §5.2 / §10.3) ===
 

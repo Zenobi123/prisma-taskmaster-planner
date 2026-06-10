@@ -8,7 +8,8 @@ import {
   FormeJuridique,
   RegimeFiscal,
   Civilite,
-  ModePaiement
+  ModePaiement,
+  Agence,
 } from "@/types/client";
 
 export interface ClientFormState {
@@ -46,6 +47,7 @@ export interface ClientFormState {
   isvendeurboissons: boolean;
   modepaiementigs: ModePaiement;
   modepaiementpsl: ModePaiement;
+  agences: Agence[];
 }
 
 export const getInitialFormState = (): ClientFormState => ({
@@ -82,7 +84,8 @@ export const getInitialFormState = (): ClientFormState => ({
   iscga: false,
   isvendeurboissons: false,
   modepaiementigs: "trimestriel",
-  modepaiementpsl: "trimestriel"
+  modepaiementpsl: "trimestriel",
+  agences: []
 });
 
 export function useClientFormState() {

@@ -5,6 +5,7 @@ import { ClientIdentityFields } from "../ClientIdentityFields";
 import { ClientAddressFields } from "../ClientAddressFields";
 import { ClientContactFields } from "../ClientContactFields";
 import { ClientProfessionalFields } from "../ClientProfessionalFields";
+import { AgencesEditor } from "../identity/AgencesEditor";
 
 interface ClientFormFieldsProps {
   type: ClientType;
@@ -61,6 +62,22 @@ export function ClientFormFields({ type, formData, onChange }: ClientFormFieldsP
       <ClientContactFields
         telephone={formData.telephone}
         email={formData.email}
+        onChange={onChange}
+      />
+
+      <AgencesEditor
+        agences={formData.agences}
+        ville={formData.ville}
+        quartier={formData.quartier}
+        regimefiscal={formData.regimefiscal}
+        fallbackCA={formData.chiffreaffaires}
+        fallbackLoyerMensuel={formData.situationimmobiliere?.loyer}
+        fallbackValeurBien={formData.situationimmobiliere?.valeur}
+        fallbackStatutImmo={
+          formData.situationimmobiliere?.type === "proprietaire" ? "proprietaire"
+          : formData.situationimmobiliere?.type === "les_deux" ? "les_deux"
+          : "locataire"
+        }
         onChange={onChange}
       />
     </div>
