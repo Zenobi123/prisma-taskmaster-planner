@@ -7,12 +7,16 @@ import {
   calculateImmoTaxes,
   calculateLicence,
   computeAllTaxes,
+  computeAgencyImmo,
+  getClientBiensImmo,
+  buildImmoTaxLabel,
   formatMoney,
   normalizeCivilite,
   getCiviliteLongue,
   getSoldeTaxLabel,
   sanitizePdfSegment,
   type ClientSpec,
+  type AgenceSpec,
 } from '../fiscal';
 
 const baseClient = (override: Partial<ClientSpec> = {}): ClientSpec => ({
