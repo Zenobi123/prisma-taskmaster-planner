@@ -11,10 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Copy, Edit, MoreHorizontal, Send, Trash } from 'lucide-react';
+import { Copy, Edit, FileText, MoreHorizontal, Send, Trash } from 'lucide-react';
 import StatusBadge from './StatusBadge';
 import { Facture } from '@/types/facture';
 import FacturePrintButton from '@/components/printable/connectors/FacturePrintButton';
+import { useDocumentPreview } from '@/components/printable/DocumentPreviewProvider';
 
 interface FactureTableRowProps {
   facture: Facture;
@@ -24,6 +25,7 @@ interface FactureTableRowProps {
 export const FactureTableRow: React.FC<FactureTableRowProps> = ({ facture, onDelete }) => {
   const { id, client, date, echeance, montant, status_paiement } = facture;
   const clientName = client?.nom || 'N/A';
+  const { previewNote } = useDocumentPreview();
 
   return (
     <tr>
@@ -56,6 +58,10 @@ export const FactureTableRow: React.FC<FactureTableRowProps> = ({ facture, onDel
             <DropdownMenuItem>
               <Send className="mr-2 h-4 w-4" />
               Envoyer la facture
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => previewNote(facture)}>
+              <FileText className="mr-2 h-4 w-4" />
+              Note explicative
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>

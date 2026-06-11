@@ -740,3 +740,10 @@ body { font-family: 'Inter', Arial, sans-serif !important; margin: 0 !important;
     .bg-section { background-color: #dbeafe !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
 `;
+
+/* ------------------------------------------------------------------ */
+/* NOTE EXPLICATIVE — note-app.html : @page 10mm + reset .print-area.  */
+/* (rendu via classes Tailwind + Inter, comme le reçu/devis).          */
+/* ------------------------------------------------------------------ */
+
+export const PAGE_STYLE_NOTE = PAGE_STYLE_DEVIS;

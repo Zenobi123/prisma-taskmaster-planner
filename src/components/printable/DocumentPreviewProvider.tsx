@@ -6,12 +6,13 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 import type { Facture } from '@/types/facture';
 import type { Paiement } from '@/types/paiement';
 import { useCabinetConfig } from '@/lib/spec/cabinetConfig';
-import { factureToPrintData, paiementToRecuPrintData } from '@/lib/spec/adapters';
+import { factureToPrintData, paiementToRecuPrintData, factureToNotePrintData } from '@/lib/spec/adapters';
 import { sanitizePdfSegment } from '@/lib/spec/fiscal';
-import { PAGE_STYLE_FACTURE, PAGE_STYLE_RECU } from '@/lib/spec/printStyles';
+import { PAGE_STYLE_FACTURE, PAGE_STYLE_RECU, PAGE_STYLE_NOTE } from '@/lib/spec/printStyles';
 import PrintPreviewDialog from './PrintPreviewDialog';
 import PrintableFacture from './PrintableFacture';
 import PrintableRecu from './PrintableRecu';
+import PrintableNote from './PrintableNote';
 import { useResolvedClient } from './connectors/useResolvedClient';
 import { useResolvedFacture } from './connectors/useResolvedFacture';
 
@@ -19,6 +20,7 @@ type Mode = 'view' | 'download';
 type State =
   | { kind: 'facture'; facture: Facture; mode: Mode }
   | { kind: 'recu'; paiement: Paiement; mode: Mode }
+  | { kind: 'note'; facture: Facture; mode: Mode }
   | null;
 
 interface DocumentPreviewApi {
@@ -26,6 +28,8 @@ interface DocumentPreviewApi {
   downloadFacture: (facture: Facture) => void;
   previewRecu: (paiement: Paiement) => void;
   downloadRecu: (paiement: Paiement) => void;
+  previewNote: (facture: Facture) => void;
+  downloadNote: (facture: Facture) => void;
 }
 
 const DocumentPreviewContext = createContext<DocumentPreviewApi | null>(null);
@@ -48,6 +52,8 @@ export function DocumentPreviewProvider({ children }: { children: ReactNode }) {
       downloadFacture: (facture) => setState({ kind: 'facture', facture, mode: 'download' }),
       previewRecu: (paiement) => setState({ kind: 'recu', paiement, mode: 'view' }),
       downloadRecu: (paiement) => setState({ kind: 'recu', paiement, mode: 'download' }),
+      previewNote: (facture) => setState({ kind: 'note', facture, mode: 'view' }),
+      downloadNote: (facture) => setState({ kind: 'note', facture, mode: 'download' }),
     }),
     [],
   );
@@ -60,6 +66,9 @@ export function DocumentPreviewProvider({ children }: { children: ReactNode }) {
       )}
       {state?.kind === 'recu' && (
         <RecuPreviewHost paiement={state.paiement} mode={state.mode} onClose={close} />
+      )}
+      {state?.kind === 'note' && (
+        <NotePreviewHost facture={state.facture} mode={state.mode} onClose={close} />
       )}
     </DocumentPreviewContext.Provider>
   );
@@ -94,6 +103,39 @@ function FacturePreviewHost({
       autoDownload={mode === 'download'}
     >
       <PrintableFacture data={data} config={config} />
+    </PrintPreviewDialog>
+  );
+}
+
+function NotePreviewHost({
+  facture,
+  mode,
+  onClose,
+}: {
+  facture: Facture;
+  mode: Mode;
+  onClose: () => void;
+}) {
+  const [config] = useCabinetConfig();
+  const resolvedClient = useResolvedClient(facture.client_id);
+  const data = useMemo(() => factureToNotePrintData(facture, resolvedClient), [facture, resolvedClient]);
+  const filename = `Note_Explicative_${sanitizePdfSegment(data.number, 'doc')}_${sanitizePdfSegment(
+    data.client.name,
+    'client',
+  )}.pdf`;
+
+  return (
+    <PrintPreviewDialog
+      open
+      onOpenChange={(v) => {
+        if (!v) onClose();
+      }}
+      title={`Note explicative — ${data.number}`}
+      pdfFilename={filename}
+      pageStyle={PAGE_STYLE_NOTE}
+      autoDownload={mode === 'download'}
+    >
+      <PrintableNote data={data} config={config} />
     </PrintPreviewDialog>
   );
 }

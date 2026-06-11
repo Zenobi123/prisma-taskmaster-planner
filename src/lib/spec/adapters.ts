@@ -12,6 +12,7 @@ import type { ClientSpec } from '@/lib/spec/fiscal';
 import { adaptClient } from '@/lib/spec/fiscal';
 import type { Prestation as SpecPrestation } from '@/lib/spec/facturePrestations';
 import type { FacturePrintData } from '@/components/printable/PrintableFacture';
+import type { NotePrintData } from '@/components/printable/PrintableNote';
 import type {
   DevisPrintData,
   DevisStatus as PrintableDevisStatus,
@@ -86,6 +87,34 @@ export function factureToPrintData(
     totalImpots,
     totalHonoraires,
     total,
+  };
+}
+
+// Note explicative dérivée d'une facture (note-app.html) : la « Note d'honoraire »
+// en référence est la facture, dont on détaille la composition Impôts/Honoraires.
+export function factureToNotePrintData(
+  facture: ExistingFacture,
+  fullClient?: ExistingClient | null,
+): NotePrintData {
+  const lignes = (facture.prestations || []).map((p) => ({
+    type: p.type === 'impot' ? ('Impôt' as const) : ('Honoraire' as const),
+    designation: p.description,
+    montant: p.montant || (p.quantite || 1) * (p.prix_unitaire || 0),
+  }));
+  const totalImpots = facture.montant_impots ??
+    lignes.filter((l) => l.type === 'Impôt').reduce((s, l) => s + l.montant, 0);
+  const totalHonoraires = facture.montant_honoraires ??
+    lignes.filter((l) => l.type === 'Honoraire').reduce((s, l) => s + l.montant, 0);
+  const client = fullClient ? adaptClient(fullClient) : fallbackClientFromFacture(facture);
+
+  return {
+    number: facture.numero || `N° ${facture.id?.slice(-4)}`,
+    date: facture.date,
+    client,
+    clientContact: client.contact,
+    lignes,
+    totalImpots,
+    totalHonoraires,
   };
 }
 

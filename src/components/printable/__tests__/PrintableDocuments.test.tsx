@@ -4,12 +4,14 @@ import PrintableFacture, { type FacturePrintData } from '../PrintableFacture';
 import PrintableRecu, { type RecuPrintData } from '../PrintableRecu';
 import PrintableDevis, { type DevisPrintData } from '../PrintableDevis';
 import PrintableProposition, { type PropositionPrintData } from '../PrintableProposition';
+import PrintableNote, { type NotePrintData } from '../PrintableNote';
 import { DEFAULT_CABINET_CONFIG } from '@/lib/spec/cabinetConfig';
 import {
   PAGE_STYLE_FACTURE,
   PAGE_STYLE_RECU,
   PAGE_STYLE_DEVIS,
   PAGE_STYLE_PROPOSITION,
+  PAGE_STYLE_NOTE,
   PRINT_PAGE_FRAME_CSS,
 } from '@/lib/spec/printStyles';
 import type { ClientSpec } from '@/lib/spec/fiscal';
@@ -134,6 +136,32 @@ describe('Rendus imprimables fidèles au vanilla', () => {
     expect(txt).toContain('Base annuelle');
     expect(txt).toContain('125 000 F CFA');
   });
+
+  it('Note explicative : objet, sections et totaux fidèles à note-app.html', () => {
+    const data: NotePrintData = {
+      number: 'N° 0001/2026/06',
+      date: '2026-06-10',
+      client,
+      clientContact: 'M. TEMGOUA Bertin',
+      lignes: [
+        { type: 'Impôt', designation: 'IGS', montant: 50000 },
+        { type: 'Honoraire', designation: 'Tenue de comptabilité', montant: 100000 },
+      ],
+      totalImpots: 50000,
+      totalHonoraires: 100000,
+    };
+    const txt = text(<PrintableNote data={data} config={cfg} />);
+    expect(txt).toContain("Objet : Note explicative relative à la Note d'honoraire N° 0001/2026/06");
+    expect(txt).toContain('I. STRUCTURE DE LA FACTURATION');
+    expect(txt).toContain("A. Les paiements d'obligations fiscales (Total : 50 000 F CFA)");
+    expect(txt).toContain('B. Les honoraires pour prestations intellectuelles (Total : 100 000 F CFA)');
+    expect(txt).toContain('II. MONTANT TOTAL');
+    expect(txt).toContain('TOTAL GÉNÉRAL : 150 000 F CFA');
+    // Civilité longue + contact débarrassé de son préfixe de civilité.
+    expect(txt).toContain("À l'attention de Monsieur TEMGOUA Bertin");
+    expect(txt).toContain('Veuillez agréer, Monsieur,');
+    expect(txt).toContain('10 juin 2026');
+  });
 });
 
 describe('Géométrie des marges (conteneurs « printArea » et @page du vanilla)', () => {
@@ -213,5 +241,21 @@ describe('Géométrie des marges (conteneurs « printArea » et @page du vanilla
     expect(html).toContain('p-8');
     expect(html).toContain('bg-section');
     expect(PAGE_STYLE_PROPOSITION).toContain('@page { size: A4; margin: 10mm 10mm; }');
+  });
+
+  it('Note explicative : conteneur max-w-4xl p-12 + @page 10mm', () => {
+    const noteData: NotePrintData = {
+      number: 'N° 0001/2026/06',
+      date: '2026-06-10',
+      client,
+      lignes: [],
+      totalImpots: 0,
+      totalHonoraires: 0,
+    };
+    const html = renderToStaticMarkup(<PrintableNote data={noteData} config={cfg} />);
+    expect(html).toContain('print-area');
+    expect(html).toContain('max-w-4xl');
+    expect(html).toContain('p-12');
+    expect(PAGE_STYLE_NOTE).toContain('@page { size: A4; margin: 10mm 10mm; }');
   });
 });

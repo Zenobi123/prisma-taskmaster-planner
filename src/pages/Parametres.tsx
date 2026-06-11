@@ -9,6 +9,7 @@ import SecuritySettings from "@/components/parametres/SecuritySettings";
 import NotificationSettings from "@/components/parametres/NotificationSettings";
 import CabinetConfigSettings from "@/components/parametres/CabinetConfigSettings";
 import ClotureAnnuelleSettings from "@/components/parametres/ClotureAnnuelleSettings";
+import VanillaBackupSettings from "@/components/parametres/VanillaBackupSettings";
 import UserManagement from "@/components/parametres/user-management/UserManagement";
 import { CollaborateurUnauthorized } from "@/components/collaborateurs/CollaborateurUnauthorized";
 import { useAuthorization } from "@/hooks/useAuthorization";
@@ -42,6 +43,7 @@ const Parametres = () => {
                   <TabsTrigger value="profile" className="text-xs sm:text-sm">Profil</TabsTrigger>
                   <TabsTrigger value="cabinet" className="text-xs sm:text-sm">Cabinet (impressions)</TabsTrigger>
                   <TabsTrigger value="cloture" className="text-xs sm:text-sm">Clôture annuelle</TabsTrigger>
+                  <TabsTrigger value="sauvegardes" className="text-xs sm:text-sm">Sauvegardes</TabsTrigger>
                   <TabsTrigger value="application" className="text-xs sm:text-sm">Application</TabsTrigger>
                   <TabsTrigger value="security" className="text-xs sm:text-sm">Sécurité</TabsTrigger>
                   <TabsTrigger value="notifications" className="text-xs sm:text-sm">Notifications</TabsTrigger>
@@ -59,6 +61,10 @@ const Parametres = () => {
 
               <TabsContent value="cloture">
                 <ClotureAnnuelleSettings />
+              </TabsContent>
+
+              <TabsContent value="sauvegardes">
+                <VanillaBackupSettings />
               </TabsContent>
 
               <TabsContent value="application">
