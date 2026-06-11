@@ -81,19 +81,31 @@ const normName = (s: string | undefined | null): string =>
  * regimefiscal rejette la valeur (ex. « obnl » sur une base plus ancienne), on
  * réessaie en « reel » et on le signale dans le rapport.
  */
+// Colonnes étendues présentes dans la migration 20260612000000.
+// Si la migration n'a pas encore tourné (ancien environnement), on retire ces
+// colonnes du payload et on réessaie — le client est tout de même créé.
+const EXTENDED_FISCAL_COLS = [
+  "civilite",
+  "chiffreaffaires",
+  "iscga",
+  "isvendeurboissons",
+  "modepaiementigs",
+  "modepaiementpsl",
+] as const;
+
 async function insertVanillaClient(
   mapped: Partial<Client>,
   displayName: string,
   report: VanillaImportReport,
 ): Promise<string | null> {
-  const payload: Record<string, unknown> = {
+  const basePayload: Record<string, unknown> = {
     type: mapped.type,
     nom: mapped.nom ?? null,
     raisonsociale: mapped.raisonsociale ?? null,
     niu: mapped.niu || "",
     centrerattachement: mapped.centrerattachement || "",
-    adresse: mapped.adresse,
-    contact: mapped.contact,
+    adresse: mapped.adresse ?? { ville: "", quartier: "", lieuDit: "" },
+    contact: mapped.contact ?? { telephone: "", email: "" },
     secteuractivite: mapped.secteuractivite || "",
     numerocnps: mapped.numerocnps ?? null,
     regimefiscal: mapped.regimefiscal,
@@ -101,39 +113,77 @@ async function insertVanillaClient(
     gestionexternalisee: mapped.gestionexternalisee || false,
     situationimmobiliere: mapped.situationimmobiliere ?? null,
     interactions: [],
-    civilite: mapped.civilite,
+    agences: mapped.agences ?? null,
+  };
+
+  const extendedPayload: Record<string, unknown> = {
+    ...basePayload,
+    civilite: mapped.civilite ?? null,
     chiffreaffaires: mapped.chiffreaffaires ?? 0,
     iscga: mapped.iscga ?? false,
     isvendeurboissons: mapped.isvendeurboissons ?? false,
     modepaiementigs: mapped.modepaiementigs ?? "annuel",
     modepaiementpsl: mapped.modepaiementpsl ?? "annuel",
-    agences: mapped.agences ?? null,
   };
 
-  let { data, error } = await supabase
-    .from("clients")
-    .insert([payload as never])
-    .select("id")
-    .single();
+  const tryInsert = async (
+    payload: Record<string, unknown>,
+  ): Promise<{ id: string | null; error: { message: string; code: string } | null }> => {
+    try {
+      let { data, error } = await supabase
+        .from("clients")
+        .insert([payload as never])
+        .select("id")
+        .single();
 
-  if (error && /regimefiscal/i.test(error.message || "")) {
-    ({ data, error } = await supabase
-      .from("clients")
-      .insert([{ ...payload, regimefiscal: "reel" } as never])
-      .select("id")
-      .single());
-    if (!error) {
-      report.erreurs.push(
-        `« ${displayName} » : régime fiscal « ${mapped.regimefiscal} » refusé par la base, enregistré en « reel ».`,
-      );
+      // Retry with "reel" if the DB has a strict CHECK on regimefiscal
+      if (error && /regimefiscal/i.test(error.message || "")) {
+        ({ data, error } = await supabase
+          .from("clients")
+          .insert([{ ...payload, regimefiscal: "reel" } as never])
+          .select("id")
+          .single());
+        if (!error) {
+          report.erreurs.push(
+            `« ${displayName} » : régime fiscal « ${mapped.regimefiscal} » refusé, enregistré en « reel ».`,
+          );
+        }
+      }
+
+      if (error || !data) {
+        return { id: null, error: error ?? { message: "insertion impossible", code: "?" } };
+      }
+      return { id: data.id as string, error: null };
+    } catch (err) {
+      return {
+        id: null,
+        error: {
+          message: err instanceof Error ? err.message : String(err),
+          code: "NETWORK",
+        },
+      };
     }
+  };
+
+  // First attempt — full payload including extended fiscal columns
+  let result = await tryInsert(extendedPayload);
+
+  // If PostgREST rejects because a column doesn't exist (migration not run yet),
+  // fall back to base columns only.
+  if (result.error && result.error.code === "42703") {
+    report.erreurs.push(
+      `« ${displayName} » : colonnes fiscales absentes de la base (migration en attente) — import basique sans chiffreaffaires/iscga/…`,
+    );
+    result = await tryInsert(basePayload);
   }
 
-  if (error || !data) {
-    report.erreurs.push(`Client « ${displayName} » : ${error?.message || "insertion impossible"}.`);
+  if (result.error || !result.id) {
+    report.erreurs.push(
+      `Client « ${displayName} » : ${result.error?.message || "insertion impossible"} (code: ${result.error?.code ?? "?"}).`,
+    );
     return null;
   }
-  return data.id as string;
+  return result.id;
 }
 
 /**
@@ -195,127 +245,158 @@ export async function importVanillaEnvelope(
 
   // --- 2. Factures (+ prestations) ---
   for (const f of h.factures || []) {
-    const clientId = resolveClientId(f);
-    if (!clientId || !f.number) {
+    try {
+      const clientId = resolveClientId(f);
+      if (!clientId || !f.number) {
+        report.factures.ignores++;
+        if (!clientId) report.erreurs.push(`Facture ${f.number || f.id} : client introuvable.`);
+        continue;
+      }
+      const { data: exists } = await supabase
+        .from("factures")
+        .select("id")
+        .eq("id", f.number)
+        .maybeSingle();
+      if (exists) {
+        report.factures.ignores++;
+        continue;
+      }
+      const row = vanillaFactureToRow(f, clientId);
+      const { error } = await supabase.from("factures").insert(row);
+      if (error) {
+        report.factures.ignores++;
+        report.erreurs.push(`Facture ${f.number} : ${error.message} (${error.code ?? "?"}).`);
+        continue;
+      }
+      const prestations = (f.prestations || []).map((p) => ({
+        id: `FPRE-${crypto.randomUUID()}`,
+        facture_id: row.id,
+        ...prestationVanillaToRow(p),
+      }));
+      if (prestations.length > 0) {
+        const { error: ePresta } = await supabase
+          .from("facture_prestations")
+          .insert(prestations as never);
+        if (ePresta) {
+          report.erreurs.push(`Prestations facture ${f.number} : ${ePresta.message}.`);
+        }
+      }
+      report.factures.importes++;
+    } catch (err) {
       report.factures.ignores++;
-      if (!clientId) report.erreurs.push(`Facture ${f.number || f.id} : client introuvable.`);
-      continue;
+      report.erreurs.push(
+        `Facture ${f.number || f.id} : erreur réseau — ${err instanceof Error ? err.message : String(err)}.`,
+      );
     }
-    const { data: exists } = await supabase
-      .from("factures")
-      .select("id")
-      .eq("id", f.number)
-      .maybeSingle();
-    if (exists) {
-      report.factures.ignores++;
-      continue;
-    }
-    const row = vanillaFactureToRow(f, clientId);
-    const { error } = await supabase.from("factures").insert(row);
-    if (error) {
-      report.factures.ignores++;
-      report.erreurs.push(`Facture ${f.number} : ${error.message}`);
-      continue;
-    }
-    const prestations = (f.prestations || []).map((p) => ({
-      id: `FPRE-${crypto.randomUUID()}`,
-      facture_id: row.id,
-      ...prestationVanillaToRow(p),
-    }));
-    if (prestations.length > 0) {
-      await supabase.from("facture_prestations").insert(prestations as never);
-    }
-    report.factures.importes++;
   }
 
   // --- 3. Devis (+ prestations, lien vers la facture convertie) ---
   for (const d of h.devis || []) {
-    const clientId = resolveClientId(d);
-    if (!clientId || !d.number) {
-      report.devis.ignores++;
-      if (!clientId) report.erreurs.push(`Devis ${d.number || d.id} : client introuvable.`);
-      continue;
-    }
-    const { data: exists } = await supabase
-      .from("devis")
-      .select("id")
-      .eq("numero", d.number)
-      .maybeSingle();
-    if (exists) {
-      report.devis.ignores++;
-      continue;
-    }
-    let factureId: string | null = null;
-    if (d.convertedToFacture) {
-      const { data: fact } = await supabase
-        .from("factures")
+    try {
+      const clientId = resolveClientId(d);
+      if (!clientId || !d.number) {
+        report.devis.ignores++;
+        if (!clientId) report.erreurs.push(`Devis ${d.number || d.id} : client introuvable.`);
+        continue;
+      }
+      const { data: exists } = await supabase
+        .from("devis")
         .select("id")
-        .eq("id", d.convertedToFacture)
+        .eq("numero", d.number)
         .maybeSingle();
-      factureId = fact?.id ?? null;
-    }
-    const row = vanillaDevisToRow(d, clientId, factureId);
-    const { error } = await supabase.from("devis").insert(row as never);
-    if (error) {
+      if (exists) {
+        report.devis.ignores++;
+        continue;
+      }
+      let factureId: string | null = null;
+      if (d.convertedToFacture) {
+        const { data: fact } = await supabase
+          .from("factures")
+          .select("id")
+          .eq("id", d.convertedToFacture)
+          .maybeSingle();
+        factureId = fact?.id ?? null;
+      }
+      const row = vanillaDevisToRow(d, clientId, factureId);
+      const { error } = await supabase.from("devis").insert(row as never);
+      if (error) {
+        report.devis.ignores++;
+        report.erreurs.push(`Devis ${d.number} : ${error.message} (${error.code ?? "?"}).`);
+        continue;
+      }
+      const prestations = (d.prestations || []).map((p) => ({
+        id: `DPRE-${crypto.randomUUID()}`,
+        devis_id: row.id,
+        ...prestationVanillaToRow(p),
+      }));
+      if (prestations.length > 0) {
+        const { error: ePresta } = await supabase
+          .from("devis_prestations")
+          .insert(prestations as never);
+        if (ePresta) {
+          report.erreurs.push(`Prestations devis ${d.number} : ${ePresta.message}.`);
+        }
+      }
+      report.devis.importes++;
+    } catch (err) {
       report.devis.ignores++;
-      report.erreurs.push(`Devis ${d.number} : ${error.message}`);
-      continue;
+      report.erreurs.push(
+        `Devis ${d.number || d.id} : erreur réseau — ${err instanceof Error ? err.message : String(err)}.`,
+      );
     }
-    const prestations = (d.prestations || []).map((p) => ({
-      id: `DPRE-${crypto.randomUUID()}`,
-      devis_id: row.id,
-      ...prestationVanillaToRow(p),
-    }));
-    if (prestations.length > 0) {
-      await supabase.from("devis_prestations").insert(prestations as never);
-    }
-    report.devis.importes++;
   }
 
   // --- 4. Reçus → paiements (puis recalcul du statut des factures liées) ---
   const facturesARecalculer = new Set<string>();
   for (const r of h.recus || []) {
-    const clientId = resolveClientId(r);
-    if (!clientId) {
-      report.recus.ignores++;
-      report.erreurs.push(`Reçu ${r.number || r.id} : client introuvable.`);
-      continue;
-    }
-    if (r.number) {
-      const { data: exists } = await supabase
-        .from("paiements")
-        .select("id")
-        .eq("reference", r.number)
-        .maybeSingle();
-      if (exists) {
+    try {
+      const clientId = resolveClientId(r);
+      if (!clientId) {
         report.recus.ignores++;
+        report.erreurs.push(`Reçu ${r.number || r.id} : client introuvable.`);
         continue;
       }
-    }
-    const factureNumber =
-      r.factureNumbers?.[0] || (r.sourceType === "facture" ? r.sourceNumber || null : null);
-    let factureId: string | null = null;
-    let factureMontant: number | null = null;
-    if (factureNumber) {
-      const { data: fact } = await supabase
-        .from("factures")
-        .select("id, montant")
-        .eq("id", factureNumber)
-        .maybeSingle();
-      if (fact) {
-        factureId = fact.id;
-        factureMontant = Number(fact.montant) || 0;
+      if (r.number) {
+        const { data: exists } = await supabase
+          .from("paiements")
+          .select("id")
+          .eq("reference", r.number)
+          .maybeSingle();
+        if (exists) {
+          report.recus.ignores++;
+          continue;
+        }
       }
-    }
-    const row = vanillaRecuToPaiementRow(r, clientId, factureId, factureMontant);
-    const { error } = await supabase.from("paiements").insert(row as never);
-    if (error) {
+      const factureNumber =
+        r.factureNumbers?.[0] || (r.sourceType === "facture" ? r.sourceNumber || null : null);
+      let factureId: string | null = null;
+      let factureMontant: number | null = null;
+      if (factureNumber) {
+        const { data: fact } = await supabase
+          .from("factures")
+          .select("id, montant")
+          .eq("id", factureNumber)
+          .maybeSingle();
+        if (fact) {
+          factureId = fact.id;
+          factureMontant = Number(fact.montant) || 0;
+        }
+      }
+      const row = vanillaRecuToPaiementRow(r, clientId, factureId, factureMontant);
+      const { error } = await supabase.from("paiements").insert(row as never);
+      if (error) {
+        report.recus.ignores++;
+        report.erreurs.push(`Reçu ${r.number || r.id} : ${error.message} (${error.code ?? "?"}).`);
+        continue;
+      }
+      if (factureId) facturesARecalculer.add(factureId);
+      report.recus.importes++;
+    } catch (err) {
       report.recus.ignores++;
-      report.erreurs.push(`Reçu ${r.number || r.id} : ${error.message}`);
-      continue;
+      report.erreurs.push(
+        `Reçu ${r.number || r.id} : erreur réseau — ${err instanceof Error ? err.message : String(err)}.`,
+      );
     }
-    if (factureId) facturesARecalculer.add(factureId);
-    report.recus.importes++;
   }
   for (const factureId of facturesARecalculer) {
     await recalculerStatutPaiementFacture(factureId);
@@ -323,51 +404,65 @@ export async function importVanillaEnvelope(
 
   // --- 5. Propositions ---
   for (const p of h.propositions || []) {
-    const clientId = resolveClientId(p);
-    if (!clientId) {
+    try {
+      const clientId = resolveClientId(p);
+      if (!clientId) {
+        report.propositions.ignores++;
+        report.erreurs.push(`Proposition ${p.id} : client introuvable.`);
+        continue;
+      }
+      const row = vanillaPropositionToRow(p, clientId);
+      const { data: exists } = await supabase
+        .from("propositions")
+        .select("id")
+        .eq("numero", row.numero)
+        .maybeSingle();
+      if (exists) {
+        report.propositions.ignores++;
+        continue;
+      }
+      const { error } = await supabase.from("propositions").insert(row as never);
+      if (error) {
+        report.propositions.ignores++;
+        report.erreurs.push(`Proposition ${row.numero} : ${error.message} (${error.code ?? "?"}).`);
+        continue;
+      }
+      report.propositions.importes++;
+    } catch (err) {
       report.propositions.ignores++;
-      report.erreurs.push(`Proposition ${p.id} : client introuvable.`);
-      continue;
+      report.erreurs.push(
+        `Proposition ${p.id} : erreur réseau — ${err instanceof Error ? err.message : String(err)}.`,
+      );
     }
-    const row = vanillaPropositionToRow(p, clientId);
-    const { data: exists } = await supabase
-      .from("propositions")
-      .select("id")
-      .eq("numero", row.numero)
-      .maybeSingle();
-    if (exists) {
-      report.propositions.ignores++;
-      continue;
-    }
-    const { error } = await supabase.from("propositions").insert(row as never);
-    if (error) {
-      report.propositions.ignores++;
-      report.erreurs.push(`Proposition ${row.numero} : ${error.message}`);
-      continue;
-    }
-    report.propositions.importes++;
   }
 
   // --- 6. Courriers ---
   for (const c of h.courriers || []) {
-    const clientId = resolveClientId(c);
-    const row = vanillaCourrierToRow(c, clientId);
-    const { data: exists } = await supabase
-      .from("courriers")
-      .select("id")
-      .eq("reference", row.reference)
-      .maybeSingle();
-    if (exists) {
+    try {
+      const clientId = resolveClientId(c);
+      const row = vanillaCourrierToRow(c, clientId);
+      const { data: exists } = await supabase
+        .from("courriers")
+        .select("id")
+        .eq("reference", row.reference)
+        .maybeSingle();
+      if (exists) {
+        report.courriers.ignores++;
+        continue;
+      }
+      const { error } = await supabase.from("courriers").insert(row as never);
+      if (error) {
+        report.courriers.ignores++;
+        report.erreurs.push(`Courrier ${row.reference} : ${error.message} (${error.code ?? "?"}).`);
+        continue;
+      }
+      report.courriers.importes++;
+    } catch (err) {
       report.courriers.ignores++;
-      continue;
+      report.erreurs.push(
+        `Courrier ${c.ref || c.id} : erreur réseau — ${err instanceof Error ? err.message : String(err)}.`,
+      );
     }
-    const { error } = await supabase.from("courriers").insert(row as never);
-    if (error) {
-      report.courriers.ignores++;
-      report.erreurs.push(`Courrier ${row.reference} : ${error.message}`);
-      continue;
-    }
-    report.courriers.importes++;
   }
 
   // --- 7. Collections sans équivalent PRISMA ---
