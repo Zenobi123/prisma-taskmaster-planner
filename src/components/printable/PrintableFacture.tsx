@@ -44,7 +44,8 @@ const PrintableFacture = forwardRef<HTMLDivElement, Props>(({ data, config }, re
   return (
     <div ref={ref} className="prisma-printable">
       <style dangerouslySetInnerHTML={{ __html: PRINT_PAGE_FRAME_CSS + FACTURE_PRINT_CSS }} />
-      <div className="prisma-print-page">
+      {/* Réplique du conteneur vanilla : <div class="max-w-4xl mx-auto bg-white p-8 print-area" id="printArea"> */}
+      <div className="prisma-print-page print-area">
         {/* En-tête */}
         <div className="fct-header-top">
           <div>
