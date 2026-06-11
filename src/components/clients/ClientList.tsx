@@ -111,7 +111,10 @@ function ClientActions({ client, onView, onEdit, onArchive, onRestore, onDelete 
   onDelete?: (client: Client) => void;
 }) {
   return (
-    <DropdownMenu>
+    // The actions below open another modal (Dialog or AlertDialog). Keeping the
+    // dropdown modal as well can leave Radix's document pointer lock active
+    // after the second modal closes, making the client screen appear frozen.
+    <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="h-10 w-10 p-0">
           <span className="sr-only">Ouvrir le menu</span>
