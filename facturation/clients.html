@@ -61,6 +61,14 @@
                         </svg>
                         Exporter
                     </button>
+                    <button onclick="exportAllClientsWithHistory()" class="bg-indigo-600 text-white px-4 py-3 rounded-lg hover:bg-indigo-700 transition flex items-center gap-2" title="Exporter toute la liste des clients avec leur historique d'opérations — factures, devis, reçus, propositions, notes, courriers, contrats (JSON, importable dans PRISMA GESTION)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="21 8 21 21 3 21 3 8"></polyline>
+                            <rect x="1" y="3" width="22" height="5"></rect>
+                            <line x1="10" y1="12" x2="14" y2="12"></line>
+                        </svg>
+                        Exporter + historique
+                    </button>
                     <button onclick="showAddForm()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <line x1="12" y1="5" x2="12" y2="19"></line>
@@ -2948,6 +2956,26 @@
             return historique;
         }
 
+        // Collecte l'historique d'opérations rattaché à un ensemble de clients (par nom)
+        function collectAllClientsHistory(clients) {
+            const names = new Set(
+                clients.map(c => String(c.name || '').trim().toLowerCase()).filter(Boolean)
+            );
+            const matchAny = (rec) => {
+                const aliases = [
+                    rec.client, rec.clientName, rec.clientNom, rec.nomClient,
+                    rec.clientData && rec.clientData.name
+                ].filter(Boolean).map(s => String(s).trim().toLowerCase());
+                return aliases.some(a => names.has(a));
+            };
+            const historique = {};
+            HISTORY_KEYS.forEach((key) => {
+                const arr = PrismaBackup.safeParseJSON(key, []);
+                historique[key] = Array.isArray(arr) ? arr.filter(matchAny) : [];
+            });
+            return historique;
+        }
+
         // Total d'opérations dans un objet historique
         function countHistory(historique) {
             if (!historique) return 0;
@@ -2971,6 +2999,30 @@
             };
             downloadJSON(payload, `clients_${new Date().toISOString().slice(0, 10)}.json`);
             PrismaToast.success(`${clients.length} client(s) exporté(s) en JSON`);
+        }
+
+        // Export de TOUTE la liste des clients + tout leur historique d'opérations (JSON).
+        // Même nom de fichier que l'export équivalent de PRISMA GESTION (clients_historique_…),
+        // réimportable tel quel des deux côtés.
+        function exportAllClientsWithHistory() {
+            const clients = PrismaBackup.safeParseJSON('clients', []);
+            if (!clients.length) {
+                PrismaToast.warning('Aucun client à exporter');
+                return;
+            }
+            const historique = collectAllClientsHistory(clients);
+            const total = countHistory(historique);
+            const payload = {
+                format: PRISMA_EXPORT_FORMAT,
+                version: PRISMA_EXPORT_VERSION,
+                type: 'liste',
+                exportedAt: new Date().toISOString(),
+                count: clients.length,
+                clients: clients.map(stripRuntimeFields),
+                historique
+            };
+            downloadJSON(payload, `clients_historique_${new Date().toISOString().slice(0, 10)}.json`);
+            PrismaToast.success(`${clients.length} client(s) et ${total} opération(s) d'historique exporté(s) en JSON`);
         }
 
         // Export d'UN client + tout son historique d'opérations (JSON)

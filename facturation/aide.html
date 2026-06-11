@@ -138,6 +138,24 @@
                     <h2 class="text-2xl font-bold text-gray-800">📋 Historique des versions</h2>
                     <p class="text-sm text-gray-600 mb-4">Cette section liste les changements majeurs de l'application. Chaque mise à jour significative y est documentée pour que vous sachiez ce qui a évolué depuis votre dernière visite.</p>
 
+                    <!-- VERSION 2.9 -->
+                    <article class="mb-6 pb-6 border-b border-gray-200">
+                        <div class="flex items-center gap-3 mb-2 flex-wrap">
+                            <h3 class="text-xl font-bold text-blue-900 mt-0">Version 2.9</h3>
+                            <span class="text-xs text-gray-500">11 juin 2026</span>
+                            <span class="badge badge-new">Nouveau</span>
+                        </div>
+                        <ul class="list-disc list-inside text-sm text-gray-700 space-y-1.5 ml-2">
+                            <li><strong>Export de toute la liste des clients avec leur historique</strong> dans le module <a href="clients.html" class="text-blue-700 hover:underline">Clients</a> : le nouveau bouton <strong>« Exporter + historique »</strong> de l'en-tête produit un fichier JSON unique (<code>clients_historique_AAAA-MM-JJ.json</code>) contenant tous les clients <strong>et l'intégralité de leur historique d'opérations</strong> (factures, devis, reçus, propositions, notes, courriers, contrats).
+                                <ul class="list-disc list-inside ml-6 mt-1 text-gray-600">
+                                    <li>Format d'échange <code>PRISMA-CLIENTS</code> : le fichier est <strong>directement importable dans PRISMA GESTION</strong> (page Clients → Importer), qui rapproche les clients par NIU et ignore les documents déjà présents.</li>
+                                    <li>Il est aussi réimportable ici même (Importer) : les clients dont le NIU existe déjà sont ignorés et l'historique est fusionné sans doublon.</li>
+                                    <li>L'export inverse existe dans PRISMA GESTION : Clients → Exporter → « Export PRISMA + historique », réimportable dans cette application.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </article>
+
                     <!-- VERSION 2.8 -->
                     <article class="mb-6 pb-6 border-b border-gray-200">
                         <div class="flex items-center gap-3 mb-2 flex-wrap">
@@ -796,7 +814,7 @@
         // VERSION & dernière mise à jour
         // ============================================================
         // À mettre à jour à chaque changement majeur (synchronisé avec le changelog en haut).
-        const APP_VERSION = '2.8';
+        const APP_VERSION = '2.9';
         const LAST_UPDATE = '2026-06-11';
 
         document.getElementById('appVersion').textContent = 'v' + APP_VERSION;
