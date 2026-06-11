@@ -167,6 +167,21 @@ describe("envelope — détection et validation PRISMA-CLIENTS", () => {
     expect(avec.historique).toBeDefined();
   });
 
+  it("accepte une enveloppe « liste » multi-clients avec historique (export global vanilla)", () => {
+    const liste = {
+      format: "PRISMA-CLIENTS",
+      version: 1,
+      type: "liste",
+      count: 2,
+      clients: [FIXTURE.clients[0], { ...FIXTURE.clients[0], name: "AUTRE CLIENT", niu: "P000" }],
+      historique: FIXTURE.historique,
+    };
+    const { envelope, error } = parseVanillaFile(JSON.stringify(liste));
+    expect(error).toBeUndefined();
+    expect(envelope?.clients).toHaveLength(2);
+    expect(countHistorique(envelope?.historique)).toBe(3);
+  });
+
   it("slugifie le nom de fichier comme le vanilla", () => {
     expect(slugifyClientName("NGAH ESSAMA JACQUELINE FLORENCE")).toBe(
       "NGAH_ESSAMA_JACQUELINE_FLORENCE",
