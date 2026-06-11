@@ -5,6 +5,13 @@ import PrintableRecu, { type RecuPrintData } from '../PrintableRecu';
 import PrintableDevis, { type DevisPrintData } from '../PrintableDevis';
 import PrintableProposition, { type PropositionPrintData } from '../PrintableProposition';
 import { DEFAULT_CABINET_CONFIG } from '@/lib/spec/cabinetConfig';
+import {
+  PAGE_STYLE_FACTURE,
+  PAGE_STYLE_RECU,
+  PAGE_STYLE_DEVIS,
+  PAGE_STYLE_PROPOSITION,
+  PRINT_PAGE_FRAME_CSS,
+} from '@/lib/spec/printStyles';
 import type { ClientSpec } from '@/lib/spec/fiscal';
 import type { ReactElement } from 'react';
 
@@ -126,5 +133,85 @@ describe('Rendus imprimables fidèles au vanilla', () => {
     expect(txt).toContain('attention de Monsieur');
     expect(txt).toContain('Base annuelle');
     expect(txt).toContain('125 000 F CFA');
+  });
+});
+
+describe('Géométrie des marges (conteneurs « printArea » et @page du vanilla)', () => {
+  const factureData: FacturePrintData = {
+    number: 'N° 0001/2026/06',
+    date: '2026-06-10',
+    client,
+    prestations: [],
+    totalImpots: 0,
+    totalHonoraires: 0,
+    total: 0,
+  };
+  const recuData: RecuPrintData = {
+    number: 'RECU-0001/2026',
+    date: '2026-06-10',
+    client,
+    montant: 1000,
+    montantImpots: 0,
+    montantHonoraires: 0,
+    paymentMode: 'Espèces',
+    motif: 'Test',
+  };
+  const devisData: DevisPrintData = {
+    number: 'DEVIS-0001/2026/06',
+    date: '2026-06-10',
+    status: 'brouillon',
+    client,
+    prestations: [{ type: 'Honoraire', designation: 'Mission', qty: 1, price: 1, total: 1 }],
+    totalImpots: 0,
+    totalHonoraires: 1,
+    total: 1,
+  };
+  const propositionData: PropositionPrintData = {
+    date: '2026-06-10',
+    client,
+    lignes: [{ type: 'Impôt', designation: 'IGS', base: 1, fraction: 25, amount: 1 }],
+    totalImpots: 1,
+    totalHonoraires: 0,
+    total: 1,
+  };
+
+  it('Facture : carte max-w-4xl/p-8 (.prisma-print-page print-area) + @page 12/20mm', () => {
+    const html = renderToStaticMarkup(<PrintableFacture data={factureData} config={cfg} />);
+    expect(html).toContain('prisma-print-page print-area');
+    // facture-app.html : <div class="max-w-4xl mx-auto bg-white p-8 print-area">
+    expect(PRINT_PAGE_FRAME_CSS).toContain('max-width: 56rem');
+    expect(PRINT_PAGE_FRAME_CSS).toContain('padding: 2rem');
+    // printFacture() : @page 20mm 12mm 15mm 12mm, première page 12mm en haut.
+    expect(PAGE_STYLE_FACTURE).toContain('@page { size: A4; margin: 20mm 12mm 15mm 12mm; }');
+    expect(PAGE_STYLE_FACTURE).toContain('@page :first { margin: 12mm 12mm 15mm 12mm; }');
+    // prisma-print.css : reset .print-area à l'impression.
+    expect(PAGE_STYLE_FACTURE).toContain('--print-blue-strong: #c9dcfb');
+  });
+
+  it('Reçu : conteneur max-w-3xl p-8 + double bordure + @page 10mm', () => {
+    const html = renderToStaticMarkup(<PrintableRecu data={recuData} config={cfg} />);
+    expect(html).toContain('print-area');
+    expect(html).toContain('max-w-3xl');
+    expect(html).toContain('p-8');
+    expect(html).toContain('3px double #1e3a8a');
+    expect(PAGE_STYLE_RECU).toContain('@page { size: A4; margin: 10mm 10mm; }');
+  });
+
+  it('Devis : conteneur max-w-4xl p-5 + ligne total-row + @page 10mm', () => {
+    const html = renderToStaticMarkup(<PrintableDevis data={devisData} config={cfg} />);
+    expect(html).toContain('print-area');
+    expect(html).toContain('max-w-4xl');
+    expect(html).toContain('p-5');
+    expect(html).toContain('total-row');
+    expect(PAGE_STYLE_DEVIS).toContain('@page { size: A4; margin: 10mm 10mm; }');
+  });
+
+  it('Proposition : conteneur max-w-4xl p-8 + sections bg-section + @page 10mm', () => {
+    const html = renderToStaticMarkup(<PrintableProposition data={propositionData} config={cfg} />);
+    expect(html).toContain('print-area');
+    expect(html).toContain('max-w-4xl');
+    expect(html).toContain('p-8');
+    expect(html).toContain('bg-section');
+    expect(PAGE_STYLE_PROPOSITION).toContain('@page { size: A4; margin: 10mm 10mm; }');
   });
 });

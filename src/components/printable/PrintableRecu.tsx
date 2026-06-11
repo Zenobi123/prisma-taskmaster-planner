@@ -36,10 +36,12 @@ const PrintableRecu = forwardRef<HTMLDivElement, Props>(({ data, config }, ref) 
   const hasVentilation = data.montantImpots > 0 || data.montantHonoraires > 0;
 
   return (
+    // Réplique du conteneur vanilla :
+    // <div class="max-w-3xl mx-auto bg-white p-8 print-area shadow-xl" id="printArea" style="border: 3px double #1e3a8a;">
     <div
       ref={ref}
-      className="prisma-printable"
-      style={{ padding: '2rem', background: '#fff', maxWidth: '210mm', margin: '0 auto', fontFamily: "'Inter', sans-serif", color: '#111827' }}
+      className="prisma-printable print-area max-w-3xl mx-auto bg-white p-8 shadow-xl"
+      style={{ border: '3px double #1e3a8a', fontFamily: "'Inter', sans-serif", color: '#111827' }}
     >
       {/* Bandeau dégradé pleine largeur */}
       <div

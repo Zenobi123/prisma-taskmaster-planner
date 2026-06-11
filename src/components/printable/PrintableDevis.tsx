@@ -50,10 +50,12 @@ const PrintableDevis = forwardRef<HTMLDivElement, Props>(({ data, config }, ref)
   const villeLine = [c.ville, c.quartier].filter(Boolean).join(' - ');
 
   return (
+    // Réplique du conteneur vanilla :
+    // <div class="max-w-4xl mx-auto bg-white p-5 print-area" id="printArea">
     <div
       ref={ref}
-      className="prisma-printable"
-      style={{ padding: '2rem', background: '#fff', maxWidth: '210mm', margin: '0 auto', fontFamily: "'Inter', sans-serif", color: '#111827' }}
+      className="prisma-printable print-area max-w-4xl mx-auto bg-white p-5"
+      style={{ fontFamily: "'Inter', sans-serif", color: '#111827' }}
     >
       {/* En-tête */}
       <div className="flex justify-between items-start mb-3">
@@ -122,7 +124,7 @@ const PrintableDevis = forwardRef<HTMLDivElement, Props>(({ data, config }, ref)
               <td className="px-2 py-1 text-right font-semibold text-blue-900">{fr(p.total)}</td>
             </tr>
           ))}
-          <tr style={{ backgroundColor: '#1e3a8a', color: 'white', fontWeight: 'bold' }}>
+          <tr className="total-row" style={{ backgroundColor: '#1e3a8a', color: 'white', fontWeight: 'bold' }}>
             <td colSpan={4} className="px-2 py-1.5 text-right">TOTAL</td>
             <td className="px-2 py-1.5 text-right text-base">{fCFA(data.total)}</td>
           </tr>

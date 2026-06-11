@@ -51,10 +51,12 @@ const PrintableProposition = forwardRef<HTMLDivElement, Props>(({ data, config }
   );
 
   return (
+    // Réplique du conteneur vanilla :
+    // <div class="max-w-4xl mx-auto bg-white p-8 print-area" id="printArea">
     <div
       ref={ref}
-      className="prisma-printable"
-      style={{ padding: '2rem', background: '#fff', maxWidth: '210mm', margin: '0 auto', fontFamily: "'Inter', sans-serif", color: '#111827' }}
+      className="prisma-printable print-area max-w-4xl mx-auto bg-white p-8"
+      style={{ fontFamily: "'Inter', sans-serif", color: '#111827' }}
     >
       {/* En-tête */}
       <div className="flex justify-between items-start mb-4">
@@ -98,7 +100,7 @@ const PrintableProposition = forwardRef<HTMLDivElement, Props>(({ data, config }
         <tbody>
           {fiscal.length > 0 && (
             <>
-              <tr style={{ backgroundColor: '#dbeafe', color: '#1e3a8a', fontWeight: 'bold' }}>
+              <tr className="bg-section" style={{ backgroundColor: '#dbeafe', color: '#1e3a8a', fontWeight: 'bold' }}>
                 <td colSpan={4} className="border border-gray-300 px-3 py-2">IMPÔTS</td>
               </tr>
               {fiscal.map((l, i) => ligneRow(l, `i${i}`))}
@@ -106,7 +108,7 @@ const PrintableProposition = forwardRef<HTMLDivElement, Props>(({ data, config }
           )}
           {honoraires.length > 0 && (
             <>
-              <tr style={{ backgroundColor: '#dbeafe', color: '#1e3a8a', fontWeight: 'bold' }}>
+              <tr className="bg-section" style={{ backgroundColor: '#dbeafe', color: '#1e3a8a', fontWeight: 'bold' }}>
                 <td colSpan={4} className="border border-gray-300 px-3 py-2">HONORAIRES</td>
               </tr>
               {honoraires.map((l, i) => ligneRow(l, `h${i}`))}
