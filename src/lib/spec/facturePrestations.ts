@@ -18,7 +18,10 @@ export interface PrestationDef {
   montant: number;
 }
 
-// === LISTE PRÉDÉFINIE D'IMPÔTS (15 entrées) — SPEC §5.5 ===
+// === LISTE PRÉDÉFINIE D'IMPÔTS — référence : devis.html (LISTE_IMPOTS, lignes 395-412) ===
+// Classification à jour : ACF et ATTIM sont des IMPÔTS (timbre fiscal 2 100 F),
+// comme l'Inscription/Cotisation CGA. facture-app.html porte encore l'ancienne
+// classification (ACF/ATTIM en honoraires) — c'est devis.html qui fait foi.
 export const LISTE_IMPOTS: PrestationDef[] = [
   { designation: 'Précompte sur Loyer (PSL)', montant: 0 },
   { designation: 'Bail Commercial', montant: 0 },
@@ -33,16 +36,16 @@ export const LISTE_IMPOTS: PrestationDef[] = [
   { designation: 'Contribution au Crédit Foncier (CCF)', montant: 0 },
   { designation: 'Centimes Additionnels Communaux (CAC)', montant: 0 },
   { designation: 'Redevance Audiovisuelle (RAV)', montant: 0 },
+  { designation: 'Obtention ACF (Attestation de Conformité Fiscale)', montant: 2_100 },
+  { designation: 'Obtention ATTIM (Attestation Immatriculation)', montant: 2_100 },
   { designation: 'Inscription au Centre de Gestion Agréé', montant: 75_000 },
   { designation: 'Cotisation Annuelle au CGA', montant: 50_000 },
 ];
 
-// === HONORAIRES COMMUNS — SPEC §5.6 ===
+// === HONORAIRES COMMUNS — référence : devis.html (HONORAIRES_COMMUNS, lignes 415-421) ===
 export const HONORAIRES_COMMUNS: PrestationDef[] = [
   { designation: 'Déclaration Annuelle des Revenus des Particuliers (DARP)', montant: 5_000 },
   { designation: 'Déclaration des Bénéficiaires Effectifs (DBEF)', montant: 5_000 },
-  { designation: 'Obtention ACF (Attestation de Conformité Fiscale)', montant: 2_100 },
-  { designation: 'Obtention ATTIM (Attestation Immatriculation)', montant: 2_100 },
   { designation: 'Conseil fiscal', montant: 25_000 },
   { designation: "Création d'entreprise", montant: 75_000 },
   { designation: 'Modification statutaire', montant: 50_000 },
@@ -78,11 +81,12 @@ export const HONORAIRES_PAR_REGIME: Record<RegimeFiscalSpec, PrestationDef[]> = 
 };
 
 // === PRESTATIONS COMMUNES (boutons rapides — SPEC §5.8) ===
+// ACF/ATTIM typées Impôt (classification devis.html — timbre fiscal).
 export const PRESTATIONS_COMMUNES: Array<PrestationDef & { type: PrestationType }> = [
   { designation: 'Déclaration Annuelle des Revenus des Particuliers (DARP)', montant: 5_000, type: 'Honoraire' },
   { designation: 'Déclaration des Bénéficiaires Effectifs (DBEF)', montant: 5_000, type: 'Honoraire' },
-  { designation: 'Obtention ACF (Attestation de Conformité Fiscale)', montant: 2_100, type: 'Honoraire' },
-  { designation: 'Obtention ATTIM (Attestation Immatriculation)', montant: 2_100, type: 'Honoraire' },
+  { designation: 'Obtention ACF (Attestation de Conformité Fiscale)', montant: 2_100, type: 'Impôt' },
+  { designation: 'Obtention ATTIM (Attestation Immatriculation)', montant: 2_100, type: 'Impôt' },
 ];
 
 export const PRESTATIONS_REGIME: Record<RegimeFiscalSpec, Array<PrestationDef & { type: PrestationType }>> = {
