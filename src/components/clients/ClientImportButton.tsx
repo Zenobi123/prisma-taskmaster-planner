@@ -1,5 +1,6 @@
 
 import { useState, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,7 +24,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { Upload, Download, FileText } from "lucide-react";
+import { Upload, Download, FileText, Archive, LoaderCircle } from "lucide-react";
 import { toast } from "sonner";
 import { Client } from "@/types/client";
 import {
@@ -32,11 +33,25 @@ import {
   parseByFormat,
   buildTemplate,
 } from "@/utils/clientImport";
+import { parseVanillaFile, countHistorique, summarizeHistorique } from "@/utils/vanillaTransfer/envelope";
+import { VanillaEnvelope } from "@/utils/vanillaTransfer/types";
+import { vanillaToPrismaClient } from "@/utils/vanillaTransfer/clientMapper";
+import { importVanillaEnvelope, VanillaImportReport } from "@/services/vanillaTransferService";
 
 interface ClientImportButtonProps {
   onImport: (clients: Partial<Client>[]) => void;
   isMobile?: boolean;
 }
+
+const HISTORY_LABELS: Record<string, string> = {
+  factures: "facture(s)",
+  devis: "devis",
+  recus: "reçu(s)",
+  propositions: "proposition(s)",
+  notes: "note(s)",
+  courriers: "courrier(s)",
+  contrats: "contrat(s)",
+};
 
 function downloadTemplate(format: ImportFormat) {
   const { content, mime, fileName, bom } = buildTemplate(format);
@@ -49,12 +64,33 @@ function downloadTemplate(format: ImportFormat) {
   URL.revokeObjectURL(url);
 }
 
+function formatImportReport(report: VanillaImportReport): string {
+  const parts: string[] = [];
+  if (report.clientsCrees.length > 0) parts.push(`${report.clientsCrees.length} client(s) créé(s)`);
+  if (report.clientsExistants.length > 0)
+    parts.push(`${report.clientsExistants.length} client(s) existant(s) réutilisé(s)`);
+  const docs: Array<[string, { importes: number }]> = [
+    ["facture(s)", report.factures],
+    ["devis", report.devis],
+    ["reçu(s)", report.recus],
+    ["proposition(s)", report.propositions],
+    ["courrier(s)", report.courriers],
+  ];
+  for (const [label, counts] of docs) {
+    if (counts.importes > 0) parts.push(`${counts.importes} ${label}`);
+  }
+  return parts.length > 0 ? parts.join(", ") : "Aucune donnée nouvelle (tout existait déjà)";
+}
+
 export function ClientImportButton({ onImport, isMobile }: ClientImportButtonProps) {
   const [open, setOpen] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<Partial<Client>[]>([]);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
+  const [vanillaEnvelope, setVanillaEnvelope] = useState<VanillaEnvelope | null>(null);
+  const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -67,10 +103,30 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
     }
 
     setFile(selectedFile);
+    setVanillaEnvelope(null);
 
     const reader = new FileReader();
     reader.onload = (event) => {
       const text = event.target?.result as string;
+
+      // Détection d'un export de l'application vanilla (enveloppe PRISMA-CLIENTS) :
+      // dans ce cas l'import passe par le service dédié, avec historique.
+      if (format === "json") {
+        const { envelope, error } = parseVanillaFile(text);
+        if (envelope) {
+          setVanillaEnvelope(envelope);
+          setPreview(envelope.clients.map(vanillaToPrismaClient));
+          setParseErrors([]);
+          return;
+        }
+        if (error) {
+          setParseErrors([error]);
+          setPreview([]);
+          toast.error(error);
+          return;
+        }
+      }
+
       const { clients, errors } = parseByFormat(format, text);
 
       if (errors.length > 0) {
@@ -88,9 +144,37 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
     reader.readAsText(selectedFile, "UTF-8");
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     if (preview.length === 0) {
       toast.error("Aucune donnée valide à importer.");
+      return;
+    }
+
+    if (vanillaEnvelope) {
+      setIsImporting(true);
+      try {
+        const report = await importVanillaEnvelope(vanillaEnvelope);
+        toast.success(`Import PRISMA terminé : ${formatImportReport(report)}.`);
+        const ignoredTotal = report.nonSupportes.notes + report.nonSupportes.contrats;
+        if (ignoredTotal > 0) {
+          toast.warning(
+            `${ignoredTotal} élément(s) sans équivalent PRISMA (notes/contrats) non importé(s).`,
+          );
+        }
+        if (report.erreurs.length > 0) {
+          toast.warning(
+            `${report.erreurs.length} avertissement(s) : ${report.erreurs.slice(0, 2).join(" — ")}${report.erreurs.length > 2 ? "…" : ""}`,
+          );
+        }
+        queryClient.invalidateQueries();
+        handleClose();
+      } catch (error) {
+        toast.error(
+          `Échec de l'import : ${error instanceof Error ? error.message : "erreur inconnue"}`,
+        );
+      } finally {
+        setIsImporting(false);
+      }
       return;
     }
 
@@ -104,10 +188,16 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
     setFile(null);
     setPreview([]);
     setParseErrors([]);
+    setVanillaEnvelope(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
   };
+
+  const historyCount = countHistorique(vanillaEnvelope?.historique);
+  const historySummary = summarizeHistorique(vanillaEnvelope?.historique)
+    .map(({ key, count }) => `${count} ${HISTORY_LABELS[key] ?? key}`)
+    .join(", ");
 
   return (
     <>
@@ -128,7 +218,9 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
               Importer des clients
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">
-              Importez vos clients à partir d&apos;un fichier CSV, JSON ou texte (.txt). Utilisez un modèle pour vous assurer du bon format.
+              Importez vos clients à partir d&apos;un fichier CSV, JSON ou texte (.txt). Les
+              exports de l&apos;application PRISMA vanilla (format PRISMA-CLIENTS) sont reconnus
+              automatiquement, avec leur historique d&apos;opérations.
             </DialogDescription>
           </DialogHeader>
 
@@ -163,6 +255,27 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
                 className="block w-full text-xs sm:text-sm text-gray-500 file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-md file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 cursor-pointer"
               />
             </div>
+
+            {/* Vanilla envelope banner */}
+            {vanillaEnvelope && (
+              <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-xs sm:text-sm text-blue-900 flex items-start gap-2">
+                <Archive className="h-4 w-4 mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium">
+                    Export PRISMA (vanilla) détecté — {vanillaEnvelope.clients.length} client
+                    {vanillaEnvelope.clients.length > 1 ? "s" : ""}
+                    {historyCount > 0 ? ` et ${historyCount} opération(s) d'historique` : ""}.
+                  </p>
+                  {historyCount > 0 && (
+                    <p className="mt-1 text-blue-800">{historySummary}.</p>
+                  )}
+                  <p className="mt-1 text-blue-800">
+                    Les clients sont rapprochés par NIU ; les documents déjà présents (même
+                    numéro) seront ignorés.
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* Parse errors */}
             {parseErrors.length > 0 && (
@@ -235,12 +348,18 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
           </div>
 
           <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto">
+            <Button variant="outline" onClick={handleClose} className="w-full sm:w-auto" disabled={isImporting}>
               Annuler
             </Button>
-            <Button onClick={handleImport} disabled={preview.length === 0} className="w-full sm:w-auto">
-              <Upload className="h-4 w-4 mr-2" />
-              Importer {preview.length > 0 ? `(${preview.length})` : ""}
+            <Button onClick={handleImport} disabled={preview.length === 0 || isImporting} className="w-full sm:w-auto">
+              {isImporting ? (
+                <LoaderCircle className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4 mr-2" />
+              )}
+              {isImporting
+                ? "Import en cours…"
+                : `Importer ${preview.length > 0 ? `(${preview.length})` : ""}`}
             </Button>
           </DialogFooter>
         </DialogContent>
