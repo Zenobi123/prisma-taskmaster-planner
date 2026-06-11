@@ -81,12 +81,24 @@ const normName = (s: string | undefined | null): string =>
  * regimefiscal rejette la valeur (ex. « obnl » sur une base plus ancienne), on
  * réessaie en « reel » et on le signale dans le rapport.
  */
+// Colonnes étendues présentes dans la migration 20260612000000.
+// Si la migration n'a pas encore tourné (ancien environnement), on retire ces
+// colonnes du payload et on réessaie — le client est tout de même créé.
+const EXTENDED_FISCAL_COLS = [
+  "civilite",
+  "chiffreaffaires",
+  "iscga",
+  "isvendeurboissons",
+  "modepaiementigs",
+  "modepaiementpsl",
+] as const;
+
 async function insertVanillaClient(
   mapped: Partial<Client>,
   displayName: string,
   report: VanillaImportReport,
 ): Promise<string | null> {
-  const payload: Record<string, unknown> = {
+  const basePayload: Record<string, unknown> = {
     type: mapped.type,
     nom: mapped.nom ?? null,
     raisonsociale: mapped.raisonsociale ?? null,
@@ -101,48 +113,77 @@ async function insertVanillaClient(
     gestionexternalisee: mapped.gestionexternalisee || false,
     situationimmobiliere: mapped.situationimmobiliere ?? null,
     interactions: [],
-    civilite: mapped.civilite,
+    agences: mapped.agences ?? null,
+  };
+
+  const extendedPayload: Record<string, unknown> = {
+    ...basePayload,
+    civilite: mapped.civilite ?? null,
     chiffreaffaires: mapped.chiffreaffaires ?? 0,
     iscga: mapped.iscga ?? false,
     isvendeurboissons: mapped.isvendeurboissons ?? false,
     modepaiementigs: mapped.modepaiementigs ?? "annuel",
     modepaiementpsl: mapped.modepaiementpsl ?? "annuel",
-    agences: mapped.agences ?? null,
   };
 
-  try {
-    let { data, error } = await supabase
-      .from("clients")
-      .insert([payload as never])
-      .select("id")
-      .single();
-
-    if (error && /regimefiscal/i.test(error.message || "")) {
-      ({ data, error } = await supabase
+  const tryInsert = async (
+    payload: Record<string, unknown>,
+  ): Promise<{ id: string | null; error: { message: string; code: string } | null }> => {
+    try {
+      let { data, error } = await supabase
         .from("clients")
-        .insert([{ ...payload, regimefiscal: "reel" } as never])
+        .insert([payload as never])
         .select("id")
-        .single());
-      if (!error) {
-        report.erreurs.push(
-          `« ${displayName} » : régime fiscal « ${mapped.regimefiscal} » refusé, enregistré en « reel ».`,
-        );
-      }
-    }
+        .single();
 
-    if (error || !data) {
-      report.erreurs.push(
-        `Client « ${displayName} » : ${error?.message || "insertion impossible"} (code: ${error?.code ?? "?"}).`,
-      );
-      return null;
+      // Retry with "reel" if the DB has a strict CHECK on regimefiscal
+      if (error && /regimefiscal/i.test(error.message || "")) {
+        ({ data, error } = await supabase
+          .from("clients")
+          .insert([{ ...payload, regimefiscal: "reel" } as never])
+          .select("id")
+          .single());
+        if (!error) {
+          report.erreurs.push(
+            `« ${displayName} » : régime fiscal « ${mapped.regimefiscal} » refusé, enregistré en « reel ».`,
+          );
+        }
+      }
+
+      if (error || !data) {
+        return { id: null, error: error ?? { message: "insertion impossible", code: "?" } };
+      }
+      return { id: data.id as string, error: null };
+    } catch (err) {
+      return {
+        id: null,
+        error: {
+          message: err instanceof Error ? err.message : String(err),
+          code: "NETWORK",
+        },
+      };
     }
-    return data.id as string;
-  } catch (err) {
+  };
+
+  // First attempt — full payload including extended fiscal columns
+  let result = await tryInsert(extendedPayload);
+
+  // If PostgREST rejects because a column doesn't exist (migration not run yet),
+  // fall back to base columns only.
+  if (result.error && result.error.code === "42703") {
     report.erreurs.push(
-      `Client « ${displayName} » : erreur réseau — ${err instanceof Error ? err.message : String(err)}.`,
+      `« ${displayName} » : colonnes fiscales absentes de la base (migration en attente) — import basique sans chiffreaffaires/iscga/…`,
+    );
+    result = await tryInsert(basePayload);
+  }
+
+  if (result.error || !result.id) {
+    report.erreurs.push(
+      `Client « ${displayName} » : ${result.error?.message || "insertion impossible"} (code: ${result.error?.code ?? "?"}).`,
     );
     return null;
   }
+  return result.id;
 }
 
 /**
