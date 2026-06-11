@@ -154,14 +154,30 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
       setIsImporting(true);
       try {
         const report = await importVanillaEnvelope(vanillaEnvelope);
-        toast.success(`Import PRISMA terminé : ${formatImportReport(report)}.`);
+        const totalImported =
+          report.clientsCrees.length +
+          report.factures.importes +
+          report.devis.importes +
+          report.recus.importes +
+          report.propositions.importes +
+          report.courriers.importes;
+
+        if (totalImported === 0 && report.clientsExistants.length === 0 && report.erreurs.length > 0) {
+          // Nothing went through — surface the first error prominently
+          toast.error(
+            `Import échoué : ${report.erreurs[0]}${report.erreurs.length > 1 ? ` (+ ${report.erreurs.length - 1} autre(s))` : ""}`,
+          );
+        } else {
+          toast.success(`Import PRISMA terminé : ${formatImportReport(report)}.`);
+        }
+
         const ignoredTotal = report.nonSupportes.notes + report.nonSupportes.contrats;
         if (ignoredTotal > 0) {
           toast.warning(
             `${ignoredTotal} élément(s) sans équivalent PRISMA (notes/contrats) non importé(s).`,
           );
         }
-        if (report.erreurs.length > 0) {
+        if (report.erreurs.length > 0 && totalImported > 0) {
           toast.warning(
             `${report.erreurs.length} avertissement(s) : ${report.erreurs.slice(0, 2).join(" — ")}${report.erreurs.length > 2 ? "…" : ""}`,
           );
@@ -170,7 +186,7 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
         handleClose();
       } catch (error) {
         toast.error(
-          `Échec de l'import : ${error instanceof Error ? error.message : "erreur inconnue"}`,
+          `Échec de l'import : ${error instanceof Error ? error.message : String(error)}`,
         );
       } finally {
         setIsImporting(false);
