@@ -110,6 +110,8 @@ export type Database = {
           adresse: Json
           agences: Json | null
           centrerattachement: string
+          chiffreaffaires: number | null
+          civilite: string | null
           contact: Json
           created_at: string
           datecreation: string | null
@@ -121,7 +123,11 @@ export type Database = {
           id: string
           inscriptionfanrharmony2: boolean | null
           interactions: Json | null
+          iscga: boolean
+          isvendeurboissons: boolean
           lieucreation: string | null
+          modepaiementigs: string | null
+          modepaiementpsl: string | null
           niu: string
           nom: string | null
           nomcommercial: string | null
@@ -141,6 +147,8 @@ export type Database = {
           adresse: Json
           agences?: Json | null
           centrerattachement: string
+          chiffreaffaires?: number | null
+          civilite?: string | null
           contact: Json
           created_at?: string
           datecreation?: string | null
@@ -152,7 +160,11 @@ export type Database = {
           id?: string
           inscriptionfanrharmony2?: boolean | null
           interactions?: Json | null
+          iscga?: boolean
+          isvendeurboissons?: boolean
           lieucreation?: string | null
+          modepaiementigs?: string | null
+          modepaiementpsl?: string | null
           niu: string
           nom?: string | null
           nomcommercial?: string | null
@@ -172,6 +184,8 @@ export type Database = {
           adresse?: Json
           agences?: Json | null
           centrerattachement?: string
+          chiffreaffaires?: number | null
+          civilite?: string | null
           contact?: Json
           created_at?: string
           datecreation?: string | null
@@ -183,7 +197,11 @@ export type Database = {
           id?: string
           inscriptionfanrharmony2?: boolean | null
           interactions?: Json | null
+          iscga?: boolean
+          isvendeurboissons?: boolean
           lieucreation?: string | null
+          modepaiementigs?: string | null
+          modepaiementpsl?: string | null
           niu?: string
           nom?: string | null
           nomcommercial?: string | null
