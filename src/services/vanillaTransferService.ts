@@ -112,9 +112,29 @@ async function insertVanillaClient(
     statut: mapped.statut || "actif",
     gestionexternalisee: mapped.gestionexternalisee || false,
     situationimmobiliere: mapped.situationimmobiliere ?? null,
-    interactions: [],
+    interactions: mapped.interactions ?? [],
     agences: mapped.agences ?? null,
   };
+
+  // Champs d'identité PRISMA « de passage » (aller-retour PRISMA → vanilla →
+  // PRISMA) : ajoutés seulement s'ils sont renseignés, pour que l'import d'un
+  // export d'origine vanilla envoie exactement le même payload qu'avant.
+  const identityFields: Array<[keyof Client, unknown]> = [
+    ["nomcommercial", mapped.nomcommercial],
+    ["sigle", mapped.sigle],
+    ["numerorccm", mapped.numerorccm],
+    ["formejuridique", mapped.formejuridique],
+    ["nomdirigeant", mapped.nomdirigeant],
+    ["datecreation", mapped.datecreation],
+    ["lieucreation", mapped.lieucreation],
+    ["sexe", mapped.sexe],
+    ["etatcivil", mapped.etatcivil],
+  ];
+  for (const [key, value] of identityFields) {
+    if (value !== undefined && value !== null && value !== "") {
+      basePayload[key as string] = value;
+    }
+  }
 
   const extendedPayload: Record<string, unknown> = {
     ...basePayload,
