@@ -8,7 +8,12 @@
 import {
   Agence,
   Client,
+  ClientStatus,
+  EtatCivil,
+  FormeJuridique,
+  Interaction,
   RegimeFiscal,
+  Sexe,
   SituationImmobiliere,
 } from "@/types/client";
 import {
@@ -66,6 +71,37 @@ const STATUT_IMMO_AGENCE_TO_VANILLA: Record<string, string> = {
   les_deux: "Les deux",
 };
 
+// Validation des énumérations PRISMA portées par les champs « de passage » :
+// une valeur inconnue est abandonnée (undefined) plutôt que de risquer une
+// contrainte CHECK à l'insertion.
+const FORMES_JURIDIQUES: ReadonlySet<string> = new Set([
+  "sa",
+  "sarl",
+  "sas",
+  "snc",
+  "association",
+  "gie",
+  "autre",
+]);
+const SEXES: ReadonlySet<string> = new Set(["homme", "femme"]);
+const ETATS_CIVILS: ReadonlySet<string> = new Set(["celibataire", "marie", "divorce", "veuf"]);
+const STATUTS_PRISMA: ReadonlySet<string> = new Set(["actif", "inactif", "archive"]);
+
+const asEnum = <T extends string>(value: string | undefined, allowed: ReadonlySet<string>): T | undefined =>
+  value && allowed.has(norm(value)) ? (norm(value) as T) : undefined;
+
+/** Interactions PRISMA de passage → tableau assaini (id/date/description). */
+function sanitizeInteractions(raw: VanillaClient["interactions"]): Interaction[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((i) => i && typeof i === "object" && (i.description || i.date))
+    .map((i, idx) => ({
+      id: String(i.id || `IMP-${idx + 1}`),
+      date: i.date || new Date().toISOString(),
+      description: String(i.description || ""),
+    }));
+}
+
 export function vanillaAgenceToPrisma(a: VanillaAgence): Agence {
   return {
     libelle: a.libelle || "",
@@ -98,13 +134,19 @@ export function vanillaToPrismaClient(v: VanillaClient): Partial<Client> {
       ? v.agences.map(vanillaAgenceToPrisma)
       : undefined;
 
+  // Statut : le champ de passage statutPrisma (actif/inactif/archive) prime
+  // sur le statut vanilla (Actif/Inactif), qui ne connaît pas « archive ».
+  const statut =
+    asEnum<ClientStatus>(v.statutPrisma, STATUTS_PRISMA) ??
+    (norm(v.statut) === "inactif" ? "inactif" : "actif");
+
   return {
     type,
     nom: type === "physique" ? v.name || "" : undefined,
     raisonsociale: type === "morale" ? v.name || "" : undefined,
     niu: (v.niu || "").trim(),
     centrerattachement: v.cdi || "",
-    adresse: { ville: v.ville || "", quartier: v.quartier || "", lieuDit: "" },
+    adresse: { ville: v.ville || "", quartier: v.quartier || "", lieuDit: v.lieuDit || "" },
     contact: {
       telephone: v.phone || "",
       email: v.email || "",
@@ -114,7 +156,7 @@ export function vanillaToPrismaClient(v: VanillaClient): Partial<Client> {
     secteuractivite: v.secteur || "",
     numerocnps: v.cnps || undefined,
     gestionexternalisee: norm(v.externalise) === "oui",
-    statut: norm(v.statut) === "inactif" ? "inactif" : "actif",
+    statut,
     regimefiscal,
     chiffreaffaires: Number(v.chiffreAffaires) || 0,
     iscga: !!v.isCGA,
@@ -123,7 +165,17 @@ export function vanillaToPrismaClient(v: VanillaClient): Partial<Client> {
     modepaiementpsl: norm(v.modePaiementPSL) === "trimestriel" ? "trimestriel" : "annuel",
     situationimmobiliere,
     agences,
-    interactions: [],
+    interactions: sanitizeInteractions(v.interactions),
+    // Champs PRISMA de passage (identité entreprise / état civil)
+    nomcommercial: v.nomCommercial || undefined,
+    sigle: v.sigle || undefined,
+    numerorccm: v.rccm || undefined,
+    formejuridique: asEnum<FormeJuridique>(v.formeJuridique, FORMES_JURIDIQUES),
+    nomdirigeant: v.nomDirigeant || undefined,
+    datecreation: v.dateCreationEntreprise || undefined,
+    lieucreation: v.lieuCreationEntreprise || undefined,
+    sexe: asEnum<Sexe>(v.sexe, SEXES),
+    etatcivil: asEnum<EtatCivil>(v.etatCivil, ETATS_CIVILS),
   };
 }
 
@@ -187,5 +239,21 @@ export function prismaToVanillaClient(c: Client): VanillaClient {
     licence: spec.licence || 0,
     createdAt: c.created_at || new Date().toISOString(),
     ...(agences.length > 0 ? { agences } : {}),
+    // Champs PRISMA de passage : émis seulement s'ils sont renseignés, pour
+    // garder les exports de fiches d'origine vanilla identiques à avant.
+    ...(c.nomcommercial ? { nomCommercial: c.nomcommercial } : {}),
+    ...(c.sigle ? { sigle: c.sigle } : {}),
+    ...(c.numerorccm ? { rccm: c.numerorccm } : {}),
+    ...(c.formejuridique ? { formeJuridique: c.formejuridique } : {}),
+    ...(c.nomdirigeant ? { nomDirigeant: c.nomdirigeant } : {}),
+    ...(c.datecreation ? { dateCreationEntreprise: c.datecreation } : {}),
+    ...(c.lieucreation ? { lieuCreationEntreprise: c.lieucreation } : {}),
+    ...(c.sexe ? { sexe: c.sexe } : {}),
+    ...(c.etatcivil ? { etatCivil: c.etatcivil } : {}),
+    ...(c.adresse?.lieuDit ? { lieuDit: c.adresse.lieuDit } : {}),
+    ...(c.statut ? { statutPrisma: c.statut } : {}),
+    ...(Array.isArray(c.interactions) && c.interactions.length > 0
+      ? { interactions: c.interactions }
+      : {}),
   };
 }

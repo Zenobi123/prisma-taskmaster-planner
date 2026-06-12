@@ -121,23 +121,26 @@ export function vanillaFactureToRow(f: VanillaFacture, clientId: string): Factur
     id: f.number || `N° ${String(f.id || Date.now()).slice(-4)}`,
     client_id: clientId,
     date: toDateOnly(f.date),
-    echeance: addDays(f.date, 30),
+    echeance: f.echeance ? toDateOnly(f.echeance) : addDays(f.date, 30),
     montant,
     montant_paye: statusPaiement === "payée" ? montant : 0,
     status: statut === "brouillon" ? "brouillon" : statut === "annulee" ? "annulée" : "envoyée",
     status_paiement: statusPaiement,
-    mode_paiement: "espèces",
-    notes: null,
+    mode_paiement: f.modePaiementPrisma || "espèces",
+    notes: f.notes ?? null,
   };
 }
 
 export interface FactureRowLike {
   id: string;
   date: string;
+  echeance?: string | null;
   montant: number | null;
   montant_paye: number | null;
   status: string;
   status_paiement: string;
+  mode_paiement?: string | null;
+  notes?: string | null;
 }
 
 export function factureRowToVanilla(
@@ -173,6 +176,10 @@ export function factureRowToVanilla(
           fromDevisNumber: devisSource.numero,
         }
       : {}),
+    // Passage PRISMA → fidélité de l'aller-retour
+    ...(row.echeance ? { echeance: row.echeance } : {}),
+    ...(row.mode_paiement ? { modePaiementPrisma: row.mode_paiement } : {}),
+    ...(row.notes ? { notes: row.notes } : {}),
   };
 }
 
@@ -217,11 +224,11 @@ export function vanillaDevisToRow(
     numero: d.number || `DEVIS-${String(d.id || Date.now()).slice(-4)}`,
     client_id: clientId,
     date: toDateOnly(d.date),
-    date_validite: addDays(d.date, 30),
-    objet: null,
+    date_validite: d.dateValidite ? toDateOnly(d.dateValidite) : addDays(d.date, 30),
+    objet: d.objet ?? null,
     status: DEVIS_STATUS_TO_PRISMA[norm(d.status)] ?? "brouillon",
     montant_total: Number(d.total) || 0,
-    notes: null,
+    notes: d.notes ?? null,
     facture_id: factureIdIfExists,
   };
 }
@@ -230,8 +237,11 @@ export interface DevisRowLike {
   id: string;
   numero: string;
   date: string;
+  date_validite?: string | null;
+  objet?: string | null;
   status: string;
   montant_total: number | null;
+  notes?: string | null;
   facture_id: string | null;
 }
 
@@ -262,6 +272,10 @@ export function devisRowToVanilla(
           convertedToFactureId: stableNumericId(row.facture_id),
         }
       : {}),
+    // Passage PRISMA → fidélité de l'aller-retour
+    ...(row.objet ? { objet: row.objet } : {}),
+    ...(row.notes ? { notes: row.notes } : {}),
+    ...(row.date_validite ? { dateValidite: row.date_validite } : {}),
   };
 }
 
@@ -314,9 +328,9 @@ export function vanillaRecuToPaiementRow(
     montant,
     mode: PAYMENT_MODE_TO_PRISMA[norm(r.paymentMode)] ?? "espèces",
     est_credit: !factureIdIfExists,
-    est_verifie: true,
+    est_verifie: r.estVerifie ?? true,
     reference: r.number || `RECU-IMP-${r.id || Date.now()}`,
-    notes: r.motif || null,
+    notes: r.notes ?? (r.motif || null),
     solde_restant:
       factureMontant !== null ? Math.max(0, factureMontant - montant) : null,
     elements_specifiques: {
@@ -338,6 +352,7 @@ export interface PaiementRowLike {
   reference: string | null;
   notes: string | null;
   est_credit: boolean | null;
+  est_verifie?: boolean | null;
   elements_specifiques: unknown;
 }
 
@@ -405,6 +420,9 @@ export function paiementRowToVanillaRecu(
           sourceNumber: facture.id,
         }
       : {}),
+    // Passage PRISMA → fidélité de l'aller-retour
+    ...(row.notes ? { notes: row.notes } : {}),
+    ...(row.est_verifie === false ? { estVerifie: false } : {}),
   };
 }
 
@@ -462,10 +480,12 @@ export function vanillaPropositionToRow(
     total: Number(p.total) || totalImpots + totalHonoraires,
     total_impots: totalImpots,
     total_honoraires: totalHonoraires,
-    status: "brouillon",
+    status: PROPOSITION_STATUSES.has(norm(p.statusPrisma)) ? norm(p.statusPrisma) : "brouillon",
     notes: p.note || null,
   };
 }
+
+const PROPOSITION_STATUSES: ReadonlySet<string> = new Set(["brouillon", "envoyee", "acceptee"]);
 
 export interface PropositionRowLike {
   id: string;
@@ -478,6 +498,7 @@ export interface PropositionRowLike {
   total: number | null;
   total_impots: number | null;
   total_honoraires: number | null;
+  status?: string | null;
   notes: string | null;
 }
 
@@ -508,6 +529,7 @@ export function propositionRowToVanilla(
     sourceType: row.source_type,
     sourceId: null,
     sourceNumber: row.source_numero,
+    ...(row.status ? { statusPrisma: row.status } : {}),
   };
 }
 
@@ -525,8 +547,10 @@ export interface CourrierRowInsert {
   client_id: string | null;
   client_nom: string | null;
   template_id: string | null;
+  template_titre: string | null;
   sujet: string | null;
   contenu: string | null;
+  message_personnalise: string | null;
   statut: string;
   mode_envoi: string | null;
   date_creation: string;
@@ -542,8 +566,10 @@ export function vanillaCourrierToRow(
     client_id: clientId,
     client_nom: c.client || c.destinataire || null,
     template_id: c.modeleKey || null,
+    template_titre: c.templateTitre || null,
     sujet: c.objet || null,
     contenu: c.corps || null,
+    message_personnalise: c.messagePersonnalise || null,
     statut: COURRIER_STATUT_NORM[norm(c.statut)] ?? "brouillon",
     mode_envoi: c.modeEnvoi || null,
     date_creation: c.date || new Date().toISOString(),
@@ -556,6 +582,7 @@ export interface CourrierRowLike {
   reference: string;
   client_nom: string | null;
   template_id: string | null;
+  template_titre?: string | null;
   sujet: string | null;
   contenu: string | null;
   message_personnalise: string | null;
@@ -587,5 +614,7 @@ export function courrierRowToVanilla(
     notesSuivi: "",
     date: row.date_creation,
     isManual: false,
+    ...(row.template_titre ? { templateTitre: row.template_titre } : {}),
+    ...(row.message_personnalise ? { messagePersonnalise: row.message_personnalise } : {}),
   };
 }

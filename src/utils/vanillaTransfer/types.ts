@@ -34,6 +34,13 @@ export interface VanillaAgence {
   tf?: number;
 }
 
+/** Interaction PRISMA (journal de suivi client) — de passage dans le vanilla. */
+export interface VanillaInteraction {
+  id?: string;
+  date?: string;
+  description?: string;
+}
+
 /** Fiche client vanilla (champs à plat, montants fiscaux précalculés). */
 export interface VanillaClient {
   id?: number;
@@ -73,6 +80,23 @@ export interface VanillaClient {
   licence?: number;
   createdAt?: string;
   agences?: VanillaAgence[];
+
+  // --- Champs PRISMA « de passage » -------------------------------------
+  // Absents des formulaires vanilla, mais préservés tels quels par son
+  // import (spread ...row) et son export : l'aller-retour
+  // PRISMA → vanilla → PRISMA est donc sans perte pour la fiche client.
+  nomCommercial?: string;
+  sigle?: string;
+  rccm?: string; // numerorccm
+  formeJuridique?: string; // sa | sarl | sas | snc | association | gie | autre
+  nomDirigeant?: string;
+  dateCreationEntreprise?: string; // datecreation (création de l'entreprise)
+  lieuCreationEntreprise?: string; // lieucreation
+  sexe?: string; // homme | femme
+  etatCivil?: string; // celibataire | marie | divorce | veuf
+  lieuDit?: string; // adresse.lieuDit
+  statutPrisma?: string; // actif | inactif | archive (préserve « archive »)
+  interactions?: VanillaInteraction[];
 }
 
 export interface VanillaPrestation {
@@ -98,6 +122,10 @@ export interface VanillaFacture {
   fromDevis?: boolean;
   fromDevisId?: number;
   fromDevisNumber?: string;
+  // Champs PRISMA de passage (aller-retour sans perte)
+  echeance?: string;
+  modePaiementPrisma?: string; // espèces | virement | orange_money | …
+  notes?: string;
 }
 
 export interface VanillaDevis {
@@ -115,6 +143,10 @@ export interface VanillaDevis {
   statusBeforeConversion?: string;
   convertedToFacture?: string;
   convertedToFactureId?: number;
+  // Champs PRISMA de passage (aller-retour sans perte)
+  objet?: string;
+  notes?: string;
+  dateValidite?: string;
 }
 
 export interface VanillaLignePayee {
@@ -141,6 +173,9 @@ export interface VanillaRecu {
   sourceType?: string | null;
   sourceId?: number | null;
   sourceNumber?: string | null;
+  // Champs PRISMA de passage (aller-retour sans perte)
+  notes?: string;
+  estVerifie?: boolean;
 }
 
 export interface VanillaPropositionLigne {
@@ -168,6 +203,8 @@ export interface VanillaProposition {
   sourceType?: string | null;
   sourceId?: number | null;
   sourceNumber?: string | null;
+  // Champ PRISMA de passage : statut de la proposition (brouillon | envoyee | acceptee)
+  statusPrisma?: string;
 }
 
 export interface VanillaCourrier {
@@ -188,6 +225,11 @@ export interface VanillaCourrier {
   notesSuivi?: string;
   date?: string;
   isManual?: boolean;
+  // Champs PRISMA de passage (aller-retour sans perte). Les champs vanilla
+  // pj / notesSuivi / destinataireAdresse n'ont pas de colonne PRISMA : ils
+  // survivent au transit vanilla → vanilla mais pas à un stockage PRISMA.
+  templateTitre?: string;
+  messagePersonnalise?: string;
 }
 
 export interface VanillaHistorique {

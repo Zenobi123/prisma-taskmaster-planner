@@ -567,3 +567,217 @@ describe("documentMappers — prestations", () => {
     expect(back.total).toBe(150000);
   });
 });
+
+// =============================================================================
+// Transit complet : aller-retour PRISMA → vanilla → PRISMA sans perte
+// (champs « de passage » portés par l'enveloppe, ignorés par les formulaires
+// vanilla mais préservés par son import/export).
+// =============================================================================
+describe("transit complet — fiche client", () => {
+  const PRISMA_MORALE: Client = {
+    id: "uuid-morale-1",
+    type: "morale",
+    raisonsociale: "TRIPHASE SARL",
+    nomcommercial: "Triphase",
+    sigle: "TPH",
+    numerorccm: "RC/YAO/2020/B/123",
+    formejuridique: "sarl",
+    nomdirigeant: "OBIANG Nathan",
+    datecreation: "2020-03-01",
+    lieucreation: "Yaoundé",
+    regimefiscal: "reel",
+    niu: "M031912756642Y",
+    centrerattachement: "CIME Yaoundé Ouest",
+    adresse: { ville: "Yaoundé", quartier: "Bastos", lieuDit: "Face ambassade" },
+    contact: { telephone: "675807543", email: "contact@triphase.cm", contact_principal: "M. OBIANG" },
+    secteuractivite: "commerce",
+    interactions: [{ id: "INT-1", date: "2026-01-10T10:00:00Z", description: "Appel de relance DSF" }],
+    statut: "archive",
+    gestionexternalisee: true,
+    civilite: "M.",
+    chiffreaffaires: 60000000,
+    iscga: false,
+    isvendeurboissons: false,
+    modepaiementigs: "annuel",
+    modepaiementpsl: "annuel",
+  };
+
+  it("personne morale : identité d'entreprise, lieu-dit, archive et interactions préservés", () => {
+    const vanilla = prismaToVanillaClient(PRISMA_MORALE);
+    expect(vanilla.nomCommercial).toBe("Triphase");
+    expect(vanilla.sigle).toBe("TPH");
+    expect(vanilla.rccm).toBe("RC/YAO/2020/B/123");
+    expect(vanilla.formeJuridique).toBe("sarl");
+    expect(vanilla.nomDirigeant).toBe("OBIANG Nathan");
+    expect(vanilla.dateCreationEntreprise).toBe("2020-03-01");
+    expect(vanilla.lieuCreationEntreprise).toBe("Yaoundé");
+    expect(vanilla.lieuDit).toBe("Face ambassade");
+    expect(vanilla.statutPrisma).toBe("archive");
+    expect(vanilla.statut).toBe("Inactif"); // l'app vanilla ne connaît pas « archive »
+    expect(vanilla.interactions).toHaveLength(1);
+
+    const back = vanillaToPrismaClient(vanilla);
+    expect(back.raisonsociale).toBe("TRIPHASE SARL");
+    expect(back.nomcommercial).toBe("Triphase");
+    expect(back.sigle).toBe("TPH");
+    expect(back.numerorccm).toBe("RC/YAO/2020/B/123");
+    expect(back.formejuridique).toBe("sarl");
+    expect(back.nomdirigeant).toBe("OBIANG Nathan");
+    expect(back.datecreation).toBe("2020-03-01");
+    expect(back.lieucreation).toBe("Yaoundé");
+    expect(back.adresse?.lieuDit).toBe("Face ambassade");
+    expect(back.statut).toBe("archive");
+    expect(back.interactions).toEqual([
+      { id: "INT-1", date: "2026-01-10T10:00:00Z", description: "Appel de relance DSF" },
+    ]);
+  });
+
+  it("personne physique : sexe et état civil préservés", () => {
+    const physique: Client = {
+      ...PRISMA_MORALE,
+      id: "uuid-physique-1",
+      type: "physique",
+      raisonsociale: undefined,
+      nomcommercial: undefined,
+      sigle: undefined,
+      numerorccm: undefined,
+      formejuridique: undefined,
+      nom: "DUPONT JEAN",
+      sexe: "homme",
+      etatcivil: "marie",
+      statut: "actif",
+      regimefiscal: "igs",
+      chiffreaffaires: 6000000,
+    };
+    const vanilla = prismaToVanillaClient(physique);
+    expect(vanilla.sexe).toBe("homme");
+    expect(vanilla.etatCivil).toBe("marie");
+
+    const back = vanillaToPrismaClient(vanilla);
+    expect(back.sexe).toBe("homme");
+    expect(back.etatcivil).toBe("marie");
+    expect(back.statut).toBe("actif");
+  });
+
+  it("valeurs d'énumération inconnues abandonnées sans erreur", () => {
+    const back = vanillaToPrismaClient({
+      ...FIXTURE.clients[0],
+      formeJuridique: "kommanditgesellschaft",
+      sexe: "autre",
+      etatCivil: "pacse",
+      statutPrisma: "supprime",
+    });
+    expect(back.formejuridique).toBeUndefined();
+    expect(back.sexe).toBeUndefined();
+    expect(back.etatcivil).toBeUndefined();
+    expect(back.statut).toBe("actif"); // retombe sur le statut vanilla
+  });
+
+  it("une fiche d'origine vanilla n'émet aucun champ de passage parasite", () => {
+    const mapped = vanillaToPrismaClient(FIXTURE.clients[0]);
+    expect(mapped.nomcommercial).toBeUndefined();
+    expect(mapped.interactions).toEqual([]);
+  });
+});
+
+describe("transit complet — historique", () => {
+  const vc = FIXTURE.clients[0];
+
+  it("facture : échéance, mode de paiement et notes préservés", () => {
+    const row = {
+      id: "N° 0007/2026/06",
+      date: "2026-06-01",
+      echeance: "2026-07-15",
+      montant: 100000,
+      montant_paye: 0,
+      status: "envoyée",
+      status_paiement: "non_payée",
+      mode_paiement: "virement",
+      notes: "Facturation semestrielle",
+    };
+    const vanilla = factureRowToVanilla(row, [], vc);
+    expect(vanilla.echeance).toBe("2026-07-15");
+    expect(vanilla.modePaiementPrisma).toBe("virement");
+    expect(vanilla.notes).toBe("Facturation semestrielle");
+
+    const back = vanillaFactureToRow(vanilla, "client-uuid");
+    expect(back.echeance).toBe("2026-07-15");
+    expect(back.mode_paiement).toBe("virement");
+    expect(back.notes).toBe("Facturation semestrielle");
+  });
+
+  it("devis : objet, notes et date de validité préservés", () => {
+    const row = {
+      id: "DEV-1",
+      numero: "DEVIS-0003/2026/06",
+      date: "2026-06-01",
+      date_validite: "2026-06-30",
+      objet: "Mission d'assistance fiscale",
+      status: "envoye",
+      montant_total: 250000,
+      notes: "Remise 10 % incluse",
+      facture_id: null,
+    };
+    const vanilla = devisRowToVanilla(row, [], vc);
+    expect(vanilla.objet).toBe("Mission d'assistance fiscale");
+    expect(vanilla.notes).toBe("Remise 10 % incluse");
+    expect(vanilla.dateValidite).toBe("2026-06-30");
+
+    const back = vanillaDevisToRow(vanilla, "client-uuid", null);
+    expect(back.objet).toBe("Mission d'assistance fiscale");
+    expect(back.notes).toBe("Remise 10 % incluse");
+    expect(back.date_validite).toBe("2026-06-30");
+  });
+
+  it("reçu : notes et vérification préservées", () => {
+    const row = {
+      id: "PAI-1",
+      facture_id: null,
+      date: "2026-06-05T10:00:00Z",
+      montant: 50000,
+      mode: "orange_money",
+      reference: "RECU-0009/2026",
+      notes: "Acompte sur honoraires",
+      est_credit: true,
+      est_verifie: false,
+      elements_specifiques: null,
+    };
+    const vanilla = paiementRowToVanillaRecu(row, vc, null, []);
+    expect(vanilla.notes).toBe("Acompte sur honoraires");
+    expect(vanilla.estVerifie).toBe(false);
+
+    const back = vanillaRecuToPaiementRow(vanilla, "client-uuid", null, null);
+    expect(back.notes).toBe("Acompte sur honoraires");
+    expect(back.est_verifie).toBe(false);
+  });
+
+  it("proposition : statut préservé (et statut inconnu → brouillon)", () => {
+    const back = vanillaPropositionToRow(
+      { id: 1, number: "PROP-1", client: vc.name, lignes: [], statusPrisma: "envoyee" },
+      "client-uuid",
+    );
+    expect(back.status).toBe("envoyee");
+
+    const fallback = vanillaPropositionToRow(
+      { id: 2, number: "PROP-2", client: vc.name, lignes: [], statusPrisma: "validee" },
+      "client-uuid",
+    );
+    expect(fallback.status).toBe("brouillon");
+  });
+
+  it("courrier : titre du modèle et message personnalisé préservés", () => {
+    const back = vanillaCourrierToRow(
+      {
+        ref: "CRR-0002/2026/06",
+        client: vc.name,
+        objet: "Convocation",
+        corps: "Monsieur, …",
+        templateTitre: "Convocation entretien fiscal",
+        messagePersonnalise: "Merci de vous munir de votre NIU.",
+      },
+      "client-uuid",
+    );
+    expect(back.template_titre).toBe("Convocation entretien fiscal");
+    expect(back.message_personnalise).toBe("Merci de vous munir de votre NIU.");
+  });
+});
