@@ -168,11 +168,18 @@ async function insertVanillaClient(
   // First attempt — full payload including extended fiscal columns
   let result = await tryInsert(extendedPayload);
 
-  // If PostgREST rejects because a column doesn't exist (migration not run yet),
-  // fall back to base columns only.
-  if (result.error && result.error.code === "42703") {
+  // If the columns are missing (migration not run yet), fall back to base
+  // columns only. Postgres signals this with 42703 ; PostgREST (Supabase JS)
+  // with PGRST204 « Could not find the '…' column … in the schema cache ».
+  const isMissingColumn = (e: { message: string; code: string } | null): boolean =>
+    !!e &&
+    (e.code === "42703" ||
+      e.code === "PGRST204" ||
+      /column .* does not exist|could not find the '.*' column/i.test(e.message || ""));
+
+  if (isMissingColumn(result.error)) {
     report.erreurs.push(
-      `« ${displayName} » : colonnes fiscales absentes de la base (migration en attente) — import basique sans chiffreaffaires/iscga/…`,
+      `« ${displayName} » : colonnes fiscales absentes de la base (migration 20260612000000 non appliquée) — client importé sans CA/CGA/civilité. Pour les obtenir, appliquez la migration AVANT l'import (un client déjà créé n'est pas modifié au réimport).`,
     );
     result = await tryInsert(basePayload);
   }
