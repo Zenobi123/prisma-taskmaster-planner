@@ -2661,14 +2661,12 @@
             const factures = safe('factures').filter(f => matchName(f.client)).length;
             const devis = safe('devis').filter(d => matchName(d.client)).length;
             const recus = safe('recus').filter(r => matchName(r.client)).length;
-            const notes = safe('notes').filter(n => matchName(n.client)).length;
             const propositions = safe('propositions').filter(p => matchName(p.client)).length;
-            const contrats = safe('contrats').filter(c => matchName(c.clientName) || (clientId != null && c.clientId === clientId)).length;
             const courriers = safe('courriers').filter(c => matchName(c.destinataire) || matchName(c.client) || matchName(c.clientName)).length;
 
             return {
-                factures, devis, recus, notes, propositions, contrats, courriers,
-                total: factures + devis + recus + notes + propositions + contrats + courriers
+                factures, devis, recus, propositions, courriers,
+                total: factures + devis + recus + propositions + courriers
             };
         }
 
@@ -2678,9 +2676,7 @@
             if (hist.factures) parts.push(`${hist.factures} facture(s)`);
             if (hist.devis) parts.push(`${hist.devis} devis`);
             if (hist.recus) parts.push(`${hist.recus} reçu(s)`);
-            if (hist.notes) parts.push(`${hist.notes} note(s)`);
             if (hist.propositions) parts.push(`${hist.propositions} proposition(s)`);
-            if (hist.contrats) parts.push(`${hist.contrats} contrat(s)`);
             if (hist.courriers) parts.push(`${hist.courriers} courrier(s)`);
             return parts.join(', ') || 'aucun document';
         }
@@ -2697,9 +2693,7 @@
                 badge(hist.factures, 'factures', 'bg-blue-100 text-blue-800'),
                 badge(hist.devis, 'devis', 'bg-cyan-100 text-cyan-800'),
                 badge(hist.recus, 'reçus', 'bg-green-100 text-green-800'),
-                badge(hist.notes, 'notes', 'bg-yellow-100 text-yellow-800'),
                 badge(hist.propositions, 'propositions', 'bg-orange-100 text-orange-800'),
-                badge(hist.contrats, 'contrats', 'bg-purple-100 text-purple-800'),
                 badge(hist.courriers, 'courriers', 'bg-pink-100 text-pink-800')
             ].filter(Boolean).join(' ');
         }
@@ -2907,7 +2901,7 @@
         const PRISMA_EXPORT_VERSION = 1;
 
         // Clés d'historique rattachées à un client (par nom). cf. CLAUDE.md (rattachement par nom).
-        const HISTORY_KEYS = ['factures', 'devis', 'recus', 'propositions', 'notes', 'courriers', 'contrats'];
+        const HISTORY_KEYS = ['factures', 'devis', 'recus', 'propositions', 'courriers'];
 
         // Retire les champs runtime non persistés (ex. _originalIndex ajouté par loadClients)
         function stripRuntimeFields(client) {

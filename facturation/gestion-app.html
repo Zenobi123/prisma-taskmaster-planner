@@ -422,14 +422,9 @@
             ================================================================= -->
             <div id="tab-contrats" class="tab-content p-5">
                 <h2 class="text-lg font-bold text-gray-800 mb-1">Contrats et prestations</h2>
-                <p class="text-sm text-gray-600 mb-4">Vue des contrats actifs du client sélectionné (lien avec le module Contrats).</p>
+                <p class="text-sm text-gray-600 mb-4">Vue des contrats actifs du client sélectionné.</p>
                 <div id="contratsListContainer" class="space-y-2">
                     <!-- injecté dynamiquement -->
-                </div>
-                <div class="mt-4">
-                    <a id="contratsLien" href="contrats.html" class="inline-flex items-center gap-2 text-sm text-blue-700 hover:underline">
-                        Ouvrir le module Contrats →
-                    </a>
                 </div>
             </div>
 
@@ -1604,7 +1599,7 @@
         function renderContratsTab() {
             const container = document.getElementById('contratsListContainer');
             if (!state.currentClient) { container.innerHTML = ''; return; }
-            // Compat : contrats.html stocke `clientName` + `clientId` ; on tente les deux pour rétrocompat
+            // Compat : les contrats stockent `clientName` + `clientId` ; on tente les deux pour rétrocompat
             const cn = state.currentClient.name;
             const cid = state.currentClient.id;
             const contrats = PrismaBackup.safeParseJSON('contrats', []).filter(c =>

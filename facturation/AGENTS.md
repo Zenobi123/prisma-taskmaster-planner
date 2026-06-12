@@ -28,14 +28,12 @@ PRISMA GESTION est une application web de gestion commerciale pour un cabinet de
 
 | Fichier | Module | Description |
 |---------|--------|-------------|
-| `index.html` | Page d'accueil | Menu principal (14 modules) + statistiques globales |
+| `index.html` | Page d'accueil | Menu principal (12 modules) + statistiques globales |
 | `clients.html` | Gestion Clients | CRUD clients (PM/PP, NIU, CFLP), régime fiscal et immobilier, import/export Excel. **Corbeille** : la suppression est un *soft delete* (déplacement vers `clientsCorbeille`) ; un client est restaurable **avec son historique** (jamais effacé, rattaché par nom) ou supprimable définitivement. |
-| `contrats.html` | Gestion Contrats | Contrats liés aux clients |
 | `devis.html` | Devis / Proforma | Devis convertibles en factures |
 | `facture-app.html` | Factures | Création de factures avec classification Impôt/Honoraire |
 | `avance-app.html` | Propositions | Propositions de paiement (Impôts + Honoraires) |
 | `recu-app.html` | Reçus | Reçus de paiement avec conversion montant en lettres |
-| `note-app.html` | Notes explicatives | Notes détaillant la composition des factures |
 | `gestion-app.html` | **Gestion** (remplace Situation Client) | Suivi centralisé des clients en **gestion externalisée** (`externalise === 'Oui'`) : sélecteur exercice + client (mémorisés en localStorage + URL params), 5 onglets (Fiscal / Comptable / Contrats / Clôture / Dossier). L'onglet **Fiscal** est le cœur : ACF (90j), ATTIM (30j), IGS détaillé (barème + CGA + échéancier trimestriel), autres impôts directs (Patente, Bail, PSL, TPF), obligations annuelles (DSF / DARP / DBEF) avec pièces jointes et actions groupées. **Auto-save 3s + bouton Enregistrer.** Bannière lecture seule si exercice clôturé. **Stockage des documents** : les pièces jointes (obligations + onglet Dossier) sont écrites sur disque via `PrismaDocStore` (`documents/<client>/<exercice>/Obligations` ou `…/Dossier permanent`, noms horodatés, max 50 Mo) quand le dossier de documents est connecté (bannière dédiée) ; repli base64/localStorage (5 Mo) sinon ; migration en un clic des pièces historiques (snapshot préalable). Métadonnées (`storage:'fs'`, `fsPath`, `fsName`) stockées dans `gestionFiscalData`/`gestionPieces` — l'export JSON ne contient que les références, le dossier `documents/` doit être sauvegardé avec l'application. |
 | `situation-app.html` | Situation client *(legacy, conservé pour rétrocompat)* | Ancienne vue consolidée par client. Plus dans le menu principal mais accessible par URL. |
 | `courrier-app.html` | Gestion Courrier | Courriers fiscaux, clients, relances avec modèles prédéfinis |
@@ -50,20 +48,17 @@ PRISMA GESTION est une application web de gestion commerciale pour un cabinet de
 ### Flux de données (localStorage)
 
 ```
-clients → contrats → devis → factures → recus
-                          ↘ propositions
-                          ↘ notes
+clients → devis → factures → recus
+              ↘ propositions
 ```
 
 **Clés localStorage utilisées :**
 - `clients` : tableau des clients
-- `clientsCorbeille` : (module Clients) clients supprimés en *soft delete* — chaque entrée conserve la fiche client complète + `deletedAt`. Restaurables avec leur historique (factures, devis, reçus, notes, propositions, contrats, courriers ne sont jamais effacés ; le rattachement se fait par **nom** de client). Déclarée dans `PrismaBackup.ALL_DATA_KEYS`.
-- `contrats` : tableau des contrats
+- `clientsCorbeille` : (module Clients) clients supprimés en *soft delete* — chaque entrée conserve la fiche client complète + `deletedAt`. Restaurables avec leur historique (factures, devis, reçus, propositions, courriers ne sont jamais effacés ; le rattachement se fait par **nom** de client). Déclarée dans `PrismaBackup.ALL_DATA_KEYS`.
 - `devis` : tableau des devis / proformas
 - `factures` : tableau des factures
 - `recus` : tableau des reçus de paiement
 - `propositions` : tableau des propositions de paiement
-- `notes` : tableau des notes explicatives
 - `courriers` : tableau des courriers (fiscaux, clients, administratifs)
 - `cabinetConfig` : objet `{ signataireNom, signataireTitre, signature (base64), cachet (base64), ... }` partagé par tous les documents
 - `attestations` : objet indexé par nom client avec dates ACF et ATTIM
@@ -217,7 +212,7 @@ Un client peut exercer sur **plusieurs agences / établissements**. La source de
 - Création/édition via `buildClientPayload()` ; recalcul live via `recomputeAll()` (les fonctions historiques `toggleImmoFields` / `calculateImmoTaxes` / `calculateFiscalTaxes` en sont désormais des alias).
 - **Agence principale** : `agences[0]` (`principale: true`) est le **siège** — non supprimable (seulement modifiable), toujours présent. Son libellé par défaut suit la **localisation** du client (`Siège (ville)`, via `defaultPrincipaleLibelle()` / `syncPrincipaleLocation()`) tant qu'il n'est pas édité (drapeau `data-auto-libelle`).
 - **Localisation par agence** : le siège **hérite** des `ville`/`quartier` du client ; chaque **agence secondaire** saisit ses propres `ville`/`quartier`. Le bloc « Récapitulatif des agences » (`renderAgencesRecap`, conteneur `#agencesRecap`) liste, pour chaque agence, sa localisation + CA + total immobilier.
-- **Ventilation par bien dans les documents** : `devis.html` et `facture-app.html` génèrent **un bouton d'ajout par bien** (`getClientBiensImmo(client)` → `buildImmoTaxLabel(acronyme, bien)`). Les impôts immobiliers sont libellés **`Impôt_Ville/Quartier`** (acronymes **Bail / PSL / TPF**) — ex. `Bail_Yaoundé/Bastos`, `PSL_Douala/Akwa`, `TPF_Yaoundé/Centre` ; repli sur le libellé du bien puis sur l'acronyme seul si aucune localisation n'est renseignée. `courrier-app.html` itémise de même les obligations (helper local `buildImmoTaxLabel`). `situation-app.html`, `note-app.html`, `recu-app.html` **héritent** du détail via les lignes de facture (désignation en saisie libre). L'échéancier `getEcheanceForImpot` matche par sous-chaîne : `Bail` et `PSL` matchent directement ; **`TPF` ne contient pas `TF`**, donc une clé `'TPF'` a été ajoutée à `ECHEANCES_FISCALES` dans `situation-app.html` — les anciennes clés `'TF'`/`'Taxe Foncière'` sont conservées pour rétrocompat des documents historiques.
+- **Ventilation par bien dans les documents** : `devis.html` et `facture-app.html` génèrent **un bouton d'ajout par bien** (`getClientBiensImmo(client)` → `buildImmoTaxLabel(acronyme, bien)`). Les impôts immobiliers sont libellés **`Impôt_Ville/Quartier`** (acronymes **Bail / PSL / TPF**) — ex. `Bail_Yaoundé/Bastos`, `PSL_Douala/Akwa`, `TPF_Yaoundé/Centre` ; repli sur le libellé du bien puis sur l'acronyme seul si aucune localisation n'est renseignée. `courrier-app.html` itémise de même les obligations (helper local `buildImmoTaxLabel`). `situation-app.html` et `recu-app.html` **héritent** du détail via les lignes de facture (désignation en saisie libre). L'échéancier `getEcheanceForImpot` matche par sous-chaîne : `Bail` et `PSL` matchent directement ; **`TPF` ne contient pas `TF`**, donc une clé `'TPF'` a été ajoutée à `ECHEANCES_FISCALES` dans `situation-app.html` — les anciennes clés `'TF'`/`'Taxe Foncière'` sont conservées pour rétrocompat des documents historiques.
 
 ### Module Situation Client (`situation-app.html`)
 
