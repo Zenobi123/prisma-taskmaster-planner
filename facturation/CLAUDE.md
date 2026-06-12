@@ -48,20 +48,17 @@ PRISMA GESTION est une application web de gestion commerciale pour un cabinet de
 ### Flux de données (localStorage)
 
 ```
-clients → contrats → devis → factures → recus
-                          ↘ propositions
-                          ↘ notes
+clients → devis → factures → recus
+              ↘ propositions
 ```
 
 **Clés localStorage utilisées :**
 - `clients` : tableau des clients
-- `clientsCorbeille` : (module Clients) clients supprimés en *soft delete* — chaque entrée conserve la fiche client complète + `deletedAt`. Restaurables avec leur historique (factures, devis, reçus, notes, propositions, contrats, courriers ne sont jamais effacés ; le rattachement se fait par **nom** de client). Déclarée dans `PrismaBackup.ALL_DATA_KEYS`.
-- `contrats` : tableau des contrats — *module `contrats.html` retiré (v3.0) ; clé conservée pour la rétrocompatibilité des sauvegardes/exports et la vue « Contrats » du module Gestion*
+- `clientsCorbeille` : (module Clients) clients supprimés en *soft delete* — chaque entrée conserve la fiche client complète + `deletedAt`. Restaurables avec leur historique (factures, devis, reçus, propositions, courriers ne sont jamais effacés ; le rattachement se fait par **nom** de client). Déclarée dans `PrismaBackup.ALL_DATA_KEYS`.
 - `devis` : tableau des devis / proformas
 - `factures` : tableau des factures
 - `recus` : tableau des reçus de paiement
 - `propositions` : tableau des propositions de paiement
-- `notes` : tableau des notes explicatives — *module `note-app.html` retiré (v3.0) ; clé conservée pour la rétrocompatibilité des sauvegardes/exports*
 - `courriers` : tableau des courriers (fiscaux, clients, administratifs)
 - `cabinetConfig` : objet `{ signataireNom, signataireTitre, signature (base64), cachet (base64), ... }` partagé par tous les documents
 - `attestations` : objet indexé par nom client avec dates ACF et ATTIM

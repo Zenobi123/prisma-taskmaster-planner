@@ -862,11 +862,9 @@ const PrismaBackup = {
     ALL_DATA_KEYS: [
         'clients',
         'clientsCorbeille', // Corbeille des clients supprimés (soft delete, restaurables avec leur historique)
-        'contrats',
         'factures',
         'recus',
         'propositions',
-        'notes',
         'cabinetConfig',
         'devis',
         'courriers',

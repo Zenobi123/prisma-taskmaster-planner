@@ -146,8 +146,8 @@
                         <ul class="list-disc list-inside text-sm text-gray-700 space-y-1.5 ml-2">
                             <li><strong>Retrait des modules « Contrats » et « Notes explicatives »</strong> : ces deux modules, sans équivalent dans l'application PRISMA GESTION (React/Supabase), ont été retirés pour aligner les deux applications. La carte « Gestion des Contrats » et l'indicateur « Contrats en cours » disparaissent de la page d'accueil.
                                 <ul class="list-disc list-inside ml-6 mt-1 text-gray-600">
-                                    <li>Les <strong>données existantes ne sont pas effacées</strong> : les clés <code>contrats</code> et <code>notes</code> restent incluses dans les sauvegardes et les exports (bouton « Exporter + historique » du module Clients), et sont restaurées lors d'un import.</li>
-                                    <li>Les contrats déjà saisis restent <strong>consultables</strong> dans l'onglet « Contrats » du module Gestion.</li>
+                                    <li>Les clés de données <code>contrats</code> et <code>notes</code> sont <strong>retirées des sauvegardes et des exports</strong> : elles ne figurent plus dans <code>PrismaBackup.ALL_DATA_KEYS</code> ni dans l'historique exporté (bouton « Exporter + historique » du module Clients).</li>
+                                    <li>Les contrats déjà saisis restent <strong>consultables</strong> dans l'onglet « Contrats » du module Gestion (lecture seule des données déjà présentes dans le navigateur).</li>
                                 </ul>
                             </li>
                         </ul>
