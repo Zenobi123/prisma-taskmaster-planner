@@ -24,7 +24,7 @@ import {
   TableBody,
   TableCell,
 } from "@/components/ui/table";
-import { Upload, Download, FileText, Archive, LoaderCircle } from "lucide-react";
+import { Upload, Download, FileText, Archive, LoaderCircle, Copy, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import { Client } from "@/types/client";
 import {
@@ -88,6 +88,7 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
   const [preview, setPreview] = useState<Partial<Client>[]>([]);
   const [parseErrors, setParseErrors] = useState<string[]>([]);
   const [vanillaEnvelope, setVanillaEnvelope] = useState<VanillaEnvelope | null>(null);
+  const [importReport, setImportReport] = useState<VanillaImportReport | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
@@ -104,6 +105,7 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
 
     setFile(selectedFile);
     setVanillaEnvelope(null);
+    setImportReport(null);
 
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -162,29 +164,34 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
           report.propositions.importes +
           report.courriers.importes;
 
-        if (totalImported === 0 && report.clientsExistants.length === 0 && report.erreurs.length > 0) {
-          // Nothing went through — surface the first error prominently
-          toast.error(
-            `Import échoué : ${report.erreurs[0]}${report.erreurs.length > 1 ? ` (+ ${report.erreurs.length - 1} autre(s))` : ""}`,
-          );
-        } else {
-          toast.success(`Import PRISMA terminé : ${formatImportReport(report)}.`);
+        if (report.erreurs.length > 0) {
+          // Garder la boîte de dialogue ouverte : le rapport détaillé (copiable)
+          // est affiché à l'écran — les toasts disparaissent trop vite pour
+          // diagnostiquer un échec d'import.
+          console.error("[Import PRISMA] Rapport d'import :", report);
+          setImportReport(report);
+          if (totalImported === 0 && report.clientsExistants.length === 0) {
+            toast.error("Import échoué — voir le rapport d'erreurs détaillé ci-dessous.");
+          } else {
+            toast.warning(
+              `Import partiel : ${formatImportReport(report)} — ${report.erreurs.length} erreur(s), voir le détail ci-dessous.`,
+            );
+          }
+          queryClient.invalidateQueries();
+          return;
         }
 
+        toast.success(`Import PRISMA terminé : ${formatImportReport(report)}.`);
         const ignoredTotal = report.nonSupportes.notes + report.nonSupportes.contrats;
         if (ignoredTotal > 0) {
           toast.warning(
             `${ignoredTotal} élément(s) sans équivalent PRISMA (notes/contrats) non importé(s).`,
           );
         }
-        if (report.erreurs.length > 0 && totalImported > 0) {
-          toast.warning(
-            `${report.erreurs.length} avertissement(s) : ${report.erreurs.slice(0, 2).join(" — ")}${report.erreurs.length > 2 ? "…" : ""}`,
-          );
-        }
         queryClient.invalidateQueries();
         handleClose();
       } catch (error) {
+        console.error("[Import PRISMA] Échec inattendu :", error);
         toast.error(
           `Échec de l'import : ${error instanceof Error ? error.message : String(error)}`,
         );
@@ -205,9 +212,31 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
     setPreview([]);
     setParseErrors([]);
     setVanillaEnvelope(null);
+    setImportReport(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+  };
+
+  const copyReport = () => {
+    if (!importReport) return;
+    const lines = [
+      `Rapport d'import PRISMA — ${new Date().toISOString()}`,
+      `Clients créés : ${importReport.clientsCrees.length}`,
+      `Clients existants réutilisés : ${importReport.clientsExistants.length}`,
+      `Factures : ${importReport.factures.importes} importée(s), ${importReport.factures.ignores} ignorée(s)`,
+      `Devis : ${importReport.devis.importes} importé(s), ${importReport.devis.ignores} ignoré(s)`,
+      `Reçus : ${importReport.recus.importes} importé(s), ${importReport.recus.ignores} ignoré(s)`,
+      `Propositions : ${importReport.propositions.importes} importée(s), ${importReport.propositions.ignores} ignorée(s)`,
+      `Courriers : ${importReport.courriers.importes} importé(s), ${importReport.courriers.ignores} ignoré(s)`,
+      "",
+      "Erreurs :",
+      ...importReport.erreurs.map((e, i) => `${i + 1}. ${e}`),
+    ];
+    navigator.clipboard
+      .writeText(lines.join("\n"))
+      .then(() => toast.success("Rapport copié dans le presse-papiers."))
+      .catch(() => toast.error("Impossible de copier le rapport."));
   };
 
   const historyCount = countHistorique(vanillaEnvelope?.historique);
@@ -290,6 +319,39 @@ export function ClientImportButton({ onImport, isMobile }: ClientImportButtonPro
                     numéro) seront ignorés.
                   </p>
                 </div>
+              </div>
+            )}
+
+            {/* Import report (persistent, copyable) */}
+            {importReport && (
+              <div className="rounded-md border border-red-200 bg-red-50 p-3 text-xs sm:text-sm text-red-900">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-medium flex items-center gap-2">
+                    <TriangleAlert className="h-4 w-4 shrink-0" />
+                    Rapport d&apos;import — {importReport.erreurs.length} erreur(s)
+                  </p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs shrink-0"
+                    onClick={copyReport}
+                  >
+                    <Copy className="h-3 w-3 mr-1" />
+                    Copier le rapport
+                  </Button>
+                </div>
+                <p className="mt-2 text-red-800">
+                  {formatImportReport(importReport)}.
+                </p>
+                <ul className="mt-2 list-disc list-inside space-y-1 max-h-48 overflow-y-auto break-words">
+                  {importReport.erreurs.map((err, i) => (
+                    <li key={i}>{err}</li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-red-800">
+                  L&apos;import est réimportable sans doublon : corrigez la cause puis relancez avec
+                  le même fichier — seuls les éléments manquants seront ajoutés.
+                </p>
               </div>
             )}
 
