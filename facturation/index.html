@@ -93,20 +93,6 @@
                     <p class="text-xs text-blue-600 mt-2">&#10148; Commencez ici pour créer votre base clients</p>
                 </a>
 
-                <!-- Module 2: Contrats -->
-                <a href="contrats.html" class="card p-6 hover:no-underline">
-                    <div class="module-icon bg-gray-100 text-gray-900">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                            <line x1="9" y1="15" x2="15" y2="15"></line>
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mb-2">Gestion des Contrats</h3>
-                    <p class="text-gray-600 text-sm">Contrats, abonnements et missions</p>
-                    <p class="text-xs text-gray-600 mt-2">&#10148; Types de contrats et facturation</p>
-                </a>
-
                 <!-- Module 4: Devis -->
                 <a href="devis.html" class="card p-6 hover:no-underline">
                     <div class="module-icon bg-orange-100 text-orange-900">
@@ -263,14 +249,10 @@
             </div>
 
             <!-- Statistiques rapides -->
-            <div class="mt-8 grid grid-cols-1 md:grid-cols-6 gap-6">
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-5 gap-6">
                 <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
                     <p class="text-gray-600 text-sm uppercase mb-2">Clients actifs</p>
                     <p class="text-3xl font-bold text-gray-800" id="totalClients">0</p>
-                </div>
-                <div class="bg-white rounded-lg shadow-lg p-6 border border-gray-200">
-                    <p class="text-gray-600 text-sm uppercase mb-2">Contrats en cours</p>
-                    <p class="text-3xl font-bold text-gray-800" id="totalContrats">0</p>
                 </div>
                 <div class="bg-white rounded-lg shadow-lg p-6 border border-orange-200">
                     <p class="text-gray-600 text-sm uppercase mb-2">Devis en cours</p>
@@ -337,16 +319,13 @@
         // Charger les statistiques
         function loadStats() {
             const clients = JSON.parse(localStorage.getItem('clients') || '[]');
-            const contrats = JSON.parse(localStorage.getItem('contrats') || '[]');
             const factures = JSON.parse(localStorage.getItem('factures') || '[]');
             const devis = JSON.parse(localStorage.getItem('devis') || '[]');
 
             const clientsActifs = clients.filter(c => c.statut === 'Actif' || !c.statut).length;
-            const contratsActifs = contrats.filter(c => c.statut === 'Actif').length;
             const devisEnCours = devis.filter(d => d.status !== 'converti' && d.status !== 'refusé').length;
 
             document.getElementById('totalClients').textContent = clientsActifs;
-            document.getElementById('totalContrats').textContent = contratsActifs;
             document.getElementById('totalDevis').textContent = devisEnCours;
             document.getElementById('totalFactures').textContent = factures.length;
 
