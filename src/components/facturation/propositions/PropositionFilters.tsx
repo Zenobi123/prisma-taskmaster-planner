@@ -56,8 +56,8 @@ const PropositionFilters = ({
             <SelectContent>
               <SelectItem value="all">Tous</SelectItem>
               <SelectItem value="brouillon">Brouillon</SelectItem>
-              <SelectItem value="envoyee">Envoy\u00e9e</SelectItem>
-              <SelectItem value="acceptee">Accept\u00e9e</SelectItem>
+              <SelectItem value="envoyee">Envoyée</SelectItem>
+              <SelectItem value="acceptee">Acceptée</SelectItem>
             </SelectContent>
           </Select>
         </div>

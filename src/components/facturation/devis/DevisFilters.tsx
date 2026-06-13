@@ -56,9 +56,9 @@ const DevisFilters = ({
             <SelectContent>
               <SelectItem value="all">Tous</SelectItem>
               <SelectItem value="brouillon">Brouillon</SelectItem>
-              <SelectItem value="envoye">Envoy\u00e9</SelectItem>
-              <SelectItem value="accepte">Accept\u00e9</SelectItem>
-              <SelectItem value="refuse">Refus\u00e9</SelectItem>
+              <SelectItem value="envoye">Envoyé</SelectItem>
+              <SelectItem value="accepte">Accepté</SelectItem>
+              <SelectItem value="refuse">Refusé</SelectItem>
               <SelectItem value="converti">Converti</SelectItem>
             </SelectContent>
           </Select>
