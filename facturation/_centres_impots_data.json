@@ -1,0 +1,2509 @@
+{
+  "centres_impots_region_centre_cameroun.xlsx :: Centres Région Centre": [
+    [
+      "Région administrative",
+      "Rattachement CRI",
+      "Type",
+      "Nom officiel du centre",
+      "Zone / localité",
+      "Ordre DGI",
+      "Précision",
+      "Source"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises de Yaoundé-Est",
+      "Yaoundé-Est",
+      1,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises de Yaoundé-Ouest",
+      "Yaoundé-Ouest",
+      2,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 1",
+      "Yaoundé 1",
+      3,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 10",
+      "Yaoundé 10",
+      4,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 11",
+      "Yaoundé 11",
+      5,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 12",
+      "Yaoundé 12",
+      6,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 13",
+      "Yaoundé 13",
+      7,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 14",
+      "Yaoundé 14",
+      8,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 2",
+      "Yaoundé 2",
+      9,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 5",
+      "Yaoundé 5",
+      10,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 6",
+      "Yaoundé 6",
+      11,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 7",
+      "Yaoundé 7",
+      12,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 8",
+      "Yaoundé 8",
+      13,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Yaoundé 9",
+      "Yaoundé 9",
+      14,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CSI",
+      "Centre Spécialisé des Impôts des Etablissements Publics Administratifs, CTD et Autres Organismes de Yaoundé",
+      "Yaoundé",
+      15,
+      "Etablissements publics administratifs, CTD et autres organismes",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 1",
+      "CSI",
+      "Centre Spécialisé des Impôts des Professions Libérales et de l'Immobilier de Yaoundé",
+      "Yaoundé",
+      16,
+      "Professions libérales et immobilier",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises de Yaoundé-Extérieur",
+      "Yaoundé-Extérieur",
+      17,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers d'Obala",
+      "Obala",
+      18,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de la Haute Sanaga",
+      "Haute Sanaga",
+      19,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de la Mefou et Afamba",
+      "Mefou et Afamba",
+      20,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de la Mefou et Akono",
+      "Mefou et Akono",
+      21,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Mbandjock",
+      "Mbandjock",
+      22,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Monatélé",
+      "Monatélé",
+      23,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers de Sa'a",
+      "Sa'a",
+      24,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers du Mbam et Inoubou",
+      "Mbam et Inoubou",
+      25,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers du Mbam et Kim",
+      "Mbam et Kim",
+      26,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers du Nyong et Kelle",
+      "Nyong et Kelle",
+      27,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers du Nyong et Mfoumou",
+      "Nyong et Mfoumou",
+      28,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      "Centre",
+      "Centre Régional des Impôts du Centre 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers du Nyong et So'o",
+      "Nyong et So'o",
+      29,
+      null,
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_region_centre_cameroun.xlsx :: Synthèse": [
+    [
+      "Centres des impôts — Région du Centre (Cameroun)",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "Source officielle",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots",
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "Date de consultation",
+      "2026-06-03 00:00:00",
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "Périmètre",
+      "Région du Centre : CRI du Centre 1 et CRI du Centre 2",
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "Nombre total de centres listés",
+      29,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "Rattachement CRI",
+      "CIME",
+      "CFLP",
+      "CSI",
+      "Total",
+      "Observation"
+    ],
+    [
+      "Centre Régional des Impôts du Centre 1",
+      2,
+      12,
+      2,
+      16,
+      "Yaoundé urbain + centres spécialisés"
+    ],
+    [
+      "Centre Régional des Impôts du Centre 2",
+      1,
+      12,
+      0,
+      13,
+      "Yaoundé extérieur et départements environnants"
+    ]
+  ],
+  "centres_impots_region_centre_cameroun.xlsx :: Observations": [
+    [
+      "Point",
+      "Détail"
+    ],
+    [
+      "Architecture retenue",
+      "La Région du Centre est présentée par la DGI en deux rattachements : Centre 1 et Centre 2."
+    ],
+    [
+      "Centre 1",
+      "Comprend 2 CIME, 12 CFLP de Yaoundé et 2 CSI de Yaoundé."
+    ],
+    [
+      "Centre 2",
+      "Comprend 1 CIME de Yaoundé-Extérieur et 12 CFLP couvrant notamment Obala, Haute Sanaga, Mefou et Afamba, Mefou et Akono, Mbandjock, Monatélé, Sa'a, Mbam et Inoubou, Mbam et Kim, Nyong et Kelle, Nyong et Mfoumou, Nyong et So'o."
+    ],
+    [
+      "CFLP de Yaoundé",
+      "La page officielle consultée liste Yaoundé 1, 2, 5, 6, 7, 8, 9, 10, 11, 12, 13 et 14. Elle ne liste pas Yaoundé 3 ni Yaoundé 4 dans cette cartographie."
+    ],
+    [
+      "Source",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Tous les centres": [
+    [
+      "Cartographie des centres des impôts - autres régions hors Centre",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "Source : Direction Générale des Impôts du Cameroun, page « Cartographie des centres régionaux des impôts ». La région du Centre n'est pas reprise ici car elle a déjà été traitée dans le fichier précédent.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Ngaoundéré",
+      "Ngaoundéré",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Vina",
+      "Vina",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Djerem",
+      "Djerem",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Faro & Deo",
+      "Faro & Deo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mayo-Banyo",
+      "Mayo-Banyo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      6,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mbere",
+      "Mbere",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      7,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Bertoua",
+      "Bertoua",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      8,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Boumba et Ngoko",
+      "Boumba et Ngoko",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      9,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Kadey",
+      "Kadey",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      10,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Haut Nyong",
+      "Haut Nyong",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      11,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Lom et Djerem",
+      "Lom et Djerem",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      12,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Diamaré",
+      "Diamaré",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      13,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Logone et Chari",
+      "Logone et Chari",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      14,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mayo Danay",
+      "Mayo Danay",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      15,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mayo Kani",
+      "Mayo Kani",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      16,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mayo Tsanaga",
+      "Mayo Tsanaga",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      17,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Maroua",
+      "Maroua",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      18,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Douala- Akwa 1",
+      "Douala - Akwa 1",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      19,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Douala- Akwa 2",
+      "Douala - Akwa 2",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      20,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Douala- Bonanjo",
+      "Douala - Bonanjo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      21,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 1",
+      "Douala 1",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      22,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 10",
+      "Douala 10",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      23,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 11",
+      "Douala 11",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      24,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 12",
+      "Douala 12",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      25,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 13",
+      "Douala 13",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      26,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 14",
+      "Douala 14",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      27,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 2",
+      "Douala 2",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      28,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CSI",
+      "Centre Spécialisé des Impôts",
+      "Centre Spécialisé des Impôts des Professions Libérales et de l'Immobilier de Douala",
+      "Douala",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      29,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Douala- Extérieur",
+      "Douala - Extérieur",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      30,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Bonaberi",
+      "Bonaberi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      31,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Bonaberi 2",
+      "Bonaberi 2",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      32,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Sanaga Maritime",
+      "Sanaga Maritime",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      33,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Mbanga",
+      "Mbanga",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      34,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Moungo",
+      "Moungo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      35,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Nkam",
+      "Nkam",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      36,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Bamenda",
+      "Bamenda",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      37,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Donga Mantug",
+      "Donga Mantug",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      38,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Mezam",
+      "Mezam",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      39,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Momo",
+      "Momo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      40,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Menchum",
+      "Menchum",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      41,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Ngoketunjia",
+      "Ngoketunjia",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      42,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Boyo",
+      "Boyo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      43,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Bui",
+      "Bui",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      44,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Bakassi",
+      "Bakassi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      45,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers d'Ekondo Titi",
+      "Ekondo Titi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      46,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Buea",
+      "Buea",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      47,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Manyu",
+      "Manyu",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      48,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Meme",
+      "Meme",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      49,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Limbe",
+      "Limbe",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      50,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Muyuka",
+      "Muyuka",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      51,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Tiko",
+      "Tiko",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      52,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Koupé-Manengouba",
+      "Koupé-Manengouba",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      53,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Lebialem",
+      "Lebialem",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      54,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Limbe",
+      "Limbe",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      55,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Bafoussam",
+      "Bafoussam",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      56,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Foumbot",
+      "Foumbot",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      57,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Menoua",
+      "Menoua",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      58,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers des Bamboutos",
+      "Bamboutos",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      59,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers des Hauts-Plateaux",
+      "Hauts-Plateaux",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      60,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Haut Nkam",
+      "Haut Nkam",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      61,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Koung-Khi",
+      "Koung-Khi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      62,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Ndé",
+      "Ndé",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      63,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Noun",
+      "Noun",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      64,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Kribi",
+      "Kribi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      65,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de l'Océan",
+      "Océan",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      66,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Mvila",
+      "Mvila",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      67,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Meyomessala",
+      "Meyomessala",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      68,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Zoétélé",
+      "Zoétélé",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      69,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Dja et Lobo",
+      "Dja et Lobo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      70,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Ntem",
+      "Ntem",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Synthese": [
+    [
+      "Synthèse des centres des impôts - autres régions hors Centre",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "Fichier préparé le 03/06/2026 à partir de la page officielle de la DGI. Total centres recensés hors région du Centre : 70.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Centre régional DGI",
+      "Région administrative",
+      "Total centres",
+      "CIME",
+      "CFLP",
+      "CSI"
+    ],
+    [
+      1,
+      "Centre Régional des Impôts de l'Adamaoua",
+      "Adamaoua",
+      6,
+      1,
+      5,
+      0
+    ],
+    [
+      2,
+      "Centre Régional des Impôts de l'Est",
+      "Est",
+      5,
+      1,
+      4,
+      0
+    ],
+    [
+      3,
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "Extrême-Nord",
+      6,
+      1,
+      5,
+      0
+    ],
+    [
+      4,
+      "Centre Régional des Impôts du Littoral 1",
+      "Littoral",
+      11,
+      3,
+      7,
+      1
+    ],
+    [
+      5,
+      "Centre Régional des Impôts du Littoral 2",
+      "Littoral",
+      7,
+      1,
+      6,
+      0
+    ],
+    [
+      6,
+      "Centre Régional des Impôts du Nord Ouest",
+      "Nord-Ouest",
+      8,
+      0,
+      8,
+      0
+    ],
+    [
+      7,
+      "Centre Régional des Impôts du Sud Ouest",
+      "Sud-Ouest",
+      11,
+      1,
+      10,
+      0
+    ],
+    [
+      8,
+      "Centre Régional des Impôts de l'Ouest",
+      "Ouest",
+      9,
+      1,
+      8,
+      0
+    ],
+    [
+      9,
+      "Centre Régional des Impôts du Sud",
+      "Sud",
+      7,
+      0,
+      7,
+      0
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      "Totaux hors région du Centre",
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      "Total centres",
+      70,
+      "CIME",
+      9,
+      "CFLP",
+      60
+    ],
+    [
+      null,
+      "CSI",
+      1,
+      null,
+      null,
+      null,
+      null
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Adamaoua": [
+    [
+      "Centre Régional des Impôts de l'Adamaoua",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "6 centre(s) recensé(s) pour ce Centre Régional des Impôts selon la cartographie officielle DGI.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Ngaoundéré",
+      "Ngaoundéré",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Vina",
+      "Vina",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Djerem",
+      "Djerem",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Faro & Deo",
+      "Faro & Deo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mayo-Banyo",
+      "Mayo-Banyo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      6,
+      "Adamaoua",
+      "Centre Régional des Impôts de l'Adamaoua",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mbere",
+      "Mbere",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Est": [
+    [
+      "Centre Régional des Impôts de l'Est",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "5 centre(s) recensé(s) pour ce Centre Régional des Impôts selon la cartographie officielle DGI.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Bertoua",
+      "Bertoua",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Boumba et Ngoko",
+      "Boumba et Ngoko",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Kadey",
+      "Kadey",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Haut Nyong",
+      "Haut Nyong",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Est",
+      "Centre Régional des Impôts de l'Est",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Lom et Djerem",
+      "Lom et Djerem",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Extreme-Nord": [
+    [
+      "Centre Régional des Impôts de l'Extrême Nord",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "6 centre(s) recensé(s) pour ce Centre Régional des Impôts selon la cartographie officielle DGI.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Diamaré",
+      "Diamaré",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Logone et Chari",
+      "Logone et Chari",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mayo Danay",
+      "Mayo Danay",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mayo Kani",
+      "Mayo Kani",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Mayo Tsanaga",
+      "Mayo Tsanaga",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      6,
+      "Extrême-Nord",
+      "Centre Régional des Impôts de l'Extrême Nord",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Maroua",
+      "Maroua",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Littoral 1": [
+    [
+      "Centre Régional des Impôts du Littoral 1",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "11 centre(s) recensé(s) pour ce Centre Régional des Impôts selon la cartographie officielle DGI.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Douala- Akwa 1",
+      "Douala - Akwa 1",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Douala- Akwa 2",
+      "Douala - Akwa 2",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Douala- Bonanjo",
+      "Douala - Bonanjo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 1",
+      "Douala 1",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 10",
+      "Douala 10",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      6,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 11",
+      "Douala 11",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      7,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 12",
+      "Douala 12",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      8,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 13",
+      "Douala 13",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      9,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 14",
+      "Douala 14",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      10,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Douala 2",
+      "Douala 2",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      11,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 1",
+      "CSI",
+      "Centre Spécialisé des Impôts",
+      "Centre Spécialisé des Impôts des Professions Libérales et de l'Immobilier de Douala",
+      "Douala",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Littoral 2": [
+    [
+      "Centre Régional des Impôts du Littoral 2",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "7 centre(s) recensé(s) pour ce Centre Régional des Impôts selon la cartographie officielle DGI.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Douala- Extérieur",
+      "Douala - Extérieur",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Bonaberi",
+      "Bonaberi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Bonaberi 2",
+      "Bonaberi 2",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Sanaga Maritime",
+      "Sanaga Maritime",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Mbanga",
+      "Mbanga",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      6,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Moungo",
+      "Moungo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      7,
+      "Littoral",
+      "Centre Régional des Impôts du Littoral 2",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Nkam",
+      "Nkam",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Nord-Ouest": [
+    [
+      "Centre Régional des Impôts du Nord Ouest",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "8 centre(s) recensé(s) pour ce Centre Régional des Impôts selon la cartographie officielle DGI.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Bamenda",
+      "Bamenda",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Donga Mantug",
+      "Donga Mantug",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Mezam",
+      "Mezam",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Momo",
+      "Momo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Menchum",
+      "Menchum",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      6,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Ngoketunjia",
+      "Ngoketunjia",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      7,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Boyo",
+      "Boyo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      8,
+      "Nord-Ouest",
+      "Centre Régional des Impôts du Nord Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Bui",
+      "Bui",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Sud-Ouest": [
+    [
+      "Centre Régional des Impôts du Sud Ouest",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "11 centre(s) recensé(s) pour ce Centre Régional des Impôts selon la cartographie officielle DGI.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Bakassi",
+      "Bakassi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers d'Ekondo Titi",
+      "Ekondo Titi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Buea",
+      "Buea",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Manyu",
+      "Manyu",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Meme",
+      "Meme",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      6,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Limbe",
+      "Limbe",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      7,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Muyuka",
+      "Muyuka",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      8,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Tiko",
+      "Tiko",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      9,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Koupé-Manengouba",
+      "Koupé-Manengouba",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      10,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Lebialem",
+      "Lebialem",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      11,
+      "Sud-Ouest",
+      "Centre Régional des Impôts du Sud Ouest",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Limbe",
+      "Limbe",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Ouest": [
+    [
+      "Centre Régional des Impôts de l'Ouest",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "9 centre(s) recensé(s) pour ce Centre Régional des Impôts selon la cartographie officielle DGI.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      "Centre des Impôts des Moyennes Entreprises de Bafoussam",
+      "Bafoussam",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Foumbot",
+      "Foumbot",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Menoua",
+      "Menoua",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers des Bamboutos",
+      "Bamboutos",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers des Hauts-Plateaux",
+      "Hauts-Plateaux",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      6,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Haut Nkam",
+      "Haut Nkam",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      7,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Koung-Khi",
+      "Koung-Khi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      8,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Ndé",
+      "Ndé",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      9,
+      "Ouest",
+      "Centre Régional des Impôts de l'Ouest",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Noun",
+      "Noun",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Sud": [
+    [
+      "Centre Régional des Impôts du Sud",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "7 centre(s) recensé(s) pour ce Centre Régional des Impôts selon la cartographie officielle DGI.",
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "N°",
+      "Région administrative",
+      "Centre régional DGI",
+      "Type",
+      "Type complet",
+      "Dénomination officielle",
+      "Zone / localité",
+      "Source officielle"
+    ],
+    [
+      1,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Kribi",
+      "Kribi",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      2,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de l'Océan",
+      "Océan",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      3,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de la Mvila",
+      "Mvila",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      4,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Meyomessala",
+      "Meyomessala",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      5,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers de Zoétélé",
+      "Zoétélé",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      6,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Dja et Lobo",
+      "Dja et Lobo",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ],
+    [
+      7,
+      "Sud",
+      "Centre Régional des Impôts du Sud",
+      "CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      "Centre de Fiscalité Locale et des Particuliers du Ntem",
+      "Ntem",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots"
+    ]
+  ],
+  "centres_impots_autres_regions_cameroun.xlsx :: Source": [
+    [
+      "Sources et remarques",
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      "Élément",
+      "Contenu",
+      "URL",
+      "Remarque"
+    ],
+    [
+      "Source principale",
+      "Direction Générale des Impôts du Cameroun - Cartographie des centres régionaux des impôts",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots",
+      "Les dénominations sont reprises telles qu'elles apparaissent sur la page."
+    ],
+    [
+      "Périmètre",
+      "Toutes les régions hors région du Centre",
+      "https://www.impots.cm/fr/cartographie-des-centres-regionaux-des-impots",
+      "Le Centre 1 et le Centre 2 ne sont pas repris dans ce fichier, car ils ont été traités dans le précédent fichier."
+    ],
+    [
+      "Sigle CIME",
+      "Centre des Impôts des Moyennes Entreprises",
+      null,
+      null
+    ],
+    [
+      "Sigle CFLP",
+      "Centre de Fiscalité Locale et des Particuliers",
+      null,
+      null
+    ],
+    [
+      "Sigle CSI",
+      "Centre Spécialisé des Impôts",
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      null,
+      null,
+      null,
+      null
+    ]
+  ]
+}
