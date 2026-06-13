@@ -1,10 +1,13 @@
 
+import { useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download, Eye, FileText, Users } from "lucide-react";
 import { Client } from "@/types/client";
-import { Template, getTemplateContent, replaceVariables } from "@/utils/courrierTemplates";
+import { Template, generateCourrierContent } from "@/utils/courrierTemplates";
+import { useCabinetConfig } from "@/lib/spec/cabinetConfig";
+import PrintableCourrier, { type CourrierPrintData } from "@/components/printable/PrintableCourrier";
 
 interface PreviewDialogProps {
   open: boolean;
@@ -17,21 +20,57 @@ interface PreviewDialogProps {
   onConfirmSend: () => void;
 }
 
+// Civilité longue (Madame / Monsieur) — même résolution que le vanilla
+// (getCourrierDestinataireCivilite) : civilité du client, sinon nom.
+function civiliteLongueFromClient(client: Client, name: string): "" | "Madame" | "Monsieur" {
+  const raw = String((client as unknown as { civilite?: string })?.civilite || "").trim().toLowerCase();
+  if (["mme", "madame", "f", "femme", "féminin", "feminin"].includes(raw)) return "Madame";
+  if (["m.", "m", "mr", "monsieur", "h", "homme", "masculin"].includes(raw)) return "Monsieur";
+  const n = String(name || "").trim().toLowerCase();
+  if (n.startsWith("madame") || n.startsWith("mme")) return "Madame";
+  if (n.startsWith("monsieur") || n.startsWith("m.")) return "Monsieur";
+  return "";
+}
+
 const PreviewDialog = ({
   open,
   onOpenChange,
   clients,
-  templateId,
   template,
   customMessage,
   generationType,
   onConfirmSend
 }: PreviewDialogProps) => {
-  if (!template || clients.length === 0) return null;
-
-  const templateContent = getTemplateContent(templateId);
+  const [config] = useCabinetConfig();
   const previewClient = clients[0];
-  const previewContent = replaceVariables(templateContent, previewClient);
+
+  // Construit les données exactement comme le courrier émis (sendCourrierWithStorage) :
+  // objet = sujet du modèle (année substituée), corps = contenu généré (message
+  // personnalisé inclus), référence au format CORR-XXXX/AAAA/MM.
+  const data: CourrierPrintData | null = useMemo(() => {
+    if (!template || !previewClient) return null;
+    const clientName =
+      previewClient.type === "morale"
+        ? ((previewClient as unknown as { raisonsociale?: string }).raisonsociale || previewClient.nom || "")
+        : (previewClient.nom || "");
+    const now = new Date();
+    const ref = `CORR-${Date.now().toString(36).toUpperCase().slice(-4)}/${now.getFullYear()}/${String(
+      now.getMonth() + 1
+    ).padStart(2, "0")}`;
+    return {
+      ref,
+      date: now.toISOString(),
+      destinataire: clientName,
+      destinataireAdresse: "",
+      civiliteDestinataire: civiliteLongueFromClient(previewClient, clientName),
+      objet: template.subject.replace(/{{annee}}/g, String(now.getFullYear())),
+      corps: generateCourrierContent(previewClient, template, customMessage),
+      pj: "",
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [template, previewClient, customMessage, open]);
+
+  if (!template || clients.length === 0 || !data) return null;
 
   const handleDownload = () => {
     onConfirmSend();
@@ -64,21 +103,10 @@ const PreviewDialog = ({
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
-          <div className="bg-gray-50 rounded-lg p-4 h-full overflow-y-auto">
-            <div className="bg-white rounded border border-gray-200 p-6 mx-auto max-w-2xl">
-              <div className="whitespace-pre-line text-sm leading-relaxed text-gray-800">
-                {previewContent}
-              </div>
-              
-              {customMessage && (
-                <div className="mt-4 p-3 bg-blue-50 rounded border-l-4 border-[#84A98C]">
-                  <h4 className="font-medium text-gray-900 mb-2 flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
-                    Message personnalisé :
-                  </h4>
-                  <div className="text-gray-800 text-sm leading-relaxed">{customMessage}</div>
-                </div>
-              )}
+          <div className="bg-gray-100 rounded-lg p-4 max-h-[60vh] overflow-y-auto">
+            {/* Rendu fidèle (en-tête PRISMA), identique au courrier émis / imprimé */}
+            <div className="bg-white shadow-sm mx-auto" style={{ maxWidth: "56rem" }}>
+              <PrintableCourrier data={data} config={config} />
             </div>
           </div>
         </div>
@@ -86,7 +114,8 @@ const PreviewDialog = ({
         <DialogFooter className="border-t border-gray-100 pt-4 flex justify-between items-center">
           <div className="text-sm text-gray-500 flex items-center gap-2">
             <Users className="w-4 h-4" />
-            Aperçu basé sur : {previewClient.type === "morale" ? previewClient.raisonsociale : previewClient.nom}
+            Aperçu basé sur : {data.destinataire}
+            {clients.length > 1 ? ` (+${clients.length - 1} autre${clients.length > 2 ? "s" : ""})` : ""}
           </div>
           <div className="flex gap-3">
             <Button variant="outline" onClick={() => onOpenChange(false)} className="border-gray-300 text-gray-700 hover:bg-gray-50">
