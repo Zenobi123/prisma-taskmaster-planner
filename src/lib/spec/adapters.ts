@@ -259,18 +259,30 @@ const COURRIER_STATUS_MAP: Record<string, CourrierStatut> = {
   classe: 'classe',
 };
 
+// Déduit la civilité longue depuis le nom du destinataire — réplique du vanilla
+// getCourrierDestinataireCivilite (courrier-app.html).
+function inferCiviliteFromName(name: string): '' | 'Madame' | 'Monsieur' {
+  const d = String(name || '').trim().toLowerCase();
+  if (d.startsWith('madame') || d.startsWith('mme')) return 'Madame';
+  if (d.startsWith('monsieur') || d.startsWith('m.')) return 'Monsieur';
+  return '';
+}
+
 export function courrierToPrintData(
   courrier: CourrierRecord,
   fullClient?: ExistingClient | null,
 ): CourrierPrintData {
-  const civilite = fullClient
-    ? getCiviliteLongue(fullClient.civilite as 'M.' | 'Mme' | undefined)
-    : 'Monsieur';
+  const destinataire = courrier.client_nom || courrier.template_titre || '';
+  // Ordre de résolution identique au vanilla : civilité du client liée, sinon
+  // déduction depuis le nom du destinataire, sinon vide (« À l'attention de »).
+  const civilite: '' | 'Madame' | 'Monsieur' = fullClient?.civilite
+    ? getCiviliteLongue(fullClient.civilite as 'M.' | 'Mme')
+    : inferCiviliteFromName(destinataire);
 
   return {
     ref: courrier.reference,
     date: courrier.date_creation,
-    destinataire: courrier.client_nom || courrier.template_titre || '',
+    destinataire,
     destinataireAdresse: '',
     civiliteDestinataire: civilite,
     objet: courrier.sujet,

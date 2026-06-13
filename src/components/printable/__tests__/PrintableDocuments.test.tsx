@@ -4,6 +4,7 @@ import PrintableFacture, { type FacturePrintData } from '../PrintableFacture';
 import PrintableRecu, { type RecuPrintData } from '../PrintableRecu';
 import PrintableDevis, { type DevisPrintData } from '../PrintableDevis';
 import PrintableProposition, { type PropositionPrintData } from '../PrintableProposition';
+import PrintableCourrier, { type CourrierPrintData } from '../PrintableCourrier';
 import { DEFAULT_CABINET_CONFIG } from '@/lib/spec/cabinetConfig';
 import {
   PAGE_STYLE_FACTURE,
@@ -133,6 +134,46 @@ describe('Rendus imprimables fidèles au vanilla', () => {
     expect(txt).toContain('attention de Monsieur');
     expect(txt).toContain('Base annuelle');
     expect(txt).toContain('125 000 F CFA');
+  });
+
+  it('Courrier : structure et styles fidèles à displayCourrier', () => {
+    const data: CourrierPrintData = {
+      ref: 'CRR-0001/2026/06',
+      date: '2026-06-13',
+      destinataire: 'ENTREPRISE TEST SARL',
+      destinataireAdresse: 'Yaoundé - Bastos',
+      civiliteDestinataire: 'Monsieur',
+      objet: 'Relance pour pièces manquantes',
+      corps: 'Premier paragraphe.\n\nSecond paragraphe.',
+      pj: '1. Avis d\'imposition\n2. Quittance',
+      statut: 'envoye',
+    };
+    const el = <PrintableCourrier data={data} config={cfg} />;
+    const txt = text(el);
+    const html = renderToStaticMarkup(el);
+
+    // Contenu visible
+    expect(txt).toContain('Réf : CRR-0001/2026/06');
+    expect(txt).toContain('Yaoundé, le 13 juin 2026'); // date format long
+    expect(txt).toContain("À l'attention de Monsieur");
+    expect(txt).toContain('Objet : Relance pour pièces manquantes');
+    expect(txt).toContain('Premier paragraphe.');
+    expect(txt).toContain('Second paragraphe.');
+    expect(txt).toContain('Pièces jointes :');
+    expect(txt).toContain("Avis d'imposition"); // numérotation « 1. » retirée
+    expect(txt).toContain('Pour PRISMA GESTION');
+    expect(txt).toContain('ENVOYÉ'); // badge statut en majuscules
+    expect(txt).toContain('PRISMA Manager');
+
+    // Styles inline fidèles au vanilla
+    expect(html).toContain('font-size:1.5rem'); // titre cabinet
+    expect(html).toContain('letter-spacing:0.17em'); // slogan
+    expect(html).toContain('border-bottom:2px solid #1e3a8a'); // trait de séparation
+    expect(html).toContain('font-size:14pt'); // bloc objet
+    expect(html).toContain('border-radius:0 6px 6px 0'); // bloc objet
+    expect(html).toContain('font-size:13.5pt'); // corps
+    expect(html).toContain('line-height:1.65'); // interligne global
+    expect(html).toContain('border-radius:999px'); // badge pilule
   });
 });
 
