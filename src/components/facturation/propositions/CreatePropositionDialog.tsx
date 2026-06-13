@@ -38,14 +38,14 @@ const predefinedLignes: { designation: string; type: "impot" | "honoraire" }[] =
   { designation: "TDL", type: "impot" },
   { designation: "PSL", type: "impot" },
   { designation: "Bail Commercial", type: "impot" },
-  { designation: "Taxe Fonci\u00e8re", type: "impot" },
+  { designation: "Taxe Foncière", type: "impot" },
   { designation: "DSF", type: "impot" },
   { designation: "DARP", type: "impot" },
   // Honoraires
-  { designation: "Tenue de comptabilit\u00e9", type: "honoraire" },
+  { designation: "Tenue de comptabilité", type: "honoraire" },
   { designation: "Conseil fiscal", type: "honoraire" },
-  { designation: "\u00c9tats financiers", type: "honoraire" },
-  { designation: "Assistance contr\u00f4le", type: "honoraire" },
+  { designation: "États financiers", type: "honoraire" },
+  { designation: "Assistance contrôle", type: "honoraire" },
 ];
 
 const formatMontant = (montant: number): string => {
@@ -176,7 +176,7 @@ const CreatePropositionDialog = ({
               <Label htmlFor="client">Client</Label>
               <Select value={clientId} onValueChange={setClientId}>
                 <SelectTrigger id="client">
-                  <SelectValue placeholder="S\u00e9lectionner un client" />
+                  <SelectValue placeholder="Sélectionner un client" />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((client) => (
@@ -263,7 +263,7 @@ const CreatePropositionDialog = ({
 
             {lignes.length === 0 && (
               <p className="text-sm text-gray-500 text-center py-4 border rounded-md">
-                Aucune ligne ajout\u00e9e. Utilisez les boutons ci-dessus ou ajoutez manuellement.
+                Aucune ligne ajoutée. Utilisez les boutons ci-dessus ou ajoutez manuellement.
               </p>
             )}
 
@@ -282,20 +282,20 @@ const CreatePropositionDialog = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="impot">Imp\u00f4t</SelectItem>
+                      <SelectItem value="impot">Impôt</SelectItem>
                       <SelectItem value="honoraire">Honoraire</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="col-span-6 md:col-span-3 space-y-1">
-                  <Label className="text-xs">D\u00e9signation</Label>
+                  <Label className="text-xs">Désignation</Label>
                   <Input
                     value={ligne.designation}
                     onChange={(e) =>
                       updateLigne(index, "designation", e.target.value)
                     }
-                    placeholder="D\u00e9signation"
+                    placeholder="Désignation"
                   />
                 </div>
 
@@ -350,7 +350,7 @@ const CreatePropositionDialog = ({
           {lignes.length > 0 && (
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total Imp\u00f4ts :</span>
+                <span className="text-gray-600">Total Impôts :</span>
                 <span className="font-medium">{formatMontant(totals.impots)}</span>
               </div>
               <div className="flex justify-between text-sm">
@@ -358,7 +358,7 @@ const CreatePropositionDialog = ({
                 <span className="font-medium">{formatMontant(totals.honoraires)}</span>
               </div>
               <div className="flex justify-between text-base font-semibold border-t pt-2">
-                <span>Total G\u00e9n\u00e9ral :</span>
+                <span>Total Général :</span>
                 <span>{formatMontant(totals.total)}</span>
               </div>
             </div>
@@ -393,10 +393,10 @@ const CreatePropositionDialog = ({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Cr\u00e9ation...
+                Création...
               </>
             ) : (
-              "Cr\u00e9er la proposition"
+              "Créer la proposition"
             )}
           </Button>
         </DialogFooter>

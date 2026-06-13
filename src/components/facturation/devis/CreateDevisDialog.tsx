@@ -238,7 +238,7 @@ const CreateDevisDialog = ({
               <Label htmlFor="client">Client</Label>
               <Select value={clientId} onValueChange={handleClientChange}>
                 <SelectTrigger id="client">
-                  <SelectValue placeholder="S\u00e9lectionner un client" />
+                  <SelectValue placeholder="Sélectionner un client" />
                 </SelectTrigger>
                 <SelectContent>
                   {clients.map((client) => (
@@ -261,7 +261,7 @@ const CreateDevisDialog = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="date_validite">Date de validit\u00e9</Label>
+              <Label htmlFor="date_validite">Date de validité</Label>
               <Input
                 id="date_validite"
                 type="date"
@@ -347,7 +347,7 @@ const CreateDevisDialog = ({
 
             {prestations.length === 0 && (
               <p className="text-sm text-gray-500 text-center py-4 border rounded-md">
-                Aucune prestation ajout\u00e9e. Utilisez les boutons ci-dessus ou ajoutez manuellement.
+                Aucune prestation ajoutée. Utilisez les boutons ci-dessus ou ajoutez manuellement.
               </p>
             )}
 
@@ -398,14 +398,14 @@ const CreateDevisDialog = ({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="impot">Imp\u00f4t</SelectItem>
+                      <SelectItem value="impot">Impôt</SelectItem>
                       <SelectItem value="honoraire">Honoraire</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="col-span-3 md:col-span-1 space-y-1">
-                  <Label className="text-xs">Qt\u00e9</Label>
+                  <Label className="text-xs">Qté</Label>
                   <Input
                     type="number"
                     min={1}
@@ -456,7 +456,7 @@ const CreateDevisDialog = ({
           {prestations.length > 0 && (
             <div className="border-t pt-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Total Imp\u00f4ts :</span>
+                <span className="text-gray-600">Total Impôts :</span>
                 <span className="font-medium">{formatMontant(totals.impots)}</span>
               </div>
               <div className="flex justify-between text-sm">
@@ -464,7 +464,7 @@ const CreateDevisDialog = ({
                 <span className="font-medium">{formatMontant(totals.honoraires)}</span>
               </div>
               <div className="flex justify-between text-base font-semibold border-t pt-2">
-                <span>Total G\u00e9n\u00e9ral :</span>
+                <span>Total Général :</span>
                 <span>{formatMontant(totals.total)}</span>
               </div>
             </div>
@@ -499,10 +499,10 @@ const CreateDevisDialog = ({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                Cr\u00e9ation...
+                Création...
               </>
             ) : (
-              "Cr\u00e9er le devis"
+              "Créer le devis"
             )}
           </Button>
         </DialogFooter>
