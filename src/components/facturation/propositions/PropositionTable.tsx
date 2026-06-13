@@ -37,11 +37,11 @@ const statusConfig: Record<
     className: "bg-gray-100 text-gray-700 border-gray-300",
   },
   envoyee: {
-    label: "Envoy\u00e9e",
+    label: "Envoyée",
     className: "bg-blue-100 text-blue-700 border-blue-300",
   },
   acceptee: {
-    label: "Accept\u00e9e",
+    label: "Acceptée",
     className: "bg-green-100 text-green-700 border-green-300",
   },
 };
@@ -62,85 +62,152 @@ const PropositionTable = ({
   }
 
   return (
-    <div className="rounded-md border overflow-hidden overflow-x-auto">
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold">N\u00b0</TableHead>
-            <TableHead className="font-semibold">Client</TableHead>
-            <TableHead className="font-semibold">Date</TableHead>
-            <TableHead className="font-semibold text-right">Imp\u00f4ts</TableHead>
-            <TableHead className="font-semibold text-right">Honoraires</TableHead>
-            <TableHead className="font-semibold text-right">Total</TableHead>
-            <TableHead className="font-semibold">Statut</TableHead>
-            <TableHead className="font-semibold text-center">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {propositions.length > 0 ? (
-            propositions.map((p) => {
-              const status = statusConfig[p.status];
-              const isAcceptee = p.status === "acceptee";
-
-              return (
-                <TableRow key={p.id} className="hover:bg-gray-50">
-                  <TableCell className="font-medium">{p.numero}</TableCell>
-                  <TableCell>{p.client?.nom ?? "-"}</TableCell>
-                  <TableCell>{formatDate(p.date)}</TableCell>
-                  <TableCell className="text-right">
-                    {formatMontant(p.total_impots)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    {formatMontant(p.total_honoraires)}
-                  </TableCell>
-                  <TableCell className="text-right font-semibold">
-                    {formatMontant(p.total)}
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant="outline"
-                      className={`text-xs ${status.className}`}
-                    >
-                      {status.label}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center justify-center gap-1">
-                      <PropositionPrintButton proposition={p} />
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onEdit(p)}
-                        disabled={isAcceptee}
-                        title="Modifier"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => onDelete(p.id)}
-                        disabled={isAcceptee}
-                        title="Supprimer"
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              );
-            })
-          ) : (
-            <TableRow>
-              <TableCell colSpan={8} className="text-center py-10 text-gray-500">
-                Aucune proposition trouv\u00e9e
-              </TableCell>
+    <>
+      {/* Vue tableau (desktop) */}
+      <div className="hidden md:block rounded-md border overflow-hidden overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-gray-50">
+              <TableHead className="font-semibold">N°</TableHead>
+              <TableHead className="font-semibold">Client</TableHead>
+              <TableHead className="font-semibold">Date</TableHead>
+              <TableHead className="font-semibold text-right">Impôts</TableHead>
+              <TableHead className="font-semibold text-right">Honoraires</TableHead>
+              <TableHead className="font-semibold text-right">Total</TableHead>
+              <TableHead className="font-semibold">Statut</TableHead>
+              <TableHead className="font-semibold text-center">Actions</TableHead>
             </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {propositions.length > 0 ? (
+              propositions.map((p) => {
+                const status = statusConfig[p.status];
+                const isAcceptee = p.status === "acceptee";
+
+                return (
+                  <TableRow key={p.id} className="hover:bg-gray-50">
+                    <TableCell className="font-medium">{p.numero}</TableCell>
+                    <TableCell>{p.client?.nom ?? "-"}</TableCell>
+                    <TableCell>{formatDate(p.date)}</TableCell>
+                    <TableCell className="text-right">
+                      {formatMontant(p.total_impots)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatMontant(p.total_honoraires)}
+                    </TableCell>
+                    <TableCell className="text-right font-semibold">
+                      {formatMontant(p.total)}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={`text-xs ${status.className}`}
+                      >
+                        {status.label}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center justify-center gap-1">
+                        <PropositionPrintButton proposition={p} />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onEdit(p)}
+                          disabled={isAcceptee}
+                          title="Modifier"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => onDelete(p.id)}
+                          disabled={isAcceptee}
+                          title="Supprimer"
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-10 text-gray-500">
+                  Aucune proposition trouvée
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Vue cartes (mobile) */}
+      <div className="md:hidden space-y-3">
+        {propositions.length > 0 ? (
+          propositions.map((p) => {
+            const status = statusConfig[p.status];
+            const isAcceptee = p.status === "acceptee";
+
+            return (
+              <div key={p.id} className="rounded-lg border bg-white p-3 space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-semibold text-sm truncate">{p.numero}</div>
+                    <div className="text-sm text-gray-600 truncate">{p.client?.nom ?? "-"}</div>
+                  </div>
+                  <Badge variant="outline" className={`shrink-0 text-xs ${status.className}`}>
+                    {status.label}
+                  </Badge>
+                </div>
+
+                <div className="text-xs text-gray-500">Émise : {formatDate(p.date)}</div>
+
+                <div className="flex items-end justify-between gap-2 pt-1 border-t border-gray-100">
+                  <div className="text-xs text-gray-500 leading-tight">
+                    <div>Impôts : {formatMontant(p.total_impots)}</div>
+                    <div>Honoraires : {formatMontant(p.total_honoraires)}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[11px] text-gray-400">Total</div>
+                    <div className="font-semibold text-sm">{formatMontant(p.total)}</div>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end gap-1 pt-1 border-t border-gray-100">
+                  <PropositionPrintButton proposition={p} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onEdit(p)}
+                    disabled={isAcceptee}
+                    title="Modifier"
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onDelete(p.id)}
+                    disabled={isAcceptee}
+                    title="Supprimer"
+                    className="text-red-500 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="rounded-lg border bg-white text-center py-10 text-gray-500">
+            Aucune proposition trouvée
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
