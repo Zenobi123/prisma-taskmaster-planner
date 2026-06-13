@@ -33,6 +33,10 @@ export const LISTE_IMPOTS: PrestationDef[] = [
   { designation: 'Contribution au Crédit Foncier (CCF)', montant: 0 },
   { designation: 'Centimes Additionnels Communaux (CAC)', montant: 0 },
   { designation: 'Redevance Audiovisuelle (RAV)', montant: 0 },
+  // ACF / ATTIM sont classés en impôts (et non en honoraires) — alignement
+  // sur le module devis de référence ; visibles dans les deux modules.
+  { designation: 'Obtention ACF (Attestation de Conformité Fiscale)', montant: 2_100 },
+  { designation: 'Obtention ATTIM (Attestation Immatriculation)', montant: 2_100 },
   { designation: 'Inscription au Centre de Gestion Agréé', montant: 75_000 },
   { designation: 'Cotisation Annuelle au CGA', montant: 50_000 },
 ];
@@ -41,8 +45,6 @@ export const LISTE_IMPOTS: PrestationDef[] = [
 export const HONORAIRES_COMMUNS: PrestationDef[] = [
   { designation: 'Déclaration Annuelle des Revenus des Particuliers (DARP)', montant: 5_000 },
   { designation: 'Déclaration des Bénéficiaires Effectifs (DBEF)', montant: 5_000 },
-  { designation: 'Obtention ACF (Attestation de Conformité Fiscale)', montant: 2_100 },
-  { designation: 'Obtention ATTIM (Attestation Immatriculation)', montant: 2_100 },
   { designation: 'Conseil fiscal', montant: 25_000 },
   { designation: "Création d'entreprise", montant: 75_000 },
   { designation: 'Modification statutaire', montant: 50_000 },
@@ -81,8 +83,8 @@ export const HONORAIRES_PAR_REGIME: Record<RegimeFiscalSpec, PrestationDef[]> = 
 export const PRESTATIONS_COMMUNES: Array<PrestationDef & { type: PrestationType }> = [
   { designation: 'Déclaration Annuelle des Revenus des Particuliers (DARP)', montant: 5_000, type: 'Honoraire' },
   { designation: 'Déclaration des Bénéficiaires Effectifs (DBEF)', montant: 5_000, type: 'Honoraire' },
-  { designation: 'Obtention ACF (Attestation de Conformité Fiscale)', montant: 2_100, type: 'Honoraire' },
-  { designation: 'Obtention ATTIM (Attestation Immatriculation)', montant: 2_100, type: 'Honoraire' },
+  { designation: 'Obtention ACF (Attestation de Conformité Fiscale)', montant: 2_100, type: 'Impôt' },
+  { designation: 'Obtention ATTIM (Attestation Immatriculation)', montant: 2_100, type: 'Impôt' },
 ];
 
 export const PRESTATIONS_REGIME: Record<RegimeFiscalSpec, Array<PrestationDef & { type: PrestationType }>> = {
@@ -212,6 +214,10 @@ export const QUICK_IMPOT_BUTTONS: QuickImpotButton[] = [
     () => true, 'Inscription au Centre de Gestion Agréé', () => 75_000),
   quickImpotButton('cga_cotisation', '+ Cotisation CGA', 'bg-sky-100 text-sky-800 hover:bg-sky-200',
     () => true, 'Cotisation Annuelle au CGA', () => 50_000),
+  quickImpotButton('acf', '+ ACF', 'bg-purple-100 text-purple-800 hover:bg-purple-200',
+    () => true, 'Obtention ACF (Attestation de Conformité Fiscale)', () => 2_100),
+  quickImpotButton('attim', '+ ATTIM', 'bg-purple-100 text-purple-800 hover:bg-purple-200',
+    () => true, 'Obtention ATTIM (Attestation Immatriculation)', () => 2_100),
 ];
 
 // === Génération dynamique des boutons rapides « Impôts du client & CGA » ===
