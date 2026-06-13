@@ -246,7 +246,7 @@ const Courrier: React.FC = () => {
                         <Textarea
                           value={customMessage}
                           onChange={e => setCustomMessage(e.target.value)}
-                          placeholder="Ajoutez un message personnalisé qui sera inclus dans le courrier..."
+                          placeholder="Ajoutez un message personnalisé qui sera inclus dans le courrier…"
                           rows={2}
                           className="border-gray-300 focus:border-[#84A98C] focus:ring-[#84A98C] text-xs"
                         />

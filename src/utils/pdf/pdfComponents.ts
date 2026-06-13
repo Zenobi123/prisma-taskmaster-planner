@@ -27,8 +27,8 @@ export const addCompanyLogo = (doc: jsPDF) => {
   doc.setTextColor(...PDF_THEME.textSecondary);
   doc.text('Gestion comptable et fiscale', 15, 25);
   doc.text('Yaoundé, Cameroun', 15, 30);
-  doc.text('Tel: +237 123 456 789', 15, 35);
-  doc.text('Email: contact@prismagestion.com', 15, 40);
+  doc.text('Tél. : +237 123 456 789', 15, 35);
+  doc.text('E-mail : contact@prismagestion.com', 15, 40);
 };
 
 // Add the invoice info box on the right side
@@ -85,9 +85,9 @@ export const addClientSection = (doc: jsPDF, client: Client) => {
 
   if ('contact' in client && client.contact) {
     let contactInfo = '';
-    if (client.contact.telephone) contactInfo += `Tél: ${client.contact.telephone}`;
+    if (client.contact.telephone) contactInfo += `Tél. : ${client.contact.telephone}`;
     if (client.contact.telephone && client.contact.email) contactInfo += ' | ';
-    if (client.contact.email) contactInfo += `Email: ${client.contact.email}`;
+    if (client.contact.email) contactInfo += `E-mail : ${client.contact.email}`;
     doc.text(contactInfo, 120, 74);
   }
 };

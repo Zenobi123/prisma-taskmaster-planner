@@ -42,7 +42,7 @@ export class DocumentService implements DocumentHeaderFooterService {
     this.doc.setFontSize(8);
     this.doc.setFont("helvetica", "normal");
     this.doc.text("123 Avenue des Finances, Douala, Cameroun", pageWidth / 2, 22, { align: 'center' });
-    this.doc.text("Tel: +237 123 456 789 | Email: contact@example.com", pageWidth / 2, 26, { align: 'center' });
+    this.doc.text("Tél. : +237 123 456 789 | E-mail : contact@example.com", pageWidth / 2, 26, { align: 'center' });
     
     // Draw a line separator
     this.doc.setLineWidth(0.5);

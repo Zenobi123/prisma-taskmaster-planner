@@ -44,7 +44,7 @@ export function CollaborateurSearch({
         <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-500" />
         <Input
           type="text"
-          placeholder="Rechercher un collaborateur..."
+          placeholder="Rechercher un collaborateur…"
           className="pl-10"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}

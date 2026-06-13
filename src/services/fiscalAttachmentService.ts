@@ -88,7 +88,7 @@ export const deleteFiscalAttachment = async (filePath: string): Promise<boolean>
       .remove([filePath]);
 
     if (error) {
-      toast.error(`Erreur lors de la suppression: ${error.message}`);
+      toast.error(`Erreur lors de la suppression : ${error.message}`);
       return false;
     }
 

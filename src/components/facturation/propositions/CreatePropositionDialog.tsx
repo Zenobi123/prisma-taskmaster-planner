@@ -371,7 +371,7 @@ const CreatePropositionDialog = ({
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              placeholder="Notes ou remarques..."
+              placeholder="Notes ou remarques…"
               rows={3}
             />
           </div>
