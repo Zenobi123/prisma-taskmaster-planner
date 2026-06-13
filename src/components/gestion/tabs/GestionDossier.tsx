@@ -339,7 +339,7 @@ export function GestionDossier({ selectedClient }: GestionDossierProps) {
           <TabsContent value="interactions" className="mt-4 space-y-4">
             <div className="flex gap-2">
               <Textarea
-                placeholder="Nouvelle interaction..."
+                placeholder="Nouvelle interaction…"
                 className="min-h-[80px]"
                 value={newInteractionDesc}
                 onChange={(e) => setNewInteractionDesc(e.target.value)}

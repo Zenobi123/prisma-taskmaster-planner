@@ -137,7 +137,7 @@ const PaiementTableRow = ({ paiement, onDelete, onViewReceipt }: PaiementTableRo
               disabled={isDeleting}
               className="bg-red-500 hover:bg-red-600"
             >
-              {isDeleting ? "Suppression..." : "Supprimer"}
+              {isDeleting ? "Suppression…" : "Supprimer"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

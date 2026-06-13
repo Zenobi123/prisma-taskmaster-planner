@@ -30,8 +30,8 @@ export const generateReceiptPDF = (paiement, download: boolean = false) => {
   // Ajouter un titre
   docService.addTitle(`Reçu de paiement ${reference}`);
   
-  // Ajouter une sous-titre avec la date
-  docService.addSubtitle(`Date: ${paiement.date}`);
+  // Ajouter un sous-titre avec la date
+  docService.addSubtitle(`Date : ${paiement.date}`);
   
   // Ajouter la section de détails du paiement
   addReceiptPaymentDetails(doc, paiement);

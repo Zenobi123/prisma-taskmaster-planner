@@ -62,7 +62,7 @@ const MissionCard = ({ mission }: MissionCardProps) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error) => {
-      toast.error("Erreur lors de la mise à jour du statut: " + error.message);
+      toast.error("Erreur lors de la mise à jour du statut : " + error.message);
     },
   });
 
@@ -74,7 +74,7 @@ const MissionCard = ({ mission }: MissionCardProps) => {
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
     onError: (error) => {
-      toast.error("Erreur lors de la suppression: " + error.message);
+      toast.error("Erreur lors de la suppression : " + error.message);
     },
   });
 

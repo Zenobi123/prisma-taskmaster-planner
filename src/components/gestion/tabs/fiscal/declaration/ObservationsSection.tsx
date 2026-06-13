@@ -23,7 +23,7 @@ export const ObservationsSection: React.FC<ObservationsSectionProps> = ({
         id={`${keyName}-observations`}
         value={observations || ""}
         onChange={onObservationsChange}
-        placeholder="Ajoutez des observations concernant cette obligation..."
+        placeholder="Ajoutez des observations concernant cette obligation…"
         className="h-20"
       />
     </div>
