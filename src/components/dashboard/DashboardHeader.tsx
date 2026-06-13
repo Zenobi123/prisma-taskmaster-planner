@@ -16,7 +16,7 @@ const DashboardHeader = ({ lastRefresh, onRefresh }: DashboardHeaderProps) => {
 
   return (
     <header className="bg-white border-b border-neutral-200 px-4 py-3 sm:px-6 md:px-8 sm:py-4 md:py-6">
-      <div className="flex items-center justify-between ml-10 md:ml-0">
+      <div className="flex items-center justify-between">
         <div className="min-w-0">
           <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-neutral-800 truncate">
             Tableau de bord

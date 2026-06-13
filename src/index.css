@@ -20,6 +20,18 @@
     @apply bg-neutral-100 text-neutral-900 font-['Inter'];
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* Réserve l'espace bas pour la barre de navigation mobile fixe (MobileBottomNav).
+     La classe n'est ajoutée que sur mobile ; on neutralise au cas où sur desktop. */
+  body.has-bottom-nav {
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+
+  @media (min-width: 768px) {
+    body.has-bottom-nav {
+      padding-bottom: 0;
+    }
+  }
   
   /* Amélioration accessibilité (focus visible) */
   *:focus-visible {

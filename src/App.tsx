@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAutoUpdate } from "./hooks/useAutoUpdate";
 import { ExerciceProvider } from "@/contexts/ExerciceContext";
 import { DocumentPreviewProvider } from "@/components/printable/DocumentPreviewProvider";
+import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { useState, useEffect, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
@@ -143,6 +144,7 @@ const App = () => {
                   <Route path="*" element={<PrivateRoute session={session}><NotFound /></PrivateRoute>} />
                 </Routes>
               </Suspense>
+              {session && <MobileBottomNav />}
             </BrowserRouter>
             </DocumentPreviewProvider>
           </ExerciceProvider>

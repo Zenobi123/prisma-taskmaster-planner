@@ -29,12 +29,12 @@ const Parametres = () => {
   }
 
   return (
-    <div className="flex h-screen">
+    <div className="flex md:h-screen">
       <Sidebar />
-      <div className="flex-1 min-w-0 overflow-y-auto">
+      <div className="flex-1 min-w-0 md:overflow-y-auto">
         <PageLayout>
           <div className="max-w-5xl mx-auto px-4 sm:px-6">
-            <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6 ml-10 md:ml-0">Paramètres</h1>
+            <h1 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Paramètres</h1>
 
             <Tabs defaultValue="profile" className="w-full">
               <div className="overflow-x-auto">
