@@ -279,7 +279,7 @@ const CreateFactureForm = ({ open, onOpenChange, onFactureCreated, clients = [] 
         <Label htmlFor="notes">Notes</Label>
         <Textarea
           {...register('notes')}
-          placeholder="Notes additionnelles..."
+          placeholder="Notes additionnelles…"
           rows={3}
         />
       </div>

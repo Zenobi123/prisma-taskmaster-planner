@@ -9,7 +9,7 @@ interface SearchInputProps {
 export const SearchInput = ({ value, onChange }: SearchInputProps) => {
   return (
     <Input
-      placeholder="Rechercher un rapport..."
+      placeholder="Rechercher un rapport…"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className="w-full"

@@ -28,7 +28,7 @@ const MissionFilters = ({
         <Label htmlFor="search">Rechercher</Label>
         <Input
           id="search"
-          placeholder="Rechercher par titre, client ou collaborateur..."
+          placeholder="Rechercher par titre, client ou collaborateur…"
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
         />

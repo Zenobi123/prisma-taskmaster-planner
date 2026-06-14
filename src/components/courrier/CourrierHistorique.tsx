@@ -87,7 +87,7 @@ const CourrierHistorique = () => {
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" />
           <Input
-            placeholder="Rechercher..."
+            placeholder="Rechercher…"
             value={search}
             onChange={e => setSearch(e.target.value)}
             className="pl-8 text-xs h-8"

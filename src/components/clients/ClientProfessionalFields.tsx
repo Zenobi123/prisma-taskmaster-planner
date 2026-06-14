@@ -444,7 +444,7 @@ export function ClientProfessionalFields({
             name="secteuractivite"
             value={secteuractivite}
             onChange={(e) => onChange("secteuractivite", e.target.value)}
-            placeholder="Ex: commerce, service, industrie..."
+            placeholder="Ex: commerce, service, industrie…"
             required
           />
         </div>

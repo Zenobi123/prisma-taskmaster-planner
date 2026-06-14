@@ -20,7 +20,7 @@ const ClientsListHeader = ({ searchTerm, setSearchTerm, isMobile }: ClientsListH
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
         <Input
           type="search"
-          placeholder="Rechercher un client..."
+          placeholder="Rechercher un client…"
           className="pl-8 w-full sm:w-64"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}

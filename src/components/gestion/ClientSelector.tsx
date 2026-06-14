@@ -22,7 +22,7 @@ export function ClientSelector({ clients, selectedClientId, onClientSelect }: Cl
       <h2 className="text-lg font-semibold mb-4 text-[#1A1F2C]">Sélectionner un client</h2>
       <Select value={selectedClientId || ""} onValueChange={onClientSelect}>
         <SelectTrigger className="w-full md:w-[400px] bg-white border-[#A8C1AE] focus:border-[#84A98C] focus:ring-[#84A98C]/20">
-          <SelectValue placeholder="Choisir un client à gérer..." />
+          <SelectValue placeholder="Choisir un client à gérer…" />
         </SelectTrigger>
         <SelectContent>
           <SelectGroup>
