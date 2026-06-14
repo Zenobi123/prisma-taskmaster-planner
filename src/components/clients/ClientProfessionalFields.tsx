@@ -433,7 +433,7 @@ export function ClientProfessionalFields({
             name="contact_principal"
             value={contact_principal}
             onChange={(e) => onChange("contact_principal", e.target.value)}
-            placeholder="Nom du contact principal"
+            placeholder="Ex: M. OBIANG Nathan"
           />
         </div>
 
